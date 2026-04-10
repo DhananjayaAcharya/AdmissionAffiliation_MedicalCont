@@ -1,0 +1,535 @@
+﻿@model Medical_Affiliation.Models.AffiliationSSViewModel
+@{
+    ViewData["Title"] = "Associated Institutions";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Associated Institutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --ink: #0f1923;
+            --ink-mid: #2e3d4f;
+            --ink-muted: #6b7a8d;
+            --border: #d4dae3;
+            --bg: #f4f6f9;
+            --surface: #ffffff;
+            --accent: #1a4c8b;
+            --accent-lt: #e8edf7;
+            --radius: 10px;
+            --gold: #c9a84c;
+            --shadow: 0 2px 16px rgba(15,25,35,.07);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+            padding: 28px 40px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .page-header .emblem {
+            width: 54px;
+            height: 54px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .page-header .emblem svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--gold);
+        }
+
+        .page-header-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.45rem;
+            color: #ffffff;
+            letter-spacing: .02em;
+        }
+
+        .page-header-text p {
+            font-size: .78rem;
+            color: rgba(255,255,255,.55);
+            margin-top: 3px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .form-wrap {
+            max-width: 1280px;
+            margin: 32px auto;
+            padding: 0 24px 60px;
+        }
+
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .section-header {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            background: #fafbfc;
+        }
+
+        .section-header .icon-wrap {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.02rem;
+            font-weight: 600;
+            letter-spacing: .03em;
+            color: var(--ink);
+            margin: 0;
+        }
+
+        .section-body {
+            padding: 24px;
+        }
+
+        /* Compact Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--ink-mid);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .modern-input,
+        .modern-select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: #fafbfc;
+            transition: all 0.2s;
+        }
+
+        .modern-input:focus,
+        .modern-select:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+        }
+
+        .btn-modern {
+            background: linear-gradient(135deg, #1a4c8b, #1564c0);
+            color: white;
+            border: none;
+            padding: 13px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            transition: all 0.2s;
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(26,76,139,.35);
+        }
+
+        /* Table */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .custom-table th {
+            background: #f8f9fc;
+            color: var(--ink-mid);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.76rem;
+            letter-spacing: 0.05em;
+            padding: 16px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .custom-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .custom-table tr:hover {
+            background: #f8fbff;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            background: #e8edf7;
+            color: var(--accent);
+        }
+        .btnDiv{
+            margin: 1rem;
+            text-align: center;
+        }
+
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 11px 28px;
+            cursor: pointer;
+            letter-spacing: .03em;
+            transition: all .18s;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--ink-muted);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--ink-mid);
+            color: var(--ink);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a4c8b, #1564c0);
+            color: #fff;
+            box-shadow: 0 3px 14px rgba(26,76,139,.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 5px 20px rgba(26,76,139,.4);
+            transform: translateY(-1px);
+        }
+
+        .btngroup{
+            width: 100%;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .form-wrap { padding: 0 16px 40px; }
+            .page-header {
+                padding: 20px 20px 18px;
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-body {
+                padding: 18px;
+            }
+        }
+    </style>
+
+    <link rel="stylesheet" href="~/css/common-form.css" />
+
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="emblem">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+        </div>
+        <div class="page-header-text">
+            <h1>Associated Institutions</h1>
+            <p>Affiliation &amp; Recognition Portal</p>
+        </div>
+    </div>
+
+    <div class="form-wrap">
+
+        <!-- Add New Association -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="icon-wrap" style="background:#e8edf7;">
+                    <i class="bi bi-plus-circle" style="font-size:1.4rem; color:#1a4c8b;"></i>
+                </div>
+                <h2>Add New Association</h2>
+            </div>
+            <div class="section-body">
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label class="form-label">Course Level</label>
+                        <select id="courseLevel" class="modern-select">
+                            <option value="">Select Course Level</option>
+                            <option value="UG">UG</option>
+                            <option value="PG">PG</option>
+                            <option value="SS">SS</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Faculty</label>
+                        <select id="facultySelect" class="modern-select">
+                            <option value="">Select Faculty</option>
+                            @foreach (var f in Model.Faculties.Where(x => x.FacultyCode != "1"))
+                            {
+                                <option value="@f.FacultyCode">@f.FacultyName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Associated College</label>
+                        <select id="collegeSelect" class="modern-select">
+                            <option value="">Select College</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Course</label>
+                        <select id="courseSelect" class="modern-select">
+                            <option value="">Select Course</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Annual Intake</label>
+                        <input type="number" id="annualIntake" class="modern-input" min="1" placeholder="Enter intake" />
+                    </div>
+
+                </div>
+
+                <div class="btnDiv">
+                    <button class="btn-modern" id="addAssociationBtn">
+                        <i class="bi bi-plus-circle me-2"></i>Add Association
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Associations -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="icon-wrap" style="background:#e8edf7;">
+                    <i class="bi bi-list-ul" style="font-size:1.4rem; color:#1a4c8b;"></i>
+                </div>
+                <h2>Existing Associations</h2>
+            </div>
+            <div class="section-body">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Faculty</th>
+                                <th>College</th>
+                                <th>Course</th>
+                                <th class="text-center">Annual Intake</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.AssociatedInstitutions.Any())
+                            {
+                                foreach (var item in Model.AssociatedInstitutions)
+                                {
+                                    <tr>
+                                        <td>@item.AssociatedFacultyName</td>
+                                        <td>@item.AssociatedCollegeName</td>
+                                        <td>@item.CourseName</td>
+                                        <td class="text-center">
+                                            <span class="badge">@item.AnnualIntake</span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        No associated institutions added yet
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="btngroup">
+                <a asp-controller="AffiliationSS" asp-action="CoursesOffered" class="btn btn-ghost me-auto">
+                    ← Previous
+                </a>
+                <a asp-controller="CA_Aff_AcademicMatters" asp-action="AcademicMatters" class="btn btn-primary ms-auto">
+                    Next →
+                </a>
+            </div>
+            
+        </div>
+
+
+    </div>
+
+    @* @section Scripts { *@
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            const facultySelect = document.getElementById('facultySelect');
+            const collegeSelect = document.getElementById('collegeSelect');
+            const courseSelect = document.getElementById('courseSelect');
+            const courseLevel = document.getElementById('courseLevel');
+            const annualIntake = document.getElementById('annualIntake');
+
+            facultySelect.addEventListener('change', () => {
+                const facultyCode = facultySelect.value;
+                collegeSelect.innerHTML = '<option value="">Loading...</option>';
+                courseSelect.innerHTML = '<option value="">Select Course</option>';
+
+                if (!facultyCode) return;
+
+                fetch(`@Url.Action("GetAssociatedColleges", "AffiliationSS")?facultyCode=${encodeURIComponent(facultyCode)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        collegeSelect.innerHTML = '<option value="">Select College</option>';
+                        data.forEach(c => {
+                            collegeSelect.innerHTML += `<option value="${c.collegeCode}">${c.collegeName}</option>`;
+                        });
+                    });
+            });
+
+            // ================================
+            // 🔹 Load Courses (College + Level)
+            // ================================
+            function loadCourses() {
+                const collegeCode = collegeSelect.value;
+                const facultyCode = facultySelect.value;
+                const level = courseLevel.value;
+
+                if (!collegeCode || !facultyCode || !level) return;
+
+                courseSelect.innerHTML = '<option value="">Loading...</option>';
+
+                fetch(`@Url.Action("GetCoursesByCollege", "AffiliationSS")?collegeCode=${encodeURIComponent(collegeCode)}&facultyCode=${encodeURIComponent(facultyCode)}&courseLevel=${encodeURIComponent(level)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        courseSelect.innerHTML = '<option value="">Select Course</option>';
+
+                        if (data.length === 0) {
+                            courseSelect.innerHTML = '<option value="">No courses found</option>';
+                            return;
+                        }
+
+                        data.forEach(c => {
+                            courseSelect.innerHTML += `<option value="${c.courseCode}">${c.courseName}</option>`;
+                        });
+                    })
+                    .catch(() => {
+                        courseSelect.innerHTML = '<option value="">Failed to load</option>';
+                    });
+            }
+
+            collegeSelect.addEventListener('change', loadCourses);
+            courseLevel.addEventListener('change', loadCourses);
+
+            document.getElementById('addAssociationBtn').addEventListener('click', () => {
+                const payload = {
+                    courseLevel: courseLevel.value,
+                    associatedFacultyCode: facultySelect.value,
+                    associatedCollegeCode: collegeSelect.value,
+                    courseCode: courseSelect.value,
+                    annualIntake: parseInt(annualIntake.value) || 0
+                };
+
+                if (!payload.courseLevel || !payload.associatedFacultyCode || !payload.associatedCollegeCode ||
+                    !payload.courseCode || payload.annualIntake <= 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Incomplete',
+                        text: 'Please fill all required fields.'
+                    });
+                    return;
+                }
+
+                fetch('@Url.Action("AddAssociatedInstitution", "AffiliationSS")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(r => {
+                    if (!r.ok) throw new Error("Failed to save");
+                    return r.json();
+                })
+                .then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Association added successfully!',
+                        timer: 1800,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to add association'
+                    });
+                });
+            });
+        </script>
+    @* } *@
+
+</body>
+</html>

@@ -1,0 +1,351 @@
+﻿@model Ayurveda_FacultyIntakeViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Course Intake Details";
+    var courseLevels = ViewBag.CourseLevels as List<string> ?? new List<string>();
+    var repositoryRows = ViewBag.RepositoryRows as List<UgandPgrepository> ?? new List<UgandPgrepository>();
+    var freshIncreaseOptions = ViewBag.FreshIncreaseOptions as string[] ?? new[] { "Fresh", "Increase" };
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 2;
+    var isSidebarVisible = !string.IsNullOrEmpty(facultyCode);
+}
+<style>
+    /* ===================== MAIN CONTENT ===================== */
+    .main-content {
+        margin-left: 24rem;
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        min-height: 100vh;
+    }
+    @@media (max-width: 1024px) { .main-content { margin-left: 10rem; } }
+    @@media (max-width: 768px)  { .main-content { margin-left: 0; padding: 1.2rem; border-radius: 0; } }
+
+    /* ===================== PROGRESS BAR – ALL 6 STEPS IN 2 LINES ===================== */
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ffffff;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .progressbar-pipeline {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 0.9rem;
+        padding: 0.5rem 0;
+        margin: 0;
+        list-style: none;
+        line-height: 1.3;
+    }
+    .progress-step-btn {
+        background: transparent;
+        border: none;
+        padding: 0.4rem 0.6rem;
+        font-weight: 600;
+        font-size: 0.70rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #6b7280;
+        text-align: center;
+        flex: 1 1 135px;
+        max-width: 185px;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.25s ease;
+        white-space: normal;
+        position: relative;
+    }
+    .progress-step-btn:hover { background: #f0f9ff; color: #0c4a6e; }
+    .progress-step-btn::after {
+        content: '';
+        position: absolute;
+        bottom: 6px;
+        left: 50%;
+        width: 0;
+        height: 2.5px;
+        background: #3b82f6;
+        border-radius: 2px;
+        transition: width 0.3s ease;
+        transform: translateX(-50%);
+    }
+    .progress-step-btn:hover::after { width: 70%; }
+    .progress-step-btn.active   { color: #1d4ed8; font-weight: 700; background: #eff6ff; }
+    .progress-step-btn.active::after   { width: 85%; background: #3b82f6; }
+    .progress-step-btn.completed { color: #166534; font-weight: 700; }
+    .progress-step-btn.completed::after { width: 85%; background: #22c55e; }
+
+    /* ===================== FORM & TABLE ===================== */
+    .card { padding: 1.6rem !important; border-radius: 12px; border: 1px solid #e0e0e0; }
+    .form-label { font-size: 0.89rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .form-control, .form-select { font-size: 0.88rem; padding: 0.52rem 0.8rem; }
+    h2, h5 { margin-bottom: 1rem; }
+    .btn { font-size: 0.9rem; padding: 0.55rem 1.2rem; }
+    .table { background: #fff; }
+    .table thead th { background: #3b82f6; color: white; }
+    .mb-3 { margin-bottom: 1rem !important; }
+</style>
+
+@if (isSidebarVisible)
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<!-- MAIN CONTENT + PROGRESS BAR (NO OVERLAP) -->
+<div class="main-content">
+    <!-- Sticky Progress Bar -->
+    <div class="status-bar-container">
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                @using System.Text.RegularExpressions
+                @{
+                    var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+                    var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+
+                    var stepUrls = new[] {
+                        Url.Action("Unani_BasicDetails", "Aff_Unani"),
+                        Url.Action("Unani_UGPG", "Aff_Unani"),
+                        Url.Action("Unani_YearwiseMaterials", "Aff_Unani"),
+                        Url.Action("ManageDesignationIntake", "Aff_Unani"),
+                        Url.Action("Unani_FacultyDetails", "Aff_Unani"),
+                        Url.Action("UnaniExamResults", "Aff_Unani")
+                    };
+
+                    var stepTitles = new[] {
+                        "Institute Basic Details",
+                        "Course Details",
+                        "Hospital Details",
+                        "Required Faculty Details",
+                        "Add College Faculty details",
+                        "Academic Performance"
+                    };
+                }
+                <span class="fw-bold text-primary" style="font-size:1.12rem;">@collegeName</span>
+            </div>
+
+            <ul class="progressbar-pipeline" role="progressbar">
+                @for (int i = 0; i < stepTitles.Length; i++)
+                {
+                    var isActive = (currentStep == i + 1);
+                    var isCompleted = (currentStep > i + 1);
+                    <li>
+                        <form method="get" action="@stepUrls[i]" style="display:inline;">
+                            <button type="submit"
+                                    class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))">
+                                @(i + 1). @stepTitles[i]
+                            </button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="container-fluid mt-4 pb-5">
+        <h2 class="mb-4 text-center text-primary fw-bold">UG/PG Intake Details</h2>
+
+        <div class="row g-4">
+            <!-- Left: Form -->
+            <div class="col-lg-5">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger mb-3">@TempData["ErrorMessage"]</div>
+                        }
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success mb-3">@TempData["SuccessMessage"]</div>
+                        }
+
+                        <form asp-action="Unani_UGPG" method="post" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+
+                            <h5 class="text-primary mb-4">Add New Intake</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label">Course Level</label>
+                                <select id="CourseLevel" name="CourseLevel" class="form-select" asp-for="CourseLevel">
+                                    <option value="">Select...</option>
+                                    @foreach (var lvl in courseLevels)
+                                    {
+                                        <option value="@lvl" @@(Model.CourseLevel == lvl ? "selected" : "")>@lvl</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Course</label>
+                                <select asp-for="CourseCode" class="form-select" id="CourseDropdown">
+                                    <option value="">Select Level First...</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Fresh/Increase</label>
+                                <select asp-for="FreshOrIncrease" class="form-select" id="FreshOrIncrease">
+                                    <option value="">Select...</option>
+                                    @foreach (var opt in freshIncreaseOptions)
+                                    {
+                                        <option value="@opt" @@(Model.FreshOrIncrease == opt ? "selected" : "")>@opt</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Intake Details</label>
+                                <input asp-for="IntakeDetails" class="form-control" placeholder="e.g. 100 seats" />
+                            </div>
+
+                            <h6 class="mt-4 mb-3 text-secondary">Document Uploads</h6>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label small">GOK Document</label>
+                                    <input type="file" asp-for="GOKUploadFile" class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small">RGUHS Notification</label>
+                                    <input type="file" asp-for="RGUHSNotificationFile" class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small">NCISM Document</label>
+                                    <input type="file" asp-for="NciscUploadFile" class="form-control form-control-sm" />
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 mt-4">Save Intake</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Table -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="text-primary mb-3">Recent Intake Records</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Intake</th>
+                                        <th>Type</th>
+                                        <th>Course</th>
+                                        <th>RGUHS</th>
+                                        <th>NCISM</th>
+                                        <th>GOK</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var row in repositoryRows)
+                                    {
+                                        <tr>
+                                            <td>@row.IntakeDetails</td>
+                                            <td>@row.FreshOrIncrease</td>
+                                            <td>@row.CourseName</td>
+                                            <td>
+                                                @if (row.Rguhsnotification != null)
+                                                {
+                                                    <a asp-action="DownloadDoc" asp-route-id="@row.Id" asp-route-type="RGUHS"
+                                                       class="btn btn-sm btn-outline-primary">View</a>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (row.Ncisc != null)
+                                                {
+                                                    <a asp-action="DownloadDoc" asp-route-id="@row.Id" asp-route-type="Ncisc"
+                                                       class="btn btn-sm btn-outline-primary">View</a>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (row.Gok != null)
+                                                {
+                                                    <a asp-action="DownloadDoc" asp-route-id="@row.Id" asp-route-type="GOK"
+                                                       class="btn btn-sm btn-outline-primary">View</a>
+                                                }
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-danger delete-row" data-id="@row.Id">
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-controller="Aff_Unani" asp-action="Unani_BasicDetails" class="btn btn-outline-secondary">
+                Previous
+            </a>
+            <a asp-controller="Aff_Unani" asp-action="Unani_YearwiseMaterials" class="btn btn-outline-primary">
+                Proceed to Next
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#CourseLevel').change(function () {
+                var level = $(this).val();
+                var $dropdown = $('#CourseDropdown');
+                $dropdown.empty().append('<option value="">Loading...</option>');
+                if (level) {
+                    $.get('@Url.Action("GetCoursesByLevel")', { level: level }, function (res) {
+                        $dropdown.empty().append('<option value="">Select Course...</option>');
+                        if (res.success) {
+                            $.each(res.data, function (i, c) {
+                                $dropdown.append(`<option value="${c.courseCode}">${c.courseName}</option>`);
+                            });
+                        }
+                    });
+                } else {
+                    $dropdown.empty().append('<option value="">Select Level First...</option>');
+                }
+            });
+
+            $('#CourseDropdown').change(function () {
+                var courseName = $(this).find('option:selected').text();
+                if (courseName && courseName !== "Select Course...") {
+                    $.get('@Url.Action("IsCourseFresh")', { courseName: courseName }, function (res) {
+                        $('#FreshOrIncrease').val(res.exists ? 'Increase' : 'Fresh');
+                    });
+                }
+            });
+
+            $(document).on('click', '.delete-row', function () {
+                if (!confirm("Delete this intake record?")) return;
+                var id = $(this).data('id');
+                var $row = $(this).closest('tr');
+                $.post('@Url.Action("DeleteFacultyIntake")', {
+                    id: id,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                }, function (res) {
+                    if (res.success) $row.fadeOut(300, () => $row.remove());
+                    else alert(res.message || "Delete failed");
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,191 @@
+﻿@model UpdateDistrictsAndTaluksForCollegesViewModel
+
+<!-- Glass Morphism & UI Enhancements added here -->
+<style>
+    body {
+        /* background: linear-gradient(135deg, #b2fefa 0%, #0ed2f7 100%); */
+        color: #fff;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .glass-container {
+        background: rgba(255,255,255,0.15);
+        border-radius: 24px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(255,255,255,0.28);
+        padding: 1.5rem 2.2rem 2.5rem;
+        /* margin-top: 4vh; */
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        transition: box-shadow 0.25s;
+    }
+    .glass-container:hover {
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+    }
+    .form-label {
+        font-weight: 500;
+        /* color: #036582; */
+    }
+    .form-select,
+    .form-control {
+        /* background: rgba(255, 255, 255, 0.6)!important; */
+        border: 1.5px solid #e0e5ec;
+        box-shadow: none;
+        transition: border-color 0.18s;
+    }
+
+        .choices{
+            color:#000;
+        }
+    .form-select:focus,
+    .form-control:focus {
+        border-color: #3ec6e0;
+        box-shadow: 0 0 0 1.5px #3ec6e067;
+        background: rgba(255,255,255,0.7);
+    }
+    .selectpicker {
+        background: rgba(255,255,255,0.6)!important;
+    }
+    .btn-primary {
+        background: linear-gradient(90deg, #08d9d6, #7ed6df);
+        border: none;
+        font-weight: 600;
+        letter-spacing: .5px;
+        box-shadow: 0 2px 6px rgba(8, 217, 214, .12);
+        transition: background 0.18s, box-shadow 0.25s;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #08d9d6 70%, #3ec6e0 100%);
+        box-shadow: 0 4px 16px rgba(8, 217, 214, .18);
+    }
+    /* Subtle drop shadow for floating inputs */
+    .form-control, .form-select, .bootstrap-select > .dropdown-toggle {
+        box-shadow: 0 1px 5px rgba(30, 30, 30, 0.04);
+    }
+    /* Spacing for better readability */
+    .mb-2, .mb-3 {
+        margin-bottom:1.4rem!important;
+    }
+    /* Responsive tweaks */
+    @@media (max-width: 600px) {
+        .glass-container {
+            padding: 1.2rem .7rem;
+        }
+    }
+</style>
+
+<div class="glass-container">
+
+    <form asp-action="UpdateDistrictsAndTaluksForColleges" method="post">
+        <div>
+            <a style="text-decoration: none" href="@Url.Action("SODashboard", "SectionOfficer")">Back To Dashboard</a>
+        </div>
+        <div class="text-center">
+
+            <h3 class="p-3">Update Districts and Taluks for Colleges</h3>
+        </div>
+        <!-- District -->
+        <div class="mb-3">
+            <label class="form-label">District</label>
+            <select id="districtSelect" asp-for="SelectedDistrict" class="form-select">
+                <option value="">-- Select District --</option>
+                @foreach (var d in Model.DistrictMasters)
+                {
+                    <option value="@d.DistrictId">@d.DistrictName</option>
+                }
+            </select>
+        </div>
+
+        <!-- Taluk -->
+        <div class="mb-3">
+            <label class="form-label">Taluk</label>
+            <select id="talukSelect" asp-for="SelectedTaluk" class="form-select">
+                <option value="">-- Select Taluk --</option>
+            </select>
+        </div>
+
+        <!-- Faculty -->
+        <div class="mb-3">
+            <label class="form-label">Faculty</label>
+            <select id="facultySelect" asp-for="SelectedFaculty" class="form-select">
+                <option value="">-- Select Faculty --</option>
+                @foreach (var f in Model.Faculties)
+                {
+                    <option value="@f.FacultyId">@f.FacultyName</option>
+                }
+            </select>
+        </div>
+
+        <!-- Search box -->
+        @* <div class="mb-2 hidden">
+            <input type="text" id="collegeSearch" class="form-control hidden" placeholder="Search colleges...">
+        </div> *@
+
+        <!-- College Multi-Select -->
+        <div class="mb-3">
+            <label class="form-label">Colleges</label>
+            <select id="collegeSelect" asp-for="SelectedCollegeIds" asp-items="Model.affiliationCollegeMasters" multiple></select>
+            </select>
+
+        </div>
+        <div class="text-center">
+
+            <button type="submit" class="btn btn-primary">Save Bulk Update</button>
+        </div>
+
+    </form>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+</script>
+<script>
+    const collegeSelect = document.getElementById('collegeSelect');
+    const collegePicker = new Choices(collegeSelect, {
+        removeItemButton: true,
+        searchEnabled: true,
+        placeholderValue: "Select colleges",
+        searchPlaceholderValue: "Search..."
+    });
+    $("#districtSelect").on("change", function () {
+        var districtId = $(this).val();
+
+        $("#talukSelect").empty().append('<option value="">-- Select Taluk --</option>');
+
+        $.getJSON('@Url.Action("GetTaluksByDistrict", "SectionOfficer")?districtId=' + districtId, function (taluks) {
+            $.each(taluks, function (i, t) {
+                $("#talukSelect").append('<option value="' + t.talukId + '">' + t.talukName + '</option>');
+            });
+        });
+    });
+
+    $("#facultySelect").on("change", function () {
+        var facultyId = $(this).val();
+
+        collegePicker.clearStore();
+
+        $.getJSON('@Url.Action("GetCollegesByFaculty", "SectionOfficer")?facultyId=' + facultyId, function (colleges) {
+            const newChoices = colleges.map(c => ({
+                value: c.value,
+                label: c.text
+            }));
+
+            collegePicker.setChoices(newChoices, 'value', 'label', false);
+        });
+    });
+
+    // Live search filter
+    $("#collegeSearch").on("keyup", function () {
+        var searchValue = $(this).val().toLowerCase();
+        $("#collegeSelect option").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+        });
+    });
+</script>

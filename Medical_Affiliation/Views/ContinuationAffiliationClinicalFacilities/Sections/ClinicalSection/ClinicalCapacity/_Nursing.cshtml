@@ -1,0 +1,94 @@
+﻿@model ClinicalCapacityViewModel
+
+<div class="form-section">
+    <div class="section-title">Capacity & Statistics</div>
+
+    <form id="capacityForm" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Form.HospitalDetailsId" />
+        <input type="hidden" asp-for="Form.CollegeCode" />
+        <input type="hidden" asp-for="Form.FacultyCode" />
+        <input type="hidden" asp-for="Form.AffiliationTypeId" />
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="required">Total Beds</label>
+                <input asp-for="Form.TotalBeds" class="form-control" placeholder="Enter Total Number of Beds" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="required">OPD / Day</label>
+                <input asp-for="Form.OpdperDay" class="form-control" placeholder="Enter OPD/Day" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="required">IPD Occupancy (%)</label>
+                <input asp-for="Form.IpdbedOccupancyPercent" class="form-control" placeholder="Enter IPD Bed Occupancy %" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="required">Annual OPD (Prev. Year)</label>
+                <input asp-for="Form.AnnualOpdprevYear" class="form-control" placeholder="Enter Annual OPD of Previous Year" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="required">Annual IPD (Prev. Year)</label>
+                <input asp-for="Form.AnnualIpdprevYear" class="form-control" placeholder="Enter Annual IPD of Previous Year" />
+            </div>
+
+            <div class="col-md-5">
+                <label class="required">Distance from College (KM)</label>
+                <input asp-for="Form.DistanceBetweenCollegeAndHospitalKm" class="form-control" placeholder="Enter Distance" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="required">Owner is Member of Trust</label>
+                <select asp-for="Form.IsOwnerAmemberOfTrust" class="form-select">
+                    <option value="">Select</option>
+                    @foreach (var i in Model.IsOwnerAmemberOfTrustOptions)
+                    {
+                        <option value="@i.Value">@i.Text</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="button" id="saveCapacityBtn" class="btn btn-primary">Save Section</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById("saveCapacityBtn").addEventListener("click", function () {
+        const form = document.getElementById("capacityForm");
+        const formData = new FormData(form);
+
+        fetch('@Url.Action("SaveClinicalCapacity")', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            }
+        })
+        .then(res => {
+            if (!res.ok) throw res;
+            return res.json();
+        })
+        .then(data => {
+            Swal.fire("Success", data.message, "success");
+        })
+        .catch(async err => {
+            if (err.json) {
+                const errData = await err.json();
+                let errors = [];
+                errData.errors.forEach(e => {
+                    errors.push(...e.messages); // <-- flatten the messages
+                })
+                Swal.fire("Validation Errors", errors.join("<br>"), "error");
+            } else {
+                Swal.fire("Error", "Failed to save section.", "error");
+            }
+        });
+    });
+</script>

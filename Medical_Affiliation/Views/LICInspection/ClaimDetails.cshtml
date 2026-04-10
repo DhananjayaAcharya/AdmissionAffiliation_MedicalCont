@@ -1,0 +1,2915 @@
+﻿@model Medical_Affiliation.Controllers.LICInspectionController.LICClaimDetailsViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LIC — Travel Claim</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #0A2342;
+            --navy-mid: #0F3460;
+            --navy-lt: #1A4A7A;
+            --gold: #C9A84C;
+            --gold-lt: #E8C97A;
+            --gold-pale: #FBF3DC;
+            --gold-bd: rgba(201,168,76,.25);
+            --surface: #F4F6FA;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --border-dk: #CBD5E1;
+            --t1: #0F172A;
+            --t2: #475569;
+            --t3: #94A3B8;
+            --green: #059669;
+            --green-bg: #ECFDF5;
+            --green-bd: rgba(5,150,105,.2);
+            --amber: #B45309;
+            --amber-bg: #FFFBEB;
+            --amber-bd: rgba(180,83,9,.15);
+            --blue: #1D4ED8;
+            --blue-bg: #EFF6FF;
+            --blue-bd: rgba(29,78,216,.15);
+            --red: #DC2626;
+            --r-sm: 6px;
+            --r-md: 10px;
+            --r-lg: 14px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+            --shadow: 0 4px 16px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+            --ease: cubic-bezier(.4,0,.2,1);
+            --header-h: 60px;
+            --sidebar-w: 240px;
+        }
+
+        html {
+            font-size: 15px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--t1);
+            min-height: 100vh;
+            display: flex;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════════════ SIDEBAR ══════════════════ */
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: var(--sidebar-w);
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            overflow: hidden;
+        }
+
+            .sidebar::before {
+                content: '';
+                position: absolute;
+                top: -80px;
+                right: -80px;
+                width: 240px;
+                height: 240px;
+                background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+        }
+
+            .sidebar-logo img {
+                width: 38px;
+                height: 38px;
+                border-radius: 8px;
+                object-fit: cover;
+                border: 2px solid rgba(201,168,76,.4);
+            }
+
+        .sidebar-logo-text {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--gold-lt);
+            letter-spacing: .03em;
+            line-height: 1.3;
+        }
+
+        .sidebar-logo-sub {
+            font-size: .65rem;
+            color: rgba(255,255,255,.35);
+            font-weight: 400;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+        }
+
+        .nav-label {
+            font-size: .63rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.25);
+            padding: 10px 10px 6px;
+            margin-top: 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.6);
+            text-decoration: none;
+            font-size: .85rem;
+            font-weight: 500;
+            transition: all .18s var(--ease);
+            position: relative;
+        }
+
+            .nav-link:hover {
+                background: rgba(255,255,255,.06);
+                color: rgba(255,255,255,.9);
+            }
+
+            .nav-link.active {
+                background: rgba(201,168,76,.15);
+                color: var(--gold-lt);
+            }
+
+                .nav-link.active::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 6px;
+                    bottom: 6px;
+                    width: 3px;
+                    background: var(--gold);
+                    border-radius: 0 3px 3px 0;
+                }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            opacity: .7;
+        }
+
+        .nav-link.active .nav-icon,
+        .nav-link:hover .nav-icon {
+            opacity: 1;
+        }
+
+        .sidebar-footer {
+            padding: 12px 10px 16px;
+            border-top: 1px solid rgba(255,255,255,.07);
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--navy-lt) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: .8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.85);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            font-size: .68rem;
+            color: rgba(255,255,255,.35);
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 9px 12px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.5);
+            font-size: .82rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+            text-align: left;
+        }
+
+            .btn-logout:hover {
+                background: rgba(220,38,38,.12);
+                border-color: rgba(220,38,38,.25);
+                color: #FCA5A5;
+            }
+
+        /* ══════════════════ MAIN WRAPPER ══════════════════ */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════ TOPBAR ══════════════════ */
+        .topbar {
+            background: var(--navy);
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,.25);
+        }
+
+            .topbar::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 40%, transparent 100%);
+            }
+
+        .topbar-div {
+            width: 1px;
+            height: 22px;
+            background: rgba(255,255,255,.12);
+            flex-shrink: 0;
+        }
+
+        .topbar-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .topbar-title {
+            font-size: .88rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.9);
+        }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .member-band {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .mb-item {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .mb-lbl {
+            font-size: .6rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.3);
+        }
+
+        .mb-val {
+            font-size: .78rem;
+            font-weight: 500;
+            color: rgba(255,255,255,.82);
+        }
+
+            .mb-val.accent {
+                color: var(--gold-lt);
+                font-family: 'DM Mono', monospace;
+                font-weight: 600;
+            }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 14px;
+            background: rgba(201,168,76,.12);
+            border: 1px solid rgba(201,168,76,.3);
+            border-radius: var(--r-sm);
+            color: var(--gold-lt);
+            font-size: .76rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            transition: all .18s var(--ease);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+            .btn-home:hover {
+                background: rgba(201,168,76,.22);
+                border-color: rgba(201,168,76,.55);
+                transform: translateY(-1px);
+            }
+
+        /* ══════════════════ PAGE BODY ══════════════════ */
+        .page {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 24px 20px 64px;
+        }
+
+        .page-blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ══════════════════ CARDS ══════════════════ */
+        .block-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeUp .4s var(--ease) both;
+        }
+
+            .block-card:nth-child(2) {
+                animation-delay: .1s;
+            }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Card section header */
+        .sec-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 20px;
+            background: #FAFBFC;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .sec-head.navy-accent {
+                border-left: 3px solid var(--navy);
+            }
+
+            .sec-head.gold-accent {
+                border-left: 3px solid var(--gold);
+            }
+
+            .sec-head.green-accent {
+                border-left: 3px solid var(--green);
+            }
+
+        .sec-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+            .sec-icon.i-navy {
+                background: rgba(10,35,66,.07);
+            }
+
+            .sec-icon.i-gold {
+                background: rgba(201,168,76,.1);
+            }
+
+            .sec-icon.i-green {
+                background: var(--green-bg);
+            }
+
+        .sec-head-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sec-head-title {
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: -.01em;
+        }
+
+        .sec-head-sub {
+            font-size: .7rem;
+            color: var(--t3);
+            margin-top: 1px;
+        }
+
+        .sec-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 9px;
+            border-radius: 99px;
+            font-size: .66rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .pill-blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid var(--blue-bd);
+        }
+
+        .pill-gold {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bd);
+        }
+
+        .pill-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bd);
+        }
+
+        .sec-body {
+            padding: 20px;
+        }
+
+        /* ══════════════════ RATE/INFO BANNERS ══════════════════ */
+        .alert-ok {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 16px;
+            background: var(--green-bg);
+            border: 1px solid var(--green-bd);
+            border-radius: var(--r-sm);
+            color: #065F46;
+            font-size: .82rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .rate-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 9px 14px;
+            background: var(--blue-bg);
+            border: 1px solid var(--blue-bd);
+            border-left: 3px solid var(--blue);
+            border-radius: var(--r-sm);
+            margin-bottom: 10px;
+            transition: background .18s, border-color .18s;
+        }
+
+            .rate-banner.bng-active {
+                background: var(--gold-pale);
+                border-color: var(--gold-bd);
+                border-left-color: var(--gold);
+            }
+
+        .rate-banner-lbl {
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--blue);
+            flex-shrink: 0;
+        }
+
+        .rate-banner.bng-active .rate-banner-lbl {
+            color: var(--amber);
+        }
+
+        .rate-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .rate-chip {
+            display: inline-flex;
+            flex-direction: column;
+            padding: 4px 10px;
+            background: var(--card);
+            border: 1px solid var(--blue-bd);
+            border-radius: var(--r-sm);
+            min-width: 80px;
+        }
+
+        .rate-banner.bng-active .rate-chip {
+            border-color: var(--gold-bd);
+        }
+
+        .chip-lbl {
+            font-size: .6rem;
+            color: var(--t3);
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .chip-val {
+            font-family: 'DM Mono', monospace;
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+            .chip-val.gold {
+                color: var(--amber);
+            }
+
+        .bng-banner {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            background: var(--gold-pale);
+            border: 1px solid var(--gold-bd);
+            border-left: 3px solid var(--gold);
+            border-radius: var(--r-sm);
+            font-size: .75rem;
+            font-weight: 500;
+            color: var(--amber);
+            font-family: 'DM Mono', monospace;
+            margin-bottom: 10px;
+        }
+
+            .bng-banner.show {
+                display: flex;
+            }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+            flex-shrink: 0;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: .4;
+                transform: scale(.6)
+            }
+        }
+
+        .rule-banner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            padding: 8px 14px;
+            background: var(--amber-bg);
+            border: 1px solid var(--amber-bd);
+            border-left: 3px solid var(--gold);
+            border-radius: var(--r-sm);
+            margin-bottom: 20px;
+        }
+
+        .rule-tag {
+            font-size: .71rem;
+            color: var(--amber);
+            font-family: 'DM Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .rule-tag::before {
+                content: '';
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background: var(--gold);
+                flex-shrink: 0;
+            }
+
+        /* ══════════════════ FORM SECTIONS ══════════════════ */
+        .form-sec {
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .form-sec:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+            .form-sec:first-child {
+                padding-top: 0;
+            }
+
+        .form-sec-hd {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .form-sec-num {
+            font-size: .64rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--blue);
+            font-family: 'DM Mono', monospace;
+            flex-shrink: 0;
+        }
+
+        .form-sec-title {
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .form-sec-rule {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .form-sec-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: var(--r-sm);
+            font-size: .62rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        /* ══════════════════ FIELD GRID ══════════════════ */
+        .fg {
+            display: grid;
+            gap: 14px;
+        }
+
+        .fg-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .fg-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-lbl {
+            font-size: .67rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--t3);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .field-lbl .req {
+                color: var(--blue);
+                margin-left: 2px;
+            }
+
+        .field-hint {
+            font-size: .67rem;
+            color: var(--t3);
+            font-family: 'DM Mono', monospace;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .field-err {
+            font-size: .67rem;
+            color: var(--red);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* ══════════════════ INPUTS ══════════════════ */
+        .form-input, .form-select {
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid var(--border-dk);
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            color: var(--t1);
+            background: var(--card);
+            outline: none;
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: border-color .18s, box-shadow .18s;
+        }
+
+            .form-input:focus, .form-select:focus {
+                border-color: var(--navy);
+                box-shadow: 0 0 0 3px rgba(10,35,66,.08);
+            }
+
+            .form-input::placeholder {
+                color: var(--t3);
+            }
+
+            .form-input.mono, .form-select.mono {
+                font-family: 'DM Mono', monospace;
+                font-size: .82rem;
+            }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394A3B8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-color: var(--card);
+            padding-right: 32px;
+            cursor: pointer;
+        }
+
+        .form-input[readonly] {
+            background: var(--surface);
+            cursor: not-allowed;
+            color: var(--t2);
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="date"].form-input {
+            line-height: 38px;
+            cursor: pointer;
+        }
+
+            input[type="date"].form-input::-webkit-calendar-picker-indicator {
+                opacity: .45;
+                cursor: pointer;
+            }
+
+        /* ══════════════════ SELECT WRAP ══════════════════ */
+        .select-wrap {
+            position: relative;
+        }
+
+        .select-spinner {
+            display: none;
+            position: absolute;
+            right: 34px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: .62rem;
+            color: var(--blue);
+            font-family: 'DM Mono', monospace;
+            pointer-events: none;
+        }
+
+            .select-spinner.show {
+                display: block;
+            }
+
+        /* ══════════════════ MULTI-SELECT ══════════════════ */
+        .ms-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .ms-trigger {
+            height: 38px;
+            padding: 0 32px 0 12px;
+            background: var(--card);
+            border: 1px solid var(--border-dk);
+            border-radius: var(--r-sm);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            transition: border-color .18s, box-shadow .18s;
+        }
+
+            .ms-trigger:hover {
+                border-color: var(--border-dk);
+            }
+
+            .ms-trigger.open {
+                border-color: var(--navy);
+                box-shadow: 0 0 0 3px rgba(10,35,66,.08);
+            }
+
+            .ms-trigger::after {
+                content: '';
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 10px;
+                height: 6px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394A3B8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: center;
+                transition: transform .18s var(--ease);
+                flex-shrink: 0;
+            }
+
+            .ms-trigger.open::after {
+                transform: translateY(-50%) rotate(180deg);
+            }
+
+        .ms-placeholder {
+            color: var(--t3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: .875rem;
+        }
+
+        .ms-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: nowrap;
+            overflow: hidden;
+            align-items: center;
+            flex: 1;
+        }
+
+        .ms-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            background: var(--navy);
+            color: #fff;
+            border-radius: 4px;
+            font-size: .68rem;
+            font-family: 'DM Mono', monospace;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .ms-tag-x {
+            cursor: pointer;
+            opacity: .6;
+            font-size: .8rem;
+        }
+
+            .ms-tag-x:hover {
+                opacity: 1;
+            }
+
+        .ms-overflow {
+            font-size: .68rem;
+            font-family: 'DM Mono', monospace;
+            color: var(--blue);
+            flex-shrink: 0;
+        }
+
+        .ms-panel {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-top: 2px solid var(--navy);
+            border-radius: 0 0 var(--r-sm) var(--r-sm);
+            box-shadow: var(--shadow-lg);
+            z-index: 200;
+            display: none;
+            overflow: hidden;
+        }
+
+            .ms-panel.open {
+                display: block;
+                animation: panelDrop .14s var(--ease);
+            }
+
+        @@keyframes panelDrop {
+            from {
+                opacity: 0;
+                transform: translateY(-6px)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .ms-panel-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 12px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ms-panel-hd-lbl {
+            font-size: .64rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--t3);
+        }
+
+        .ms-panel-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .ms-panel-btn {
+            font-size: .64rem;
+            color: var(--blue);
+            cursor: pointer;
+            padding: 2px 6px;
+            border: 1px solid transparent;
+            border-radius: var(--r-sm);
+            background: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: all .15s;
+        }
+
+            .ms-panel-btn:hover {
+                background: var(--blue-bg);
+                border-color: var(--blue-bd);
+            }
+
+        .ms-options {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+            .ms-options::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .ms-options::-webkit-scrollbar-track {
+                background: var(--surface);
+            }
+
+            .ms-options::-webkit-scrollbar-thumb {
+                background: var(--border-dk);
+                border-radius: 2px;
+            }
+
+        .ms-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            cursor: pointer;
+            transition: background .12s;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .ms-option:last-child {
+                border-bottom: none;
+            }
+
+            .ms-option:hover {
+                background: var(--surface);
+            }
+
+            .ms-option.selected {
+                background: rgba(10,35,66,.03);
+            }
+
+                .ms-option.selected:hover {
+                    background: rgba(10,35,66,.06);
+                }
+
+        .ms-chk {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+            border: 1.5px solid var(--border-dk);
+            border-radius: 3px;
+            background: var(--card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s, border-color .15s;
+        }
+
+        .ms-option.selected .ms-chk {
+            background: var(--navy);
+            border-color: var(--navy);
+        }
+
+        .ms-chk-tick {
+            width: 8px;
+            height: 6px;
+            stroke: #fff;
+            fill: none;
+            stroke-width: 2.3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transform: scale(.5);
+            transition: opacity .15s, transform .15s;
+        }
+
+        .ms-option.selected .ms-chk-tick {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .ms-opt-lbl {
+            font-size: .84rem;
+            color: var(--t1);
+        }
+
+        .ms-opt-sub {
+            font-size: .63rem;
+            color: var(--t3);
+            font-family: 'DM Mono', monospace;
+            margin-top: 1px;
+        }
+
+        .ms-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 16px;
+            padding: 0 4px;
+            background: var(--navy);
+            color: #fff;
+            border-radius: 9px;
+            font-size: .6rem;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            margin-left: 6px;
+        }
+
+            .ms-count.hidden {
+                display: none;
+            }
+
+        /* ══════════════════ BANGALORE TOGGLE ══════════════════ */
+        .bng-wrap {
+            height: 38px;
+            padding: 0 12px;
+            background: var(--gold-pale);
+            border: 1px solid var(--gold-bd);
+            border-radius: var(--r-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: all .18s;
+        }
+
+            .bng-wrap.active {
+                background: #FFF0C4;
+                border-color: rgba(201,168,76,.5);
+            }
+
+        .bng-chk-box {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            border: 1.5px solid var(--border-dk);
+            border-radius: 3px;
+            background: var(--card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s, border-color .15s;
+        }
+
+        .bng-wrap.active .bng-chk-box {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .bng-chk-tick {
+            width: 9px;
+            height: 7px;
+            stroke: #fff;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transform: scale(.6);
+            transition: opacity .15s, transform .15s;
+        }
+
+        .bng-wrap.active .bng-chk-tick {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .bng-chk-lbl {
+            font-size: .84rem;
+            color: var(--t2);
+            transition: color .15s;
+        }
+
+        .bng-wrap.active .bng-chk-lbl {
+            color: var(--amber);
+            font-weight: 600;
+        }
+
+        /* ══════════════════ FILE UPLOAD ══════════════════ */
+        .file-drop {
+            border: 2px dashed var(--border-dk);
+            border-radius: var(--r-sm);
+            padding: 12px 14px;
+            background: var(--surface);
+            cursor: pointer;
+            transition: border-color .18s, background .18s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .file-drop:hover {
+                border-color: var(--navy);
+                background: var(--blue-bg);
+            }
+
+            .file-drop.amber-drop {
+                border-color: var(--amber-bd);
+                background: var(--amber-bg);
+            }
+
+                .file-drop.amber-drop:hover {
+                    border-color: var(--amber);
+                    background: #FFF0C4;
+                }
+
+        .file-drop-body {
+            flex: 1;
+        }
+
+        .file-drop-main {
+            font-size: .82rem;
+            font-weight: 500;
+            color: var(--t2);
+        }
+
+        .file-drop-sub {
+            font-size: .68rem;
+            color: var(--t3);
+            font-family: 'DM Mono', monospace;
+            margin-top: 2px;
+        }
+
+        .file-chosen {
+            font-family: 'DM Mono', monospace;
+            font-size: .7rem;
+            color: var(--blue);
+            margin-top: 5px;
+            display: none;
+        }
+
+        .existing-bill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .7rem;
+            color: var(--blue);
+            font-family: 'DM Mono', monospace;
+            background: var(--blue-bg);
+            border: 1px solid var(--blue-bd);
+            padding: 3px 9px;
+            border-radius: var(--r-sm);
+            text-decoration: none;
+            margin-top: 5px;
+            transition: background .15s;
+        }
+
+            .existing-bill:hover {
+                background: #DBEAFE;
+            }
+
+            .existing-bill.amber {
+                color: var(--amber);
+                background: var(--amber-bg);
+                border-color: var(--amber-bd);
+            }
+
+                .existing-bill.amber:hover {
+                    background: #FFF0C4;
+                }
+
+        .upload-na {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: var(--r-sm);
+            font-size: .72rem;
+            color: var(--t3);
+            font-family: 'DM Mono', monospace;
+        }
+
+            .upload-na.show {
+                display: flex;
+            }
+
+        /* Info panel */
+        .info-panel {
+            padding: 12px 14px;
+            background: var(--amber-bg);
+            border: 1px solid var(--amber-bd);
+            border-left: 3px solid var(--gold);
+            border-radius: var(--r-sm);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-panel-title {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--amber);
+            margin-bottom: 2px;
+        }
+
+        .info-panel-item {
+            font-size: .72rem;
+            color: var(--amber);
+            font-family: 'DM Mono', monospace;
+            display: flex;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+            .info-panel-item::before {
+                content: '';
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background: var(--gold);
+                flex-shrink: 0;
+                margin-top: 5px;
+            }
+
+        /* KM calc bar */
+        .km-calc {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: var(--blue-bg);
+            border: 1px solid var(--blue-bd);
+            border-radius: var(--r-sm);
+            font-family: 'DM Mono', monospace;
+            font-size: .72rem;
+            color: var(--blue);
+            min-height: 28px;
+            transition: background .18s;
+        }
+
+            .km-calc.active {
+                background: #DBEAFE;
+                border-color: rgba(29,78,216,.3);
+            }
+
+        .km-eq {
+            color: var(--t3);
+            margin: 0 2px;
+        }
+
+        .km-amt {
+            font-weight: 700;
+            color: var(--navy);
+            font-size: .78rem;
+        }
+
+        .km-zero {
+            color: var(--t3);
+            font-style: italic;
+        }
+
+        /* ══════════════════ SUMMARY TABLE ══════════════════ */
+        .summary-wrap {
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .summary-table thead th {
+                background: var(--navy);
+                color: rgba(255,255,255,.6);
+                font-family: 'DM Mono', monospace;
+                font-size: .62rem;
+                font-weight: 500;
+                letter-spacing: .1em;
+                text-transform: uppercase;
+                padding: 9px 14px;
+                text-align: left;
+                border: 1px solid rgba(255,255,255,.06);
+            }
+
+                .summary-table thead th.r {
+                    text-align: right;
+                }
+
+            .summary-table td {
+                padding: 9px 14px;
+                border: 1px solid var(--border);
+                font-size: .84rem;
+                color: var(--t2);
+                vertical-align: middle;
+            }
+
+                .summary-table td.r {
+                    text-align: right;
+                    font-family: 'DM Mono', monospace;
+                    font-size: .82rem;
+                    color: var(--t1);
+                }
+
+            .summary-table tbody tr:nth-child(even) td {
+                background: rgba(10,35,66,.015);
+            }
+
+            .summary-table tbody tr:hover td {
+                background: rgba(10,35,66,.03);
+            }
+
+            .summary-table tr.rule-row td {
+                background: var(--amber-bg) !important;
+                border-color: var(--amber-bd);
+                font-size: .72rem;
+                font-family: 'DM Mono', monospace;
+                color: var(--amber);
+                padding: 6px 14px;
+            }
+
+            .summary-table tr.bng-row td {
+                background: var(--gold-pale) !important;
+                border-color: var(--gold-bd);
+                color: var(--amber);
+                font-family: 'DM Mono', monospace;
+                font-size: .72rem;
+                padding: 6px 14px;
+            }
+
+            .summary-table tr.total-row td {
+                background: var(--blue-bg);
+                border-color: var(--blue-bd);
+                font-weight: 600;
+                color: var(--navy);
+            }
+
+                .summary-table tr.total-row td.r {
+                    font-family: 'DM Mono', monospace;
+                    font-size: .88rem;
+                }
+
+            .summary-table tr.grand-row td {
+                background: var(--navy);
+                color: rgba(255,255,255,.7);
+                border-color: var(--navy-mid);
+            }
+
+                .summary-table tr.grand-row td.r {
+                    font-family: 'DM Mono', monospace;
+                    font-size: 1rem;
+                    color: var(--gold-lt);
+                    font-weight: 600;
+                }
+
+                .summary-table tr.grand-row td.lbl {
+                    font-size: .95rem;
+                    font-weight: 600;
+                    color: rgba(255,255,255,.88);
+                }
+
+        @@keyframes flashVal {
+            0% {
+                background: rgba(201,168,76,.25)
+            }
+
+            100% {
+                background: transparent
+            }
+        }
+
+        .flash td {
+            animation: flashVal .4s ease;
+        }
+
+        /* ══════════════════ DECLARATION ══════════════════ */
+        .declaration {
+            padding: 12px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--navy);
+            border-radius: var(--r-sm);
+            font-size: .78rem;
+            color: var(--t2);
+            font-style: italic;
+            line-height: 1.75;
+            margin-bottom: 18px;
+        }
+
+            .declaration strong {
+                font-style: normal;
+                font-weight: 600;
+                color: var(--navy);
+            }
+
+        /* Submit row */
+        .submit-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--navy);
+            color: #fff;
+            border: none;
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+            letter-spacing: .01em;
+        }
+
+            .btn-submit:hover {
+                background: var(--navy-mid);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 14px rgba(10,35,66,.3);
+            }
+
+        .submit-note {
+            font-size: .72rem;
+            color: var(--t3);
+            font-family: 'DM Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .submit-note::before {
+                content: '';
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--gold);
+                flex-shrink: 0;
+            }
+
+        /* ══════════════════ SAVED RECORDS TABLE ══════════════════ */
+        .saved-wrap {
+            overflow-x: auto;
+        }
+
+        .saved-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .saved-table thead th {
+                background: var(--navy);
+                color: rgba(255,255,255,.6);
+                font-family: 'DM Mono', monospace;
+                font-size: .6rem;
+                font-weight: 500;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+                padding: 8px 12px;
+                text-align: left;
+                border: 1px solid rgba(255,255,255,.06);
+                white-space: nowrap;
+            }
+
+                .saved-table thead th.r {
+                    text-align: right;
+                }
+
+            .saved-table td {
+                padding: 10px 12px;
+                border: 1px solid var(--border);
+                color: var(--t2);
+                vertical-align: middle;
+                white-space: nowrap;
+                font-size: .82rem;
+            }
+
+            .saved-table tbody tr:nth-child(even) td {
+                background: rgba(10,35,66,.015);
+            }
+
+            .saved-table tbody tr:hover td {
+                background: rgba(10,35,66,.03);
+            }
+
+            .saved-table td.mono {
+                font-family: 'DM Mono', monospace;
+                font-size: .75rem;
+            }
+
+            .saved-table td.amount {
+                font-family: 'DM Mono', monospace;
+                font-size: .82rem;
+                color: var(--navy);
+                font-weight: 600;
+                text-align: right;
+            }
+
+            .saved-table td.grand-amt {
+                font-family: 'DM Mono', monospace;
+                font-size: .88rem;
+                color: var(--navy);
+                font-weight: 700;
+                text-align: right;
+            }
+
+            .saved-table tfoot td {
+                background: var(--navy);
+                color: rgba(255,255,255,.65);
+                font-family: 'DM Mono', monospace;
+                font-size: .75rem;
+                padding: 9px 12px;
+                border: 1px solid rgba(255,255,255,.07);
+                white-space: nowrap;
+            }
+
+                .saved-table tfoot td.grand {
+                    color: var(--gold-lt);
+                    font-size: .88rem;
+                    font-weight: 600;
+                    text-align: right;
+                }
+
+        .s-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid var(--blue-bd);
+            border-radius: 4px;
+            font-family: 'DM Mono', monospace;
+            font-size: .6rem;
+            font-weight: 600;
+            letter-spacing: .03em;
+            margin: 1px;
+        }
+
+            .s-badge.gold {
+                background: var(--gold-pale);
+                color: var(--amber);
+                border-color: var(--gold-bd);
+            }
+
+        .no-rec {
+            text-align: center;
+            padding: 40px;
+            color: var(--t3);
+            font-family: 'DM Mono', monospace;
+            font-size: .75rem;
+        }
+
+        /* ══════════════════ CARD FOOTER ══════════════════ */
+        .card-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+        }
+
+        .foot-txt {
+            font-size: .63rem;
+            color: var(--t3);
+            font-family: 'DM Mono', monospace;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+        }
+
+        .foot-sep {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .diamond {
+            width: 4px;
+            height: 4px;
+            background: var(--t3);
+            transform: rotate(45deg);
+        }
+
+        /* ══════════════════ RESPONSIVE ══════════════════ */
+        @@media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 12px;
+                gap: 6px;
+            }
+
+                .sidebar::before {
+                    display: none;
+                }
+
+            .sidebar-logo {
+                border-bottom: none;
+                padding: 6px;
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 4px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .nav-link {
+                padding: 7px 10px;
+                font-size: .78rem;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .fg-2, .fg-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                padding: 0 14px;
+            }
+
+            .member-band {
+                display: none;
+            }
+
+            .page {
+                padding: 14px 12px 48px;
+            }
+
+            .sec-body {
+                padding: 14px;
+            }
+
+            .btn-submit {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .submit-row {
+                flex-direction: column-reverse;
+            }
+        }
+
+        @@media (min-width: 769px) and (max-width: 900px) {
+            .fg-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .member-band .mb-item:last-child {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <input type="hidden" id="urlGetCollegesByFaculty" value="@Url.Action("GetCollegesByFaculty", "LICInspection")" />
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="~/images/logo.jpg" alt="Logo" />
+            <div>
+                <div class="sidebar-logo-text">LIC Portal</div>
+                <div class="sidebar-logo-sub">Inspection Management</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main Menu</div>
+
+            <a class="nav-link" asp-action="Dashboard" asp-controller="LICInspection">
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+            </a>
+
+            <a class="nav-link" asp-action="InspectionDetails" asp-controller="LICInspection">
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Personal Details
+            </a>
+
+            <a class="nav-link active" asp-action="ClaimDetails" asp-controller="LICInspection">
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Claims
+            </a>
+
+            @if (Model.TypeofMember == "Senate Members")
+            {
+                <a class="nav-link" asp-action="OtherDetails" asp-controller="LICInspection">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Other Members
+                </a>
+            }
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    @(Model.MemberName?.Length > 0 ? Model.MemberName[0].ToString().ToUpper() : "U")
+                </div>
+                <div>
+                    <div class="user-name">@Model.MemberName</div>
+                    <div class="user-role">@Model.TypeofMember</div>
+                </div>
+            </div>
+            <form asp-controller="LICInspection" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sign Out
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════
+         MAIN
+    ══════════════════════════════════════════ -->
+    <div class="main">
+
+        <!-- ══════════════════════════════════════════
+             TOPBAR
+        ══════════════════════════════════════════ -->
+        <header class="topbar">
+            <div class="topbar-page">
+                <div class="topbar-dot"></div>
+                <span class="topbar-title">Travel Claim</span>
+            </div>
+
+            <div class="topbar-div"></div>
+
+            <div class="topbar-right">
+                <div class="member-band">
+                    <div class="mb-item">
+                        <span class="mb-lbl">Member</span>
+                        <span class="mb-val">@Model.MemberName</span>
+                    </div>
+                    <div class="topbar-div"></div>
+                    <div class="mb-item">
+                        <span class="mb-lbl">Designation</span>
+                        <span class="mb-val">@Model.TypeofMember</span>
+                    </div>
+                    <div class="topbar-div"></div>
+                    <div class="mb-item">
+                        <span class="mb-lbl">Mobile</span>
+                        <span class="mb-val" style="font-family:'DM Mono',monospace">@Model.PhoneNumber</span>
+                    </div>
+                    <div class="topbar-div"></div>
+                    <div class="mb-item">
+                        <span class="mb-lbl">Colleges</span>
+                        <span class="mb-val accent">@Model.AssignedColleges.Count</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ══════════════════════════════════════════
+             PAGE
+        ══════════════════════════════════════════ -->
+        <div class="page">
+            <div class="page-blocks">
+
+                <!-- ═══════════════════════════════════
+                     BLOCK 1 — CLAIM FORM
+                ═══════════════════════════════════ -->
+                <div class="block-card">
+                    <div class="sec-head navy-accent">
+                        <div class="sec-icon i-navy">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#0A2342" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div class="sec-head-text">
+                            <div class="sec-head-title">Travel Claim Form</div>
+                            <div class="sec-head-sub">LIC Inspection — Form LIC/INS/TC-01 · Rev. 2024</div>
+                        </div>
+                        <span class="sec-pill pill-blue">New Claim</span>
+                    </div>
+
+                    <div class="sec-body">
+
+                        @if (TempData["Message"] != null)
+                        {
+                            <div class="alert-ok">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                @TempData["Message"]
+                            </div>
+                        }
+
+                        <!-- Rate Banner -->
+                        <div class="rate-banner" id="rateBanner">
+                            <span class="rate-banner-lbl" id="divisionLabel">Division: —</span>
+                            <div class="rate-chips">
+                                <div class="rate-chip"><span class="chip-lbl">TA / km</span><span class="chip-val">₹15</span></div>
+                                <div class="rate-chip"><span class="chip-lbl">DA / day</span><span class="chip-val" id="rc-da">—</span></div>
+                                <div class="rate-chip"><span class="chip-lbl">LCA / day</span><span class="chip-val" id="rc-lca">—</span></div>
+                                <div class="rate-chip"><span class="chip-lbl">Insp. Charges</span><span class="chip-val gold">₹2,500/college</span></div>
+                                <div class="rate-chip" id="rc-air-wrap" style="display:none">
+                                    <span class="chip-lbl">Airport → College</span>
+                                    <span class="chip-val gold" id="rc-air">—</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bng-banner" id="bngActiveBanner">
+                            <div class="pulse-dot"></div>
+                            <span id="bngBannerText">Bangalore Division active — DA ₹1,500/day · LCA ₹500/day · Air road ₹2,000</span>
+                        </div>
+
+                        <div class="rule-banner">
+                            <span class="rule-tag">TA ₹15/km applies to every km (onward + return)</span>
+                            <span class="rule-tag">Within 40 km → TA + LCA (no DA)</span>
+                            <span class="rule-tag">Above 40 km → TA + DA (no LCA)</span>
+                            <span class="rule-tag">Air travel → Airport-to-college road added</span>
+                            <span class="rule-tag">Order copy &amp; attendance with seal &amp; signature compulsory</span>
+                        </div>
+
+                        <form asp-action="ClaimDetails" method="post" enctype="multipart/form-data" autocomplete="off">
+                            @Html.AntiForgeryToken()
+
+                            <!-- ── SECTION I — Inspection Details ── -->
+                            <div class="form-sec">
+                                <div class="form-sec-hd">
+                                    <span class="form-sec-num">Section I</span>
+                                    <span class="form-sec-title">Inspection Details</span>
+                                    <div class="form-sec-rule"></div>
+                                    <span class="form-sec-badge pill-blue">Required</span>
+                                </div>
+
+                                @{
+                                    var submittedCollegeCodes = Model.SavedClaims
+                                    .Select(x => x.CollegeCode)
+                                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                                    .ToHashSet();
+                                    var availableColleges = Model.CollegeOptions
+                                    .Where(x => x.Value != "" && !submittedCollegeCodes.Contains(x.Value))
+                                    .ToList();
+                                }
+
+                                <!-- Row 1: Faculty + College -->
+                                <div class="fg fg-2" style="margin-bottom:14px">
+                                    <div class="field">
+                                        <label asp-for="Faculty" class="field-lbl">Faculty <span class="req">*</span></label>
+                                        <select asp-for="Faculty" id="FacultySelect" class="form-select" onchange="onFacultyChange(this.value)">
+                                            @if (Model.FacultyOptions != null && Model.FacultyOptions.Any())
+                                            {
+                                                @foreach (var f in Model.FacultyOptions)
+                                                {
+                                                    if (f.Value == Model.Faculty)
+                                                    {
+                                                        <option value="@f.Value" selected>@f.Text</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@f.Value">@f.Text</option>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="">— No faculty available —</option>
+                                            }
+                                        </select>
+                                        <span class="field-hint">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            College list updates on selection
+                                        </span>
+                                        <span asp-validation-for="Faculty" class="field-err"></span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label asp-for="CollegeCode" class="field-lbl">College <span class="req">*</span></label>
+                                        <div class="select-wrap">
+                                            <select asp-for="CollegeCode" id="CollegeSelect" class="form-select">
+                                                @if (!string.IsNullOrWhiteSpace(Model.Faculty) && availableColleges.Any())
+                                                {
+                                                    <option value="">— Select College —</option>
+                                                    @foreach (var item in availableColleges)
+                                                    {
+                                                        if (Model.CollegeCode == item.Value)
+                                                        {
+                                                            <option value="@item.Value" selected>@item.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@item.Value">@item.Text</option>
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <option value="">— Select Faculty first —</option>
+                                                }
+                                            </select>
+                                            <span class="select-spinner" id="collegeSpinner">loading…</span>
+                                        </div>
+                                        @if (submittedCollegeCodes.Any() && availableColleges.Count == 0)
+                                        {
+                                            <span class="field-hint" style="color:var(--amber)">All assigned colleges submitted.</span>
+                                        }
+                                        else if (submittedCollegeCodes.Any())
+                                        {
+
+                                            <span class="field-hint"><strong>@submittedCollegeCodes.Count</strong> college(s) already submitted — excluded</span>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="field-hint">Filtered by the faculty selected above</span>
+                                        }
+                                        <span asp-validation-for="CollegeCode" class="field-err"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Row 2: Mode · Date · Upload -->
+                                <div class="fg fg-3" style="margin-bottom:14px">
+                                    <div class="field">
+                                        <label class="field-lbl">
+                                            Mode of Travel <span class="req">*</span>
+                                            <span id="msModeCount" class="ms-count hidden"></span>
+                                        </label>
+                                        <div class="ms-wrap" id="msWrap">
+                                            <div class="ms-trigger" id="msTrigger" onclick="msToggle()" role="button" aria-haspopup="listbox" aria-expanded="false">
+                                                <span class="ms-placeholder" id="msPlaceholder">— Select Mode(s) —</span>
+                                                <div class="ms-tags" id="msTags" style="display:none"></div>
+                                            </div>
+                                            <div class="ms-panel" id="msPanel" role="listbox" aria-multiselectable="true">
+                                                <div class="ms-panel-hd">
+                                                    <span class="ms-panel-hd-lbl">Travel modes</span>
+                                                    <div class="ms-panel-actions">
+                                                        <button type="button" class="ms-panel-btn" onclick="msSelectAll()">All</button>
+                                                        <button type="button" class="ms-panel-btn" onclick="msClearAll()">Clear</button>
+                                                    </div>
+                                                </div>
+                                                <div class="ms-options" id="msOptions">
+                                                    @{
+                                                        var selectedModes = Model.ModeOfTravel ?? new List<string>();
+                                                        var modeSubs = new Dictionary<string, string> {
+                                                                                                        { "Road",  "Own vehicle / cab — TA ₹15/km" },
+                                                                                                        { "Train", "Rail travel — attach ticket" },
+                                                                                                        { "Air",   "Air travel — fare + road ₹750/₹2,000" },
+                                                                                                        { "Bus",   "Bus / KSRTC — attach ticket" },
+                                                                                                        { "Auto",  "Auto / local conveyance" }
+                                                                                                        };
+                                                    }
+                                                    @foreach (var item in Model.ModeOfTravelOptions.Where(x => x.Value != ""))
+                                                    {
+                                                        var isChk = selectedModes.Contains(item.Value) ? "selected" : "";
+                                                        var subTxt = modeSubs.ContainsKey(item.Value) ? modeSubs[item.Value] : "";
+                                                        <div class="ms-option @isChk"
+                                                             data-value="@item.Value"
+                                                             data-label="@item.Text"
+                                                             role="option"
+                                                             aria-selected="@(selectedModes.Contains(item.Value) ? "true" : "false")"
+                                                             onclick="msToggleOption(this)">
+                                                            <div class="ms-chk">
+                                                                <svg viewBox="0 0 12 10" class="ms-chk-tick"><polyline points="1.5,5 4.5,8.5 10.5,1.5" /></svg>
+                                                            </div>
+                                                            <div>
+                                                                <div class="ms-opt-lbl">@item.Text</div>
+                                                                @if (!string.IsNullOrEmpty(subTxt))
+                                                                {
+                                                                    <div class="ms-opt-sub">@subTxt</div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="msHiddenFields"></div>
+                                        <span class="field-hint">Multiple modes allowed (e.g. Train, Auto, Etc)</span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label asp-for="InspectionDate" class="field-lbl">Inspection Date <span class="req">*</span></label>
+                                        <input asp-for="InspectionDate" type="date" class="form-input mono"
+                                               value="@(Model.InspectionDate.HasValue? Model.InspectionDate.Value.ToString("yyyy-MM-dd") : "")" />
+                                        <span class="field-hint">Date of college inspection visit</span>
+                                        <span asp-validation-for="InspectionDate" class="field-err"></span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label class="field-lbl">Upload Bills <span style="text-transform:none;color:var(--t3);font-size:.6rem">(PDF only)</span></label>
+                                        <div id="fileDropWrapper">
+                                            <div class="file-drop" onclick="document.getElementById('fileInput').click()">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                                                <div class="file-drop-body">
+                                                    <div class="file-drop-main">Click to upload PDF</div>
+                                                    <div class="file-drop-sub">Max 5 MB · PDF only</div>
+                                                </div>
+                                            </div>
+                                            <input type="file" id="fileInput" name="UploadBillsFile" accept=".pdf" onchange="showFileName(this,'fileChosen')" style="display:none" />
+                                            <span class="file-chosen" id="fileChosen"></span>
+                                            @if (Model.HasUploadedBill)
+                                            {
+                                                <a asp-action="DownloadBill" asp-controller="LICInspection" target="_blank" class="existing-bill">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                                    View existing bill
+                                                </a>
+                                            }
+                                        </div>
+                                        <div class="upload-na" id="uploadNaNote">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                                            Not required for Road-only travel
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Row 3: Attendance + Checklist -->
+                                <div class="fg fg-2" style="margin-bottom:14px">
+                                    <div class="field">
+                                        <label class="field-lbl">Attendance Document <span style="text-transform:none;color:var(--t3);font-size:.6rem">(PDF · order copy with seal)</span></label>
+                                        <div class="file-drop amber-drop" onclick="document.getElementById('attendenceInput').click()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                            <div class="file-drop-body">
+                                                <div class="file-drop-main">Upload Attendance Document</div>
+                                                <div class="file-drop-sub">Order copy · seal &amp; signature · Max 5 MB</div>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="attendenceInput" name="AttendenceDocFile" accept=".pdf" onchange="showFileName(this,'attendenceChosen')" style="display:none" />
+                                        <span class="file-chosen" id="attendenceChosen"></span>
+                                        @if (Model.HasUploadedAttendence)
+                                        {
+                                            <a asp-action="DownloadAttendenceDoc" asp-controller="LICInspection" target="_blank" class="existing-bill amber">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                View existing attendance doc
+                                            </a>
+                                        }
+                                    </div>
+
+                                    <div class="field">
+                                        <div class="info-panel">
+                                            <div class="info-panel-title">Document Checklist</div>
+                                            <div class="info-panel-item">Attendance sheet with seal &amp; signature</div>
+                                            <div class="info-panel-item">Air ticket copy (if Air mode selected)</div>
+                                            <div class="info-panel-item">Train / Bus ticket (if applicable)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Row 4: Days · Division · Airfare -->
+                                <div class="fg fg-3">
+                                    <div class="field">
+                                        <label class="field-lbl">No. of Days <span class="req">*</span></label>
+                                        <input type="number" name="NumberOfDays" id="numberOfDays"
+                                               class="form-input mono" min="1" step="1"
+                                               value="@(Model.NumberOfDays > 0 ? Model.NumberOfDays : 1)"
+                                               placeholder="1" oninput="recalc()" readonly />
+                                        <span class="field-hint">For DA / LCA calculation</span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label class="field-lbl">Division Override</label>
+                                        <div class="bng-wrap @(Model.isBanglore == true ? "active" : "")"
+                                             id="bngWrap" onclick="toggleBangalore()">
+                                            <div class="bng-chk-box">
+                                                <svg viewBox="0 0 12 10" class="bng-chk-tick"><polyline points="1.5,5 4.5,8.5 10.5,1.5" /></svg>
+                                            </div>
+                                            <span class="bng-chk-lbl">Bangalore Division</span>
+                                        </div>
+                                        <span class="field-hint">BLR: DA ₹1,500 · LCA ₹500 · Air ₹2,000&nbsp;|&nbsp;Other: DA ₹900 · LCA ₹300 · Air ₹750</span>
+                                        <input type="hidden" name="IsBangalore" id="hidIsBng" value="@(Model.isBanglore == true ? "true" : "false")" />
+                                    </div>
+
+                                    <div class="field" id="airFareField" style="display:none">
+                                        <label class="field-lbl">Air Fare (₹)</label>
+                                        <input type="number" id="airFareInput" name="AirFareActual"
+                                               class="form-input mono" min="0" step="0.01"
+                                               value="@(Model.AirFareCost.HasValue && Model.AirFareCost > 0 ? Model.AirFareCost.Value.ToString("F2") : "")"
+                                               placeholder="0.00" oninput="recalc()" />
+                                        <span class="field-hint">Actual ticket cost (attach bill)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ── SECTION II — Onward Journey ── -->
+                            <div class="form-sec">
+                                <div class="form-sec-hd">
+                                    <span class="form-sec-num">Section II</span>
+                                    <span class="form-sec-title">Onward Journey</span>
+                                    <div class="form-sec-rule"></div>
+                                    <span class="form-sec-badge pill-gold">Base → College</span>
+                                </div>
+                                <div class="fg fg-3">
+                                    <div class="field">
+                                        <label asp-for="FromPlace" class="field-lbl">From Place <span class="req">*</span></label>
+                                        <input asp-for="FromPlace" class="form-input" placeholder="e.g. Chennai" oninput="recalc()" />
+                                        <span asp-validation-for="FromPlace" class="field-err"></span>
+                                    </div>
+                                    <div class="field">
+                                        <label asp-for="ToPlace" class="field-lbl">To Place <span class="req">*</span></label>
+                                        <!-- ★ CHANGE 1: auto-populate ReturnFromPlace from ToPlace unless user has manually edited it -->
+                                        <input asp-for="ToPlace" class="form-input" placeholder="e.g. Bangalore"
+                                               oninput="recalc(); var rf=document.querySelector('[name=ReturnFromPlace]'); if(rf && !rf._touched) rf.value=this.value;" />
+                                        <span asp-validation-for="ToPlace" class="field-err"></span>
+                                    </div>
+                                    <div class="field">
+                                        <label asp-for="Kilometers" class="field-lbl">Distance (km) <span class="req">*</span></label>
+                                        <input asp-for="Kilometers" class="form-input mono" type="number" min="0" step="0.01" placeholder="0.00" oninput="recalc()" />
+                                        <div class="km-calc" id="calc-fwd"><span class="km-zero">Enter km to calculate</span></div>
+                                        <span asp-validation-for="Kilometers" class="field-err"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ── SECTION III — Return Journey ── -->
+                            <div class="form-sec">
+                                <div class="form-sec-hd">
+                                    <span class="form-sec-num">Section III</span>
+                                    <span class="form-sec-title">Return Journey</span>
+                                    <div class="form-sec-rule"></div>
+                                    <span class="form-sec-badge pill-blue">College → Base</span>
+                                </div>
+                                <div class="fg fg-3">
+                                    <div class="field">
+                                        <label asp-for="ReturnFromPlace" class="field-lbl">Return From <span class="req">*</span></label>
+                                        <!-- ★ CHANGE 2: set _touched=true when user manually edits this field -->
+                                        <input asp-for="ReturnFromPlace" class="form-input" placeholder="e.g. Bangalore"
+                                               oninput="this._touched=true; recalc()" />
+                                        <span asp-validation-for="ReturnFromPlace" class="field-err"></span>
+                                    </div>
+                                    <div class="field">
+                                        <label asp-for="ReturnToPlace" class="field-lbl">Return To <span class="req">*</span></label>
+                                        <input asp-for="ReturnToPlace" class="form-input" placeholder="e.g. Chennai" oninput="recalc()" />
+                                        <span asp-validation-for="ReturnToPlace" class="field-err"></span>
+                                    </div>
+                                    <div class="field">
+                                        <label asp-for="ReturnKilometers" class="field-lbl">Distance (km) <span class="req">*</span></label>
+                                        <input asp-for="ReturnKilometers" class="form-input mono" type="number" min="0" step="0.01" placeholder="0.00" oninput="recalc()" />
+                                        <div class="km-calc" id="calc-ret"><span class="km-zero">Enter km to calculate</span></div>
+                                        <span asp-validation-for="ReturnKilometers" class="field-err"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ── SECTION IV — Claim Summary ── -->
+                            <div class="form-sec">
+                                <div class="form-sec-hd">
+                                    <span class="form-sec-num">Section IV</span>
+                                    <span class="form-sec-title">Claim Summary</span>
+                                    <div class="form-sec-rule"></div>
+                                    <span class="form-sec-badge pill-gold" id="divBadge">Division: —</span>
+                                </div>
+
+                                <input type="hidden" id="jsData"
+                                       data-allow="@Medical_Affiliation.Controllers.LICInspectionController.LICClaimDetailsViewModel.CollegeAllowance"
+                                       data-cnt="@Model.AssignedColleges.Count" />
+
+                                <div class="summary-wrap">
+                                    <table class="summary-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:42%">Description</th>
+                                                <th>Basis</th>
+                                                <th class="r">Rate</th>
+                                                <th class="r">Amount (₹)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr id="row-fwd">
+                                                <td>Onward Travel — <em id="tFrom">—</em> to <em id="tTo">—</em></td>
+                                                <td><span id="tFwdKm" style="font-family:'DM Mono',monospace">0.00</span> km</td>
+                                                <td class="r" style="font-family:'DM Mono',monospace">₹ 15 / km</td>
+                                                <td class="r" id="vFwd">₹ 0.00</td>
+                                            </tr>
+                                            <tr id="row-ret">
+                                                <td>Return Travel — <em id="tRFrom">—</em> to <em id="tRTo">—</em></td>
+                                                <td><span id="tRetKm" style="font-family:'DM Mono',monospace">0.00</span> km</td>
+                                                <td class="r" style="font-family:'DM Mono',monospace">₹ 15 / km</td>
+                                                <td class="r" id="vRet">₹ 0.00</td>
+                                            </tr>
+                                            <tr id="row-da">
+                                                <td>Daily Allowance (DA)</td>
+                                                <td><span id="tDaysBasis">1</span> day(s) — <span id="tDivDA">—</span></td>
+                                                <td class="r" id="tDARateCell" style="font-family:'DM Mono',monospace">—</td>
+                                                <td class="r" id="vDA">₹ 0.00</td>
+                                            </tr>
+                                            <tr id="row-lca" style="display:none">
+                                                <td>LCA <small style="font-size:.72rem;color:var(--t3)">— within 40 km</small></td>
+                                                <td><span id="tDaysLCA">1</span> day(s) — <span id="tDivLCA">—</span></td>
+                                                <td class="r" id="tLCARateCell" style="font-family:'DM Mono',monospace">—</td>
+                                                <td class="r" id="vLCA">₹ 0.00</td>
+                                            </tr>
+                                            <tr class="rule-row"><td colspan="4" id="tRuleNote">—</td></tr>
+                                            <tr class="bng-row" id="row-bng" style="display:none">
+                                                <td colspan="4" id="tBngNote">Bangalore Division — higher rates applied</td>
+                                            </tr>
+                                            <tr id="row-airfare" style="display:none">
+                                                <td>Air Fare (Actual ticket cost)</td>
+                                                <td>Actuals — bill required</td>
+                                                <td class="r" style="font-family:'DM Mono',monospace">Actuals</td>
+                                                <td class="r" id="vAirFare">₹ 0.00</td>
+                                            </tr>
+                                            <tr id="row-airroad" style="display:none">
+                                                <td>Airport → College (Road conveyance)</td>
+                                                <td>Fixed — <span id="tAirRoadDiv">—</span></td>
+                                                <td class="r" id="tAirRoadRate" style="font-family:'DM Mono',monospace">—</td>
+                                                <td class="r" id="vAirRoad">₹ 0.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td>College Inspection Allowance</td>
+                                                <td>@Model.AssignedColleges.Count college(s) × ₹ 2,500</td>
+                                                <td class="r" style="font-family:'DM Mono',monospace">₹ 2,500</td>
+                                                <td class="r" id="vCollege">₹ @((Model.AssignedColleges.Count * 2500).ToString("N2"))</td>
+                                            </tr>
+                                            <tr class="total-row">
+                                                <td colspan="3">Total Distance Travelled</td>
+                                                <td class="r" id="vKm">0.00 km</td>
+                                            </tr>
+                                            <tr class="grand-row">
+                                                <td colspan="3" class="lbl">Grand Total Claim Amount</td>
+                                                <td class="r" id="vTotal">₹ 0.00</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="declaration">
+                                    <strong>Declaration:</strong>
+                                    I hereby certify that the above travel details are true and correct to the best of my knowledge,
+                                    that the journey was undertaken in the interest of official duty, and that I have not claimed nor
+                                    shall claim reimbursement for the same from any other source.
+                                    Order copy and attendance with seal and signature are enclosed as required.
+                                </div>
+
+                                <!-- Hidden fields -->
+                                <input asp-for="TotalCost" type="hidden" id="hidTotal" />
+                                <input name="TACost" type="hidden" id="hidTA" value="0" />
+                                <input name="DACost" type="hidden" id="hidDA" value="0" />
+                                <input name="LCACost" type="hidden" id="hidLCA" value="0" />
+                                <input name="AirFareCost" type="hidden" id="hidAirFare" value="0" />
+                                <input name="AirRoadCost" type="hidden" id="hidAirRoad" value="0" />
+                                <input name="CollegeCost" type="hidden" id="hidCollege" value="0" />
+                                <input name="Division" type="hidden" id="hidDivision" value="" />
+                                <input name="IsLCA" type="hidden" id="hidIsLCA" value="false" />
+
+                                <div class="submit-row">
+                                    <button type="submit" class="btn-submit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Submit Claim
+                                    </button>
+                                    <span class="submit-note">All amounts verified server-side on submission</span>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <div class="card-foot">
+                        <span class="foot-txt">LIC / Medical Affiliation Division — Confidential</span>
+                        <div class="foot-sep">
+                            <div class="diamond"></div>
+                            <span class="foot-txt">Form LIC/INS/TC-01 · Rev. 2024</span>
+                            <div class="diamond"></div>
+                        </div>
+                        <span class="foot-txt">For Official Use Only</span>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════
+                     BLOCK 2 — SAVED RECORDS
+                ═══════════════════════════════════ -->
+                <div class="block-card">
+                    <div class="sec-head green-accent">
+                        <div class="sec-icon i-green">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                        </div>
+                        <div class="sec-head-text">
+                            <div class="sec-head-title">Saved Claim Details</div>
+                            <div class="sec-head-sub">Submitted records per college</div>
+                        </div>
+                        <span class="sec-pill pill-green">@Model.SavedClaims.Count Submitted</span>
+                    </div>
+
+                    <div class="sec-body" style="padding:0">
+                        <div class="saved-wrap">
+                            @if (!Model.SavedClaims.Any())
+                            {
+                                <div class="no-rec">— No claim submitted yet for this member —</div>
+                            }
+                            else
+                            {
+                                decimal footTravel = Model.SavedClaims.Sum(s => s.TravelCost ?? 0m);
+                                decimal footDALCA = Model.SavedClaims.Sum(s => (s.Dacost ?? 0m) + (s.Lcacost ?? 0m));
+                                decimal footCollege = Model.SavedClaims.Sum(s => s.CollegeCost ?? 0m);
+                                decimal footAirFare = Model.SavedClaims.Sum(s => s.AirFareCost ?? 0m);
+                                decimal footAirRoad = Model.SavedClaims.Sum(s => s.AirRoadCost ?? 0m);
+                                decimal footGrand = Model.SavedClaims.Sum(s => s.TotalCost ?? 0m);
+
+                                <table class="saved-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>College</th>
+                                            <th>Faculty</th>
+                                            <th>Insp. Date</th>
+                                            <th>Div.</th>
+                                            <th>Mode</th>
+                                            <th>Journey</th>
+                                            <th>Days</th>
+                                            <th>Rule</th>
+                                            <th class="r">Travel TA (₹)</th>
+                                            <th class="r">DA / LCA (₹)</th>
+                                            <th class="r">College (₹)</th>
+                                            <th class="r">Air Fare (₹)</th>
+                                            <th class="r">Air Road (₹)</th>
+                                            <th class="r">Grand Total (₹)</th>
+                                            <th>Bills</th>
+                                            <th>Attendance</th>
+                                            <th>Updated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            int rowNum = 1;
+                                        }
+                                        @foreach (var s in Model.SavedClaims)
+                                        {
+                                            double totKm = (double)((s.Kilometers ?? 0) + (s.ReturnKilometers ?? 0));
+                                            bool isLCA = s.IsLca ?? (totKm > 0 && totKm <= 40);
+                                            bool isBng = s.IsBanglore ?? false;
+                                            decimal daR = isBng ? 1500m : 900m;
+                                            decimal lcaR = isBng ? 500m : 300m;
+                                            decimal taCost = s.TravelCost ?? 0m;
+                                            decimal daCost = s.Dacost ?? 0m;
+                                            decimal lcaCost = s.Lcacost ?? 0m;
+                                            decimal collegeCost = s.CollegeCost ?? 0m;
+                                            decimal airFareCost = s.AirFareCost ?? 0m;
+                                            decimal airRoadCost = s.AirRoadCost ?? 0m;
+                                            decimal allowance = isLCA ? lcaCost : daCost;
+                                            string ruleLabel = isLCA ? $"TA+LCA ₹{lcaR:N0}/day" : $"TA+DA ₹{daR:N0}/day";
+                                            var collegeName = Model.CollegeOptions.FirstOrDefault(x => x.Value == s.CollegeCode)?.Text ?? s.CollegeCode ?? "—";
+
+                                            <tr>
+                                                <td class="mono" style="color:var(--t3);font-size:.7rem">@rowNum</td>
+                                                <td style="max-width:150px;white-space:normal;line-height:1.4;font-size:.82rem;font-weight:500;color:var(--navy)">@collegeName</td>
+                                                <td style="max-width:120px;white-space:normal;font-size:.8rem">
+                                                    @if (!string.IsNullOrWhiteSpace(s.Faculty))
+                                                    {
+                                                        @s.Faculty
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span style="color:var(--t3);font-family:'DM Mono',monospace;font-size:.68rem">—</span>
+                                                    }
+                                                </td>
+                                                <td class="mono" style="font-size:.73rem;white-space:nowrap">
+                                                    @if (s.InspectionDate.HasValue)
+                                                    {
+                                                        @s.InspectionDate.Value.ToString("dd MMM yyyy")
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span style="color:var(--t3)">—</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (isBng)
+                                                    {
+                                                        <span class="s-badge gold">BLR</span>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span class="s-badge">Other</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @foreach (var m in (s.ModeOfTravel ?? "—").Split(','))
+                                                    {
+                                                        <span class="s-badge">@m.Trim()</span>
+                                                    }
+                                                </td>
+                                                <td style="font-size:.76rem;line-height:1.65;white-space:normal;min-width:140px">
+                                                    <span style="font-family:'DM Mono',monospace">@s.FromPlace → @s.ToPlace</span><br />
+                                                    <span style="color:var(--t3);font-family:'DM Mono',monospace;font-size:.7rem">↩ @s.ReturnFromPlace → @s.ReturnToPlace</span><br />
+                                                    <span style="color:var(--blue);font-family:'DM Mono',monospace;font-size:.66rem">
+                                                        @s.Kilometers?.ToString("N1") km + @s.ReturnKilometers?.ToString("N1") km = @totKm.ToString("N1") km
+                                                    </span>
+                                                </td>
+                                                <td class="mono" style="text-align:center">
+                                                    @(s.NumberOfDays.HasValue? s.NumberOfDays.ToString() : (s.NoofDays ?? "—"))
+                                                </td>
+                                                <td><span class="s-badge @(isLCA ? "gold" : "")">@ruleLabel</span></td>
+                                                <td class="amount">@(taCost > 0 ? taCost.ToString("N2") : "—")</td>
+                                                <td class="amount">
+                                                    @if (allowance > 0)
+                                                    {
+                                                        @allowance.ToString("N2")
+                                                        <br />
+                                            
+                                                        <span style="font-size:.58rem;color:var(--t3);font-weight:400">@(isLCA ? "LCA" : "DA")</span>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <text>—</text>
+                                                    }
+                                                </td>
+                                                <td class="amount">@(collegeCost > 0 ? collegeCost.ToString("N2") : "—")</td>
+                                                <td class="amount">@(airFareCost > 0 ? airFareCost.ToString("N2") : "—")</td>
+                                                <td class="amount">@(airRoadCost > 0 ? airRoadCost.ToString("N2") : "—")</td>
+                                                <td class="grand-amt">
+                                                    @if (s.TotalCost.HasValue)
+                                                    {
+                                                        <text>₹ @s.TotalCost.Value.ToString("N2")</text>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <text>—</text>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (s.UploadBills?.Length > 0)
+                                                    {
+                                                        <a asp-action="DownloadBill" asp-controller="LICInspection"
+                                                           asp-route-collegeCode="@s.CollegeCode"
+                                                           target="_blank" class="existing-bill">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                                            View
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span style="color:var(--t3);font-size:.68rem;font-family:'DM Mono',monospace">—</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (s.AttendenceDoc?.Length > 0)
+                                                    {
+                                                        <a asp-action="DownloadAttendenceDoc" asp-controller="LICInspection"
+                                                           asp-route-collegeCode="@s.CollegeCode"
+                                                           target="_blank" class="existing-bill amber">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                            View
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span style="color:var(--t3);font-size:.68rem;font-family:'DM Mono',monospace">—</span>
+                                                    }
+                                                </td>
+                                                <td class="mono" style="color:var(--t3);font-size:.7rem">
+                                                    @s.UpdatedDate?.ToString("dd MMM yyyy")<br />
+                                                    <span style="font-size:.65rem">@s.UpdatedDate?.ToString("HH:mm")</span>
+                                                </td>
+                                            </tr>
+                                            rowNum++;
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="9" style="font-size:.82rem;color:rgba(255,255,255,.75)">
+                                                Total across @Model.SavedClaims.Count college(s)
+                                            </td>
+                                            <td class="grand">@footTravel.ToString("N2")</td>
+                                            <td class="grand">@footDALCA.ToString("N2")</td>
+                                            <td class="grand">@footCollege.ToString("N2")</td>
+                                            <td class="grand">@(footAirFare > 0 ? footAirFare.ToString("N2") : "—")</td>
+                                            <td class="grand">@(footAirRoad > 0 ? footAirRoad.ToString("N2") : "—")</td>
+                                            <td class="grand" style="font-size:.95rem">₹ @footGrand.ToString("N2")</td>
+                                            <td colspan="3"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card-foot">
+                        <span class="foot-txt">Record reflects last saved submission per college</span>
+                        <div class="foot-sep">
+                            <div class="diamond"></div>
+                            <span class="foot-txt">Data as of last save</span>
+                            <div class="diamond"></div>
+                        </div>
+                        <span class="foot-txt">Totals in footer row</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+        <script>
+            const ds    = document.getElementById('jsData').dataset;
+            const RATE  = 15;
+            const ALLOW = parseFloat(ds.allow) || 2500;
+            const CNT   = parseInt(ds.cnt)     || 0;
+            const URL_COLLEGES = document.getElementById('urlGetCollegesByFaculty').value;
+            const RATES = {
+                bangalore: { da: 1500, lca: 500,  airRoad: 2000, label: 'Bangalore Division' },
+                other:     { da:  900, lca: 300,  airRoad:  750, label: 'Other Division'     }
+            };
+            const inr  = v => '₹ ' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const inrR = v => '₹ ' + Math.round(v).toLocaleString('en-IN');
+            const $    = id => document.getElementById(id);
+
+            const submittedCodes = new Set([
+                @Html.Raw(string.Join(",",
+                    Model.SavedClaims
+                            .Select(x => x.CollegeCode)
+                            .Where(c => !string.IsNullOrWhiteSpace(c))
+                            .Select(c => $"\"{c}\"")))
+            ]);
+
+            function flash(id) {
+                const el = $(id); if (!el) return;
+                const row = el.closest('tr'); if (!row) return;
+                row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
+            }
+
+            function getModeValues() { return Array.from(document.querySelectorAll('.ms-option.selected')).map(el => el.dataset.value); }
+            function isAirSelected() { return getModeValues().some(v => /air/i.test(v)); }
+            function isRoadOnly()    { const v = getModeValues(); return v.length === 1 && /^road$/i.test(v[0]); }
+
+            function msToggle() { $('msPanel').classList.contains('open') ? msClose() : msOpen(); }
+            function msOpen()   { $('msTrigger').classList.add('open');    $('msTrigger').setAttribute('aria-expanded','true');  $('msPanel').classList.add('open'); }
+            function msClose()  { $('msTrigger').classList.remove('open'); $('msTrigger').setAttribute('aria-expanded','false'); $('msPanel').classList.remove('open'); }
+
+            function msToggleOption(el) { el.classList.toggle('selected'); el.setAttribute('aria-selected', el.classList.contains('selected') ? 'true' : 'false'); msRefreshUI(); recalc(); }
+            function msSelectAll() { document.querySelectorAll('.ms-option').forEach(el => { el.classList.add('selected');    el.setAttribute('aria-selected','true');  }); msRefreshUI(); recalc(); }
+            function msClearAll()  { document.querySelectorAll('.ms-option').forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-selected','false'); }); msRefreshUI(); recalc(); }
+
+            function msRefreshUI() {
+                const selected     = Array.from(document.querySelectorAll('.ms-option.selected'));
+                const placeholder  = $('msPlaceholder');
+                const tagsDiv      = $('msTags');
+                const countBadge   = $('msModeCount');
+                const hiddenCont   = $('msHiddenFields');
+                if (selected.length === 0) {
+                    placeholder.style.display = ''; tagsDiv.style.display = 'none'; tagsDiv.innerHTML = '';
+                    countBadge.classList.add('hidden'); countBadge.textContent = '';
+                } else {
+                    placeholder.style.display = 'none'; tagsDiv.style.display = 'flex';
+                    const visible = selected.slice(0,2), extra = selected.length - visible.length;
+                    tagsDiv.innerHTML = visible.map(el =>
+                        `<span class="ms-tag">${el.dataset.label}<span class="ms-tag-x" onclick="event.stopPropagation();msRemoveOption('${el.dataset.value}')" title="Remove">×</span></span>`
+                    ).join('') + (extra > 0 ? `<span class="ms-overflow">+${extra} more</span>` : '');
+                    countBadge.textContent = selected.length;
+                    countBadge.classList.remove('hidden');
+                }
+                hiddenCont.innerHTML = selected.map(el =>
+                    `<input type="hidden" name="ModeOfTravel" value="${el.dataset.value}" />`
+                ).join('');
+            }
+
+            function msRemoveOption(value) {
+                const opt = document.querySelector(`.ms-option[data-value="${value}"]`);
+                if (opt) { opt.classList.remove('selected'); opt.setAttribute('aria-selected','false'); }
+                msRefreshUI(); recalc();
+            }
+
+            document.addEventListener('click', e => { if (!$('msWrap').contains(e.target)) msClose(); });
+
+            function updateUploadVisibility() {
+                const roadOnly = isRoadOnly(), noSelect = getModeValues().length === 0;
+                $('fileDropWrapper').style.display = (roadOnly || noSelect) ? 'none' : '';
+                $('uploadNaNote').classList.toggle('show', roadOnly || noSelect);
+            }
+
+            function toggleBangalore() {
+                const wrap = $('bngWrap');
+                const on   = !wrap.classList.contains('active');
+                wrap.classList.toggle('active', on);
+                $('hidIsBng').value = on ? 'true' : 'false';
+                recalc();
+            }
+            function isBangaloreActive() { return $('bngWrap') ? $('bngWrap').classList.contains('active') : false; }
+
+            function updateKmCalc(id, km) {
+                const el = $(id); if (!el) return;
+                if (km <= 0) {
+                    el.classList.remove('active');
+                    el.innerHTML = '<span class="km-zero">Enter km to calculate</span>';
+                    return;
+                }
+                el.classList.add('active');
+                el.innerHTML =
+                    `<span>${km.toFixed(2)} km</span>` +
+                    `<span class="km-eq">×</span>` +
+                    `<span>₹${RATE}/km</span>` +
+                    `<span class="km-eq">=</span>` +
+                    `<span class="km-amt">${inr(km * RATE)}</span>`;
+            }
+
+            function recalc() {
+                const fwdKm  = Math.max(0, parseFloat(document.querySelector('[name="Kilometers"]')?.value)       || 0);
+                const retKm  = Math.max(0, parseFloat(document.querySelector('[name="ReturnKilometers"]')?.value) || 0);
+                const totKm  = fwdKm + retKm;
+                const days   = Math.max(1, parseInt($('numberOfDays')?.value) || 1);
+                const airAct = Math.max(0, parseFloat($('airFareInput')?.value) || 0);
+                const from   = document.querySelector('[name="FromPlace"]')?.value.trim()        || '—';
+                const to     = document.querySelector('[name="ToPlace"]')?.value.trim()          || '—';
+                const rFrom  = document.querySelector('[name="ReturnFromPlace"]')?.value.trim()  || '—';
+                const rTo    = document.querySelector('[name="ReturnToPlace"]')?.value.trim()    || '—';
+                const toBng    = isBangaloreActive();
+                const divKey   = toBng ? 'bangalore' : 'other';
+                const rates    = RATES[divKey];
+                const divLabel = rates.label;
+                const useLCA = totKm > 0 && totKm <= 40;
+                const useDA  = totKm > 40;
+                const airSel = isAirSelected();
+                const taTotal     = totKm * RATE;
+                const taFwd       = fwdKm * RATE;
+                const taRet       = retKm * RATE;
+                const daCost      = useDA  ? days * rates.da  : 0;
+                const lcaCost     = useLCA ? days * rates.lca : 0;
+                const collegeCost = CNT * ALLOW;
+                const airRoadCost = airSel ? rates.airRoad : 0;
+
+                $('bngActiveBanner').classList.toggle('show', toBng);
+                $('row-bng').style.display = toBng ? '' : 'none';
+                $('rateBanner').classList.toggle('bng-active', toBng);
+                if (toBng) {
+                    $('tBngNote').textContent =
+                        `Bangalore Division — DA ₹${rates.da.toLocaleString('en-IN')}/day · LCA ₹${rates.lca.toLocaleString('en-IN')}/day · Air road ₹${rates.airRoad.toLocaleString('en-IN')}`;
+                }
+
+                updateKmCalc('calc-fwd', fwdKm);
+                updateKmCalc('calc-ret', retKm);
+
+                $('tFrom').textContent        = from;      $('tTo').textContent         = to;
+                $('tRFrom').textContent       = rFrom;     $('tRTo').textContent        = rTo;
+                $('tFwdKm').textContent       = fwdKm.toFixed(2);
+                $('tRetKm').textContent       = retKm.toFixed(2);
+                $('tDaysBasis').textContent   = days;      $('tDaysLCA').textContent    = days;
+                $('tDivDA').textContent       = divLabel;  $('tDivLCA').textContent     = divLabel;
+                $('tDARateCell').textContent  = inrR(rates.da)  + '/day';
+                $('tLCARateCell').textContent = inrR(rates.lca) + '/day';
+                $('row-da').classList.toggle('disabled-row', !useDA);
+                $('row-da').style.display     = '';
+                $('row-lca').style.display    = useLCA ? '' : 'none';
+                $('vFwd').textContent = inr(taFwd);
+                $('vRet').textContent = inr(taRet);
+                $('vDA').textContent  = inr(daCost);
+                $('vLCA').textContent = inr(lcaCost);
+
+                let note;
+                if      (totKm === 0) note = 'Enter journey distance — TA ₹15/km always applies. DA / LCA determined by 40km rule.';
+                else if (useLCA)      note = `${totKm.toFixed(2)} km ≤ 40 km → TA ₹${RATE}/km + LCA ₹${rates.lca.toLocaleString('en-IN')}/day. DA not applicable.`;
+                else                  note = `${totKm.toFixed(2)} km > 40 km → TA ₹${RATE}/km + DA ₹${rates.da.toLocaleString('en-IN')}/day. LCA not applicable.`;
+                $('tRuleNote').textContent = note;
+
+                $('row-airfare').style.display  = airSel ? '' : 'none';
+                $('row-airroad').style.display  = airSel ? '' : 'none';
+                $('airFareField').style.display = airSel ? '' : 'none';
+                $('rc-air-wrap').style.display  = airSel ? '' : 'none';
+                if (airSel) {
+                    $('tAirRoadDiv').textContent  = divLabel;
+                    $('tAirRoadRate').textContent = inrR(rates.airRoad);
+                    $('vAirFare').textContent     = inr(airAct);
+                    $('vAirRoad').textContent     = inr(rates.airRoad);
+                    $('rc-air').textContent       = inrR(rates.airRoad);
+                }
+
+                let total = collegeCost + taTotal;
+                if (useDA)  total += daCost;
+                if (useLCA) total += lcaCost;
+                if (airSel) { total += airAct; total += airRoadCost; }
+
+                $('hidTotal').value    = total.toFixed(2);
+                $('hidTA').value       = taTotal.toFixed(2);
+                $('hidDA').value       = daCost.toFixed(2);
+                $('hidLCA').value      = lcaCost.toFixed(2);
+                $('hidAirFare').value  = airSel ? airAct.toFixed(2)      : '0';
+                $('hidAirRoad').value  = airSel ? airRoadCost.toFixed(2) : '0';
+                $('hidCollege').value  = collegeCost.toFixed(2);
+                $('hidDivision').value = divKey;
+                $('hidIsLCA').value    = useLCA ? 'true' : 'false';
+                $('vKm').textContent    = totKm.toFixed(2) + ' km';
+                $('vTotal').textContent = inr(total);
+                flash('vTotal');
+
+                $('divisionLabel').textContent = (toBng ? '⬤ ' : '⬤ ') + divLabel;
+                $('divBadge').textContent      = divLabel;
+                $('rc-da').textContent         = '₹' + rates.da.toLocaleString('en-IN');
+                $('rc-lca').textContent        = '₹' + rates.lca.toLocaleString('en-IN');
+
+                updateUploadVisibility();
+            }
+
+            function showFileName(input, targetId) {
+                const el = $(targetId); if (!el) return;
+                if (input.files?.[0]) { el.textContent = '📎 ' + input.files[0].name; el.style.display = 'block'; }
+                else { el.textContent = ''; el.style.display = 'none'; }
+            }
+
+            function onFacultyChange(facultyId) {
+                const sel     = $('CollegeSelect');
+                const spinner = $('collegeSpinner');
+                if (!sel) return;
+                sel.disabled = true;
+                if (spinner) spinner.classList.add('show');
+                sel.innerHTML = '<option value="">Loading colleges…</option>';
+                if (!facultyId) {
+                    sel.innerHTML = '<option value="">— Select Faculty first —</option>';
+                    sel.disabled  = false;
+                    if (spinner) spinner.classList.remove('show');
+                    return;
+                }
+                fetch(URL_COLLEGES + '?facultyId=' + encodeURIComponent(facultyId))
+                    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                    .then(data => {
+                        sel.innerHTML = '<option value="">— Select College —</option>';
+                        if (!data || data.length === 0) {
+                            sel.innerHTML = '<option value="">— No colleges found —</option>';
+                            return;
+                        }
+                        let added = 0;
+                        data.forEach(c => {
+                            if (submittedCodes.has(c.value)) return;
+                            const opt = document.createElement('option');
+                            opt.value = c.value; opt.textContent = c.text;
+                            sel.appendChild(opt);
+                            added++;
+                        });
+                        if (added === 0)
+                            sel.innerHTML = '<option value="">— All colleges already submitted —</option>';
+                    })
+                    .catch(err => {
+                        console.error('GetCollegesByFaculty:', err);
+                        sel.innerHTML = '<option value="">— Error loading, retry —</option>';
+                    })
+                    .finally(() => {
+                        sel.disabled = false;
+                        if (spinner) spinner.classList.remove('show');
+                    });
+            }
+
+            msRefreshUI();
+            recalc();
+            updateUploadVisibility();
+        </script>
+    </div><!-- /.main -->
+</body>
+</html>

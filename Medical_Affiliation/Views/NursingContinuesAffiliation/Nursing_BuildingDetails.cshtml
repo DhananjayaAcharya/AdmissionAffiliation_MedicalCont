@@ -1,0 +1,417 @@
+﻿@{
+    ViewData["Title"] = "Building Details";
+}
+
+<style>
+    :root {
+        --primary: #3b82f6;
+        --card-bg: rgba(15, 23, 42, 0.78);
+        --card-border: rgba(255, 255, 255, 0.12);
+    }
+
+    body {
+        background: #0f172a;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        background-image: radial-gradient(circle at top left, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
+    }
+
+    .attractive-header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+        padding: 20px 0;
+        border-radius: 0 0 24px 24px;
+        box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 40px;
+    }
+
+        .attractive-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            animation: shine 7s infinite linear;
+        }
+
+    @@keyframes shine {
+        0% {
+            transform: translateX(-100%) translateY(-100%) rotate(20deg);
+        }
+
+        100% {
+            transform: translateX(100%) translateY(100%) rotate(20deg);
+        }
+    }
+
+    .header-title {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: white;
+        text-align: center;
+        margin: 0;
+        text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid var(--card-border);
+        padding: 40px;
+        max-width: 1100px;
+        margin: 0 auto 50px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+        color: #60a5fa;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .instructions-box {
+        background: rgba(30, 41, 59, 0.6);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 30px;
+        border-left: 5px solid var(--primary);
+    }
+
+        .instructions-box ul {
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+    .mobile-instruction {
+        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+        color: white;
+        padding: 16px;
+        border-radius: 14px;
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 30px;
+    }
+
+        .mobile-instruction a {
+            color: #fff;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+    .form label {
+        color: #e0e7ff;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .modern-select, .form-control {
+        background: rgba(30, 41, 59, 0.9);
+        border: 1px solid #3b82f6;
+        color: white;
+        border-radius: 12px;
+        padding: 12px 16px;
+    }
+
+    .radio-btn {
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 12px;
+    }
+
+    .btn-check:checked + .radio-btn {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        box-shadow: 0 0 20px rgba(59,130,246,0.6);
+    }
+
+    .file-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(30, 41, 59, 0.8);
+        border: 2px dashed #3b82f6;
+        border-radius: 16px;
+        padding: 18px 20px;
+        cursor: pointer;
+        color: #e0e7ff;
+    }
+
+        .file-label:hover {
+            background: rgba(59,130,246,0.25);
+            border-color: #60a5fa;
+        }
+
+    .file-name {
+        color: #60a5fa;
+        font-weight: 600;
+    }
+
+    .file-upload-box small {
+        color: #a5b4fc !important;
+        font-size: 0.9rem;
+        margin-top: 8px;
+        display: block;
+    }
+
+    .btn-nav {
+        padding: 14px 40px;
+        border-radius: 14px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        min-width: 160px;
+    }
+
+    .btn-back {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-next {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 10px 30px rgba(59,130,246,0.6);
+    }
+</style>
+
+<!-- Header -->
+<div class="attractive-header">
+    <div class="container">
+        <h2 class="header-title">BUILDING DETAILS</h2>
+    </div>
+</div>
+
+<div class="container">
+    <div class="glass-card">
+
+        <!-- Instructions -->
+        <div class="section-title">Instructions</div>
+        <div class="instructions-box">
+            <strong>Note:</strong>
+            <ul>
+                <li>Details of Land Available.</li>
+                <li>Source of the Land.</li>
+                <li>Attested photocopy of original Land records.</li>
+                <li>Permission from Local Civil Authorities for utilization of Land.</li>
+                <li>The documents to establish that the applicant own and manage an hospital of not less than 300 beds.</li>
+                <li>Due Diligence Certificate from an Revenue Authority.</li>
+                <li>A land usage certificate in original issued by a Competent Authority.</li>
+                <li>A certificate certifying that the applicant owns and possesses contiguous land and it is free from encumbrance / litigation.</li>
+                <li>Permission from Pollution control board.</li>
+                <li>Plan approval of college and hospital from the competent authority.</li>
+                <li>Details of any other courses running in the same campus.</li>
+            </ul>
+        </div>
+
+        <!-- Agree Checkbox -->
+        -->
+        <div class="agree-section mb-5">
+            <input type="checkbox" id="agreeBuilding" required style="display:none;">
+            <label for="agreeBuilding" class="custom-checkbox"></label>
+            <label for="agreeBuilding" style="cursor:pointer; margin:0; font-size:1.1rem;">
+                I Agree to these above Terms and Conditions
+            </label>
+        </div>
+
+        <!-- Mobile App Instruction -->
+        <div class="mobile-instruction">
+            Kindly capture latitude, longitude and building photograph from the mobile app.
+            <a href="#">Click Here For Instructions</a>
+        </div>
+
+        <!-- Form Starts -->
+        <div class="section-title">BUILDING DETAILS</div>
+
+        <form asp-action="SaveBuildingDetails" enctype="multipart/form-data">
+
+            <div class="row g-4">
+                <!-- Building Type -->
+                <div class="col-lg-6">
+                    <label>Building Type</label>
+                    <select class="form-select modern-select">
+                        <option>Owned</option>
+                        <option>Leased for 30 years</option>
+                        <option>Leased for 99 years</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-6">
+                    <label>Building Owner Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" value="MANAGING TRUSTEE" readonly style="background:rgba(59,130,246,0.2);">
+                </div>
+
+                <!-- Court Case -->
+                <div class="col-lg-6">
+                    <label>Any court case pending against the property? <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-4 mt-2">
+                        <div>
+                            <input class="btn-check" type="radio" name="CourtCase" id="courtYes" value="yes" required>
+                            <label class="btn radio-btn" for="courtYes">Yes</label>
+                        </div>
+                        <div>
+                            <input class="btn-check" type="radio" name="CourtCase" id="courtNo" value="no">
+                            <label class="btn radio-btn" for="courtNo">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Applied Courses Imparted -->
+                <div class="col-lg-6">
+                    <label>Does all the applied courses are imparted in this building? <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-4 mt-2">
+                        <div>
+                            <input class="btn-check" type="radio" name="CoursesImparted" id="coursesYes" value="yes" required>
+                            <label class="btn radio-btn" for="coursesYes">YES</label>
+                        </div>
+                        <div>
+                            <input class="btn-check" type="radio" name="CoursesImparted" id="coursesNo" value="no">
+                            <label class="btn radio-btn" for="coursesNo">NO</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Number of Classrooms & Labs -->
+                <div class="col-lg-6">
+                    <label>Number of Classrooms <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" value="3" min="1">
+                </div>
+                <div class="col-lg-6">
+                    <label>Number of Labs <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" value="4" min="1">
+                </div>
+
+                <!-- Facilities -->
+                <div class="col-lg-6">
+                    <label>Safe drinking water supply</label>
+                    <div class="d-flex gap-4 mt-2">
+                        <div>
+                            <input class="btn-check" type="radio" name="WaterSupply" id="waterAvail">
+                            <label class="btn radio-btn" for="waterAvail">Available</label>
+                        </div>
+                        <div>
+                            <input class="btn-check" type="radio" name="WaterSupply" id="waterNot">
+                            <label class="btn radio-btn" for="waterNot">Not Available</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <label>Auditorium</label>
+                    <div class="d-flex gap-4 mt-2">
+                        <div>
+                            <input class="btn-check" type="radio" name="Auditorium" id="audiAvail">
+                            <label class="btn radio-btn" for="audiAvail">Available</label>
+                        </div>
+                        <div>
+                            <input class="btn-check" type="radio" name="Auditorium" id="audiNot">
+                            <label class="btn radio-btn" for="audiNot">Not Available</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <label>Seating Capacity</label>
+                    <input type="text" class="form-control" placeholder="Enter capacity">
+                </div>
+
+                <div class="col-lg-6">
+                    <label>Office Facilities</label>
+                    <div class="d-flex gap-4 mt-2">
+                        <div>
+                            <input class="btn-check" type="radio" name="Office" id="officeAvail">
+                            <label class="btn radio-btn" for="officeAvail">Available</label>
+                        </div>
+                        <div>
+                            <input class="btn-check" type="radio" name="Office" id="officeNot">
+                            <label class="btn radio-btn" for="officeNot">Not Available</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Uploads -->
+            <div class="row g-4 mt-4">
+                <div class="col-lg-6">
+                    <label>Attach Approval copy of Lease document <span class="text-danger">*</span></label>
+                    <div class="file-upload-box">
+                        <input type="file" id="leaseDoc" name="LeaseDocument" accept=".pdf" required style="display:none;">
+                        <label for="leaseDoc" class="file-label">
+                            <span>Choose File</span>
+                            <span class="file-name">No file chosen</span>
+                        </label>
+                        <small>PDF Format (1MB)</small>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <label>Attach (EC) Encumbrance Certificate <span class="text-danger">*</span></label>
+                    <div class="file-upload-box">
+                        <input type="file" id="ecDoc" name="EncumbranceCert" accept=".pdf" required style="display:none;">
+                        <label for="ecDoc" class="file-label">
+                            <span>Choose File</span>
+                            <span class="file-name">No file chosen</span>
+                        </label>
+                        <small>PDF Format (1MB)</small>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <label>Tax paid receipt / Certificate by Authority <span class="text-danger">*</span></label>
+                    <div class="file-upload-box">
+                        <input type="file" id="taxDoc" name="TaxReceipt" accept=".pdf" required style="display:none;">
+                        <label for="taxDoc" class="file-label">
+                            <span>Choose File</span>
+                            <span class="file-name">No file chosen</span>
+                        </label>
+                        <small>PDF Format (1MB)</small>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <label>Occupancy Certificate <span class="text-danger">*</span></label>
+                    <div class="file-upload-box">
+                        <input type="file" id="occDoc" name="OccupancyCert" accept=".pdf" required style="display:none;">
+                        <label for="occDoc" class="file-label">
+                            <span>Choose File</span>
+                            <span class="file-name">No file chosen</span>
+                        </label>
+                        <small>PDF Format (1MB)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="text-end mt-5">
+                <button type="button" class="btn btn-back btn-lg px-5">PREVIOUS</button>
+                <button type="submit" class="btn btn-next btn-lg px-5 ms-3">NEXT</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // File name display
+    document.querySelectorAll('input[type="file"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const fileName = this.files.length > 0 ? this.files[0].name : 'No file chosen';
+            this.closest('.file-upload-box').querySelector('.file-name').textContent = fileName;
+        });
+    });
+
+    // Enable NEXT only if agreed
+    document.getElementById('agreeBuilding').addEventListener('change', function() {
+        document.querySelector('button[type="submit"]').disabled = !this.checked;
+    });
+</script>

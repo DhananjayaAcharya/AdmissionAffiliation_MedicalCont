@@ -1,0 +1,436 @@
+﻿@model List<AHS_YearwiseMaterialsDataViewModel>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Affiliated Year-wise Clinical Materials";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
+
+    int currentStep = 3;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+<style>
+    @@media (max-width: 1450px) {
+        .main-container
+
+    {
+        max-width: 985px !important;
+        margin-left: 17rem !important;
+        padding: 1em !important;
+        padding-top: 10px !important;
+        max-height: 66vh;
+        overflow: auto;
+    }
+
+    .college-container {
+        margin-bottom: 8px !important;
+    }
+
+    .status-bar-container {
+        padding: 0.2rem 0;
+    }
+
+    .clg-basic {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .card.mb-3 {
+        margin-bottom: 5px;
+    }
+
+    .container.mt-4 {
+        margin-top: 5px !important;
+    }
+
+    h2 {
+        font-size: 1.5em;
+        margin-bottom: 5px;
+    }
+
+    .btn {
+        padding: 0.3rem 1.0rem;
+    }
+
+    }
+
+    .main-container {
+        margin-left: 30rem;
+        background: #ffffff;
+        padding: 2.5rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        max-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+    }
+
+    .progress-step-btn {
+        background: none;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
+
+        .progress-step-btn.active {
+            color: #3b82f6;
+        }
+
+        .progress-step-btn.completed {
+            color: #22c55e;
+        }
+
+    .card {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-radius: 12px;
+    }
+
+    .sidebar-btn {
+        display: block;
+        margin-bottom: 12px !important;
+        padding: 10px;
+        font-weight: 600;
+        border-radius: 8px;
+        background-color: #0d6efd;
+        color: #fff;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .doc-btn {
+        min-width: 72px;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<div class="card-header bg-light mb-4">
+    <nav aria-label="Form progress">
+        <ul class="progressbar-pipeline">
+            @{
+                var stepUrls = new[] {
+                        Url.Action("AHS_BasicDetails", "Aff_AHS"),
+                        Url.Action("AHS_UGPG", "Aff_AHS"),
+                        Url.Action("AHS_Affiliated_YearwiseMaterials", "Aff_AHS"),
+                        Url.Action("AHS_ManageDesignationIntake", "Aff_AHS"),
+                        Url.Action("AHS_FacultyDetails", "Aff_AHS"),
+                        Url.Action("AHS_FacultyExamResults", "Aff_AHS")
+                        };
+                var stepTitles = new[] {
+                        "Basic Institute Details", "Course Details", "Affiliated Clinical Material",
+                        "Designation Details", "Add College Faculty", "College Performance"
+                        };
+            }
+            @for (int i = 0; i < stepTitles.Length; i++)
+            {
+                var isActive = currentStep == i + 1;
+                var isCompleted = currentStep > i + 1;
+                <li class="@(isCompleted ? "completed" : "")">
+                    <form method="get" action="@stepUrls[i]" style="display:inline;">
+                        <button type="submit" class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))">
+                            @stepTitles[i]
+                        </button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+<h2 class="text-center fw-bold mb-4 text-primary">Parent/Affiliated Year-wise Clinical Materials</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form asp-action="AHS_Affiliated_YearwiseMaterials" method="post" enctype="multipart/form-data" id="mainForm">
+    <div class="card shadow-lg border-0 mb-4 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4">
+            <h5 class="mb-0">🏥 Parent Hospital Details</h5>
+        </div>
+        <div class="card-body">
+            <!-- HospitalType: plain select, posts to Request.Form["HospitalType"] -->
+            <div class="mb-3">
+                <label for="HospitalType" class="form-label">Select Hospital Type</label>
+                <select id="HospitalType" name="HospitalType" class="form-select" required>
+                    <option value="">-- Select --</option>
+                    @if (ViewBag.HospitalTypes != null)
+                    {
+                        foreach (var item in (List<SelectListItem>)ViewBag.HospitalTypes)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Hospital Name</label>
+                    <input type="text" class="form-control rounded-pill" name="ParentHospitalName"
+                           placeholder="Enter Hospital Name" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Hospital Address</label>
+                    <input type="text" class="form-control rounded-pill" name="ParentHospitalAddress"
+                           placeholder="Enter Address" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Owner Name</label>
+                    <input type="text" class="form-control rounded-pill" name="HospitalOwnerName"
+                           placeholder="Owner Name" required />
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">KPME Beds</label>
+                    <input type="number" class="form-control rounded-pill" name="Kpmebeds" min="0" placeholder="0" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Post Basic Beds</label>
+                    <input type="number" class="form-control rounded-pill" name="PostBasicBeds" min="0" placeholder="0" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Total Beds</label>
+                    <input type="number" class="form-control rounded-pill" name="TotalBeds" min="0" placeholder="0" />
+                </div>
+            </div>
+
+            <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">KPME Beds Document</label>
+                    <input type="file" class="form-control rounded-pill" name="ParentHospitalKpmebedsDocFile" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">MOU Document</label>
+                    <input type="file" class="form-control rounded-pill" name="ParentHospitalMoudocFile" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Owner Name Document</label>
+                    <input type="file" class="form-control rounded-pill" name="ParentHospitalOwnerNameDocFile" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">PCB Document</label>
+                    <input type="file" class="form-control rounded-pill" name="ParentHospitalPostBasicDocFile" />
+                </div>
+                <div class="col-md-3 mt-3">
+                    <label class="form-label fw-semibold">NABL / NABH Certificate</label>
+                    <input type="file" class="form-control rounded-pill" name="ParentHospitalNABLDocFile" />
+                </div>
+                <div class="col-md-3 mt-3">
+                    <label class="form-label fw-semibold">KSPC Certificate</label>
+                    <input type="file" class="form-control rounded-pill" name="ParentHospitalKSPCDocFile" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-secondary text-white rounded-top-4">
+            <h5 class="mb-0">📊 Year-wise Materials</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Parameter</th>
+                            <th id="year1"></th>
+                            <th id="year2"></th>
+                            <th id="year3"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < (Model?.Count ?? 0); i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Model[i].ParametersName
+                                    <!-- IMPORTANT: prefix 'model' to match List<YearwiseMaterialViewModel> model -->
+                                    <input type="hidden" name="model[@i].ParametersId" />
+                                    <input type="hidden" name="model[@i].ParametersName" />
+                                    <input type="hidden" name="model[@i].CollegeCode" />
+                                    <input type="hidden" name="model[@i].FacultyCode" />
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control rounded"
+                                           name="model[@i].Year1"
+                                           value="@Model[i].Year1" min="0" />
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control rounded"
+                                           name="model[@i].Year2"
+                                           value="@Model[i].Year2" min="0" />
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control rounded"
+                                           name="model[@i].Year3"
+                                           value="@Model[i].Year3" min="0" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-end" style="padding-top:20px; padding-bottom:20px;">
+            <button type="submit" class="btn btn-success px-5 py-2 rounded-pill fw-semibold shadow-sm">
+                Save Details
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Read-only Saved Data Table -->
+<div class="card shadow-sm mt-5">
+    <div class="card-header bg-dark text-white">Saved Year-wise Materials Records</div>
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Hospital Type</th>
+                    <th>Parameter</th>
+                    <th>Year1</th>
+                    <th>Year2</th>
+                    <th>Year3</th>
+                    <th>Parent Hospital Name</th>
+                    <th>Address</th>
+                    <th>KPME Beds</th>
+                    <th>PCB</th>
+                    <th>Total Beds</th>
+                    <th>Owner Name</th>
+                    <th>MOU Doc</th>
+                    <th>Owner Doc</th>
+                    <th>KPME Doc</th>
+                    <th>PCB Doc</th>
+                    <th>NABL/NABH Doc</th>
+                    <th>KSPC Doc</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.YearwiseData != null && ((IEnumerable<dynamic>)ViewBag.YearwiseData).Any())
+                {
+                    foreach (var item in (IEnumerable<dynamic>)ViewBag.YearwiseData)
+                    {
+                        <tr>
+                            <td>@item.HospitalType</td>
+                            <td>@item.ParametersName</td>
+                            <td>@item.Year1</td>
+                            <td>@item.Year2</td>
+                            <td>@item.Year3</td>
+                            <td>@item.parentHospitalName</td>
+                            <td>@item.parentHospitalAddress</td>
+                            <td>@item.KPMEBeds</td>
+                            <td>@item.PostBasicBeds</td>
+                            <td>@item.TotalBeds</td>
+                            <td>@item.HospitalOwnerName</td>
+
+                            <td>
+                                @if (item.parentHospitalMOUdoc != null)
+                                {
+                                    <a class="btn btn-sm btn-outline-primary doc-btn" target="_blank"
+                                       href="@Url.Action("DownloadDocument", "Aff_AHS", new { id = item.Id, type = "MOU" })">
+                                        <i class="bi bi-eye-fill"></i> View
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.parentHospitalOwnerNameDoc != null)
+                                {
+                                    <a class="btn btn-sm btn-outline-primary doc-btn" target="_blank"
+                                       href="@Url.Action("DownloadDocument", "Aff_AHS", new { id = item.Id, type = "Owner" })">
+                                        <i class="bi bi-eye-fill"></i> View
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.parentHospitalKPMEbedsDoc != null)
+                                {
+                                    <a class="btn btn-sm btn-outline-primary doc-btn" target="_blank"
+                                       href="@Url.Action("DownloadDocument", "Aff_AHS", new { id = item.Id, type = "KpmeBeds" })">
+                                        <i class="bi bi-eye-fill"></i> View
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.parentHospitalPostBasicDoc != null)
+                                {
+                                    <a class="btn btn-sm btn-outline-primary doc-btn" target="_blank"
+                                       href="@Url.Action("DownloadDocument", "Aff_AHS", new { id = item.Id, type = "PostBasic" })">
+                                        <i class="bi bi-eye-fill"></i> View
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.parentHospitalNABLDoc != null)
+                                {
+                                    <a class="btn btn-sm btn-outline-primary doc-btn" target="_blank"
+                                       href="@Url.Action("DownloadDocument", "Aff_AHS", new { id = item.Id, type = "NABL" })">
+                                        <i class="bi bi-eye-fill"></i> View
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.parentHospitalKSPCDoc != null)
+                                {
+                                    <a class="btn btn-sm btn-outline-primary doc-btn" target="_blank"
+                                       href="@Url.Action("DownloadDocument", "Aff_AHS", new { id = item.Id, type = "KSPC" })">
+                                        <i class="bi bi-eye-fill"></i> View
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                <form asp-action="DeleteYearwiseMaterial1" method="post"
+                                      onsubmit="return confirm('Are you sure you want to delete this record?');">
+                                    <input type="hidden" name="parametersId" value="@item.ParametersId" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="18" class="text-center text-danger">No data available</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between" style="margin-top:30px;">
+    <a asp-controller="Aff_AHS" asp-action="AHS_UGPG" class="btn btn-outline-secondary sidebar-btn">⬅ Previous</a>
+    <a asp-controller="Aff_AHS" asp-action="AHS_ManageDesignationIntake" class="btn btn-outline-secondary sidebar-btn">💾 proceed to next</a>
+</div>
+
+<script>
+    const currentYear = new Date().getFullYear();
+    document.getElementById('year1').textContent = currentYear;
+    document.getElementById('year2').textContent = currentYear - 1;
+    document.getElementById('year3').textContent = currentYear - 2;
+</script>

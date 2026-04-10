@@ -1,0 +1,163 @@
+﻿@model CollegeDocsReportFilterViewModel
+
+@{
+    ViewData["Title"] = "College Docs Report";
+}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css" />
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a asp-controller="@ViewBag.Controller" asp-action="@ViewBag.Dashboard" asp-route-username="@ViewBag.UserName" class="nav-link btn btn-outline-primary">
+                        🏠 Home
+                    </a>
+                </li>
+            </ul>
+            @* <form asp-controller="@ViewBag.Controller" asp-action="Logout" method="post" class="mb-0">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form> *@
+        </div>
+    </div>
+</nav>
+
+<h2 class="mb-3">College Docs Report</h2>
+
+<!-- Filters -->
+<form asp-action="CollegeDocsReport" method="post">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-md-4">
+            <label>Faculty</label>
+            <select asp-for="FacultyCode" asp-items="Model.FacultyList" class="form-select">
+                <option value="">-- Select Faculty --</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label>College</label>
+            <select asp-for="CollegeCode" asp-items="Model.CollegeList" class="form-select">
+                <option value="">-- Select College --</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </div>
+</form>
+
+
+<!-- Table -->
+<table id="collegeDocsTable" class="display table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>College Name</th>
+            <th>College Town</th>
+            <th>All Docs For Course</th>
+            <th>Principal Name</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ReportData)
+        {
+            <tr>
+                <td>@item.CollegeName</td>
+                <td>@item.CollegeTown</td>
+                <td>@(item.AllDocsForCourse != null ? "Uploaded" : "Not Uploaded")</td>
+                <td>@item.PrincipalNameDeclared</td>
+                <td>
+                    @if (item.AllDocsForCourse != null)
+                    {
+                        <a asp-action="ViewDocument1"
+                           asp-controller="Collegelogin"
+                           asp-route-collegeCode="@item.CollegeCode"
+                           asp-route-documentType="AllDocuments"
+                           target="_blank"
+                           class="btn btn-outline-secondary btn-sm">
+                            View
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No File</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+@Html.Hidden("Myurl", Url.Action("GetCollegesByFaculty1", "Admin"))
+<script>
+    $(document).ready(function () {
+        // Function to get query parameters from URL
+ 
+        function getQueryParam(param) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        var selectedFaculty = getQueryParam("facultyName");
+        var selectedCollege = getQueryParam("collegeName");
+
+        // Set the selected Faculty & College from query string
+        if (selectedFaculty) {
+            $("#FacultyName").val(selectedFaculty);
+        }
+        if (selectedCollege) {
+            $("#CollegeName").val(selectedCollege);
+        }
+
+        // Load colleges when faculty changes
+        // Use FacultyCode and CollegeCode (because asp-for sets ID = property name)
+        $("#FacultyCode").change(function () {
+            var facultyCode = $(this).val();
+
+            $("#CollegeCode").empty().append('<option value="">-- Select College --</option>');
+
+            if (facultyCode) {
+                $.ajax({
+                    url: $("#Myurl").val(),
+                    type: 'GET',
+                    data: { facultyCode: facultyCode },
+                    dataType: 'json',
+                    success: function (data) {
+                        $.each(data, function (i, college) {
+                            $("#CollegeCode").append('<option value="' + college.value + '">' + college.text + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching colleges:', error);
+                    }
+                });
+            }
+        });
+
+
+
+        // Initialize DataTable ONCE here
+        $('#collegeDocsTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: ['excelHtml5', 'pdfHtml5', 'print'],
+            pageLength: 10
+        });
+    });
+</script>

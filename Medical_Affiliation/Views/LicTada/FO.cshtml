@@ -1,0 +1,354 @@
+﻿@model Medical_Affiliation.Models.LicTadaDashboardVM
+@{
+    Layout = null;
+    var userName = ViewBag.UserName as string ?? "Finance Officer";
+    var label = ViewBag.DesignationLabel as string ?? "Finance Officer";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Finance Officer — LIC TA/DA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/lictada.css" />
+    <style>
+        .lt-logout {
+            background: linear-gradient(135deg,#e03055,#ff6b81);
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'JetBrains Mono',monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }</style>
+</head>
+<body>
+    <nav class="lt-nav">
+        <div class="lt-brand">
+            <div class="lt-brand-icon">🎓</div>
+            <div>
+                <div class="lt-brand-name">LIC TA/DA Management</div>
+                <div class="lt-brand-sub">RGUHS · AFFILIATION PORTAL</div>
+            </div>
+        </div>
+        <div class="lt-user">
+            <span class="lt-desig-badge" style="background:#e8f0fd;color:#2d6be4;border:1.5px solid #b3cdfb">@label</span>
+            <span class="lt-uname">@userName</span>
+            <div class="lt-avatar" style="background:linear-gradient(135deg,#2d6be4,#6d35cc)">
+                @(userName.Length >= 2 ? userName.Substring(0, 2).ToUpper() : "FO")
+            </div>
+            <form asp-controller="Admin" asp-action="FinanceLogout" method="post" style="display:inline;">
+                <button type="submit" class="lt-logout">
+                    ⏏ Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="lt-page">
+        <div class="lt-page-hd">
+            <div class="lt-ph-left">
+                <h1>Finance Officer Dashboard</h1>
+                <p>LIC Inspection College — TA/DA Claim Processing</p>
+            </div>
+        </div>
+
+        <div class="lt-workflow">
+            <div class="lt-wf-step lt-wf-active"><span class="lt-wf-badge wfb-blue">FO</span><span class="lt-wf-label">Finance Officer</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-violet">CW</span><span class="lt-wf-label">Case Worker</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-gold">AO/SO</span><span class="lt-wf-label">Audit Officer</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step lt-wf-active"><span class="lt-wf-badge wfb-blue">FO2</span><span class="lt-wf-label">Final Approval</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-rose">Reject</span><span class="lt-wf-label">Director</span></div>
+            <span class="lt-wf-arrow">/ →</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-emerald">CS</span><span class="lt-wf-label">Cashier</span></div>
+        </div>
+
+        <div class="lt-tab-wrap">
+            <button class="lt-tab active" id="tabFresh" onclick="ltTab('fresh')">
+                📥 Fresh Records
+                <span class="lt-tab-badge" id="badgeFresh" style="background:#fff8e6;color:#c97b00;border:1px solid #fce49a">—</span>
+            </button>
+            <button class="lt-tab" id="tabFinal" onclick="ltTab('final')">
+                ✅ Final Approval
+                <span class="lt-tab-badge" id="badgeFinal" style="background:#e5f7f2;color:#0f9b6e;border:1px solid #86e0c8">—</span>
+            </button>
+        </div>
+
+        <!-- TAB 1 : Fresh Records -->
+        <div id="paneFresh">
+            <div class="lt-card">
+                <div class="lt-card-hd">
+                    <div>
+                        <div class="lt-card-title">📥 Fresh Records from Director</div>
+                        <div class="lt-card-sub">Approved by Director · Not yet forwarded to Case Worker</div>
+                    </div>
+                    <button class="lt-btn-sec" id="btnFresh" onclick="ltToggleFilter('filterFresh','btnFresh')">▼ Show Filters</button>
+                </div>
+                <div class="lt-filter" id="filterFresh" style="display:none">
+                    <div class="lt-fg">
+                        <label class="lt-lbl">📅 Academic Year</label>
+                        <select id="ltYearF" class="lt-sel">
+                            <option value="">— All Years —</option>
+                            @foreach (var y in Model.AcademicYears)
+                            {
+                                <option value="@y.Value">@y.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">🏛 Faculty</label>
+                        <select id="ltFacF" class="lt-sel">
+                            <option value="">— All Faculties —</option>
+                            @foreach (var f in Model.Faculties)
+                            {
+                                <option value="@f.Value">@f.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">🏫 College</label>
+                        <select id="ltColF" class="lt-sel">
+                            <option value="">— All Colleges —</option>
+                            @foreach (var c in Model.Colleges)
+                            {
+                                <option value="@c.Value">@c.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">&nbsp;</label>
+                        <button class="lt-btn-fetch" onclick="ltFetchFresh()">🔍 Fetch Records</button>
+                    </div>
+                </div>
+                <div id="gridFresh">
+                    <div class="lt-empty">
+                        <div style="font-size:42px;margin-bottom:10px">📋</div>
+                        Open filters and click Fetch to load fresh records
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2 : Final Approval -->
+        <div id="paneFinal" style="display:none">
+            <div class="lt-card">
+                <div class="lt-card-hd">
+                    <div>
+                        <div class="lt-card-title">✅ Final Approval</div>
+                        <div class="lt-card-sub">AO/SO verified · Awaiting your final approval before Cashier</div>
+                    </div>
+                    <button class="lt-btn-sec" id="btnFinal" onclick="ltToggleFilter('filterFinal','btnFinal')">▼ Show Filters</button>
+                </div>
+                <div class="lt-filter" id="filterFinal" style="display:none">
+                    <div class="lt-fg">
+                        <label class="lt-lbl">📅 Academic Year</label>
+                        <select id="ltYearN" class="lt-sel">
+                            <option value="">— All Years —</option>
+                            @foreach (var y in Model.AcademicYears)
+                            {
+                                <option value="@y.Value">@y.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">🏛 Faculty</label>
+                        <select id="ltFacN" class="lt-sel">
+                            <option value="">— All Faculties —</option>
+                            @foreach (var f in Model.Faculties)
+                            {
+                                <option value="@f.Value">@f.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">🏫 College</label>
+                        <select id="ltColN" class="lt-sel">
+                            <option value="">— All Colleges —</option>
+                            @foreach (var c in Model.Colleges)
+                            {
+                                <option value="@c.Value">@c.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">&nbsp;</label>
+                        <button class="lt-btn-fetch" onclick="ltFetchFinal()">🔍 Fetch Records</button>
+                    </div>
+                </div>
+                <div id="gridFinal">
+                    <div class="lt-empty">
+                        <div style="font-size:42px;margin-bottom:10px">📋</div>
+                        Open filters and click Fetch to load final approval records
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal overlay -->
+    <div id="ltOverlay"
+         style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(10,18,38,.65);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px"
+         onclick="ltCloseOut(event)">
+        <div style="background:#fff;border-radius:30px;width:100%;max-width:800px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 72px rgba(13,27,46,.22);animation:mIn .24s cubic-bezier(.34,1.2,.64,1)">
+            <div id="ltModalContent"><div class="lt-loading" style="padding:60px">⏳ Loading...</div></div>
+        </div>
+    </div>
+    <div id="ltToast" class="lt-toast" style="display:none"></div>
+
+    <style>
+        @@keyframes mIn {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(.96)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+    </style>
+
+    <script src="/js/lictada.js"></script>
+    <script>
+
+        // ── Tab switching ────────────────────────────────────────────────────
+        function ltTab(name) {
+            var isFresh = name === 'fresh';
+            document.getElementById('paneFresh').style.display = isFresh ? 'block' : 'none';
+            document.getElementById('paneFinal').style.display = isFresh ? 'none'  : 'block';
+            document.getElementById('tabFresh').className = 'lt-tab' + (isFresh ? ' active' : '');
+            document.getElementById('tabFinal').className = 'lt-tab' + (isFresh ? '' : ' active');
+        }
+
+        // ── Fetch grids ──────────────────────────────────────────────────────
+        function ltFetchFresh() {
+            ltDoFetch('/LicTada/FOFreshGrid', 'gridFresh',
+                document.getElementById('ltYearF').value,
+                document.getElementById('ltFacF').value,
+                document.getElementById('ltColF').value,
+                function (n) { document.getElementById('badgeFresh').textContent = n; });
+        }
+        function ltFetchFinal() {
+            ltDoFetch('/LicTada/FOFinalGrid', 'gridFinal',
+                document.getElementById('ltYearN').value,
+                document.getElementById('ltFacN').value,
+                document.getElementById('ltColN').value,
+                function (n) { document.getElementById('badgeFinal').textContent = n; });
+        }
+
+        // ── Forward to CW ────────────────────────────────────────────────────
+        // id  = r.MemberId (one Id from the college group)
+        // btn = the clicked button element
+        // No prompt(), no confirm(), no alert() — fires straight to DB.
+        // Service ForwardToCW(int id, string remarks):
+        //   Step 1 — SELECT CollegeCode, AcademicYear WHERE Id = Id
+        //   Step 2 — UPDATE WHERE CollegeCode = ? AND AcademicYear = ?
+        //              AND (FO_Level1_ApprovedStatus IS NULL OR FO_Level1_ApprovedStatus = '')
+        //   → ALL 3 rows (Senate / AC / Expert) updated in one query.
+        function ltForward(id, btn) {
+            btn.disabled    = true;
+            btn.textContent = '⏳ Forwarding...';
+
+            fetch('/LicTada/ForwardToCW', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    'id=' + id + '&remarks='
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (res.success) {
+                    btn.textContent       = '✅ Forwarded';
+                    btn.style.background  = '#e5f7f2';
+                    btn.style.color       = '#0f9b6e';
+                    btn.style.borderColor = '#86e0c8';
+                    btn.style.boxShadow   = 'none';
+                    ltToast('✓ All 3 records forwarded to Case Worker', 'ok');
+
+                    // Fade and remove all 3 sibling rows
+                    var firstRow = document.getElementById('fogrp_' + id);
+                    if (firstRow) {
+                        var midRow  = firstRow.nextElementSibling;
+                        var lastRow = midRow ? midRow.nextElementSibling : null;
+                        [firstRow, midRow, lastRow].forEach(function (row) {
+                            if (row) { row.style.transition = 'opacity .5s'; row.style.opacity = '.2'; }
+                        });
+                        setTimeout(function () {
+                            if (firstRow) firstRow.remove();
+                            if (midRow)   midRow.remove();
+                            if (lastRow)  lastRow.remove();
+                        }, 550);
+                    }
+                } else {
+                    ltToast('Forward failed. Please try again.', 'err');
+                    btn.disabled    = false;
+                    btn.textContent = '📤 Forward to CW';
+                }
+            })
+            .catch(function () {
+                ltToast('Network error. Please try again.', 'err');
+                btn.disabled    = false;
+                btn.textContent = '📤 Forward to CW';
+            });
+        }
+
+        // ── FO2: Approve (Final) ─────────────────────────────────────────────
+        function ltFO2Approve(id, btn) {
+            var rmk = prompt('Approval remarks (optional):') || '';
+            if (!confirm('APPROVE — send to Cashier?')) return;
+            btn.disabled = true; btn.textContent = '⏳';
+            fetch('/LicTada/FO2Approve', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    'id=' + id + '&remarks=' + encodeURIComponent(rmk)
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (res.success) { ltToast('✅ Approved — sent to Cashier', 'ok'); fadeRow(btn); }
+                else             { ltToast('Approval failed.', 'err'); btn.disabled = false; btn.textContent = '✅ Approve'; }
+            })
+            .catch(function () { ltToast('Network error.', 'err'); btn.disabled = false; });
+        }
+
+        // ── FO2: Reject ──────────────────────────────────────────────────────
+        function ltFO2Reject(id, btn) {
+            var rmk = prompt('Rejection reason (required):');
+            if (!rmk || !rmk.trim()) { ltToast('Remarks required.', 'err'); return; }
+            if (!confirm('REJECT — return to Director?')) return;
+            btn.disabled = true; btn.textContent = '⏳';
+            fetch('/LicTada/FO2Reject', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    'id=' + id + '&remarks=' + encodeURIComponent(rmk)
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (res.success) { ltToast('Rejected — returned to Director.', 'err'); fadeRow(btn); }
+                else             { ltToast('Reject failed.', 'err'); btn.disabled = false; btn.textContent = '❌ Reject'; }
+            })
+            .catch(function () { ltToast('Network error.', 'err'); btn.disabled = false; });
+        }
+
+        // ── Helper: fade & remove the row the button is in ───────────────────
+        function fadeRow(btn) {
+            var row = btn.closest('tr');
+            if (row) {
+                row.style.transition = 'opacity .5s';
+                row.style.opacity    = '.25';
+                setTimeout(function () { row.remove(); }, 600);
+            }
+        }
+
+    </script>
+</body>
+</html>

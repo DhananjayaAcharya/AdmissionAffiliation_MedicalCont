@@ -1,0 +1,2061 @@
+﻿@model List<LICCollegeDashboardViewModel>
+@{
+    ViewData["Title"] = "LIC College Claims Approval";
+    Layout = null;
+
+    int totalCount = Model.Count;
+    int pendingCount = Model.Count(c => c.ApprovalStatus == "Pending");
+    int approvedCount = Model.Count(c => c.ApprovalStatus == "Approved");
+    int rejectedCount = Model.Count(c => c.ApprovalStatus == "Rejected");
+    int mismatchCount = Model.Count(c =>
+        (c.SenateMember?.DateMismatchFlag ?? false) ||
+        (c.ACMember?.DateMismatchFlag ?? false) ||
+        (c.SubjectExpert?.DateMismatchFlag ?? false));
+    decimal totalClaims = Model.Sum(c => c.TotalCollegeClaim);
+
+    var pendingColleges = Model.Where(c => c.ApprovalStatus == "Pending").ToList();
+    var historyColleges = Model.Where(c => c.ApprovalStatus == "Approved" || c.ApprovalStatus == "Rejected").ToList();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #0A2342;
+            --navy-mid: #0F3460;
+            --navy-lt: #1A4A7A;
+            --gold: #C9A84C;
+            --gold-lt: #E8C97A;
+            --gold-pale: #FBF3DC;
+            --gold-bd: rgba(201,168,76,.25);
+            --surface: #F4F6FA;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --border-dk: #CBD5E1;
+            --t1: #0F172A;
+            --t2: #475569;
+            --t3: #94A3B8;
+            --green: #059669;
+            --green-bg: #ECFDF5;
+            --green-bd: rgba(5,150,105,.2);
+            --amber: #B45309;
+            --amber-bg: #FFFBEB;
+            --amber-bd: rgba(180,83,9,.15);
+            --red: #DC2626;
+            --red-bg: #FEF2F2;
+            --red-bd: rgba(220,38,38,.2);
+            --blue: #1D4ED8;
+            --blue-bg: #EFF6FF;
+            --blue-bd: rgba(29,78,216,.15);
+            --sidebar-w: 240px;
+            --header-h: 60px;
+            --r-sm: 6px;
+            --r-md: 10px;
+            --r-lg: 14px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+            --shadow: 0 4px 16px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+            --ease: cubic-bezier(.4,0,.2,1);
+        }
+
+        html {
+            font-size: 15px;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--t1);
+            min-height: 100vh;
+            display: flex;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════════════ SIDEBAR ══════════════════ */
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: var(--sidebar-w);
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            overflow: hidden;
+        }
+
+            .sidebar::before {
+                content: '';
+                position: absolute;
+                top: -80px;
+                right: -80px;
+                width: 240px;
+                height: 240px;
+                background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+        }
+
+            .sidebar-logo img {
+                width: 38px;
+                height: 38px;
+                border-radius: 8px;
+                object-fit: cover;
+                border: 2px solid rgba(201,168,76,.4);
+            }
+
+        .sidebar-logo-text {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--gold-lt);
+            letter-spacing: .03em;
+            line-height: 1.3;
+        }
+
+        .sidebar-logo-sub {
+            font-size: .65rem;
+            color: rgba(255,255,255,.35);
+            font-weight: 400;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 14px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+        }
+
+        .nav-section-lbl {
+            font-size: .6rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.22);
+            padding: 10px 10px 5px;
+            margin-top: 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.55);
+            text-decoration: none;
+            font-size: .84rem;
+            font-weight: 500;
+            transition: all .18s var(--ease);
+            position: relative;
+        }
+
+            .nav-link:hover {
+                background: rgba(255,255,255,.06);
+                color: rgba(255,255,255,.9);
+            }
+
+            .nav-link.active {
+                background: rgba(201,168,76,.14);
+                color: var(--gold-lt);
+                font-weight: 600;
+            }
+
+                .nav-link.active::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 20%;
+                    bottom: 20%;
+                    width: 3px;
+                    background: var(--gold);
+                    border-radius: 0 3px 3px 0;
+                }
+
+            .nav-link svg {
+                width: 17px;
+                height: 17px;
+                flex-shrink: 0;
+                opacity: .7;
+            }
+
+            .nav-link.active svg, .nav-link:hover svg {
+                opacity: 1;
+            }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--gold);
+            color: var(--navy);
+            font-size: .6rem;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 99px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: rgba(255,255,255,.07);
+            margin: 8px 14px;
+        }
+
+        .sidebar-footer {
+            padding: 10px 10px 14px;
+            border-top: 1px solid rgba(255,255,255,.07);
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 12px;
+            margin-bottom: 6px;
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--navy-lt) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .66rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: .78rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.8);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            font-size: .65rem;
+            color: rgba(255,255,255,.35);
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.45);
+            font-size: .8rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+            text-align: left;
+        }
+
+            .btn-logout:hover {
+                background: rgba(220,38,38,.1);
+                border-color: rgba(220,38,38,.22);
+                color: #FCA5A5;
+            }
+
+        /* ══════════════════ MAIN ══════════════════ */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════ TOPBAR ══════════════════ */
+        .topbar {
+            background: var(--navy);
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,.25);
+        }
+
+            .topbar::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 40%, transparent 100%);
+            }
+
+        .topbar-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .topbar-title {
+            font-size: .88rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.9);
+        }
+
+        .topbar-sep {
+            width: 1px;
+            height: 22px;
+            background: rgba(255,255,255,.12);
+        }
+
+        .topbar-sub {
+            font-size: .72rem;
+            color: rgba(255,255,255,.4);
+        }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topbar-date {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 12px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: var(--r-sm);
+            font-size: .72rem;
+            font-family: 'DM Mono', monospace;
+            color: rgba(255,255,255,.5);
+        }
+
+        .btn-back-topbar {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 16px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.75);
+            font-size: .8rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            transition: all .18s var(--ease);
+            white-space: nowrap;
+        }
+
+            .btn-back-topbar:hover {
+                background: rgba(255,255,255,.14);
+                color: #fff;
+            }
+
+        .ham-btn {
+            display: none;
+            width: 34px;
+            height: 34px;
+            border-radius: var(--r-sm);
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,.7);
+            cursor: pointer;
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 150;
+        }
+
+            .sidebar-backdrop.open {
+                display: block;
+            }
+
+        /* ══════════════════ PAGE CONTENT ══════════════════ */
+        .content {
+            flex: 1;
+            padding: 24px 24px 48px;
+        }
+
+        .rise {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: rise .42s var(--ease) forwards;
+        }
+
+        .d1 {
+            animation-delay: .05s;
+        }
+
+        .d2 {
+            animation-delay: .10s;
+        }
+
+        .d3 {
+            animation-delay: .15s;
+        }
+
+        .d4 {
+            animation-delay: .20s;
+        }
+
+        @@keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .page-hd {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .page-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 12px;
+            background: rgba(10,35,66,.06);
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            font-size: .64rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .page-title {
+            font-size: clamp(1.15rem, 2.5vw, 1.65rem);
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: -.025em;
+            line-height: 1.15;
+        }
+
+            .page-title em {
+                font-style: normal;
+                color: var(--gold);
+            }
+
+        .page-sub {
+            font-size: .78rem;
+            color: var(--t3);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ══════════════════ STAT CARDS ══════════════════ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 16px 18px 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform .2s var(--ease), box-shadow .2s;
+        }
+
+            .stat-card::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow);
+            }
+
+            .stat-card.s-navy::after {
+                background: linear-gradient(90deg, var(--navy), var(--navy-lt));
+            }
+
+            .stat-card.s-amber::after {
+                background: linear-gradient(90deg, var(--amber), #F59E0B);
+            }
+
+            .stat-card.s-green::after {
+                background: linear-gradient(90deg, var(--green), #34D399);
+            }
+
+            .stat-card.s-red::after {
+                background: linear-gradient(90deg, var(--red), #F87171);
+            }
+
+            .stat-card.s-blue::after {
+                background: linear-gradient(90deg, var(--blue), #60A5FA);
+            }
+
+        .stat-ico {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .si-navy {
+            background: rgba(10,35,66,.07);
+        }
+
+        .si-amber {
+            background: var(--amber-bg);
+        }
+
+        .si-green {
+            background: var(--green-bg);
+        }
+
+        .si-red {
+            background: var(--red-bg);
+        }
+
+        .si-blue {
+            background: var(--blue-bg);
+        }
+
+        .stat-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: -.04em;
+            line-height: 1;
+        }
+
+            .stat-num.sm {
+                font-size: 1.25rem;
+            }
+
+        .stat-lbl {
+            font-size: .62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--t3);
+            margin-top: 3px;
+        }
+
+        /* ══════════════════ FILTER PANEL ══════════════════ */
+        .filter-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-lbl {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--t3);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-select-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-select-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--navy);
+        }
+
+        .filter-panel select {
+            width: 100%;
+            appearance: none;
+            background: var(--surface);
+            border: 1px solid var(--border-dk);
+            border-radius: var(--r-sm);
+            padding: 8px 32px 8px 34px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .84rem;
+            color: var(--t1);
+            outline: none;
+            cursor: pointer;
+            transition: border-color .18s, box-shadow .18s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394A3B8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+
+            .filter-panel select:focus {
+                border-color: var(--navy);
+                box-shadow: 0 0 0 3px rgba(10,35,66,.08);
+            }
+
+        .mismatch-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--amber-bg);
+            border: 1px solid var(--amber-bd);
+            color: var(--amber);
+            border-radius: var(--r-sm);
+            padding: 5px 12px;
+            font-size: .7rem;
+            font-weight: 700;
+        }
+
+        /* ══════════════════ TABLE CARDS ══════════════════ */
+        .table-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .table-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 13px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .table-card-head.pending-head {
+                background: #FAFBFC;
+                border-left: 3px solid var(--amber);
+            }
+
+            .table-card-head.history-head {
+                background: #FAFBFC;
+                border-left: 3px solid var(--green);
+            }
+
+        .tch-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tch-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tchi-amber {
+            background: var(--amber-bg);
+        }
+
+        .tchi-green {
+            background: var(--green-bg);
+        }
+
+        .tch-title {
+            font-size: .88rem;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: -.01em;
+        }
+
+        .tch-sub {
+            font-size: .68rem;
+            color: var(--t3);
+            margin-top: 1px;
+        }
+
+        .record-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: .66rem;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .rp-amber {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bd);
+        }
+
+        .rp-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bd);
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: #F8FAFC;
+            border-bottom: 1px solid var(--border);
+            padding: 9px 16px;
+            text-align: left;
+            font-size: .64rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--t3);
+            white-space: nowrap;
+        }
+
+        .th-inner {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .12s;
+        }
+
+            tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            tbody tr:hover td {
+                background: #F8FAFC;
+            }
+
+            tbody tr.mm-row {
+                background: rgba(180,83,9,.025);
+            }
+
+                tbody tr.mm-row:hover td {
+                    background: rgba(180,83,9,.05);
+                }
+
+            tbody tr.hist-apv:hover td {
+                background: rgba(5,150,105,.03);
+            }
+
+            tbody tr.hist-rjt:hover td {
+                background: rgba(220,38,38,.03);
+            }
+
+        td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            font-size: .84rem;
+            color: var(--t2);
+        }
+
+        /* College cell */
+        .college-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .col-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            flex-shrink: 0;
+        }
+
+        .ca-default {
+            background: rgba(10,35,66,.07);
+            color: var(--navy);
+            border: 1px solid var(--border);
+        }
+
+        .ca-approved {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bd);
+        }
+
+        .ca-rejected {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bd);
+        }
+
+        .col-name {
+            font-weight: 600;
+            color: var(--t1);
+            font-size: .84rem;
+        }
+
+        /* Amount cell */
+        .amount-cell {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .amt-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 5px;
+            background: var(--amber-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .amt-val {
+            font-family: 'DM Mono', monospace;
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--t1);
+        }
+
+        /* Action buttons */
+        .action-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-approve, .btn-reject {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .76rem;
+            font-weight: 700;
+            padding: 7px 14px;
+            border-radius: var(--r-sm);
+            border: none;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+            white-space: nowrap;
+            min-height: 34px;
+        }
+
+        .btn-approve {
+            background: var(--green);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(5,150,105,.2);
+        }
+
+            .btn-approve:hover:not(:disabled) {
+                background: #047857;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 14px rgba(5,150,105,.3);
+            }
+
+        .btn-reject {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bd);
+        }
+
+            .btn-reject:hover:not(:disabled) {
+                background: var(--red);
+                color: #fff;
+                border-color: var(--red);
+                transform: translateY(-1px);
+                box-shadow: 0 3px 12px rgba(220,38,38,.25);
+            }
+
+            .btn-approve:disabled, .btn-reject:disabled {
+                opacity: .3;
+                cursor: not-allowed;
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+        .mm-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bd);
+            border-radius: var(--r-sm);
+            padding: 3px 9px;
+            font-size: .66rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        /* Status badges */
+        .s-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .03em;
+        }
+
+        .s-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+            .s-dot.blink {
+                animation: blink 1.5s ease infinite;
+            }
+
+        @@keyframes blink {
+            0%, 100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .2
+            }
+        }
+
+        .badge-approved {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bd);
+        }
+
+        .badge-rejected {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bd);
+        }
+
+        .badge-pending {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bd);
+        }
+
+        /* Remarks cell */
+        .remarks-cell {
+            font-size: .76rem;
+            color: var(--t2);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+            .remarks-cell.empty {
+                color: var(--t3);
+                font-style: italic;
+            }
+
+        /* Empty state */
+        .empty-state {
+            padding: 56px 24px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 52px;
+            height: 52px;
+            background: var(--green-bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .empty-state p {
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .empty-state span {
+            font-size: .78rem;
+            color: var(--t3);
+        }
+
+        /* History divider */
+        .history-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 22px 0 14px;
+        }
+
+        .hdiv-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .hdiv-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .66rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--t3);
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 5px 14px;
+            border-radius: 99px;
+            white-space: nowrap;
+        }
+
+        /* ══════════════════ LIC FILE UPLOAD CELL ══════════════════ */
+        .lic-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .75rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: var(--r-sm);
+            border: 1px dashed rgba(220,38,38,.4);
+            background: var(--red-bg);
+            color: var(--red);
+            cursor: pointer;
+            transition: all .18s var(--ease);
+            white-space: nowrap;
+        }
+
+            .lic-upload-btn:hover {
+                background: var(--red);
+                color: #fff;
+                border-style: solid;
+                border-color: var(--red);
+                transform: translateY(-1px);
+                box-shadow: 0 3px 12px rgba(220,38,38,.22);
+            }
+
+        .lic-file-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .lic-file-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--green-bg);
+            border: 1px solid var(--green-bd);
+            color: var(--green);
+            border-radius: var(--r-sm);
+            padding: 3px 9px;
+            font-size: .68rem;
+            font-weight: 700;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .lic-file-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .lic-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: var(--r-sm);
+            border: 1px solid var(--border-dk);
+            background: var(--card);
+            color: var(--t2);
+            cursor: pointer;
+            transition: all .16s var(--ease);
+            white-space: nowrap;
+        }
+
+            .lic-action-btn.view-btn:hover {
+                background: var(--blue-bg);
+                border-color: rgba(29,78,216,.25);
+                color: var(--blue);
+            }
+
+            .lic-action-btn.replace-btn:hover {
+                background: var(--amber-bg);
+                border-color: var(--amber-bd);
+                color: var(--amber);
+            }
+
+        /* SweetAlert2 overrides */
+        .sa-popup {
+            font-family: 'DM Sans',sans-serif !important;
+            border-radius: var(--r-lg) !important;
+            border: 1px solid var(--border) !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,.12) !important;
+        }
+
+        .sa-title {
+            font-weight: 700 !important;
+            font-size: 1rem !important;
+            color: var(--navy) !important;
+        }
+
+        .sa-html {
+            font-size: .84rem !important;
+            color: var(--t2) !important;
+        }
+
+        .sa-input {
+            font-family: 'DM Sans',sans-serif !important;
+            font-size: .84rem !important;
+            border: 1px solid var(--border-dk) !important;
+            border-radius: var(--r-sm) !important;
+            color: var(--t1) !important;
+        }
+
+            .sa-input:focus {
+                border-color: var(--navy) !important;
+                box-shadow: 0 0 0 3px rgba(10,35,66,.08) !important;
+            }
+
+        .sa-lbl {
+            font-size: .65rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: .06em !important;
+            color: var(--t3) !important;
+        }
+
+        .sa-conf, .sa-cancel {
+            font-family: 'DM Sans',sans-serif !important;
+            font-weight: 700 !important;
+            font-size: .84rem !important;
+            border-radius: var(--r-sm) !important;
+        }
+
+        /* ══════════════════ RESPONSIVE ══════════════════ */
+        @@media (max-width: 1280px) {
+            .stats-grid {
+                grid-template-columns: repeat(3,1fr);
+            }
+        }
+
+        @@media (max-width: 1100px) {
+            .hide-md {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 991px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                width: var(--sidebar-w);
+                height: calc(100vh - var(--header-h));
+                top: var(--header-h);
+                transform: translateX(-100%);
+                transition: transform .3s var(--ease);
+                box-shadow: 4px 0 24px rgba(0,0,0,.3);
+            }
+
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+
+                .sidebar::before {
+                    display: none;
+                }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .ham-btn {
+                display: flex;
+            }
+
+            .topbar-date, .topbar-sub {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2,1fr);
+            }
+
+                .stats-grid .stat-card:nth-child(5) {
+                    grid-column: 1 / -1;
+                }
+
+            .content {
+                padding: 16px 14px 40px;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tbody tr {
+                display: block;
+                margin: 8px 0;
+                border: 1px solid var(--border);
+                border-radius: var(--r-md);
+                overflow: hidden;
+            }
+
+                tbody tr:last-child {
+                    border-bottom: 1px solid var(--border);
+                }
+
+                tbody tr.mm-row {
+                    border-color: var(--amber-bd);
+                }
+
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                border-bottom: 1px solid var(--border);
+                padding: 10px 14px;
+            }
+
+                td:last-child {
+                    border-bottom: none;
+                }
+
+                td::before {
+                    content: attr(data-label);
+                    font-size: .6rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: .08em;
+                    color: var(--t3);
+                    flex-shrink: 0;
+                    min-width: 100px;
+                }
+
+                td[data-label="Action"] {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 7px;
+                }
+
+                    td[data-label="Action"]::before {
+                        padding-top: 0;
+                    }
+
+            .action-row {
+                width: 100%;
+            }
+
+            .btn-approve, .btn-reject {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+                .stats-grid .stat-card:nth-child(5) {
+                    grid-column: 1 / -1;
+                }
+
+            .stat-num {
+                font-size: 1.4rem;
+            }
+
+                .stat-num.sm {
+                    font-size: 1.1rem;
+                }
+
+            .content {
+                padding: 12px 10px 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar backdrop -->
+    <div class="sidebar-backdrop" id="sideBackdrop" onclick="closeSidebar()"></div>
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="~/images/logo.jpg" alt="Logo" />
+            <div>
+                <div class="sidebar-logo-text">LIC Director</div>
+                <div class="sidebar-logo-sub">Command Centre</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-lbl">Main</div>
+
+            <a class="nav-link" asp-controller="LIC_Director" asp-action="Dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+            </a>
+
+            <a class="nav-link" asp-controller="LICInspectionEditMember" asp-action="SEedit">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Inspection Team
+                @if ((ViewBag.PendingCount ?? 0) > 0)
+                {
+                    <span class="nav-badge">@(ViewBag.PendingCount ?? 0)</span>
+                }
+            </a>
+
+            <a class="nav-link active" asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                College Claims
+            </a>
+
+            <a class="nav-link" asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                All Claims
+            </a>
+        </nav>
+
+        <div class="nav-divider"></div>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar">DR</div>
+                <div>
+                    <div class="user-name">Director</div>
+                    <div class="user-role">LIC Admin</div>
+                </div>
+            </div>
+            <a class="btn-logout" href="@Url.Action("Logout", "LIC_Director")">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════
+         MAIN
+    ══════════════════════════════════════════ -->
+    <div class="main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <button class="ham-btn" onclick="toggleSidebar()">
+                <svg id="hamIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <div style="display:flex;align-items:center;gap:8px">
+                <div class="topbar-dot"></div>
+                <span class="topbar-title">College Claims Approval</span>
+                <div class="topbar-sep"></div>
+                <span class="topbar-sub">Director Panel</span>
+            </div>
+
+            <div class="topbar-right">
+                <div class="topbar-date">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                    <span id="todayDate"></span>
+                </div>
+                <a class="btn-back-topbar" asp-controller="LIC_Director" asp-action="Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    Dashboard
+                </a>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+
+            <!-- Page heading -->
+            <div class="page-hd rise">
+                <div>
+                    <div class="page-eyebrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                        Director Panel
+                    </div>
+                    <h1 class="page-title">College <em>Inspection Claims</em></h1>
+                    <p class="page-sub">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                        Review and approve claims before disbursement
+                    </p>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stats-grid rise d1">
+                <div class="stat-card s-navy">
+                    <div class="stat-ico si-navy">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="#0A2342" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5" /></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num">@totalCount</div>
+                        <div class="stat-lbl">Total Colleges</div>
+                    </div>
+                </div>
+
+                <div class="stat-card s-amber">
+                    <div class="stat-ico si-amber">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num">@pendingCount</div>
+                        <div class="stat-lbl">Pending</div>
+                    </div>
+                </div>
+
+                <div class="stat-card s-green">
+                    <div class="stat-ico si-green">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num">@approvedCount</div>
+                        <div class="stat-lbl">Approved</div>
+                    </div>
+                </div>
+
+                <div class="stat-card s-red">
+                    <div class="stat-ico si-red">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num">@rejectedCount</div>
+                        <div class="stat-lbl">Rejected</div>
+                    </div>
+                </div>
+
+                <div class="stat-card s-blue">
+                    <div class="stat-ico si-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="#1D4ED8" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num sm">₹@((totalClaims / 1000).ToString("N0"))K</div>
+                        <div class="stat-lbl">Total Claims</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter panel -->
+            <div class="filter-panel rise d2">
+                <span class="filter-lbl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                    Filter College
+                </span>
+                <form method="get" asp-action="CollegeClaimsDashboard" style="display:contents;">
+                    <div class="filter-select-wrap">
+                        <div class="filter-select-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </div>
+                        <select name="collegeCode" onchange="this.form.submit()">
+                            <option value="">— All Colleges —</option>
+                            @foreach (var college in ViewBag.Colleges as List<SelectListItem>)
+                            {
+                                <option value="@college.Value" selected="@(ViewBag.SelectedCollege == college.Value)">@college.Text</option>
+                            }
+                        </select>
+                    </div>
+                </form>
+                @if (mismatchCount > 0)
+                {
+                    <div class="mismatch-pill">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        @mismatchCount college(s) with date mismatches
+                    </div>
+                }
+            </div>
+
+            <!-- ═══════════════════════════════════════
+                 PENDING TABLE
+            ═══════════════════════════════════════ -->
+            <div class="table-card rise d3">
+                <div class="table-card-head pending-head">
+                    <div class="tch-left">
+                        <div class="tch-icon tchi-amber">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <div>
+                            <div class="tch-title">Pending Approval</div>
+                            <div class="tch-sub">Review each record carefully before taking action</div>
+                        </div>
+                    </div>
+                    <span class="record-pill rp-amber">@pendingColleges.Count @(pendingColleges.Count == 1 ? "Record" : "Records")</span>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="th-inner">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" /></svg>
+                                        College
+                                    </div>
+                                </th>
+                                <th class="hide-md"><div class="th-inner">Senate Member</div></th>
+                                <th class="hide-md"><div class="th-inner">AC Member</div></th>
+                                <th class="hide-md"><div class="th-inner">Subject Expert</div></th>
+                                <th>
+                                    <div class="th-inner">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        LIC Approval File
+                                    </div>
+                                </th>
+                                <th><div class="th-inner">Total Claim</div></th>
+                                <th><div class="th-inner">Action</div></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!pendingColleges.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" style="padding:0;border:none;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            </div>
+                                            <p>All Caught Up!</p>
+                                            <span>No pending approvals at this time.</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var college in pendingColleges)
+                                {
+                                    bool hasMM =
+                                    (college.SenateMember?.DateMismatchFlag ?? false) ||
+                                    (college.ACMember?.DateMismatchFlag ?? false) ||
+                                    (college.SubjectExpert?.DateMismatchFlag ?? false);
+                                    string ini = college.CollegeName?.Length > 0
+                                    ? college.CollegeName.Substring(0, Math.Min(2, college.CollegeName.Length)).ToUpper() : "C";
+
+                                    <tr class="@(hasMM ? "mm-row" : "")">
+                                        <td data-label="College">
+                                            <div class="college-cell">
+                                                <div class="col-avatar ca-default">@ini</div>
+                                                <span class="col-name">@college.CollegeName</span>
+                                            </div>
+                                        </td>
+                                        <td data-label="Senate Member" class="hide-md">
+                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.SenateMember, CollegeCode = college.CollegeCode })
+                                        </td>
+                                        <td data-label="AC Member" class="hide-md">
+                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.ACMember, CollegeCode = college.CollegeCode })
+                                        </td>
+                                        <td data-label="Subject Expert" class="hide-md">
+                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.SubjectExpert, CollegeCode = college.CollegeCode })
+                                        </td>
+
+                                        <td data-label="LIC Approval File">
+                                            @if (!string.IsNullOrEmpty(college.LicApprovalFileName))
+                                            {
+                                                <div class="lic-file-info">
+                                                    <span class="lic-file-name" title="@college.LicApprovalFileName">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                                        @college.LicApprovalFileName
+                                                    </span>
+                                                    <div class="lic-file-actions">
+                                                        <button type="button" class="lic-action-btn view-btn"
+                                                                onclick="viewLicFile('@college.CollegeCode')">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                            View
+                                                        </button>
+                                                        <button type="button" class="lic-action-btn replace-btn"
+                                                                onclick="triggerLicUpload('@college.CollegeCode')">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                            Replace
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" class="lic-upload-btn"
+                                                        onclick="triggerLicUpload('@college.CollegeCode')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                                    Upload PDF
+                                                </button>
+                                            }
+                                            <input type="file"
+                                                   id="licFile_@college.CollegeCode"
+                                                   accept=".pdf"
+                                                   style="display:none"
+                                                   onchange="uploadLicFile(this, '@college.CollegeCode')" />
+                                        </td>
+
+                                        <td data-label="Total Claim">
+                                            <div class="amount-cell">
+                                                <div class="amt-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                </div>
+                                                <span class="amt-val">₹@college.TotalCollegeClaim.ToString("N2")</span>
+                                            </div>
+                                        </td>
+                                        <td data-label="Action">
+                                            <div>
+                                                <div class="action-row">
+                                                    <button class="btn-approve" onclick="approveCollege('@college.CollegeCode', @hasMM.ToString().ToLower())">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                                        Approve
+                                                    </button>
+                                                    <button class="btn-reject" onclick="rejectCollege('@college.CollegeCode')">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                        Reject
+                                                    </button>
+                                                </div>
+                                                @if (hasMM)
+                                                {
+                                                    <div class="mm-inline">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                                        Date mismatch detected
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════
+                 HISTORY TABLE
+            ═══════════════════════════════════════ -->
+            @if (historyColleges.Any())
+            {
+                <div class="history-divider rise d4">
+                    <div class="hdiv-line"></div>
+                    <div class="hdiv-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Decision History
+                    </div>
+                    <div class="hdiv-line"></div>
+                </div>
+
+                <div class="table-card rise d4">
+                    <div class="table-card-head history-head">
+                        <div class="tch-left">
+                            <div class="tch-icon tchi-green">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                            </div>
+                            <div>
+                                <div class="tch-title">Approved &amp; Rejected Records</div>
+                                <div class="tch-sub">Historical log of all decisions taken</div>
+                            </div>
+                        </div>
+                        <span class="record-pill rp-green">@historyColleges.Count @(historyColleges.Count == 1 ? "Record" : "Records")</span>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><div class="th-inner">College</div></th>
+                                    <th class="hide-md"><div class="th-inner">Senate Member</div></th>
+                                    <th class="hide-md"><div class="th-inner">AC Member</div></th>
+                                    <th class="hide-md"><div class="th-inner">Subject Expert</div></th>
+                                    <th><div class="th-inner">Total Claim</div></th>
+                                    <th><div class="th-inner">Remarks</div></th>
+                                    <th><div class="th-inner">Status</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var college in historyColleges.OrderByDescending(c => c.ApprovalStatus))
+                                {
+                                    bool isApproved = college.ApprovalStatus == "Approved";
+                                    string ini = college.CollegeName?.Length > 0
+                                    ? college.CollegeName.Substring(0, Math.Min(2, college.CollegeName.Length)).ToUpper() : "C";
+                                    string rowClass = isApproved ? "hist-apv" : "hist-rjt";
+                                    string avatarClass = isApproved ? "ca-approved" : "ca-rejected";
+
+                                    <tr class="@rowClass">
+                                        <td data-label="College">
+                                            <div class="college-cell">
+                                                <div class="col-avatar @avatarClass">@ini</div>
+                                                <span class="col-name">@college.CollegeName</span>
+                                            </div>
+                                        </td>
+                                        <td data-label="Senate Member" class="hide-md">
+                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.SenateMember, CollegeCode = college.CollegeCode })
+                                        </td>
+                                        <td data-label="AC Member" class="hide-md">
+                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.ACMember, CollegeCode = college.CollegeCode })
+                                        </td>
+                                        <td data-label="Subject Expert" class="hide-md">
+                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.SubjectExpert, CollegeCode = college.CollegeCode })
+                                        </td>
+                                        <td data-label="Total Claim">
+                                            <div class="amount-cell">
+                                                <div class="amt-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                </div>
+                                                <span class="amt-val">₹@college.TotalCollegeClaim.ToString("N2")</span>
+                                            </div>
+                                        </td>
+                                        <td data-label="Remarks">
+                                            @if (!string.IsNullOrWhiteSpace(college.Remarks))
+                                            {
+                                                <span class="remarks-cell" title="@college.Remarks">@college.Remarks</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="remarks-cell empty">No remarks</span>
+                                            }
+                                        </td>
+                                        <td data-label="Status">
+                                            @if (isApproved)
+                                            {
+                                                <span class="s-badge badge-approved">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                                    Approved
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="s-badge badge-rejected">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                    Rejected
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+        </div><!-- /content -->
+    </div><!-- /main -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // ── Date ─────────────────────────────────────────────────────────────
+        document.getElementById('todayDate').textContent =
+            new Date().toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+
+        // ── SweetAlert shared theme ───────────────────────────────────────────
+        const SA = {
+            background: '#fff',
+            color: '#0F172A',
+            borderRadius: '14px',
+            customClass: {
+                popup:         'sa-popup',
+                title:         'sa-title',
+                htmlContainer: 'sa-html',
+                input:         'sa-input',
+                inputLabel:    'sa-lbl',
+                confirmButton: 'sa-conf',
+                cancelButton:  'sa-cancel'
+            }
+        };
+
+        // ── Approve / Reject ─────────────────────────────────────────────────
+        function approveCollege(code, mm) {
+            const warn = mm
+                ? `<div style="margin:0 0 12px;padding:10px 14px;border-radius:8px;
+                      background:var(--amber-bg,#FFFBEB);border:1px solid rgba(180,83,9,.2);
+                      color:#B45309;font-size:.8rem;">
+                      <strong>⚠ Date mismatch detected.</strong> You can still proceed.
+                   </div>` : '';
+            Swal.fire({
+                ...SA,
+                icon: mm ? 'warning' : 'question',
+                iconColor: mm ? '#B45309' : '#059669',
+                title: 'Confirm Approval',
+                html: warn + `<p style="color:#475569;font-size:.83rem;margin-bottom:4px;">Add optional remarks for the record.</p>`,
+                input: 'textarea',
+                inputLabel: 'Remarks (Optional)',
+                inputPlaceholder: 'E.g. All documents verified and approved...',
+                showCancelButton: true,
+                confirmButtonText: '✓ Confirm Approval',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#059669',
+                cancelButtonColor: '#E2E8F0',
+            }).then(result => {
+                if (!result.isConfirmed) return;
+                Swal.fire({ ...SA, title: 'Saving…', html: '<p style="color:#475569">Recording approval.</p>', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                postAction('@Url.Action("ApproveCollege", "LIC_Director")', code, result.value || '');
+            });
+        }
+
+        function rejectCollege(code) {
+            Swal.fire({
+                ...SA,
+                icon: 'warning',
+                iconColor: '#DC2626',
+                title: 'Reject this College?',
+                html: '<p style="color:#475569;font-size:.83rem;">Provide a clear reason — this will be logged.</p>',
+                input: 'textarea',
+                inputLabel: 'Reason for Rejection (Required)',
+                inputPlaceholder: 'E.g. Date discrepancy, missing documents...',
+                inputValidator: v => !v?.trim() ? 'A reason is required.' : null,
+                showCancelButton: true,
+                confirmButtonText: '✕ Confirm Rejection',
+                cancelButtonText: 'Go Back',
+                confirmButtonColor: '#DC2626',
+                cancelButtonColor: '#E2E8F0',
+            }).then(r => {
+                if (r.isConfirmed) postAction('@Url.Action("RejectCollege", "LIC_Director")', code, r.value);
+            });
+        }
+
+        function postAction(url, code, remarks) {
+            const f = document.createElement('form');
+            f.method = 'post'; f.action = url;
+            [['collegeCode', code], ['remarks', remarks]].forEach(([n, v]) => {
+                const i = document.createElement('input');
+                i.type = 'hidden'; i.name = n; i.value = v;
+                f.appendChild(i);
+            });
+            document.body.appendChild(f);
+            f.submit();
+        }
+
+        // ── LIC File Upload ───────────────────────────────────────────────────
+        function triggerLicUpload(collegeCode) {
+            document.getElementById('licFile_' + collegeCode).click();
+        }
+
+        function uploadLicFile(input, collegeCode) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                Swal.fire({
+                    ...SA, icon: 'error', iconColor: '#DC2626',
+                    title: 'Invalid File',
+                    html: '<p style="color:#475569;font-size:.83rem;">Only PDF files are allowed.</p>'
+                });
+                input.value = '';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('collegeCode', collegeCode);
+            formData.append('licFile', file);
+
+            Swal.fire({
+                ...SA,
+                title: 'Uploading…',
+                html: '<p style="color:#475569;font-size:.83rem;">Saving file for all members of this college.</p>',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch('/LIC_Director/UploadLicApprovalOnly', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async res => {
+                if (res.ok) {
+                    const data = await res.json();
+                    await Swal.fire({
+                        ...SA,
+                        icon: 'success', iconColor: '#059669',
+                        title: 'Uploaded Successfully!',
+                        html: `<p style="color:#475569;font-size:.83rem;"><strong>${data.fileName}</strong> has been saved for all members of this college.</p>`,
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                    location.reload();
+                } else {
+                    const msg = await res.text();
+                    Swal.fire({
+                        ...SA, icon: 'error', iconColor: '#DC2626',
+                        title: 'Upload Failed',
+                        html: `<p style="color:#475569;font-size:.83rem;">${msg}</p>`
+                    });
+                }
+            })
+            .catch(() => Swal.fire({
+                ...SA, icon: 'error', iconColor: '#DC2626',
+                title: 'Error',
+                html: '<p style="color:#475569;font-size:.83rem;">An unexpected error occurred. Please try again.</p>'
+            }))
+            .finally(() => { input.value = ''; });
+        }
+
+        function viewLicFile(collegeCode) {
+            Swal.fire({
+                ...SA, title: 'Loading…',
+                html: '<p style="color:#475569;font-size:.83rem;">Fetching document…</p>',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch('/LIC_Director/GetLicApprovalFile?collegeCode=' + collegeCode)
+                .then(async res => {
+                    if (!res.ok) {
+                        Swal.fire({
+                            ...SA, icon: 'warning', iconColor: '#B45309',
+                            title: 'Not Found',
+                            html: '<p style="color:#475569;font-size:.83rem;">No approval file found for this college.</p>'
+                        });
+                        return;
+                    }
+                    const data = await res.json();
+                    const bytes = atob(data.fileData);
+                    const buf = new Uint8Array(bytes.length);
+                    for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
+                    const blob = new Blob([buf], { type: 'application/pdf' });
+                    Swal.close();
+                    window.open(URL.createObjectURL(blob), '_blank');
+                })
+                .catch(() => Swal.fire({
+                    ...SA, icon: 'error', iconColor: '#DC2626',
+                    title: 'Error',
+                    html: '<p style="color:#475569;font-size:.83rem;">Could not load the document.</p>'
+                }));
+        }
+
+        // ── Sidebar toggle ────────────────────────────────────────────────────
+        function toggleSidebar() {
+            const s  = document.getElementById('sidebar');
+            const bd = document.getElementById('sideBackdrop');
+            const ic = document.getElementById('hamIcon');
+            const open = s.classList.toggle('open');
+            bd.classList.toggle('open', open);
+            ic.innerHTML = open
+                ? '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>'
+                : '<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>';
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sideBackdrop').classList.remove('open');
+            document.getElementById('hamIcon').innerHTML =
+                '<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>';
+            document.body.style.overflow = '';
+        }
+
+        document.querySelectorAll('.nav-link').forEach(l =>
+            l.addEventListener('click', () => { if (window.innerWidth < 992) closeSidebar(); })
+        );
+
+        window.addEventListener('resize', () => { if (window.innerWidth >= 992) closeSidebar(); });
+    </script>
+
+</body>
+</html>

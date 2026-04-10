@@ -1,0 +1,147 @@
+﻿@model List<NodalOfficerAdminViewModel>
+@{
+    ViewData["Title"] = "Nodal Officer List";
+}
+
+<style>
+    .main-container{
+        background: white;
+        padding: 15px 22px;
+        border-radius: 10px;
+    }
+    h2{
+        margin: 15px;
+        text-align:center;
+    }
+</style>
+
+<div class="container-fluid main-container">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a asp-controller="@ViewBag.Controller" asp-action="@ViewBag.Dashboard" asp-route-username="@ViewBag.UserName" class="nav-link btn btn-outline-primary">
+                            🏠 Home
+                        </a>
+                    </li>
+                </ul>
+                @* <form asp-controller="@ViewBag.Controller" asp-action="Logout" method="post" class="mb-0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form> *@
+            </div>
+        </div>
+    </nav>
+    <h2>Nodal Officers Details</h2>
+
+    <table class="table table-bordered table-striped nodalOfficerTable">
+        <thead>
+            <tr>
+                <th>Officer Name</th>
+                <th>Faculty</th>
+                <th>College</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Initiative</th>
+                <th>Edit Allowed</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var officer in Model)
+            {
+                <tr>
+                    <td>@officer.NodalOfficerName</td>
+                    <td>@officer.FacultyName</td>
+                    <td>@officer.CollegeName</td>
+                    <td>@officer.PhoneNumber</td>
+                    <td>@officer.EmailId</td>
+                    <td>
+                        <ol>
+                            @foreach (var initiative in officer.AvailableInitiatives)
+                            {
+                                <li>@initiative.Name</li>
+                            }
+                        </ol>
+                    </td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-sm toggle-edit-btn @(officer.IsEditable ? "btn-success" : "btn-secondary")"
+                                data-officerid="@officer.Id">
+                            @(officer.IsEditable ? "Editing Allowed" : "Enable Edit")
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $(".toggle-edit-btn").click(function (e) {
+            e.preventDefault();
+            var button = $(this);
+            var officerId = button.data("officerid");
+            var initiativeId = button.data("initiativeid");
+
+            $.post('@Url.Action("ToggleEditAjax","Admin")',
+                { officerId: officerId, initiativeId: initiativeId },
+                function (response) {
+                    if (response.canEdit) {
+                        button.removeClass("btn-secondary").addClass("btn-success");
+                        button.text("Editing Allowed");
+                    } else {
+                        button.removeClass("btn-success").addClass("btn-secondary");
+                        button.text("Enable Edit");
+                    }
+                });
+        });
+
+        var table = $('.nodalOfficerTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'pdfHtml5',
+                    title: 'Nodal Officers Data',
+                    exportOptions: {
+                        columns: ':visible'
+                    },
+                    orientation: 'landscape',
+                    pageSize: 'A4'
+                },
+                {
+                    extend: 'excelHtml5',
+                    title: 'Nodal Officers Data',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    title: 'Nodal Officers Data',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+            ],
+        });
+    });
+</script>

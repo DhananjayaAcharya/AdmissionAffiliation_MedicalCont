@@ -1,0 +1,508 @@
+﻿@model Medical_Affiliation.Models.UGPGSSDetailsFormViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+@{
+    ViewData["Title"] = "Nodal Officer Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 2;
+}
+<style>
+    /* Global modern look */
+    .main-container {
+        margin-left: 10rem;
+        background: #ffffff;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-height: 100vh;
+        overflow-y: auto;
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* Form label styling */
+    .form-check-label {
+        font-weight: 600;
+        color: #1f2a44;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Specialization grid */
+    #specializationOptions {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+        margin-top: 1.5rem;
+    }
+
+    .form-check {
+        padding: 14px 20px;
+        border-radius: 12px;
+        background: #f9fafb;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid #e5e7eb;
+    }
+
+        .form-check:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+        }
+
+    /* Sticky progress bar */
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ffffff;
+        padding: 0.75rem 0; /* Reduced padding for minimalism */
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem; /* Clean, even spacing */
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db #f9fafb;
+    }
+
+    .progress-step-btn {
+        background: none; /* No background */
+        border: none;
+        padding: 0.5rem 0;
+        font-weight: 500; /* Lighter weight for simplicity */
+        font-family: 'Inter', sans-serif;
+        color: #6b7280; /* Neutral gray */
+        font-size: 0.95rem; /* Slightly larger for readability */
+        transition: color 0.2s ease; /* Minimal transition */
+        text-transform: capitalize; /* Less aggressive than uppercase */
+    }
+
+        .progress-step-btn:hover:not(:disabled) {
+            color: #1f2a44; /* Darker gray on hover */
+        }
+
+        .progress-step-btn.active {
+            color: #3b82f6; /* Blue for active */
+            font-weight: 600; /* Slight emphasis */
+        }
+
+        .progress-step-btn.completed {
+            color: #22c55e; /* Green for completed */
+            font-weight: 600;
+        }
+
+    /* Table styling */
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    #facultyTable {
+        width: 100%;
+        border-spacing: 0;
+        font-family: 'Inter', sans-serif;
+        background: #ffffff;
+    }
+
+        #facultyTable th, #facultyTable td {
+            padding: 14px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s ease;
+        }
+
+        #facultyTable thead th {
+            background: #f3f4f6;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #1f2a44;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #facultyTable tbody tr:hover {
+            background: #f9fafb;
+        }
+</style>
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+<div class="main-container">
+
+    <div class="card-header bg-light">
+        <nav aria-label="Form progress">
+            <div class="d-flex justify-content-between align-items-center">
+                @using System.Text.RegularExpressions
+                @{
+                    var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+                    var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+                    // Define step urls here
+                    var stepUrls = new[] {
+                                Url.Action("Nursing_BasicDetails", "Aff_Nursing"),
+                                Url.Action("Nursing_ManageCourses", "Aff_Nursing"),
+                                Url.Action("Nursing_YearwiseMaterials", "Aff_Nursing"),
+                                Url.Action("Nursing_Affiliated_YearwiseMaterials", "Aff_Nursing"),
+                                Url.Action("Nursing_TeachingFacultyDetails", "Aff_Nursing"),
+                                Url.Action("Nursing_FacultyDetails", "Aff_Nursing"),
+                                Url.Action("FacultyExamResults", "Aff_Nursing")
+                                };
+                    var stepTitles = new[] {
+                                "Basic Institute Details",
+                                "Course Details",
+                                "Clinical Material Details",
+                                "Affiliated Clinical Material",
+                                "Designation Details",
+                                "Add College Faculty",
+                                "College Performance"
+                                };
+                }
+                <span class="fw-bold mb-0">@collegeName</span>
+                <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-danger">Logout</button>
+                </form>
+            </div>
+
+            <ul class="progressbar-pipeline" role="progressbar">
+                @for (int i = 0; i < stepTitles.Length; i++)
+                {
+                    var isActive = (currentStep == i + 1);
+                    var isCompleted = (currentStep > i + 1);
+                    <li class="@(isCompleted ? "completed" : "")">
+                        <form method="get" action="@stepUrls[i]" style="display:inline;">
+                            <button type="submit"
+                                    class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))"
+
+                                    @(isActive ? "" : "")>
+                                @stepTitles[i]
+                            </button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+    <div class="container mt-4">
+        <h2 class="mb-3 text-primary">Manage Nursing Courses</h2>
+        <form asp-action="Nursing_ManageCourses" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="FacultyCode" />
+            <input type="hidden" asp-for="CollegeCode" />
+
+            <!-- UG COURSES -->
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">UG Courses</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-sm" id="ugTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Course</th>
+                                <th>Intake</th>
+                                <th>Fresh / Increase</th>
+                                <th>First LOP Date</th>
+                                <th>Seats</th>
+                                <th>Permitted Year</th>
+                                <th>Recognized Year</th>
+                                <th>RGUHS File</th>
+                                <th>GOK File</th>
+                                <th>KSNC File</th>
+                                <th>INC File</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.UGDetailsList.Count; i++)
+                            {
+                              <tr>
+                                    <td>
+                                        @Html.DropDownListFor(m => m.UGDetailsList[i].Course,
+                                        new SelectList(Model.UGCourses, "CourseCode", "CourseName", Model.UGDetailsList[i].Course),
+                                                                    "Select Course", new { @class = "form-control" })
+                                   </td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.UGDetailsList[i].UGIntake, new { @class = "form-control" })
+                                </td>
+
+                                <td>@Html.TextBoxFor(m => m.UGDetailsList[i].FreshOrIncrease, new { @class = "form-control" })</td>
+                                <td>@Html.TextBoxFor(m => m.UGDetailsList[i].FirstLOPDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })</td>
+                                <td>@Html.TextBoxFor(m => m.UGDetailsList[i].NumberOfSeats, new { @class = "form-control", type = "number" })</td>
+                                <td>@Html.TextBoxFor(m => m.UGDetailsList[i].PermittedYear, new { @class = "form-control" })</td>
+                                <td>@Html.TextBoxFor(m => m.UGDetailsList[i].RecognizedYear, new { @class = "form-control" })</td>
+                                <!-- ✅ RGUHS File -->
+                                <td class="text-center">
+                                    @if (Model.UGDetailsList[i].RGUHSNotificationData != null)
+                                    {
+                                        <a href="@Url.Action("Nursing_ManageCourses", "ViewFile", new { id = Model.UGDetailsList[i].Id, type = "RGUHS" })"
+                                           target="_blank" class="text-success fw-bold text-decoration-none">
+                                            Uploaded
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="UGDetailsList[i].RGUHSNotificationFile" type="file" class="form-control" />
+                                    }
+                                </td>
+
+                                <!-- ✅ GOK File -->
+                                <td class="text-center">
+                                    @if (Model.UGDetailsList[i].GokData != null)
+                                    {
+                                        <a href="@Url.Action("Nursing_ManageCourses", "ViewFile", new { id = Model.UGDetailsList[i].Id, type = "GOK" })"
+                                           target="_blank" class="text-success fw-bold text-decoration-none">
+                                            Uploaded
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="UGDetailsList[i].Gok" type="file" class="form-control" />
+                                    }
+                                </td>
+
+                                <!-- ✅ KSNC File -->
+                                <td class="text-center">
+                                    @if (Model.UGDetailsList[i].NMCData != null)
+                                    {
+                                        <a href="@Url.Action("Nursing_ManageCourses", "ViewFile", new { id = Model.UGDetailsList[i].Id, type = "KSNC" })"
+                                           target="_blank" class="text-success fw-bold text-decoration-none">
+                                            Uploaded
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="UGDetailsList[i].NMCFile" type="file" class="form-control" />
+                                    }
+                                </td>
+
+                                <!-- ✅ INC File -->
+                                <td class="text-center">
+                                    @if (Model.UGDetailsList[i].GMCData != null)
+                                    {
+                                        <a href="@Url.Action("Nursing_ManageCourses", "ViewFile", new { id = Model.UGDetailsList[i].Id, type = "INC" })"
+                                           target="_blank" class="text-success fw-bold text-decoration-none">
+                                            Uploaded
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="UGDetailsList[i].GMCFile" type="file" class="form-control" />
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm removeRow">X</button>
+                                </td>
+                           
+                               </tr>
+                                                    }
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success btn-sm" id="addUgRow">+ Add UG Row</button>
+                </div>
+            </div>
+
+            <!-- PG COURSES -->
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">PG Courses</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-sm align-middle" id="pgTable">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>Course</th>
+                                <th>Intake</th>
+                                <th>Fresh / Increase</th>
+                                <th>First LOP Date</th>
+                                <th>Seats</th>
+                                <th>Permitted Year</th>
+                                <th>Recognized Year</th>
+                                <th>RGUHS File</th>
+                                <th>GOK File</th>
+                                <th>KSNC File</th>
+                                <th>INC File</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.PGDetailsList.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DropDownListFor(m => m.PGDetailsList[i].Course,
+                                        new SelectList(Model.PGCourses, "CourseCode", "CourseName", Model.PGDetailsList[i].Course),
+                                                                    "Select Course", new { @class = "form-control" })
+                                </td>
+                                <td>@Html.TextBoxFor(m => m.PGDetailsList[i].PGIntake, new { @class = "form-control text-center" })</td>
+                                <td>@Html.TextBoxFor(m => m.PGDetailsList[i].FreshOrIncrease, new { @class = "form-control text-center" })</td>
+                                <td>@Html.TextBoxFor(m => m.PGDetailsList[i].FirstLOPDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })</td>
+                                <td>@Html.TextBoxFor(m => m.PGDetailsList[i].NumberOfSeats, new { @class = "form-control text-center", type = "number" })</td>
+                                <td>@Html.TextBoxFor(m => m.PGDetailsList[i].PermittedYear, new { @class = "form-control text-center" })</td>
+                                <td>@Html.TextBoxFor(m => m.PGDetailsList[i].RecognizedYear, new { @class = "form-control text-center" })</td>
+
+                                <!-- ✅ RGUHS File -->
+                                <td class="text-center">
+                                    @if (Model.PGDetailsList[i].RGUHSNotificationData != null)
+                                    {
+                                        <a href="@Url.Action("Nursing_ManageCourses", "ViewFile", new { id = Model.PGDetailsList[i].Id, type = "RGUHS" })"
+                                           target="_blank" class="text-success fw-bold text-decoration-none">
+                                            Uploaded
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="PGDetailsList[i].RGUHSNotificationFile" type="file" class="form-control" />
+                                    }
+                                </td>
+
+                                <!-- ✅ GOK File -->
+                                <td class="text-center">
+                                    @if (Model.PGDetailsList[i].Gok != null)
+                                    {
+                                        <a href="@Url.Action("Nursing_ManageCourses", "ViewFile", new { id = Model.PGDetailsList[i].Id, type = "GOK" })"
+                                           target="_blank" class="text-success fw-bold text-decoration-none">
+                                            Uploaded
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="PGDetailsList[i].Gok" type="file" class="form-control" />
+                                    }
+                                </td>
+
+                                <!-- ✅ KSNC File -->
+                                <td class="text-center">
+                                    @if (Model.PGDetailsList[i].NMCData != null)
+                                    {
+                                        <a href="@Url.Action("Nursing_ManageCourses", "ViewFile", new { id = Model.PGDetailsList[i].Id, type = "KSNC" })"
+                                           target="_blank" class="text-success fw-bold text-decoration-none">
+                                            Uploaded
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="PGDetailsList[i].NMCFile" type="file" class="form-control" />
+                                    }
+                                </td>
+
+                                <!-- ✅ INC File -->
+                                <td class="text-center">
+                                    @if (Model.PGDetailsList[i].GMCFile != null)
+                                    {
+                                        <a href="@Url.Action("Nursing_ManageCourses", "ViewFile", new { id = Model.PGDetailsList[i].Id, type = "INC" })"
+                                           target="_blank" class="text-success fw-bold text-decoration-none">
+                                            Uploaded
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="PGDetailsList[i].GMCFile" type="file" class="form-control" />
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm removeRow">X</button>
+                                </td>
+                            </tr>
+                                                    }
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-success btn-sm mt-2" id="addPgRow">+ Add PG Row</button>
+                </div>
+            </div>
+
+
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Nursing_BasicDetails" class="btn btn-outline-secondary px-4">⬅ Previous</a>
+                <button type="submit" class="btn btn-primary px-5 shadow">💾 Save & Proceed</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // UG Add Row
+        $("#addUgRow").click(function () {
+            var index = $("#ugTable tbody tr").length;
+            var row = `
+                <tr>
+                    <td>
+                        <select name="UGDetailsList[${index}].Course" class="form-control">
+                            <option value="">Select Course</option>
+                            @foreach (var c in Model.UGCourses)
+                            {
+                                    <option value="@c.CourseCode">@c.CourseName</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <input name="UGDetailsList[${index}].UGIntake" class="form-control" placeholder="Enter Intake" />
+                    </td>
+                    <td><input name="UGDetailsList[${index}].FreshOrIncrease" class="form-control" /></td>
+                    <td><input name="UGDetailsList[${index}].FirstLOPDate" type="date" class="form-control" /></td>
+                    <td><input name="UGDetailsList[${index}].NumberOfSeats" type="number" class="form-control" /></td>
+                    <td><input name="UGDetailsList[${index}].PermittedYear" class="form-control" /></td>
+                    <td><input name="UGDetailsList[${index}].RecognizedYear" class="form-control" /></td>
+                    <td><input name="UGDetailsList[${index}].RGUHSNotificationFile" type="file" class="form-control" /></td>
+                    <td><input name="UGDetailsList[${index}].GMCFile" type="file" class="form-control" /></td>
+                    <td><input name="UGDetailsList[${index}].NMCFile" type="file" class="form-control" /></td>
+                    <td><input name="UGDetailsList[${index}].GokFile" type="file" class="form-control" /></td>
+                    <td><button type="button" class="btn btn-danger btn-sm removeRow">X</button></td>
+                </tr>`;
+            $("#ugTable tbody").append(row);
+        });
+
+        // PG Add Row
+        $("#addPgRow").click(function () {
+            var index = $("#pgTable tbody tr").length;
+            var row = `
+                <tr>
+                    <td>
+                        <select name="PGDetailsList[${index}].Course" class="form-control">
+                            <option value="">Select Course</option>
+                            @foreach (var c in Model.PGCourses)
+                            {
+                                    <option value="@c.CourseCode">@c.CourseName</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <input name="PGDetailsList[${index}].PGIntake" class="form-control" placeholder="Enter Intake" />
+                    </td>
+                    <td><input name="PGDetailsList[${index}].FreshOrIncrease" class="form-control" /></td>
+                    <td><input name="PGDetailsList[${index}].FirstLOPDate" type="date" class="form-control" /></td>
+                    <td><input name="PGDetailsList[${index}].NumberOfSeats" type="number" class="form-control" /></td>
+                    <td><input name="PGDetailsList[${index}].PermittedYear" class="form-control" /></td>
+                    <td><input name="PGDetailsList[${index}].RecognizedYear" class="form-control" /></td>
+                    <td><input name="PGDetailsList[${index}].RGUHSNotificationFile" type="file" class="form-control" /></td>
+                    <td><input name="PGDetailsList[${index}].GMCFile" type="file" class="form-control" /></td>
+                    <td><input name="PGDetailsList[${index}].NMCFile" type="file" class="form-control" /></td>
+                    <td><input name="PGDetailsList[${index}].GokFile" type="file" class="form-control" /></td>
+                    <td><button type="button" class="btn btn-danger btn-sm removeRow">X</button></td>
+                </tr>`;
+            $("#pgTable tbody").append(row);
+        });
+
+        // Remove Row
+        $(document).on("click", ".removeRow", function () {
+            $(this).closest("tr").remove();
+        });
+    </script>
+}

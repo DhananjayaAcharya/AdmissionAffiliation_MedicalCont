@@ -1,0 +1,12 @@
+[
+  {
+    "ContainingType": "Medical_Affiliation.Controllers.ValuesController",
+    "Method": "Logout",
+    "RelativePath": "api/Values",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

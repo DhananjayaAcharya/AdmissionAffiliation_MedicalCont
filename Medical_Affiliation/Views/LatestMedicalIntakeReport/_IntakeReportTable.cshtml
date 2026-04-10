@@ -1,0 +1,68 @@
+﻿@model List<AcademicIntake>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning text-center py-4">
+        No intake data available for this college.
+    </div>
+}
+else
+{
+    <div class="table-responsive shadow-sm rounded border">
+        <table class="table table-bordered table-hover mb-0">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="align-middle sticky-start text-center" style="min-width: 180px;">
+                        Course Code / Name
+                    </th>
+                    <th colspan="3" class="text-center year-2024">Academic Year 2024–25</th>
+                    <th colspan="5" class="text-center year-2025">Academic Year 2025–26</th>
+                    <th colspan="3" class="text-center year-2026">Academic Year 2026–27</th>
+                </tr>
+                <tr>
+                    <th class="year-2024">Existing</th>
+                    <th class="year-2024">Increase</th>
+                    <th class="year-2024">Total</th>
+
+                    <th class="year-2025">Existing</th>
+                    <th class="year-2025">LOP/NMC Increase</th>
+                    <th class="year-2025">Total</th>
+                    <th class="year-2025">NMC Document</th>
+                    <th class="year-2025">LOP Date</th>
+
+                    <th class="year-2026">Existing</th>
+                    <th class="year-2026">Add. Requested</th>
+                    <th class="year-2026">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="sticky-start fw-medium">@item.Courses</td>
+
+                        <td class="text-numeric year-2024-sub">@item.Ay2024ExistingIntake</td>
+                        <td class="text-numeric year-2024-sub">@item.Ay2024IncreaseIntake</td>
+                        <td class="text-numeric year-2024-sub fw-bold">@item.Ay2024TotalIntake</td>
+
+                        <td class="text-numeric year-2025-sub">@item.Ay2025ExistingIntake</td>
+                        <td class="text-numeric year-2025-sub">@item.Ay2025LopNmcIntake</td>
+                        <td class="text-numeric year-2025-sub fw-bold">@item.Ay2025TotalIntake</td>
+                        <td class="text-center year-2025-sub">
+                            @(item.Ay2025NmcDocument != null && item.Ay2025NmcDocument.Length > 0
+                                                ? "<span class='badge bg-success'>Uploaded</span>"
+                                                : "<span class='text-muted'>—</span>")
+                        </td>
+                        <td class="text-center year-2025-sub">
+                            @(item.Ay2025LopDate?.ToString("dd-MM-yyyy") ?? "—")
+                        </td>
+
+                        <td class="text-numeric year-2026-sub">@item.Ay2026ExistingIntake</td>
+                        <td class="text-numeric year-2026-sub">@item.Ay2026AddRequestedIntake</td>
+                        <td class="text-numeric year-2026-sub fw-bold">@item.Ay2026TotalIntake</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,477 @@
+﻿@model AcademicIntakePageViewModel1
+
+@{
+    ViewData["Title"] = "Increase Intake – Continuous Affiliation";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+    :root {
+        --navy:    #0d1b3e;
+        --navyM:   #162550;
+        --blue:    #1a4bbd;
+        --accent:  #3a7ef7;
+        --gold:    #e8a530;
+        --surf:    #f2f5fb;
+        --card:    #ffffff;
+        --bdr:     #dae2f4;
+        --txt:     #1c2b4a; 
+        --muted:   #6b7fa3;
+        --ok:      #1ca87c;
+        --err:     #e63c55;
+        --r:       10px;
+        --fh:      'Playfair Display', Georgia, serif;
+        --fb:      'DM Sans', 'Segoe UI', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--fb); background: var(--surf); color: var(--txt); }
+
+    /* PAGE HEADER */
+    .ph { background: linear-gradient(135deg, var(--navy) 0%, #1c3b7e 100%);
+          padding: 1rem 2.4rem; position: relative; overflow: hidden; }
+    .ph::before { content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='3' height='3' fill='white' fill-opacity='0.04'/%3E%3Crect x='40' y='40' width='3' height='3' fill='white' fill-opacity='0.04'/%3E%3C/svg%3E"); }
+    .phi { position: relative; z-index: 1; }
+    .ph-tag { display: inline-block; background: rgba(232,165,48,.15); color: var(--gold);
+      border: 1px solid rgba(232,165,48,.3); font-size: .7rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase; padding: .28rem .8rem;
+      border-radius: 20px; margin-bottom: .8rem; }
+    .ph h4 { font-family: var(--fh); font-size: clamp(1.5rem,2.8vw,2.1rem);
+      color: #fff; font-weight: 700; line-height: 1.2; margin-bottom: .6rem; }
+    .ph-meta { display: flex; flex-wrap: wrap; gap: 1.3rem; color: rgba(255,255,255,.62); font-size: .84rem; }
+    .ph-meta strong { color: rgba(255,255,255,.92); }
+    .ph-meta span { display: flex; align-items: center; gap: .4rem; }
+    .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; flex-shrink: 0; }
+
+    /* ALERTS */
+    .al { display: flex; align-items: flex-start; gap: .65rem;
+      padding: .9rem 1.3rem; margin: 1.4rem 2.8rem 0;
+      border-radius: 0 var(--r) var(--r) 0; font-size: .88rem; }
+    .al-ok  { background: #edfaf5; border-left: 4px solid var(--ok);  color: #155e44; }
+    .al-err { background: #fff0f2; border-left: 4px solid var(--err); color: #7b1424; }
+    .al ul { padding-left: 1.2rem; margin-top: .3rem; }
+
+    /* WRAPPER */
+    .wrap { padding: 1.8rem 2.8rem 3rem; }
+    @@media (max-width: 768px) {
+        .ph { padding: 1.5rem 1.2rem; }
+        .wrap { padding: 1rem 1rem 2rem; }
+        .al { margin: 1rem 1rem 0; }
+    }
+
+    /* CARD */
+    .card { background: var(--card); border: 1px solid var(--bdr);
+      border-radius: var(--r); box-shadow: 0 2px 10px rgba(26,75,189,.09);
+      margin-bottom: 2rem; overflow: hidden; }
+    .ch { padding: 1.1rem 1.6rem; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid var(--bdr); background: #f8faff; }
+    .ch h2 { font-family: var(--fh); font-size: 1.05rem; color: var(--navy);
+      display: flex; align-items: center; gap: .55rem; }
+    .cf { display: flex; align-items: center; justify-content: flex-end; gap: 1rem;
+      padding: 1.1rem 1.6rem; border-top: 1px solid var(--bdr); background: #f8faff; }
+
+    /* BADGE */
+    .bg { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; padding: .22rem .65rem; border-radius: 20px; }
+    .ug { background: #e0ecff; color: var(--blue); }
+    .pg { background: #ede0ff; color: #6b22d6; }
+    .ss { background: #fff3e0; color: #c27300; }
+    .sv { background: #e0faf0; color: var(--ok); }
+
+    /* TABS */
+    .tabs { display: flex; border-bottom: 2px solid var(--bdr); padding: 0 1.6rem; }
+    .tb { background: none; border: none; cursor: pointer; padding: .85rem 1.4rem;
+      font-family: var(--fb); font-size: .87rem; font-weight: 600; color: var(--muted);
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      display: flex; align-items: center; gap: .4rem; transition: color .15s, background .15s; }
+    .tb:hover { color: var(--blue); background: #f0f5ff; }
+    .tb.on { color: var(--blue); border-bottom-color: var(--blue); background: #fff; }
+    .tc { background: var(--bdr); color: var(--muted); font-size: .68rem;
+      padding: .1rem .45rem; border-radius: 10px; }
+    .tb.on .tc { background: #dceaff; color: var(--blue); }
+    .tp { display: none; } .tp.on { display: block; }
+
+    /* TABLE */
+    .tw { overflow-x: auto; }
+    table.t { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    table.t thead th { background: var(--navy); color: rgba(255,255,255,.88);
+      font-weight: 600; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase;
+      padding: .7rem .9rem; white-space: nowrap; border-right: 1px solid rgba(255,255,255,.07); }
+    table.t thead .g24 { background: #1a3a6b; }
+    table.t thead .g25 { background: #1e3e7a; }
+    table.t thead .g26 { background: #163072; }
+    table.t thead tr:first-child th { text-align: center; border-bottom: 1px solid rgba(255,255,255,.1); }
+    table.t thead tr:last-child th { text-align: center; }
+    table.t tbody tr { transition: background .12s; }
+    table.t tbody tr:nth-child(even) { background: #f6f9ff; }
+    table.t tbody tr:hover { background: #eef4ff; }
+    table.t td { padding: .65rem .9rem; border-bottom: 1px solid var(--bdr);
+      border-right: 1px solid #edf1fa; vertical-align: middle; }
+    .cn { font-weight: 600; color: var(--navy); min-width: 190px; }
+    .cc { text-align: center; font-variant-numeric: tabular-nums; }
+
+    /* INPUTS */
+    .ni { width: 76px; padding: .36rem .5rem; font-size: .84rem;
+      border: 1.5px solid var(--bdr); border-radius: 6px;
+      color: var(--txt); background: #fff; text-align: center;
+      font-family: var(--fb); transition: border-color .18s, box-shadow .18s; }
+    .ni:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(58,126,247,.14); }
+    .di { width: 148px; padding: .36rem .5rem; font-size: .81rem;
+      border: 1.5px solid var(--bdr); border-radius: 6px;
+      color: var(--txt); background: #fff; font-family: var(--fb);
+      transition: border-color .18s; }
+    .di:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(58,126,247,.14); }
+    .cf2 { display: inline-block; min-width: 50px; background: #f0f5ff;
+      border: 1px solid var(--bdr); border-radius: 5px; padding: .32rem .5rem;
+      text-align: center; font-size: .84rem; font-weight: 600; color: var(--navy);
+      font-variant-numeric: tabular-nums; }
+    .cf2.hi { color: var(--blue); background: #e6eeff; font-weight: 700; }
+    .fl { display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .77rem; color: var(--accent); border: 1.5px dashed #b8ccee;
+      border-radius: 6px; padding: .32rem .65rem; cursor: pointer;
+      background: #f4f7fd; white-space: nowrap;
+      transition: border-color .18s, background .18s; max-width: 160px; }
+    .fl:hover { border-color: var(--accent); background: #eef4ff; }
+    .fn { overflow: hidden; text-overflow: ellipsis; max-width: 108px; }
+    input[type="file"] { display: none; }
+
+    /* SAVED TABLE */
+    .st thead th { background: var(--navyM); color: rgba(255,255,255,.85);
+      font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
+      padding: .7rem 1rem; white-space: nowrap; border-right: 1px solid rgba(255,255,255,.06); }
+    .st tbody td { padding: .68rem 1rem; border-bottom: 1px solid var(--bdr); font-size: .84rem; vertical-align: middle; }
+    .st tbody tr:hover { background: #f7faff; }
+    .pill { display: inline-block; padding: .2rem .6rem; border-radius: 20px; font-size: .71rem; font-weight: 700; }
+    .py { background: #e0faf0; color: var(--ok); }
+    .pn { background: #f0f0f0; color: var(--muted); }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 2.5rem; color: var(--muted); font-size: .9rem; }
+    .empty svg { opacity: .22; display: block; margin: 0 auto .8rem; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: .45rem;
+      font-family: var(--fb); font-weight: 600; font-size: .87rem;
+      padding: .62rem 1.5rem; border-radius: 8px; border: none; cursor: pointer;
+      transition: background .18s, box-shadow .18s, transform .12s; }
+    .bp { background: var(--blue); color: #fff; box-shadow: 0 4px 14px rgba(26,75,189,.28); }
+    .bp:hover { background: #1641a8; box-shadow: 0 6px 20px rgba(26,75,189,.38); transform: translateY(-1px); }
+    .bo { background: transparent; color: var(--blue); border: 1.5px solid var(--blue); }
+    .bo:hover { background: #eef4ff; }
+    .btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+    .spin { animation: sp .7s linear infinite; }
+    @@keyframes sp { to { transform: rotate(360deg); } }
+</style>
+
+@* ── PAGE HEADER ── *@
+<div class="ph">
+    <div class="phi">
+        @* <div class="ph-tag">Continuous Affiliation</div> *@
+        <h4>Intake Increase Application</h4>
+        <div class="ph-meta">
+            <span><span class="dot"></span>College:&nbsp;<strong>@Model.CollegeName</strong></span>
+@*             <span><span class="dot"></span>College Code:&nbsp;<strong>@Model.CollegeCode</strong></span>
+            <span><span class="dot"></span>Faculty Code:&nbsp;<strong>@Model.FacultyCode</strong></span> *@
+        </div>
+    </div>
+</div>
+
+@* ── ALERTS ── *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="al al-ok">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M20 6L9 17l-5-5" /></svg>
+        <span>@TempData["SuccessMessage"]</span>
+    </div>
+}
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="al al-err">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="flex-shrink:0"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+        <div>
+            <strong>Please correct the following:</strong>
+            <ul>@foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors)) {
+            <li>@e.ErrorMessage</li>
+        }
+</ul>
+    </div>
+</div>
+}
+
+@* ── FORM ── *@
+<form method="post" enctype="multipart/form-data"
+      asp-action="IncreaseIntake"
+      asp-controller="ContinuousAffiliationIncreaseintake"
+      id="intakeForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="FacultyCode" value="@Model.FacultyCode" />
+    <input type="hidden" name="CollegeCode" value="@Model.CollegeCode" />
+    <input type="hidden" name="CollegeName" value="@Model.CollegeName" />
+    <input type="hidden" name="FacultyId" value="@Model.FacultyId" />
+
+    <div class="wrap">
+
+        @* ─── INTAKE ENTRY CARD ─── *@
+        <div class="card">
+            <div class="ch">
+                <h2>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4z" /></svg>
+                    Academic Year-wise Intake Details
+                </h2>
+                <span style="font-size:.8rem;color:var(--muted)">AY 2024-25 &nbsp;·&nbsp; AY 2025-26 &nbsp;·&nbsp; AY 2026-27</span>
+            </div>
+
+            <div class="tabs">
+                <button type="button" class="tb on" data-t="ug">
+                    UG Courses <span class="tc">@(Model.UgCourses?.Count ?? 0)</span>
+                </button>
+                <button type="button" class="tb" data-t="pg">
+                    PG Courses <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
+                </button>
+                <button type="button" class="tb" data-t="ss">
+                    SS Courses <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
+                </button>
+            </div>
+
+            <div id="tp-ug" class="tp on">@{
+                        RenderTable(Model.UgCourses, "UgCourses");
+                        }
+</div>
+            <div id="tp-pg" class="tp">@{
+                        RenderTable(Model.PgCourses, "PgCourses");
+                        }
+</div>
+            <div id="tp-ss" class="tp">@{
+                        RenderTable(Model.SsCourses, "SsCourses");
+                        }
+</div>
+
+            <div class="cf">
+                <a href="@Url.Action("Dashboard", "CollegeLogin")" class="btn bo">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
+                    Back
+                </a>
+                <button type="submit" class="btn bp" id="sBtn">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
+                    Save All Intake Data
+                </button>
+            </div>
+        </div>
+
+        @* ─── SAVED RECORDS CARD ─── *@
+        <div class="card">
+            <div class="ch">
+                <h2>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" /></svg>
+                    Saved Intake Records
+                </h2>
+                <span class="bg sv">@(Model.SavedIntakes?.Count ?? 0) records</span>
+            </div>
+            <div class="tw">
+                @if (Model.SavedIntakes != null && Model.SavedIntakes.Any())
+                {
+                    <table class="t st" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Level</th>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th style="text-align:center">AY 2024-25 Total</th>
+                                <th style="text-align:center">AY 2025-26 Total</th>
+                                <th style="text-align:center">AY 2026-27 Total</th>
+                                <th style="text-align:center">NMC Document</th>
+                                <th style="text-align:center">Recorded On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int si = 1;
+                            }
+                            @foreach (var row in Model.SavedIntakes)
+                            {
+                                <tr>
+                                    <td style="color:var(--muted);text-align:center">@si</td>
+                                    <td>
+                                        <span class="bg @(row.CourseLevel == "UG" ? "ug" : row.CourseLevel == "PG" ? "pg" : "ss")">@row.CourseLevel</span>
+                                    </td>
+                                    <td style="font-family:monospace;font-size:.82rem">@row.CourseCode</td>
+                                    <td style="font-weight:600;color:var(--navy)">@row.CourseName</td>
+                                    <td style="text-align:center;font-weight:600">@row.AY2024_TotalIntake</td>
+                                    <td style="text-align:center;font-weight:600">@row.AY2025_TotalIntake</td>
+                                    <td style="text-align:center;font-weight:700;color:var(--blue)">@row.AY2026_TotalIntake</td>
+                                    <td style="text-align:center">
+                                        @if (row.HasNmcDocument)
+                                        {
+                                            <span class="pill py">&#10003; Uploaded</span>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="pill pn">— None</span>
+                                        }
+                                    </td>
+                                    <td style="text-align:center;color:var(--muted);font-size:.79rem">@row.CreatedOn.ToString("dd MMM yyyy")</td>
+                                </tr>
+                                si++;
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty">
+                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="9" y1="9" x2="15" y2="9" /><line x1="9" y1="13" x2="15" y2="13" /><line x1="9" y1="17" x2="13" y2="17" /></svg>
+                        <p>No saved records yet. Fill in the intake details above and click <strong>Save</strong>.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</form>
+
+@* ── RAZOR HELPER ── *@
+@functions {
+    void RenderTable(
+        IList<IntakeByLevelViewModel1>? list,
+        string prefix)
+    {
+        if (list == null || !list.Any())
+        {
+            <div class="empty" style="padding:2rem">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                <p>No courses found for this level.</p>
+            </div>
+            return;
+        }
+
+        <div class="tw">
+            <table class="t">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="text-align:left;min-width:36px">#</th>
+                        <th rowspan="2" style="text-align:left;min-width:200px">Course Name</th>
+                        <th colspan="3" class="g24" style="text-align:center">AY 2024 – 25</th>
+                        <th colspan="5" class="g25" style="text-align:center">AY 2025 – 26</th>
+                        <th colspan="3" class="g26" style="text-align:center">AY 2026 – 27</th>
+                    </tr>
+                    <tr>
+                        <th class="g24">Existing</th>
+                        <th class="g24">Increase</th>
+                        <th class="g24">Total</th>
+                        <th class="g25">Existing</th>
+                        <th class="g25">LOP / NMC</th>
+                        <th class="g25">Total</th>
+                        <th class="g25">LOP Date</th>
+                        <th class="g25">NMC Document</th>
+                        <th class="g26">Existing</th>
+                        <th class="g26">Add. Requested</th>
+                        <th class="g26">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int ri = 0;
+                        foreach (var c in list)
+                        {
+                            string p = $"{prefix}[{ri}]";
+                            string lop = c.AY2025_LopDate.HasValue ? c.AY2025_LopDate.Value.ToString("yyyy-MM-dd") : "";
+                            <tr>
+                                <td class="cc" style="color:var(--muted)">@(ri + 1)</td>
+                                <td class="cn">
+                                    @c.CourseName
+                                    <input type="hidden" name="@(p).CourseCode" value="@c.CourseCode" />
+                                    <input type="hidden" name="@(p).CourseName" value="@c.CourseName" />
+                                </td>
+                                @* 2024-25 *@
+                                <td class="cc"><input type="number" class="ni" name="@(p).AY2024_ExistingIntake" value="@c.AY2024_ExistingIntake" min="0" data-r="e24" /></td>
+                                <td class="cc"><input type="number" class="ni" name="@(p).AY2024_IncreaseIntake" value="@c.AY2024_IncreaseIntake" min="0" data-r="i24" /></td>
+                                <td class="cc">
+                                    <span class="cf2" data-r="t24">@c.AY2024_TotalIntake</span>
+                                    <input type="hidden" name="@(p).AY2024_TotalIntake" data-h="t24" value="@c.AY2024_TotalIntake" />
+                                </td>
+                                @* 2025-26 *@
+                                <td class="cc"><input type="number" class="ni" name="@(p).AY2025_ExistingIntake" value="@c.AY2025_ExistingIntake" min="0" data-r="e25" /></td>
+                                <td class="cc"><input type="number" class="ni" name="@(p).AY2025_LopNmcIntake" value="@c.AY2025_LopNmcIntake" min="0" data-r="l25" /></td>
+                                <td class="cc">
+                                    <span class="cf2" data-r="t25">@c.AY2025_TotalIntake</span>
+                                    <input type="hidden" name="@(p).AY2025_TotalIntake" data-h="t25" value="@c.AY2025_TotalIntake" />
+                                </td>
+                                <td><input type="date" class="di" name="@(p).AY2025_LopDate" value="@lop" /></td>
+                                <td style="min-width:170px">
+                                    <label class="fl">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                                        <span class="fn">Choose file</span>
+                                        <input type="file" name="@(p).AY2025_NmcDocument" accept=".pdf,.jpg,.jpeg,.png" />
+                                    </label>
+                                </td>
+                                @* 2026-27 *@
+                                <td class="cc">
+                                    <span class="cf2" data-r="e26">@c.AY2026_ExistingIntake</span>
+                                    <input type="hidden" name="@(p).AY2026_ExistingIntake" data-h="e26" value="@c.AY2026_ExistingIntake" />
+                                </td>
+                                <td class="cc"><input type="number" class="ni" name="@(p).AY2026_AddRequestedIntake" value="@c.AY2026_AddRequestedIntake" min="0" data-r="r26" /></td>
+                                <td class="cc">
+                                    <span class="cf2 hi" data-r="t26">@c.AY2026_TotalIntake</span>
+                                    <input type="hidden" name="@(p).AY2026_TotalIntake" data-h="t26" value="@c.AY2026_TotalIntake" />
+                                </td>
+                            </tr>
+                            ri++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+<script>
+    // TABS
+    document.querySelectorAll('.tb').forEach(b => {
+        b.addEventListener('click', () => {
+            document.querySelectorAll('.tb').forEach(x => x.classList.remove('on'));
+            document.querySelectorAll('.tp').forEach(x => x.classList.remove('on'));
+            b.classList.add('on');
+            document.getElementById('tp-' + b.dataset.t).classList.add('on');
+        });
+    });
+
+    // LIVE RECALC
+    function recalcRow(row) {
+        const val = r => +(row.querySelector(`[data-r="${r}"]`)?.value
+                        ?? row.querySelector(`[data-r="${r}"]`)?.textContent
+                        ?? 0);
+        const set = (r, v) => {
+            const sp = row.querySelector(`[data-r="${r}"]`);
+            const hd = row.querySelector(`[data-h="${r}"]`);
+            if (sp) sp.textContent = v;
+            if (hd) hd.value = v;
+        };
+        const t24 = val('e24') + val('i24'); set('t24', t24);
+        const t25 = val('e25') + val('l25'); set('t25', t25);
+        set('e26', t25);
+        set('t26', t25 + val('r26'));
+    }
+    document.querySelectorAll('table.t tbody tr').forEach(row => {
+        row.querySelectorAll('input[type="number"]').forEach(i => i.addEventListener('input', () => recalcRow(row)));
+        recalcRow(row);
+    });
+
+    // FILE LABELS
+    document.querySelectorAll('input[type="file"]').forEach(inp => {
+        inp.addEventListener('change', () => {
+            const fn = inp.closest('label')?.querySelector('.fn');
+            if (fn) fn.textContent = inp.files[0]?.name || 'Choose file';
+        });
+    });
+
+    // SAVE SPINNER
+    document.getElementById('sBtn')?.addEventListener('click', function () {
+        this.innerHTML = '<svg class="spin" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg> Saving…';
+        this.disabled = true;
+    });
+</script>

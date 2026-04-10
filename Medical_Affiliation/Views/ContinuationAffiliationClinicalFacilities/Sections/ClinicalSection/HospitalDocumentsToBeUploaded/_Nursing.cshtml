@@ -1,0 +1,168 @@
+﻿@model HospitalDocumentsToBeUploadedPostModel
+
+@* @model List<HospitalDocumentsToBeUploadedViewModel> *@
+
+<div class="form-section">
+    <div class="section-title">Hospital Documents to be Uploaded</div>
+
+    <form id="hospitalDocsUploadForm" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+
+        <table class="table table-bordered table-striped mt-2">
+            <thead class="table-dark">
+                <tr>
+                    <th width="35%">Document Name</th>
+                    <th width="20%">Certificate Number</th>
+                    <th>Upload File</th>
+                    <th>View File</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (int i = 0; i < Model.Documents.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            @Model.Documents[i].DocumentName
+                            
+                            <input type="hidden" name="Documents[@i].DocumentId" value="@Model.Documents[i].DocumentId" />
+                            <input type="hidden" name="Documents[@i].CollegeCode" value="@Model.Documents[i].CollegeCode" />
+                            <input type="hidden" name="Documents[@i].HospitalDetailsId" value="@Model.Documents[i].HospitalDetailsId" />
+                            <input type="hidden" name="Documents[@i].DocumentName" value="@Model.Documents[i].DocumentName" />
+                            <input type="hidden" name="Documents[@i].HospitalName" value="@Model.Documents[i].HospitalName" />
+                        </td>
+
+                        <td>
+                            <input class="form-control"
+                                   name="Documents[@i].CertificateNumber"
+                                   value="@Model.Documents[i].CertificateNumber"
+                                   placeholder="Enter Certificate Number" />
+                        </td>
+
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary doc-upload-btn"
+                                    data-index="@i">
+                                Upload
+                            </button>
+
+                            <input type="file"
+                                   class="d-none doc-upload-input"
+                                   name="Documents[@i].DocumentFile"
+                                   data-index="@i" />
+
+                            <span class="file-name ms-2 text-muted small" data-index="@i"></span>
+
+                        </td>
+
+                        <td class="text-center">
+                            @if (Model.Documents[i].DocumentExists)
+                            {
+                                <a class="btn btn-sm btn-success"
+                                   asp-action="ViewHospitalDoc"
+                                   asp-route-docId="@Model.Documents[i].DocumentId"
+                                   asp-route-code="@Model.Documents[i].CollegeCode"
+                                   target="_blank">
+                                    View
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">Not Uploaded</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-center mt-3">
+            <button type="button"
+                    id="saveHospitalDocsBtn"
+                    class="btn btn-primary">
+                Save Documents
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+        // Upload button click → open file picker
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("doc-upload-btn")) {
+                const index = e.target.dataset.index;
+                document
+                    .querySelector(`.doc-upload-input[data-index="${index}"]`)
+                    ?.click();
+            }
+        });
+
+        // File selected → show file name
+        document.addEventListener("change", function (e) {
+            if (e.target.classList.contains("doc-upload-input")) {
+                const index = e.target.dataset.index;
+
+                const fileNameSpan = document.querySelector(
+                    `.file-name[data-index="${index}"]`
+                );
+
+                if (fileNameSpan) {
+                    fileNameSpan.textContent =
+                        e.target.files.length ? e.target.files[0].name : "";
+                }
+            }
+        });
+
+
+
+    document.getElementById("saveHospitalDocsBtn")
+    .addEventListener("click", function () {
+
+        const form = document.getElementById("hospitalDocsUploadForm");
+        const formData = new FormData(form);
+
+        fetch('@Url.Action("SaveDocumentsToBeUploaded")', {
+            method: "POST",
+            body: formData,
+            headers: {
+                'RequestVerificationToken':
+                    document.querySelector('input[name="__RequestVerificationToken"]').value
+            }
+        })
+        .then(async response => {
+            const data = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                throw { response, data };
+            }
+
+            return data;
+        })
+        .then(data => {
+            Swal.fire("Success", data.message, "success");
+        })
+        .catch(err => {
+            let errors = [];
+
+            if (err.data?.errors && Array.isArray(err.data.errors)) {
+                err.data.errors.forEach(e => {
+                    if (Array.isArray(e.messages)) {
+                        errors.push(...e.messages);
+                    }
+                });
+            }
+
+            Swal.fire({
+                title: "Upload Error",
+                html: errors.length
+                    ? errors.join("<br>")
+                    : err.data?.message || "Upload failed",
+                icon: "error"
+            });
+        });
+
+
+    });
+
+
+</script>

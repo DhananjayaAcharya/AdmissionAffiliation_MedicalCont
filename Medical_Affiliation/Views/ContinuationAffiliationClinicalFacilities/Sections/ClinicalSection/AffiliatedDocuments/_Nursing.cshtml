@@ -1,0 +1,263 @@
+﻿@model AffiliatedHospitalDocumentsPostVM
+
+<div class="form-section">
+    <div class="section-title required">Affiliated Hospital Documents</div>
+
+    <form id="affiliatedDocsForm" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="HospitalDetailsId" value="@ViewBag.HospitalDetailsId" />
+        <input name="CollegeCode" value="@Model?.CollegeCode" type="hidden" />
+        <div class="d-flex justify-content-end mb-2">
+            <button type="button" id="addDocRowBtn" class="btn btn-sm btn-outline-success">
+                + Add Document
+            </button>
+        </div>
+
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Hospital Type</th>
+                        <th>Hospital Name</th>
+                        <th>Total Beds</th>
+                        <th style="width: 320px;">Document</th>
+                        <th style="width: 80px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Documents.Count; i++)
+                    {
+                        <tr data-index="@i">
+                            <!-- 🔹 Required for model binding -->
+                            <input type="hidden" name="Documents[@i].DocumentId" value="@Model.Documents[i].DocumentId" />
+                            @* <input type="hidden" name="Documents[@i].HospitalType" value="@Model[i].HospitalType" /> *@
+                            <input type="hidden" name="Documents[@i].HospitalName" value="@Model.Documents[i].HospitalName" />
+                            <input type="hidden" name="Documents[@i].TotalBeds" value="@Model.Documents[i].TotalBeds" />
+
+
+                            <td>
+                                <input class="form-control hospital-type"
+                                       name="Documents[@i].HospitalType"
+                                       value="@Model.Documents[i].HospitalType"
+                                       readonly />
+                            </td>
+
+                            <td>@Model.Documents[i].HospitalName</td>
+                            <td class="text-center">@Model.Documents[i].TotalBeds</td>
+
+                            <td>
+                                <input asp-for="@Model.Documents[i].DocumentFile"
+                                       type="file"
+                                       class="d-none doc-upload"
+                                       id="docFile_@i" />
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary choose-file"
+                                        data-input="docFile_@i">
+                                    Upload
+                                </button>
+
+                                <span id="file-name-@i"
+                                      class="ms-2 text-muted small"></span>
+
+                                @if (Model.Documents[i].DocumentExists)
+                                {
+                                    <a class="btn btn-sm btn-success"
+                                       asp-action="ViewHospitalDocument"
+                                       asp-route-documentId="@Model.Documents[i].DocumentId"
+                                       target="_blank">
+                                        View
+                                    </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                <!-- 🔥 Client-side remove only -->
+                                <button type="button"
+                                        class="btn btn-sm btn-danger remove-row">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <script type="text/template" id="docRowTemplate">
+                <tr data-index="__index__">
+
+                    <input type="hidden" name="Documents[__index__].DocumentId" value="" />
+
+                    <td>
+                         <input class="form-control hospital-type"
+                                name="Documents[__index__].HospitalType"
+                                value="AffiliatedHospital__number__"
+                                readonly />
+                    </td>
+
+                    <td>
+                        <input class="form-control"
+                               name="Documents[__index__].HospitalName"
+                               placeholder="Hospital Name" />
+                    </td>
+
+                    <td>
+                        <input class="form-control text-center"
+                               name="Documents[__index__].TotalBeds"
+                               type="number" min="0" />
+                    </td>
+
+                    <td>
+                        <input type="file"
+                               class="d-none doc-upload"
+                               name="Documents[__index__].DocumentFile"
+                               id="docFile___index__" />
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary choose-file"
+                                data-input="docFile___index__">
+                            Upload
+                        </button>
+
+                        <span class="ms-2 text-muted file-name"></span>
+                    </td>
+
+                    <td class="text-center">
+                        <button type="button"
+                                class="btn btn-sm btn-danger remove-row">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+            </script>
+
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="button"
+                    id="saveDocsBtn"
+                    class="btn btn-primary">
+                Save Documents
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+
+
+    // Upload button → open file picker
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("choose-file")) {
+            const inputId = e.target.dataset.input;
+            document.getElementById(inputId).click();
+        }
+    });
+
+    document.addEventListener("change", function (e) {
+        if (e.target.classList.contains("doc-upload")) {
+            const input = e.target;
+            const index = input.id.split("_")[1];
+            const fileNameSpan = document.getElementById(`file-name-${index}`);
+
+            if (input.files.length > 0) {
+                fileNameSpan.textContent = input.files[0].name;
+            } else {
+                fileNameSpan.textContent = "";
+            }
+        }
+    });
+    // Remove row from DOM (THIS enables delete-on-save)
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("remove-row")) {
+            Swal.fire({
+                title: "Remove document?",
+                text: "This document will be deleted when you save.",
+                icon: "warning",
+                showCancelButton: true
+            }).then(result => {
+                if (result.isConfirmed) {
+                    e.target.closest("tr").remove();
+                }
+            });
+        }
+    });
+
+    // Save (ADD / UPDATE / DELETE)
+    document.getElementById("saveDocsBtn")
+        .addEventListener("click", function () {
+
+            const form = document.getElementById("affiliatedDocsForm");
+            const formData = new FormData(form);
+
+            fetch('@Url.Action("SaveAffiliatedHospitalDocuments")', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken':
+                        document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(r => {
+                if (!r.ok) throw r;
+                return r.json();
+            })
+            .then(r => Swal.fire("Success", r.message, "success"))
+            .catch(async err => {
+                let errors = [];
+
+                if (err instanceof Response) {
+                    const data = await err.json();
+
+                    if (Array.isArray(data.errors)) {
+                        data.errors.forEach(e => {
+                            if (Array.isArray(e.messages)) {
+                                errors.push(...e.messages);
+                            }
+                        });
+                    }
+                }
+
+                Swal.fire({
+                    title: "Upload Error",
+                    html: errors.length ? errors.join("<br>") : "Upload failed",
+                    icon: "error"
+                });
+            });
+
+        });
+
+    let docIndex = @Model.Documents.Count;
+
+    document.getElementById("addDocRowBtn")
+        .addEventListener("click", function () {
+
+            let maxNumber = 0;
+
+            document.querySelectorAll(".hospital-type").forEach(input => {
+                const match = input.value.match(/\d+$/);
+                if (match) {
+                    maxNumber = Math.max(maxNumber, parseInt(match[0]));
+                }
+            });
+
+            const nextNumber = maxNumber + 1;
+
+            let template = document
+                .getElementById("docRowTemplate")
+                .innerHTML
+                .replaceAll("__index__", docIndex)
+                .replaceAll("__number__", nextNumber);
+
+            document
+                .querySelector("table tbody")
+                .insertAdjacentHTML("beforeend", template);
+
+            docIndex++;
+        });
+
+    // File selected → show file name
+
+</script>
+

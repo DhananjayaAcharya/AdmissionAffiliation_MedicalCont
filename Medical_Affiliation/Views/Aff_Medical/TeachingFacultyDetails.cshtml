@@ -1,0 +1,246 @@
+﻿@model IEnumerable<TeachingFacultyViewModel>
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Nodal Officer Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 4;
+}
+
+<style>
+    .progressbar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 20px 0 0;
+        list-style: none;
+    }
+
+        .progressbar li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+            .progressbar li:before {
+                counter-increment: step;
+                content: counter(step);
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                border: 2px solid #bbb;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px;
+                border-radius: 50%;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: #bbb;
+                top: 18px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: #0d6efd;
+            }
+
+                .progressbar li.active:before {
+                    border-color: #0d6efd;
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: #0d6efd;
+                }
+
+    .page-title {
+        font-weight: 700;
+        color: #2c3e50;
+        letter-spacing: 1px;
+    }
+
+    .main-container {
+        margin-left: 5rem;
+        background: #fff;
+        padding: 5px;
+        border-radius: 20px
+    }
+
+    .card {
+        border: none;
+        border-radius: 1rem;
+    }
+
+    .card-body {
+        background: #ffffff;
+    }
+
+    .notice-text {
+        font-size: 14px;
+        font-weight: 600;
+        color: #d9534f;
+        margin-bottom: 15px;
+    }
+
+    .main-container {
+        margin-left: 25rem;
+        background: #fff;
+        padding: 5px;
+        border-radius: 20px;
+    }
+
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<div class="main-container">
+
+    <div class="container mt-5">
+        <div class="card shadow-lg rounded-4">
+            <div class="card-header bg-light">
+                <nav aria-label="Form progress">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="fw-bold mb-0">@HttpContextAccessor.HttpContext.Session.GetString("CollegeName")</h3>
+                        <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                            <button type="submit" class="btn btn-outline-danger">Logout</button>
+                        </form>
+                    </div>
+
+                    <ul class="progressbar" role="progressbar" aria-valuenow="@currentStep" aria-valuemin="1" aria-valuemax="5">
+                        <li class="@(currentStep >= 1 ? "active" : "")" aria-current="step">Basic Institute Details</li>
+                        <li class="@(currentStep >= 2 ? "active" : "")">Course Details</li>
+                        <li class="@(currentStep >= 3 ? "active" : "")">Clinical Material Details</li>
+                        <li class="@(currentStep >= 4 ? "active" : "")">College Designation Details</li>
+                        <li class="@(currentStep >= 5 ? "active" : "")">Add Faculty Details</li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-6 text-start">
+                <h2 class="page-title">Teaching Faculty Details</h2>
+                <p class="text-muted">Department-wise faculty strength as per NMC norms</p>
+            </div>
+
+            <div class="col-md-6 text-end">
+                <h5>UG MBBS Existing Intake</h5>
+                <span class="fw-bold">@ViewBag.UGMBBSIntake</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card shadow-lg rounded-3">
+                    <div class="card-body p-4">
+
+                        <!-- 🚨 Notice line added here -->
+                        <p class="notice-text">Here only for UG details. If you don’t have, click Save & Proceed.</p>
+
+                        <form asp-action="TeachingFacultyDetails" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <table id="facultyTable" class="table table-striped table-hover align-middle faculty-table">
+                                <thead>
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Faculty</th>
+                                        <th>Designation</th>
+                                        <th>Existing Intake</th>
+                                        <th>Present Intake</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null && Model.Any())
+                                    {
+                                        string lastDept = null;
+                                        int index = 0;
+
+                                        foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <input type="hidden" name="[@index].DepartmentCode" value="@item.DepartmentCode" />
+                                                <input type="hidden" name="[@index].FacultyCode" value="@item.FacultyCode" />
+                                                <input type="hidden" name="[@index].DesignationCode" value="@item.DesignationCode" />
+                                                <input type="hidden" name="[@index].CollegeCode" value="@item.CollegeCode" />
+                                                <input type="hidden" name="[@index].DepartmentName" value="@item.DepartmentName" />
+                                                <input type="hidden" name="[@index].Faculty" value="@item.Faculty" />
+                                                <input type="hidden" name="[@index].DesignationName" value="@item.DesignationName" />
+                                                <input type="hidden" name="[@index].SeatSlabId" value="@item.SeatSlabId" />
+                                                <input type="hidden" name="[@index].ExistingSeatIntake" value="@item.ExistingSeatIntake" />
+
+                                                <td>
+                                                    @if (lastDept != item.DepartmentName)
+                                                    {
+                                                        @item.DepartmentName
+                                                        lastDept = item.DepartmentName;
+                                                    }
+                                                </td>
+                                                <td>@item.Faculty</td>
+                                                <td>@item.DesignationName</td>
+                                                <td>@item.ExistingSeatIntake</td>
+                                                <td>
+                                                    <!-- ✅ Validation removed: min/max restrictions -->
+                                                    <input type="number"
+                                                           name="[@index].PresentSeatIntake"
+                                                           value="@item.PresentSeatIntake"
+                                                           class="form-control" />
+                                                </td>
+                                            </tr>
+
+                                            index++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No faculty records available</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="d-flex justify-content-between">
+                                <a asp-controller="Aff_Medical" asp-action="YearwiseMaterials" class="btn btn-outline-secondary sidebar-btn">
+                                    ⬅ Previous
+                                </a>
+
+                                <button type="submit" class="btn btn-outline-secondary sidebar-btn">
+                                    💾 Save & Proceed ➡
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

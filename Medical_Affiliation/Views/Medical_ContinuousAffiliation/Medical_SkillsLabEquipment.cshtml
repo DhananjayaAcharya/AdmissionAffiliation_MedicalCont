@@ -1,0 +1,255 @@
+﻿@model SkillsLabEquipmentViewModel
+@{
+    ViewData["Title"] = "Skills Lab – Trainer Simulators & Mannequins";
+}
+
+<head>
+    <style>
+        .skills-card {
+            background: radial-gradient(circle at top left, #f5f7ff 0, #ffffff 45%, #ffffff 100%);
+        }
+
+        .section-title {
+            font-size: .9rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .skills-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .skills-table td,
+        .skills-table th {
+            border-color: #edf1f5;
+        }
+
+        .skills-table .form-check-input {
+            cursor: pointer;
+        }
+
+            .skills-table .form-check-input:focus {
+                box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, .25);
+            }
+
+            .skills-table .form-check-input:checked {
+                background-color: #0d6efd;
+                border-color: #0d6efd;
+            }
+
+        .qty-input::placeholder {
+            font-size: .8rem;
+        }
+
+        @@media (max-width: 767.98px) {
+            .skills-card {
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .table-shell {
+                border-radius: 1rem !important;
+            }
+        }
+    </style>
+</head>
+
+<div class="container-xl py-4">
+    <div class="card shadow-sm border-0 rounded-4 skills-card">
+        <div class="card-body p-4 p-lg-5">
+
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 mb-4">
+                <div>
+                    <h4 class="mb-1 fw-semibold text-dark">Skills Lab – Trainer Simulators / Mannequins</h4>
+                    <p class="text-muted mb-0 small">
+                        Mark availability and quantity of mandatory trainer simulators and mannequins as per NMC requirements.
+                    </p>
+                </div>
+                <div class="ms-md-auto">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary fw-medium">
+                        Skills Lab Equipment
+                    </span>
+                </div>
+            </div>
+
+            <form asp-action="Medical_SkillsLabEquipment" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="section-title">Equipment list</span>
+                    <span class="text-muted small">
+                        Required items are highlighted
+                    </span>
+                </div>
+
+                <div class="table-shell border rounded-4 overflow-hidden mb-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 skills-table">
+                            <thead class="table-light">
+                                <tr class="text-nowrap">
+                                    <th style="width:60px" class="text-center small text-muted">Sl No</th>
+                                    <th class="small text-muted">Equipment</th>
+                                    <th style="width:110px" class="text-center small text-muted">Status</th>
+                                    <th style="width:120px" class="text-center small text-muted">Available</th>
+                                    <th style="width:130px" class="small text-muted">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Items.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="text-center text-muted">@(@i + 1)</td>
+
+                                        <td>
+                                            <div class="fw-medium text-dark">@Model.Items[i].Name</div>
+                                            <input type="hidden" asp-for="Items[i].Id" />
+                                            <input type="hidden" asp-for="Items[i].Name" />
+                                            <input type="hidden" asp-for="Items[i].IsRequired" />
+                                        </td>
+
+                                        <td class="text-center">
+                                            @if (Model.Items[i].IsRequired)
+                                            {
+                                                <span class="badge rounded-pill bg-danger-subtle text-danger fw-medium small">
+                                                    Required
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge rounded-pill bg-secondary-subtle text-secondary small">
+                                                    Optional
+                                                </span>
+                                            }
+                                        </td>
+
+                                        <td class="text-center">
+                                            <div class="form-check form-switch d-inline-flex justify-content-center">
+                                                <input class="form-check-input availability-toggle"
+                                                       type="checkbox"
+                                                       asp-for="Items[i].IsAvailable" />
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <input type="number"
+                                                   asp-for="Items[i].Quantity"
+                                                   class="form-control form-control-sm qty-input"
+                                                   min="0"
+                                                   placeholder="Enter quantity"
+                                                   disabled="@(Model.Items[i].IsAvailable == false)" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Additional requirements -->
+                <div class="rounded-4 border bg-body-tertiary p-3 p-lg-4 mb-3">
+                    <h6 class="mb-3 fw-semibold text-dark">Training modules & CAL</h6>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-2">
+                                Each model (low or high fidelity) has a training module (objectives, methods and assessment)
+                            </label>
+                            <div class="btn-group" role="group" aria-label="Training modules">
+                                <input class="btn-check" type="radio"
+                                       asp-for="HasTrainingModulesForAllModels"
+                                       value="true" id="modYes" />
+                                <label class="btn btn-outline-primary btn-sm px-3" for="modYes">Yes</label>
+
+                                <input class="btn-check" type="radio"
+                                       asp-for="HasTrainingModulesForAllModels"
+                                       value="false" id="modNo" />
+                                <label class="btn btn-outline-secondary btn-sm px-3" for="modNo">No</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-2">
+                                Hybrid models used (real / standardized patients or computer simulations)
+                            </label>
+                            <div class="btn-group" role="group" aria-label="Hybrid models">
+                                <input class="btn-check" type="radio"
+                                       asp-for="UsesHybridModelsOrSimulations"
+                                       value="true" id="hybridYes" />
+                                <label class="btn btn-outline-primary btn-sm px-3" for="hybridYes">Yes</label>
+
+                                <input class="btn-check" type="radio"
+                                       asp-for="UsesHybridModelsOrSimulations"
+                                       value="false" id="hybridNo" />
+                                <label class="btn btn-outline-secondary btn-sm px-3" for="hybridNo">No</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-2">
+                                Dedicated space for computer‑assisted learning with adequate computers
+                            </label>
+                            <div class="btn-group" role="group" aria-label="CAL space">
+                                <input class="btn-check" type="radio"
+                                       asp-for="HasComputerAssistedLearningSpace"
+                                       value="true" id="calYes" />
+                                <label class="btn btn-outline-primary btn-sm px-3" for="calYes">Yes</label>
+
+                                <input class="btn-check" type="radio"
+                                       asp-for="HasComputerAssistedLearningSpace"
+                                       value="false" id="calNo" />
+                                <label class="btn btn-outline-secondary btn-sm px-3" for="calNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <button type="reset" class="btn btn-light border">
+                        Reset
+                    </button>
+                    <button type="submit" class="btn btn-primary px-4">
+                        Save skills lab equipment
+                    </button>
+                    <a href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")" class="btn btn-success btn-outline-light">Next</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.availability-toggle').forEach(cb => {
+        cb.addEventListener('change', function () {
+            const row = this.closest('tr');
+            const qty = row.querySelector('.qty-input');
+
+            if (this.checked) {
+                qty.disabled = false;
+                if (!qty.value) qty.value = 1;
+                qty.focus();
+            } else {
+                qty.value = '';
+                qty.disabled = true;
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

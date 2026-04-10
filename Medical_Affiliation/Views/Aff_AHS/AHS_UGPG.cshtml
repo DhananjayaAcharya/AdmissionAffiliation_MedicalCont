@@ -1,0 +1,532 @@
+﻿@model AHS_FacultyIntakeViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Course Intake details";
+    var courseLevels = ViewBag.CourseLevels as List<string> ?? new List<string>();
+    var repositoryRows = ViewBag.RepositoryRows as List<UgandPgrepository> ?? new List<UgandPgrepository>();
+    var freshIncreaseOptions = ViewBag.FreshIncreaseOptions as string[] ?? new[] { "Fresh", "Increase" };
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 2;
+    var isSidebarVisible = !string.IsNullOrEmpty(facultyCode);
+}
+<style>
+    @@media (max-width: 1450px) {
+        .main-container {
+            max-width: 985px !important;
+            margin-left: 17rem !important;
+            padding: 1em !important;
+            padding-top: 10px !important;
+            max-height: 66vh;
+            overflow: auto;
+        }
+
+        .college-container {
+            margin-bottom: 8px !important;
+        }
+
+        .status-bar-container {
+            padding: 0.2rem 0;
+        }
+
+        .clg-basic {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .card.mb-3 {
+            margin-bottom: 5px;
+        }
+
+        .container.mt-4 {
+            margin-top: 5px !important;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            padding: 0.3rem 1.0rem;
+        }
+    }
+    /* Global modern look */
+    .main-container {
+        margin-left: 27rem;
+        background: #ffffff;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-height: 100vh;
+        overflow-y: auto;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .container {
+        max-width: 1500px;
+    }
+
+    /* Form label styling */
+    .form-check-label {
+        font-weight: 600;
+        color: #1f2a44;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Specialization grid */
+    #specializationOptions {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+        margin-top: 1.5rem;
+    }
+
+    .form-check {
+        padding: 14px 20px;
+        border-radius: 12px;
+        background: #f9fafb;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid #e5e7eb;
+    }
+
+        .form-check:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+        }
+
+    /* Sticky progress bar */
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ffffff;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+        @* overflow-x: auto; *@
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db #f9fafb;
+    }
+
+    .progress-step-btn {
+        background: none;
+        border: none;
+        padding: 0.5rem 0;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        color: #6b7280;
+        position: relative;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+
+        .progress-step-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .progress-step-btn:hover:not(:disabled) {
+            color: #1f2a44;
+        }
+
+        .progress-step-btn:hover::after {
+            width: 100%;
+        }
+
+        .progress-step-btn.active {
+            color: #3b82f6;
+        }
+
+            .progress-step-btn.active::after {
+                width: 100%;
+                background: #3b82f6;
+            }
+
+        .progress-step-btn.completed {
+            color: #22c55e;
+        }
+
+            .progress-step-btn.completed::after {
+                width: 100%;
+                background: #22c55e;
+            }
+
+    /* Table styling */
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    #facultyTable {
+        width: 100%;
+        border-spacing: 0;
+        font-family: 'Inter', sans-serif;
+        background: #ffffff;
+    }
+
+        #facultyTable th, #facultyTable td {
+            padding: 14px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s ease;
+        }
+
+        #facultyTable thead th {
+            background: #f3f4f6;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #1f2a44;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #facultyTable tbody tr:hover {
+            background: #f9fafb;
+        }
+
+    /* ================= FULLSCREEN SUCCESS POPUP ================= */
+    .success-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.65);
+        backdrop-filter: blur(8px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .success-content {
+        background: #e0f2fe;
+        padding: 40px 60px;
+        border-radius: 20px;
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+        .success-content h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #0369a1; /* Blue official */
+            font-weight: 700;
+        }
+
+        .success-content button {
+            padding: 10px 30px;
+            border: none;
+            background: #0369a1;
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .success-content button:hover {
+                transform: scale(1.05);
+            }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @* .college-container {
+        margin: 10px auto;
+        display: flex;
+        align-items: center;
+        margin-left: 35rem;
+        border-radius: 5px;
+        background: #f7f7f7;
+        padding: 15px 65px;
+        margin-bottom: 40px;
+    } *@
+</style>
+
+
+@if (isSidebarVisible)
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<div class="card-header bg-light">
+    <nav aria-label="Form progress">
+        <div class="d-flex justify-content-between align-items-center">
+            @using System.Text.RegularExpressions
+            @{
+                var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+                var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+
+                var stepUrls = new[] {
+                                Url.Action("AHS_BasicDetails", "Aff_AHS"),
+                                Url.Action("AHS_UGPG", "Aff_AHS"),
+                                Url.Action("AHS_Affiliated_YearwiseMaterials", "Aff_AHS"),
+                                Url.Action("ManageDesignationIntake", "Aff_AHS"),
+                                Url.Action("AHS_FacultyDetails", "Aff_AHS"),
+                                Url.Action("AHS_FacultyExamResults", "Aff_AHS")
+                        };
+                var stepTitles = new[] {
+                        "Basic Institute Details",
+                        "Course Details",
+                        "Affiliated Clinical Material",
+                        "Designation Details",
+                        "Add College Faculty",
+                        "College Performance"
+                        };
+            }
+            @* <span class="fw-bold mb-0">@collegeName</span>
+            <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-danger">Logout</button>
+            </form> *@
+        </div>
+
+        <ul class="progressbar-pipeline" role="progressbar">
+            @for (int i = 0; i < stepTitles.Length; i++)
+            {
+                var isActive = (currentStep == i + 1);
+                var isCompleted = (currentStep > i + 1);
+                <li class="@(isCompleted ? "completed" : "")">
+                    <form method="get" action="@stepUrls[i]" style="display:inline;">
+                        <button type="submit"
+                                class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))">
+                            @stepTitles[i]
+                        </button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+<div class="container mt-4">
+        <b><h2 class="mb-4 text-center">UG/PG Intake Details</h2></b>
+
+    <div class="row">
+        <div class="col-lg-5 col-md-6 col-12 mb-4 px-4 py-4" style="background: #f8fafc; border-radius: 1rem; box-shadow: 0 0 12px #d1d5db;">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+
+            <form asp-action="AHS_UGPG" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <h5 class="mb-3 text-primary">Faculty Intake Details</h5>
+
+                <div class="mb-3">
+                    <label for="CourseLevel" class="form-label fw-bold">Course Level</label>
+                    <select id="CourseLevel" name="CourseLevel" asp-for="CourseLevel" class="form-select border-primary">
+                        <option value="">Select...</option>
+                        @foreach (var lvl in courseLevels)
+                        {
+                            <option value="@lvl" @@(Model.CourseLevel == lvl ? "selected" : "")>@lvl</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CourseLevel" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="CourseCode" class="form-label fw-bold">Course</label>
+                    <select asp-for="CourseCode" class="form-select border-primary" id="CourseDropdown" name="CourseCode">
+                        <option value="">Select Level First...</option>
+                    </select>
+                    <span asp-validation-for="CourseCode" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FreshOrIncrease" class="form-label fw-bold">Fresh/Increase/Additional</label>
+                    <select asp-for="FreshOrIncrease" class="form-select border-primary" id="FreshOrIncrease" name="FreshOrIncrease">
+                        <option value="">Select...</option>
+                        @foreach (var option in freshIncreaseOptions)
+                        {
+                            <option value="@option" @@(Model.FreshOrIncrease == option ? "selected" : "")>@option</option>
+                        }
+                    </select>
+                    <span asp-validation-for="FreshOrIncrease" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="IntakeDetails" class="form-label fw-bold">Intake Details</label>
+                    <input asp-for="IntakeDetails" class="form-control border-primary" placeholder="Enter intake details..." />
+                    <span asp-validation-for="IntakeDetails" class="text-danger"></span>
+                </div>
+
+                <h6 class="mb-2 mt-3 fw-bold text-secondary">Document Uploads</h6>
+                <div class="row mb-2">
+
+                    @*updated code added below, by ram on 17-11-2025, removed two inputs - KNMC & INC *@
+                    <div class="col-6 mb-2">
+                        <label asp-for="RGUHSNotificationFile" class="form-label">RGUHS Notification</label>
+                        <input type="file" asp-for="RGUHSNotificationFile" class="form-control form-control-sm" />
+                        <span asp-validation-for="RGUHSNotificationFile" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="col-6 mb-2">
+                        <label asp-for="GOKUploadFile" class="form-label">GOK Upload</label>
+                        <input type="file" asp-for="GOKUploadFile" class="form-control form-control-sm" />
+                        <span asp-validation-for="GOKUploadFile" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3" style="font-weight:600;">Save Intake</button>
+            </form>
+        </div>
+
+            <div class="col-lg-7 col-md-6 col-12 px-2 py-2">
+                <div class="table-responsive" style="background: #f7f7fa; border-radius: 1rem; box-shadow: 0 0 10px #dee2e6;">
+                    <h5 class="p-2 text-primary">Recent Uploads</h5>
+                <table class="table table-bordered table-hover align-middle mb-0">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>Id</th>
+                            <th>Intake Details</th>
+                            <th>Fresh/Increase</th>
+                            <th>Course Name</th>
+                            <th>RGUHS</th>
+                            <th>GOK</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var row in repositoryRows)
+                        {
+                            <tr>
+                                <td>@row.Id</td>
+                                <td>@row.IntakeDetails</td>
+                                <td>@row.FreshOrIncrease</td>
+                                <td>@row.CourseName</td>
+
+                                <td>
+                                    @if (row.Rguhsnotification != null)
+                                    {
+                                        <a asp-action="DownloadDoc" asp-route-id="@row.Id"
+                                           asp-route-type="RGUHS" class="btn btn-outline-primary btn-sm px-2">View</a>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (row.Gok != null)
+                                    {
+                                        <a asp-action="DownloadDoc" asp-route-id="@row.Id"
+                                           asp-route-type="GOK" class="btn btn-outline-primary btn-sm px-2">View</a>
+                                    }
+                                </td>
+
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm px-2 delete-row"
+                                            data-id="@row.Id">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+
+                </div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <a asp-controller="Aff_AHS" asp-action="AHS_BasicDetails" class="btn btn-outline-secondary sidebar-btn">
+                    ⬅ Previous
+                </a>
+
+                <a asp-controller="Aff_AHS" asp-action="AHS_Affiliated_YearwiseMaterials" class="btn btn-outline-secondary sidebar-btn">
+                    💾 proceed to next
+                </a>
+            </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#CourseLevel').change(function () {
+                var selectedLevel = $(this).val();
+                var $courseDropdown = $('#CourseDropdown');
+                $courseDropdown.empty().append('<option value="">Select...</option>');
+                if (selectedLevel) {
+                    $.get('@Url.Action("GetCoursesByLevel")', { level: selectedLevel }, function (response) {
+                        if (response.success) {
+                            $.each(response.data, function (i, course) {
+                                $courseDropdown.append('<option value="' + course.courseCode + '">' + course.courseName + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#CourseDropdown').change(function () {
+                var selectedText = $("#CourseDropdown option:selected").text();
+                if (selectedText && selectedText !== "Select Level First...") {
+                    $.get('@Url.Action("IsCourseFresh")', { courseName: selectedText }, function (result) {
+                        if (result.exists) {
+                            $('#FreshOrIncrease').val('Increase');
+                        } else {
+                            $('#FreshOrIncrease').val('Fresh');
+                        }
+                    });
+                }
+            });
+
+            $(document).on('click', '.delete-row', function () {
+                var $button = $(this);
+                var id = $button.data('id');
+                if (confirm("Are you sure you want to delete this record?")) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteFacultyIntake")',
+                        type: 'POST',
+                        data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                        success: function (result) {
+                            if (result.success) {
+                                $button.closest('tr').fadeOut(400, function () { $(this).remove(); });
+                            } else {
+                                alert(result.message || "Delete failed.");
+                            }
+                        },
+                        error: function () {
+                            alert("Delete request failed.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

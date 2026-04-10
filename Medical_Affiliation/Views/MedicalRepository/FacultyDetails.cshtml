@@ -1,0 +1,1101 @@
+﻿@model IList<Medical_Affiliation.Models.FacultyDetailsViewModel>
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = null;
+    ViewData["Title"] = "Faculty Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 4;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faculty Details — Medical Affiliation Portal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- jQuery (needed for dynamic row logic) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <style>
+        /* ══════════════════════════════════════════════
+                   DESIGN TOKENS
+                ══════════════════════════════════════════════ */
+        :root {
+            --c-navy: #0b1f42;
+            --c-navy-mid: #153063;
+            --c-navy-lite: #1e4080;
+            --c-navy-ghost: #e8edf7;
+            --c-gold: #b07d2a;
+            --c-gold-lite: #d4a03c;
+            --c-gold-pale: #fdf4e2;
+            --c-white: #ffffff;
+            --c-ink: #111827;
+            --c-muted: #6b7490;
+            --c-border: #dde2ef;
+            --c-border-gold: #c9a03a;
+            --c-red: #a61d24;
+            --c-green: #146c43;
+            --c-green-bg: #eaf5ee;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-card: 0 2px 12px rgba(11,31,66,0.08), 0 1px 3px rgba(11,31,66,0.05);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            color: var(--c-ink);
+            background: #edf0f7;
+            background-image: radial-gradient(ellipse 80% 50% at 10% -10%, rgba(21,48,99,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 110%, rgba(176,125,42,0.05) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════════════════════
+                   GOVERNMENT HEADER
+                ══════════════════════════════════════════════ */
+        .gov-header {
+            background: var(--c-navy);
+            border-bottom: 3px solid var(--c-gold-lite);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(11,31,66,0.4);
+        }
+
+        .gov-header-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 28px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .gov-seal {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #c9a03a 0%, #7a5616 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 0 0 3px rgba(201,160,58,0.25), 0 3px 10px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .gov-header-title {
+            flex: 1;
+        }
+
+            .gov-header-title .line1 {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.18rem;
+                font-weight: 700;
+                color: #e8c97a;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                line-height: 1.2;
+            }
+
+            .gov-header-title .line2 {
+                font-size: 0.72rem;
+                color: rgba(255,255,255,0.45);
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                margin-top: 2px;
+            }
+
+        .gov-header-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+            .gov-header-meta .meta-tag {
+                font-family: 'DM Mono', monospace;
+                font-size: 0.68rem;
+                color: rgba(255,255,255,0.4);
+                letter-spacing: 0.8px;
+            }
+
+            .gov-header-meta .meta-portal {
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--c-gold-lite);
+                letter-spacing: 0.5px;
+            }
+
+        /* ══════════════════════════════════════════════
+                   PAGE SHELL
+                ══════════════════════════════════════════════ */
+        .page-shell {
+            max-width: 1300px;
+            margin: 36px auto 72px;
+            padding: 0 20px;
+        }
+
+        /* BREADCRUMB */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: var(--c-muted);
+            margin-bottom: 20px;
+        }
+
+            .breadcrumb a {
+                color: var(--c-navy-lite);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.15s;
+            }
+
+                .breadcrumb a:hover {
+                    color: var(--c-gold);
+                }
+
+            .breadcrumb .sep {
+                opacity: 0.4;
+            }
+
+            .breadcrumb .current {
+                color: var(--c-navy);
+                font-weight: 600;
+            }
+
+        /* ══════════════════════════════════════════════
+                   STEP PROGRESS HEADER
+                ══════════════════════════════════════════════ */
+        .step-header {
+            background: var(--c-white);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border: 1px solid var(--c-border);
+            border-bottom: none;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .step-header-top {
+            padding: 22px 32px 18px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--c-border);
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--c-navy);
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+        }
+
+        .page-title .subtitle {
+            font-size: 0.82rem;
+            color: var(--c-muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .required-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.76rem;
+            color: var(--c-red);
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .progress-steps {
+            display: flex;
+        }
+
+        .p-step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-right: 1px solid var(--c-border);
+            font-size: 0.82rem;
+            color: var(--c-muted);
+            background: #f7f9fc;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+            .p-step:last-child {
+                border-right: none;
+            }
+
+            .p-step.done {
+                background: #f0f8f3;
+                color: var(--c-green);
+            }
+
+            .p-step.active {
+                background: var(--c-white);
+                color: var(--c-navy);
+                font-weight: 600;
+            }
+
+                .p-step.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--c-navy-lite), var(--c-gold-lite));
+                }
+
+        .p-step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            border: 2px solid currentColor;
+        }
+
+        .p-step.done .p-step-num {
+            background: var(--c-green);
+            border-color: var(--c-green);
+            color: #fff;
+        }
+
+        .p-step.active .p-step-num {
+            background: var(--c-navy);
+            border-color: var(--c-navy);
+            color: #fff;
+        }
+
+        /* ══════════════════════════════════════════════
+                   FORM CARD
+                ══════════════════════════════════════════════ */
+        .form-card {
+            background: var(--c-white);
+            border: 1px solid var(--c-border);
+            border-top: none;
+            padding: 36px 40px 38px;
+            box-shadow: var(--shadow-card);
+        }
+
+        /* Section Head */
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .section-head-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--c-navy) 0%, var(--c-navy-lite) 100%);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--c-gold-lite);
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .section-head-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--c-navy);
+            letter-spacing: 0.3px;
+        }
+
+        .section-head-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--c-border-gold), transparent);
+        }
+
+        /* ── Alert Banner ── */
+        .alert-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+            border: 1px solid;
+        }
+
+        .alert-success {
+            background: var(--c-green-bg);
+            color: var(--c-green);
+            border-color: #b2dfc3;
+        }
+
+        .alert-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            font-size: 1rem;
+            padding: 0;
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+
+            .alert-close:hover {
+                opacity: 1;
+            }
+
+        /* ══════════════════════════════════════════════
+                   FACULTY TABLE
+                ══════════════════════════════════════════════ */
+        .faculty-table-wrap {
+            overflow-x: auto;
+            border: 1.5px solid var(--c-border);
+            border-radius: var(--radius-md);
+            margin-bottom: 28px;
+        }
+
+        .faculty-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.83rem;
+            min-width: 1200px;
+        }
+
+            .faculty-table thead tr {
+                background: linear-gradient(90deg, var(--c-navy) 0%, var(--c-navy-mid) 100%);
+            }
+
+            .faculty-table th {
+                padding: 13px 14px;
+                text-align: left;
+                font-size: 0.71rem;
+                font-weight: 700;
+                color: var(--c-gold-lite);
+                letter-spacing: 0.9px;
+                text-transform: uppercase;
+                border-right: 1px solid rgba(255,255,255,0.08);
+                white-space: nowrap;
+            }
+
+                .faculty-table th:last-child {
+                    border-right: none;
+                }
+
+            .faculty-table td {
+                padding: 9px 12px;
+                border-bottom: 1px solid #eef0f8;
+                border-right: 1px solid #eef0f8;
+                vertical-align: middle;
+                color: #2c3454;
+            }
+
+                .faculty-table td:last-child {
+                    border-right: none;
+                }
+
+            .faculty-table tbody tr {
+                transition: background 0.12s;
+            }
+
+                .faculty-table tbody tr:hover {
+                    background: #f5f8ff;
+                }
+
+        /* Row number cell */
+        .row-num-cell {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--c-muted);
+            text-align: center;
+            width: 46px;
+            background: #f7f9fc;
+            font-weight: 500;
+        }
+
+        /* ── Inline form controls inside table ── */
+        .fc {
+            width: 100%;
+            padding: 7px 10px;
+            font-size: 0.84rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--c-ink);
+            background: #fafbfd;
+            border: 1.5px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            outline: none;
+            appearance: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+            .fc:focus {
+                border-color: var(--c-navy-lite);
+                background: var(--c-white);
+                box-shadow: 0 0 0 3px rgba(30,64,128,0.09);
+            }
+
+            .fc:hover:not(:focus) {
+                border-color: #a0aec0;
+            }
+
+        select.fc {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7490' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 28px;
+            cursor: pointer;
+        }
+
+        input[type="file"].fc {
+            padding: 5px 8px;
+            font-size: 0.78rem;
+            background: #f7f9fc;
+            cursor: pointer;
+            color: var(--c-muted);
+            min-width: 160px;
+        }
+
+            input[type="file"].fc::file-selector-button {
+                background: var(--c-navy-ghost);
+                color: var(--c-navy-mid);
+                border: 1px solid var(--c-border);
+                border-radius: 3px;
+                padding: 3px 9px;
+                font-size: 0.74rem;
+                font-family: 'DM Sans', sans-serif;
+                font-weight: 600;
+                cursor: pointer;
+                margin-right: 8px;
+                transition: background 0.15s;
+            }
+
+                input[type="file"].fc::file-selector-button:hover {
+                    background: var(--c-navy);
+                    color: #fff;
+                    border-color: var(--c-navy);
+                }
+
+        /* ── Table toolbar (Add Row button area) ── */
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .table-info {
+            font-size: 0.79rem;
+            color: var(--c-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .row-count-badge {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.73rem;
+            background: var(--c-navy-ghost);
+            color: var(--c-navy-mid);
+            border: 1px solid var(--c-border);
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1.5px solid transparent;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-ghost {
+            background: var(--c-white);
+            color: var(--c-muted);
+            border-color: var(--c-border);
+        }
+
+            .btn-ghost:hover {
+                background: #f1f4fb;
+                color: var(--c-navy);
+                border-color: #b0bcd8;
+            }
+
+        .btn-primary {
+            background: var(--c-navy);
+            color: var(--c-white);
+            border-color: var(--c-navy);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .btn-primary::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 60%);
+                pointer-events: none;
+            }
+
+            .btn-primary:hover {
+                background: var(--c-navy-lite);
+                border-color: var(--c-navy-lite);
+                box-shadow: 0 4px 16px rgba(11,31,66,0.28);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:active {
+                transform: translateY(0);
+                box-shadow: none;
+            }
+
+        .btn-add-row {
+            background: var(--c-gold-pale);
+            color: var(--c-gold);
+            border-color: var(--c-border-gold);
+            font-size: 0.83rem;
+            padding: 8px 18px;
+        }
+
+            .btn-add-row:hover {
+                background: var(--c-gold);
+                color: var(--c-white);
+                border-color: var(--c-gold);
+            }
+
+        .btn-remove {
+            background: transparent;
+            color: var(--c-red);
+            border-color: #f5c0c0;
+            font-size: 0.77rem;
+            padding: 5px 12px;
+            white-space: nowrap;
+        }
+
+            .btn-remove:hover {
+                background: var(--c-red);
+                color: #fff;
+                border-color: var(--c-red);
+            }
+
+        /* Form actions */
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 24px;
+            border-top: 1px solid #edf0f7;
+            gap: 14px;
+        }
+
+        .actions-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: var(--c-muted);
+        }
+
+        .actions-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ══════════════════════════════════════════════
+                   NAV FOOTER
+                ══════════════════════════════════════════════ */
+        .nav-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding: 0 2px;
+        }
+
+        .btn-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            transition: all 0.14s;
+            border: 1.5px solid var(--c-border);
+        }
+
+        .btn-nav-prev {
+            background: var(--c-white);
+            color: var(--c-muted);
+        }
+
+            .btn-nav-prev:hover {
+                background: #f1f4fb;
+                color: var(--c-navy);
+                border-color: #a0aec0;
+            }
+
+        .btn-nav-next {
+            background: var(--c-navy);
+            color: var(--c-white);
+            border-color: var(--c-navy);
+        }
+
+            .btn-nav-next:hover {
+                background: var(--c-navy-lite);
+                border-color: var(--c-navy-lite);
+                box-shadow: 0 4px 16px rgba(11,31,66,0.25);
+                transform: translateY(-1px);
+            }
+
+        /* ══════════════════════════════════════════════
+                   FLOATING SEAL
+                ══════════════════════════════════════════════ */
+        .page-seal {
+            position: fixed;
+            bottom: 28px;
+            right: 32px;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            border: 2px solid rgba(176,125,42,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: rgba(176,125,42,0.18);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* ══════════════════════════════════════════════
+                   RESPONSIVE
+                ══════════════════════════════════════════════ */
+        @@media (max-width: 960px) {
+            .form-card {
+                padding: 24px 22px;
+            }
+
+            .step-header-top {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        @@media (max-width: 600px) {
+            .gov-header-meta {
+                display: none;
+            }
+
+            .nav-footer {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn-nav {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .actions-right {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══ GOVERNMENT HEADER ══ -->
+    <header class="gov-header">
+        <div class="gov-header-inner">
+            <div class="gov-seal">🏛</div>
+            <div class="gov-header-title">
+                <div class="line1">Rajiv Gandhi University of Health Sciences</div>
+                <div class="line2">Medical Affiliation Management System &nbsp;·&nbsp; Government of Karnataka</div>
+            </div>
+            <div class="gov-header-meta">
+                <span class="meta-portal">Affiliation Portal</span>
+                <span class="meta-tag" id="portal-date-header"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ══ PAGE SHELL ══ -->
+    <div class="page-shell animate__animated animate__fadeIn" style="animation-duration:0.4s;">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <i class="ri-home-4-line"></i>
+            <a href="#">Dashboard</a>
+            <span class="sep">/</span>
+            <a href="#">Medical Affiliation</a>
+            <span class="sep">/</span>
+            <span class="current">Faculty Details</span>
+        </nav>
+
+        <!-- ══ STEP HEADER ══ -->
+        <div class="step-header">
+            <div class="step-header-top">
+                <div class="page-title">
+                    <h1>Faculty Details</h1>
+                    <div class="subtitle">
+                        <i class="ri-information-line" style="color:var(--c-gold);"></i>
+                        Step 4 of 4 — Enter faculty members, designations and qualifications
+                    </div>
+                </div>
+                <div class="required-note">
+                    <i class="ri-error-warning-line"></i>
+                    Use <strong>&nbsp;Add Row&nbsp;</strong> to append new faculty entries
+                </div>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="p-step done">
+                    <div class="p-step-num"><i class="ri-check-line" style="font-size:0.8rem;"></i></div>
+                    <span>Basic Details</span>
+                </div>
+                <div class="p-step done">
+                    <div class="p-step-num"><i class="ri-check-line" style="font-size:0.8rem;"></i></div>
+                    <span>Course Details</span>
+                </div>
+                <div class="p-step done">
+                    <div class="p-step-num"><i class="ri-check-line" style="font-size:0.8rem;"></i></div>
+                    <span>Year-wise Materials</span>
+                </div>
+                <div class="p-step active">
+                    <div class="p-step-num">4</div>
+                    <span>Faculty Details</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ FORM CARD ══ -->
+        <div class="form-card">
+
+            <!-- Success Alert -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert-banner alert-success" id="successAlert">
+                    <i class="ri-checkbox-circle-line" style="font-size:1.1rem;"></i>
+                    <strong>Saved successfully.</strong>&nbsp; @TempData["Success"]
+                    <button class="alert-close" onclick="document.getElementById('successAlert').remove()">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+            }
+
+            <!-- Section Head -->
+            <div class="section-head">
+                <div class="section-head-icon"><i class="ri-team-line"></i></div>
+                <div class="section-head-label">Faculty Information Register</div>
+                <div class="section-head-line"></div>
+            </div>
+
+            <form asp-action="FacultyDetails" method="post" enctype="multipart/form-data" id="facultyForm">
+                @Html.AntiForgeryToken()
+
+                <!-- Table Toolbar -->
+                <div class="table-toolbar">
+                    <div class="table-info">
+                        <i class="ri-user-3-line" style="color:var(--c-gold);"></i>
+                        Faculty entries on record
+                        <span class="row-count-badge" id="rowCountBadge">@Model.Count</span>
+                    </div>
+                    <button type="button" id="addRow" class="btn btn-add-row">
+                        <i class="ri-add-line"></i> Add Row
+                    </button>
+                </div>
+
+                <!-- Faculty Table -->
+                <div class="faculty-table-wrap">
+                    <table class="faculty-table" id="facultyTable">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;">#</th>
+                                <th>Name of Faculty</th>
+                                <th>Department</th>
+                                <th>Subject</th>
+                                <th>Designation</th>
+                                <th>Recognized PG Guide</th>
+                                <th>Guide Shift Letter</th>
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>PAN</th>
+                                <th>Aadhaar</th>
+                                <th style="text-align:center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                <tr>
+                                    <td class="row-num-cell">@(i + 1)</td>
+                                    <td>@Html.TextBoxFor(m => m[i].NameOfFaculty, new { @class = "fc", placeholder = "Full name" })</td>
+                                    <td>@Html.DropDownListFor(m => m[i].SelectedDepartment, Model[i].DepartmentDetails, "Select", new { @class = "fc" })</td>
+                                    <td>@Html.DropDownListFor(m => m[i].Subject, Model[i].Subjects, "Select", new { @class = "fc" })</td>
+                                    <td>@Html.DropDownListFor(m => m[i].Designation, Model[i].Designations, "Select", new { @class = "fc" })</td>
+                                    <td>
+                                        @Html.DropDownListFor(m => m[i].RecognizedPGTeacher,
+                                        new List<SelectListItem> {
+                                                                        new SelectListItem { Text = "Select", Value = "" },
+                                                                        new SelectListItem { Text = "Yes",    Value = "Yes" },
+                                                                        new SelectListItem { Text = "No",     Value = "No" }
+                                                                        },
+                                                                        new { @class = "fc recognized-pg-teacher" })
+                                </td>
+                                <td>
+                                    <input type="file" name="[@i].GuideRecognitionDoc"
+                                           class="fc guide-recognition-doc"
+                                           style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none")"
+                                           accept=".pdf,.jpg,.jpeg,.png" />
+                                </td>
+                                <td>@Html.TextBoxFor(m => m[i].Mobile, new { @class = "fc", placeholder = "10-digit", maxlength = "10" })</td>
+                                <td>@Html.TextBoxFor(m => m[i].Email, new { @class = "fc", placeholder = "email@domain.com" })</td>
+                                <td>@Html.TextBoxFor(m => m[i].PAN, new { @class = "fc", placeholder = "ABCDE1234F", maxlength = "10" })</td>
+                                <td>@Html.TextBoxFor(m => m[i].Aadhaar, new { @class = "fc", placeholder = "12-digit", maxlength = "12" })</td>
+                                <td style="text-align:center;">
+                                    <button type="button" class="btn btn-remove remove-row">
+                                        <i class="ri-delete-bin-6-line"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                                                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <div class="actions-left">
+                        <i class="ri-lock-2-line"></i>
+                        All faculty records are stored securely and encrypted.
+                    </div>
+                    <div class="actions-right">
+                        <button type="button" id="addRowBottom" class="btn btn-add-row">
+                            <i class="ri-add-line"></i> Add Row
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri-save-3-line"></i> Save &amp; Proceed
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- ══ NAVIGATION FOOTER ══ -->
+        <div class="nav-footer">
+            <a asp-controller="MedicalRepository" asp-action="Medical_YearwiseMaterials" class="btn-nav btn-nav-prev">
+                <i class="ri-arrow-left-line"></i> Previous Step
+            </a>
+            <button type="submit" form="facultyForm" class="btn-nav btn-nav-next">
+                Save &amp; Proceed <i class="ri-arrow-right-line"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Floating Seal -->
+    <div class="page-seal"><i class="ri-government-line"></i></div>
+
+    <script>
+        // Live date
+        (function () {
+            const el = document.getElementById('portal-date-header');
+            if (el) el.textContent = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        })();
+
+        // Update row count badge
+        function updateRowCount() {
+            const count = $('#facultyTable tbody tr').length;
+            $('#rowCountBadge').text(count);
+        }
+
+        $(document).ready(function () {
+            var rowIndex = @Model.Count;
+
+            // Toggle guide shift letter file input
+            function toggleFileInput(selectElem) {
+                var fileInput = $(selectElem).closest('tr').find('.guide-recognition-doc');
+                if ($(selectElem).val() === 'Yes') {
+                    fileInput.show();
+                } else {
+                    fileInput.hide().val('');
+                }
+            }
+
+            $('.recognized-pg-teacher').on('change', function () { toggleFileInput(this); });
+            $('.recognized-pg-teacher').each(function () { toggleFileInput(this); });
+
+            // Build department options
+            var deptOptions = `<option value="">Select</option>` +
+                [
+                    @foreach (var dept in Model.First().DepartmentDetails)
+                    {
+                            @Html.Raw($"`<option value=\"{dept.Value}\">{dept.Text}</option>` +")
+                    }
+                    ''
+                ].join('');
+
+            // Build subject options
+            var subjOptions = `<option value="">Select</option>` +
+                [
+                    @foreach (var subj in Model.First().Subjects)
+                    {
+                            @Html.Raw($"`<option value=\"{subj.Value}\">{subj.Text}</option>` +")
+                    }
+                    ''
+                ].join('');
+
+            // Build designation options
+            var desigOptions = `<option value="">Select</option>` +
+                [
+                    @foreach (var desig in Model.First().Designations)
+                    {
+                            @Html.Raw($"`<option value=\"{desig.Value}\">{desig.Text}</option>` +")
+                    }
+                    ''
+                ].join('');
+
+            function addNewRow() {
+                var slno = $('#facultyTable tbody tr').length + 1;
+                var newRow = `
+                    <tr>
+                        <td class="row-num-cell">${slno}</td>
+                        <td><input name="[${rowIndex}].NameOfFaculty" class="fc" placeholder="Full name" /></td>
+                        <td><select name="[${rowIndex}].SelectedDepartment" class="fc">${deptOptions}</select></td>
+                        <td><select name="[${rowIndex}].Subject" class="fc">${subjOptions}</select></td>
+                        <td><select name="[${rowIndex}].Designation" class="fc">${desigOptions}</select></td>
+                        <td>
+                            <select name="[${rowIndex}].RecognizedPGTeacher" class="fc recognized-pg-teacher">
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="file" name="[${rowIndex}].GuideRecognitionDoc"
+                                   class="fc guide-recognition-doc" accept=".pdf,.jpg,.jpeg,.png"
+                                   style="display:none;" />
+                        </td>
+                        <td><input name="[${rowIndex}].Mobile" class="fc" placeholder="10-digit" maxlength="10" /></td>
+                        <td><input name="[${rowIndex}].Email" class="fc" placeholder="email@domain.com" /></td>
+                        <td><input name="[${rowIndex}].PAN" class="fc" placeholder="ABCDE1234F" maxlength="10" /></td>
+                        <td><input name="[${rowIndex}].Aadhaar" class="fc" placeholder="12-digit" maxlength="12" /></td>
+                        <td style="text-align:center;">
+                            <button type="button" class="btn btn-remove remove-row">
+                                <i class="ri-delete-bin-6-line"></i> Remove
+                            </button>
+                        </td>
+                    </tr>`;
+
+                $('#facultyTable tbody').append(newRow);
+
+                $(`select[name='[${rowIndex}].RecognizedPGTeacher']`).on('change', function () {
+                    toggleFileInput(this);
+                });
+
+                // Animate new row
+                var $newRow = $('#facultyTable tbody tr:last');
+                $newRow.css({ opacity: 0, transform: 'translateY(6px)' });
+                setTimeout(function () {
+                    $newRow.css({ transition: 'opacity 0.25s, transform 0.25s', opacity: 1, transform: 'translateY(0)' });
+                }, 10);
+
+                rowIndex++;
+                updateRowCount();
+            }
+
+            $('#addRow, #addRowBottom').on('click', addNewRow);
+
+            $(document).on('click', '.remove-row', function () {
+                if ($('#facultyTable tbody tr').length === 1) {
+                    alert('At least one faculty row is required.');
+                    return;
+                }
+                $(this).closest('tr').remove();
+                // Re-number rows
+                $('#facultyTable tbody tr').each(function (i) {
+                    $(this).find('.row-num-cell').text(i + 1);
+                });
+                updateRowCount();
+            });
+
+            updateRowCount();
+        });
+    </script>
+
+</body>
+</html>

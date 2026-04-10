@@ -1,0 +1,347 @@
+﻿@model AddIntakeViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Add Course Intake – 2026-27";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RGUHS Intake Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --rguhs-blue: #004080;
+            --rguhs-blue-light: #0056b3;
+            --rguhs-accent: #e67e22;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+            --bg-light: #f8f9fa;
+            --border: #dee2e6;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header-bar {
+            background-color: var(--rguhs-blue);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+            .header-bar h1 {
+                margin: 0;
+                font-weight: 600;
+            }
+
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            background-color: var(--rguhs-blue-light);
+            color: white;
+            font-weight: 500;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #343a40;
+        }
+
+        .btn-primary {
+            background-color: var(--rguhs-blue);
+            border-color: var(--rguhs-blue);
+        }
+
+            .btn-primary:hover {
+                background-color: var(--rguhs-blue-light);
+                border-color: var(--rguhs-blue-light);
+            }
+
+        .readonly-field {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        .declaration-block {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 1rem;
+            border-radius: 0.375rem;
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            background-color: var(--rguhs-blue);
+            color: white;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .alert-dismissible .btn-close {
+            padding: 0.75rem 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="container">
+            <h1>Add Course Intake</h1>
+            <p class="mb-0">Rajiv Gandhi University of Health Sciences – 2026-27 Intake Registration</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+
+        <!-- Success / Error Messages -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @using (Html.BeginForm("AddCourse", "LatestMedicalAffiliation", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <!-- Academic Year (fixed & read-only) -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-calendar-alt me-2"></i> Academic Year
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label">Academic Year</label>
+                            <input type="text" class="form-control readonly-field" value="2026-27" readonly />
+                            <input type="hidden" asp-for="AcademicYear" value="@(Model?.AcademicYear?.ToString("yyyy-MM-dd") ?? "2026-07-01")" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-2"></i> Course Information
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label asp-for="SelectedCourseLevel" class="form-label">Course Level</label>
+                            <select asp-for="SelectedCourseLevel" asp-items="Model?.CourseLevels" class="form-select" id="courseLevel" required>
+                                <option value="">-- Select Course Level --</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a course level.</div>
+                            <span asp-validation-for="SelectedCourseLevel" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="SelectedCourseCode" class="form-label">Course</label>
+                            <select asp-for="SelectedCourseCode" asp-items="Model?.Courses" class="form-select" id="course" required>
+                                <option value="">-- Select Course --</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a course.</div>
+                            <span asp-validation-for="SelectedCourseCode" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intake Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-users-rectangle me-2"></i> Intake Capacity
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label asp-for="NewCourseSeatRequested" class="form-label">New Course Seats Requested</label>
+                            <input asp-for="NewCourseSeatRequested" type="number" min="0" class="form-control" id="NewCourseSeatRequested" required />
+                            <div class="invalid-feedback">Please enter a valid number (0 or more).</div>
+                            <span asp-validation-for="NewCourseSeatRequested" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="TotalIntake" class="form-label">Total Intake</label>
+                            <input asp-for="TotalIntake" type="number" class="form-control readonly-field" readonly id="TotalIntake" />
+                        </div>
+                    </div>
+
+                    <!-- Declaration -->
+                    <div class="declaration-block mt-4">
+                        <div class="form-check">
+                            @Html.CheckBoxFor(m => m.IsDeclarationAccepted, new { @class = "form-check-input", id = "addConsent", required = "required" })
+                            <label class="form-check-label" for="addConsent">
+                                I,
+                                @Html.TextBoxFor(m => m.PrincipalName, new { @class = "form-control d-inline-block w-auto mx-2", style = "width:220px !important;", placeholder = "Principal / Dean Name", required = "required" })
+                                Principal/Dean of <strong>@(Model?.CollegeName ?? "Your College")</strong>, hereby declare that all details furnished are true and correct to the best of my knowledge for the academic year 2026-27.
+                            </label>
+                            <div class="invalid-feedback d-block mt-2">Declaration acceptance and Principal name are required.</div>
+                            <span asp-validation-for="IsDeclarationAccepted" class="text-danger"></span>
+                            <span asp-validation-for="PrincipalName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Records -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table me-2"></i> Saved Intake Records (2026-27)
+                </div>
+                <div class="card-body">
+                    @if (Model?.SavedIntakes?.Any() == true)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Course Level</th>
+                                        <th>Course</th>
+                                        <th>New Seats</th>
+                                        <th>Total Intake</th>
+                                        <th>Principal</th>
+                                        <th>Created On</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.SavedIntakes)
+                                    {
+                                        <tr>
+                                            <td>@item.CourseLevel</td>
+                                            <td>@item.CourseName</td>
+                                            <td>@item.NewCourseSeatRequested</td>
+                                            <td>@item.TotalIntake</td>
+                                            <td>@item.PrincipalName</td>
+                                            <td>@item.CreatedOn.ToString("dd-MM-yyyy HH:mm")</td>
+                                            <td>
+                                                <form asp-controller="LatestMedicalAffiliation" asp-action="DeleteIntake" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this intake record?');">
+                                                        <i class="fas fa-trash-alt"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">No intake records have been saved yet for academic year 2026-27.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-end gap-3 mb-4">
+                <a href="@Url.Action("AcademicIntakeData", "AcademicIntake")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-save me-2"></i> Submit Intake (2026-27)
+                </button>
+            </div>
+        }
+    </div>
+
+    <footer>
+        <div class="container">
+            © @DateTime.Now.Year Rajiv Gandhi University of Health Sciences, Karnataka | All Rights Reserved
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            // Bootstrap client-side validation
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+
+            // Cascade: course level → courses
+            $('#courseLevel').on('change', function () {
+                const level = $(this).val();
+                const $course = $('#course');
+                const $btn = $('#submitBtn');
+
+                if (level) {
+                    $course.prop('disabled', true).html('<option value="">Loading...</option>');
+                    $btn.prop('disabled', true);
+
+                    $.ajax({
+                        url: '@Url.Action("GetCoursesByLevel", "LatestMedicalAffiliation")',
+                        type: 'GET',
+                        data: { level: level },
+                        success: function (data) {
+                            $course.empty().append('<option value="">-- Select Course --</option>');
+                            $.each(data, function (i, item) {
+                                $course.append($('<option>', {
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+                        },
+                        error: function () {
+                            alert('Error loading courses. Please try again.');
+                        },
+                        complete: function () {
+                            $course.prop('disabled', false);
+                            $btn.prop('disabled', false);
+                        }
+                    });
+                } else {
+                    $course.empty().append('<option value="">-- Select Course --</option>').prop('disabled', false);
+                }
+            });
+
+            // Auto-update Total Intake
+            function updateTotalIntake() {
+                const newSeats = parseInt($('#NewCourseSeatRequested').val()) || 0;
+                $('#TotalIntake').val(newSeats);
+            }
+
+            $('#NewCourseSeatRequested').on('input', updateTotalIntake);
+            updateTotalIntake(); // Initial calculation
+        });
+    </script>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

@@ -1,0 +1,1601 @@
+﻿@model Medical_Affiliation.Controllers.LICInspectionEditMemberController.LicInspectionViewModel
+@{
+    ViewData["Title"] = "LIC Inspection – Edit Member";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #0A2342;
+            --navy-mid: #0F3460;
+            --navy-lt: #1A4A7A;
+            --gold: #C9A84C;
+            --gold-lt: #E8C97A;
+            --gold-pale: #FBF3DC;
+            --gold-bd: rgba(201,168,76,.25);
+            --surface: #F4F6FA;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --border-dk: #CBD5E1;
+            --t1: #0F172A;
+            --t2: #475569;
+            --t3: #94A3B8;
+            --green: #059669;
+            --green-bg: #ECFDF5;
+            --green-bd: rgba(5,150,105,.2);
+            --red: #DC2626;
+            --red-bg: #FEF2F2;
+            --red-bd: rgba(220,38,38,.2);
+            --amber: #B45309;
+            --amber-bg: #FFFBEB;
+            --r-sm: 6px;
+            --r-md: 10px;
+            --r-lg: 14px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+            --shadow: 0 4px 16px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+            --ease: cubic-bezier(.4,0,.2,1);
+            --header-h: 60px;
+        }
+
+        html {
+            font-size: 15px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--t1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════════════ TOPBAR ══════════════════ */
+        .topbar {
+            background: var(--navy);
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 300;
+            box-shadow: 0 2px 12px rgba(0,0,0,.25);
+        }
+
+            .topbar::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 40%, transparent 100%);
+            }
+
+        .topbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+            .topbar-logo img {
+                width: 32px;
+                height: 32px;
+                border-radius: 7px;
+                object-fit: cover;
+                border: 1.5px solid rgba(201,168,76,.4);
+            }
+
+        .topbar-logo-text {
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--gold-lt);
+            letter-spacing: .02em;
+        }
+
+        .topbar-sep {
+            width: 1px;
+            height: 22px;
+            background: rgba(255,255,255,.12);
+            flex-shrink: 0;
+        }
+
+        .topbar-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .topbar-title {
+            font-size: .88rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.9);
+        }
+
+        .topbar-sub {
+            font-size: .72rem;
+            color: rgba(255,255,255,.4);
+            letter-spacing: .03em;
+        }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 16px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.75);
+            font-size: .8rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            transition: all .18s var(--ease);
+            white-space: nowrap;
+        }
+
+            .btn-back:hover {
+                background: rgba(255,255,255,.13);
+                color: #fff;
+                border-color: rgba(255,255,255,.25);
+            }
+
+        /* ══════════════════ PAGE BODY ══════════════════ */
+        .page {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 28px 20px 64px;
+        }
+
+        /* ══════════════════ ALERTS ══════════════════ */
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 11px 16px;
+            border-radius: var(--r-md);
+            font-size: .875rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            animation: slideDown .3s var(--ease);
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: var(--green-bg);
+            border: 1px solid var(--green-bd);
+            color: #065F46;
+        }
+
+        .alert-danger {
+            background: var(--red-bg);
+            border: 1px solid var(--red-bd);
+            color: #7F1D1D;
+        }
+
+        /* ══════════════════ SECTION CARDS ══════════════════ */
+        .s-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 18px;
+            animation: fadeUp .4s var(--ease) both;
+            position: relative;
+        }
+
+            .s-card:nth-child(2) {
+                animation-delay: .06s;
+            }
+
+            .s-card:nth-child(3) {
+                animation-delay: .12s;
+            }
+
+            .s-card:nth-child(4) {
+                animation-delay: .18s;
+            }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Card head */
+        .c-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 20px;
+            background: #FAFBFC;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .c-head.step-1 {
+                border-left: 3px solid var(--navy);
+            }
+
+            .c-head.step-2 {
+                border-left: 3px solid var(--gold);
+            }
+
+            .c-head.step-3 {
+                border-left: 3px solid var(--green);
+            }
+
+        .c-head-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ci-1 {
+            background: rgba(10,35,66,.07);
+        }
+
+        .ci-2 {
+            background: rgba(201,168,76,.1);
+        }
+
+        .ci-3 {
+            background: var(--green-bg);
+        }
+
+        .c-head-info {
+            flex: 1;
+        }
+
+        .c-head-title {
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: -.01em;
+        }
+
+        .c-head-sub {
+            font-size: .7rem;
+            color: var(--t3);
+            margin-top: 1px;
+        }
+
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: .66rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            background: var(--surface);
+            color: var(--t3);
+            border: 1px solid var(--border);
+        }
+
+        /* Card body */
+        .c-body {
+            padding: 20px;
+        }
+
+        /* ══════════════════ FORM ELEMENTS ══════════════════ */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-label {
+            font-size: .67rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--t3);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .form-label .req {
+                color: var(--navy);
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border-dk);
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            color: var(--t1);
+            background: var(--card);
+            outline: none;
+            appearance: none;
+            transition: border-color .18s, box-shadow .18s;
+        }
+
+            .form-control:focus {
+                border-color: var(--navy);
+                box-shadow: 0 0 0 3px rgba(10,35,66,.08);
+            }
+
+            .form-control.is-invalid {
+                border-color: var(--red);
+            }
+
+        select.form-control {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394A3B8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+            cursor: pointer;
+        }
+
+        .field-err {
+            font-size: .7rem;
+            color: var(--red);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .field-err::before {
+                content: '⚠';
+                font-size: .66rem;
+            }
+
+        /* ══════════════════ INFO DISPLAY GRID ══════════════════ */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-lbl {
+            font-size: .67rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--t3);
+        }
+
+        .info-val {
+            font-size: .875rem;
+            font-weight: 500;
+            color: var(--navy);
+            padding: 8px 12px;
+            background: var(--surface);
+            border-radius: var(--r-sm);
+            border-left: 3px solid var(--gold);
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+            .info-val.empty {
+                color: var(--t3);
+                font-style: italic;
+                font-weight: 400;
+            }
+
+        /* ══════════════════ EDITABLE MEMBER ITEM ══════════════════ */
+        .edit-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .edit-item-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-edit-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            background: rgba(10,35,66,.06);
+            border: 1px solid rgba(10,35,66,.12);
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .68rem;
+            font-weight: 700;
+            color: var(--navy-mid);
+            cursor: pointer;
+            transition: all .18s var(--ease);
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+
+            .btn-edit-inline:hover {
+                background: var(--navy);
+                border-color: var(--navy);
+                color: #fff;
+            }
+
+        /* Edit panel */
+        .edit-panel {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            padding: 14px;
+            background: var(--blue-bg, #EFF6FF);
+            border: 1px solid rgba(29,78,216,.15);
+            border-radius: var(--r-md);
+            animation: fadeIn .18s var(--ease);
+        }
+
+            .edit-panel.active {
+                display: flex;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .edit-panel-lbl {
+            font-size: .67rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--t2);
+        }
+
+        .edit-panel-select {
+            width: 100%;
+            padding: 8px 32px 8px 12px;
+            border: 1px solid var(--border-dk);
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            color: var(--t1);
+            background: var(--card);
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394A3B8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            transition: border-color .18s, box-shadow .18s;
+        }
+
+            .edit-panel-select:focus {
+                border-color: var(--navy);
+                box-shadow: 0 0 0 3px rgba(10,35,66,.08);
+            }
+
+        .edit-panel-select-loading {
+            opacity: .55;
+            pointer-events: none;
+        }
+
+        .edit-panel-loading-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .78rem;
+            color: var(--t2);
+            padding: 2px 0;
+        }
+
+        .phone-preview {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--navy);
+            font-family: 'DM Mono', monospace;
+            animation: fadeIn .18s var(--ease);
+        }
+
+        .edit-panel-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-panel-save {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            background: var(--navy);
+            color: #fff;
+            border: none;
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+        }
+
+            .btn-panel-save:hover {
+                background: var(--navy-mid);
+                transform: translateY(-1px);
+                box-shadow: 0 3px 10px rgba(10,35,66,.25);
+            }
+
+        .btn-panel-cancel {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: var(--card);
+            color: var(--t2);
+            border: 1px solid var(--border-dk);
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+        }
+
+            .btn-panel-cancel:hover {
+                background: var(--surface);
+                color: var(--t1);
+                border-color: var(--t3);
+            }
+
+        /* ══════════════════ SECTION DIVIDER ══════════════════ */
+        .sec-div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0 14px;
+        }
+
+        .sec-div-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .sec-div-lbl {
+            font-size: .67rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--t3);
+            white-space: nowrap;
+        }
+
+        /* ══════════════════ EXPERT TABLE ══════════════════ */
+        .expert-wrap {
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            overflow: hidden;
+        }
+
+        .expert-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .84rem;
+            table-layout: fixed;
+        }
+
+            .expert-table thead {
+                background: var(--navy);
+            }
+
+                .expert-table thead th {
+                    padding: 9px 14px;
+                    text-align: left;
+                    color: rgba(255,255,255,.65);
+                    font-size: .65rem;
+                    font-weight: 700;
+                    letter-spacing: .08em;
+                    text-transform: uppercase;
+                }
+
+            .expert-table tbody tr {
+                border-bottom: 1px solid var(--border);
+                transition: background .12s;
+            }
+
+                .expert-table tbody tr:last-child {
+                    border-bottom: none;
+                }
+
+                .expert-table tbody tr:hover td {
+                    background: #F8FAFC;
+                }
+
+            .expert-table tbody td {
+                padding: 8px 10px;
+                vertical-align: middle;
+            }
+
+                .expert-table tbody td:first-child {
+                    font-family: 'DM Mono', monospace;
+                    font-size: .72rem;
+                    font-weight: 600;
+                    color: var(--t3);
+                    width: 48px;
+                    text-align: center;
+                }
+
+        .expert-input {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid var(--border-dk);
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .84rem;
+            color: var(--t1);
+            background: var(--card);
+            outline: none;
+            transition: border-color .18s, box-shadow .18s;
+        }
+
+            .expert-input:focus {
+                border-color: var(--navy);
+                box-shadow: 0 0 0 3px rgba(10,35,66,.08);
+            }
+
+            .expert-input::placeholder {
+                color: var(--t3);
+            }
+
+        .no-data-row td {
+            text-align: center;
+            padding: 28px;
+            color: var(--t3);
+            font-size: .84rem;
+            font-style: italic;
+        }
+
+        /* ══════════════════ FILE UPLOAD ══════════════════ */
+        .file-drop-zone {
+            border: 2px dashed var(--border-dk);
+            border-radius: var(--r-md);
+            padding: 28px 20px;
+            text-align: center;
+            background: var(--surface);
+            cursor: pointer;
+            transition: border-color .18s, background .18s;
+            position: relative;
+        }
+
+            .file-drop-zone:hover,
+            .file-drop-zone.dragover {
+                border-color: var(--navy);
+                background: #EFF6FF;
+            }
+
+            .file-drop-zone input[type="file"] {
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                cursor: pointer;
+                width: 100%;
+                height: 100%;
+            }
+
+        .upload-icon-wrap {
+            width: 44px;
+            height: 44px;
+            background: rgba(10,35,66,.07);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: var(--navy-mid);
+            transition: background .18s;
+        }
+
+        .file-drop-zone:hover .upload-icon-wrap {
+            background: rgba(10,35,66,.14);
+        }
+
+        .upload-text-main {
+            font-size: .875rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 3px;
+        }
+
+        .upload-text-sub {
+            font-size: .78rem;
+            color: var(--t3);
+        }
+
+        .upload-text-hint {
+            font-size: .72rem;
+            color: var(--t3);
+            margin-top: 6px;
+        }
+
+        .file-selected-info {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px 14px;
+            background: var(--green-bg);
+            border: 1px solid var(--green-bd);
+            border-radius: var(--r-sm);
+            font-size: .82rem;
+            font-weight: 500;
+            color: #065F46;
+        }
+
+            .file-selected-info.visible {
+                display: flex;
+            }
+
+        .existing-file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bd);
+            border-radius: var(--r-sm);
+            font-size: .78rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background .18s;
+        }
+
+            .existing-file-link:hover {
+                background: #D1FAE5;
+            }
+
+        /* ══════════════════ ACTION BAR ══════════════════ */
+        .action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 20px;
+            background: #FAFBFC;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 20px;
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all .18s var(--ease);
+            text-decoration: none;
+            white-space: nowrap;
+            letter-spacing: .01em;
+        }
+
+        .btn-outline {
+            background: var(--card);
+            color: var(--t2);
+            border-color: var(--border-dk);
+        }
+
+            .btn-outline:hover {
+                background: var(--surface);
+                color: var(--t1);
+                border-color: var(--t3);
+            }
+
+        .btn-primary {
+            background: var(--navy);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(10,35,66,.2);
+        }
+
+            .btn-primary:hover {
+                background: var(--navy-mid);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 14px rgba(10,35,66,.3);
+            }
+
+            .btn-primary:disabled {
+                opacity: .45;
+                cursor: not-allowed;
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+        .btn-next {
+            background: var(--gold);
+            color: var(--navy);
+            border-color: transparent;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(201,168,76,.3);
+        }
+
+            .btn-next:hover {
+                background: var(--gold-lt);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 14px rgba(201,168,76,.4);
+                color: var(--navy);
+            }
+
+        /* ══════════════════ LOADING ══════════════════ */
+        .loading-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,.75);
+            border-radius: var(--r-lg);
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: .84rem;
+            font-weight: 600;
+            color: var(--navy-mid);
+        }
+
+            .loading-overlay.active {
+                display: flex;
+            }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(10,35,66,.15);
+            border-top-color: var(--navy);
+            border-radius: 50%;
+            animation: spin .65s linear infinite;
+        }
+
+        .spinner-sm {
+            width: 13px;
+            height: 13px;
+            border: 2px solid rgba(10,35,66,.15);
+            border-top-color: var(--navy);
+            border-radius: 50%;
+            animation: spin .65s linear infinite;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ══════════════════ RESPONSIVE ══════════════════ */
+        @@media (max-width: 700px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page {
+                padding: 16px 12px 48px;
+            }
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .topbar-sub {
+                display: none;
+            }
+
+            .action-bar {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══════════════════════════════════════════
+         TOPBAR
+    ══════════════════════════════════════════ -->
+    <header class="topbar">
+        <div class="topbar-logo">
+            <img src="~/images/logo.jpg" alt="Logo" />
+            <span class="topbar-logo-text">LIC Portal</span>
+        </div>
+
+        <div class="topbar-sep"></div>
+
+        <div class="topbar-page">
+            <div class="topbar-dot"></div>
+            <span class="topbar-title">Edit Member</span>
+            <span class="topbar-sep" style="margin: 0 4px;"></span>
+            <span class="topbar-sub">Subject Expert &amp; Revised Order Management</span>
+        </div>
+
+        <div class="topbar-right">
+            <a href="@Url.Action("Dashboard", "LIC_Director")" class="btn-back">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Back
+            </a>
+        </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════
+         PAGE
+    ══════════════════════════════════════════ -->
+    <div class="page">
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                @Model.SuccessMessage
+            </div>
+        }
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <div>
+                    <strong>Please fix the following errors:</strong>
+                    <div asp-validation-summary="All" style="margin-top:5px;font-size:.82rem;"></div>
+                </div>
+            </div>
+        }
+
+        <form asp-action="SEedit" method="post" enctype="multipart/form-data" id="mainForm" novalidate>
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" id="hdnSelectedAcMemberId" name="SelectedAcMemberId" value="" />
+            <input type="hidden" id="hdnSelectedSenateMemberId" name="SelectedSenateMemberId" value="" />
+
+            <!-- ══ CARD 1: College Selection ══ -->
+            <div class="s-card">
+                <div class="c-head step-1">
+                    <div class="c-head-icon ci-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#0A2342" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    <div class="c-head-info">
+                        <div class="c-head-title">College Selection</div>
+                        <div class="c-head-sub">Choose the college to update</div>
+                    </div>
+                    <span class="step-badge">Step 1</span>
+                </div>
+                <div class="c-body">
+                    <div class="form-group">
+                        <label asp-for="SelectedCollegeId" class="form-label">
+                            Select College <span class="req">*</span>
+                        </label>
+                        <select asp-for="SelectedCollegeId"
+                                asp-items="Model.CollegeList"
+                                class="form-control @(ViewData.ModelState[nameof(Model.SelectedCollegeId)]?.Errors.Count > 0 ? "is-invalid" : "")"
+                                id="collegeSelect">
+                            <option value="">— Choose a college —</option>
+                        </select>
+                        <span asp-validation-for="SelectedCollegeId" class="field-err"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ CARD 2: College Details ══ -->
+            <div class="s-card" id="collegeDetailsCard" style="display:none;">
+                <div class="loading-overlay" id="detailsLoader">
+                    <div class="spinner"></div> Loading college details…
+                </div>
+
+                <div class="c-head step-2">
+                    <div class="c-head-icon ci-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="c-head-info">
+                        <div class="c-head-title">College Information</div>
+                        <div class="c-head-sub">Review and edit member assignments</div>
+                    </div>
+                    <span class="step-badge">Step 2</span>
+                </div>
+
+                <div class="c-body">
+
+                    <!-- Info Grid -->
+                    <div class="info-grid" id="basicInfoGrid">
+
+                        <!-- College Name (read-only) -->
+                        <div class="info-item">
+                            <span class="info-lbl">College Name</span>
+                            <span class="info-val" id="disp_collegename">—</span>
+                        </div>
+
+                        <!-- Place (read-only) -->
+                        <div class="info-item">
+                            <span class="info-lbl">Place</span>
+                            <span class="info-val" id="disp_place">—</span>
+                        </div>
+
+                        <!-- AC Member (editable) -->
+                        <div class="edit-item">
+                            <div class="edit-item-hd">
+                                <span class="info-lbl">AC Member</span>
+                                <button type="button" class="btn-edit-inline" id="btnEditAc">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                    Edit
+                                </button>
+                            </div>
+                            <span class="info-val" id="disp_acMember">—</span>
+                            <div class="edit-panel" id="editPanelAc">
+                                <span class="edit-panel-lbl">Select New AC Member</span>
+                                <div class="edit-panel-loading-row" id="acLoadingRow">
+                                    <div class="spinner-sm"></div>
+                                    <span>Loading members…</span>
+                                </div>
+                                <select class="edit-panel-select edit-panel-select-loading" id="selectAcMember" style="display:none;">
+                                    <option value="">— Select AC Member —</option>
+                                </select>
+                                <div class="phone-preview" id="phonePreviewAc" style="display:none;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                                    <span id="phonePreviewAcVal">—</span>
+                                </div>
+                                <div class="edit-panel-actions">
+                                    <button type="button" class="btn-panel-cancel" id="btnCancelAc">Cancel</button>
+                                    <button type="button" class="btn-panel-save" id="btnConfirmAc">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                        Confirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AC Member Phone (read-only) -->
+                        <div class="info-item">
+                            <span class="info-lbl">AC Member Phone</span>
+                            <span class="info-val" id="disp_acPhone">—</span>
+                        </div>
+
+                        <!-- Senate Member (editable) -->
+                        <div class="edit-item">
+                            <div class="edit-item-hd">
+                                <span class="info-lbl">Senate Member</span>
+                                <button type="button" class="btn-edit-inline" id="btnEditSenate">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                    Edit
+                                </button>
+                            </div>
+                            <span class="info-val" id="disp_senateMember">—</span>
+                            <div class="edit-panel" id="editPanelSenate">
+                                <span class="edit-panel-lbl">Select New Senate Member</span>
+                                <div class="edit-panel-loading-row" id="senateLoadingRow">
+                                    <div class="spinner-sm"></div>
+                                    <span>Loading members…</span>
+                                </div>
+                                <select class="edit-panel-select edit-panel-select-loading" id="selectSenateMember" style="display:none;">
+                                    <option value="">— Select Senate Member —</option>
+                                </select>
+                                <div class="phone-preview" id="phonePreviewSenate" style="display:none;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                                    <span id="phonePreviewSenateVal">—</span>
+                                </div>
+                                <div class="edit-panel-actions">
+                                    <button type="button" class="btn-panel-cancel" id="btnCancelSenate">Cancel</button>
+                                    <button type="button" class="btn-panel-save" id="btnConfirmSenate">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                        Confirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Senate Member Phone (read-only) -->
+                        <div class="info-item">
+                            <span class="info-lbl">Senate Member Phone</span>
+                            <span class="info-val" id="disp_senatePhone">—</span>
+                        </div>
+
+                    </div><!-- /info-grid -->
+                    <!-- Subject Experts -->
+                    <div class="sec-div">
+                        <div class="sec-div-line"></div>
+                        <span class="sec-div-lbl">Subject Experts</span>
+                        <div class="sec-div-line"></div>
+                    </div>
+
+                    <div class="expert-wrap">
+                        <table class="expert-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:48px;text-align:center">#</th>
+                                    <th style="width:calc(50% - 24px)">Expert Name</th>
+                                    <th style="width:calc(50% - 24px)">Phone Number</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expertTableBody">
+                                <tr class="no-data-row" id="noExpertRow">
+                                    <td colspan="3">No subject experts found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Existing File -->
+                    <div class="sec-div">
+                        <div class="sec-div-line"></div>
+                        <span class="sec-div-lbl">Current SE Revised Order</span>
+                        <div class="sec-div-line"></div>
+                    </div>
+
+                    <div id="existingFileSection" style="min-height:32px;">
+                        <span style="font-size:.84rem;color:var(--t3);font-style:italic;">No file uploaded yet.</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ══ CARD 3: Upload SE Revised Order ══ -->
+            <div class="s-card" id="uploadCard" style="display:none;">
+                <div class="c-head step-3">
+                    <div class="c-head-icon ci-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                    </div>
+                    <div class="c-head-info">
+                        <div class="c-head-title">Upload SE Revised Order</div>
+                        <div class="c-head-sub">Attach document — PDF, DOC, DOCX, JPG, PNG · Max 10 MB</div>
+                    </div>
+                    <span class="step-badge">Step 3</span>
+                </div>
+
+                <div class="c-body">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Subject Expertise Revised Order Document <span class="req">*</span>
+                        </label>
+
+                        <div class="file-drop-zone" id="dropZone">
+                            <input type="file"
+                                   asp-for="SE_RevisedOrderFile"
+                                   id="fileInput"
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                   class="@(ViewData.ModelState[nameof(Model.SE_RevisedOrderFile)]?.Errors.Count > 0 ? "is-invalid" : "")" />
+                            <div class="upload-icon-wrap" id="uploadIconWrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                            </div>
+                            <div class="upload-text-main">Click to browse or drag &amp; drop</div>
+                            <div class="upload-text-sub">PDF, DOC, DOCX, JPG, PNG</div>
+                            <div class="upload-text-hint">Maximum file size: 10 MB</div>
+                        </div>
+
+                        <div class="file-selected-info" id="fileSelectedInfo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            <span id="fileSelectedName"></span>
+                            <span id="fileSelectedSize" style="margin-left:auto;color:var(--t3);font-size:.75rem;font-weight:400;"></span>
+                        </div>
+
+                        <span asp-validation-for="SE_RevisedOrderFile" class="field-err"></span>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <a href="@Url.Action("SEedit", "LICInspectionEditMember")" class="btn btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Reset
+                    </a>
+
+                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Save &amp; Upload
+                    </button>
+
+                    <a href="@Url.Action("LICSEADMIN", "LICInspectionEditMember")" class="btn btn-next">
+                        Next Page
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const collegeSelect    = document.getElementById('collegeSelect');
+            const detailsCard      = document.getElementById('collegeDetailsCard');
+            const uploadCard       = document.getElementById('uploadCard');
+            const detailsLoader    = document.getElementById('detailsLoader');
+            const expertTableBody  = document.getElementById('expertTableBody');
+            const noExpertRow      = document.getElementById('noExpertRow');
+            const existingFileSec  = document.getElementById('existingFileSection');
+            const submitBtn        = document.getElementById('submitBtn');
+            const dropZone         = document.getElementById('dropZone');
+            const fileInput        = document.getElementById('fileInput');
+            const fileSelectedInfo = document.getElementById('fileSelectedInfo');
+            const fileSelectedName = document.getElementById('fileSelectedName');
+            const fileSelectedSize = document.getElementById('fileSelectedSize');
+            const hdnAcId          = document.getElementById('hdnSelectedAcMemberId');
+            const hdnSenateId      = document.getElementById('hdnSelectedSenateMemberId');
+
+            const memberCache = { ac: null, senate: null };
+
+            function setText(id, value) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (value) { el.textContent = value; el.classList.remove('empty'); }
+                else       { el.textContent = 'N/A'; el.classList.add('empty'); }
+            }
+
+            function formatBytes(bytes) {
+                if (bytes < 1024)    return bytes + ' B';
+                if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / 1048576).toFixed(2) + ' MB';
+            }
+
+            function escHtml(str) {
+                return String(str)
+                    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            }
+
+            function showPhonePreview(cfg) {
+                const opt = cfg.selectEl.options[cfg.selectEl.selectedIndex];
+                if (opt && opt.value && opt.dataset.phone) {
+                    cfg.phonePreviewVal.textContent = opt.dataset.phone;
+                    cfg.phonePreview.style.display  = 'flex';
+                } else {
+                    cfg.phonePreview.style.display  = 'none';
+                    cfg.phonePreviewVal.textContent = '—';
+                }
+            }
+
+            function wireEditPanel(cfg) {
+                let panelOpen = false;
+
+                cfg.btnEdit.addEventListener('click', async function () {
+                    if (panelOpen) return;
+                    panelOpen = true;
+                    cfg.editPanel.classList.add('active');
+                    cfg.btnEdit.disabled = true;
+
+                    if (!memberCache[cfg.memberType]) {
+                        try {
+                            const typeLabel = cfg.memberType === 'ac' ? 'Academic Council' : 'Senate Members';
+                            const url = `/LICInspectionEditMember/GetLICInspectionMembers?type=${encodeURIComponent(typeLabel)}`;
+                            const res = await fetch(url);
+                            if (!res.ok) throw new Error('HTTP ' + res.status);
+                            const data = await res.json();
+                            if (!Array.isArray(data)) throw new Error('Invalid response format');
+                            memberCache[cfg.memberType] = data;
+                        } catch (e) {
+                            cfg.loadingRow.innerHTML =
+                                `<span style="color:var(--red);font-size:.78rem;">⚠ ${e.message}</span>`;
+                            panelOpen = false;
+                            cfg.btnEdit.disabled = false;
+                            return;
+                        }
+                    }
+
+                    populateMemberSelect(cfg.selectEl, memberCache[cfg.memberType]);
+                    cfg.loadingRow.style.display = 'none';
+                    cfg.selectEl.style.display   = '';
+                    cfg.selectEl.classList.remove('edit-panel-select-loading');
+                    if (cfg.hdnId.value) {
+                        cfg.selectEl.value = cfg.hdnId.value;
+                        showPhonePreview(cfg);
+                    }
+                });
+
+                cfg.selectEl.addEventListener('change', function () { showPhonePreview(cfg); });
+
+                cfg.btnCancel.addEventListener('click', closePanel);
+
+                cfg.btnConfirm.addEventListener('click', function () {
+                    const selectedOpt = cfg.selectEl.options[cfg.selectEl.selectedIndex];
+                    if (!selectedOpt || !selectedOpt.value) {
+                        cfg.selectEl.style.borderColor = 'var(--red)';
+                        setTimeout(() => cfg.selectEl.style.borderColor = '', 1500);
+                        return;
+                    }
+                    const id    = selectedOpt.value;
+                    const name  = selectedOpt.dataset.name  || selectedOpt.text;
+                    const phone = selectedOpt.dataset.phone || '';
+                    setText(cfg.dispName.id,  name);
+                    setText(cfg.dispPhone.id, phone || null);
+                    cfg.hdnId.value = id;
+                    closePanel();
+                });
+
+                function closePanel() {
+                    panelOpen = false;
+                    cfg.editPanel.classList.remove('active');
+                    cfg.btnEdit.disabled = false;
+                    cfg.phonePreview.style.display = 'none';
+                }
+            }
+
+            function populateMemberSelect(sel, members) {
+                while (sel.options.length > 1) sel.remove(1);
+                if (!members || members.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.disabled = true; opt.text = 'No members found'; sel.add(opt); return;
+                }
+                members.forEach(function (m) {
+                    const opt = document.createElement('option');
+                    opt.value = m.id; opt.text = m.name;
+                    opt.dataset.name = m.name; opt.dataset.phone = m.phone || '';
+                    sel.add(opt);
+                });
+            }
+
+            wireEditPanel({
+                btnEdit: document.getElementById('btnEditAc'),
+                editPanel: document.getElementById('editPanelAc'),
+                loadingRow: document.getElementById('acLoadingRow'),
+                selectEl: document.getElementById('selectAcMember'),
+                btnConfirm: document.getElementById('btnConfirmAc'),
+                btnCancel: document.getElementById('btnCancelAc'),
+                dispName: document.getElementById('disp_acMember'),
+                dispPhone: document.getElementById('disp_acPhone'),
+                phonePreview: document.getElementById('phonePreviewAc'),
+                phonePreviewVal: document.getElementById('phonePreviewAcVal'),
+                hdnId: hdnAcId,
+                memberType: 'ac'
+            });
+
+            wireEditPanel({
+                btnEdit: document.getElementById('btnEditSenate'),
+                editPanel: document.getElementById('editPanelSenate'),
+                loadingRow: document.getElementById('senateLoadingRow'),
+                selectEl: document.getElementById('selectSenateMember'),
+                btnConfirm: document.getElementById('btnConfirmSenate'),
+                btnCancel: document.getElementById('btnCancelSenate'),
+                dispName: document.getElementById('disp_senateMember'),
+                dispPhone: document.getElementById('disp_senatePhone'),
+                phonePreview: document.getElementById('phonePreviewSenate'),
+                phonePreviewVal: document.getElementById('phonePreviewSenateVal'),
+                hdnId: hdnSenateId,
+                memberType: 'senate'
+            });
+
+            function resetMemberCache() {
+                memberCache.ac = null; memberCache.senate = null;
+                hdnAcId.value = ''; hdnSenateId.value = '';
+                ['editPanelAc','editPanelSenate'].forEach(id => {
+                    const p = document.getElementById(id);
+                    if (p) p.classList.remove('active');
+                });
+                ['btnEditAc','btnEditSenate'].forEach(id => {
+                    const b = document.getElementById(id);
+                    if (b) b.disabled = false;
+                });
+                ['selectAcMember','selectSenateMember'].forEach(id => {
+                    const s = document.getElementById(id);
+                    if (!s) return;
+                    s.style.display = 'none';
+                    s.classList.add('edit-panel-select-loading');
+                    while (s.options.length > 1) s.remove(1);
+                });
+                ['acLoadingRow','senateLoadingRow'].forEach(id => {
+                    const r = document.getElementById(id);
+                    if (r) {
+                        r.style.display = '';
+                        r.innerHTML = '<div class="spinner-sm"></div><span>Loading members…</span>';
+                    }
+                });
+            }
+
+            function renderExpertRow(index, expert) {
+                const id    = expert ? escHtml(expert.id    || '') : '';
+                const name  = expert ? escHtml(expert.name  || '') : '';
+                const phone = expert ? escHtml(expert.phone || '') : '';
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-expert-row', '');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>
+                        ${id ? `<input type="hidden" name="SubjectExperts[${index}].Id" value="${id}">` : ''}
+                        <input type="text" class="expert-input"
+                               name="SubjectExperts[${index}].Name"
+                               value="${name}" placeholder="Enter expert name" maxlength="150">
+                    </td>
+                    <td>
+                        <input type="text" class="expert-input"
+                               name="SubjectExperts[${index}].Phone"
+                               value="${phone}" placeholder="Enter phone number" maxlength="20">
+                    </td>`;
+                return tr;
+            }
+
+            function populateExperts(experts) {
+                expertTableBody.querySelectorAll('[data-expert-row]').forEach(r => r.remove());
+                if (experts && experts.length > 0) {
+                    noExpertRow.style.display = 'none';
+                    experts.forEach((e, i) => expertTableBody.appendChild(renderExpertRow(i, e)));
+                } else {
+                    noExpertRow.style.display = '';
+                }
+            }
+
+            collegeSelect.addEventListener('change', async function () {
+                const collegeId = this.value;
+                resetMemberCache();
+                if (!collegeId) {
+                    detailsCard.style.display = 'none';
+                    uploadCard.style.display  = 'none';
+                    submitBtn.disabled        = true;
+                    return;
+                }
+
+                detailsCard.style.display = 'block';
+                uploadCard.style.display  = 'block';
+                detailsLoader.classList.add('active');
+                submitBtn.disabled = true;
+
+                try {
+                    const res = await fetch(`/LICInspectionEditMember/GetCollegeDetails?collegeId=${collegeId}`);
+                    if (!res.ok) throw new Error('Not found');
+                    const d = await res.json();
+                    setText('disp_collegename',  d.collegename);
+                    setText('disp_collegecode',  d.collegecode);
+                    setText('disp_place',        d.collegePlace);
+                    setText('disp_acMember',     d.acMember);
+                    setText('disp_acPhone',      d.acPhone);
+                    setText('disp_senateMember', d.senateMember);
+                    setText('disp_senatePhone',  d.senatePhone);
+                    populateExperts(d.subjectExperts);
+
+                    if (d.hasExistingFile) {
+                        existingFileSec.innerHTML = `
+                            <a href="/LICInspectionEditMember/DownloadSERevisedOrder?collegeId=${collegeId}"
+                               class="existing-file-link" target="_blank" rel="noopener">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Download Existing File
+                            </a>
+                            <span style="margin-left:10px;font-size:.75rem;color:var(--t3);">Uploading a new file will replace the existing one.</span>`;
+                    } else {
+                        existingFileSec.innerHTML = `<span style="font-size:.84rem;color:var(--t3);font-style:italic;">No file uploaded yet.</span>`;
+                    }
+
+                    submitBtn.disabled = false;
+                } catch (err) {
+                    detailsCard.style.display = 'none';
+                    uploadCard.style.display  = 'none';
+                    alert('Failed to load college details. Please try again.');
+                } finally {
+                    detailsLoader.classList.remove('active');
+                }
+            });
+
+            if (collegeSelect.value) {
+                collegeSelect.dispatchEvent(new Event('change'));
+            }
+
+            fileInput.addEventListener('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    fileSelectedName.textContent = file.name;
+                    fileSelectedSize.textContent = formatBytes(file.size);
+                    fileSelectedInfo.classList.add('visible');
+                    dropZone.style.borderColor = 'var(--navy)';
+                    dropZone.style.background  = '#EFF6FF';
+                } else {
+                    fileSelectedInfo.classList.remove('visible');
+                    dropZone.style.borderColor = '';
+                    dropZone.style.background  = '';
+                }
+            });
+
+            dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            });
+
+            document.getElementById('mainForm').addEventListener('submit', function () {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<div class="spinner" style="border-top-color:#fff;width:14px;height:14px;"></div> Uploading…`;
+            });
+
+        })();
+    </script>
+
+</body>
+</html>

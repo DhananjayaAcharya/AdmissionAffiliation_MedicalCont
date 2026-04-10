@@ -1,0 +1,402 @@
+﻿@model AffCourseDetailsListVM
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Course Details";
+}
+
+<style>
+    :root {
+        --primary: #0d6efd;
+        --border-color: #dee2e6;
+        --text-main: #212529;
+        --text-muted: #6c757d;
+        --danger: #dc3545;
+        --radius-md: 0.375rem;
+    }
+
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .institution-form-shell {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 24px 0 32px;
+    }
+
+    .institution-form-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .institution-form-card-inner {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        padding: 24px 24px 28px;
+    }
+
+    .form-header-modern {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e5e5e5;
+        padding-bottom: 10px;
+    }
+
+    .form-header-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 18px;
+    }
+
+    .form-header-title h4 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1.25rem;
+    }
+
+    .form-header-title span {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    .form-header-badge {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background-color: #e9f2ff;
+        color: var(--primary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border: 1px solid #cfe2ff;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background-color: #f1f3f5;
+        color: var(--text-muted);
+    }
+
+        .section-chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--primary);
+        }
+
+    .section-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+        margin-top: 6px;
+    }
+
+        .section-title-row h5 {
+            margin: 4px 0 0;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+    .section-panel {
+        border-radius: var(--radius-md);
+        border: 1px solid #e5e5e5;
+        background-color: #ffffff;
+        padding: 16px 16px 10px;
+        margin-bottom: 16px;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 0.375rem;
+        border: 1px solid var(--border-color);
+        background-color: #ffffff;
+        color: var(--text-main);
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+            background-color: #ffffff;
+        }
+
+    .table-clean {
+        width: 100%;
+        border-color: var(--border-color);
+        background-color: #ffffff;
+        color: var(--text-main);
+    }
+
+        .table-clean thead th {
+            background-color: #f1f3f5;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 10px 8px;
+        }
+
+        .table-clean tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table-clean tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .table-clean td,
+        .table-clean th {
+            vertical-align: middle;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+    .course-name-cell {
+        font-weight: 600;
+        font-size: 0.95rem;
+        min-width: 240px;
+        max-width: 320px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .course-title {
+        display: block;
+    }
+
+    .text-danger {
+        font-size: 0.75rem;
+        margin-top: 3px;
+        color: var(--danger) !important;
+    }
+
+    .form-footer-note {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 8px;
+    }
+
+    .btn-outline-primary {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+
+    @@media (max-width: 768px) {
+        .institution-form-card-inner {
+            padding: 18px 14px 22px;
+        }
+
+        .form-header-modern {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .course-name-cell {
+            min-width: 200px;
+        }
+    }
+</style>
+
+<div class="institution-form-shell">
+    <div class="container">
+        <div class="institution-form-card">
+            <div class="institution-form-card-inner">
+                <div class="form-header-modern">
+                    <div class="form-header-title">
+                        <div class="form-header-icon">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <div>
+                            <h4>Course Details</h4>
+                            <span>Select recognized courses and upload documents</span>
+                        </div>
+                    </div>
+                    <div class="form-header-badge">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Affiliation Module</span>
+                    </div>
+                </div>
+
+                <form asp-action="AffCourseDetails" method="post" enctype="multipart/form-data">
+                    <div class="section-panel">
+                        <div class="section-title-row">
+                            <div>
+                                <div class="section-chip">
+                                    <span class="dot"></span>
+                                    <span>Course Recognition</span>
+                                </div>
+                                <h5>Course list &amp; documents</h5>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle shadow-sm mb-0 table-clean">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Course Name</th>
+                                        <th>Recognized (Yes / No)</th>
+                                        <th>RGUHS Notification No</th>
+                                        <th>Upload Supporting Document</th>
+                                        <th>Existing Document</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Courses.Count; i++)
+                                    {
+                                        <tr>
+                                            <td class="course-name-cell">
+                                                <span class="course-title">@Model.Courses[i].CourseName</span>
+                                                <input type="hidden" asp-for="Courses[i].Id" />
+                                                <input type="hidden" asp-for="Courses[i].CollegeCode" />
+                                                <input type="hidden" asp-for="Courses[i].FacultyCode" />
+                                                <input type="hidden" asp-for="Courses[i].CourseId" />
+                                                <input type="hidden" asp-for="Courses[i].CourseName" />
+                                                <input type="hidden" asp-for="Courses[i].CreatedOn" />
+                                                <input type="hidden" asp-for="Courses[i].CreatedBy" />
+                                            </td>
+
+                                            <td class="text-center">
+                                                <select class="form-select form-select-sm recognized-select"
+                                                        asp-for="Courses[i].IsRecognized"
+                                                        data-row-index="@i">
+                                                    <option value="false">No</option>
+                                                    <option value="true">Yes</option>
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <div class="rguhs-section"
+                                                     data-row="@i"
+                                                     style="display:@(Model.Courses[i].IsRecognized ? "block" : "none")">
+                                                    <input asp-for="Courses[i].RguhsNotificationNo"
+                                                           class="form-control form-control-sm"
+                                                           placeholder="Enter RGUHS Notification No"
+                                                           autocomplete="off" />
+                                                    <span asp-validation-for="Courses[i].RguhsNotificationNo"
+                                                          class="text-danger"></span>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div class="supporting-section" data-row="@i"
+                                                     style="display:@(Model.Courses[i].IsRecognized ? "block" : "none")">
+                                                    <input type="file"
+                                                           class="form-control form-control-sm"
+                                                           asp-for="Courses[i].SupportingFile"
+                                                           accept=".pdf,.doc,.docx" />
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center">
+                                                @if (Model.Courses[i].Id > 0)
+                                                {
+                                                    <a asp-controller="ContinuesAffiliation_Facultybased"
+                                                       asp-action="DownloadAffCourseFile"
+                                                       asp-route-id="@Model.Courses[i].Id"
+                                                       target="_blank"
+                                                       class="btn btn-outline-primary btn-sm rounded-pill">
+                                                        <i class="bi bi-eye-fill"></i> View
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">No File</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-action="Aff_sanintake"
+                               asp-controller="ContinuesAffiliation_Facultybased"
+                               class="btn btn-outline-secondary px-4">
+                                ⬅ Previous
+                            </a>
+                            <div class="mt-4 d-flex justify-content-between">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    Save &amp; Proceed ➡
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-footer-note">
+                            Courses with "Yes" must have a notification number and supporting document.
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".recognized-select").forEach(function (sel) {
+                sel.dispatchEvent(new Event('change'));
+            });
+
+            document.querySelectorAll(".recognized-select").forEach(function (sel) {
+                sel.addEventListener("change", function () {
+                    var index = this.getAttribute("data-row-index");
+                    var show = this.value === "true";
+                    var rguhs = document.querySelector('.rguhs-section[data-row="' + index + '"]');
+                    var supp = document.querySelector('.supporting-section[data-row="' + index + '"]');
+                    if (rguhs) rguhs.style.display = show ? "block" : "none";
+                    if (supp) supp.style.display = show ? "block" : "none";
+                });
+            });
+        });
+    </script>
+}

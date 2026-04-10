@@ -1,0 +1,392 @@
+﻿@model MedicalVm
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Medical Institute Details";
+}
+
+<div class="container py-4">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form asp-action="Medical_InstituteDetails" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        @* Hidden keys *@
+        <input asp-for="InstitutionId" type="hidden" />
+        <input asp-for="FacultyCode" type="hidden" />
+        <input asp-for="CollegeCode" type="hidden" />
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Basic Details</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TypeOfInstitution" class="form-label">Type of Institution</label>
+                        <select asp-for="TypeOfInstitution"
+                                asp-items="Model.TypeOfInstitutionList"
+                                class="form-select">
+                            <option value="">-- Select --</option>
+                        </select>
+                        <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NameOfInstitution" class="form-label">Name of Institution</label>
+                        <input asp-for="NameOfInstitution" class="form-control" readonly />
+                        <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AddressOfInstitution" class="form-label">Address</label>
+                    <textarea asp-for="AddressOfInstitution" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="AddressOfInstitution" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="VillageTownCity" class="form-label">Village/Town/City</label>
+                        <input asp-for="VillageTownCity" class="form-control" />
+                        <span asp-validation-for="VillageTownCity" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Taluk" class="form-label">Taluk</label>
+                        <input asp-for="Taluk" class="form-control" />
+                        <span asp-validation-for="Taluk" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="District" class="form-label">District</label>
+                        <input asp-for="District" class="form-control" />
+                        <span asp-validation-for="District" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="PinCode" class="form-label">Pin Code</label>
+                        <input asp-for="PinCode" class="form-control" />
+                        <span asp-validation-for="PinCode" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="MobileNumber" class="form-label">Mobile</label>
+                        <input asp-for="MobileNumber" class="form-control" />
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label asp-for="StdCode" class="form-label">STD Code</label>
+                        <input asp-for="StdCode" class="form-control" />
+                        <span asp-validation-for="StdCode" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label asp-for="Fax" class="form-label">Fax</label>
+                        <input asp-for="Fax" class="form-control" />
+                        <span asp-validation-for="Fax" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Website" class="form-label">Website</label>
+                        <input asp-for="Website" class="form-control" />
+                        <span asp-validation-for="Website" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="EmailId" class="form-label">Email</label>
+                        <input asp-for="EmailId" type="email" class="form-control" />
+                        <span asp-validation-for="EmailId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="AltLandlineOrMobile" class="form-label">Alt Landline/Mobile</label>
+                        <input asp-for="AltLandlineOrMobile" class="form-control" />
+                        <span asp-validation-for="AltLandlineOrMobile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="AltEmailId" class="form-label">Alt Email</label>
+                        <input asp-for="AltEmailId" type="email" class="form-control" />
+                        <span asp-validation-for="AltEmailId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="AcademicYearStarted" class="form-label">Academic Year Started</label>
+                        <input asp-for="AcademicYearStarted" class="form-control" />
+                        <span asp-validation-for="AcademicYearStarted" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-8 mb-3 d-flex align-items-center">
+                        <div class="form-check me-4">
+                            <input asp-for="IsRuralInstitution" class="form-check-input" />
+                            <label asp-for="IsRuralInstitution" class="form-check-label"></label>
+                        </div>
+                        <div class="form-check">
+                            <input asp-for="IsMinorityInstitution" class="form-check-input" />
+                            <label asp-for="IsMinorityInstitution" class="form-check-label"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Trust / Society Details</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TrustName" class="form-label">Trust Name</label>
+                        <input asp-for="TrustName" class="form-control" />
+                        <span asp-validation-for="TrustName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PresidentName" class="form-label">President Name</label>
+                        <input asp-for="PresidentName" class="form-control" />
+                        <span asp-validation-for="PresidentName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="AadhaarNumber" class="form-label">Aadhaar No</label>
+                        <input asp-for="AadhaarNumber" class="form-control" />
+                        <span asp-validation-for="AadhaarNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="PANNumber" class="form-label">PAN No</label>
+                        <input asp-for="PANNumber" class="form-control" />
+                        <span asp-validation-for="PANNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="RegistrationNumber" class="form-label">Registration No</label>
+                        <input asp-for="RegistrationNumber" class="form-control" />
+                        <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="RegistrationDate" class="form-label">Registration Date</label>
+                        <input asp-for="RegistrationDate" type="date" class="form-control" />
+                        <span asp-validation-for="RegistrationDate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="form-check form-check-inline">
+                        <input asp-for="Amendments" class="form-check-input" />
+                        <label asp-for="Amendments" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input asp-for="ChangesInTrustName" class="form-check-input" />
+                        <label asp-for="ChangesInTrustName" class="form-check-label"></label>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ExistingTrustName" class="form-label">Existing Trust Name</label>
+                        <input asp-for="ExistingTrustName" class="form-control" />
+                        <span asp-validation-for="ExistingTrustName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="GOKObtainedTrustName" class="form-label">GOK Obtained Trust Name</label>
+                        <input asp-for="GOKObtainedTrustName" class="form-control" />
+                        <span asp-validation-for="GOKObtainedTrustName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check">
+                            <input asp-for="OtherNursingCollegeInCity" class="form-check-input" />
+                            <label asp-for="OtherNursingCollegeInCity" class="form-check-label"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-check">
+                            <input asp-for="OtherPhysiotherapyCollegeInCity" class="form-check-input" />
+                            <label asp-for="OtherPhysiotherapyCollegeInCity" class="form-check-label"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Contact & Courses</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="CategoryOfOrganisation" class="form-label">Category of Organisation</label>
+                        <input asp-for="CategoryOfOrganisation" class="form-control" />
+                        <span asp-validation-for="CategoryOfOrganisation" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="ContactPersonName" class="form-label">Contact Person</label>
+                        <input asp-for="ContactPersonName" class="form-control" />
+                        <span asp-validation-for="ContactPersonName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="ContactPersonRelation" class="form-label">Relation</label>
+                        <input asp-for="ContactPersonRelation" class="form-control" />
+                        <span asp-validation-for="ContactPersonRelation" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="ContactPersonMobile" class="form-label">Contact Mobile</label>
+                        <input asp-for="ContactPersonMobile" class="form-control" />
+                        <span asp-validation-for="ContactPersonMobile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label asp-for="CoursesAppliedText" class="form-label">Courses Applied</label>
+                        <textarea asp-for="CoursesAppliedText" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="CoursesAppliedText" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="HeadOfInstitutionName" class="form-label">Head of Institution</label>
+                        <input asp-for="HeadOfInstitutionName" class="form-control" />
+                        <span asp-validation-for="HeadOfInstitutionName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="HeadOfInstitutionAddress" class="form-label">Head Address</label>
+                        <input asp-for="HeadOfInstitutionAddress" class="form-control" />
+                        <span asp-validation-for="HeadOfInstitutionAddress" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="FinancingAuthorityName" class="form-label">Financing Authority</label>
+                        <input asp-for="FinancingAuthorityName" class="form-control" />
+                        <span asp-validation-for="FinancingAuthorityName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="CollegeStatus" class="form-label">Status of College</label>
+                        <input asp-for="CollegeStatus" class="form-control" />
+                        <span asp-validation-for="CollegeStatus" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="GovAutonomousCertNumber" class="form-label">Gov Autonomous Cert No</label>
+                        <input asp-for="GovAutonomousCertNumber" class="form-control" />
+                        <span asp-validation-for="GovAutonomousCertNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="KncCertificateNumber" class="form-label">KNC Certificate No</label>
+                        <input asp-for="KncCertificateNumber" class="form-control" />
+                        <span asp-validation-for="KncCertificateNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Documents</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="GovAutonomousCertFile" class="form-label">Gov Autonomous Certificate</label>
+                        <input asp-for="GovAutonomousCertFile" type="file" class="form-control" />
+                        <span asp-validation-for="GovAutonomousCertFile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="GovCouncilMembershipFile" class="form-label">Gov Council Membership</label>
+                        <input asp-for="GovCouncilMembershipFile" type="file" class="form-control" />
+                        <span asp-validation-for="GovCouncilMembershipFile" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="GokOrderExistingCoursesFile" class="form-label">GOK Order Existing Courses</label>
+                        <input asp-for="GokOrderExistingCoursesFile" type="file" class="form-control" />
+                        <span asp-validation-for="GokOrderExistingCoursesFile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FirstAffiliationNotifFile" class="form-label">First Affiliation Notification</label>
+                        <input asp-for="FirstAffiliationNotifFile" type="file" class="form-control" />
+                        <span asp-validation-for="FirstAffiliationNotifFile" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ContinuationAffiliationFile" class="form-label">Continuation Affiliation</label>
+                        <input asp-for="ContinuationAffiliationFile" type="file" class="form-control" />
+                        <span asp-validation-for="ContinuationAffiliationFile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="KncCertificateFile" class="form-label">KNC Certificate</label>
+                        <input asp-for="KncCertificateFile" type="file" class="form-control" />
+                        <span asp-validation-for="KncCertificateFile" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="AmendedDoc" class="form-label">Amended Document</label>
+                        <input asp-for="AmendedDoc" type="file" class="form-control" />
+                        <span asp-validation-for="AmendedDoc" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="AadhaarFile" class="form-label">Aadhaar</label>
+                        <input asp-for="AadhaarFile" type="file" class="form-control" />
+                        <span asp-validation-for="AadhaarFile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="PANFile" class="form-label">PAN</label>
+                        <input asp-for="PANFile" type="file" class="form-control" />
+                        <span asp-validation-for="PANFile" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="BankStatementFile" class="form-label">Bank Statement</label>
+                        <input asp-for="BankStatementFile" type="file" class="form-control" />
+                        <span asp-validation-for="BankStatementFile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="RegistrationCertificateFile" class="form-label">Registration Certificate</label>
+                        <input asp-for="RegistrationCertificateFile" type="file" class="form-control" />
+                        <span asp-validation-for="RegistrationCertificateFile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="RegisteredTrustMemberDetails" class="form-label">Registered Trust Members</label>
+                        <input asp-for="RegisteredTrustMemberDetails" type="file" class="form-control" />
+                        <span asp-validation-for="RegisteredTrustMemberDetails" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AuditStatementFile" class="form-label">Audit Statement</label>
+                    <input asp-for="AuditStatementFile" type="file" class="form-control" />
+                    <span asp-validation-for="AuditStatementFile" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mb-4">
+            <button type="submit" class="btn btn-primary">
+                Save
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

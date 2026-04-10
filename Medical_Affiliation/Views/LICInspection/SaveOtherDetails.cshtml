@@ -1,0 +1,1391 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Other Details – Blue & Light</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --blue-900: #0f2251;
+            --blue-800: #1a3a6e;
+            --blue-700: #1d4ed8;
+            --blue-600: #2563eb;
+            --blue-500: #3b82f6;
+            --blue-400: #60a5fa;
+            --blue-200: #bfdbfe;
+            --blue-100: #dbeafe;
+            --blue-50: #eff6ff;
+            --green: #16a34a;
+            --green-light: #dcfce7;
+            --green-dark: #14532d;
+            --green-mid: #86efac;
+            --red: #dc2626;
+            --red-light: #fee2e2;
+            --amber: #d97706;
+            --amber-light: #fef3c7;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --ease: cubic-bezier(0.4,0,0.2,1);
+        }
+
+        html, body {
+            min-height: 100%;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--gray-900);
+            background: radial-gradient(ellipse 90% 70% at 0% 0%, #1e3a8a 0%, transparent 55%), radial-gradient(ellipse 70% 60% at 100% 100%,#1d4ed8 0%, transparent 50%), radial-gradient(ellipse 60% 50% at 60% 30%, #2563eb 0%, transparent 45%), linear-gradient(160deg,#0f2251 0%,#1a3a6e 40%,#1e40af 75%,#1d4ed8 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+            body::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+                background-size: 28px 28px;
+                pointer-events: none;
+                z-index: 0;
+            }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 40px 24px 72px;
+            animation: pageIn 0.55s var(--ease) both;
+        }
+
+        @@keyframes pageIn {
+            from {
+                opacity: 0;
+                transform: translateY(24px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 32px;
+            padding: 1rem 34px;
+            background: rgba(255,255,255,0.10);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .page-header::after {
+                content: '';
+                position: absolute;
+                right: -30px;
+                top: -30px;
+                width: 150px;
+                height: 150px;
+                background: rgba(255,255,255,0.06);
+                border-radius: 50%;
+                pointer-events: none;
+            }
+
+        .header-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.3);
+            border-radius: var(--radius-md);
+            display: grid;
+            place-items: center;
+            font-size: 1.55rem;
+            flex-shrink: 0;
+        }
+
+        .header-text h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+        }
+
+        .header-text p {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.84rem;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .senate-info {
+            margin-left: auto;
+            text-align: right;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+            .senate-info span {
+                display: block;
+                color: rgba(255,255,255,0.5);
+                font-size: 0.75rem;
+                font-weight: 400;
+            }
+
+        /* ─── SECTION CARD ─── */
+        .section-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            margin-bottom: 26px;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 4px 6px rgba(15,34,81,0.06), 0 12px 32px rgba(15,34,81,0.10), 0 1px 0 rgba(255,255,255,0.8) inset;
+            transition: box-shadow 0.3s var(--ease), transform 0.3s var(--ease);
+            animation: cardIn 0.5s var(--ease) both;
+            padding: 10px;
+        }
+
+            .section-card:nth-child(2) {
+                animation-delay: 0.08s;
+            }
+
+            .section-card:nth-child(3) {
+                animation-delay: 0.16s;
+            }
+
+        @@keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .section-card:hover {
+            box-shadow: 0 8px 16px rgba(15,34,81,0.10), 0 24px 48px rgba(15,34,81,0.14);
+            transform: translateY(-2px);
+        }
+
+        /* ─── CARD HEADER ─── */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 26px;
+            border-bottom: 1px solid var(--gray-100);
+            position: relative;
+        }
+
+            .card-header::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 4px;
+                border-radius: 4px 0 0 4px;
+            }
+
+        .pending-header {
+            background: linear-gradient(to right, var(--blue-50), var(--white));
+        }
+
+            .pending-header::before {
+                background: linear-gradient(180deg, var(--blue-600), var(--blue-400));
+            }
+
+        .approved-header {
+            background: linear-gradient(to right, #fffbeb, var(--white));
+        }
+
+            .approved-header::before {
+                background: linear-gradient(180deg, var(--amber), #fbbf24);
+            }
+
+        .college-header {
+            background: linear-gradient(to right, #f0f9ff, var(--white));
+            padding: 12px 26px;
+            border-bottom: 1px solid var(--blue-100);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .college-header-text {
+            font-weight: 700;
+            color: var(--blue-800);
+            font-size: 0.92rem;
+        }
+
+        .college-place {
+            font-size: 0.78rem;
+            color: var(--gray-500);
+            font-weight: 400;
+            margin-left: 4px;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--gray-900);
+            padding: 15px;
+        }
+
+        .pill-tag {
+            font-size: 0.67rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+            .pill-tag.blue {
+                background: var(--blue-100);
+                color: #1e40af;
+            }
+
+            .pill-tag.green {
+                background: var(--green-light);
+                color: var(--green-dark);
+            }
+
+            .pill-tag.amber {
+                background: var(--amber-light);
+                color: #92400e;
+            }
+
+        .card-body {
+            padding: 0 26px 6px;
+        }
+
+        /* ─── TABLE ─── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 0.86rem;
+        }
+
+        thead th {
+            background: var(--gray-50);
+            color: var(--gray-500);
+            font-size: 0.69rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            padding: 11px 14px;
+            text-align: center;
+            border-bottom: 2px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--gray-100);
+            transition: background 0.15s;
+            animation: rowIn 0.3s var(--ease) both;
+        }
+
+        @@keyframes rowIn {
+            from {
+                opacity: 0;
+                transform: translateX(-8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--blue-50);
+        }
+
+        td {
+            padding: 10px 14px;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .sl-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-400));
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.78rem;
+            box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .type-ac {
+            background: var(--blue-100);
+            color: #1e40af;
+        }
+
+        .type-se {
+            background: var(--green-light);
+            color: var(--green-dark);
+        }
+
+        /* ─── FORM INPUTS ─── */
+        input[type="date"], select {
+            width: 100%;
+            padding: 8px 11px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.84rem;
+            color: var(--gray-900);
+            background: var(--white);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+            input[type="date"]:focus, select:focus {
+                border-color: var(--blue-500);
+                box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+            }
+
+            input[type="date"][readonly] {
+                background: var(--blue-50);
+                border-color: var(--blue-200);
+                color: var(--blue-800);
+                cursor: not-allowed;
+            }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+            padding-right: 32px;
+            cursor: pointer;
+        }
+
+        /* ─── TOGGLE ─── */
+        .toggle-group {
+            display: inline-flex;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--gray-50);
+        }
+
+            .toggle-group label {
+                padding: 6px 14px;
+                font-size: 0.78rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.18s var(--ease);
+                user-select: none;
+                color: var(--gray-400);
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                margin: 0;
+            }
+
+                .toggle-group label:first-child {
+                    border-right: 1.5px solid var(--gray-200);
+                }
+
+            .toggle-group input[type="radio"] {
+                display: none;
+            }
+
+            .toggle-group label:has(input:checked).yes-opt {
+                background: var(--green);
+                color: #fff;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+            }
+
+            .toggle-group label:has(input:checked).no-opt {
+                background: var(--red);
+                color: #fff;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+            }
+
+            .toggle-group label:not(:has(input:checked)):hover {
+                background: var(--gray-100);
+                color: var(--gray-700);
+            }
+
+        /* ─── BUTTONS ─── */
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+            box-shadow: 0 3px 12px rgba(37,99,235,0.4);
+            letter-spacing: 0.01em;
+        }
+
+            .btn-submit:hover {
+                background: linear-gradient(135deg, var(--blue-700), #1e3a8a);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(37,99,235,0.5);
+            }
+
+        .form-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 16px 26px 24px;
+            border-top: 1px solid var(--gray-100);
+            margin-top: 6px;
+        }
+
+        /* ─── STATUS BADGES ─── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.71rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .badge-yes {
+            background: var(--green-light);
+            color: var(--green-dark);
+            border: 1px solid var(--green-mid);
+        }
+
+        .badge-no {
+            background: var(--red-light);
+            color: #7f1d1d;
+            border: 1px solid #fca5a5;
+        }
+
+        .empty-cell {
+            padding: 44px 20px !important;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 0.88rem;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .member-name-cell {
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .member-phone {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .college-name-cell {
+            text-align: left;
+        }
+
+        .no-rows-msg {
+            padding: 30px;
+            text-align: center;
+            color: var(--gray-400);
+            font-style: italic;
+        }
+
+        .date-prefilled-hint {
+            font-size: 0.68rem;
+            color: var(--blue-600);
+            margin-top: 3px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .date-missing-hint {
+            font-size: 0.68rem;
+            color: var(--red);
+            margin-top: 3px;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* ─── CLAIM LINK ─── */
+        .claim-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: linear-gradient(135deg, var(--blue-50), #e0eaff);
+            border: 1.5px solid var(--blue-200);
+            border-radius: 20px;
+            color: var(--blue-700);
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.18s var(--ease);
+            text-decoration: none;
+        }
+
+            .claim-link:hover {
+                background: linear-gradient(135deg, var(--blue-100), #c7d9ff);
+                border-color: var(--blue-400);
+                color: var(--blue-800);
+                transform: translateY(-1px);
+                box-shadow: 0 3px 10px rgba(37,99,235,0.2);
+            }
+
+            .claim-link .rupee {
+                font-size: 0.72rem;
+                opacity: 0.7;
+            }
+
+        /* ────────────────────────────────────────────────
+                   CLAIM MODAL — fully custom (no Bootstrap modal styles)
+                ──────────────────────────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(10, 20, 60, 0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            animation: overlayIn 0.2s var(--ease);
+        }
+
+            .modal-overlay.active {
+                display: flex;
+            }
+
+        @@keyframes overlayIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        .claim-modal-box {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            width: 92%;
+            max-width: 860px;
+            max-height: 88vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 80px rgba(10,20,60,0.35), 0 2px 0 rgba(255,255,255,0.6) inset;
+            animation: modalSlideIn 0.28s var(--ease);
+        }
+
+        @@keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        /* Modal Header */
+        .claim-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 28px;
+            background: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .claim-modal-header-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .claim-modal-header-text h5 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .claim-modal-header-text p {
+            font-size: 0.76rem;
+            color: rgba(255,255,255,0.65);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .claim-modal-close {
+            margin-left: auto;
+            width: 34px;
+            height: 34px;
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.1rem;
+            transition: background 0.18s, transform 0.18s;
+            flex-shrink: 0;
+        }
+
+            .claim-modal-close:hover {
+                background: rgba(255,255,255,0.28);
+                transform: scale(1.08);
+            }
+
+        /* Summary Strip */
+        .claim-summary-strip {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--blue-100);
+            background: var(--blue-50);
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 22px;
+            border-right: 1px solid var(--blue-100);
+            min-width: 110px;
+            flex: 1;
+        }
+
+            .summary-item:last-child {
+                border-right: none;
+            }
+
+        .summary-value {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--blue-700);
+            line-height: 1;
+        }
+
+            .summary-value.total {
+                color: var(--green);
+                font-size: 1.3rem;
+            }
+
+        .summary-label {
+            font-size: 0.66rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-top: 4px;
+        }
+
+        /* Modal Body */
+        .claim-modal-body {
+            padding: 22px 28px 26px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Trip cards */
+        .trip-card {
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+            .trip-card:last-child {
+                margin-bottom: 0;
+            }
+
+        .trip-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 16px;
+            background: linear-gradient(to right, var(--gray-50), var(--white));
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .trip-number {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-400));
+            color: #fff;
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            font-size: 0.76rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .trip-mode {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--gray-700);
+        }
+
+        .trip-total {
+            margin-left: auto;
+            font-weight: 800;
+            font-size: 0.88rem;
+            color: var(--green);
+            background: var(--green-light);
+            padding: 3px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--green-mid);
+        }
+
+        .trip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0;
+        }
+
+        .trip-field {
+            padding: 10px 14px;
+            border-right: 1px solid var(--gray-100);
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+            .trip-field:nth-child(4n) {
+                border-right: none;
+            }
+
+        .trip-field-label {
+            font-size: 0.66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--gray-400);
+            margin-bottom: 3px;
+        }
+
+        .trip-field-value {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+            .trip-field-value.amount {
+                color: var(--blue-700);
+                font-weight: 700;
+            }
+
+            .trip-field-value.empty {
+                color: var(--gray-300);
+                font-style: italic;
+            }
+
+        /* Cost breakdown row */
+        .cost-breakdown {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 14px 12px;
+            background: var(--blue-50);
+            border-top: 1px solid var(--blue-100);
+        }
+
+        .cost-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            background: #fff;
+            border: 1.5px solid var(--blue-200);
+            border-radius: 20px;
+            font-size: 0.73rem;
+            font-weight: 700;
+            color: var(--blue-800);
+        }
+
+            .cost-chip .chip-label {
+                color: var(--gray-500);
+                font-weight: 500;
+            }
+
+        /* Empty/Loading */
+        .modal-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 20px;
+            color: var(--gray-400);
+            gap: 12px;
+        }
+
+            .modal-loading .spinner {
+                width: 36px;
+                height: 36px;
+                border: 3px solid var(--gray-200);
+                border-top-color: var(--blue-500);
+                border-radius: 50%;
+                animation: spin 0.7s linear infinite;
+            }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .modal-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    @{
+        Layout = null;
+    }
+
+    @model Medical_Affiliation.Models.LicInspectionOtherDetailsViewModel
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <div class="page-wrapper">
+
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <div class="header-icon">🏥</div>
+            <div class="header-text">
+                <h2>Other Details</h2>
+                <p>Inspection Member Attendance</p>
+            </div>
+            <div class="senate-info">
+                @Model.SenetMemberName
+                <span>Senate Code: @Model.SenateCode</span>
+            </div>
+        </div>
+
+        <!-- ═══ PENDING CARD ═══ -->
+        <div class="section-card">
+            <div class="card-header pending-header">
+                <div class="section-label">
+                    📋 Pending Inspections
+                    <span class="pill-tag blue">AC &amp; SE Members</span>
+                </div>
+            </div>
+
+            <form asp-action="SaveOtherDetails" method="post">
+                <input asp-for="SenateCode" type="hidden" />
+
+                <div class="card-body">
+                    @{
+                        int index = 0;
+                        bool anyPending = false;
+                    }
+
+                    @foreach (var college in Model.GroupedColleges)
+                    {
+                        var pendingAC = college.ACMembers
+                        .Where(ac => !Model.CompletedSet.Contains($"{college.CollegeCode}_{ac.PhoneNo}"))
+                        .ToList();
+
+                        var pendingSE = college.SubjectExpertiseMembers
+                        .Where(se => !Model.CompletedSet.Contains($"{college.CollegeCode}_{se.PhoneNo}"))
+                        .ToList();
+
+                        if (!pendingAC.Any() && !pendingSE.Any()) { continue; }
+                        anyPending = true;
+
+                        var preFillDate = college.DateOfInspection.HasValue
+                        ? college.DateOfInspection.Value.ToString("yyyy-MM-dd")
+                        : "";
+
+                        <!-- College Group Header -->
+                        <div class="college-header" style="margin: 16px -26px 0; padding-left: 26px;">
+                            <span style="font-size:1.1rem;">🏫</span>
+                            <span class="college-header-text">
+                                @college.CollegeName
+                                <span class="college-place">
+                                    (@college.CollegeCode@(string.IsNullOrEmpty(college.CollegePlace) ? "" : " · " + college.CollegePlace))
+                                </span>
+                            </span>
+                            <span style="margin-left:auto;font-size:0.78rem;color:var(--gray-500);">
+                                Senate: @college.SenetMember
+                            </span>
+                        </div>
+
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Sl No</th>
+                                        <th style="text-align:left">Member Name</th>
+                                        <th>Type</th>
+                                        <th>Date of Inspection</th>
+                                        <th>Inspection Amount</th>
+                                        <th>Attended</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @* ── AC Members ── *@
+                                    @foreach (var ac in pendingAC)
+                                    {
+                                        <tr>
+                                            <td><span class="sl-badge">@(index + 1)</span></td>
+
+                                            <td class="member-name-cell">
+                                                @ac.Name
+                                                <span class="member-phone">📞 @ac.PhoneNo</span>
+
+                                                <input type="hidden" name="PendingList[@index].collegeCode" value="@college.CollegeCode" />
+                                                <input type="hidden" name="PendingList[@index].collegeName" value="@college.CollegeName" />
+                                                <input type="hidden" name="PendingList[@index].SelectedMemberCode" value="@ac.PhoneNo" />
+                                                <input type="hidden" name="PendingList[@index].SelectedMemberName" value="@ac.Name" />
+                                                <input type="hidden" name="PendingList[@index].MemberType" value="Academic Council" />
+                                                <input type="hidden" name="PendingList[@index].SenateCode" value="@Model.SenateCode" />
+                                            </td>
+
+                                            <td><span class="type-badge type-ac">AC Member</span></td>
+
+                                            <td>
+                                                <input type="date"
+                                                       name="PendingList[@index].DateOfInspection"
+                                                       value="@preFillDate"
+                                                       style="min-width:150px"
+                                                       @(string.IsNullOrEmpty(preFillDate) ? "" : "readonly") />
+                                                @if (!string.IsNullOrEmpty(preFillDate))
+                                                {
+                                                    <span class="date-prefilled-hint">📅 Pre-filled from inspection record</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="date-missing-hint">⚠ No inspection date found</span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <a class="claim-link"
+                                                   href="javascript:void(0)"
+                                                   onclick="loadClaimDetails('@ac.PhoneNo','@college.CollegeCode','@ac.Name')">
+                                                    <span class="rupee">₹</span>@ac.InspectionAmount.ToString("N0")
+                                                </a>
+                                            </td>
+
+                                            <td>
+                                                <div class="toggle-group">
+                                                    <label class="yes-opt">
+                                                        <input type="radio" name="PendingList[@index].IsAttended" value="true" /> ✓ Yes
+                                                    </label>
+                                                    <label class="no-opt">
+                                                        <input type="radio" name="PendingList[@index].IsAttended" value="false" checked /> ✕ No
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        index++;
+                                    }
+
+                                    @* ── SE Members ── *@
+                                    @foreach (var se in pendingSE)
+                                    {
+                                        <tr>
+                                            <td><span class="sl-badge">@(index + 1)</span></td>
+
+                                            <td class="member-name-cell">
+                                                @se.Name
+                                                <span class="member-phone">📞 @se.PhoneNo</span>
+
+                                                <input type="hidden" name="PendingList[@index].collegeCode" value="@college.CollegeCode" />
+                                                <input type="hidden" name="PendingList[@index].collegeName" value="@college.CollegeName" />
+                                                <input type="hidden" name="PendingList[@index].SelectedMemberCode" value="@se.PhoneNo" />
+                                                <input type="hidden" name="PendingList[@index].SelectedMemberName" value="@se.Name" />
+                                                <input type="hidden" name="PendingList[@index].MemberType" value="Subject Expertise" />
+                                                <input type="hidden" name="PendingList[@index].SenateCode" value="@Model.SenateCode" />
+                                            </td>
+
+                                            <td><span class="type-badge type-se">SE Member</span></td>
+
+                                            <td>
+                                                <input type="date"
+                                                       name="PendingList[@index].DateOfInspection"
+                                                       value="@preFillDate"
+                                                       style="min-width:150px"
+                                                       @(string.IsNullOrEmpty(preFillDate) ? "" : "readonly") />
+                                                @if (!string.IsNullOrEmpty(preFillDate))
+                                                {
+                                                    <span class="date-prefilled-hint">📅 Pre-filled from inspection record</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="date-missing-hint">⚠ No inspection date found</span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <a class="claim-link"
+                                                   href="javascript:void(0)"
+                                                   onclick="loadClaimDetails('@se.PhoneNo','@college.CollegeCode','@se.Name')">
+                                                    <span class="rupee">₹</span>@se.InspectionAmount.ToString("N0")
+                                                </a>
+                                            </td>
+
+                                            <td>
+                                                <div class="toggle-group">
+                                                    <label class="yes-opt">
+                                                        <input type="radio" name="PendingList[@index].IsAttended" value="true" /> ✓ Yes
+                                                    </label>
+                                                    <label class="no-opt">
+                                                        <input type="radio" name="PendingList[@index].IsAttended" value="false" checked /> ✕ No
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        index++;
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    @if (!anyPending)
+                    {
+                        <div class="no-rows-msg">✅ All members have been submitted for all colleges.</div>
+                    }
+                </div>
+
+                @if (anyPending)
+                {
+                    <div class="form-footer">
+                        <button class="btn-submit" type="submit">✔ Submit Inspection</button>
+                    </div>
+                }
+            </form>
+        </div>
+
+        <!-- ═══ SUBMITTED CARD ═══ -->
+        <div class="section-card">
+            <div class="card-header approved-header">
+                <div class="section-label">
+                    ✅ Submitted Inspections
+                    <span class="pill-tag amber">Completed</span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sl No</th>
+                                <th style="text-align:left">College Name</th>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th style="text-align:left">Member Name</th>
+                                <th>Attended</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.OtherDetailsList != null && Model.OtherDetailsList.Any())
+                            {
+                                int j = 1;
+                                foreach (var item in Model.OtherDetailsList)
+                                {
+                                    <tr>
+                                        <td><span class="sl-badge">@j</span></td>
+                                        <td class="college-name-cell">@item.collegeName</td>
+                                        <td>@item.DateOfInspection?.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            <span class="type-badge @(item.MemberType == "AC Member" ? "type-ac" : "type-se")">
+                                                @item.MemberType
+                                            </span>
+                                        </td>
+                                        <td class="member-name-cell">@item.SelectedMemberName</td>
+                                        <td>
+                                            <span class="status-badge @(item.IsAttended ? "badge-yes" : "badge-no")">
+                                                @(item.IsAttended ? "✓ Attended" : "✕ Not Attended")
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    j++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="empty-cell">No submitted inspections yet.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         CUSTOM CLAIM DETAILS MODAL
+    ═══════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="claimModalOverlay" onclick="handleOverlayClick(event)">
+        <div class="claim-modal-box">
+
+            <!-- Header -->
+            <div class="claim-modal-header">
+                <div class="claim-modal-header-icon">💰</div>
+                <div class="claim-modal-header-text">
+                    <h5>Claim Details</h5>
+                    <p id="modalMemberLabel">Loading...</p>
+                </div>
+                <button class="claim-modal-close" onclick="closeClaimModal()" title="Close">✕</button>
+            </div>
+
+            <!-- Summary Strip (populated by JS) -->
+            <div class="claim-summary-strip" id="claimSummaryStrip">
+                <!-- JS fills this -->
+            </div>
+
+            <!-- Body -->
+            <div class="claim-modal-body" id="claimModalBody">
+                <div class="modal-loading">
+                    <div class="spinner"></div>
+                    <span>Loading claim details…</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        /* ── helpers ── */
+        const fmt = n => n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN');
+        const val = v => (v == null || v === '' || v === '0') ? '<span class="empty">—</span>' : v;
+
+        function openClaimModal()  { document.getElementById('claimModalOverlay').classList.add('active'); }
+        function closeClaimModal() { document.getElementById('claimModalOverlay').classList.remove('active'); }
+        function handleOverlayClick(e) { if (e.target === document.getElementById('claimModalOverlay')) closeClaimModal(); }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeClaimModal(); });
+
+        /* ── main loader ── */
+        function loadClaimDetails(phoneNumber, collegeCode, memberName) {
+
+            // Reset modal
+            document.getElementById('modalMemberLabel').textContent = memberName + '  ·  ' + collegeCode;
+            document.getElementById('claimSummaryStrip').innerHTML = '';
+            document.getElementById('claimModalBody').innerHTML =
+                '<div class="modal-loading"><div class="spinner"></div><span>Loading…</span></div>';
+
+            openClaimModal();
+
+            const url = '@Url.Action("ClaimDetailsPopup", "LICInspection")'
+                      + '?phoneNumber=' + encodeURIComponent(phoneNumber)
+                      + '&collegeCode=' + encodeURIComponent(collegeCode);
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => renderClaims(data))
+                .catch(() => {
+                    document.getElementById('claimModalBody').innerHTML =
+                        '<div class="modal-empty">⚠ Failed to load claim details. Please try again.</div>';
+                });
+        }
+
+        function renderClaims(data) {
+
+            if (!data || data.length === 0) {
+                document.getElementById('claimSummaryStrip').innerHTML = '';
+                document.getElementById('claimModalBody').innerHTML =
+                    '<div class="modal-empty">📭 No claim records found for this member and college.</div>';
+                return;
+            }
+
+            /* ── Build summary totals ── */
+            const totals = data.reduce((acc, x) => {
+                acc.travel   += x.travelCost   || 0;
+                acc.da       += x.daCost        || 0;
+                acc.lca      += x.lCACost       || 0;
+                acc.college  += x.collegeCost   || 0;
+                acc.airfare  += x.airfare        || 0;
+                acc.total    += x.totalCost     || 0;
+                acc.days     += x.noOfDays      || 0;
+                return acc;
+            }, { travel: 0, da: 0, lca: 0, college: 0, airfare: 0, total: 0, days: 0 });
+
+            document.getElementById('claimSummaryStrip').innerHTML = `
+                <div class="summary-item">
+                    <div class="summary-value">${totals.days}</div>
+                    <div class="summary-label">Days</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">${fmt(totals.travel)}</div>
+                    <div class="summary-label">Travel</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">${fmt(totals.da)}</div>
+                    <div class="summary-label">DA</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">${fmt(totals.lca)}</div>
+                    <div class="summary-label">LCA</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">${fmt(totals.college)}</div>
+                    <div class="summary-label">College</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">${fmt(totals.airfare)}</div>
+                    <div class="summary-label">Airfare</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value total">${fmt(totals.total)}</div>
+                    <div class="summary-label">Grand Total</div>
+                </div>
+            `;
+
+            /* ── Build trip cards ── */
+            let html = '';
+            data.forEach((item, i) => {
+                const hasReturn = item.returnFromPlace || item.returnToPlace;
+
+                html += `
+                <div class="trip-card">
+                    <div class="trip-card-header">
+                        <div class="trip-number">${i + 1}</div>
+                        <span class="trip-mode">🚗 ${item.modeOfTransport || 'N/A'}</span>
+                        <span class="trip-total">${fmt(item.totalCost)}</span>
+                    </div>
+
+                    <div class="trip-grid">
+                        <div class="trip-field">
+                            <div class="trip-field-label">From</div>
+                            <div class="trip-field-value">${item.fromPlace || '—'}</div>
+                        </div>
+                        <div class="trip-field">
+                            <div class="trip-field-label">To</div>
+                            <div class="trip-field-value">${item.toPlace || '—'}</div>
+                        </div>
+                        <div class="trip-field">
+                            <div class="trip-field-label">Distance</div>
+                            <div class="trip-field-value">${item.kiloMeters ? item.kiloMeters + ' km' : '—'}</div>
+                        </div>
+                        <div class="trip-field">
+                            <div class="trip-field-label">No. of Days</div>
+                            <div class="trip-field-value">${item.noOfDays || '—'}</div>
+                        </div>
+                        ${hasReturn ? `
+                        <div class="trip-field">
+                            <div class="trip-field-label">Return From</div>
+                            <div class="trip-field-value">${item.returnFromPlace || '—'}</div>
+                        </div>
+                        <div class="trip-field">
+                            <div class="trip-field-label">Return To</div>
+                            <div class="trip-field-value">${item.returnToPlace || '—'}</div>
+                        </div>
+                        <div class="trip-field">
+                            <div class="trip-field-label">Return Dist.</div>
+                            <div class="trip-field-value">${item.returnKilometers ? item.returnKilometers + ' km' : '—'}</div>
+                        </div>
+                        <div class="trip-field"></div>` : ''}
+                    </div>
+
+                    <!-- Cost breakdown chips -->
+                    <div class="cost-breakdown">
+                        ${item.travelCost  ? `<span class="cost-chip"><span class="chip-label">Travel</span> ${fmt(item.travelCost)}</span>`  : ''}
+                        ${item.dACost      ? `<span class="cost-chip"><span class="chip-label">DA</span> ${fmt(item.dACost)}</span>`           : ''}
+                        ${item.lCACost     ? `<span class="cost-chip"><span class="chip-label">LCA</span> ${fmt(item.lCACost)}</span>`         : ''}
+                        ${item.collegeCost ? `<span class="cost-chip"><span class="chip-label">College</span> ${fmt(item.collegeCost)}</span>` : ''}
+                        ${item.airfare     ? `<span class="cost-chip"><span class="chip-label">Airfare</span> ${fmt(item.airfare)}</span>`     : ''}
+                    </div>
+                </div>`;
+            });
+
+            document.getElementById('claimModalBody').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

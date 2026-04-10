@@ -1,0 +1,239 @@
+﻿@model YearWiseReportViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Year Wise Intake Report";
+}
+
+<!-- DataTables CSS -->
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+
+<style>
+    body {
+        background-color: #f5f7fa;
+    }
+
+    th {
+        background-color: #f1f5f9;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    td {
+        vertical-align: middle;
+        text-align: center;
+    }
+</style>
+
+<div class="container-fluid mt-3">
+
+    <h4 class="mb-3 text-primary">📊 Year Wise Intake Report</h4>
+
+    <!-- ================= FILTERS ================= -->
+    <form method="post" asp-action="YearWiseReport" class="card mb-3">
+        @Html.AntiForgeryToken()
+        <div class="card-body">
+            <div class="row g-3">
+
+                <!-- Academic Year -->
+                <div class="col-md-3">
+                    <label>Academic Year</label>
+                    <select asp-for="SelectedYear" class="form-control">
+                        <option value="">-- Select Year --</option>
+                        @foreach (var y in Model.YearList)
+                        {
+                            if (y == Model.SelectedYear)
+                            {
+                                <option value="@y" selected="selected">@y</option>
+                            }
+                            else
+                            {
+                                <option value="@y">@y</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <!-- Faculty -->
+                <div class="col-md-3">
+                    <label>Faculty</label>
+                    <select asp-for="SelectedFacultyId" class="form-control" id="SelectedFacultyId">
+                        <option value="">-- All Faculty --</option>
+                        @foreach (var f in Model.FacultyList)
+                        {
+                            if (f.Value == Model.SelectedFacultyId?.ToString())
+                            {
+                                <option value="@f.Value" selected="selected">@f.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@f.Value">@f.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <!-- College -->
+                <div class="col-md-3">
+                    <label>College</label>
+                    <select asp-for="SelectedCollegeId" class="form-control" id="SelectedCollegeId">
+                        <option value="">-- All College --</option>
+                        @if (Model.CollegeList != null)
+                        {
+                            foreach (var c in Model.CollegeList)
+                            {
+                                if (c.Value == Model.SelectedCollegeId.ToString())
+                                {
+                                    <option value="@c.Value" selected="selected">@c.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@c.Value">@c.Text</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+
+                <!-- Search -->
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100">Search</button>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+    <!-- ================= REPORT TABLE ================= -->
+    <div class="card">
+        <div class="card-body table-responsive">
+
+            <table id="reportTable" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>College Name</th>
+                        <th>College Address</th>
+                        <th>Course Name</th>
+
+                        @if (Model.SelectedYear == "2026-27")
+                        {
+                            <th>RGUHS Intake (2026-27)</th>
+                            <th>College Intake (2026-27)</th>
+                        }
+                        else
+                        {
+                            <th>Existing Intake (2025-26)</th>
+                            <th>Present Intake (2025-26)</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.Records != null && Model.Records.Any())
+                    {
+                        foreach (var r in Model.Records)
+                        {
+                            <tr>
+                                <td>@r.CollegeName</td>
+                                <td>@r.CollegeAddress</td>
+                                <td>@r.CourseName</td>
+
+                                @if (Model.SelectedYear == "2026-27")
+                                {
+                                    <td>@r.RguhsIntake_2026_27</td>
+                                    <td>@r.CollegeIntake_2026_27</td>
+                                }
+                                else
+                                {
+                                    <td>@r.ExistingIntake_2025_26</td>
+                                    <td>@r.PresentIntake_2025_26</td>
+                                }
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No records found</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<!-- DataTables Buttons Extension -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // ================= DataTable Init with Buttons =================
+        if ($.fn.DataTable.isDataTable('#reportTable')) {
+            $('#reportTable').DataTable().destroy();
+        }
+
+        $('#reportTable').DataTable({
+            pageLength: 10,
+            ordering: true,
+            searching: true,
+            lengthChange: true,
+            dom: 'Bfrtip', // Show buttons
+            buttons: [
+                'copyHtml5',
+                'excelHtml5',
+                'pdfHtml5',
+                'print'
+            ]
+        });
+
+        // ================= Faculty → College AJAX =================
+        $('#SelectedFacultyId').change(function () {
+
+            var facultyId = $(this).val();
+            var collegeDropdown = $('#SelectedCollegeId');
+
+            collegeDropdown.empty();
+            collegeDropdown.append('<option value="">-- All College --</option>');
+
+            if (!facultyId) return;
+
+            $.ajax({
+                url: '@Url.Action("GetCollegesByFaculty", "SectionOfficer")',
+                type: 'GET',
+                data: { facultyId: facultyId },
+                success: function (data) {
+                    $.each(data, function (i, item) {
+                        collegeDropdown.append(
+                            $('<option>', {
+                                value: item.value,
+                                text: item.text
+                            })
+                        );
+                    });
+                },
+                error: function () {
+                    alert('Failed to load colleges');
+                }  
+            });
+        });
+
+    });
+</script>

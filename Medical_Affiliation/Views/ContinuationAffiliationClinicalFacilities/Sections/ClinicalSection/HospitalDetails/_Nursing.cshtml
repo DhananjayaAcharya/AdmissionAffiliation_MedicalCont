@@ -1,0 +1,212 @@
+﻿@model ClinicalHospitalViewModel
+
+<div class="form-section">
+    <div class="section-title">Basic Hospital Information & Clinical Facilities</div>
+
+    <form id="clinicalFacilitiesForm" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="Form.HospitalDetailsId" />
+        <input type="hidden" asp-for="Form.CollegeCode" />
+        <input type="hidden" asp-for="Form.FacultyCode" />
+        <input type="hidden" asp-for="Form.AffiliationTypeId" />
+        <input type="hidden" asp-for="Form.AffiliationType" />
+
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="required">Parent Medical College Exists</label>
+                <select asp-for="Form.ParentMedicalCollegeExists" class="form-select">
+                    <option value="">Select</option>
+                    @foreach (var i in Model.ParentMedicalCollegeExistsOptions)
+                    {
+                        <option value="@i.Value">@i.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="required">Hospital Type</label>
+                <select asp-for="Form.HospitalType" class="form-select">
+                    <option value="">Select</option>
+                    @foreach (var i in Model.HospitalTypes)
+                    {
+                        <option value="@i.Value">@i.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="required">Hospital Name</label>
+                <input asp-for="Form.HospitalName" class="form-control" placeholder="Enter Hospital name" />
+            </div>
+            <div class="col-6">
+                <label class="required">Hospital Owned By</label>
+                <select asp-for="Form.HospitalOwnedBy" class="form-select">
+                    <option value="">Select</option>
+                    @foreach (var i in Model.HospitalOwnedByOptions)
+                    {
+                        <option value="@i.Value">@i.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="required">Hospital Owner Name</label>
+                <input asp-for="Form.HospitalOwnerName" class="form-control" placeholder="Enter Hospital Owner Name" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="required">District</label>
+                <select asp-for="Form.HospitalDistrictId" class="form-select">
+                    <option value="">Select</option>
+                    @foreach (var d in Model.Districts)
+                    {
+                        <option value="@d.Value">@d.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="required">Taluk</label>
+                <select asp-for="Form.HospitalTalukId" class="form-select">
+                    <option value="">Select</option>
+                    @foreach (var t in Model.Taluks)
+                    {
+                        <option value="@t.TalukID" data-district="@t.DistrictID">@t.TalukName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="required">Location</label>
+                <select asp-for="Form.Location" class="form-select">
+                    <option value="">Select</option>
+                    @foreach (var l in Model.Locations)
+                    {
+                        <option value="@l">@l</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="required">Is Parent Hospital for Other Nursing Institution</label>
+                <select asp-for="Form.IsParentHospitalForOtherNursingInstitution"
+                        class="form-select"
+                        id="isParentHospitalSelect">
+                    <option value="">Select</option>
+                    @foreach (var i in Model.IsParentHospitalForOtherNursingInstitutionOptions)
+                    {
+                        <option value="@i.Value">@i.Text</option>
+                    }
+                </select>
+
+            </div>
+
+            <div class="col-md-6" id="supportingDocSection" style="display: @(Model.Form.IsParentHospitalForOtherNursingInstitution == true ? "block" : "none")">
+                <label class="support d-block">Supporting Document (if parent hospital)</label>
+                @* <input asp-for="IsSupportingDocExists" type="file" class="form-control" /> *@
+                <input asp-for="SupportingDoc"
+                       type="file"
+                       class="supporting-doc"
+                       id="supportingDocInput"
+                       style="display:none;" />
+
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary choose-supporting-file">
+                    Upload
+                </button>
+            </div>
+
+            @if (Model.IsSupportingDocExists)
+            {
+                <div class="mb-2">
+                    <a href="@Url.Action("ViewSupportingHospitalDocument", "ClinicalFacilitiesForAffiliation", new { id = Model.Form.HospitalDetailsId })" target="_blank">
+                        View Existing Document
+                    </a>
+                </div>
+            }
+
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="button" id="saveClinicalFacilitiesBtn" class="btn btn-primary">Save Section</button>
+        </div>
+    </form>
+</div>
+
+<script>
+
+    const parentHospitalSelect = document.getElementById("isParentHospitalSelect");
+    const supportingDocSection = document.getElementById("supportingDocSection");
+    const supportLabel = document.querySelector(".support");
+
+    parentHospitalSelect.addEventListener("change", function () {
+        if (this.value === "true") {
+            supportingDocSection.style.display = "block";
+            if (supportLabel) {
+                supportLabel.classList.add("required");
+            }
+
+        } else {
+            supportingDocSection.style.display = "none";
+            if (supportLabel) {
+                supportLabel.classList.remove("required");
+            }
+
+        }
+    });
+    document.querySelector(".choose-supporting-file")
+            .addEventListener("click", function () {
+                document.getElementById("supportingDocInput").click();
+            });
+
+    document.getElementById("supportingDocInput")
+        .addEventListener("change", function () {
+            document.getElementById("selectedFileName").textContent =
+                this.files.length > 0 ? this.files[0].name : "";
+        });
+
+    document.addEventListener("click", function (e) {
+        if (!e.target.matches("#saveClinicalFacilitiesBtn")) return;
+
+        const form = e.target.closest("form");
+
+        if (!(form instanceof HTMLFormElement)) {
+            console.error("Clinical Facilities form not found");
+            return;
+        }
+
+        const formData = new FormData(form);
+
+
+        fetch('@Url.Action("SaveClinicalHospitalDetails", "ClinicalFacilitiesForAffiliation")', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            }
+        })
+        .then(res => {
+            if (!res.ok) throw res;
+            return res.json();
+        })
+        .then(data => {
+            Swal.fire("Success", data.message, "success");
+        })
+        .catch(async err => {
+            if (err.json) {
+                const errData = await err.json();
+                let errors = [];
+                if (errData.errors && Array.isArray(errData.errors)) {
+                    errData.errors.forEach(e => {
+                        if (e.messages && Array.isArray(e.messages)) {
+                            errors.push(...e.messages);
+                        }
+                    });
+                }
+                Swal.fire("Validation Errors", errors.join("<br>"), "error");
+            } else {
+                Swal.fire("Error", "Failed to save section.", "error");
+            }
+        });
+    });
+</script>

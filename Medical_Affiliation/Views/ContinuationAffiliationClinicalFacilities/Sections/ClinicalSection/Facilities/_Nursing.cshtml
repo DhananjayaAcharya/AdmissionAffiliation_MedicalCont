@@ -1,0 +1,89 @@
+﻿@model HospitalFacilitiesViewModel
+
+<div class="form-section">
+    <div class="section-title required">Facilities Available</div>
+
+    <form id="hospitalFacilitiesForm">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="HospitalDetailsId" />
+
+        <div class="row g-2">
+            @foreach (var f in Model.AvailableFacilities)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="SelectedFacilityIds"
+                               value="@f.Value"
+                               id="facility_@f.Value"
+                               @(Model.SelectedFacilityIds.Contains(int.Parse(f.Value)) ? "checked" : "") />
+
+                        <label class="form-check-label" for="facility_@f.Value">
+                            @f.Text
+                        </label>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="button"
+                    id="saveHospitalFacilitiesBtn"
+                    class="btn btn-primary">
+                Save Facilities
+            </button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    document.getElementById("saveHospitalFacilitiesBtn")
+        .addEventListener("click", function () {
+
+            const form = document.getElementById("hospitalFacilitiesForm");
+            const formData = new FormData(form);
+
+            fetch('@Url.Action("SaveHospitalFacilities", "ClinicalFacilitiesForAffiliation")', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken':
+                        document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw res;
+                return res.json();
+            })
+            .then(data => {
+                Swal.fire("Success", data.message, "success");
+            })
+            .catch(async err => {
+                let errors = [];
+
+                if (err instanceof Response) {
+                    const errorData = await err.json();
+
+                    if (errorData.errors && Array.isArray(errorData.errors)) {
+                        errorData.errors.forEach(e => {
+                            if (Array.isArray(e.messages)) {
+                                errors.push(...e.messages);
+                            }
+                        });
+                    }
+                } else {
+                    errors.push("An unexpected error occurred.");
+                }
+
+                Swal.fire({
+                    title: "Validation Error",
+                    html: errors.join("<br>"),
+                    icon: "error"
+                });
+            });
+
+        });
+</script>

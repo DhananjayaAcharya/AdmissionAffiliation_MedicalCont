@@ -1,0 +1,547 @@
+﻿@model InstitutionBasicDetailsViewModel1
+
+@{
+    ViewData["Title"] = "Nursing Institute Details";
+}
+
+<h2>Nursing Institute Details</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<!-- ============================
+     FORM 1: Basic Institution Details
+     ============================ -->
+<form asp-action="Nursing_Institute_Details"
+      asp-controller="YourControllerName"
+      method="post"
+      enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="formSection" value="Basic" />
+    <input type="hidden" asp-for="InstitutionId" />
+    <input type="hidden" asp-for="CollegeCode" />
+    <input type="hidden" asp-for="FacultyCode" />
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Basic Institution Details</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="NameOfInstitution"></label>
+                        <input asp-for="NameOfInstitution" class="form-control" />
+                        <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AddressOfInstitution"></label>
+                        <textarea asp-for="AddressOfInstitution" class="form-control"></textarea>
+                        <span asp-validation-for="AddressOfInstitution" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="VillageTownCity"></label>
+                        <input asp-for="VillageTownCity" class="form-control" />
+                        <span asp-validation-for="VillageTownCity" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Taluk"></label>
+                        <input asp-for="Taluk" class="form-control" />
+                        <span asp-validation-for="Taluk" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="District"></label>
+                        <input asp-for="District" class="form-control" />
+                        <span asp-validation-for="District" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PinCode"></label>
+                        <input asp-for="PinCode" class="form-control" />
+                        <span asp-validation-for="PinCode" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="MobileNumber"></label>
+                        <input asp-for="MobileNumber" class="form-control" />
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="StdCode"></label>
+                        <input asp-for="StdCode" class="form-control" />
+                        <span asp-validation-for="StdCode" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Fax"></label>
+                        <input asp-for="Fax" class="form-control" />
+                        <span asp-validation-for="Fax" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="form-group">
+                        <label asp-for="Website"></label>
+                        <input asp-for="Website" class="form-control" />
+                        <span asp-validation-for="Website" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="EmailId"></label>
+                        <input asp-for="EmailId" class="form-control" />
+                        <span asp-validation-for="EmailId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AltLandlineOrMobile"></label>
+                        <input asp-for="AltLandlineOrMobile" class="form-control" />
+                        <span asp-validation-for="AltLandlineOrMobile" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AltEmailId"></label>
+                        <input asp-for="AltEmailId" class="form-control" />
+                        <span asp-validation-for="AltEmailId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AcademicYearStarted"></label>
+                        <input asp-for="AcademicYearStarted" class="form-control" />
+                        <span asp-validation-for="AcademicYearStarted" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="IsRuralInstitution" class="form-check-input" />
+                        <label asp-for="IsRuralInstitution" class="form-check-label"></label>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="IsMinorityInstitution" class="form-check-input" />
+                        <label asp-for="IsMinorityInstitution" class="form-check-label"></label>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="TrustName"></label>
+                        <input asp-for="TrustName" class="form-control" />
+                        <span asp-validation-for="TrustName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PresidentName"></label>
+                        <input asp-for="PresidentName" class="form-control" />
+                        <span asp-validation-for="PresidentName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="AadhaarNumber"></label>
+                        <input asp-for="AadhaarNumber" class="form-control" />
+                        <span asp-validation-for="AadhaarNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PANNumber"></label>
+                        <input asp-for="PANNumber" class="form-control" />
+                        <span asp-validation-for="PANNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="RegistrationNumber"></label>
+                        <input asp-for="RegistrationNumber" class="form-control" />
+                        <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="RegistrationDate"></label>
+                        <input asp-for="RegistrationDate" class="form-control" type="date" />
+                        <span asp-validation-for="RegistrationDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="Amendments" class="form-check-input" />
+                        <label asp-for="Amendments" class="form-check-label"></label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ExistingTrustName"></label>
+                        <input asp-for="ExistingTrustName" class="form-control" />
+                        <span asp-validation-for="ExistingTrustName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="GOKObtainedTrustName"></label>
+                        <input asp-for="GOKObtainedTrustName" class="form-control" />
+                        <span asp-validation-for="GOKObtainedTrustName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="ChangesInTrustName" class="form-check-input" />
+                        <label asp-for="ChangesInTrustName" class="form-check-label"></label>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="OtherNursingCollegeInCity" class="form-check-input" />
+                        <label asp-for="OtherNursingCollegeInCity" class="form-check-label"></label>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="CategoryOfOrganisation"></label>
+                        <input asp-for="CategoryOfOrganisation" class="form-control" />
+                        <span asp-validation-for="CategoryOfOrganisation" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ContactPersonName"></label>
+                        <input asp-for="ContactPersonName" class="form-control" />
+                        <span asp-validation-for="ContactPersonName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ContactPersonRelation"></label>
+                        <input asp-for="ContactPersonRelation" class="form-control" />
+                        <span asp-validation-for="ContactPersonRelation" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ContactPersonMobile"></label>
+                        <input asp-for="ContactPersonMobile" class="form-control" />
+                        <span asp-validation-for="ContactPersonMobile" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="OtherPhysiotherapyCollegeInCity" class="form-check-input" />
+                        <label asp-for="OtherPhysiotherapyCollegeInCity" class="form-check-label"></label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="CoursesAppliedText"></label>
+                        <textarea asp-for="CoursesAppliedText" class="form-control"></textarea>
+                        <span asp-validation-for="CoursesAppliedText" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="HeadOfInstitutionName"></label>
+                        <input asp-for="HeadOfInstitutionName" class="form-control" />
+                        <span asp-validation-for="HeadOfInstitutionName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="HeadOfInstitutionAddress"></label>
+                        <textarea asp-for="HeadOfInstitutionAddress" class="form-control"></textarea>
+                        <span asp-validation-for="HeadOfInstitutionAddress" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="FinancingAuthorityName"></label>
+                        <input asp-for="FinancingAuthorityName" class="form-control" />
+                        <span asp-validation-for="FinancingAuthorityName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="CollegeStatus"></label>
+                        <input asp-for="CollegeStatus" class="form-control" />
+                        <span asp-validation-for="CollegeStatus" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Files for basic details -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="GovAutonomousCertFile"></label>
+                        <input asp-for="GovAutonomousCertFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="GovCouncilMembershipFile"></label>
+                        <input asp-for="GovCouncilMembershipFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="GokOrderExistingCoursesFile"></label>
+                        <input asp-for="GokOrderExistingCoursesFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="FirstAffiliationNotifFile"></label>
+                        <input asp-for="FirstAffiliationNotifFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ContinuationAffiliationFile"></label>
+                        <input asp-for="ContinuationAffiliationFile" type="file" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="KncCertificateFile"></label>
+                        <input asp-for="KncCertificateFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AmendedDoc"></label>
+                        <input asp-for="AmendedDoc" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AadhaarFile"></label>
+                        <input asp-for="AadhaarFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PANFile"></label>
+                        <input asp-for="PANFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="BankStatementFile"></label>
+                        <input asp-for="BankStatementFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="RegistrationCertificateFile"></label>
+                        <input asp-for="RegistrationCertificateFile" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="RegisteredTrustMemberDetails"></label>
+                        <input asp-for="RegisteredTrustMemberDetails" type="file" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AuditStatementFile"></label>
+                        <input asp-for="AuditStatementFile" type="file" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card-footer text-right">
+            <button type="submit" class="btn btn-primary">Save Basic Details</button>
+        </div>
+    </div>
+</form>
+
+<!-- ============================
+     FORM 2: Affiliated Institute Details
+     ============================ -->
+<form asp-action="Nursing_Institute_Details"
+      asp-controller="YourControllerName"
+      method="post"
+      enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="formSection" value="Institute" />
+    <input type="hidden" asp-for="AffInstitutionId" />
+    <input type="hidden" asp-for="CollegeCode" />
+    <input type="hidden" asp-for="FacultyCode" />
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Affiliated Institute Details</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="TypeOfInstitution"></label>
+                        <select asp-for="TypeOfInstitution" asp-items="Model.TypeOfInstitutionList" class="form-control">
+                            <option value="">-- Select --</option>
+                        </select>
+                        <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="NameOfInstitution"></label>
+                        <input asp-for="NameOfInstitution" class="form-control" />
+                        <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Address"></label>
+                        <textarea asp-for="Address" class="form-control"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="VillageTownCity"></label>
+                        <input asp-for="VillageTownCity" class="form-control" />
+                        <span asp-validation-for="VillageTownCity" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Taluk"></label>
+                        <input asp-for="Taluk" class="form-control" />
+                        <span asp-validation-for="Taluk" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="District"></label>
+                        <input asp-for="District" class="form-control" />
+                        <span asp-validation-for="District" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PinCode"></label>
+                        <input asp-for="PinCode" class="form-control" />
+                        <span asp-validation-for="PinCode" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="form-group">
+                        <label asp-for="MobileNumber"></label>
+                        <input asp-for="MobileNumber" class="form-control" />
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="StdCode"></label>
+                        <input asp-for="StdCode" class="form-control" />
+                        <span asp-validation-for="StdCode" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Fax"></label>
+                        <input asp-for="Fax" class="form-control" />
+                        <span asp-validation-for="Fax" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Website"></label>
+                        <input asp-for="Website" class="form-control" />
+                        <span asp-validation-for="Website" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="EmailId"></label>
+                        <input asp-for="EmailId" class="form-control" />
+                        <span asp-validation-for="EmailId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AltLandlineMobile"></label>
+                        <input asp-for="AltLandlineMobile" class="form-control" />
+                        <span asp-validation-for="AltLandlineMobile" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AltEmailId"></label>
+                        <input asp-for="AltEmailId" class="form-control" />
+                        <span asp-validation-for="AltEmailId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="SurveyNoPidNo"></label>
+                        <input asp-for="SurveyNoPidNo" class="form-control" />
+                        <span asp-validation-for="SurveyNoPidNo" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="MinorityInstitute" class="form-check-input" />
+                        <label asp-for="MinorityInstitute" class="form-check-label"></label>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="AttachedToMedicalClg" class="form-check-input" />
+                        <label asp-for="AttachedToMedicalClg" class="form-check-label"></label>
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="RuralInstitute" class="form-check-input" />
+                        <label asp-for="RuralInstitute" class="form-check-label"></label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="YearOfEstablishment"></label>
+                        <input asp-for="YearOfEstablishment" class="form-control" />
+                        <span asp-validation-for="YearOfEstablishment" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="HeadOfInstitution"></label>
+                        <input asp-for="HeadOfInstitution" class="form-control" />
+                        <span asp-validation-for="HeadOfInstitution" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="HeadAddress"></label>
+                        <textarea asp-for="HeadAddress" class="form-control"></textarea>
+                        <span asp-validation-for="HeadAddress" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="FinancingAuthority"></label>
+                        <input asp-for="FinancingAuthority" class="form-control" />
+                        <span asp-validation-for="FinancingAuthority" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="StatusOfCollege"></label>
+                        <input asp-for="StatusOfCollege" class="form-control" />
+                        <span asp-validation-for="StatusOfCollege" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CourseApplied"></label>
+                        <textarea asp-for="CourseApplied" class="form-control"></textarea>
+                        <span asp-validation-for="CourseApplied" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="DocumentFile"></label>
+                        <input asp-for="DocumentFile" type="file" class="form-control" />
+                        <span asp-validation-for="DocumentFile" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card-footer text-right">
+            <button type="submit" class="btn btn-success">Save Affiliated Details</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

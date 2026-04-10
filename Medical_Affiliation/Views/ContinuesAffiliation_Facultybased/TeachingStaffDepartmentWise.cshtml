@@ -1,0 +1,533 @@
+﻿@model TeachingStaffDepartmentWiseVm
+
+@{
+    ViewData["Title"] = "Teaching Staff — Department Wise Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --ug-bg: #eaf7ef;
+        --ug-text: #1a6b3a;
+        --pg-bg: #eaf0fb;
+        --pg-text: #1a3a6b;
+        --radius: 6px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+    }
+
+    /* ── Page Shell ── */
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        padding: 36px 0 56px;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* ── Header ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: 10px 10px 0 0;
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .header-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+        position: relative;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+        position: relative;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+        font-weight: 300;
+        position: relative;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+
+    /* ── Form Card ── */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 40px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    /* ── Section Label ── */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        margin-top: 4px;
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ── Department Block ── */
+    .dept-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 28px;
+    }
+
+    .dept-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dept-block-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .dept-block-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 13px;
+            background: var(--gold);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+    /* ── Data Table ── */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.83rem;
+    }
+
+        .data-table thead {
+            background: linear-gradient(180deg, #f5f2ec, #ede8df);
+        }
+
+            .data-table thead th {
+                padding: 9px 10px;
+                font-size: 0.66rem;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--navy);
+                border-bottom: 2px solid var(--border);
+                border-right: 1px solid var(--border);
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+            }
+
+                .data-table thead th:first-child {
+                    border-left: 3px solid var(--gold);
+                }
+
+                .data-table thead th:last-child {
+                    border-right: none;
+                }
+
+                /* UG / PG group header cells */
+                .data-table thead th.ug-head {
+                    background: var(--ug-bg);
+                    color: var(--ug-text);
+                    font-size: 0.7rem;
+                }
+
+                .data-table thead th.pg-head {
+                    background: var(--pg-bg);
+                    color: var(--pg-text);
+                    font-size: 0.7rem;
+                }
+
+            .data-table thead tr.sub-row th {
+                background: #f8f5ee;
+                font-size: 0.63rem;
+                padding: 6px 10px;
+                color: var(--text-muted);
+            }
+
+                .data-table thead tr.sub-row th.ug-sub {
+                    background: #f0fbf4;
+                    color: var(--ug-text);
+                }
+
+                .data-table thead tr.sub-row th.pg-sub {
+                    background: #f0f6fd;
+                    color: var(--pg-text);
+                }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #f0ece4;
+            transition: background 0.15s;
+        }
+
+            .data-table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .data-table tbody tr:nth-child(even) {
+                background: #faf8f4;
+            }
+
+            .data-table tbody tr:hover {
+                background: #f3eed8 !important;
+            }
+
+        .data-table td {
+            padding: 8px 10px;
+            border-right: 1px solid #f0ece4;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+            .data-table td:last-child {
+                border-right: none;
+            }
+
+    .td-slno {
+        width: 48px;
+        font-family: 'EB Garamond', serif;
+        font-size: 0.95rem;
+        color: var(--navy-mid);
+        font-weight: 600;
+    }
+
+    .td-desig {
+        text-align: left;
+        min-width: 160px;
+    }
+
+    /* ── Form Controls ── */
+    .form-control {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 6px 9px;
+        font-size: 0.82rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--white);
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+        /* Readonly designation — no border */
+        .form-control.desig-field {
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            font-weight: 500;
+            text-align: left;
+            padding-left: 0;
+            cursor: default;
+        }
+        /* Readonly total exp — highlighted */
+        .form-control.total-exp {
+            background: #f3f0e8;
+            color: var(--navy-mid);
+            font-weight: 700;
+            border-color: #d9d3c8;
+            cursor: default;
+            text-align: center;
+        }
+
+    /* ── Footer ── */
+    .form-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+    }
+
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+        .btn-prev:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+            background: #f3f0e8;
+            text-decoration: none;
+        }
+
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.15s, box-shadow 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-save::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+        }
+</style>
+<link rel="stylesheet" href="~/css/common-form.css" />
+
+<div class="page-shell">
+    <div class="page-container">
+
+        <!-- Header -->
+        <div class="page-header head">
+            @* <div class="header-eyebrow">Continuous Affiliation · Faculty Details</div> *@
+            <div class="header-title">Teaching Staff — Department Wise</div>
+            <div class="header-subtitle">Enter UG and PG teaching experience for each designation in every department</div>
+            @* <div class="header-badge">Faculty Details</div> *@
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+
+            <form asp-action="TeachingStaffDepartmentWise" method="post">
+
+                @for (int d = 0; d < Model.Departments.Count; d++)
+                {
+                    <div class="section-label" style="@(d == 0 ? "" : "margin-top:8px;")">
+                        <span class="section-label-text">Department @(d + 1)</span>
+                        <span class="section-label-line"></span>
+                    </div>
+
+                    <div class="dept-block">
+                        <div class="dept-block-header">
+                            <span class="dept-block-title">@Model.Departments[d].DepartmentName</span>
+                        </div>
+
+                        <input type="hidden" asp-for="Departments[d].DepartmentCode" />
+
+                        <div style="overflow-x:auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2" style="width:48px;">#</th>
+                                        <th rowspan="2" style="text-align:left; padding-left:14px; min-width:160px;">Designation</th>
+                                        <th colspan="2" class="ug-head">UG Teaching</th>
+                                        <th colspan="2" class="pg-head">PG Teaching</th>
+                                        <th rowspan="2" style="width:130px;">Total Exp. (Yrs)</th>
+                                    </tr>
+                                    <tr class="sub-row">
+                                        <th class="ug-sub">From</th>
+                                        <th class="ug-sub">To</th>
+                                        <th class="pg-sub">From</th>
+                                        <th class="pg-sub">To</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Departments[d].Rows.Count; i++)
+                                    {
+                                        <tr>
+                                            <td class="td-slno">@(i + 1)</td>
+                                            <td class="td-desig">
+                                                <input asp-for="Departments[d].Rows[i].DesignationName"
+                                                       class="form-control desig-field"
+                                                       readonly />
+                                                <input asp-for="Departments[d].Rows[i].DesignationCode" type="hidden" />
+                                            </td>
+                                            <td style="min-width:130px;">
+                                                <input asp-for="Departments[d].Rows[i].UGFrom"
+                                                       type="date" class="form-control date-input" />
+                                            </td>
+                                            <td style="min-width:130px;">
+                                                <input asp-for="Departments[d].Rows[i].UGTo"
+                                                       type="date" class="form-control date-input" />
+                                            </td>
+                                            <td style="min-width:130px;">
+                                                <input asp-for="Departments[d].Rows[i].PGFrom"
+                                                       type="date" class="form-control date-input" />
+                                            </td>
+                                            <td style="min-width:130px;">
+                                                <input asp-for="Departments[d].Rows[i].PGTo"
+                                                       type="date" class="form-control date-input" />
+                                            </td>
+                                            <td>
+                                                <input asp-for="Departments[d].Rows[i].TotalExperience"
+                                                       class="form-control total-exp"
+                                                       readonly />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+
+                <!-- Footer -->
+                <div class="form-footer">
+                    <a asp-action="Aff_HostelDetails"
+                       asp-controller="ContinuesAffiliation_Facultybased"
+                       class="btn-prev">← Previous</a>
+                    <button type="submit" class="btn-save">&#128190; Save &amp; Continue →</button>
+                </div>
+
+            </form>
+        </div><!-- /.form-card -->
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll(".date-input").forEach(function (input) {
+        input.addEventListener("change", calculateExperience);
+        calculateExperience.call(input);
+    });
+
+    function calculateExperience() {
+        const row = this.closest("tr");
+        if (!row) return;
+
+        const ugFrom = row.querySelector("[id$='UGFrom']").value;
+        const ugTo   = row.querySelector("[id$='UGTo']").value;
+        const pgFrom = row.querySelector("[id$='PGFrom']").value;
+        const pgTo   = row.querySelector("[id$='PGTo']").value;
+
+        function diffYears(startStr, endStr) {
+            if (!startStr || !endStr) return 0;
+            const start = new Date(startStr);
+            const end   = new Date(endStr);
+            if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return 0;
+            return (end - start) / (1000 * 60 * 60 * 24 * 365.2425);
+        }
+
+        const total = diffYears(ugFrom, ugTo) + diffYears(pgFrom, pgTo);
+        row.querySelector(".total-exp").value = total.toFixed(2);
+    }
+</script>

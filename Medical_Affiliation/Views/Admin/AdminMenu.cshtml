@@ -1,0 +1,64 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-end mb-3">
+        <form asp-controller="Admin" asp-action="AdminLogin" method="post" class="mb-0">
+            @* @Html.AntiForgeryToken() *@
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+    </div>
+
+    <div class="shadow p-5 bg-light rounded">
+        <h2 class="mb-4">👨‍💼 Admin Dashboard</h2>
+
+        <div class="container">
+            <div class="row mb-3">
+                <div class="col-4 d-grid">
+                    <a asp-action="AddCollege" class="btn btn-primary btn-lg px-4">
+                        ➕ Add College
+                    </a>
+                </div>
+                <div class="col-4 d-grid">
+                    <a asp-action="AddCourse" class="btn btn-outline-primary btn-lg px-4">
+                        📘 Add Course
+                    </a>
+                </div>
+                <div class="col-4 d-grid">
+                    <a asp-action="Dashboard" class="btn btn-primary btn-lg px-4">
+                        📘 College Intake Report
+                    </a>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-4 d-grid">
+                    <a asp-action="AdminDocumentReport" class="btn btn-outline-primary btn-lg px-4">
+                        📘 College Documents Report
+                    </a>
+                </div>
+                <div class="col-4 d-grid">
+                    <a asp-action="AdminDocumentIncompleteReport" class="btn btn-primary btn-lg px-4">
+                        📘 College Intake Incomplete Report
+                    </a>
+                </div>
+                <div class="col-4 d-grid">
+                    <a asp-action="CollegeDocsReport" class="btn btn-outline-primary btn-lg px-4">
+                        📘 Single Uploads from College
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4 d-grid">
+                    <a asp-action="CollegeWiseReport" class="btn btn-outline-primary btn-lg px-4">
+                        📘 College-Wise Intake Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

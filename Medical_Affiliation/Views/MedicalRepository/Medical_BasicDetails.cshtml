@@ -1,0 +1,457 @@
+﻿@model Medical_Affiliation.Models.MedicalInstituteDetailViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Basic Institute Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 1;
+}
+
+<style>
+    .progressbar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 20px 0 0;
+        list-style: none;
+    }
+
+        .progressbar li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+            .progressbar li:before {
+                counter-increment: step;
+                content: counter(step);
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                border: 2px solid #bbb;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px;
+                border-radius: 50%;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: #bbb;
+                top: 18px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: #0d6efd;
+            }
+
+                .progressbar li.active:before {
+                    border-color: #0d6efd;
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: #0d6efd;
+                }
+
+    .container {
+        margin-left: 151px;
+        max-width: 973px;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #344054;
+    }
+
+    .section-divider {
+        border-top: 2px solid #e9ecef;
+        margin: 18px 0 8px;
+        padding-top: 10px;
+    }
+
+    .section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0d6efd;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 14px;
+    }
+
+    select:disabled {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+        opacity: 0.75;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+@* ── Progress Bar Card ── *@
+
+@* ── Main Form Card ── *@
+<div class="container mt-4 mb-5">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add Institute Details</h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Medical_BasicDetails" method="post" novalidate>
+                @Html.AntiForgeryToken()
+
+                @* ══════════════════════════════════════
+                   SECTION 1 — Institute Information
+                   ══════════════════════════════════════ *@
+                <div class="section-title">🏫 Institute Information</div>
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label asp-for="InstituteName" class="form-label">
+                            Institute Name <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="InstituteName" class="form-control"
+                               readonly aria-readonly="true" />
+                        <span asp-validation-for="InstituteName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="InstituteAddress" class="form-label">
+                            College Address <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="InstituteAddress" class="form-control"
+                               placeholder="Enter College Address" required />
+                        <span asp-validation-for="InstituteAddress" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TrustSocietyName" class="form-label">
+                            Trust / Society Name <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="TrustSocietyName" class="form-control"
+                               placeholder="Enter Trust / Society Name"
+                               maxlength="100" required />
+                        <span asp-validation-for="TrustSocietyName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="InstitutionType" class="form-label">
+                            Institution Type <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="InstitutionType" class="form-select" required>
+                            <option value="">-- Select Institution Type --</option>
+                            <option value="Private">Private</option>
+                            <option value="Government">Government</option>
+                        </select>
+                        <span asp-validation-for="InstitutionType" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="YearOfEstablishmentOfTrust" class="form-label">
+                            Year of Establishment (Trust) <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="YearOfEstablishmentOfTrust" type="number"
+                               min="1800" max="@DateTime.Now.Year"
+                               placeholder="YYYY" class="form-control" required />
+                        <span asp-validation-for="YearOfEstablishmentOfTrust" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="YearOfEstablishmentOfCollege" class="form-label">
+                            Year of Establishment (College) <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="YearOfEstablishmentOfCollege" type="number"
+                               min="1800" max="@DateTime.Now.Year"
+                               placeholder="YYYY" class="form-control" required />
+                        <span asp-validation-for="YearOfEstablishmentOfCollege" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                @* ══════════════════════════════════════
+                   SECTION 2 — Location Details
+                   District value = DistrictName (string)
+                   Taluk loaded via AJAX using districtName
+                   ══════════════════════════════════════ *@
+                <div class="section-divider"></div>
+                <div class="section-title">📍College Location Details</div>
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedDistrictId" class="form-label">
+                            District <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="SelectedDistrictId"
+                                id="districtDropdown"
+                                class="form-select"
+                                required>
+                            <option value="">-- Select District --</option>
+                            @foreach (var item in Model.DistrictDropdownList)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="SelectedDistrictId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedTalukId" class="form-label">
+                            Taluk <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="SelectedTalukId"
+                                id="talukDropdown"
+                                class="form-select"
+                                required>
+                            <option value="">-- Select Taluk --</option>
+                        </select>
+                        <span asp-validation-for="SelectedTalukId" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                @* ══════════════════════════════════════
+                   SECTION 3 — Director / Dean / Principal
+                   ══════════════════════════════════════ *@
+                <div class="section-divider"></div>
+                <div class="section-title">👤 Director / Dean / Principal Details</div>
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label asp-for="HODOfInstitution" class="form-label">
+                            Director / Dean / Principal Name <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="HODOfInstitution" class="form-control"
+                               maxlength="100"
+                               placeholder="Enter Head of Institution Name" required />
+                        <span asp-validation-for="HODOfInstitution" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DOB" class="form-label">
+                            Date of Birth <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="DOB" type="date" id="dobField" class="form-control"
+                               max="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")" required />
+                        <span asp-validation-for="DOB" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Age" class="form-label">Age</label>
+                        <div class="input-group">
+                            <input asp-for="Age" class="form-control" id="ageField"
+                                   readonly aria-readonly="true" tabindex="-1"
+                                   placeholder="Auto-calculated from DOB" />
+                            <span class="input-group-text bg-light text-muted">yrs</span>
+                        </div>
+                        <span asp-validation-for="Age" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TeachingExperience" class="form-label">
+                            Teaching Experience <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="TeachingExperience" type="number"
+                                   min="0" max="70"
+                                   placeholder="Enter years of experience"
+                                   class="form-control" required />
+                            <span class="input-group-text bg-light text-muted">yrs</span>
+                        </div>
+                        <span asp-validation-for="TeachingExperience" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                @* ══════════════════════════════════════
+                   SECTION 4 — Qualification Details
+                   ══════════════════════════════════════ *@
+                <div class="section-divider"></div>
+                <div class="section-title">🎓 Director / Dean / Principal Qualification Details</div>
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedPGCourseId" class="form-label">
+                            Highest Degree <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="SelectedPGCourseId"
+                                class="form-select"
+                                asp-items="Model.PGCourses"
+                                required>
+                            <option value="">-- Select Highest Degree --</option>
+                        </select>
+                        <span asp-validation-for="SelectedPGCourseId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedDegree" class="form-label">
+                            Degree <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="SelectedDegree"
+                                class="form-select"
+                                asp-items="Model.DegreeList"
+                                required>
+                            <option value="">-- Select Degree --</option>
+                        </select>
+                        <span asp-validation-for="SelectedDegree" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedSpecialization" class="form-label">
+                            Specialization <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="SelectedSpecialization"
+                                class="form-select"
+                                asp-items="Model.SpecializationList"
+                                required>
+                            <option value="">-- Select Specialization --</option>
+                        </select>
+                        <span asp-validation-for="SelectedSpecialization" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedQualification" class="form-label">
+                            Qualification <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="SelectedQualification" class="form-control"
+                               placeholder="Enter Qualification" required />
+                        <span asp-validation-for="SelectedQualification" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                @* ══ Navigation Buttons ══ *@
+                <div class="mt-4 pt-3 border-top d-flex justify-content-between">
+                    <a asp-controller="Login" asp-action="Dashboard"
+                       class="btn btn-outline-secondary px-4">
+                        ⬅ Previous
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        💾 Save &amp; Proceed ➡
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+
+            /* ════════════════════════════════
+               Age auto-calculate from DOB
+               ════════════════════════════════ */
+            var dobInput = document.getElementById("dobField");
+            var ageInput = document.getElementById("ageField");
+
+            function calculateAge(dobStr) {
+                var dob = new Date(dobStr);
+                var today = new Date();
+                var age = today.getFullYear() - dob.getFullYear();
+                var m = today.getMonth() - dob.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+                return (age >= 0 && !isNaN(age)) ? age : '';
+            }
+
+            if (dobInput) {
+                dobInput.addEventListener("change", function () {
+                    ageInput.value = calculateAge(this.value);
+                });
+            }
+
+            /* ════════════════════════════════
+               District → Taluk cascading
+               ════════════════════════════════ */
+            var districtDropdown = document.getElementById("districtDropdown");
+            var talukDropdown    = document.getElementById("talukDropdown");
+
+            // Server-side saved taluk (edit mode restore)
+            var preselectedTaluk = "@Model.SelectedTalukId";
+
+            function setLoadingState() {
+                talukDropdown.disabled = true;
+                talukDropdown.innerHTML = '<option value="">⏳ Loading taluks…</option>';
+            }
+
+            function loadTaluks(districtName, selectedTalukId) {
+                if (!districtName) {
+                    talukDropdown.innerHTML = '<option value="">-- Select Taluk --</option>';
+                    talukDropdown.disabled = true;
+                    return;
+                }
+
+                setLoadingState();
+
+                // ✅ FIXED — uses Url.Action for production-safe URL
+                fetch('@Url.Action("GetTaluksByDistrict", "MedicalRepository")?districtName=' + encodeURIComponent(districtName))
+                    .then(function (res) {
+                        if (!res.ok) throw new Error("Server error: " + res.status);
+                        return res.json();
+                    })
+                    .then(function (data) {
+                        talukDropdown.innerHTML = '<option value="">-- Select Taluk --</option>';
+
+                        if (!data || data.length === 0) {
+                            talukDropdown.innerHTML = '<option value="">No taluks found for this district</option>';
+                            talukDropdown.disabled = false;
+                            return;
+                        }
+
+                        data.forEach(function (item) {
+                            var opt = document.createElement("option");
+                            opt.value = item.value;
+                            opt.text  = item.text;
+                            if (String(item.value) === String(selectedTalukId)) {
+                                opt.selected = true;
+                            }
+                            talukDropdown.appendChild(opt);
+                        });
+
+                        talukDropdown.disabled = false;
+                    })
+                    .catch(function (err) {
+                        console.error("Taluk load failed:", err);
+                        talukDropdown.innerHTML = '<option value="">⚠ Error loading taluks</option>';
+                        talukDropdown.disabled = false;
+                    });
+            }
+
+            if (districtDropdown) {
+                if (districtDropdown.value) {
+                    // Edit mode — district already saved, reload taluks and reselect saved taluk
+                    loadTaluks(districtDropdown.value, preselectedTaluk);
+                } else {
+                    // New form — disable taluk until district is chosen
+                    talukDropdown.disabled = true;
+                }
+
+                districtDropdown.addEventListener("change", function () {
+                    loadTaluks(this.value, null);
+                });
+            }
+
+        })();
+    </script>
+}

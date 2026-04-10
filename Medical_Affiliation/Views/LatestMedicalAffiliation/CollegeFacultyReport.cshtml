@@ -1,0 +1,365 @@
+﻿@model IntakeReportViewModel
+@{
+    ViewBag.Title = "Faculty-wise College Intake Report";
+    Layout = "_Layout";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet" />
+
+<style>
+    body {
+        background: #eef6fb;
+        font-family: "Segoe UI", system-ui;
+    }
+
+    table.dataTable thead th {
+        background-color: #0b63c6;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    table.dataTable tbody td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    /* Department wrap */
+    td.dept-wrap {
+        white-space: normal !important;
+        word-break: break-word;
+        text-align: left !important;
+    }
+
+    td:nth-child(3) {
+        text-align: left;
+    }
+    .btn-excel {
+    background-color: #27ae60;
+    color: white;
+}
+
+.btn-pdf {
+    background-color: #e74c3c;
+    color: white;
+}
+
+    div.dt-buttons > .dt-button, div.dt-buttons > div.dt-button-split .dt-button {
+        position: relative;
+        display: inline-block;
+        box-sizing: border-box;
+        margin-left: .167em;
+        margin-right: .167em;
+        margin-bottom: .333em;
+        padding: .5em 1em;
+        border: 1px solid #f8f9fa;
+        border-radius: 2px;
+        cursor: pointer;
+        font-size: .88em;
+        line-height: 1.6em;
+        color: inherit;
+        white-space: nowrap;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.1);
+        background: linear-gradient(to bottom, #f8f9fa 0%, rgba(0, 0, 0, 0.1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="rgba(230, 230, 230, 0.1)", EndColorStr="rgba(0, 0, 0, 0.1)");
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        text-decoration: none;
+        outline: none;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+
+    <h4 class="fw-bold text-primary">@ViewBag.Title</h4>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form class="row g-3">
+                @Html.AntiForgeryToken()
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Faculty</label>
+                    <select id="ddlFaculty" class="form-select">
+                        <option value="">-- Select Faculty --</option>
+                        @foreach (var f in Model.FacultyList)
+                        {
+                            <option value="@f.Value">@f.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">College</label>
+                    <select id="ddlCollege" class="form-select" disabled>
+                        <option value="">-- Select Faculty First --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 text-end">
+                    <button type="button" id="btnSearch" class="btn btn-primary mt-4">
+                        Generate Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table id="tblReport" class="table table-bordered table-striped w-100">
+        <thead>
+            <tr>
+                <th style="width:5%">SL No</th>
+                <th style="width:30%">Department</th>
+                <th style="width:25%">Designation</th>
+                <th style="width:13%">Required</th>
+                <th style="width:13%">Available</th>
+                <th style="width:14%">Deficiency</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script>
+        let table;
+        let logoDataUrl = null;
+
+        // Load logo for PDF
+        $.ajax({
+            url: '@Url.Content("~/images/logo.jpg")',
+            xhrFields: { responseType: 'blob' },
+            success: function (blob) {
+                const reader = new FileReader();
+                reader.onload = e => logoDataUrl = e.target.result;
+                reader.readAsDataURL(blob);
+            }
+        });
+
+        $('#ddlFaculty').change(function () {
+            let faculty = $(this).val();
+            $('#ddlCollege').prop('disabled', !faculty);
+
+            if (!faculty) return;
+
+            $.get('@Url.Action("GetCollegesByFaculty", "LatestMedicalAffiliation")',
+                { facultyCode: faculty },
+                function (data) {
+                    $('#ddlCollege').empty()
+                        .append('<option value="">-- Select College --</option>');
+                    data.forEach(c => {
+                        $('#ddlCollege').append(
+                            `<option value="${c.collegeCode}">${c.collegeName}</option>`
+                        );
+                    });
+                });
+        });
+
+        $('#btnSearch').click(function () {
+
+            if (table) table.destroy();
+
+            table = $('#tblReport').DataTable({
+                ajax: {
+                    url: '@Url.Action("LoadCollegeReport", "LatestMedicalAffiliation")',
+                    type: 'POST',
+                    data: {
+                        facultyCode: $('#ddlFaculty').val(),
+                        collegeCode: $('#ddlCollege').val(),
+                        __RequestVerificationToken:
+                            $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    dataSrc: ''
+                },
+                paging: true,
+                searching: false,
+                ordering: false,
+                dom: 'Bfrtip',
+                buttons: [
+                    'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'portrait',
+                        pageSize: 'A4',
+                        title: '',
+                        exportOptions: { columns: ':visible' },
+                                customize: function (doc) {
+            doc.pageMargins = [40, 80, 40, 40];
+
+            // HEADER
+            doc.content.unshift({
+                stack: [
+                    {
+                        image: logoDataUrl,
+                        width: 70,
+                        alignment: 'center',
+                        margin: [0, 0, 0, 6]
+                    },
+                    {
+                        text: 'RAJIV GANDHI UNIVERSITY OF HEALTH SCIENCES',
+                        alignment: 'center',
+                        bold: true,
+                        fontSize: 13,
+                        color: '#0b4da0'
+                    },
+                    {
+                        text: 'Medical Education & Affiliation Department',
+                        alignment: 'center',
+                        fontSize: 11,
+                        margin: [0, 4, 0, 6]
+                    },
+                    {
+                        canvas: [{
+                            type: 'line',
+                            x1: 0, y1: 0,
+                            x2: 515, y2: 0,
+                            lineWidth: 1
+                        }]
+                    }
+                ]
+            });
+
+            // REPORT DETAILS
+            doc.content.splice(1, 0, {
+                columns: [
+                    {
+                        text: [
+                            { text: 'Faculty: ', bold: true },
+                            $('#ddlFaculty option:selected').text(),
+                            '\n',
+                            { text: 'College: ', bold: true },
+                            $('#ddlCollege option:selected').text()
+                        ],
+                        fontSize: 10
+                    },
+                    {
+                        text: [
+                            { text: 'Date: ', bold: true },
+                            new Date().toLocaleDateString('en-IN')
+                        ],
+                        alignment: 'right',
+                        fontSize: 10
+                    }
+                ],
+                margin: [0, 12, 0, 12]
+            });
+
+            // MERGE REPEATED DEPARTMENT CELLS
+            let body = doc.content[2].table.body;
+
+            // Skip header row
+            let lastDept = null;
+            let startRow = 1;
+            for (let i = 1; i < body.length; i++) {
+                let currentDept = (typeof body[i][1] === 'object') ? body[i][1].text : body[i][1];
+                if (currentDept === lastDept) {
+                    // Increase rowSpan of the starting cell
+                    if (!body[startRow][1].rowSpan) body[startRow][1].rowSpan = 1;
+                    body[startRow][1].rowSpan += 1;
+                    // Remove current cell (it will be spanned)
+                    body[i][1] = '';
+                } else {
+                    lastDept = currentDept;
+                    startRow = i;
+                    // Ensure cell is object for styling
+                    if (typeof body[i][1] === 'string') {
+                        body[i][1] = { text: body[i][1], noWrap: false };
+                    }
+                }
+            }
+
+            // TABLE STYLING
+                   // Table column widths
+              // Column widths
+        doc.content[2].table.widths = ['5%', '30%', '25%', '13%', '13%', '14%'];
+
+        // Header style
+        doc.styles.tableHeader = {
+            bold: true,
+            fontSize: 10,
+            alignment: 'center',
+            fillColor: '#0b63c6',
+            color: 'white'
+        };
+
+        // Center all body cells
+        doc.content[2].table.body = doc.content[2].table.body.map((row, rowIndex) => {
+            return row.map((cell) => {
+                return { text: cell.text || cell, alignment: 'center', fontSize: 10 };
+            });
+        });
+
+        // Add borders to all cells
+        doc.content[2].layout = {
+            hLineWidth: function (i, node) {
+                return 1; // horizontal line width
+            },
+            vLineWidth: function (i, node) {
+                return 1; // vertical line width
+            },
+            hLineColor: function (i, node) {
+                return 'black'; // horizontal line color
+            },
+            vLineColor: function (i, node) {
+                return 'black'; // vertical line color
+            },
+            paddingLeft: function(i, node) { return 5; }, // optional padding
+            paddingRight: function(i, node) { return 5; },
+            paddingTop: function(i, node) { return 3; },
+            paddingBottom: function(i, node) { return 3; }
+        };
+
+
+
+        }
+
+                    }
+                ],
+                columns: [
+                    { data: null, render: (d, t, r, m) => m.row + 1 },
+                    { data: 'department', className: 'dept-wrap' },
+                    { data: 'designation' },
+                    { data: 'requiredIntake' },
+                    { data: 'availableIntake' },
+                    {
+                        data: null,
+                        render: r => r.requiredIntake - r.availableIntake
+                    }
+                ],
+                drawCallback: function () {
+                    let api = this.api();
+                    let lastDept = null;
+
+                    api.rows({ page: 'current' }).every(function () {
+                        let cell = $(this.node()).find('td').eq(1);
+                        let dept = cell.text().trim();
+
+                        if (dept === lastDept) {
+                            cell.text('');
+                        } else {
+                            lastDept = dept;
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

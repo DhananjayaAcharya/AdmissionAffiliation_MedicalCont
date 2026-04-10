@@ -1,0 +1,172 @@
+﻿@model CollegeDesignationDetailViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Nodal Officer Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 3;
+}
+
+<style>
+    .progressbar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 20px 0 0;
+        list-style: none;
+    }
+
+        .progressbar li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+            .progressbar li:before {
+                counter-increment: step;
+                content: counter(step);
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                border: 2px solid #bbb;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px;
+                border-radius: 50%;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: #bbb;
+                top: 18px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: #0d6efd;
+            }
+
+                .progressbar li.active:before {
+                    border-color: #0d6efd;
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: #0d6efd;
+                }
+</style>
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4">
+        <!-- 🔹 Application Progress Bar -->
+        <div class="card-header bg-light">
+            @* <h5 class="mb-3 fw-bold text-primary">Application Progress</h5> *@
+            <ul class="progressbar">
+                <li class="@(currentStep >= 1 ? "active" : "")">Basic Institute Details</li>
+                <li class="@(currentStep >= 2 ? "active" : "")">Course Details</li>
+                <li class="@(currentStep >= 3 ? "active" : "")">Clinical Material Details</li>
+                <li class="@(currentStep >= 4 ? "active" : "")">College Designation Details</li>
+                <li class="@(currentStep >= 5 ? "active" : "")">Add Faculty Details</li>
+                 
+                @* <li class="@(currentStep >= 5 ? "active" : "")">Review & Submit</li> *@
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="container mt-4">
+    <h2 class="mb-3">Total Teachers in each Department as per NMC norms</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form asp-action="CollegeDesignation" method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- Hidden faculty/college codes (from session) -->
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Designation</th>
+                    <th>Required Intake</th>
+                    <th>Available Intake</th>
+                    <th>Deficiency</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var designation in Model.Designations)
+                {
+                    <tr>
+                        <td>
+                            @designation.Text
+                            <input type="hidden" name="Designation" value="@designation.Value" />
+                        </td>
+                        <td>
+                            <input type="number" name="RequiredIntake" class="form-control required-intake" min="0" required />
+                        </td>
+                        <td>
+                            <input type="number" name="AvailableIntake" class="form-control available-intake" min="0" required />
+                        </td>
+                        <td>
+                            <input type="text" class="form-control deficiency" readonly />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between">
+            <!-- Previous Button -->
+            <a asp-controller="Aff_Medical" asp-action="Clinical_Material" class="btn btn-outline-secondary sidebar-btn">
+                ⬅ Previous
+            </a>
+
+            <!-- Save and Proceed Button -->
+            <!-- Save & Proceed Button (right) -->
+            <a asp-controller="Aff_Medical" asp-action="FacultyDetails" class="btn btn-outline-secondary sidebar-btn">
+                💾 Save & Proceed ➡
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function updateDeficiency(row) {
+            let required = parseInt(row.querySelector(".required-intake").value) || 0;
+            let available = parseInt(row.querySelector(".available-intake").value) || 0;
+            let deficiency = required - available;
+            row.querySelector(".deficiency").value = deficiency;
+        }
+
+        document.querySelectorAll("tbody tr").forEach(row => {
+            row.querySelector(".required-intake").addEventListener("input", () => updateDeficiency(row));
+            row.querySelector(".available-intake").addEventListener("input", () => updateDeficiency(row));
+        });
+    </script>
+}

@@ -1,0 +1,376 @@
+﻿@{
+    ViewData["Title"] = "LIC Inspection Authentication";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(-45deg, #1e3c72, #2a5298, #4e73df, #224abe);
+            background-size: 400% 400%;
+            animation: gradientMove 12s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        @@keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            padding: 24px 30px 28px;
+            text-align: center;
+            background: linear-gradient(135deg, #003087, #0056d6);
+            color: white;
+        }
+
+            .header h2 {
+                margin: 0;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+
+        /* ── Home Button ── */
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 14px;
+            padding: 7px 18px;
+            border-radius: 20px;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.25s, border-color 0.25s;
+        }
+
+            .home-btn:hover {
+                background: rgba(255, 255, 255, 0.28);
+                border-color: rgba(255, 255, 255, 0.9);
+            }
+
+            .home-btn svg {
+                width: 14px;
+                height: 14px;
+                fill: white;
+                flex-shrink: 0;
+            }
+
+        .tabs {
+            display: flex;
+            background: #f4f6fb;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            background: transparent;
+            transition: 0.3s;
+        }
+
+            .tab-btn.active {
+                background: white;
+                color: #003087;
+                border-bottom: 3px solid #003087;
+            }
+
+        .content {
+            padding: 35px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 22px;
+        }
+
+        .input-field, select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #d1d9e6;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+            .input-field:focus, select:focus {
+                border-color: #003087;
+                box-shadow: 0 0 0 3px rgba(0,48,135,0.15);
+                outline: none;
+            }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #003087, #0056d6);
+            color: white;
+            transition: 0.3s;
+        }
+
+            .submit-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(110px,1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            padding: 10px;
+            border-radius: 30px;
+            border: 1px solid #d1d9e6;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+            .role-btn:hover {
+                background: #eef3ff;
+            }
+
+            .role-btn.active {
+                background: #003087;
+                color: white;
+                border-color: #003087;
+            }
+
+        .validation-summary {
+            background: #ffe5e5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #b30000;
+        }
+
+        .remember {
+            font-size: 13px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+
+        <div class="header">
+            <!-- Home Button -->
+            <div>
+                <a href="/" class="home-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                    </svg>
+                    Home
+                </a>
+            </div>
+            <h2>LIC Inspection Portal</h2>
+        </div>
+
+        <div class="tabs">
+            <button type="button" class="tab-btn active" data-tab="signup">Create Account</button>
+            <button type="button" class="tab-btn" data-tab="login">Login</button>
+        </div>
+
+        <div class="content">
+
+            <!-- SIGNUP -->
+            <div id="signup" class="tab-content">
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="validation-summary">
+                        @Html.ValidationSummary(false)
+                    </div>
+                }
+
+                <form asp-action="Signup" asp-controller="LICInspection" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div style="margin-bottom:10px;font-weight:600;">Select Designation</div>
+
+                    <div class="role-grid">
+                        @if (ViewBag.MemberTypes != null)
+                        {
+                            foreach (var type in (List<string>)ViewBag.MemberTypes)
+                            {
+                                <button type="button" class="role-btn" data-role="@type">@type</button>
+                            }
+                        }
+                    </div>
+
+                    <input type="hidden" name="TypeofMember" id="selectedRole" />
+
+                    <div class="input-group">
+                        <select name="Name" id="nameDropdown" required>
+                            <option value="">-- Select Name --</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <input name="Email" type="email" class="input-field" placeholder="Email Address" required />
+                    </div>
+
+                    <div class="input-group">
+                        <input name="PhoneNumber" class="input-field" placeholder="Phone Number" required />
+                    </div>
+
+                    <div class="input-group">
+                        <input name="Password" type="password" class="input-field" placeholder="Password" required />
+                    </div>
+
+                    <div class="input-group">
+                        <input name="ConfirmPassword" type="password" class="input-field" placeholder="Confirm Password" required />
+                    </div>
+
+                    <button type="submit" class="submit-btn">Create Account</button>
+                </form>
+            </div>
+
+            <!-- LOGIN -->
+            <div id="login" class="tab-content hidden">
+                <form asp-action="Login" asp-controller="LICInspection" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group">
+                        <input name="PhoneNumber" class="input-field" placeholder="Phone Number" required />
+                    </div>
+
+                    <div class="input-group">
+                        <input name="Password" type="password" class="input-field" placeholder="Password" required />
+                    </div>
+
+                    <div class="input-group remember">
+                        <label>
+                            <input type="checkbox" name="RememberMe" />
+                            Remember Me
+                        </label>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Login</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+
+                    document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
+                    document.getElementById(this.dataset.tab).classList.remove("hidden");
+                });
+            });
+
+            const roleInput = document.getElementById("selectedRole");
+
+            document.querySelectorAll(".role-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+
+                    document.querySelectorAll(".role-btn").forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+
+                    let role = this.dataset.role;
+                    roleInput.value = role;
+
+                    fetch('/LICInspection/GetNamesByRole?role=' + encodeURIComponent(role))
+                        .then(response => response.json())
+                        .then(data => {
+
+                            let dropdown = document.getElementById("nameDropdown");
+                            dropdown.innerHTML = '<option value="">-- Select Name --</option>';
+
+                            if (!data || data.length === 0) {
+                                dropdown.innerHTML += '<option value="">No names found</option>';
+                                return;
+                            }
+
+                            data.forEach(function(name) {
+                                dropdown.innerHTML += `<option value="${name}">${name}</option>`;
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Error loading names:", error);
+                        });
+                });
+            });
+
+        });
+    </script>
+
+</body>
+</html>

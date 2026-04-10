@@ -1,0 +1,444 @@
+﻿@model AdminTeachingBlockListVM
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Administrative Teaching Block";
+}
+
+<style>
+    :root {
+        --primary: #0d6efd;
+        --border-color: #dee2e6;
+        --text-main: #212529;
+        --text-muted: #6c757d;
+        --danger: #dc3545;
+        --radius-md: 0.375rem;
+    }
+
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .institution-form-shell {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 24px 0 32px;
+    }
+
+    .institution-form-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .institution-form-card-inner {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        padding: 24px 24px 28px;
+    }
+
+    .form-header-modern {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e5e5e5;
+        padding-bottom: 10px;
+    }
+
+    .form-header-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 18px;
+    }
+
+    .form-header-title h4 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1.25rem;
+    }
+
+    .form-header-title span {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    .form-header-badge {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background-color: #e9f2ff;
+        color: var(--primary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border: 1px solid #cfe2ff;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background-color: #f1f3f5;
+        color: var(--text-muted);
+    }
+
+        .section-chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--primary);
+        }
+
+    .section-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+        margin-top: 6px;
+    }
+
+        .section-title-row h5 {
+            margin: 4px 0 0;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+    .section-panel {
+        border-radius: var(--radius-md);
+        border: 1px solid #e5e5e5;
+        background-color: #ffffff;
+        padding: 16px 16px 10px;
+        margin-bottom: 16px;
+    }
+
+    .table-clean {
+        background-color: #ffffff;
+        border-color: var(--border-color);
+        color: var(--text-main);
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+        .table-clean thead th {
+            background-color: #f1f3f5;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.82rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 10px 8px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+            .table-clean thead th:nth-child(1) {
+                width: 35%;
+                text-align: left;
+            }
+
+            .table-clean thead th:nth-child(2) {
+                width: 18%;
+            }
+
+            .table-clean thead th:nth-child(3) {
+                width: 10%;
+            }
+
+            .table-clean thead th:nth-child(4) {
+                width: 12%;
+            }
+
+            .table-clean thead th:nth-child(5) {
+                width: 13%;
+            }
+
+            .table-clean thead th:nth-child(6) {
+                width: 12%;
+            }
+
+        .table-clean tbody td {
+            border-top: 1px solid #f1f3f5;
+            padding: 10px 8px;
+            vertical-align: middle;
+            font-size: 0.86rem;
+        }
+
+        .table-clean tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .table-clean tbody td:nth-child(1),
+        .table-clean tbody td:nth-child(2) {
+            white-space: normal;
+            word-break: break-word;
+            font-weight: 600;
+        }
+
+    .form-control,
+    .form-select {
+        border-radius: 0.375rem;
+        border: 1px solid var(--border-color);
+        background-color: #ffffff;
+        color: var(--text-main);
+        font-size: 0.86rem;
+        padding: 6px 10px;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+            background-color: #ffffff;
+        }
+
+    .text-danger {
+        font-size: 0.75rem;
+        margin-top: 3px;
+        color: var(--danger) !important;
+    }
+
+    .form-footer-note {
+        margin-top: 10px;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        padding-top: 20px;
+        border-top: 1px solid #e5e5e5;
+        flex-wrap: wrap;
+        margin-top: 4px;
+    }
+
+    .btn-outline-primary {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+
+    @@media (max-width: 768px) {
+        .institution-form-card-inner {
+            padding: 18px 14px 22px;
+        }
+
+        .form-header-modern {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .table-clean thead th:nth-child(1) {
+            width: 45% !important;
+        }
+
+        .table-clean thead th:nth-child(2) {
+            width: 25% !important;
+        }
+    }
+</style>
+
+<div class="institution-form-shell">
+    <div class="container">
+        <div class="institution-form-card">
+            <div class="institution-form-card-inner">
+                <div class="form-header-modern">
+                    <div class="form-header-title">
+                        <div class="form-header-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                            <h4>Administrative Details / Teaching Block</h4>
+                            <span>Configure facilities as per norms</span>
+                        </div>
+                    </div>
+                    <div class="form-header-badge">
+                        <span>Teaching Block</span>
+                    </div>
+                </div>
+
+                <form asp-action="Administrative_teachingBlock" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="section-panel">
+                        <div class="section-title-row">
+                            <div class="section-chip">
+                                <span class="dot"></span>
+                                <span>Facilities Matrix</span>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped align-middle table-clean">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th>Facilities</th>
+                                        <th>Size in Sqft</th>
+                                        <th>Is Available</th>
+                                        <th>No of Rooms</th>
+                                        <th>Size in Sqft </br> Available per room</th>
+                                        <th>Deficiency</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Rows.Count; i++)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @Model.Rows[i].Facilities
+                                                <input type="hidden" asp-for="Rows[@i].Id" />
+                                                <input type="hidden" asp-for="Rows[@i].CollegeCode" />
+                                                <input type="hidden" asp-for="Rows[@i].FacultyCode" />
+                                                <input type="hidden" asp-for="Rows[@i].FacilityId" />
+                                                <input type="hidden" asp-for="Rows[@i].Facilities" />
+                                                <input type="hidden"
+                                                       asp-for="Rows[@i].SizeSqFtAsPerNorms"
+                                                       class="norm-size"
+                                                       data-row-index="@i" />
+                                            </td>
+
+                                            <td class="text-center">
+                                                @Model.Rows[i].SizeSqFtAsPerNorms
+                                            </td>
+
+                                            <td class="text-center">
+                                                <select asp-for="Rows[@i].IsAvailable" class="form-select form-select-sm">
+                                                    <option value="true">Yes</option>
+                                                    <option value="false">No</option>
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Rows[@i].NoOfRooms"
+                                                       class="form-control form-control-sm"
+                                                       autocomplete="off" />
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Rows[@i].SizeSqFtAvailablePerRoom"
+                                                       class="form-control form-control-sm size-available"
+                                                       data-row-index="@i"
+                                                       autocomplete="off" />
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Rows[@i].Deficiency"
+                                                       class="form-control form-control-sm deficiency"
+                                                       data-row-index="@i"
+                                                       readonly />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                        </a>
+                        <div class="d-flex align-items-center gap-2">
+                            <a asp-action="AFF_HostelDetailswithfacilities"
+                               asp-controller="ContinuesAffiliation_Facultybased"
+                               class="btn btn-outline-secondary px-4">
+                                ⬅ Previous
+                            </a>
+                            <button type="submit" class="btn btn-outline-primary px-4">
+                                Save &amp; Proceed ➡
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="form-footer-note">
+                    Values are computed as per current regulatory norms.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function parseNumber(text) {
+            if (!text) return 0;
+            var match = text.toString().match(/[\d.]+/);
+            if (!match) return 0;
+            var n = parseFloat(match[0]);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function recalcRow(i) {
+            var normInput = document.querySelector('input.norm-size[data-row-index="' + i + '"]');
+            var availInput = document.querySelector('input.size-available[data-row-index="' + i + '"]');
+            var defInput = document.querySelector('input.deficiency[data-row-index="' + i + '"]');
+
+            if (!normInput || !availInput || !defInput) return;
+
+            var norm = parseNumber(normInput.value);
+            var avail = parseNumber(availInput.value);
+
+            var diff = avail - norm;
+            if (!isNaN(diff)) {
+                defInput.value = diff.toString();
+            } else {
+                defInput.value = "";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".size-available").forEach(function (inp) {
+                inp.addEventListener("input", function () {
+                    var idx = this.getAttribute("data-row-index");
+                    recalcRow(idx);
+                });
+            });
+
+            document.querySelectorAll(".size-available").forEach(function (inp) {
+                var idx = inp.getAttribute("data-row-index");
+                recalcRow(idx);
+            });
+        });
+    </script>
+}

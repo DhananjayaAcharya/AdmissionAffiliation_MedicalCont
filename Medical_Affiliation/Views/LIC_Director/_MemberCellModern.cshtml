@@ -1,0 +1,118 @@
+﻿@model LICMemberCellViewModel
+
+
+<style>
+    .member-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem; /* ← was missing proper spacing */
+        min-width: 180px;
+        max-width: 260px;
+    }
+
+        .member-cell a.fw-bold {
+            font-size: 0.95rem;
+            line-height: 1.2;
+        }
+
+        .member-cell .mt-1.small { /* inspection date block */
+            line-height: 1.4;
+            margin-top: 0.35rem !important;
+        }
+
+        .member-cell .badge-date {
+            padding: 0.35em 0.6em;
+            font-size: 0.78rem;
+            margin: 0.15rem 0.25rem 0.15rem 0;
+        }
+
+    .text-danger.small.fw-semibold { /* Date Mismatch flag */
+        margin-top: 0.6rem !important;
+        padding: 0.35rem 0.65rem;
+        background: #fef2f4;
+        border-radius: 6px;
+        border: 1px solid #fca5a5;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.82rem;
+    }
+
+
+    .dates-group {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .mismatch-pill {
+        display: inline-flex;
+        align-items: center;
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.32rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 0.4rem;
+    }
+
+    .text-muted:where(.ms-1, .fw-semibold) {
+        opacity: 0.75;
+        font-style: italic;
+    }
+
+    .fw-semibold:where(:contains("₹0.00"), :contains("₹ 0.00")) {
+        color: var(--text-muted);
+        font-weight: 500 !important;
+    }
+</style>
+@if (Model?.Member == null)
+{
+    <span class="text-muted">Not Assigned</span>
+}
+else
+{
+    <div class="member-cell">
+
+        <!-- Member Name -->
+        <a asp-controller="LIC_Director"
+           asp-action="MemberReport"
+           asp-route-memberName="@Model.Member.MemberName"
+           asp-route-collegeCode="@Model.CollegeCode"
+           class="fw-bold text-decoration-none text-primary">
+            @Model.Member.MemberName
+        </a>
+
+        <!-- Inspection Date Section -->
+        <!-- Inside _MemberCellModern.cshtml -->
+        <div class="inspection-dates mt-1 small">
+            <span class="text-muted fw-semibold me-1">
+                <i class="bi bi-calendar-event me-1"></i>Inspection:
+            </span>
+            @if (Model.Member?.InspectionDates?.Any() == true)
+            {
+                <span class="dates-group">
+                    @foreach (var date in Model.Member.InspectionDates)
+                    {
+                        <span class="badge badge-date @(Model.Member.DateMismatchFlag ? "bg-danger" : "bg-success text-white")">
+                            @date.ToString("dd-MM-yy")
+                        </span>
+                    }
+                </span>
+            }
+            else
+            {
+                <span class="text-muted fst-italic">— none —</span>
+            }
+
+            @if (Model.Member?.DateMismatchFlag == true)
+            {
+                <div class="mismatch-pill mt-2">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    Date mismatch
+                </div>
+            }
+        </div>
+    </div>
+}

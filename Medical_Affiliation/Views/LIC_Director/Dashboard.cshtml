@@ -1,0 +1,1778 @@
+﻿@model List<RecentClaimViewModel>
+@{
+    ViewData["Title"] = "LIC Director — Command Centre";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #0A2342;
+            --navy-mid: #0F3460;
+            --navy-lt: #1A4A7A;
+            --gold: #C9A84C;
+            --gold-lt: #E8C97A;
+            --gold-pale: #FBF3DC;
+            --gold-bd: rgba(201,168,76,.25);
+            --surface: #F4F6FA;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --border-dk: #CBD5E1;
+            --t1: #0F172A;
+            --t2: #475569;
+            --t3: #94A3B8;
+            --green: #059669;
+            --green-bg: #ECFDF5;
+            --green-bd: rgba(5,150,105,.2);
+            --amber: #B45309;
+            --amber-bg: #FFFBEB;
+            --amber-bd: rgba(180,83,9,.15);
+            --red: #DC2626;
+            --red-bg: #FEF2F2;
+            --red-bd: rgba(220,38,38,.2);
+            --blue: #1D4ED8;
+            --blue-bg: #EFF6FF;
+            --blue-bd: rgba(29,78,216,.15);
+            --sidebar-w: 240px;
+            --header-h: 60px;
+            --r-sm: 6px;
+            --r-md: 10px;
+            --r-lg: 14px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+            --shadow: 0 4px 16px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+            --ease: cubic-bezier(.4,0,.2,1);
+        }
+
+        html {
+            font-size: 15px;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--t1);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Desktop: fixed shell ── */
+        @@media (min-width: 992px) {
+            body {
+                overflow: hidden;
+                height: 100vh;
+            }
+
+            .shell {
+                display: grid;
+                grid-template-rows: var(--header-h) 1fr;
+                grid-template-columns: var(--sidebar-w) 1fr;
+                grid-template-areas: "hdr hdr" "side main";
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .main-pane {
+                overflow-y: auto;
+                overflow-x: hidden;
+                height: 100%;
+            }
+        }
+
+        @@media (max-width: 991px) {
+            .shell {
+                display: block;
+                width: 100%;
+            }
+        }
+
+        /* ══════════════════════════════════════════
+                   TOPBAR
+                ══════════════════════════════════════════ */
+        .topbar {
+            grid-area: hdr;
+            position: sticky;
+            top: 0;
+            z-index: 300;
+            background: var(--navy);
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            padding: 0 20px 0 0;
+            gap: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.25);
+        }
+
+            .topbar::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 40%, transparent 100%);
+            }
+
+        /* Brand block (same width as sidebar) */
+        .topbar-brand {
+            width: var(--sidebar-w);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            height: 100%;
+            border-right: 1px solid rgba(255,255,255,.07);
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid rgba(201,168,76,.4);
+            flex-shrink: 0;
+        }
+
+        .brand-text-name {
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--gold-lt);
+            letter-spacing: .02em;
+            line-height: 1.2;
+        }
+
+        .brand-text-tag {
+            font-size: .62rem;
+            color: rgba(255,255,255,.3);
+            letter-spacing: .04em;
+        }
+
+        /* Search */
+        .topbar-search {
+            flex: 1;
+            max-width: 340px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: var(--r-sm);
+            padding: 7px 12px;
+            transition: border-color .18s;
+        }
+
+            .topbar-search:focus-within {
+                border-color: rgba(201,168,76,.4);
+            }
+
+            .topbar-search svg {
+                color: rgba(255,255,255,.35);
+                flex-shrink: 0;
+            }
+
+            .topbar-search input {
+                background: none;
+                border: none;
+                outline: none;
+                color: rgba(255,255,255,.85);
+                font-family: 'DM Sans', sans-serif;
+                font-size: .82rem;
+                width: 100%;
+            }
+
+                .topbar-search input::placeholder {
+                    color: rgba(255,255,255,.3);
+                }
+
+        /* Right section */
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(5,150,105,.12);
+            border: 1px solid rgba(5,150,105,.25);
+            border-radius: 99px;
+            font-size: .7rem;
+            font-weight: 600;
+            color: #34D399;
+            white-space: nowrap;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #34D399;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .3
+            }
+        }
+
+        .topbar-icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: var(--r-sm);
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,.6);
+            cursor: pointer;
+            transition: all .18s;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+            .topbar-icon-btn:hover {
+                background: rgba(255,255,255,.12);
+                color: rgba(255,255,255,.9);
+            }
+
+        .notif-pip {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            border: 1.5px solid var(--navy);
+        }
+
+        .topbar-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: var(--r-sm);
+            background: rgba(201,168,76,.15);
+            border: 1px solid rgba(201,168,76,.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--gold-lt);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Hamburger */
+        .ham-btn {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--r-sm);
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,.7);
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        /* ══════════════════════════════════════════
+                   SIDEBAR
+                ══════════════════════════════════════════ */
+        .sidebar {
+            grid-area: side;
+            background: var(--navy);
+            border-right: 1px solid rgba(255,255,255,.07);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 14px 0;
+            transition: transform .3s var(--ease);
+        }
+
+            .sidebar::before {
+                content: '';
+                position: absolute;
+                top: var(--header-h);
+                left: 0;
+                width: var(--sidebar-w);
+                height: 200px;
+                background: radial-gradient(ellipse at 120% 0%, rgba(201,168,76,.1) 0%, transparent 60%);
+                pointer-events: none;
+            }
+
+            .sidebar::-webkit-scrollbar {
+                width: 3px;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,.1);
+                border-radius: 3px;
+            }
+
+        @@media (max-width: 991px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: var(--header-h);
+                height: calc(100vh - var(--header-h));
+                width: var(--sidebar-w);
+                z-index: 400;
+                transform: translateX(-100%);
+                box-shadow: 4px 0 32px rgba(0,0,0,.4);
+            }
+
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .sidebar-backdrop {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,.5);
+                z-index: 350;
+            }
+
+                .sidebar-backdrop.open {
+                    display: block;
+                }
+
+            .ham-btn {
+                display: flex;
+            }
+
+            .topbar-brand {
+                width: auto;
+                border-right: none;
+            }
+
+            .live-pill {
+                display: none;
+            }
+        }
+
+        .nav-section-lbl {
+            font-size: .6rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.22);
+            padding: 10px 14px 5px;
+            margin-top: 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            margin: 2px 8px;
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.55);
+            text-decoration: none;
+            font-size: .84rem;
+            font-weight: 500;
+            transition: all .18s var(--ease);
+            position: relative;
+        }
+
+            .nav-link:hover {
+                background: rgba(255,255,255,.06);
+                color: rgba(255,255,255,.9);
+            }
+
+            .nav-link.active {
+                background: rgba(201,168,76,.14);
+                color: var(--gold-lt);
+                font-weight: 600;
+            }
+
+                .nav-link.active::before {
+                    content: '';
+                    position: absolute;
+                    left: -8px;
+                    top: 20%;
+                    bottom: 20%;
+                    width: 3px;
+                    background: var(--gold);
+                    border-radius: 0 3px 3px 0;
+                }
+
+            .nav-link svg {
+                width: 17px;
+                height: 17px;
+                flex-shrink: 0;
+                opacity: .7;
+            }
+
+            .nav-link.active svg, .nav-link:hover svg {
+                opacity: 1;
+            }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--gold);
+            color: var(--navy);
+            font-size: .6rem;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 99px;
+            min-width: 20px;
+            text-align: center;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: rgba(255,255,255,.07);
+            margin: 8px 14px;
+        }
+
+        .sidebar-foot {
+            margin-top: auto;
+            padding: 8px;
+            border-top: 1px solid rgba(255,255,255,.07);
+        }
+
+        .nav-link.logout {
+            color: rgba(220,38,38,.6);
+        }
+
+            .nav-link.logout svg {
+                color: rgba(220,38,38,.6);
+            }
+
+            .nav-link.logout:hover {
+                background: rgba(220,38,38,.08);
+                color: #FCA5A5;
+            }
+
+                .nav-link.logout:hover svg {
+                    color: #FCA5A5;
+                }
+
+        /* ══════════════════════════════════════════
+                   MAIN PANE
+                ══════════════════════════════════════════ */
+        .main-pane {
+            grid-area: main;
+            padding: 22px 22px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+            .main-pane::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .main-pane::-webkit-scrollbar-thumb {
+                background: var(--border-dk);
+                border-radius: 4px;
+            }
+
+        @@media (max-width: 767px) {
+            .main-pane {
+                padding: 14px 12px 32px;
+            }
+        }
+
+        /* ── Animation ── */
+        .rise {
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .45s var(--ease) forwards;
+        }
+
+        .rise-2 {
+            animation-delay: .07s;
+        }
+
+        .rise-3 {
+            animation-delay: .14s;
+        }
+
+        .rise-4 {
+            animation-delay: .21s;
+        }
+
+        @@keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* ══════════════════════════════════════════
+                   HERO BANNER
+                ══════════════════════════════════════════ */
+        .hero {
+            background: var(--navy);
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: var(--r-lg);
+            padding: 22px 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .hero::before {
+                content: '';
+                position: absolute;
+                right: -40px;
+                top: -40px;
+                width: 220px;
+                height: 220px;
+                background: radial-gradient(circle, rgba(201,168,76,.1) 0%, transparent 65%);
+                pointer-events: none;
+            }
+
+            .hero::after {
+                content: '';
+                position: absolute;
+                left: 30%;
+                bottom: -40px;
+                width: 160px;
+                height: 160px;
+                background: radial-gradient(circle, rgba(5,150,105,.07) 0%, transparent 60%);
+                pointer-events: none;
+            }
+
+        .hero-grid-tex {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+        }
+
+        .hero-left {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .65rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 6px;
+        }
+
+            .hero-eyebrow .bar {
+                display: inline-block;
+                width: 14px;
+                height: 2px;
+                background: var(--gold);
+                border-radius: 2px;
+            }
+
+        .hero-title {
+            font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+            font-weight: 700;
+            color: rgba(255,255,255,.95);
+            letter-spacing: -.025em;
+            line-height: 1.15;
+        }
+
+            .hero-title em {
+                font-style: normal;
+                color: var(--gold-lt);
+            }
+
+        .hero-sub {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .75rem;
+            color: rgba(255,255,255,.35);
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-gold {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--gold);
+            color: var(--navy);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem;
+            font-weight: 700;
+            padding: 8px 18px;
+            border-radius: 99px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .2s var(--ease);
+            box-shadow: 0 4px 14px rgba(201,168,76,.3);
+            white-space: nowrap;
+        }
+
+            .btn-gold:hover {
+                background: var(--gold-lt);
+                color: var(--navy);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(201,168,76,.4);
+            }
+
+        .btn-ghost-dark {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,.06);
+            color: rgba(255,255,255,.65);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 99px;
+            border: 1px solid rgba(255,255,255,.12);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .2s;
+            white-space: nowrap;
+        }
+
+            .btn-ghost-dark:hover {
+                background: rgba(255,255,255,.1);
+                color: rgba(255,255,255,.9);
+            }
+
+        /* ══════════════════════════════════════════
+                   KPI CARDS
+                ══════════════════════════════════════════ */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        @@media (max-width: 1100px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2,1fr);
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2,1fr);
+                gap: 10px;
+            }
+        }
+
+        .kpi-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 18px 18px 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform .22s var(--ease), box-shadow .22s;
+        }
+
+            .kpi-card:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow);
+            }
+
+            .kpi-card::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+            }
+
+            .kpi-card.k-amber::after {
+                background: linear-gradient(90deg, var(--amber), #F59E0B);
+            }
+
+            .kpi-card.k-green::after {
+                background: linear-gradient(90deg, var(--green), #34D399);
+            }
+
+            .kpi-card.k-blue::after {
+                background: linear-gradient(90deg, var(--blue), #60A5FA);
+            }
+
+            .kpi-card.k-navy::after {
+                background: linear-gradient(90deg, var(--navy), var(--navy-lt));
+            }
+
+        .kpi-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ki-amber {
+            background: var(--amber-bg);
+        }
+
+        .ki-green {
+            background: var(--green-bg);
+        }
+
+        .ki-blue {
+            background: var(--blue-bg);
+        }
+
+        .ki-navy {
+            background: rgba(10,35,66,.07);
+        }
+
+        .kpi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 3px 8px;
+            border-radius: 99px;
+            font-size: .64rem;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .kb-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bd);
+        }
+
+        .kb-amber {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bd);
+        }
+
+        .kpi-num {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: -.04em;
+            line-height: 1;
+        }
+
+            .kpi-num.sm {
+                font-size: 1.5rem;
+            }
+
+        .kpi-lbl {
+            font-size: .66rem;
+            font-weight: 600;
+            color: var(--t3);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            margin-top: 3px;
+        }
+
+        @@media (max-width: 480px) {
+            .kpi-num {
+                font-size: 1.6rem;
+            }
+
+                .kpi-num.sm {
+                    font-size: 1.25rem;
+                }
+
+            .kpi-badge {
+                display: none;
+            }
+        }
+
+        /* ══════════════════════════════════════════
+                   LOWER GRID
+                ══════════════════════════════════════════ */
+        .lower-grid {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 14px;
+            min-height: 0;
+        }
+
+        @@media (max-width: 1050px) {
+            .lower-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-col {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+                .side-col > .panel-card {
+                    flex: 1 1 260px;
+                }
+        }
+
+        /* ══════════════════════════════════════════
+                   PANEL CARDS
+                ══════════════════════════════════════════ */
+        .panel-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 13px 18px;
+            background: #FAFBFC;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+            .panel-head.claims-head {
+                border-left: 3px solid var(--navy);
+            }
+
+            .panel-head.qa-head {
+                border-left: 3px solid var(--gold);
+            }
+
+            .panel-head.bar-head {
+                border-left: 3px solid var(--green);
+            }
+
+        .panel-head-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-head-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .phi-navy {
+            background: rgba(10,35,66,.07);
+        }
+
+        .phi-gold {
+            background: rgba(201,168,76,.1);
+        }
+
+        .phi-green {
+            background: var(--green-bg);
+        }
+
+        .panel-title {
+            font-size: .88rem;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: -.01em;
+        }
+
+        .panel-sub {
+            font-size: .68rem;
+            color: var(--t3);
+            margin-top: 1px;
+        }
+
+        .panel-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 9px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            font-size: .64rem;
+            font-weight: 700;
+            color: var(--t3);
+            font-family: 'DM Mono', monospace;
+            white-space: nowrap;
+        }
+
+        /* ══════════════════════════════════════════
+                   CLAIMS LIST
+                ══════════════════════════════════════════ */
+        .claims-scroll {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+            .claims-scroll::-webkit-scrollbar {
+                width: 3px;
+            }
+
+            .claims-scroll::-webkit-scrollbar-thumb {
+                background: var(--border-dk);
+                border-radius: 3px;
+            }
+
+        .claim-row {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            transition: background .12s;
+        }
+
+            .claim-row:last-child {
+                border-bottom: none;
+            }
+
+            .claim-row:hover {
+                background: #F8FAFC;
+            }
+
+        .claim-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .claim-avi-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .claim-avi {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: rgba(10,35,66,.07);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .72rem;
+            color: var(--navy);
+            flex-shrink: 0;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .claim-name {
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--t1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .claim-college {
+            font-size: .7rem;
+            color: var(--t3);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Status chips */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 99px;
+            font-size: .66rem;
+            font-weight: 700;
+            letter-spacing: .03em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .s-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .chip-approved {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bd);
+        }
+
+        .chip-rejected {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bd);
+        }
+
+        .chip-pending {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bd);
+        }
+
+            .chip-pending .s-dot {
+                animation: blink 1.4s ease infinite;
+            }
+
+        @@keyframes blink {
+            0%, 100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .25
+            }
+        }
+
+        .claim-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .claim-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .meta-bit {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: .68rem;
+            color: var(--t3);
+        }
+
+        .claim-amount {
+            font-family: 'DM Mono', monospace;
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--navy);
+            white-space: nowrap;
+        }
+
+        .claim-remark {
+            margin-top: 7px;
+            font-size: .68rem;
+            color: var(--t3);
+            font-style: italic;
+            background: var(--surface);
+            border-left: 2px solid var(--border-dk);
+            padding: 5px 10px;
+            border-radius: 0 var(--r-sm) var(--r-sm) 0;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 48px 20px;
+            color: var(--t3);
+        }
+
+        .empty-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state p {
+            font-size: .875rem;
+            color: var(--t2);
+            font-weight: 500;
+        }
+
+        .empty-state span {
+            font-size: .78rem;
+        }
+
+        /* ══════════════════════════════════════════
+                   SIDE COLUMN
+                ══════════════════════════════════════════ */
+        .side-col {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Quick actions grid */
+        .qa-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 14px;
+        }
+
+        .qa-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            padding: 14px 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            text-decoration: none;
+            color: var(--t2);
+            font-size: .72rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+        }
+
+            .qa-btn:hover {
+                background: var(--card);
+                border-color: var(--border-dk);
+                color: var(--navy);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-sm);
+            }
+
+        .qa-ico {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qa-1 {
+            background: var(--green-bg);
+        }
+
+        .qa-2 {
+            background: var(--amber-bg);
+        }
+
+        .qa-3 {
+            background: var(--blue-bg);
+        }
+
+        .qa-4 {
+            background: var(--red-bg);
+        }
+
+        /* Approval bars */
+        .bars-body {
+            padding: 14px 18px 18px;
+        }
+
+        .bar-row {
+            margin-bottom: 14px;
+        }
+
+        .bar-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .bar-lbl {
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--t2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bar-lbl-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .bar-val {
+            font-family: 'DM Mono', monospace;
+            font-size: .68rem;
+            color: var(--t3);
+            font-weight: 500;
+        }
+
+        .bar-track {
+            height: 6px;
+            background: var(--surface);
+            border-radius: 99px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1s cubic-bezier(.25,.8,.25,1);
+        }
+
+        .bf-green {
+            background: linear-gradient(90deg, var(--green), #34D399);
+        }
+
+        .bf-amber {
+            background: linear-gradient(90deg, var(--amber), #F59E0B);
+        }
+
+        .bf-red {
+            background: linear-gradient(90deg, var(--red), #F87171);
+        }
+
+        .bars-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 14px 0 10px;
+        }
+
+        .bars-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bars-total-lbl {
+            font-size: .72rem;
+            color: var(--t3);
+        }
+
+        .bars-total-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--navy);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar backdrop (mobile) -->
+    <div class="sidebar-backdrop" id="sideBackdrop" onclick="closeSidebar()"></div>
+
+    <div class="shell">
+
+        <!-- ══════════════════════════════════════════
+             TOPBAR
+        ══════════════════════════════════════════ -->
+        <header class="topbar">
+            <button class="ham-btn" onclick="toggleSidebar()" aria-label="Menu">
+                <svg id="hamIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <div class="topbar-brand">
+                <img src="~/images/logo.jpg" alt="Logo" class="brand-logo" />
+                <div>
+                    <div class="brand-text-name">LIC Director</div>
+                    <div class="brand-text-tag">Command Centre</div>
+                </div>
+            </div>
+
+            <div class="topbar-search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" placeholder="Search colleges, claims…" />
+            </div>
+
+            <div class="topbar-right">
+                <div class="live-pill">
+                    <div class="live-dot"></div>
+                    Live
+                </div>
+                <div class="topbar-icon-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span class="notif-pip"></span>
+                </div>
+                <div class="topbar-icon-btn" id="hdrGear" style="display:none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <div class="topbar-avatar">DR</div>
+            </div>
+        </header>
+
+        <!-- ══════════════════════════════════════════
+             SIDEBAR
+        ══════════════════════════════════════════ -->
+        <aside class="sidebar" id="sidebar">
+            <div class="nav-section-lbl">Main</div>
+            <nav>
+                <a class="nav-link active" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Dashboard
+                </a>
+
+                <a class="nav-link" asp-controller="LICInspectionEditMember" asp-action="SEedit">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Inspection Team
+                    @if ((ViewBag.PendingCount ?? 0) > 0)
+                    {
+                        <span class="nav-badge">@(ViewBag.PendingCount ?? 0)</span>
+                    }
+                </a>
+
+                <a class="nav-link" asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    College Claims
+                </a>
+
+                <a class="nav-link" asp-controller="LIC_Director" asp-action="List">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    All Claims
+                </a>
+            </nav>
+
+            <div class="nav-divider"></div>
+
+            <div class="sidebar-foot">
+                <a class="nav-link logout" href="@Url.Action("Logout", "LIC_Director")">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- ══════════════════════════════════════════
+             MAIN PANE
+        ══════════════════════════════════════════ -->
+        <main class="main-pane">
+
+            <!-- HERO -->
+            <div class="hero rise">
+                <div class="hero-grid-tex"></div>
+                <div class="hero-left">
+                    <div class="hero-eyebrow" id="greetLabel">
+                        <span class="bar"></span>
+                        Good day
+                    </div>
+                    <h1 class="hero-title">Welcome back, <em>@(ViewBag.UserName ?? "Director")</em></h1>
+                    <p class="hero-sub">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                        <span id="liveDateStr"></span>
+                        <span style="opacity:.4">&nbsp;·&nbsp;</span>
+                        LIC Inspection &amp; Claims
+                    </p>
+                </div>
+                <div class="hero-actions">
+                    <a asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard" class="btn-gold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                        Inspection Claims
+                    </a>
+                    <button class="btn-ghost-dark">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI GRID -->
+            <div class="kpi-grid">
+                <div class="kpi-card k-amber rise rise-2">
+                    <div class="kpi-top">
+                        <div class="kpi-icon ki-amber">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <span class="kpi-badge kb-amber">Active</span>
+                    </div>
+                    <div class="kpi-num">@(ViewBag.PendingCount ?? 0)</div>
+                    <div class="kpi-lbl">Pending Approvals</div>
+                </div>
+
+                <div class="kpi-card k-green rise rise-2" style="animation-delay:.1s">
+                    <div class="kpi-top">
+                        <div class="kpi-icon ki-green">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                        </div>
+                        <span class="kpi-badge kb-green">Good</span>
+                    </div>
+                    <div class="kpi-num">@(ViewBag.ApprovedCount ?? 0)</div>
+                    <div class="kpi-lbl">Approved Colleges</div>
+                </div>
+
+                <div class="kpi-card k-blue rise rise-2" style="animation-delay:.16s">
+                    <div class="kpi-top">
+                        <div class="kpi-icon ki-blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#1D4ED8" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        </div>
+                        <span class="kpi-badge kb-green">Rate</span>
+                    </div>
+                    <div class="kpi-num">@(ViewBag.ApprovalRate ?? "0")%</div>
+                    <div class="kpi-lbl">Approval Rate</div>
+                </div>
+
+                <div class="kpi-card k-navy rise rise-2" style="animation-delay:.22s">
+                    <div class="kpi-top">
+                        <div class="kpi-icon ki-navy">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#0A2342" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                    </div>
+                    <div class="kpi-num sm">₹@(ViewBag.TotalClaimAmount != null ? ((decimal)ViewBag.TotalClaimAmount / 1000m).ToString("N0") + "K" : "0")</div>
+                    <div class="kpi-lbl">Total Claim Value</div>
+                </div>
+            </div>
+
+            <!-- LOWER GRID -->
+            <div class="lower-grid rise rise-3">
+
+                <!-- Recent Claims panel -->
+                <div class="panel-card">
+                    <div class="panel-head claims-head">
+                        <div class="panel-head-left">
+                            <div class="panel-head-icon phi-navy">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#0A2342" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div>
+                                <div class="panel-title">Recent Claims</div>
+                                <div class="panel-sub">Latest submitted inspection claims</div>
+                            </div>
+                        </div>
+                        <span class="panel-tag">Last 5</span>
+                    </div>
+
+                    <div class="claims-scroll">
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                var status = item.ApprovalStatus ?? "Pending";
+                                var chipCss = status switch
+                                {
+                                    "Approved" => "chip-approved",
+                                    "Rejected" => "chip-rejected",
+                                    _ => "chip-pending"
+                                };
+                                string inits = item.MemberName?.Length > 0
+                                ? item.MemberName.Substring(0, Math.Min(2, item.MemberName.Length)).ToUpper()
+                                : "?";
+
+                                <div class="claim-row">
+                                    <div class="claim-top">
+                                        <div class="claim-avi-wrap">
+                                            <div class="claim-avi">@inits</div>
+                                            <div>
+                                                <div class="claim-name">@(item.MemberName ?? "—")</div>
+                                                <div class="claim-college">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5" /></svg>
+                                                    @(item.CollegeName ?? "Unknown College")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="status-chip @chipCss">
+                                            @if (status == "Approved")
+                                            {
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                            }
+                                            else if (status == "Rejected")
+                                            {
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            }
+                                            else
+                                            {
+                                                <span class="s-dot"></span>
+                                            }
+                                            @status
+                                        </span>
+                                    </div>
+
+                                    <div class="claim-foot">
+                                        <div class="claim-meta">
+                                            @if (item.ModeOfTravel != null)
+                                            {
+                                                <span class="meta-bit">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                                    @item.ModeOfTravel
+                                                </span>
+                                            }
+                                            <span class="meta-bit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                                @(item.CreatedDate?.ToString("dd MMM yyyy") ?? "—")
+                                            </span>
+                                            @if (item.ApprovedDate != null)
+                                            {
+                                                <span class="meta-bit" style="color:var(--green)">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                    @item.ApprovedDate?.ToString("dd MMM yyyy")
+                                                </span>
+                                            }
+                                        </div>
+                                        <div class="claim-amount">₹@((item.TotalCost ?? 0m).ToString("N0", new System.Globalization.CultureInfo("en-IN")))</div>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.Remarks))
+                                    {
+                                        <div class="claim-remark">@item.Remarks</div>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+                                </div>
+                                <p>No Recent Claims</p>
+                                <span>Claims will appear here once submitted.</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Side Column -->
+                <div class="side-col">
+
+                    <!-- Quick Actions -->
+                    <div class="panel-card">
+                        <div class="panel-head qa-head">
+                            <div class="panel-head-left">
+                                <div class="panel-head-icon phi-gold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                </div>
+                                <div>
+                                    <div class="panel-title">Quick Actions</div>
+                                    <div class="panel-sub">Shortcuts</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="qa-grid">
+                            <a asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard" class="qa-btn">
+                                <div class="qa-ico qa-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                                </div>
+                                College Claims
+                            </a>
+                            <a asp-controller="LIC_Director" asp-action="List" class="qa-btn">
+                                <div class="qa-ico qa-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                                </div>
+                                All Claims
+                            </a>
+                            <a href="#" class="qa-btn">
+                                <div class="qa-ico qa-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1D4ED8" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                </div>
+                                Reports
+                            </a>
+                            <a href="#" class="qa-btn">
+                                <div class="qa-ico qa-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+                                Rejected
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Approval Status bars -->
+                    <div class="panel-card" style="flex:1">
+                        <div class="panel-head bar-head">
+                            <div class="panel-head-left">
+                                <div class="panel-head-icon phi-green">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                                </div>
+                                <div>
+                                    <div class="panel-title">Approval Status</div>
+                                    <div class="panel-sub">Claims breakdown</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bars-body">
+                            @{
+                                int pend = ViewBag.PendingCount != null ? (int)ViewBag.PendingCount : 0;
+                                int appr = ViewBag.ApprovedCount != null ? (int)ViewBag.ApprovedCount : 0;
+                                int rejc = ViewBag.RejectedCount != null ? (int)ViewBag.RejectedCount : 0;
+                                int tot = pend + appr + rejc;
+                                int pA = tot > 0 ? (int)Math.Round(appr * 100.0 / tot) : 0;
+                                int pP = tot > 0 ? (int)Math.Round(pend * 100.0 / tot) : 0;
+                                int pR = tot > 0 ? (int)Math.Round(rejc * 100.0 / tot) : 0;
+                            }
+                            <div class="bar-row">
+                                <div class="bar-info">
+                                    <span class="bar-lbl">
+                                        <span class="bar-lbl-dot" style="background:var(--green)"></span>
+                                        Approved
+                                    </span>
+                                    <span class="bar-val">@appr (@pA%)</span>
+                                </div>
+                                <div class="bar-track"><div class="bar-fill bf-green" style="width:@pA%"></div></div>
+                            </div>
+                            <div class="bar-row">
+                                <div class="bar-info">
+                                    <span class="bar-lbl">
+                                        <span class="bar-lbl-dot" style="background:var(--amber)"></span>
+                                        Pending
+                                    </span>
+                                    <span class="bar-val">@pend (@pP%)</span>
+                                </div>
+                                <div class="bar-track"><div class="bar-fill bf-amber" style="width:@pP%"></div></div>
+                            </div>
+                            <div class="bar-row">
+                                <div class="bar-info">
+                                    <span class="bar-lbl">
+                                        <span class="bar-lbl-dot" style="background:var(--red)"></span>
+                                        Rejected
+                                    </span>
+                                    <span class="bar-val">@rejc (@pR%)</span>
+                                </div>
+                                <div class="bar-track"><div class="bar-fill bf-red" style="width:@pR%"></div></div>
+                            </div>
+                            <div class="bars-divider"></div>
+                            <div class="bars-total">
+                                <span class="bars-total-lbl">Total Colleges</span>
+                                <span class="bars-total-num">@tot</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /side-col -->
+            </div><!-- /lower-grid -->
+
+        </main>
+    </div><!-- /shell -->
+
+    <script>
+        // Date + greeting
+        const d = new Date();
+        document.getElementById('liveDateStr').textContent =
+            d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'long', year:'numeric' });
+        const h = d.getHours();
+        const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+        document.getElementById('greetLabel').innerHTML =
+            `<span class="bar"></span>${greet}`;
+
+        // Animate bars on load
+        document.querySelectorAll('.bar-fill').forEach(b => {
+            const w = b.style.width;
+            b.style.width = '0%';
+            setTimeout(() => { b.style.width = w; }, 400);
+        });
+
+        // Gear icon on wider screens
+        if (window.innerWidth >= 640) {
+            document.getElementById('hdrGear').style.display = 'flex';
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const s  = document.getElementById('sidebar');
+            const bd = document.getElementById('sideBackdrop');
+            const ic = document.getElementById('hamIcon');
+            const open = s.classList.toggle('open');
+            bd.classList.toggle('open', open);
+            ic.innerHTML = open
+                ? '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>'
+                : '<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>';
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sideBackdrop').classList.remove('open');
+            document.getElementById('hamIcon').innerHTML =
+                '<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>';
+            document.body.style.overflow = '';
+        }
+
+        document.querySelectorAll('.nav-link').forEach(l =>
+            l.addEventListener('click', () => { if (window.innerWidth < 992) closeSidebar(); })
+        );
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 992) closeSidebar();
+            const gear = document.getElementById('hdrGear');
+            if (gear) gear.style.display = window.innerWidth >= 640 ? 'flex' : 'none';
+        });
+    </script>
+
+</body>
+</html>

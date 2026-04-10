@@ -1,0 +1,1289 @@
+﻿@model MedicalVm
+
+@{
+    ViewData["Title"] = "Trust Institution Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trust Institution Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --ink: #0f1923;
+            --ink-mid: #2e3d4f;
+            --ink-muted: #6b7a8d;
+            --border: #d4dae3;
+            --bg: #f4f6f9;
+            --surface: #ffffff;
+            --accent: #1a4c8b;
+            --accent-lt: #e8edf7;
+            --danger: #c0392b;
+            --gold: #c9a84c;
+            --radius: 10px;
+            --shadow: 0 2px 16px rgba(15,25,35,.07);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* ── PAGE HEADER ───────────────────────────────────── */
+        .page-header {
+            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+            padding: 1rem 2rem .6rem;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            z-index: 5;
+            gap: 18px;
+            border-bottom: 3px solid var(--gold);
+
+        }
+
+            .page-header .emblem {
+                width: 54px;
+                height: 54px;
+                border: 2px solid var(--gold);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+                .page-header .emblem i {
+                    color: var(--gold);
+                    font-size: 22px;
+                }
+
+        .page-header-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #fff;
+            letter-spacing: .02em;
+        }
+
+        .page-header-text p {
+            font-size: .78rem;
+            color: rgba(255,255,255,.55);
+            margin-top: 3px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        /* ── STEPPER ───────────────────────────────────────── */
+        .stepper-wrap {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 40px;
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .75rem;
+            font-weight: 500;
+            color: var(--ink-muted);
+            white-space: nowrap;
+        }
+
+            .step.active {
+                color: var(--accent);
+            }
+
+            .step.done {
+                color: #2ecc71;
+            }
+
+            .step .dot {
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                border: 2px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: .7rem;
+                font-weight: 600;
+                background: var(--surface);
+            }
+
+            .step.active .dot {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+
+            .step.done .dot {
+                background: #2ecc71;
+                border-color: #2ecc71;
+                color: #fff;
+            }
+
+        .step-line {
+            flex: 1;
+            min-width: 24px;
+            height: 1px;
+            background: var(--border);
+            margin: 0 6px;
+        }
+
+        /* ── ALERTS ────────────────────────────────────────── */
+        .alert {
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            font-size: .82rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #eafaf1;
+            border: 1px solid #a9dfbf;
+            color: #1e7e4e;
+        }
+
+        .alert-danger {
+            background: #fdf3f2;
+            border: 1px solid rgba(192,57,43,.35);
+            color: #7b1d1d;
+        }
+
+        /* ── MAIN WRAP ─────────────────────────────────────── */
+        .form-wrap {
+            max-width: 1240px;
+            margin: 32px auto;
+            padding: 6rem 24px 60px;
+        }
+
+        /* ── SECTION CARDS ─────────────────────────────────── */
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+            animation: fadeUp .35s ease both;
+        }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-card:nth-child(1) {
+            animation-delay: .04s;
+        }
+
+        .section-card:nth-child(2) {
+            animation-delay: .08s;
+        }
+
+        .section-card:nth-child(3) {
+            animation-delay: .12s;
+        }
+
+        .section-card:nth-child(4) {
+            animation-delay: .16s;
+        }
+
+        .section-card:nth-child(5) {
+            animation-delay: .20s;
+        }
+
+        .section-card:nth-child(6) {
+            animation-delay: .24s;
+        }
+
+        .section-card:nth-child(7) {
+            animation-delay: .28s;
+        }
+
+        .section-card:nth-child(8) {
+            animation-delay: .32s;
+        }
+
+        .section-header {
+            padding: 13px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .section-header .icon-wrap {
+                width: 30px;
+                height: 30px;
+                border-radius: 7px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+            }
+
+            .section-header h2 {
+                font-size: .82rem;
+                font-weight: 600;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+            }
+
+            .section-header .sh-sub {
+                font-size: .72rem;
+                color: var(--ink-muted);
+                margin-left: auto;
+            }
+
+        /* colour themes */
+        .sh-blue .icon-wrap {
+            background: #e8edf7;
+            color: #1a4c8b;
+        }
+
+        .sh-blue h2 {
+            color: #1a4c8b;
+        }
+
+        .sh-slate .icon-wrap {
+            background: #eef0f3;
+            color: #3d5166;
+        }
+
+        .sh-slate h2 {
+            color: #3d5166;
+        }
+
+        .sh-teal .icon-wrap {
+            background: #e3f4f4;
+            color: #1a7f7a;
+        }
+
+        .sh-teal h2 {
+            color: #1a7f7a;
+        }
+
+        .sh-green .icon-wrap {
+            background: #e7f6ee;
+            color: #1e7e4e;
+        }
+
+        .sh-green h2 {
+            color: #1e7e4e;
+        }
+
+        .sh-amber .icon-wrap {
+            background: #fdf3e0;
+            color: #a0660a;
+        }
+
+        .sh-amber h2 {
+            color: #a0660a;
+        }
+
+        .sh-rose .icon-wrap {
+            background: #fdeef0;
+            color: #b02a37;
+        }
+
+        .sh-rose h2 {
+            color: #b02a37;
+        }
+
+        .sh-indigo .icon-wrap {
+            background: #eeecfb;
+            color: #4338ca;
+        }
+
+        .sh-indigo h2 {
+            color: #4338ca;
+        }
+
+        .sh-dark .icon-wrap {
+            background: #eaebee;
+            color: #2d3748;
+        }
+
+        .sh-dark h2 {
+            color: #2d3748;
+        }
+
+        .section-body {
+            padding: 20px;
+        }
+
+        /* ── FIELD GRID ────────────────────────────────────── */
+        .fg {
+            display: grid;
+            gap: 14px;
+        }
+
+        .fg-1 {
+            grid-template-columns: 1fr;
+        }
+
+        .fg-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .fg-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .fg-4 {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        @@media (max-width: 768px) {
+            .fg-2, .fg-3, .fg-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--ink-mid);
+            margin-bottom: 5px;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+
+            label i {
+                color: var(--ink-muted);
+                margin-right: 4px;
+                font-size: .7rem;
+            }
+
+            label .req {
+                color: var(--danger);
+                margin-left: 2px;
+            }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="url"],
+        input[type="date"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .85rem;
+            color: var(--ink);
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 8px 12px;
+            transition: border-color .18s, box-shadow .18s, background .18s;
+            outline: none;
+        }
+
+            input:focus, select:focus, textarea:focus {
+                border-color: var(--accent);
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+            }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a8d' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        input[readonly] {
+            color: var(--ink-muted);
+            cursor: not-allowed;
+            background: #f0f2f5;
+        }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: .7rem;
+            margin-top: 3px;
+            display: block;
+        }
+
+        /* checkbox / radio */
+        .check-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 8px 0 4px;
+        }
+
+        .check-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .82rem;
+            font-weight: 500;
+            color: var(--ink-mid);
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+            .check-label input[type="checkbox"],
+            .check-label input[type="radio"] {
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+                accent-color: var(--accent);
+                border-radius: 4px;
+                padding: 0;
+            }
+
+        .flags-box {
+            background: #f8f9fc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-top: 4px;
+        }
+
+        .flags-box-title {
+            font-size: .7rem;
+            font-weight: 600;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 10px;
+        }
+
+        /* file upload rows */
+        .file-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+            .file-row input[type="file"] {
+                flex: 1;
+            }
+
+        .btn-view {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 7px 12px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--ink-mid);
+            text-decoration: none;
+            transition: all .16s;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+            .btn-view:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: var(--accent-lt);
+            }
+
+        /* file already uploaded indicator */
+        .file-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .7rem;
+            font-weight: 600;
+            color: #1e7e4e;
+            background: #eafaf1;
+            border: 1px solid #a9dfbf;
+            border-radius: 20px;
+            padding: 3px 10px;
+            margin-top: 5px;
+        }
+
+        /* validation summary */
+        .val-summary {
+            border-radius: var(--radius);
+            border: 1px solid rgba(192,57,43,.35);
+            background: #fdf3f2;
+            color: #7b1d1d;
+            padding: 12px 16px;
+            font-size: .8rem;
+            margin-bottom: 16px;
+        }
+
+        /* ── FOOTER ACTIONS ────────────────────────────────── */
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 0 0;
+            border-top: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        .form-footer-note {
+            font-size: .75rem;
+            color: var(--ink-muted);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: .83rem;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 9px 24px;
+            cursor: pointer;
+            letter-spacing: .03em;
+            border: none;
+            transition: all .18s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--ink-muted);
+        }
+
+            .btn-ghost:hover {
+                border-color: var(--ink-muted);
+                color: var(--ink);
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a4c8b, #1564c0);
+            color: #fff;
+            box-shadow: 0 3px 14px rgba(26,76,139,.3);
+        }
+
+            .btn-primary:hover {
+                box-shadow: 0 5px 20px rgba(26,76,139,.4);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:active {
+                transform: translateY(0);
+            }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="emblem">
+            <i class="fas fa-hospital"></i>
+        </div>
+        <div class="page-header-text">
+            <h1>Trust Institution Details</h1>
+            @* <p>RGUHS · Affiliation Portal </p> *@
+        </div>
+    </div>
+
+    <!-- STEPPER -->
+    @* <div class="stepper-wrap">
+        <div class="step done">
+            <div class="dot"><i class="fas fa-check" style="font-size:.6rem"></i></div>
+            Institution Info
+        </div>
+        <div class="step-line"></div>
+        <div class="step active">
+            <div class="dot">2</div>
+            Trust Details
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="dot">3</div>
+            Infrastructure
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="dot">4</div>
+            Review &amp; Submit
+        </div>
+    </div> *@
+
+    <!-- FORM BODY -->
+    <div class="form-wrap">
+
+        @* Success / Error TempData alerts *@
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-circle-check"></i> @TempData["Success"]
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-circle-exclamation"></i> @TempData["Error"]
+            </div>
+        }
+
+        <div asp-validation-summary="ModelOnly" class="val-summary text-danger"></div>
+
+        <form asp-action="Aff_InstituteDetails"
+              asp-controller="ContinuesAffiliation_Facultybased"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="CollegeCode" type="hidden" />
+            <input asp-for="FacultyCode" type="hidden" />
+            <input asp-for="InstitutionId" type="hidden" />
+
+            <!-- ① Basic Details -->
+            <div class="section-card">
+                <div class="section-header sh-blue">
+                    <div class="icon-wrap"><i class="fas fa-building-columns"></i></div>
+                    <h2>Basic Institution Details</h2>
+                    <span class="sh-sub">Core organisational information</span>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-2">
+                        <div>
+                            <label asp-for="TypeOfInstitution">
+                                <i class="fas fa-building-columns"></i>Type of Institution <span class="req">*</span>
+                            </label>
+                            <select asp-for="TypeOfInstitution"
+                                    asp-items="Model.TypeOfInstitutionList ?? new List<SelectListItem>()">
+                                <option value="">— Select Type —</option>
+                            </select>
+                            <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="CollegeStatus">
+                                <i class="fas fa-circle-info"></i>College Status
+                            </label>
+                            <input asp-for="CollegeStatus" />
+                            <span asp-validation-for="CollegeStatus" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="fg fg-1" style="margin-top:14px;">
+                        <div>
+                            <label asp-for="NameOfInstitution">
+                                <i class="fas fa-clinic-medical"></i>Name of Institution
+                            </label>
+                            <input asp-for="NameOfInstitution" readonly />
+                            <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="fg fg-2" style="margin-top:14px;">
+                        <div>
+                            <label asp-for="GovAutonomousCertNumber">
+                                <i class="fas fa-certificate"></i>Gov Autonomous Cert Number
+                            </label>
+                            <input asp-for="GovAutonomousCertNumber" />
+                        </div>
+                        <div>
+                            <label asp-for="KncCertificateNumber">
+                                <i class="fas fa-award"></i>KNC Certificate Number
+                            </label>
+                            <input asp-for="KncCertificateNumber" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ② Address & Geography -->
+            <div class="section-card">
+                <div class="section-header sh-slate">
+                    <div class="icon-wrap"><i class="fas fa-map-location-dot"></i></div>
+                    <h2>Address &amp; Geography</h2>
+                    <span class="sh-sub">Campus location</span>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-1">
+                        <div>
+                            <label asp-for="AddressOfInstitution">
+                                <i class="fas fa-map"></i>Address of Institution <span class="req">*</span>
+                            </label>
+                            <textarea asp-for="AddressOfInstitution" rows="3"></textarea>
+                            <span asp-validation-for="AddressOfInstitution" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="fg fg-3" style="margin-top:14px;">
+                        <div>
+                            <label asp-for="VillageTownCity">
+                                <i class="fas fa-city"></i>Village / Town / City
+                            </label>
+                            <input asp-for="VillageTownCity" />
+                            <span asp-validation-for="VillageTownCity" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Taluk">
+                                <i class="fas fa-layer-group"></i>Taluk
+                            </label>
+                            <input asp-for="Taluk" />
+                            <span asp-validation-for="Taluk" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="District">
+                                <i class="fas fa-map"></i>District
+                            </label>
+                            <input asp-for="District" />
+                            <span asp-validation-for="District" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ③ Contact & Communication -->
+            <div class="section-card">
+                <div class="section-header sh-teal">
+                    <div class="icon-wrap"><i class="fas fa-phone-volume"></i></div>
+                    <h2>Contact &amp; Communication</h2>
+                    <span class="sh-sub">Primary communication channels</span>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-3">
+                        <div>
+                            <label asp-for="PinCode"><i class="fas fa-envelope-open-text"></i>PIN Code</label>
+                            <input asp-for="PinCode" />
+                            <span asp-validation-for="PinCode" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="MobileNumber"><i class="fas fa-mobile-screen"></i>Mobile Number</label>
+                            <input asp-for="MobileNumber" />
+                            <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="StdCode"><i class="fas fa-phone"></i>STD Code</label>
+                            <input asp-for="StdCode" />
+                        </div>
+                        <div>
+                            <label asp-for="Fax"><i class="fas fa-fax"></i>Fax</label>
+                            <input asp-for="Fax" />
+                        </div>
+                        <div>
+                            <label asp-for="AltLandlineOrMobile"><i class="fas fa-phone-volume"></i>Alt Landline / Mobile</label>
+                            <input asp-for="AltLandlineOrMobile" />
+                        </div>
+                        <div>
+                            <label asp-for="AcademicYearStarted"><i class="fas fa-calendar-alt"></i>Academic Year Started</label>
+                            <input asp-for="AcademicYearStarted" />
+                        </div>
+                        <div>
+                            <label asp-for="EmailId"><i class="fas fa-envelope"></i>Email ID <span class="req">*</span></label>
+                            <input asp-for="EmailId" type="email" />
+                            <span asp-validation-for="EmailId" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="AltEmailId"><i class="fas fa-envelope-circle-check"></i>Alternate Email ID</label>
+                            <input asp-for="AltEmailId" type="email" />
+                        </div>
+                        <div>
+                            <label asp-for="Website"><i class="fas fa-globe"></i>Website</label>
+                            <input asp-for="Website" type="url" placeholder="https://" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ④ Trust / Society Details -->
+            <div class="section-card">
+                <div class="section-header sh-amber">
+                    <div class="icon-wrap"><i class="fas fa-shield-halved"></i></div>
+                    <h2>Trust / Society Details</h2>
+                    <span class="sh-sub">Governing body information</span>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-2">
+                        <div>
+                            <label asp-for="TrustName"><i class="fas fa-landmark"></i>Trust Name</label>
+                            <input asp-for="TrustName" />
+                        </div>
+                        <div>
+                            <label asp-for="PresidentName"><i class="fas fa-user-tie"></i>President Name</label>
+                            <input asp-for="PresidentName" />
+                        </div>
+                        <div>
+                            <label asp-for="AadhaarNumber"><i class="fas fa-id-card"></i>Aadhaar Number</label>
+                            <input asp-for="AadhaarNumber" />
+                        </div>
+                        <div>
+                            <label asp-for="PANNumber"><i class="fas fa-address-card"></i>PAN Number</label>
+                            <input asp-for="PANNumber" />
+                        </div>
+                        <div>
+                            <label asp-for="RegistrationNumber"><i class="fas fa-file-contract"></i>Registration Number</label>
+                            <input asp-for="RegistrationNumber" />
+                        </div>
+                        <div>
+                            <label asp-for="RegistrationDate"><i class="fas fa-calendar-check"></i>Registration Date</label>
+                            <input asp-for="RegistrationDate" type="date" />
+                        </div>
+                        <div>
+                            <label asp-for="ExistingTrustName"><i class="fas fa-clock-rotate-left"></i>Existing Trust Name</label>
+                            <input asp-for="ExistingTrustName" />
+                        </div>
+                        <div>
+                            <label asp-for="GOKObtainedTrustName"><i class="fas fa-certificate"></i>GOK Obtained Trust Name</label>
+                            <input asp-for="GOKObtainedTrustName" />
+                        </div>
+                        <div>
+                            <label asp-for="CategoryOfOrganisation"><i class="fas fa-layer-group"></i>Category of Organisation</label>
+                            <input asp-for="CategoryOfOrganisation" />
+                        </div>
+                    </div>
+
+                    <!-- Trust flags -->
+                    <div class="flags-box" style="margin-top:16px;">
+                        <p class="flags-box-title">Trust Flags</p>
+                        <div class="check-group">
+                            <label class="check-label">
+                                <input asp-for="Amendments" type="checkbox" />
+                                Amendments
+                            </label>
+                            <label class="check-label">
+                                <input asp-for="ChangesInTrustName" type="checkbox" value="true" />
+                                Changes in Trust Name
+                            </label>
+                            <label class="check-label">
+                                <input asp-for="IsMinorityInstitution" type="checkbox" />
+                                Minority Institution
+                            </label>
+                            <label class="check-label">
+                                <input asp-for="IsRuralInstitution" type="checkbox" />
+                                Rural Institution
+                            </label>
+                            <label class="check-label">
+                                <input asp-for="OtherNursingCollegeInCity" type="checkbox" value="true" />
+                                Other Nursing College in City
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Physiotherapy radio -->
+                    <div style="margin-top:14px;">
+                        <label style="margin-bottom:8px;">
+                            <i class="fas fa-wheelchair"></i>Other Physiotherapy College in City
+                        </label>
+                        <div class="check-group">
+                            <label class="check-label">
+                                <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="true" id="OtherPhysioYes" />
+                                Yes
+                            </label>
+                            <label class="check-label">
+                                <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="false" id="OtherPhysioNo" />
+                                No
+                            </label>
+                        </div>
+                        <span asp-validation-for="OtherPhysiotherapyCollegeInCity" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ⑤ Contact Person -->
+            <div class="section-card">
+                <div class="section-header sh-green">
+                    <div class="icon-wrap"><i class="fas fa-user"></i></div>
+                    <h2>Contact Person</h2>
+                    <span class="sh-sub">Designated liaison</span>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-3">
+                        <div>
+                            <label asp-for="ContactPersonName"><i class="fas fa-user"></i>Full Name</label>
+                            <input asp-for="ContactPersonName" />
+                        </div>
+                        <div>
+                            <label asp-for="ContactPersonRelation"><i class="fas fa-link"></i>Relation</label>
+                            <input asp-for="ContactPersonRelation" />
+                        </div>
+                        <div>
+                            <label asp-for="ContactPersonMobile"><i class="fas fa-mobile"></i>Mobile</label>
+                            <input asp-for="ContactPersonMobile" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ⑥ Academics & Administration -->
+            <div class="section-card">
+                <div class="section-header sh-indigo">
+                    <div class="icon-wrap"><i class="fas fa-book-medical"></i></div>
+                    <h2>Academics &amp; Administration</h2>
+                    <span class="sh-sub">Course and leadership details</span>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-1">
+                        <div>
+                            <label asp-for="CoursesAppliedText"><i class="fas fa-book-medical"></i>Courses Applied</label>
+                            <textarea asp-for="CoursesAppliedText" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="fg fg-2" style="margin-top:14px;">
+                        <div>
+                            <label asp-for="HeadOfInstitutionName"><i class="fas fa-user-md"></i>Head of Institution Name</label>
+                            <input asp-for="HeadOfInstitutionName" />
+                        </div>
+                        <div>
+                            <label asp-for="HeadOfInstitutionAddress"><i class="fas fa-address-book"></i>Head of Institution Address</label>
+                            <textarea asp-for="HeadOfInstitutionAddress" rows="2"></textarea>
+                        </div>
+                        <div>
+                            <label asp-for="FinancingAuthorityName"><i class="fas fa-indian-rupee-sign"></i>Financing Authority Name</label>
+                            <input asp-for="FinancingAuthorityName" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ⑦ Documents Upload -->
+            <div class="section-card">
+                <div class="section-header sh-dark">
+                    <div class="icon-wrap"><i class="fas fa-folder-open"></i></div>
+                    <h2>Upload Documents</h2>
+                    <span class="sh-sub">Supporting regulatory documents</span>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-2">
+
+                        @* Gov Autonomous Certificate *@
+                        <div>
+                            <label><i class="fas fa-file-shield"></i>Gov Autonomous Certificate</label>
+                            <div class="file-row">
+                                <input id="GovAutonomousCertFile" name="GovAutonomousCertFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadGovAutonomousCert"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* Gov Council Membership *@
+                        <div>
+                            <label><i class="fas fa-users-gear"></i>Gov Council Membership</label>
+                            <div class="file-row">
+                                <input id="GovCouncilMembershipFile" name="GovCouncilMembershipFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadGovCouncilMembership"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* GOK Order Existing Courses *@
+                        <div>
+                            <label><i class="fas fa-file-lines"></i>GOK Order — Existing Courses</label>
+                            <div class="file-row">
+                                <input id="GokOrderExistingCoursesFile" name="GokOrderExistingCoursesFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadGokOrderExistingCourses"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* First Affiliation Notification *@
+                        <div>
+                            <label><i class="fas fa-file-signature"></i>First Affiliation Notification</label>
+                            <div class="file-row">
+                                <input id="FirstAffiliationNotifFile" name="FirstAffiliationNotifFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadFirstAffiliationNotif"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* Continuation Affiliation *@
+                        <div>
+                            <label><i class="fas fa-rotate"></i>Continuation Affiliation</label>
+                            <div class="file-row">
+                                <input id="ContinuationAffiliationFile" name="ContinuationAffiliationFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadContinuationAffiliation"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* KNC Certificate *@
+                        <div>
+                            <label><i class="fas fa-medal"></i>KNC Certificate</label>
+                            <div class="file-row">
+                                <input id="KncCertificateFile" name="KncCertificateFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadKncCertificate"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* Amended Document *@
+                        <div>
+                            <label><i class="fas fa-file-pen"></i>Amended Document</label>
+                            <div class="file-row">
+                                <input id="AmendedDoc" name="AmendedDoc" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadAmendedDoc"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* Aadhaar File *@
+                        <div>
+                            <label><i class="fas fa-id-card-clip"></i>Aadhaar File</label>
+                            <div class="file-row">
+                                <input id="AadhaarFile" name="AadhaarFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadAadhaarFile"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* PAN File *@
+                        <div>
+                            <label><i class="fas fa-credit-card"></i>PAN File</label>
+                            <div class="file-row">
+                                <input id="PANFile" name="PANFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadPANFile"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* Bank Statement *@
+                        <div>
+                            <label><i class="fas fa-file-invoice-dollar"></i>Bank Statement</label>
+                            <div class="file-row">
+                                <input id="BankStatementFile" name="BankStatementFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadBankStatement"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* Registration Certificate *@
+                        <div>
+                            <label><i class="fas fa-file-circle-check"></i>Registration Certificate</label>
+                            <div class="file-row">
+                                <input id="RegistrationCertificateFile" name="RegistrationCertificateFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadRegistrationCertificate"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* Registered Trust Member Details *@
+                        <div>
+                            <label><i class="fas fa-people-group"></i>Registered Trust Member Details</label>
+                            <div class="file-row">
+                                <input id="RegisteredTrustMemberDetails" name="RegisteredTrustMemberDetails" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadRegisteredTrustMemberDetails"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                        @* Audit Statement *@
+                        <div>
+                            <label><i class="fas fa-chart-line"></i>Audit Statement</label>
+                            <div class="file-row">
+                                <input id="AuditStatementFile" name="AuditStatementFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadAuditStatement"
+                                       asp-controller="CollegeBasicDetails"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                            </div>
+                            @if (Model.InstitutionId > 0)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER ACTIONS -->
+            <div class="form-footer">
+                <a asp-action="Institution_Details"
+                   asp-controller="ContinuesAffiliation_Facultybased"
+                   class="btn btn-ghost">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-floppy-disk"></i> Save &amp; Proceed
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+            <p class="form-footer-note">All fields are validated as per RGUHS affiliation norms.</p>
+
+        </form>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+</body>
+</html>

@@ -1,0 +1,126 @@
+﻿@model List<CollegeCourseFreezeViewModel>
+
+<div class="container bg-white p-4 rounded shadow">
+
+    <!-- Header -->
+    <h2 class="mb-4 text-center">Faculty Wise College Course Freeze</h2>
+    <div class="text-end">
+
+    <form asp-controller="Admin" asp-action="Logout" method="post" class="mb-0">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-danger">Logout</button>
+    </form>
+    </div>
+
+    <!-- Faculty Dropdown -->
+    <form method="get" asp-action="FacultyWiseCollegeDetailsFreeze">
+        <div class="mb-3">
+            <label class="form-label fw-bold">Select Faculty</label>
+            <select name="facultyId" asp-items="ViewBag.Faculties" class="form-select" onchange="this.form.submit()">
+                <option value="">-- Select Faculty --</option>
+            </select>
+        </div>
+    </form>
+
+    <!-- College Dropdown -->
+    @if (((IEnumerable<SelectListItem>)ViewBag.Colleges).Any())
+    {
+        <form method="get" asp-action="FacultyWiseCollegeDetailsFreeze">
+            <input type="hidden" name="facultyId" value="@Context.Request.Query["facultyId"]" />
+            <div class="mb-3">
+                <label class="form-label fw-bold">Select College</label>
+                <select name="collegeCode" asp-items="ViewBag.Colleges" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Select College --</option>
+                </select>
+            </div>
+        </form>
+    }
+
+    <!-- Course Level Dropdown -->
+    @if (ViewBag.CourseLevels != null && ((IEnumerable<SelectListItem>)ViewBag.CourseLevels).Any())
+    {
+        <form method="get" asp-action="FacultyWiseCollegeDetailsFreeze">
+            <input type="hidden" name="facultyId" value="@Context.Request.Query["facultyId"]" />
+            <input type="hidden" name="collegeCode" value="@Context.Request.Query["collegeCode"]" />
+            <div class="mb-3">
+                <label class="form-label fw-bold">Select Course Level</label>
+                <select name="courseLevel" asp-items="ViewBag.CourseLevels" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Select Course Level --</option>
+                </select>
+            </div>
+        </form>
+    }
+
+    <!-- Course List -->
+    @if (Model != null && Model.Any())
+    {
+        <h4 class="mb-3 text-primary">Courses for @Model.First().collegeName</h4>
+
+        <!-- Bulk Freeze/Unfreeze -->
+        <div class="mb-3 d-flex gap-3">
+            <form asp-action="ToggleFreezeAll" method="post">
+                <input type="hidden" name="collegeCode" value="@Model.First().collegeCode" />
+                <input type="hidden" name="facultyId" value="@Context.Request.Query["facultyId"]" />
+                <input type="hidden" name="courseLevel" value="@Context.Request.Query["courseLevel"]" />
+                <input type="hidden" name="freezeFlag" value="true" />
+                <button type="submit" class="btn btn-success btn-sm">✅ Freeze All</button>
+            </form>
+
+            <form asp-action="ToggleFreezeAll" method="post">
+                <input type="hidden" name="collegeCode" value="@Model.First().collegeCode" />
+                <input type="hidden" name="facultyId" value="@Context.Request.Query["facultyId"]" />
+                <input type="hidden" name="courseLevel" value="@Context.Request.Query["courseLevel"]" />
+                <input type="hidden" name="freezeFlag" value="false" />
+                <button type="submit" class="btn btn-danger btn-sm">❌ Unfreeze All</button>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Course Name</th>
+                    <th>Course Code</th>
+                    <th>
+                        Freeze Status
+                        <!-- Select All / Deselect All -->
+                        <input type="checkbox" id="selectAll" class="form-check-input ms-2" />
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.CourseName</td>
+                        <td>@item.CourseCode</td>
+                        <td>
+                            <form asp-action="ToggleFreeze" method="post" class="freeze-form d-inline">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <input type="hidden" name="facultyId" value="@Context.Request.Query["facultyId"]" />
+                                <input type="hidden" name="collegeCode" value="@item.collegeCode" />
+                                <input type="hidden" name="courseLevel" value="@Context.Request.Query["courseLevel"]" />
+                                <input type="checkbox" name="freezeFlag" value="true"
+                                       class="freeze-checkbox"
+                                       onchange="this.form.submit()" @(item.freezeFlag ? "checked" : "") />
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Select All / Deselect All checkboxes
+        document.getElementById("selectAll")?.addEventListener("change", function () {
+            let checkboxes = document.querySelectorAll(".freeze-checkbox");
+            checkboxes.forEach(cb => {
+                cb.checked = this.checked;
+                cb.dispatchEvent(new Event("change")); // auto-submit
+            });
+        });
+    </script>
+}

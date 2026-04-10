@@ -1,0 +1,282 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@model Medical_Affiliation.Models.NodalOfficerDetailViewModel
+@{
+    ViewData["Title"] = "Nodal Officer Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+
+}
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+
+<!-- Custom Styling for Form -->
+<style>
+    :root {
+        --header-height: 140px;
+        --footer-height: 0px;
+    }
+    .nodal-container {
+        background: #fff;
+        padding: 2.5rem 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 3px 32px rgba(44, 62, 80, .11), 0 1.5px 6px rgba(44,62,80,.05);
+        /* max-width: 570px; */
+        margin: 40px auto;
+        margin-left: 100px;
+    }
+    h2 {
+        font-weight: 700;
+        letter-spacing: .03rem;
+        color: #146c43;
+        margin-bottom: 1.7rem;
+        text-align: center;
+    }
+    .form-label {
+        font-weight: 500;
+        color: #11445e;
+    }
+    .form-select, .form-control {
+        border-radius: .6rem;
+        background-color: #f7f8fa;
+        border: 1px solid #dde6ed;
+        transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 2px rgba(13,110,253,.1);
+        background-color: #fff;
+    }
+    .btn-primary {
+        border-radius: 30px;
+        padding: 0.6rem 1.7rem;
+        font-size: 1.13rem;
+        font-weight: 600;
+        background: linear-gradient(90deg, #146c43 50%, #20c997 100%);
+        border: none;
+        box-shadow: 0 2px 8px rgba(20, 108, 67, 0.08);
+        transition: background 0.3s, box-shadow 0.3s;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+        background: linear-gradient(90deg, #20c997 50%, #146c43 100%);
+        box-shadow: 0 5px 15px rgba(20, 108, 67, 0.18);
+    }
+    /* .container{
+        padding: 5px;
+        box-shadow: 5px 5px 10px rgba(255, 255, 255, 0.8);
+        border: none;
+        border-radius: 5px;
+    } */
+    /* .sidebar {
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        width: 300px;
+        height: calc(100vh - var(--header-height));
+        background: rgba(22, 33, 62, 0.95);
+        box-shadow: 0 0 50px rgba(34, 43, 65, 0.23);
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; 
+    }
+
+        .sidebar h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+    .affiliation-dropdown {
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        backdrop-filter: blur(3px);
+    }
+
+    .sidebar-btn {
+        display: block;
+        margin-bottom: 12px;
+        padding: 10px;
+        font-weight: 600;
+        border-radius: 8px;
+        background-color: #0d6efd;
+        color: #fff;
+        text-align: center;
+        transition: background 0.3s ease;
+    }
+
+        .sidebar-btn:hover {
+            background: #0b5ed7;
+        } */
+    @@media (max-width: 600px) {
+        .nodal-container {
+            padding: 1.2rem 0.7rem;
+        }
+    }
+
+    /* @@media (max-width: 991px) {
+        .sidebar {
+            position: relative;
+            width: 100%;
+            height: auto;
+            padding: 20px;
+            overflow: visible;
+        }
+
+        .main-content {
+            margin-left: 0;
+            margin-top: var(--header-height);
+            height: auto;
+            overflow: visible;
+        }
+    } */
+
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+
+
+
+<div class="nodal-container">
+    <div class="container my-4">
+        <div class="row">
+            <div class="col">
+                <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="fw-bold mb-0 text-center flex-grow-1">
+                            @HttpContextAccessor.HttpContext.Session.GetString("CollegeName")
+                        </h3>
+
+                        <button type="submit" class="btn btn-outline-danger">
+                            Logout
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <h2 class="mb-4">Nodal Officer Details</h2>
+    <form id="nodalOfficerForm" asp-action="NodalOfficerDetails" method="post">
+        <div class="mb-3">
+            <label class="form-label">Faculty</label>
+            @Html.DropDownListFor(m => m.FacultyCode, Model.FacultyList, "-- Select Faculty --", new { @class = "form-select", @disabled = "disabled" })
+            @Html.HiddenFor(m => m.FacultyCode)
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">College</label>
+            @Html.DropDownListFor(m => m.CollegeCode, Model.CollegeList, "-- Select College --", new { @class = "form-select", @disabled = "disabled" })
+            @Html.HiddenFor(m => m.CollegeCode)
+        </div>
+        <div class="mb-3">
+            <label for="NodalOfficerName" class="form-label">Nodal Officer Name</label>
+            @Html.TextBoxFor(m => m.NodalOfficerName, new { @class = "form-control", placeholder = "Enter Nodal Officer Name", id = "NodalOfficerName" })
+        </div>
+        <div class="mb-3">
+            <label for="PhoneNumber" class="form-label">Mobile Number</label>
+            @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "Enter Mobile Number", id = "PhoneNumber" })
+        </div>
+        <div class="mb-3">
+            <label for="EmailId" class="form-label">Email Id</label>
+            @Html.TextBoxFor(m => m.EmailId, new { @class = "form-control", placeholder = "Enter Email Id", type = "email", id = "EmailId" })
+        </div>
+        
+        <div>
+            <label class="form-label">Initiatives List</label><br />
+            <div class="card" style="padding: 10px; border-radius: 10px">
+                <div class="form-check">
+                    <input type="checkbox" id="allInitiatives" class="form-check-input" />
+                    <label for="selectAll" class="form-check-label fw-bold">Select All</label>
+                </div>
+                <hr />
+                @for (int i = 0; i < Model.InitiativeList.Count; i++)
+                {
+                    <div class="form-check">
+                        <input asp-for="InitiativeList[i].IsSelected" class="form-check-input initiative-checkbox" type="checkbox" value="true" />
+                        <input type="hidden" asp-for="InitiativeList[i].Id" />
+                        <label class="form-check-label">
+                            @Model.InitiativeList[i].Name
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="mb-3" style="text-align: center">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
+
+
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        // ✅ Client-side validation before form submit
+
+        $("#nodalOfficerForm").submit(function (e) {
+            let name = $("#NodalOfficerName").val().trim();
+            let phone = $("#PhoneNumber").val().trim();
+            let email = $("#EmailId").val().trim();
+
+            if (name === "") {
+                Swal.fire("Validation Error", "Please enter Nodal Officer Name", "error");
+                return false;
+            }
+            if (!/^\d{10}$/.test(phone)) {
+                Swal.fire("Validation Error", "Please enter a valid 10-digit Mobile Number", "error");
+                return false;
+            }
+            if (email === "") {
+                Swal.fire("Validation Error", "Please enter Email Id", "error");
+                return false;
+            }
+            return true; // allow form to submit
+        });
+        $("#allInitiatives").on("change", function () {
+            $(".initiative-checkbox").prop("checked", $(this).prop("checked"));
+        });
+
+        $(".initiative-checkbox").on("change", function () {
+            if (!$(this).prop("checked")) {
+                $("#allInitiatives").prop("checked", false);
+            } else if ($(".initiative-checkbox:checked").length === $(".initiative-checkbox").length) {
+                $("#allInitiatives").prop("checked", true);
+            }
+        })
+
+        // ✅ Show server-side SweetAlert (after redirect)
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "@TempData["SuccessMessage"]",
+                    confirmButtonColor: "#3085d6"
+                });
+        </text>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "@TempData["ErrorMessage"]",
+                    confirmButtonColor: "#d33"
+                });
+        </text>
+    }
+        });
+</script>

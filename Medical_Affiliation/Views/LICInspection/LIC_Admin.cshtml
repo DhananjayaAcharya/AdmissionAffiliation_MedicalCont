@@ -1,0 +1,1015 @@
+﻿@{
+    ViewData["Title"] = "College Member Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --bg: #f4f2ee;
+        --surface: #ffffff;
+        --border: #e2ddd6;
+        --accent: #2c5f2e;
+        --accent-light: #e8f0e9;
+        --text: #1a1a1a;
+        --muted: #7a7468;
+        --shadow: 0 2px 16px rgba(0,0,0,0.07);
+        --radius: 12px;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 24px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            color: var(--accent);
+        }
+
+        .page-header p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+    .badge {
+        background: var(--accent-light);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 5px 14px;
+        border-radius: 20px;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 32px 40px;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    /* ── PANEL ── */
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .panel-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .panel-header h2 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--muted);
+        }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+    }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 9px 14px 9px 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+            .search-wrap input:focus {
+                border-color: var(--accent);
+            }
+
+    .search-icon {
+        position: absolute;
+        left: 28px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        pointer-events: none;
+    }
+
+    /* ── COLLEGE LIST ── */
+    .college-list {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+        .college-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .college-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+    .college-item {
+        padding: 13px 20px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background .15s;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+        .college-item:last-child {
+            border-bottom: none;
+        }
+
+        .college-item:hover {
+            background: var(--bg);
+        }
+
+        .college-item.active {
+            background: var(--accent-light);
+            border-left: 3px solid var(--accent);
+            padding-left: 17px;
+        }
+
+    .college-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: var(--accent-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent);
+        flex-shrink: 0;
+    }
+
+    .college-item.active .college-icon {
+        background: var(--accent);
+        color: #fff;
+    }
+
+    .college-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+        .college-info strong {
+            font-size: 14px;
+            font-weight: 500;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .college-info span {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+    /* ── SPINNER ── */
+    .loading-spinner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        color: var(--muted);
+        font-size: 14px;
+        gap: 10px;
+    }
+
+    .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin .7s linear infinite;
+    }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ── DETAIL PANEL ── */
+    .detail-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .empty-state {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 80px 40px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+        .empty-state svg {
+            margin-bottom: 16px;
+            opacity: .3;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+    /* ── COLLEGE HEADER CARD ── */
+    .college-detail-header {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 26px 28px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .college-avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .college-meta h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 21px;
+        margin-bottom: 6px;
+    }
+
+    .tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        background: var(--bg);
+    }
+
+    /* ── MEMBER CARDS ── */
+    .members-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .member-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 22px;
+        transition: box-shadow .2s;
+    }
+
+        .member-card:hover {
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+        }
+
+    .member-role {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--accent);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .member-role::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: inline-block;
+        }
+
+    .member-name {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        min-height: 22px;
+        color: var(--text);
+    }
+
+        .member-name.empty {
+            color: var(--muted);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+    .member-phone {
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 20px;
+    }
+
+    .btn-edit {
+        margin-top: 18px;
+        width: 100%;
+        padding: 9px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        color: var(--text);
+        transition: all .15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+        .btn-edit:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+    .modal {
+        background: var(--surface);
+        border-radius: 16px;
+        width: 460px;
+        max-width: 95vw;
+        padding: 32px;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+        animation: modalIn .2s ease;
+    }
+
+    @@keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+
+    .modal-subtitle {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .form-group input:focus,
+            .form-group select:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(44,95,46,0.1);
+            }
+
+    .form-error {
+        font-size: 12px;
+        color: #b94040;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 26px;
+    }
+
+    .btn-primary {
+        flex: 1;
+        padding: 12px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity .15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .btn-primary:hover {
+            opacity: 0.88;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+    .btn-cancel {
+        padding: 12px 20px;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background .15s;
+    }
+
+        .btn-cancel:hover {
+            background: var(--border);
+        }
+
+    /* ── TOAST ── */
+    .toast-container {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .toast {
+        padding: 13px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        animation: toastIn .25s ease;
+        min-width: 250px;
+    }
+
+        .toast.success {
+            background: #1a3d1c;
+            color: #a8d4aa;
+        }
+
+        .toast.error {
+            background: #3d1a1a;
+            color: #d4a8a8;
+        }
+
+    @@keyframes toastIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @@media (max-width: 1100px) {
+        .container {
+            grid-template-columns: 1fr;
+            padding: 20px;
+        }
+
+        .members-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .page-header {
+            padding: 16px 20px;
+        }
+
+        .members-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+    <div>
+        <h1>College Member Management</h1>
+        <p>Manage AC Members, Senate Members, and Subject Experts</p>
+    </div>
+    <span class="badge" id="collegeCount">Loading...</span>
+</div>
+
+<!-- ── MAIN LAYOUT ── -->
+<div class="container">
+
+    <!-- LEFT: College List -->
+    <div class="panel">
+        <div class="panel-header">
+            <h2>Colleges</h2>
+        </div>
+        <div class="search-wrap">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search by name, place or code…"
+                   oninput="filterColleges(this.value)">
+        </div>
+        <div class="college-list" id="collegeList">
+            <div class="loading-spinner">
+                <div class="spinner"></div> Loading colleges…
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Detail -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="empty-state">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.2">
+                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2
+                         0H5m0 0H3m2 0v-3a2 2 0 012-2h3a2 2 0 012 2v3" />
+            </svg>
+            <h3>No College Selected</h3>
+            <p>Select a college from the list to view and manage its members.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── EDIT MODAL ── -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <h2 class="modal-title">Update Member</h2>
+        <p class="modal-subtitle" id="modalSubtitle">Edit member information below</p>
+
+        <div class="form-group">
+            <label>Designation</label>
+            <select id="editDesignation">
+                <option value="ac member">AC Member</option>
+                <option value="senet member">Senate Member</option>
+                <option value="subject expertise">Subject Expertise</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Member Name</label>
+            <input type="text" id="editName" placeholder="Enter full name">
+            <div class="form-error" id="nameError">Member name is required.</div>
+        </div>
+
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="editPhone" placeholder="10-digit phone number" maxlength="10">
+            <div class="form-error" id="phoneError">Phone must be exactly 10 digits.</div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-primary" id="saveBtn" onclick="saveMember()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── TOASTS ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<script>
+    let allColleges    = [];
+    let currentCollegeId = null;
+    let editCollegeId  = null;
+
+    // ════════════════════════════════════════════════════════
+    // 1.  LOAD COLLEGE LIST
+    // ════════════════════════════════════════════════════════
+    async function loadColleges() {
+        try {
+            const res  = await fetch('@Url.Action("GetColleges", "CollegeMember")');
+            const json = await res.json();
+
+            if (!json.success) throw new Error(json.message);
+
+            allColleges = json.data;
+            document.getElementById('collegeCount').textContent =
+                `${allColleges.length} College${allColleges.length !== 1 ? 's' : ''}`;
+            renderCollegeList(allColleges);
+
+        } catch (err) {
+            document.getElementById('collegeList').innerHTML =
+                `<div class="loading-spinner" style="color:#b94040">
+                    ⚠ Failed to load: ${escHtml(err.message)}
+                 </div>`;
+        }
+    }
+
+    function renderCollegeList(list) {
+        const el = document.getElementById('collegeList');
+
+        if (!list.length) {
+            el.innerHTML = `<div class="loading-spinner">No colleges found.</div>`;
+            return;
+        }
+
+        el.innerHTML = list.map(c => `
+            <div class="college-item ${c.id === currentCollegeId ? 'active' : ''}"
+                 onclick="selectCollege(${c.id})"
+                 id="citem-${c.id}">
+                <div class="college-icon">
+                    ${escHtml((c.collegename || '?').charAt(0).toUpperCase())}
+                </div>
+                <div class="college-info">
+                    <strong title="${escHtml(c.collegename)}">${escHtml(c.collegename)}</strong>
+                    <span>
+                        ${c.collegePlace ? escHtml(c.collegePlace) : '—'}
+                        ${c.collegecode  ? ' &bull; ' + escHtml(c.collegecode) : ''}
+                    </span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function filterColleges(q) {
+        const lq = q.toLowerCase();
+        renderCollegeList(allColleges.filter(c =>
+            (c.collegename  || '').toLowerCase().includes(lq) ||
+            (c.collegePlace || '').toLowerCase().includes(lq) ||
+            (c.collegecode  || '').toLowerCase().includes(lq)
+        ));
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 2.  SELECT COLLEGE → LOAD DETAIL
+    // ════════════════════════════════════════════════════════
+    async function selectCollege(id) {
+        currentCollegeId = id;
+
+        // Highlight in list
+        document.querySelectorAll('.college-item').forEach(el => el.classList.remove('active'));
+        const item = document.getElementById(`citem-${id}`);
+        if (item) {
+            item.classList.add('active');
+            item.scrollIntoView({ block: 'nearest' });
+        }
+
+        // Show loading in detail panel
+        const panel = document.getElementById('detailPanel');
+        panel.innerHTML = `
+            <div class="panel" style="padding:50px;text-align:center">
+                <div class="loading-spinner">
+                    <div class="spinner"></div> Loading details…
+                </div>
+            </div>`;
+
+        try {
+            const res = await fetch('@Url.Action("GetCollegeDetails", "CollegeMember")', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ collegeId: id })   // ← correct DTO shape
+            });
+
+            const json = await res.json();
+            if (!json.success) throw new Error(json.message);
+
+            renderCollegeDetail(json.data);
+
+        } catch (err) {
+            panel.innerHTML = `
+                <div class="panel" style="padding:50px;text-align:center;color:#b94040">
+                    ⚠ ${escHtml(err.message)}
+                </div>`;
+        }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 3.  RENDER DETAIL
+    // ════════════════════════════════════════════════════════
+    function renderCollegeDetail(c) {
+        const members = [
+            { role: 'AC Member',          desig: 'ac member',         name: c.acmember,         phone: c.acMemberPhno       },
+            { role: 'Senate Member',      desig: 'senet member',      name: c.senetMember,      phone: c.senetMemberPhNo    },
+            { role: 'Subject Expertise',  desig: 'subject expertise', name: c.subjectExpertise, phone: c.subjectExpertisePhNo }
+        ];
+
+        document.getElementById('detailPanel').innerHTML = `
+
+            <!-- College Header -->
+            <div class="college-detail-header">
+                <div class="college-avatar">
+                    ${escHtml((c.collegename || '?').charAt(0).toUpperCase())}
+                </div>
+                <div class="college-meta">
+                    <h2>${escHtml(c.collegename)}</h2>
+                    <div class="tags">
+                        ${c.collegePlace ? `<span class="tag">📍 ${escHtml(c.collegePlace)}</span>` : ''}
+                        ${c.collegecode  ? `<span class="tag">🏷 ${escHtml(c.collegecode)}</span>`  : ''}
+                        <span class="tag">ID: ${c.id}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Cards -->
+            <div class="members-grid">
+                ${members.map(m => `
+                    <div class="member-card">
+                        <div class="member-role">${escHtml(m.role)}</div>
+                        <div class="member-name ${m.name ? '' : 'empty'}">
+                            ${m.name ? escHtml(m.name) : 'Not assigned'}
+                        </div>
+                        <div class="member-phone">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0
+                                         01-8.63-3.07A19.5 19.5 0 015.12
+                                         12.12 19.79 19.79 0 012.05 3.5
+                                         2 2 0 014.11 2h3a2 2 0 012 1.72
+                                         12.84 12.84 0 00.7 2.81 2 2 0
+                                         01-.45 2.11L8.09 9.91a16 16 0 006 6
+                                         l1.27-1.27a2 2 0 012.11-.45c.907.339
+                                         1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                            </svg>
+                            ${m.phone ? escHtml(formatPhone(m.phone)) : 'No phone on record'}
+                        </div>
+                        <button class="btn-edit"
+                            onclick="openEditModal(
+                                ${c.id},
+                                '${escAttr(m.desig)}',
+                                '${escAttr(m.name  || '')}',
+                                '${escAttr(m.phone ? String(m.phone) : '')}'
+                            )">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Edit
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 4.  MODAL  OPEN / CLOSE
+    // ════════════════════════════════════════════════════════
+    function openEditModal(collegeId, designation, name, phone) {
+        editCollegeId = collegeId;
+
+        document.getElementById('editDesignation').value = designation;
+        document.getElementById('editName').value        = name;
+        document.getElementById('editPhone').value       = phone;
+        document.getElementById('modalSubtitle').textContent =
+            `Updating ${designation} for College ID ${collegeId}`;
+
+        // Clear errors
+        document.getElementById('nameError').style.display  = 'none';
+        document.getElementById('phoneError').style.display = 'none';
+
+        document.getElementById('editModal').classList.add('open');
+        setTimeout(() => document.getElementById('editName').focus(), 100);
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').classList.remove('open');
+        editCollegeId = null;
+    }
+
+    // Close on overlay click
+    document.getElementById('editModal').addEventListener('click', function (e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ════════════════════════════════════════════════════════
+    // 5.  SAVE  MEMBER
+    // ════════════════════════════════════════════════════════
+    async function saveMember() {
+        const designation = document.getElementById('editDesignation').value.trim();
+        const memberName  = document.getElementById('editName').value.trim();
+        const phoneRaw    = document.getElementById('editPhone').value.trim();
+
+        // Client-side validation
+        let valid = true;
+
+        if (!memberName) {
+            document.getElementById('nameError').style.display = 'block';
+            valid = false;
+        } else {
+            document.getElementById('nameError').style.display = 'none';
+        }
+
+        if (phoneRaw && !/^\d{10}$/.test(phoneRaw)) {
+            document.getElementById('phoneError').style.display = 'block';
+            valid = false;
+        } else {
+            document.getElementById('phoneError').style.display = 'none';
+        }
+
+        if (!valid) return;
+
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled    = true;
+        saveBtn.textContent = 'Saving…';
+
+        try {
+            const res = await fetch('@Url.Action("UpdateMember", "CollegeMember")', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    collegeId:   editCollegeId,
+                    designation: designation,
+                    memberName:  memberName,
+                    phoneNumber: phoneRaw ? parseFloat(phoneRaw) : null
+                })
+            });
+
+            const json = await res.json();
+            if (!json.success) throw new Error(json.message);
+
+            showToast('Member updated successfully!', 'success');
+            closeModal();
+            selectCollege(editCollegeId);   // Refresh detail view
+
+        } catch (err) {
+            showToast(err.message || 'Update failed.', 'error');
+        } finally {
+            saveBtn.disabled    = false;
+            saveBtn.innerHTML   = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Save Changes`;
+        }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 6.  TOAST
+    // ════════════════════════════════════════════════════════
+    function showToast(msg, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+                ${type === 'success'
+                    ? '<polyline points="20 6 9 17 4 12"/>'
+                    : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}
+            </svg>
+            ${escHtml(msg)}`;
+        container.appendChild(t);
+        setTimeout(() => t.remove(), 3500);
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 7.  HELPERS
+    // ════════════════════════════════════════════════════════
+    function escHtml(s) {
+        if (s == null) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function escAttr(s) {
+        return String(s ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    function formatPhone(num) {
+        const s = String(num).replace(/\D/g, '');
+        return s.length === 10 ? `${s.slice(0,5)}-${s.slice(5)}` : s;
+    }
+
+    // ── Init ──
+    loadColleges();
+</script>

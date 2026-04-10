@@ -1,0 +1,377 @@
+﻿@model FellowshipAcceptedRejectedListVm
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Director — Accepted / Rejected Fellowship Students";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+<style>
+    :root {
+        --bg: #f4f7fb;
+        --card-bg: #ffffff;
+        --primary-600: #0d6efd;
+        --primary-700: #0b5ed7;
+        --accent: #6c7ae0;
+        --muted: #6c757d;
+        --success: #198754;
+        --danger: #dc3545;
+        --surface-shadow: 0 10px 30px rgba(13, 40, 80, .06);
+        --table-row-bg: #fbfdff;
+    }
+
+    body, .container-fluid {
+        font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        background: linear-gradient(180deg, var(--bg), #eef4ff 60%);
+    }
+
+    .dashboard-wrap {
+        padding: 1.5rem 1rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .page-title {
+        margin: 0;
+        font-weight: 700;
+        color: var(--primary-700);
+        letter-spacing: .2px;
+        font-size: 1.125rem;
+    }
+
+    .page-sub {
+        color: var(--muted);
+        font-size: .92rem;
+    }
+
+    .card-modern {
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.9), var(--card-bg));
+        box-shadow: var(--surface-shadow);
+        overflow: hidden;
+    }
+
+        .card-modern .card-header {
+            background: linear-gradient(90deg, rgba(13,94,215,0.95), rgba(6,60,160,0.95));
+            color: #fff;
+            padding: .9rem 1rem;
+            display: flex;
+            gap: .75rem;
+            align-items: center;
+        }
+
+            .card-modern .card-header .title {
+                font-weight: 700;
+                font-size: .98rem;
+            }
+
+            .card-modern .card-header .subtitle {
+                font-size: .85rem;
+                opacity: .9;
+            }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+        .table-modern thead th {
+            font-weight: 700;
+            color: #24324a;
+            background: transparent;
+            border: 0;
+            padding: .65rem .75rem;
+            vertical-align: middle;
+        }
+
+        .table-modern tbody tr {
+            background: var(--table-row-bg);
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(16,30,60,0.03);
+            margin-bottom: 10px;
+        }
+
+        .table-modern td, .table-modern th {
+            border-top: 0;
+            padding: .6rem .75rem;
+            vertical-align: middle;
+        }
+
+    .small-muted {
+        color: var(--muted);
+        font-size: .88rem;
+    }
+
+    .badge-pill {
+        padding: .35rem .6rem;
+        border-radius: 999px;
+        font-size: .82rem;
+        font-weight: 600;
+    }
+
+    .badge-approved {
+        background: var(--success);
+        color: #fff;
+    }
+
+    .badge-rejected {
+        background: var(--danger);
+        color: #fff;
+    }
+
+    .badge-pending {
+        background: #adb5bd;
+        color: #fff;
+    }
+
+    .doc-link {
+        color: var(--primary-600);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: .88rem;
+    }
+
+        .doc-link i {
+            margin-right: .35rem;
+            color: var(--accent);
+        }
+
+    /* responsive tweaks */
+    @@media (max-width: 1200px) {
+        .table-modern thead th:nth-child(11), .table-modern thead th:nth-child(12), .table-modern thead th:nth-child(13), .table-modern thead th:nth-child(14) {
+            display: none;
+        }
+
+        .table-modern tbody td:nth-child(11),
+        .table-modern tbody td:nth-child(12),
+        .table-modern tbody td:nth-child(13),
+        .table-modern tbody td:nth-child(14) {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: .5rem;
+        }
+
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: block;
+            padding: .8rem;
+        }
+
+        .table-modern tbody td {
+            display: flex;
+            justify-content: space-between;
+            padding: .45rem 0;
+            border-bottom: 1px dashed #e9eef8;
+        }
+
+            .table-modern tbody td:last-child {
+                border-bottom: 0;
+            }
+    }
+</style>
+
+<div class="container-fluid dashboard-wrap">
+    <div>
+        <a asp-controller="Collegelogin" asp-action="Dashboard" class="btn btn-outline-secondary me-2" style="color:darkgray">
+            <i class="bi bi-arrow-left"></i> Home
+        </a>
+    </div>
+    <div class="page-header">
+        <div>
+            <h2 class="page-title">Accepted / Rejected — Fellowship Students</h2>
+            <div class="page-sub">Latest records scoped to your college. Shows RGUHS decision and remarks.</div>
+        </div>
+        <div class="text-end small-muted">
+            Records: <strong>@Model.Items?.Count</strong>
+        </div>
+    </div>
+
+    <!-- Accepted Card -->
+    <div class="card card-modern mb-4">
+        <div class="card-header">
+            <i class="bi bi-check-circle-fill fs-4"></i>
+            <div>
+                <div class="title">Accepted (RGUHS Approved)</div>
+                <div class="subtitle small-muted">List of Students approved by RGUHS.</div>
+            </div>
+        </div>
+
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table class="table-modern table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>StudentName</th>
+                            <th>DOB</th>
+                            <th>Joining</th>
+                            <th>Admission Open</th>
+                            <th>Ending</th>
+                            <th>Course</th>
+                            <th>KMC No.</th>
+                            <th>Principal</th>
+                            <th>Declaration</th>
+                            <th>FellowshipCode</th>
+                            <th>SSLC</th>
+                            <th>KMC</th>
+                            <th>Experience</th>
+                            <th>Appointment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items.Where(i => string.Equals(i.DR_ApprovalStatus, "Approved", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            <tr>
+                                <td>@item.StudentName</td>
+                                <td>@(item.DOB == DateOnly.MinValue ? "-" : item.DOB.ToString("dd-MM-yyyy"))</td>
+                                <td>@(item.Dateofjoining == DateOnly.MinValue ? "-" : item.Dateofjoining.ToString("dd-MM-yyyy"))</td>
+                                <td>@(item.Admission_openingDate == DateOnly.MinValue ? "-" : item.Admission_openingDate.ToString("dd-MM-yyyy"))</td>
+                                <td>@(item.EndingDate == DateOnly.MinValue ? "-" : item.EndingDate.ToString("dd-MM-yyyy"))</td>
+                                <td>@item.Course</td>
+                                <td class="small-muted">@item.KMC_CertificateNumber</td>
+                                <td>@item.principal_name</td>
+                                <td class="small-muted">@item.principal_Declaration</td>
+                                <td>@item.FellowshipCode</td>
+                                <td>
+                                    @if (item.HasSSLC)
+                                    {
+                                        <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="SSLC" class="doc-link"><i class="bi bi-file-earmark-pdf"></i>PDF</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.HasKMC)
+                                    {
+                                        <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="KMC" class="doc-link"><i class="bi bi-file-earmark-text"></i>PDF</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.HasExperience)
+                                    {
+                                        <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="EXP" class="doc-link"><i class="bi bi-briefcase"></i>Doc</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.HasAppointment)
+                                    {
+                                        <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="APPT" class="doc-link"><i class="bi bi-file-earmark-person"></i>Doc</a>
+                                    }
+                                </td>
+                                <td>@item.DR_ApprovalRemark</td>
+                            </tr>
+                        }
+                        @if (!Model.Items.Any(i => string.Equals(i.DR_ApprovalStatus, "Approved", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            <tr><td colspan="15" class="text-center small-muted py-3">No accepted records found.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejected Card -->
+    <div class="card card-modern">
+        <div class="card-header">
+            <i class="bi bi-x-circle-fill fs-4"></i>
+            <div>
+                <div class="title">Rejected (RGUHS Rejected)</div>
+                <div class="subtitle small-muted">List of Students rejected by RGUHS.</div>
+            </div>
+        </div>
+
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table class="table-modern table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>StudentName</th>
+                            <th>DOB</th>
+                            <th>Joining</th>
+                            <th>Admission Open</th>
+                            <th>Ending</th>
+                            <th>Course</th>
+                            <th>KMC No.</th>
+                            <th>Principal</th>
+                            <th>Declaration</th>
+                            <th>FellowshipCode</th>
+                            <th>SSLC</th>
+                            <th>KMC</th>
+                            <th>Experience</th>
+                            <th>Appointment</th>
+                            <th>DR Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items.Where(i => string.Equals(i.DR_ApprovalStatus, "Rejected", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            <tr>
+                                <td>@item.StudentName</td>
+                                <td>@(item.DOB == DateOnly.MinValue ? "-" : item.DOB.ToString("dd-MM-yyyy"))</td>
+                                <td>@(item.Dateofjoining == DateOnly.MinValue ? "-" : item.Dateofjoining.ToString("dd-MM-yyyy"))</td>
+                                <td>@(item.Admission_openingDate == DateOnly.MinValue ? "-" : item.Admission_openingDate.ToString("dd-MM-yyyy"))</td>
+                                <td>@(item.EndingDate == DateOnly.MinValue ? "-" : item.EndingDate.ToString("dd-MM-yyyy"))</td>
+                                <td>@item.Course</td>
+                                <td class="small-muted">@item.KMC_CertificateNumber</td>
+                                <td>@item.principal_name</td>
+                                <td class="small-muted">@item.principal_Declaration</td>
+                                <td>@item.FellowshipCode</td>
+                                <td>
+                                    @if (item.HasSSLC)
+                                    {
+                                        <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="SSLC" class="doc-link"><i class="bi bi-file-earmark-pdf"></i>PDF</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.HasKMC)
+                                    {
+                                        <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="KMC" class="doc-link"><i class="bi bi-file-earmark-text"></i>PDF</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.HasExperience)
+                                    {
+                                        <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="EXP" class="doc-link"><i class="bi bi-briefcase"></i>Doc</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.HasAppointment)
+                                    {
+                                        <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="APPT" class="doc-link"><i class="bi bi-file-earmark-person"></i>Doc</a>
+                                    }
+                                </td>
+                                <td class="text-danger">@item.DR_ApprovalRemark</td>
+                            </tr>
+                        }
+                        @if (!Model.Items.Any(i => string.Equals(i.DR_ApprovalStatus, "Rejected", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            <tr><td colspan="15" class="text-center small-muted py-3">No rejected records found.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+}

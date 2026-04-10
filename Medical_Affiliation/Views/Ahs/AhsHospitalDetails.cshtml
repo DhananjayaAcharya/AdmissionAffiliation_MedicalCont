@@ -1,0 +1,368 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@model Medical_Affiliation.Models.AHShospitalDetailsViewModel
+
+
+@{
+    ViewData["Title"] = "AHS Hospital Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+}
+
+<style>
+    .navbar-container {
+        display: flex;
+        justify-content: center;
+        gap: 5rem;
+        padding: 31px 6px;
+        background: white;
+        align-items: center;
+        margin-left: 13rem;
+        width: 97%;
+    }
+    .container{
+        margin-left: 12rem;
+    }
+    /* Make checkboxes bigger and more visible */
+    .form-check-input {
+        width: 1.5rem;
+        height: 1.5rem;
+        cursor: pointer;
+        border-radius: 0.3rem;
+        border: 2.7px solid #007bff;
+        transition: all 0.2s;
+    }
+
+    /* Hover effect */
+    .form-check-input:hover {
+        transform: scale(1.1);
+        border-color: #0056b3;
+    }
+
+    /* Checked state */
+    .form-check-input:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    /* Focus effect */
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    /* Optional: larger clickable area for labels */
+    .form-check-label {
+        cursor: pointer;
+        user-select: none;
+        font-weight: 500;
+    }
+
+    .permissionLetter{
+        padding: 12px 20px;
+        background: white;
+        color: #185D72;
+        border: 2px solid #0e98ba;
+        border-radius: 15px;
+    }
+
+</style>
+
+<div class="navbar-container">
+    <div style="width: 80%; text-align: center;">
+        <h2 class="text-3xl fw-bold text-indigo-900 mb-3">Welcome, @Model.CollegeName</h2>
+        
+
+    </div>
+    <form asp-controller="Collegelogin" asp-action="Logout" class="flex justify-content-between fade-in" method="post" class="mb-0">
+        @* <p class="text-gray-700 text-lg d-inline"><i class="fas fa-map-marker-alt mr-2 icon-color "></i> @Model.CollegeAddress</p> *@
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn text-danger btn-outline-danger py-2 px-3 rounded-xl hover-scale shadow-custom">
+            <i class="fas fa-sign-out-alt mr-2 icon-color"></i> Logout
+        </button>
+    </form>
+</div>
+<div class="main-container">
+    @if (!string.IsNullOrEmpty(facultyCode))
+    {
+        @await Component.InvokeAsync("Sidebar")
+    }
+
+    <div class="container mt-4">
+        <div class="card shadow-sm rounded-3">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">Hospital Details</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="AhsHospitalDetails" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <input type="hidden" asp-for="CollegeName" value="@Model.CollegeName" />
+                        <input type="hidden" asp-for="CollegeCode" value="@Model.CollegeCode" />
+                        <input type="hidden" asp-for="HospitalStateId" value="@Model.HospitalStateId" />
+                        <!-- LEFT COLUMN -->
+                        <div class="col-md-5 border-end">
+                            <!-- Hospital Name -->
+                            <div class="mb-3">
+                                <label asp-for="HospitalName" class="form-label"></label>
+                                <input asp-for="HospitalName" class="form-control" placeholder="Enter hospital name" />
+                                <span asp-validation-for="HospitalName" class="text-danger"></span>
+                            </div>
+
+                            <!-- District -->
+                            <div class="mb-3">
+                                <label class="form-label">District</label>
+                                @Html.DropDownListFor(m => m.SelectedDistrictId,
+                                         Model.HospitalDistrict,
+                                         "-- Select District --",
+                                         new { @class = "form-select", id = "districtDropdown" })
+                                <span asp-validation-for="SelectedDistrictId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Taluk -->
+                            <div class="mb-3">
+                                <label class="form-label">Taluk</label>
+                                @Html.DropDownListFor(m => m.SelectedTalukId,
+                                         Model.HospitalTaluk,
+                                         "-- Select Taluk --",
+                                         new { @class = "form-select", id = "talukDropdown" })
+                                <span asp-validation-for="SelectedTalukId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="HospitalLocation">Location</label>
+                                <input asp-for="HospitalLocation" class="form-control" placeholder="Enter Hospital Location" />
+                                <span asp-validation-for="HospitalLocation" class="text-danger"></span>
+
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN -->
+                        <div class="col-md-7">
+                            <div class="row g-3">
+
+                                <!-- OPD & IPD side by side -->
+                                <div class="col-md-12">
+                                    <div class="row mb-3 align-items-center">
+                                        <label asp-for="OpdPerDay" class="col-sm-7 col-form-label">OPD / Day</label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="OpdPerDay" type="number" class="form-control" />
+                                            <span asp-validation-for="OpdPerDay" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="row mb-3 align-items-center">
+                                        <label asp-for="IpdPerDay" class="col-sm-7 col-form-label">IPD / Day</label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="IpdPerDay" type="number" class="form-control" />
+                                            <span asp-validation-for="IpdPerDay" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Total Beds -->
+                                <div class="col-md-12">
+                                    <div class="row mb-3 align-items-center">
+                                        <label asp-for="TotalBedsAvailable" class="col-sm-7 col-form-label">Total Beds</label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="TotalBedsAvailable" type="number" class="form-control" />
+                                            <span asp-validation-for="TotalBedsAvailable" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Checkboxes -->
+                                <div class="col-md-12">
+                                    <div class="row mb-2 align-items-center">
+                                        <label class="col-sm-9 col-form-label" data-checkbox="chkParentMedical">
+                                            Do you have parent medical college hospital?
+                                        </label>
+                                        <div class="col-sm-3">
+                                            <input asp-for="IsParentMedicalCollegeHospitalExists" class="form-check-input" id="chkParentMedical" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-2 align-items-center">
+                                        <label class="col-sm-9 col-form-label" data-checkbox="chkParentHospital">
+                                            Do you have parent hospital?
+                                        </label>
+                                        <div class="col-sm-3">
+                                            <input asp-for="IsParentHospitalExists" class="form-check-input" id="chkParentHospital" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-2 align-items-center">
+                                        <label class="col-sm-9 col-form-label" data-checkbox="chkForOtherHospital">
+                                            Whether this hospital has been shown as parent/affiliated hospital for other AHS institution?
+                                        </label>
+                                        <div class="col-sm-3">
+                                            <input asp-for="IsParentOraffHospitalforotherAHsInstitution" class="form-check-input" id="chkForOtherHospital" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Distance -->
+                                <div class="col-md-12">
+                                    <div class="row mb-3 align-items-center">
+                                        <label asp-for="CollegeToHospitalDistance" class="col-sm-7 col-form-label">Distance between College and Hospital (km)</label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="CollegeToHospitalDistance" type="number" class="form-control" />
+                                            <span asp-validation-for="CollegeToHospitalDistance" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Trust -->
+                                <div class="col-md-12">
+                                    <div class="row mb-2 align-items-center">
+                                        <label class="col-sm-9 col-form-label" data-checkbox="chkMember">
+                                            Managed/controlled by a trust member?
+                                        </label>
+                                        <div class="col-sm-3">
+                                            <input asp-for="IsManagedbyTrustMember" class="form-check-input" id="chkMember" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-2 align-items-center">
+                                        <label class="col-sm-9 col-form-label" data-checkbox="chkOwner">
+                                            Owner is a member of the trust?
+                                        </label>
+                                        <div class="col-sm-3">
+                                            <input asp-for="IsOwnerATrustMember" class="form-check-input" id="chkOwner" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AFFILIATED HOSPITAL DETAILS -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card-header bg-primary text-white text-center mb-2">
+                                <h4 class="">Affiliated Hospital Details</h4>
+                            </div>
+                            <!-- Affiliated Hospital Name -->
+                            <div class="card-container" style="padding: 15px">
+
+                                <div class="row mb-3 align-items-center">
+                                    <label asp-for="AffHospitalViewModel.AffiliatedHospitalName" class="col-sm-4 col-form-label">
+                                        Affiliated Hospital Name
+                                    </label>
+                                    <div class="col-sm-7">
+                                        <input asp-for="AffHospitalViewModel.AffiliatedHospitalName" class="form-control" placeholder="Enter Affiliated Hospital Name" />
+                                        <span asp-validation-for="AffHospitalViewModel.AffiliatedHospitalName" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Total No. of Beds -->
+                                <div class="row mb-3 align-items-center">
+                                    <label asp-for="AffHospitalViewModel.TotalNoOfBeds" class="col-sm-4 col-form-label">
+                                        Total Number of Beds
+                                    </label>
+                                    <div class="col-sm-7">
+                                        <input asp-for="AffHospitalViewModel.TotalNoOfBeds" type="number" class="form-control" placeholder="Enter Total Beds" />
+                                        <span asp-validation-for="AffHospitalViewModel.TotalNoOfBeds" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Permission Letter Upload -->
+                                <div class="row mb-3 align-items-center">
+                                    <label class="col-sm-4 col-form-label" asp-for="AffHospitalViewModel.PermissionLetterFile">
+                                        Upload Permission Letter (PDF 1 MB max.)
+                                    </label>
+                                    <div class="col-sm-7 d-flex gap-3">
+                                        <input asp-for="AffHospitalViewModel.PermissionLetterFile" type="file" class="form-control letter d-none" accept=".pdf" />
+                                        <button type="button" class="permissionLetter">Upload Permission Letter</button>
+
+                                        <span asp-validation-for="AffHospitalViewModel.PermissionLetterFile" class="text-danger"></span>
+
+                                        @* If permission letter exists, allow viewing *@
+                                        @if (Model.AffHospitalViewModel?.PermissionLetter != null && Model.AffHospitalViewModel.PermissionLetter.Length > 0)
+                                        {
+                                            <div class="mt-2">
+                                                <a asp-action="DownloadPermissionLetter"
+                                                   asp-route-collegeCode="@Model.CollegeCode" target="_blank"
+                                                   class="btn btn-outline-secondary btn-sm" style="color: #28CEE7">
+                                                    View Existing File
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- Submit -->
+                    <div class="mt-4 text-center">
+                        <button type="submit" class="btn btn-primary">Save Details</button>
+                        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("label[data-checkbox]").click(function () {
+                var checkboxId = $(this).data("checkbox");
+                var $checkbox = $("#" + checkboxId);
+                $checkbox.prop("checked", !$checkbox.prop("checked"));
+            });
+            $(".permissionLetter").on("click", function (e) {
+                e.preventDefault(); // prevent form submission
+                $(".letter").trigger("click"); // open file picker
+            });
+
+            // Optional: Show selected file name (nice UX touch)
+            $(".letter").on("change", function () {
+                const fileName = $(this).val().split("\\").pop();
+                if (fileName) {
+                    $(".permissionLetter").text(fileName);
+                }
+            });
+
+            $("#districtDropdown").change(function () {
+                var districtId = $(this).val();
+                var $talukDropdown = $("#talukDropdown");
+
+                $talukDropdown.empty();
+                $talukDropdown.append($("<option>").val("").text("-- Loading Taluks... --"));
+
+                if (districtId) {
+                    $.getJSON('@Url.Action("AHSHospitalTaluk", "Ahs")',
+                        { districtId: districtId },
+                        function (data) {
+                            $talukDropdown.empty();
+                            $talukDropdown.append($("<option>").val("").text("-- Select Taluk --"));
+
+                            $.each(data, function (i, taluk) {
+                                $talukDropdown.append($("<option>").val(taluk.talukId).text(taluk.talukName));
+                            });
+                        });
+                } else {
+                    $talukDropdown.empty();
+                    $talukDropdown.append($("<option>").val("").text("-- Select Taluk --"));
+                }
+            });
+
+            var message = '@TempData["CollegeDetailsSaved"]';
+            if (message) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: message,
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    </script>
+}

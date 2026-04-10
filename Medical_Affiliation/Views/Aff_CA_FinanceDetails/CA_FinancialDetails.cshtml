@@ -1,0 +1,436 @@
+﻿@model Medical_Affiliation.Models.CA_FinancialDetailsViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Financial Details";
+    var facultyCode = Model.FacultyCode ?? HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+}
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+<style>
+    /* Your existing styles remain unchanged */
+    body {
+        background: radial-gradient(circle at top left, #1f2937, #020617 70%);
+        color: #fff;
+    }
+
+    .page-wrapper {
+        margin-left: 300px;
+        padding: 24px;
+    }
+
+    .main-box {
+        background: rgba(15,23,42,0.95);
+        padding: 28px;
+        border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(0,0,0,.6);
+        margin-left: 200px;
+    }
+
+    h3, h5, label {
+        color: #fff;
+    }
+
+    hr {
+        border-color: rgba(255,255,255,.2);
+    }
+
+    .form-control, .form-select {
+        background: rgba(30,41,59,.95);
+        color: #fff;
+        border: 1px solid rgba(148,163,184,.35);
+        border-radius: 999px;
+    }
+
+        .form-control::placeholder {
+            color: #cbd5f5;
+        }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 20px 0;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,.3);
+    }
+
+        .table-container::-webkit-scrollbar {
+            height: 12px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: rgba(30,41,59,.8);
+            border-radius: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 6px;
+        }
+
+            .table-container::-webkit-scrollbar-thumb:hover {
+                background: #4f46e5;
+            }
+
+    table.course-table {
+        min-width: 1400px;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        table.course-table th, table.course-table td {
+            background: rgba(15,23,42,.95) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(148,163,184,.25) !important;
+            vertical-align: middle;
+            padding: 12px 10px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        table.course-table thead th {
+            background: linear-gradient(135deg, rgba(79,70,229,.35), rgba(99,102,241,.25)) !important;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        /* Column widths (adjust as needed) */
+        table.course-table th:nth-child(1), td:nth-child(1) {
+            width: 22%;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        table.course-table th:nth-child(2), td:nth-child(2),
+        table.course-table th:nth-child(3), td:nth-child(3),
+        table.course-table th:nth-child(4), td:nth-child(4) {
+            width: 13%;
+        }
+
+        table.course-table th:nth-child(5), td:nth-child(5),
+        table.course-table th:nth-child(6), td:nth-child(6),
+        table.course-table th:nth-child(7), td:nth-child(7),
+        table.course-table th:nth-child(8), td:nth-child(8) {
+            width: 15%;
+        }
+
+        table.course-table th:nth-child(9), td:nth-child(9) {
+            width: 15%;
+        }
+
+        table.course-table input[type="file"] {
+            width: 100%;
+            background: #f8fafc;
+            color: #000;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            padding: 6px;
+        }
+
+        table.course-table .btn {
+            width: 100%;
+            margin-top: 4px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        table.course-table .btn-info {
+            margin-top: 6px;
+            width: 100%;
+            font-size: 0.8rem;
+            white-space: normal;
+            word-wrap: break-word;
+            padding: 6px;
+        }
+
+    .row-error {
+        background: rgba(220,38,38,.15);
+        color: #fff;
+        font-size: 0.85rem;
+    }
+
+    .divider {
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #312e81, #6366f1);
+        margin: 20px 0;
+    }
+</style>
+<link rel="stylesheet" href="~/css/common-form.css" />
+
+<div class="main-box">
+        <h3 class="text-center mb-4">Financial Details</h3>
+       <div asp-validation-summary="ModelOnly" class="text-danger fw-bold text-center mb-3"></div>
+
+        <!-- ===================== MAIN FORM ===================== -->
+        <form asp-action="SaveMainFinancialDetails" enctype="multipart/form-data" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="RegistrationNo" value="@Model.RegistrationNo" />
+            <input type="hidden" name="CollegeCode" value="@Model.CollegeCode" />
+            <input type="hidden" name="FacultyCode" value="@Model.FacultyCode" />
+            <div class="mb-3">
+                <label>Annual Budget *</label>
+                <input asp-for="AnnualBudget" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="AnnualBudget" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label>Audited Expenditure (PDF) *</label>
+                <input asp-for="AuditedExpenditureUpload" type="file" accept="application/pdf" class="form-control" />
+                <span asp-validation-for="AuditedExpenditureUpload" class="text-danger"></span>
+                @if (!string.IsNullOrEmpty(Model.AuditedExpenditureFileName))
+                {
+                    <div class="mt-2">
+                        <a asp-action="ViewMainPDF" asp-route-type="MainAudit"
+                           class="btn btn-info btn-sm" target="_blank">
+                            VIEW (@Model.AuditedExpenditureFileName)
+                        </a>
+                    </div>
+                }
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label>Deposits Held *</label>
+                    <input asp-for="DepositsHeld" class="form-control" />
+                    <span asp-validation-for="DepositsHeld" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Tuition Fee *</label>
+                    <input asp-for="TuitionFee" class="form-control" />
+                    <span asp-validation-for="TuitionFee" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Union Fee *</label>
+                    <input asp-for="UnionFee" class="form-control" />
+                    <span asp-validation-for="UnionFee" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Sports Fee *</label>
+                    <input asp-for="SportsFee" class="form-control" />
+                    <span asp-validation-for="SportsFee" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Library Fee *</label>
+                    <input asp-for="LibraryFee" class="form-control" />
+                    <span asp-validation-for="LibraryFee" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Others Fee *</label>
+                    <input asp-for="OthersFee" class="form-control" />
+                    <span asp-validation-for="OthersFee" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label>Account Books Maintained *</label>
+                    <select asp-for="AccountBooksMaintained" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Y">YES</option>
+                        <option value="N">NO</option>
+                    </select>
+                    <span asp-validation-for="AccountBooksMaintained" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label>Accounts Duly Audited *</label>
+                    <select asp-for="AccountsDulyAudited" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Y">YES</option>
+                        <option value="N">NO</option>
+                    </select>
+                    <span asp-validation-for="AccountsDulyAudited" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="text-end mt-3">
+                <button class="btn btn-success">SAVE MAIN DETAILS</button>
+            </div>
+        </form>
+
+        <hr />
+        <h5>Whether any donation, capitation fee etc. (Per course)</h5>
+        <div class="divider"></div>
+
+        <div class="table-container">
+            <table class="table course-table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Year</th>
+                        <th>Sanctioned</th>
+                        <th>Admitted</th>
+                        <th>GOK (PDF)</th>
+                        <th>Apex (PDF)</th>
+                        <th>RGUHS (PDF)</th>
+                        <th>GOI (PDF)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Rows)
+                    {
+                        string rowKey = row.Id.HasValue && row.Id > 0 ? $"row_{row.Id}" : $"new_{row.CourseCode}";
+                        var rowErrors = ViewBag.RowErrors as Dictionary<string, List<string>>;
+                        var errors = rowErrors != null && rowErrors.TryGetValue(rowKey, out var list) ? list : null;
+
+                        <form asp-action="SaveCourseRow" enctype="multipart/form-data" method="post">
+                            @Html.AntiForgeryToken()
+                        <tr>
+                            <td>
+                                <strong>@row.CourseName</strong><br />
+                                <small>@row.CourseCode</small>
+                                <input type="hidden" name="Id" value="@(row.Id ?? 0)" />
+                                <input type="hidden" name="CourseCode" value="@row.CourseCode" />
+                            </td>
+                            <td>
+                                <input name="YearOfStarting" value="@row.YearOfStarting" class="form-control" />
+                            </td>
+                            <td>
+                                <input name="AdmissionsSanctioned" value="@row.AdmissionsSanctioned" type="number" min="0" class="form-control" />
+                            </td>
+                            <td>
+                                <input name="AdmissionsAdmitted" value="@row.AdmissionsAdmitted" type="number" min="0" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="file" name="GOKSanctionIntakeFile" class="form-control" required />
+                                @if (!string.IsNullOrEmpty(row.GOKSanctionIntakeFileName))
+                                {
+                                    <div class="mt-1">
+                                        <a asp-action="ViewGOKSanction"
+                                           asp-route-id="@row.Id"
+                                           class="btn btn-info btn-sm"
+                                           target="_blank">
+                                            VIEW (@row.GOKSanctionIntakeFileName)
+                                        </a>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <input type="file" name="ApexBodyPermissionAndIntakeFile" class="form-control" required />
+                                @if (!string.IsNullOrEmpty(row.ApexBodyPermissionAndIntakeFileName))
+                                {
+                                    <div class="mt-1">
+                                        <a asp-action="ViewApexBodyPermission"
+                                           asp-route-id="@row.Id"
+                                           class="btn btn-info btn-sm"
+                                           target="_blank">
+                                            VIEW (@row.ApexBodyPermissionAndIntakeFileName)
+                                        </a>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <input type="file" name="RGUHSSanctionIntakeFile" class="form-control" required />
+                                @if (!string.IsNullOrEmpty(row.RGUHSSanctionIntakeFileName))
+                                {
+                                    <div class="mt-1">
+                                        <a asp-action="ViewRGUHSSanction"
+                                           asp-route-id="@row.Id"
+                                           class="btn btn-info btn-sm"
+                                           target="_blank">
+                                            VIEW (@row.RGUHSSanctionIntakeFileName)
+                                        </a>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <input type="file" name="GOIPermissionFile" class="form-control" required />
+                                @if (!string.IsNullOrEmpty(row.GOIPermissionFileName))
+                                {
+                                    <div class="mt-1">
+                                        <a asp-action="ViewGOIPermission"
+                                           asp-route-id="@row.Id"
+                                           class="btn btn-info btn-sm"
+                                           target="_blank">
+                                            VIEW (@row.GOIPermissionFileName)
+                                        </a>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-warning btn-sm">EDIT / SAVE</button>
+                                @if (row.Id != null)
+                                {
+                                    <a href="javascript:void(0)"
+                                       onclick="confirmDelete('@row.Id')"
+                                       class="btn btn-danger btn-sm mt-1">DELETE</a>
+                                }
+                            </td>
+                        </tr>
+
+                        <!-- === PER-ROW ERROR DISPLAY === -->
+                        @if (errors != null && errors.Any())
+                        {
+                            <tr>
+                                <td colspan="9" class="row-error">
+                                    <strong>Errors:</strong>
+                                    <ul class="mb-0 ps-4">
+                                        @foreach (var err in errors)
+                                        {
+                                            <li>@err</li>
+                                        }
+                                    </ul>
+                                </td>
+                            </tr>
+                        }
+                        </form>
+                    }
+                </tbody>
+            </table>
+        </div>
+    
+    
+
+        <div class="text-end mt-5 mb-5">
+            <a asp-controller="CA_Med_StaffDetails" asp-action="CA_Med_StaffDetails"
+               class="btn btn-primary btn-lg shadow">
+                Previous → Staff Particulars Details
+            </a>
+        </div>
+
+        <div class="text-end mt-5 mb-5">
+            <a asp-controller="" asp-action=""
+               class="btn btn-primary btn-lg shadow">
+                Next (Link Not added Yet)
+            </a>
+        </div>  
+    
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Show SweetAlert success if TempData["Success"] exists
+    @if (TempData["Success"] != null)
+    {
+            <text>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["Success"]',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            </text>
+    }
+
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This row will be permanently deleted!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Delete!'
+        }).then((r) => {
+            if (r.isConfirmed) {
+                window.location.href = '@Url.Action("DeleteCourseRow", "Aff_CA_FinanceDetails")/' + id;
+            }
+        });
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

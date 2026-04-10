@@ -1,0 +1,516 @@
+﻿@model CollegeDetailsViewModel
+
+@{
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #007bff;
+        border-radius: 8px 8px 0 0;
+        padding: 1rem;
+    }
+
+    .card-header h5 {
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: #fff;
+        margin: 0;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.95rem;
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        width: 100%; /* Ensure dropdowns take full cell width */
+        min-width: 160px; /* Minimum width for dropdowns to prevent shrinking */
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+        font-size: 0.85rem;
+    }
+
+    .row:not(:last-child) {
+        margin-bottom: 1rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin-bottom: 1rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .course-intake-table {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        table-layout: auto;
+        width: 100%;
+    }
+
+    .course-intake-table th, .course-intake-table td {
+        vertical-align: middle;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        min-width: 120px;
+    }
+
+    .course-intake-table td:has(.form-select) {
+        min-width: 200px; /* Wider min-width for dropdown cells */
+    }
+
+    .course-intake-table th {
+        background-color: #e9ecef;
+        font-weight: 600;
+        color: #333;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .course-intake-table .form-select, .course-intake-table .form-control {
+        margin: 0;
+    }
+
+    .course-intake-table .btn-danger {
+        border-radius: 4px;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.9rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .course-intake-table .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    #addCourseRow {
+        background-color: #28a745;
+        border-color: #28a745;
+        border-radius: 4px;
+        padding: 0.45rem 1rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    #addCourseRow:hover {
+        background-color: #218838;
+    }
+
+    .btn-success {
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 0.5rem 1.25rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+    .btn-success:hover {
+        background-color: #0056b3;
+    }
+
+    .form-check-label {
+        margin-left: 0.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .alert {
+        border-radius: 4px;
+        font-size: 0.95rem;
+    }
+
+    @@media (max-width: 768px) {
+        .card-body {
+            padding: 1rem;
+        }
+
+        .course-intake-table th, .course-intake-table td {
+            padding: 0.5rem;
+            min-width: 100px;
+        }
+
+        .course-intake-table td:has(.form-select) {
+            min-width: 160px; /* Adjusted for mobile */
+        }
+
+        .course-intake-table .btn-danger {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .InstituteType, .InstituteName, .TypeOfMinority {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Institution Basic Details</h5>
+        <form>
+            <button>Logout</button>
+        </form>
+    </div>
+    <div class="card-body">
+        <form id="collegeForm" method="post" enctype="multipart/form-data">
+            <div class="row g-3">
+                @* <input name="FacultyCode" type="hidden" value="@Model.FacultyCode" /> *@
+                <input name="CollegeCode" type="hidden" value="@Model.CollegeCode" />
+
+
+                <div class="col-md-4 InstituteName">
+                    <label class="form-label">Institution Name <span class="text-danger">*</span></label>
+                    @Html.TextBoxFor(m => m.CollegeName, new { @class = "form-control", placeholder = "Enter institution name" })
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Faculty</label>
+                    @Html.DropDownListFor(m => m.FacultyCode,
+                             new SelectList(Model.FacultyMaster, "FacultyId", "FacultyName", Model.FacultyCode),
+                             "-- Select Faculty --", new { @class = "form-select", id = "facultyDropdown" })
+                </div>
+                
+                <div class="col-md-12">
+                    <label class="form-label">Courses and Intakes</label>
+
+                    <div class="table-container">
+                        <table class="table course-intake-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Degree</th>
+                                    <th scope="col">Course</th>
+                                    <th scope="col">Fresh/Increase</th>
+                                    <th scope="col">Number of Seats</th>
+                                    <th scope="col">LOP document/NMC Document</th>
+                                    <th scope="col">Correct</th>
+                                    <th scope="col">Incorrect</th>
+                                    <th scope="col">Remarks</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courseIntakeContainer">
+                                @for (int i = 0; i < Model.CollegeIntakeDetailViewModel.Count; i++)
+                                {
+                                    var row = Model.CollegeIntakeDetailViewModel[i];
+                                    <input type="hidden" name="CollegeIntakeDetailViewModel[@i].Id" value="@row.Id" />
+
+                                    <tr class="course-intake-row">
+                                        <td>
+                                            @Html.DropDownList(
+                                                     $"CollegeIntakeDetailViewModel[{i}].SelectedDegree", // or SelectedCourseLevel
+                                                     new SelectList(row.CourseLevels ?? new List<string>(), row.SelectedDegree),
+                                                     "-- Select Course Level --",
+                                                     new { @class = "form-select degree-dropdown", data_index = i }
+                                                     )
+                                        </td>
+                                        <td>
+                                            <select name="CollegeIntakeDetailViewModel[@i].SelectedCourse"
+                                                    class="form-select course-dropdown"
+                                                    data-index="@i">
+                                                <option value="">-- Select Course --</option>
+                                                @if (!string.IsNullOrEmpty(row.SelectedCourse))
+                                                {
+                                                    <option value="@row.SelectedCourse" selected>
+                                                        @row.CourseName
+                                                    </option>
+                                                }
+                                            </select>
+                                        </td>
+
+                                        <td>
+                                            @Html.DropDownList($"CollegeIntakeDetailViewModel[{i}].SelectedFreshOrContinuation",
+                                                     new SelectList(Model.FreshOrIncreaseMasters, "Type", "Type", Model.CollegeIntakeDetailViewModel[i].SelectedFreshOrContinuation),
+                                                     "-- Select Fresh/Increase --", new { @class = "form-select affiliation-dropdown", data_index = i })
+                                        </td>
+                                        <td>
+                                            <input type="number" min="1" name="CollegeIntakeDetailViewModel[@i].NumberOfSeats"
+                                                   class="form-control" placeholder="Number Of Seats"
+                                                   value="@Model.CollegeIntakeDetailViewModel[i].NumberOfSeats" />
+                                        </td>
+                                        <td>
+                                            <input type="file" name="CollegeIntakeDetailViewModel[@i].DocumentFile" />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="checkbox" name="CollegeIntakeDetailViewModel[@i].IsCorrect"
+                                            @(Model.CollegeIntakeDetailViewModel[i]?.IsCorrect ?? false ? "checked" : "") />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="checkbox" name="CollegeIntakeDetailViewModel[@i].IsIncorrect"
+                                            @(Model.CollegeIntakeDetailViewModel[i]?.IsIncorrect ?? false ? "checked" : "") />
+                                        </td>
+                                        <td>
+                                            <input type="text" name="CollegeIntakeDetailViewModel[@i].Remarks"
+                                                   class="form-control" placeholder="Remarks"
+                                                   value="@Model.CollegeIntakeDetailViewModel[i].Remarks" @(Model.CollegeIntakeDetailViewModel[i]?.IsIncorrect == true ? "" : "disabled") />
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-danger btn-sm remove-row">Delete</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                    <button type="button" class="btn btn-primary btn-sm mt-2" id="addCourseRow">
+                        <i class="bi bi-plus-circle me-2"></i>Add Course
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save me-2"></i>Save Details
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script>
+    $(function () {
+        $('.degree-dropdown, .course-dropdown').each(function () {
+            $(this).html('<option value="">-- Select --</option>');
+        });
+
+        $('#facultyDropdown').on('change', function () {
+            const selectedFacultyId = $(this).val();
+
+            // Reset all degree and course dropdowns first
+            $('.degree-dropdown').html('<option value="">-- Select Degree --</option>');
+            $('.course-dropdown').html('<option value="">-- Select Course --</option>');
+
+            if (selectedFacultyId) {
+                // Fetch once and populate all degree-dropdowns
+                $.get('/Collegelogin/GetCourseLevels', { facultyId: selectedFacultyId }, function (data) {
+                    $('.degree-dropdown').each(function () {
+                        const $degreeDropdown = $(this);
+                        data.forEach(level => {
+                            $degreeDropdown.append(`<option value="${level.value}">${level.text}</option>`);
+                        });
+                    });
+                });
+            }
+        });
+
+
+        $(document).on('change', '.degree-dropdown', function () {
+            const $this = $(this);
+            const index = $this.data('index');
+            const courseLevel = $this.val();
+            const facultyId = $('#facultyDropdown').val();
+            const $courseDropdown = $(`.course-dropdown[data-index="${index}"]`);
+
+            $courseDropdown.empty().append('<option value="">-- Select Course --</option>');
+
+            if (courseLevel && facultyId) {
+                $.get('/Collegelogin/GetCourses', { courseLevel, facultyId }, function (data) {
+                    data.forEach(course => {
+                        $courseDropdown.append(`<option value="${course.value}">${course.text}</option>`);
+                    });
+                });
+            }
+        });
+
+
+        const courseLevels = @Html.Raw(Json.Serialize(Model.CourseLevels));
+        const freshOrIncreaseMasters = @Html.Raw(Json.Serialize(Model.FreshOrIncreaseMasters));
+        console.log('freshOrIncrease', freshOrIncreaseMasters, typeof freshOrIncreaseMasters);
+
+        function getNextCourseIndex() {
+            const indexes = $('select.degree-dropdown')
+                .map(function () {
+                    return parseInt($(this).attr('name').match(/\[(\d+)\]/)[1], 10);
+                }).get();
+
+            return indexes.length === 0 ? 0 : Math.max(...indexes) + 1;
+        }
+
+        $('#addCourseRow').on('click', function () {
+            const courseIndex = getNextCourseIndex(); // Ensure this returns the next correct index
+
+            const $row = $(`
+            <tr class="course-intake-row">
+                <td>
+                    <select name="CollegeIntakeDetailViewModel[${courseIndex}].SelectedDegree"
+                            class="form-select degree-dropdown" data-index="${courseIndex}">
+                        <option value="">-- Select Course Level --</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="CollegeIntakeDetailViewModel[${courseIndex}].SelectedCourse"
+                            class="form-select course-dropdown" data-index="${courseIndex}">
+                        <option value="">-- Select Course --</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="CollegeIntakeDetailViewModel[${courseIndex}].SelectedFreshOrContinuation"
+                            class="form-select affiliation-dropdown" data-index="${courseIndex}">
+                        <option value="">-- Select Fresh/Increase --</option>
+                        ${freshOrIncreaseMasters.map(aff => `<option value="${aff.Type}">${aff.Type}</option>`).join('')}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" min="1" name="CollegeIntakeDetailViewModel[${courseIndex}].NumberOfSeats"
+                           class="form-control" placeholder="Number Of Seats" />
+                </td>
+                <td>
+                    <input type="file" name="CollegeIntakeDetailViewModel[${courseIndex}].Document" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" name="CollegeIntakeDetailViewModel[${courseIndex}].IsCorrect" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" name="CollegeIntakeDetailViewModel[${courseIndex}].IsIncorrect" />
+                </td>
+                <td>
+                    <input type="text" name="CollegeIntakeDetailViewModel[${courseIndex}].Remarks"
+                               class="form-control" placeholder="Remarks" disabled/>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-row">Delete</button>
+                </td>
+            </tr>
+        `);
+
+            $('#courseIntakeContainer').append($row);
+
+            // Populate Degree dropdown if faculty is already selected
+            const selectedFacultyId = $('#facultyDropdown').val();
+            if (selectedFacultyId) {
+                $.get('/Collegelogin/GetCourseLevels', { facultyId: selectedFacultyId }, function (data) {
+                    const $newDegreeDropdown = $(`.degree-dropdown[data-index="${courseIndex}"]`);
+                    $newDegreeDropdown.html('<option value="">-- Select Course Level --</option>');
+                    data.forEach(level => {
+                        $newDegreeDropdown.append(`<option value="${level.value}">${level.text}</option>`);
+                    });
+                });
+            }
+        });
+
+
+
+        $(document).on('click', '.remove-row', function () {
+            $(this).closest('.course-intake-row').remove();
+        });
+
+        $(document).on('change', '.degree-dropdown', function () {
+            const index = $(this).data('index');
+            const selectedLevel = $(this).val();
+            const $courseDropdown = $(`.course-dropdown[data-index="${index}"]`);
+
+            $.get('@Url.Action("GetCoursesByLevel", "Affiliation")', { courseLevel: selectedLevel }, function (courses) {
+                $courseDropdown.empty().append($('<option>', { value: '', text: '-- Select Course --' }));
+                courses.forEach(course => {
+                    $courseDropdown.append($('<option>', {
+                        value: course.courseCode,
+                        text: course.courseName
+                    }));
+                });
+            });
+        });
+
+        function toggleMinoritySection() {
+            const minorityVal = $('.Institution-dropdown').val();
+            if (minorityVal === "3") {
+                $('.TypeOfMinority').show();
+                $('.InstituteType, .InstituteName')
+                    .removeClass('col-md-6')
+                    .addClass('col-md-4');
+            } else {
+                $('.TypeOfMinority').hide();
+                $('.InstituteType, .InstituteName')
+                    .removeClass('col-md-4')
+                    .addClass('col-md-6');
+            }
+        }
+        toggleMinoritySection();
+        $('.Institution-dropdown').on('change', toggleMinoritySection);
+
+        $('#institutionForm').submit(function (e) {
+            e.preventDefault();
+            const form = $(this);
+            const formData = new FormData(this);
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+            $.ajax({
+                url: '/Affiliation/SaveDetails',
+                type: 'POST',
+                data: form.serialize(),
+                success: function () {
+                    alert('Institution details saved successfully.');
+                },
+                error: function () {
+                    alert('Error saving institution details.');
+                }
+            });
+        });
+
+        $(document).on('change', 'input[type="checkbox"][name*=".IsCorrect"], input[type="checkbox"][name*=".IsIncorrect"]', function () {
+            const $checkbox = $(this);
+            const name = $checkbox.attr('name');
+            const indexMatch = name.match(/\[(\d+)\]/);
+
+            if (!indexMatch) return;
+
+            const index = indexMatch[1];
+
+            const $correctCheckbox = $(`input[name="CollegeIntakeDetailViewModel[${index}].IsCorrect"]`);
+            const $incorrectCheckbox = $(`input[name="CollegeIntakeDetailViewModel[${index}].IsIncorrect"]`);
+            const $remarksInput = $(`input[name="CollegeIntakeDetailViewModel[${index}].Remarks"]`);
+
+            if ($checkbox.is($correctCheckbox)) {
+                if ($correctCheckbox.is(':checked')) {
+                    $incorrectCheckbox.prop('checked', false);
+                    $remarksInput.prop('disabled', true).val('').removeAttr('required');
+                }
+            } else if ($checkbox.is($incorrectCheckbox)) {
+                if ($incorrectCheckbox.is(':checked')) {
+                    $correctCheckbox.prop('checked', false);
+                    $remarksInput.prop('disabled', false).attr('required', true).focus();
+                } else {
+                    $remarksInput.prop('disabled', true).removeAttr('required').val('');
+                }
+            }
+        });
+
+    });
+</script>

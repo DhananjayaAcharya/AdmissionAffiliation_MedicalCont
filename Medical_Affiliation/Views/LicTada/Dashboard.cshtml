@@ -1,0 +1,163 @@
+﻿@model Medical_Affiliation.Models.LicTadaDashboardVM
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LIC TA/DA Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap"
+          rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/lictada.css" />
+</head>
+<body>
+
+    <nav class="lt-nav">
+        <div class="lt-brand">
+            <div class="lt-brand-icon">🎓</div>
+            <div>
+                <div class="lt-brand-name">LIC TA/DA Management</div>
+                <div class="lt-brand-sub">UNIVERSITY AFFILIATION PORTAL</div>
+            </div>
+        </div>
+        <div class="lt-user">
+            <span class="lt-role">Finance Officer</span>
+            <div class="lt-avatar">FO</div>
+        </div>
+    </nav>
+
+    <div class="lt-page">
+
+        <div class="lt-page-hd">
+            <h1>Payment Dashboard</h1>
+            <p>LIC Inspection College — TA/DA Claim Processing &amp; Verification</p>
+        </div>
+
+        <!-- Workflow Banner -->
+        <div class="lt-workflow">
+            <span class="lt-wfb lt-blue">FO</span>
+            <span class="lt-wfl">Finance Officer</span>
+            <span class="lt-arr">→</span>
+            <span class="lt-wfb lt-purple">CW</span>
+            <span class="lt-wfl">Case Worker</span>
+            <span class="lt-arr">→</span>
+            <span class="lt-wfb lt-amber">AO/AS</span>
+            <span class="lt-wfl">Audit Officer</span>
+            <span class="lt-arr">→</span>
+            <span class="lt-wfb lt-blue">FO2</span>
+            <span class="lt-wfl">Final Approval</span>
+            <span class="lt-arr">→</span>
+            <span class="lt-wfb lt-red">Reject</span>
+            <span class="lt-wfl">Director</span>
+            <span class="lt-arr">/ →</span>
+            <span class="lt-wfb lt-green">CS</span>
+            <span class="lt-wfl">Cashier</span>
+        </div>
+
+        <!-- Stat Cards (hidden until first fetch) -->
+        <div class="lt-stats" id="ltStats" style="display:none">
+            <div class="lt-stat" style="border-color:#bfdbfe">
+                <div class="lt-si">📋</div>
+                <div class="lt-sv" id="stTotal" style="color:#3b82f6">0</div>
+                <div class="lt-sl">Total Records</div>
+            </div>
+            <div class="lt-stat" style="border-color:#ddd6fe">
+                <div class="lt-si">✅</div>
+                <div class="lt-sv" id="stCW" style="color:#8b5cf6">0</div>
+                <div class="lt-sl">CW Verified</div>
+            </div>
+            <div class="lt-stat" style="border-color:#fde68a">
+                <div class="lt-si">📤</div>
+                <div class="lt-sv" id="stFO" style="color:#d97706">0</div>
+                <div class="lt-sl">FO Forwarded</div>
+            </div>
+            <div class="lt-stat" style="border-color:#a5f3fc">
+                <div class="lt-si">🔍</div>
+                <div class="lt-sv" id="stAO" style="color:#0891b2">0</div>
+                <div class="lt-sl">ASAO Verified</div>
+            </div>
+            <div class="lt-stat" style="border-color:#a7f3d0">
+                <div class="lt-si">💰</div>
+                <div class="lt-sv" id="stCS" style="color:#059669">0</div>
+                <div class="lt-sl">Gone for Cashier</div>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="lt-card">
+            <div class="lt-card-hd">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <span style="font-size:18px">💳</span>
+                    <span class="lt-card-title">Verify Payments</span>
+                </div>
+                <button class="lt-btn-pri" id="ltToggleBtn" onclick="ltToggle()">
+                    ▼ Open Panel
+                </button>
+            </div>
+
+            <!-- Filter Panel -->
+            <div id="ltPanel" style="display:none">
+                <div class="lt-filter">
+                    <div class="lt-fg">
+                        <label class="lt-lbl">Academic Year</label>
+                        <select id="ltYear" class="lt-sel">
+                            <option value="">— Select Year —</option>
+                            @foreach (var y in Model.AcademicYears)
+                            {
+                                <option value="@y.Value">@y.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">Faculty</label>
+                        <select id="ltFaculty" class="lt-sel">
+                            <option value="">— Select Faculty —</option>
+                            @foreach (var f in Model.Faculties)
+                            {
+                                <option value="@f.Value">@f.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">College</label>
+                        <select id="ltCollege" class="lt-sel">
+                            <option value="">— All Colleges —</option>
+                            @foreach (var c in Model.Colleges)
+                            {
+                                <option value="@c.Value">@c.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">&nbsp;</label>
+                        <button class="lt-btn-fetch" onclick="ltFetch()">
+                            🔍 Fetch Records
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid populated by AJAX -->
+            <div id="ltGrid"></div>
+        </div>
+
+    </div>
+
+    <!-- Member Detail Modal -->
+    <div id="ltOverlay" class="lt-overlay" style="display:none"
+         onclick="ltCloseOut(event)">
+        <div class="lt-modal">
+            <div id="ltModalContent">
+                <div class="lt-loading">⏳ Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="ltToast" class="lt-toast" style="display:none"></div>
+
+    <script src="~/js/lictada.js"></script>
+</body>
+</html>

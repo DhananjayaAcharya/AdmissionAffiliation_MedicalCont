@@ -1,0 +1,597 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model List<Medical_Affiliation.Models.Nursing_YearwiseMaterialsDataViewModel>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Affiliated Year-wise Clinical Materials";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    int currentStep = 3;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    /* Global modern look */
+    .main-container {
+        margin-left: 24rem;
+        background: #ffffff;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-height: 100vh;
+        overflow-y: auto;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .container {
+        max-width: 847px;
+    }
+
+    /* ---------- Responsive layout ---------- */
+
+    /* Phones (<= 480px) */
+    @@media only screen and (max-width: 480px) {
+        .main-container {
+            margin-left: 0.75rem;
+            margin-right: 0.75rem;
+            padding: 1rem;
+            border-radius: 14px;
+            box-shadow: none;
+        }
+
+        .status-bar-container {
+            position: static;
+        }
+
+        .progressbar-pipeline {
+            gap: 1rem;
+        }
+
+        .progress-step-btn {
+            font-size: 0.75rem;
+            letter-spacing: 0.3px;
+        }
+
+        #specializationOptions {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Tablets (481px–768px) */
+    @@media only screen and (min-width: 481px) and (max-width: 768px) {
+        .main-container {
+            margin-left: 1rem;
+            margin-right: 1rem;
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+        }
+
+        #specializationOptions {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        }
+    }
+
+    /* Small laptops / landscape tablets (769px–1024px) */
+    @@media only screen and (min-width: 769px) and (max-width: 1024px) {
+        .main-container {
+            margin-left: 10rem;
+            margin-right: 2rem;
+            padding: 2rem;
+            border-radius: 18px;
+        }
+    }
+
+    /* Laptops & small desktops (1025px–1366px) */
+    @@media only screen and (min-width: 1025px) and (max-width: 1366px) {
+        .main-container {
+            margin-left: 21rem;
+            margin-right: 2.5rem;
+            padding: 2.3rem;
+            max-width: 866px;
+        }
+    }
+
+    /* Large desktops (>= 1367px) */
+    @@media only screen and (min-width: 1367px) {
+        .main-container {
+            margin-left: 24rem;
+            margin-right: 3rem;
+            max-width: 1400px;
+        }
+    }
+
+    /* Form label styling */
+    .form-check-label {
+        font-weight: 600;
+        color: #1f2a44;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Specialization grid */
+    #specializationOptions {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+        margin-top: 1.5rem;
+    }
+
+    .form-check {
+        padding: 14px 20px;
+        border-radius: 12px;
+        background: #f9fafb;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid #e5e7eb;
+    }
+
+        .form-check:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+        }
+
+    /* Sticky progress bar */
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ffffff;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db #f9fafb;
+    }
+
+    .progress-step-btn {
+        background: none;
+        border: none;
+        padding: 0.5rem 0;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        color: #6b7280;
+        position: relative;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+        .progress-step-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .progress-step-btn:hover:not(:disabled) {
+            color: #1f2a44;
+        }
+
+        .progress-step-btn:hover::after {
+            width: 100%;
+        }
+
+        .progress-step-btn.active {
+            color: #3b82f6;
+        }
+
+            .progress-step-btn.active::after {
+                width: 100%;
+                background: #3b82f6;
+            }
+
+        .progress-step-btn.completed {
+            color: #22c55e;
+        }
+
+            .progress-step-btn.completed::after {
+                width: 100%;
+                background: #22c55e;
+            }
+
+    /* Table styling */
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    #facultyTable {
+        width: 100%;
+        border-spacing: 0;
+        font-family: 'Inter', sans-serif;
+        background: #ffffff;
+    }
+
+        #facultyTable th,
+        #facultyTable td {
+            padding: 14px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s ease;
+        }
+
+        #facultyTable thead th {
+            background: #f3f4f6;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #1f2a44;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #facultyTable tbody tr:hover {
+            background: #f9fafb;
+        }
+
+    /* ================= FULLSCREEN SUCCESS POPUP ================= */
+    .success-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.65);
+        backdrop-filter: blur(8px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .success-content {
+        background: #e0f2fe;
+        padding: 40px 60px;
+        border-radius: 20px;
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+        .success-content h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #0369a1;
+            font-weight: 700;
+        }
+
+        .success-content button {
+            padding: 10px 30px;
+            border: none;
+            background: #0369a1;
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .success-content button:hover {
+                transform: scale(1.05);
+            }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+@* @if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+} *@
+
+@* <div class="main-container mx-auto"> *@
+    <!-- Progress Bar -->
+    @* <div class="status-bar-container mb-4">
+        @{
+            var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+            var collegeName = System.Text.RegularExpressions.Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+            var stepTitles = new[] {
+        "Institute Basic Details",
+        "Course Details",
+        //"Clinical Material Details",
+        "Hospital Details",
+        "Required Faculty Details",
+        "Add College Faculty details",
+        "Academic Performance"
+                };
+        }
+        <span class="fw-bold fs-5">@collegeName</span>
+        <ul class="progressbar-pipeline" role="progressbar">
+            @for (int i = 0; i < stepTitles.Length; i++)
+            {
+                var isActive = (currentStep == i + 1);
+                var isCompleted = (currentStep > i + 1);
+                <li class="@(isCompleted ? "completed" : "")">
+                    <span class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))">
+                        @stepTitles[i]
+                    </span>
+                </li>
+            }
+        </ul>
+    </div> *@
+
+    <h2 class="text-center fw-bold mb-4 text-primary">Hospital Details</h2>
+    <form asp-action="Ayurvedha_YearwiseMaterials" method="post" enctype="multipart/form-data" id="mainForm">
+        <div class="card shadow-lg border-0 mb-4 rounded-4">
+            <div class="card-header bg-primary text-white rounded-top-4">
+                <h5 class="mb-0">🏥 Hospital Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="HospitalType" class="form-label">Select Hospital Level</label>
+                    <select id="HospitalType" name="HospitalType" class="form-select" required>
+                        <option value="">-- Select --</option>
+                        @foreach (var item in ViewBag.HospitalTypes as List<SelectListItem>)
+                        {
+                            <option value="@item.Value" @@(item.Selected ? "selected" : "")>@item.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="ParentHospitalName">Hospital Name</label>
+                        <input type="text" id="ParentHospitalName" class="form-control rounded-pill" name="ParentHospitalName" placeholder="Enter Hospital Name" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="ParentHospitalAddress">Hospital Address</label>
+                        <input type="text" id="ParentHospitalAddress" class="form-control rounded-pill" name="ParentHospitalAddress" placeholder="Enter Address" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="HospitalOwnerName">Hospital Owner Name</label>
+                        <input type="text" id="HospitalOwnerName" class="form-control rounded-pill" name="HospitalOwnerName" placeholder="Owner Name" />
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="Kpmebeds">KPME Beds</label>
+                        <input type="number" id="Kpmebeds" class="form-control rounded-pill" name="Kpmebeds" min="0" placeholder="0" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="PostBasicBeds">PCB Beds</label>
+                        <input type="number" id="PostBasicBeds" class="form-control rounded-pill" name="PostBasicBeds" min="0" placeholder="0" />
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" for="ParentHospitalKpmebedsDocFile">KPME Beds Document</label>
+                        <input type="file" id="ParentHospitalKpmebedsDocFile" class="form-control rounded-pill" name="ParentHospitalKpmebedsDocFile" />
+                    </div>
+                <div class="col-md-3 mt-3">
+                    <label class="form-label fw-semibold" for="ParentHospitalPostBasicDocFile">PCB Beds Document</label>
+                    <input type="file" id="ParentHospitalPostBasicDocFile" class="form-control rounded-pill" name="ParentHospitalPostBasicDocFile" />
+                </div>
+                   @*  <div class="col-md-3">
+                        <label class="form-label fw-semibold" for="PolutionControlDocFile">Polution Control Document</label>
+                        <input type="file" id="PolutionControlDocFile" class="form-control rounded-pill" name="PolutionControlDocFile" />
+                    </div> *@
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" for="FireSafetyDocFile">Fire Safety Document</label>
+                        <input type="file" id="FireSafetyDocFile" class="form-control rounded-pill" name="FireSafetyDocFile" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" for="BiomedicalWasteManagemenDocFile">Bio Medical Waste Management Document</label>
+                        <input type="file" id="BiomedicalWasteManagemenDocFile" class="form-control rounded-pill" name="BiomedicalWasteManagemenDocFile" />
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Year-wise Materials Table -->
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header bg-secondary text-white rounded-top-4">
+                <h5 class="mb-0">📊 Year-wise Materials</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Parameter</th>
+                            <th id="year1"></th>
+                            <th id="year2"></th>
+                            <th id="year3"></th>
+                            <th>Upload Document</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Model[i].ParametersName
+                                    <input type="hidden" name="[@i].ParametersId" value="@Model[i].ParametersId" />
+                                    <input type="hidden" name="[@i].ParametersName" value="@Model[i].ParametersName" />
+                                    <input type="hidden" name="[@i].CollegeCode" value="@Model[i].CollegeCode" />
+                                    <input type="hidden" name="[@i].FacultyCode" value="@Model[i].FacultyCode" />
+                                </td>
+                                <td>
+                                    <input type="number" name="[@i].Year1" class="form-control rounded" min="0" />
+                                </td>
+                                <td>
+                                    <input type="number" name="[@i].Year2" class="form-control rounded" min="0" />
+                                </td>
+                                <td>
+                                    <input type="number" name="[@i].Year3" class="form-control rounded" min="0" />
+                                </td>
+                                <td>
+                                    <input type="file" name="[@i].UploadDocument" class="form-control" />
+                                    @* Explicit mapping hidden field so controller knows target column *@
+                                    <input type="hidden" name="[@i].UploadTarget"
+                                           value="@(Model[i].ParametersName != null && Model[i].ParametersName.IndexOf("Minor", System.StringComparison.OrdinalIgnoreCase) >= 0
+                                                   ? "MinorOperationsSurgeries"
+                                                   : (Model[i].ParametersName != null && Model[i].ParametersName.IndexOf("Major", System.StringComparison.OrdinalIgnoreCase) >= 0
+                                                       ? "MajorOperationsSurgeries"
+                                                       : (Model[i].ParametersName != null && Model[i].ParametersName.IndexOf("IPD", System.StringComparison.OrdinalIgnoreCase) >= 0
+                                                           ? "IpdDocument"
+                                                           : (Model[i].ParametersName != null && Model[i].ParametersName.IndexOf("OPD", System.StringComparison.OrdinalIgnoreCase) >= 0
+                                                               ? "OpdDocument" : ""))))" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-success px-5 py-2 rounded-pill fw-semibold shadow-sm">
+                    💾 Save Details
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Read-only Saved Data Table -->
+<div class="card shadow-sm mt-5">
+    <div class="card-header bg-dark text-white">Saved Year-wise Materials Records</div>
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Hospital Type</th>
+                    <th>Parameter</th>
+                    <th>Year1</th>
+                    <th>Year2</th>
+                    <th>Year3</th>
+                    <th>Parent Hospital Name</th>
+                    <th>Address</th>
+                    <th>KPME Beds</th>
+                    <th>PCB Beds</th>
+                    <th>Owner Name</th>
+                    <th>Fire Safety Document</th>
+                    <th>KPME Document</th>
+                    <th>PCB Beds Document</th>
+                    <th>Bio Medical Waste Management Document</th>
+                    <th>OPD Document</th>
+                    <th>IPD Document</th>
+                    <th>Major Ops Doc</th>
+                    <th>Minor Ops Doc</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.YearwiseData != null && ((IEnumerable<dynamic>)ViewBag.YearwiseData).Any())
+                {
+                    foreach (var item in ViewBag.YearwiseData)
+                    {
+                        <tr>
+                            <td>@item.HospitalType</td>
+                            <td>@item.ParametersName</td>
+                            <td>@item.Year1</td>
+                            <td>@item.Year2</td>
+                            <td>@item.Year3</td>
+                            <td>@item.ParentHospitalName</td>
+                            <td>@item.ParentHospitalAddress</td>
+                            <td>@item.Kpmebeds</td>
+                            <td>@item.PostBasicBeds</td>
+                            <td>@item.HospitalOwnerName</td>
+                            <td>
+                                @if (item.FireSafetyDoc != null)
+                                {
+                                    <a asp-action="ViewDocument" asp-route-collegeCode="@item.CollegeCode" asp-route-fileType="FireSafetyDoc" target="_blank">View</a>
+                                }
+                            </td>
+                          
+                            <td>
+                                @if (item.ParentHospitalKpmebedsDoc != null)
+                                {
+                                    <a asp-action="ViewDocument" asp-route-collegeCode="@item.CollegeCode" asp-route-fileType="Kpmebeds" target="_blank">View</a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.ParentHospitalPostBasicDoc != null)
+                                {
+                                    <a asp-action="ViewDocument" asp-route-collegeCode="@item.CollegeCode" asp-route-fileType="PostBasic" target="_blank">View</a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.BiomedicalWasteManagemenDoc != null)
+                                {
+                                    <a asp-action="ViewDocument" asp-route-collegeCode="@item.CollegeCode" asp-route-fileType="BiomedicalWasteManagemenDoc" target="_blank">View</a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.opddoc != null)
+                                {
+                                    <a asp-action="ViewDocument" asp-route-collegeCode="@item.CollegeCode" asp-route-fileType="OpdDocument" target="_blank">View</a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Ipddoc != null)
+                                {
+                                    <a asp-action="ViewDocument" asp-route-collegeCode="@item.CollegeCode" asp-route-fileType="IpdDocument" target="_blank">View</a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.MajorOperationsSurgeries != null)
+                                {
+                                    <a asp-action="ViewDocument" asp-route-collegeCode="@item.CollegeCode" asp-route-fileType="MajorOperationsSurgeries" target="_blank">View</a>
+                                }
+                            </td>
+                            <td>
+                                @if (item.MinorOperationsSurgeries != null)
+                                {
+                                    <a asp-action="ViewDocument" asp-route-collegeCode="@item.CollegeCode" asp-route-fileType="MinorOperationsSurgeries" target="_blank">View</a>
+                                }
+                            </td>
+                            <td>
+                                <form asp-action="DeleteYearwiseMaterial1" method="post" onsubmit="return confirm('Are you sure you want to delete this record?');">
+                                    <input type="hidden" name="parametersId" value="@item.ParametersId" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="20" class="text-center text-danger">No data available</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <div class="d-flex justify-content-between my-3">
+        <a asp-controller="AyurvedhaRepository" asp-action="Ayurvedha_UGPG" class="btn btn-outline-secondary sidebar-btn">
+            ⬅ Previous
+        </a>
+        <a asp-controller="AyurvedhaRepository" asp-action="Ayurvedha_ManageDesignationIntake" class="btn btn-outline-secondary sidebar-btn">
+            💾 Proceed to Next
+        </a>
+    </div>
+<script>
+    // Get the current year dynamically
+    const currentYear = new Date().getFullYear();
+    // Fill the header cells with current and previous two years
+    document.getElementById('year1').textContent = currentYear;
+    document.getElementById('year2').textContent = currentYear - 1;
+    document.getElementById('year3').textContent = currentYear - 2;
+</script>

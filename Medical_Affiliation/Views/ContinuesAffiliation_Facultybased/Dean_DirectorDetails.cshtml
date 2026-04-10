@@ -1,0 +1,799 @@
+﻿@model DeanDetailsViewModel
+
+@{
+    ViewData["Title"] = "Staff Particulars - Dean / Director";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 6px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+    }
+
+    /* ── Page Shell ── */
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        /* padding: 36px 0 48px; */
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        /* padding: 0 24px; */
+    }
+
+    /* ── Header Banner ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        /* border-radius: 10px 10px 0 0; */
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .header-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+        position: relative;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+        position: relative;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+        font-weight: 300;
+        position: relative;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+
+    /* ── Form Card ── */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 36px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    /* ── Section Label (divider) ── */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        margin-top: 8px;
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ── Section Block (each card) ── */
+    .section-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .section-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .section-block-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .section-block-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 13px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+    .section-block-body {
+        padding: 0;
+        overflow-x: auto;
+    }
+
+    /* ── Table ── */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.83rem;
+    }
+
+        .data-table thead {
+            background: linear-gradient(180deg, #f5f2ec 0%, #ede8df 100%);
+        }
+
+            .data-table thead th {
+                padding: 9px 10px;
+                font-size: 0.66rem;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--navy);
+                border-bottom: 2px solid var(--border);
+                border-right: 1px solid var(--border);
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+            }
+
+                .data-table thead th:first-child {
+                    border-left: 3px solid var(--gold);
+                }
+
+                .data-table thead th:last-child {
+                    border-right: none;
+                }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #f0ece4;
+            transition: background 0.15s;
+        }
+
+            .data-table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .data-table tbody tr:nth-child(even) {
+                background: #faf8f4;
+            }
+
+            .data-table tbody tr:hover {
+                background: #f3eed8 !important;
+            }
+
+        .data-table td {
+            padding: 8px 10px;
+            border-right: 1px solid #f0ece4;
+            vertical-align: middle;
+        }
+
+            .data-table td:last-child {
+                border-right: none;
+            }
+
+            .data-table td.sl-no {
+                text-align: center;
+                font-family: 'EB Garamond', serif;
+                font-size: 0.95rem;
+                color: var(--navy-mid);
+                font-weight: 600;
+                width: 48px;
+            }
+
+        /* Colspan group header rows */
+        .data-table thead tr.group-row th {
+            background: #ebe6db;
+            font-size: 0.63rem;
+            padding: 6px 10px;
+        }
+
+    /* ── Form Controls ── */
+    .form-control {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 6px 9px;
+        font-size: 0.82rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--white);
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+
+        .form-control[readonly] {
+            background: #f3f0e8;
+            color: var(--text-muted);
+            cursor: default;
+        }
+
+    select.form-control {
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 9px center;
+        padding-right: 28px;
+    }
+
+    .text-danger {
+        display: block;
+        font-size: 0.68rem;
+        color: var(--danger);
+        margin-top: 2px;
+    }
+
+    /* ── Toggle switch (MCI) ── */
+    .toggle-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .form-check-input {
+        width: 36px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--success);
+    }
+
+    .form-check-label {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    /* ── Add Row button ── */
+    .btn-add-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1.5px solid var(--success);
+        color: var(--success);
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 5px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+    }
+
+        .btn-add-row:hover {
+            background: var(--success);
+            color: #fff;
+        }
+
+    /* ── Remove Row button ── */
+    .btn-remove-row {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: transparent;
+        border: 1.5px solid #e0bcbc;
+        color: var(--danger);
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        line-height: 1;
+    }
+
+        .btn-remove-row:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+        }
+
+    /* ── Footer nav ── */
+    .form-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+    }
+
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+        .btn-prev:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+            background: #f3f0e8;
+            text-decoration: none;
+        }
+
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.15s, box-shadow 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-save::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+        }
+
+    /* Date input pair */
+    .date-pair {
+        display: flex;
+        gap: 6px;
+    }
+
+        .date-pair > div {
+            flex: 1;
+            min-width: 0;
+        }
+</style>
+<link rel="stylesheet" href="~/css/common-form.css" />
+
+
+<div class="page-shell">
+    <div class="page-container">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div style="background:#eaf7ef; border:1px solid #a8d5b5; border-radius:6px; padding:10px 16px; margin-bottom:16px; font-size:0.82rem; color:#1a6b3a;">
+                &#10003; @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Header -->
+        @* <div class="page-header">
+            <div class="header-eyebrow">Continuous Affiliation · Staff Particulars</div>
+            <div class="header-title">Dean / Director Details</div>
+            <div class="header-subtitle">Enter qualifications and experience details for the Dean or Director</div>
+            <div class="header-badge">Staff Particulars</div>
+        </div> *@
+
+        <div class="page-header">
+            <div class="emblem">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Dean / Director Details</h1>
+                @* <p>RGUHS · Affiliation Portal </p> *@
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+
+            <form asp-action="Dean_DirectorDetails" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="CourseLevel" />
+                <input type="hidden" asp-for="CollegeCode" />
+                <input type="hidden" asp-for="FacultyCode" />
+
+                <div asp-validation-summary="All" class="text-danger" style="margin-bottom:12px; font-size:0.8rem;"></div>
+
+                <!-- ── 1.a Dean / Director ── -->
+                <div class="section-label">
+                    <span class="section-label-text">1.a — Dean / Director</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" style="margin-bottom:28px;">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Basic Information</span>
+                    </div>
+                    <div class="section-block-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:24%">Name</th>
+                                    <th style="width:26%">Qualifications with Date</th>
+                                    <th style="width:20%">University</th>
+                                    <th style="width:18%">State Council Number</th>
+                                    <th style="width:12%">Recognised by MCI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input asp-for="DeanOrDirectorName" class="form-control" placeholder="Full name" />
+                                        <span asp-validation-for="DeanOrDirectorName" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <div class="date-pair">
+                                            <div>
+                                                <select asp-for="DeanQualification" class="form-control" asp-items="ViewBag.Qualifications">
+                                                    <option value="">— Select —</option>
+                                                </select>
+                                                <span asp-validation-for="DeanQualification" class="text-danger"></span>
+                                            </div>
+                                            <div>
+                                                <input asp-for="DeanQualificationDate" type="date" class="form-control" />
+                                                <span asp-validation-for="DeanQualificationDate" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input asp-for="DeanUniversity" class="form-control" placeholder="University name" />
+                                        <span asp-validation-for="DeanUniversity" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <input asp-for="DeanStateCouncilNumber" class="form-control" placeholder="Council no." />
+                                        <span asp-validation-for="DeanStateCouncilNumber" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <div class="toggle-wrap">
+                                            <input asp-for="RecognizedByMCI" class="form-check-input" type="checkbox" role="switch" />
+                                            <label class="form-check-label" for="RecognizedByMCI">Yes</label>
+                                        </div>
+                                        <span asp-validation-for="RecognizedByMCI" class="text-danger" style="text-align:center;"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ── 1.b Teaching Experiences ── -->
+                <div class="section-label">
+                    <span class="section-label-text">1.b — Teaching Experience</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" style="margin-bottom:28px;">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Details of Teaching Experience</span>
+                        <button type="button" class="btn-add-row" id="addTeachingRow">+ Add Row</button>
+                    </div>
+                    <div class="section-block-body">
+                        <table class="data-table" id="teachingExperienceTable">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="width:4%">#</th>
+                                    <th rowspan="2" style="width:20%">Designation</th>
+                                    <th colspan="2" style="width:28%">UG Teaching</th>
+                                    <th colspan="2" style="width:28%">PG Teaching</th>
+                                    <th rowspan="2" style="width:14%">Total Exp. (Yrs)</th>
+                                </tr>
+                                <tr class="group-row">
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.TeachingExperiences.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="sl-no">
+                                            @(i + 1)
+                                            <input type="hidden" asp-for="TeachingExperiences[i].Id" />
+                                        </td>
+                                        <td>
+                                            <input asp-for="TeachingExperiences[i].Designation" class="form-control" />
+                                            <span asp-validation-for="TeachingExperiences[i].Designation" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <input asp-for="TeachingExperiences[i].UGFrom" type="date" class="form-control date-input" data-row="@i" data-type="ug-from" />
+                                            <span asp-validation-for="TeachingExperiences[i].UGFrom" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <input asp-for="TeachingExperiences[i].UGTo" type="date" class="form-control date-input" data-row="@i" data-type="ug-to" />
+                                            <span asp-validation-for="TeachingExperiences[i].UGTo" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <input asp-for="TeachingExperiences[i].PGFrom" type="date" class="form-control date-input" data-row="@i" data-type="pg-from" />
+                                            <span asp-validation-for="TeachingExperiences[i].PGFrom" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <input asp-for="TeachingExperiences[i].PGTo" type="date" class="form-control date-input" data-row="@i" data-type="pg-to" />
+                                            <span asp-validation-for="TeachingExperiences[i].PGTo" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <input asp-for="TeachingExperiences[i].TotalExperienceYears"
+                                                   type="number" step="any" readonly
+                                                   value="@(Model.TeachingExperiences[i].TotalExperienceYears?.ToString("0.0"))"
+                                                   class="form-control total-exp"
+                                                   data-row="@i" />
+                                            <span asp-validation-for="TeachingExperiences[i].TotalExperienceYears" class="text-danger"></span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ── 1.c Administrative Experiences ── -->
+                <div class="section-label">
+                    <span class="section-label-text">1.c — Administrative Experience</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" style="margin-bottom:28px;">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Details of Administrative Experience</span>
+                        <button type="button" class="btn-add-row" id="addAdminRow">+ Add Row</button>
+                    </div>
+                    <div class="section-block-body">
+                        <table class="data-table" id="adminExperienceTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:5%">#</th>
+                                    <th style="width:36%">Post Held</th>
+                                    <th style="width:18%">From</th>
+                                    <th style="width:18%">To</th>
+                                    <th style="width:16%">Total Exp. (Yrs)</th>
+                                    <th style="width:7%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.AdministrativeExperiences.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="sl-no">
+                                            @(i + 1)
+                                            <input type="hidden" asp-for="AdministrativeExperiences[i].Id" />
+                                        </td>
+                                        <td>
+                                            <input asp-for="AdministrativeExperiences[i].PostHeld" class="form-control" placeholder="Post held" />
+                                            <span asp-validation-for="AdministrativeExperiences[i].PostHeld" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <input asp-for="AdministrativeExperiences[i].FromDate" type="date" class="form-control date-input" data-row="@i" data-table="admin" />
+                                            <span asp-validation-for="AdministrativeExperiences[i].FromDate" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <input asp-for="AdministrativeExperiences[i].ToDate" type="date" class="form-control date-input" data-row="@i" data-table="admin" />
+                                            <span asp-validation-for="AdministrativeExperiences[i].ToDate" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <input asp-for="AdministrativeExperiences[i].TotalExperienceYears"
+                                                   type="number" step="any" readonly
+                                                   class="form-control total-exp"
+                                                   data-row="@i" data-table="admin" />
+                                            <span asp-validation-for="AdministrativeExperiences[i].TotalExperienceYears" class="text-danger"></span>
+                                        </td>
+                                        <td style="text-align:center;">
+                                            <button type="button" class="btn-remove-row remove-row" title="Remove">&#8722;</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ── Footer ── -->
+                <div class="form-footer">
+                    <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="Details_Of_MBBS"
+                       class="btn-prev">← Previous</a>
+                    <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
+                </div>
+
+            </form>
+        </div><!-- /.form-card -->
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            let teachingRowIndex = @Model.TeachingExperiences.Count;
+            let adminRowIndex    = @Model.AdministrativeExperiences.Count;
+
+            // Auto-calculate total experience on date change
+            $(document).on('change', '.date-input', function () {
+                calculateTotalExperience($(this));
+            });
+
+            // ── Add Teaching row ──
+            $('#addTeachingRow').click(function () {
+                const idx = teachingRowIndex++;
+                const row = `
+                <tr>
+                    <td class="sl-no">${idx + 1}</td>
+                    <td><input name="TeachingExperiences[${idx}].Designation" class="form-control" /></td>
+                    <td><input name="TeachingExperiences[${idx}].UGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="ug-from" /></td>
+                    <td><input name="TeachingExperiences[${idx}].UGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="ug-to" /></td>
+                    <td><input name="TeachingExperiences[${idx}].PGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="pg-from" /></td>
+                    <td><input name="TeachingExperiences[${idx}].PGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="pg-to" /></td>
+                    <td><input name="TeachingExperiences[${idx}].TotalExperienceYears" type="number" step="0.1" readonly class="form-control total-exp" data-row="${idx}" /></td>
+                </tr>`;
+                $('#teachingExperienceTable tbody').append(row);
+                updateSlNumbers('teachingExperienceTable');
+            });
+
+            // ── Add Admin row ──
+            $('#addAdminRow').click(function () {
+                const idx = adminRowIndex++;
+                const row = `
+                <tr>
+                    <td class="sl-no">${idx + 1}</td>
+                    <td><input name="AdministrativeExperiences[${idx}].PostHeld"  class="form-control" placeholder="Post held" /></td>
+                    <td><input name="AdministrativeExperiences[${idx}].FromDate"  type="date" class="form-control date-input" data-row="${idx}" data-table="admin" /></td>
+                    <td><input name="AdministrativeExperiences[${idx}].ToDate"    type="date" class="form-control date-input" data-row="${idx}" data-table="admin" /></td>
+                    <td><input name="AdministrativeExperiences[${idx}].TotalExperienceYears" type="number" step="0.1" readonly class="form-control total-exp" data-row="${idx}" data-table="admin" /></td>
+                    <td style="text-align:center;"><button type="button" class="btn-remove-row remove-row" title="Remove">&#8722;</button></td>
+                </tr>`;
+                $('#adminExperienceTable tbody').append(row);
+                updateSlNumbers('adminExperienceTable');
+            });
+
+            // ── Remove row ──
+            $(document).on('click', '.remove-row', function () {
+                const tbody = $(this).closest('tbody');
+                if (tbody.find('tr').length > 1) {
+                    $(this).closest('tr').remove();
+                    updateSlNumbers($(this).closest('table').attr('id'));
+                }
+            });
+
+            // ── Calculate total experience ──
+            function calculateTotalExperience(el) {
+                const row      = el.closest('tr');
+                const rowIndex = el.data('row');
+                const isAdmin  = el.data('table') === 'admin';
+                let total      = 0;
+
+                if (isAdmin) {
+                    const from = row.find('td:nth-child(3) input[type="date"]').val();
+                    const to   = row.find('td:nth-child(4) input[type="date"]').val();
+                    if (from && to) total = yearsDiff(from, to);
+                } else {
+                    const ugFrom = row.find('td:nth-child(3) input[type="date"]').val();
+                    const ugTo   = row.find('td:nth-child(4) input[type="date"]').val();
+                    const pgFrom = row.find('td:nth-child(5) input[type="date"]').val();
+                    const pgTo   = row.find('td:nth-child(6) input[type="date"]').val();
+                    if (ugFrom && ugTo) total += yearsDiff(ugFrom, ugTo);
+                    if (pgFrom && pgTo) total += yearsDiff(pgFrom, pgTo);
+                }
+
+                row.find(`.total-exp[data-row="${rowIndex}"]`).val(parseFloat(total.toFixed(1)));
+            }
+
+            function yearsDiff(from, to) {
+                return Math.max(0, (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24 * 365.25));
+            }
+
+            function updateSlNumbers(tableId) {
+                $(`#${tableId} tbody tr`).each(function (i) {
+                    $(this).find('.sl-no').text(i + 1);
+                });
+            }
+        });
+    </script>
+}

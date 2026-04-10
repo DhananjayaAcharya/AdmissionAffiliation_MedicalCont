@@ -1,0 +1,283 @@
+﻿@model List<Medical_Affiliation.Models.UniversityImagesViewModel>
+@{
+    ViewData["Title"] = "University Images";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container my-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">University Images</h2>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addImageModal">
+            <i class="bi bi-plus-circle"></i> Add Image
+        </button>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No images found. Please upload some.</div>
+    }
+
+    <div class="row g-3">
+        @foreach (var img in Model)
+        {
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <img src="data:image/png;base64,@Convert.ToBase64String(img.ImgByteArr)"
+                         class="card-img-top" alt="@img.ImgName" style="height: 180px; object-fit: cover;" />
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title text-truncate">@img.ImgName</h6>
+                        <div class="mt-auto d-flex justify-content-between">
+                            <a href="#" class="btn btn-sm btn-primary edit-btn"
+                               data-id="@img.ImgId"
+                               data-name="@img.ImgName">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+
+                            <button class="btn btn-sm btn-danger delete-btn"
+                                    data-id="@img.ImgId"
+                                    data-name="@img.ImgName">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add Image Modal -->
+<div class="modal fade" id="addImageModal" tabindex="-1" aria-labelledby="addImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="UniversityImages" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addImageModalLabel">Upload New Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="imgFile" class="form-label">Choose Image</label>
+                        <input type="file" class="form-control" id="imgFile" name="ImgFile" accept="image/*" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="imgName" class="form-label">Image Name</label>
+                        <input type="text" class="form-control" id="imgName" name="ImgName" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Image Modal -->
+<div class="modal fade" id="editImageModal" tabindex="-1" aria-labelledby="editImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="UniversityImages" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editImageModalLabel">Edit Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editImgId" name="ImgId" />
+
+
+                    <div class="mb-3">
+                        <label for="editImgFile" class="form-label">Replace Image (optional)</label>
+                        <input type="file" class="form-control" id="editImgFile" name="ImgFile" accept="image/*" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editImgName" class="form-label">Image Name</label>
+                        <input type="text" class="form-control" id="editImgName" name="ImgName" required />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteImageModal" tabindex="-1" aria-labelledby="deleteImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="DeleteImage" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteImageModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="deleteImgId" name="ImgId" />
+                    <p>Are you sure you want to delete <strong id="deleteImgName"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Bootstrap JS + Icons -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+    .card:hover {
+        transform: translateY(-3px);
+        transition: transform 0.2s;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#imgFile').on('change', function () {
+            const file = this.files[0];
+            if (file) {
+                $('#imgName').val(file.name);
+            } else {
+                $('#imgName').val('');
+            }
+        });
+        $(document).on('click', '.edit-btn', function (e) {
+            e.preventDefault();
+
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+
+            // Set values inside modal
+            $('#editImgId').val(id);
+            $('#editImgName').val(name);
+
+            // Show the modal
+            $('#editImageModal').modal('show');
+        });
+        $('#editImgFile').on('change', function () {
+            const file = this.files[0];
+            if (file) {
+                $('#editImgName').val(file.name);
+                // If you want to include extension, use: $('#editImgName').val(file.name);
+            }
+        });
+        
+        $(document).on('click', '.delete-btn', function (e) {
+            e.preventDefault();
+
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                html: `You are about to delete <strong>${name}</strong>. This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Post form to DeleteImage action
+                    $.ajax({
+                        url: '@Url.Action("DeleteImage", "Admin")',
+                        type: 'POST',
+                        data: { ImgId: id },
+                        success: function () {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'The image has been removed.',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Something went wrong while deleting!',
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        $('#editImgFile').on('change', function () {
+            const file = this.files[0];
+            if (file) {
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid file',
+                        text: 'Please select a valid image file (jpg, png, gif, etc.)'
+                    });
+                    $(this).val(''); // reset file input
+                    $('#editImgName').val(''); // reset name input
+                    return;
+                }
+
+                // Set full filename including extension
+                $('#editImgName').val(file.name);
+            }
+        });
+
+        // Similarly, you can add the same check for #imgFile in Add modal
+        $('#imgFile').on('change', function () {
+            const file = this.files[0];
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid file',
+                        text: 'Please select a valid image file (jpg, png, gif, etc.)'
+                    });
+                    $(this).val('');
+                    $('#imgName').val('');
+                    return;
+                }
+                $('#imgName').val(file.name);
+            }
+        });
+        var errorMsg = '@TempData["ImageError"]';
+        if (errorMsg) { 
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '@TempData["ImageError"]'
+            });
+        }
+
+        var successMsg = '@TempData["SuccessMsg"]';
+        if (successMsg) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["SuccessMsg"]'
+            });
+        }
+    });
+</script>

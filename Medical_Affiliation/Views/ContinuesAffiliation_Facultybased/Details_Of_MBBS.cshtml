@@ -1,0 +1,456 @@
+﻿@model AffiliationCourseDetailsViewModel
+@{
+    ViewData["Title"] = "Details of MBBS Course";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Details of MBBS Course</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --ink: #0f1923;
+            --ink-mid: #2e3d4f;
+            --ink-muted: #6b7a8d;
+            --border: #d4dae3;
+            --bg: #f4f6f9;
+            --surface: #ffffff;
+            --accent: #1a4c8b;
+            --accent-lt: #e8edf7;
+            --danger: #c0392b;
+            --gold: #c9a84c;
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(15,25,35,.08);
+        }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+            padding: 28px 40px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 3px solid var(--gold);
+        }
+        .page-header .emblem {
+            width: 54px; height: 54px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-header .emblem i {
+            color: var(--gold);
+            font-size: 24px;
+        }
+        .page-header-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #fff;
+            letter-spacing: 0.02em;
+        }
+        .page-header-text p {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .form-wrap {
+            max-width: 1100px;
+            margin: 32px auto;
+            padding: 0 24px 60px;
+        }
+
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .section-header {
+            padding: 14px 20px;
+            background: #f8f9fc;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-header .icon-wrap {
+            width: 32px; height: 32px;
+            background: #e8edf7;
+            color: #1a4c8b;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .section-header h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1a4c8b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .section-body {
+            padding: 24px;
+        }
+
+        .fg {
+            display: grid;
+            gap: 18px;
+        }
+        .fg-2 { grid-template-columns: 1fr 1fr; }
+        .fg-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+        label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--ink-mid);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            font-size: 0.9rem;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fafbfc;
+            transition: all 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,76,139,0.12);
+            outline: none;
+        }
+
+        input[type="date"] {
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .file-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eafaf1;
+            color: #1e7e4e;
+            border: 1px solid #a9dfbf;
+            border-radius: 30px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            margin-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s;
+            text-decoration: none;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--ink-mid);
+        }
+        .btn-ghost:hover {
+            background: #f4f6f9;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a4c8b, #1564c0);
+            color: white;
+            box-shadow: 0 4px 15px rgba(26,76,139,0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26,76,139,0.4);
+        }
+    </style>
+    <link rel="stylesheet" href="~/css/common-form.css" />
+
+</head>
+<body>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="emblem">
+            <i class="fas fa-book-medical"></i>
+        </div>
+        <div class="page-header-text">
+            <h1>Details of MBBS Course</h1>
+            <p>RGUHS · Continuation Affiliation Portal</p>
+        </div>
+    </div>
+
+    <div class="form-wrap">
+        <form asp-action="Details_Of_MBBS" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="Facultycode" />
+            <input type="hidden" asp-for="Collegecode" />
+            <input type="hidden" asp-for="CourseId" />
+            <input type="hidden" asp-for="courseName" />
+
+            <!-- A. PRESENT INTAKE -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="icon-wrap">A</div>
+                    <h2>Present Intake</h2>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-3">
+                        <div>
+                            <label>Sl. No.</label>
+                            <input value="01" readonly />
+                        </div>
+                        <div>
+                            <label>Course</label>
+                            <input asp-for="courseName" readonly />
+                        </div>
+                        <div>
+                            <label asp-for="IntakeDuring_2025_26">Present Intake 2025-26 <span style="color:#c0392b">*</span></label>
+                            <input asp-for="IntakeDuring_2025_26" type="number" placeholder="Enter intake" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- B. PREVIOUS DETAILS -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="icon-wrap">B</div>
+                    <h2>Previous Details <small style="font-weight:400; text-transform:none; color:#6b7a8d;">(Enclose previous years notification copies)</small></h2>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-3">
+                        <div>
+                            <label>Sl. No.</label>
+                            <input value="1" readonly />
+                        </div>
+                        <div>
+                            <label>Course</label>
+                            <input value="MBBS" readonly />
+                        </div>
+                        <div>
+                            <label asp-for="Intake_slab">Intake</label>
+                            <input asp-for="Intake_slab" placeholder="e.g. 50" />
+                        </div>
+                    </div>
+
+                    <div class="fg fg-2" style="margin-top: 18px;">
+                        <div>
+                            <label asp-for="yearofLOP">Year of obtaining LOP</label>
+                            <input asp-for="yearofLOP" type="date" />
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <label>Previous Years Notification Copies (Upload)</label>
+                        <input asp-for="PreviousNotificationFiles" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- C. PARTICULARS OF PERMISSION / RECOGNITION -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="icon-wrap">C</div>
+                    <h2>Particulars of Permission / Recognition</h2>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-2">
+                        <div>
+                            <label asp-for="Typeofpermission">Type of Permission (Fresh/Renewal/Increase)</label>
+                            <input asp-for="Typeofpermission" placeholder="e.g. Renewal" />
+                        </div>
+                        <div>
+                            <label asp-for="DateOfLOP_Renewal_GOIMCI">Date of LOP & Renewal from GOI/MCI/NMC for UG</label>
+                            <input asp-for="DateOfLOP_Renewal_GOIMCI" type="date" />
+                        </div>
+                        <div>
+                            <label asp-for="SanctionedIntake_Permission">Sanctioned Intake</label>
+                            <input asp-for="SanctionedIntake_Permission" type="number" />
+                        </div>
+                        <div>
+                            <label asp-for="dateofrecognition">Date of Recognition / Renewal by Apex Bodies</label>
+                            <input asp-for="dateofrecognition" type="date" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- D. YEAR OF OBTAINING EC & FC -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="icon-wrap">D</div>
+                    <h2>Year of Obtaining EC & FC from Government of Karnataka</h2>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-3">
+                        <div>
+                            <label asp-for="yearofObtainingECandFC">Year of Obtaining EC & FC</label>
+                            <input asp-for="yearofObtainingECandFC" type="date" />
+                        </div>
+                        <div>
+                            <label asp-for="sannctionedIntake_EC_FC">Sanctioned Intake</label>
+                            <input asp-for="sannctionedIntake_EC_FC" type="number" />
+                        </div>
+                        <div>
+                            <label>GOK Order (Supporting Document)</label>
+                            <div class="file-upload-wrapper">
+                               <input asp-for="GOKorder" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                               @if (Model.HasGOKOrder)
+                               {
+                                   <span class="file-badge">
+                                       <i class="fas fa-circle-check"></i> File uploaded
+                                   </span>
+
+                                   <!-- ✅ VIEW BUTTON -->
+                                   <a asp-action="ViewGOKOrder"
+                                      target="_blank"
+                                      class="btn btn-sm btn-outline-primary">
+                                       View GOK Order
+                                   </a>
+                               }
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- E. YEAR OF LAST AFFILIATION GRANTED BY RGUHS -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="icon-wrap">E</div>
+                    <h2>Year of Last Affiliation Granted by RGUHS</h2>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-3">
+                        <div>
+                            <label asp-for="YearOfLastAffiliation_RGUHS">Year of Last Affiliation</label>
+                            <input asp-for="YearOfLastAffiliation_RGUHS" placeholder="YYYY" />
+                        </div>
+                        <div>
+                            <label asp-for="SanctionedIntake_LastAffiliation">Sanctioned Intake</label>
+                            <input asp-for="SanctionedIntake_LastAffiliation" type="number" />
+                        </div>
+                        <div>
+                            <label>Supporting Document (RGUHS Notification)</label>
+                            <div class="file-upload-wrapper">
+                                <input asp-for="LastAffiliationRGUHSFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                @if (Model.HasLastAffiliationFile)
+                                {
+                                    <span class="file-badge">
+                                        <i class="fas fa-circle-check"></i> File uploaded
+                                    </span>
+
+                                    <!-- ✅ VIEW BUTTON -->
+                                    <a asp-action="ViewLastAffiliation"
+                                        target="_blank"
+                                        class="btn btn-sm btn-outline-primary">
+                                        View Affilaition Document
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- F. DATE OF PREVIOUS INSPECTION BY LIC -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="icon-wrap">F</div>
+                    <h2>Date of Previous Inspection by LIC</h2>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-2">
+                        <div>
+                            <label asp-for="DateOfPreviousLICInspection">Date of Previous Inspection by LIC</label>
+                            <input asp-for="DateOfPreviousLICInspection" type="date" />
+                        </div>
+                        <div>
+                            <label asp-for="ActionTakenOnDeficiencies">Action Taken to Rectify the Deficiencies – If Any</label>
+                            <textarea asp-for="ActionTakenOnDeficiencies" rows="3" placeholder="Enter details..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="form-footer">
+                <a asp-action="NonTeachingStaff" asp-controller="ContinuesAffiliation_Facultybased" class="btn btn-ghost">
+                    ← Previous
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-floppy-disk"></i>
+                    Save & Proceed
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    @section Scripts {
+        @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    }
+</body>
+</html>

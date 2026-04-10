@@ -1,0 +1,661 @@
+﻿@model Medical_Affiliation.Models.CA_Med_LibraryMainVM
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Library Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 6px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+    }
+
+    /* Page Shell */
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        padding: 36px 0 48px;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: 10px 10px 0 0;
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px);
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .header-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+        font-weight: 300;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 36px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    /* Section Label */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 28px 0 16px 0;
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* Section Block */
+    .section-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .section-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 12px 16px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+    }
+
+    .section-block-body {
+        padding: 20px;
+        overflow-x: auto;
+    }
+
+    /* Tables */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.83rem;
+    }
+
+        .data-table thead {
+            background: linear-gradient(180deg, #f5f2ec 0%, #ede8df 100%);
+        }
+
+            .data-table thead th {
+                padding: 10px 12px;
+                font-size: 0.68rem;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--navy);
+                border-bottom: 2px solid var(--border);
+                text-align: center;
+                vertical-align: middle;
+                white-space: nowrap;
+            }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #f0ece4;
+        }
+
+            .data-table tbody tr:nth-child(even) {
+                background: #faf8f4;
+            }
+
+            .data-table tbody tr:hover {
+                background: #f3eed8;
+            }
+
+        .data-table td {
+            padding: 10px 12px;
+            vertical-align: middle;
+        }
+
+    /* Form Controls */
+    .form-control,
+    .form-select {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 7px 10px;
+        font-size: 0.82rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--white);
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+
+    select.form-select {
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
+    }
+
+    .text-danger {
+        display: block;
+        font-size: 0.68rem;
+        color: var(--danger);
+        margin-top: 3px;
+    }
+
+    /* Buttons */
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.15s, box-shadow 0.15s;
+        letter-spacing: 0.04em;
+    }
+
+        .btn-save:hover {
+            opacity: 0.92;
+            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+        }
+
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.15s;
+    }
+
+        .btn-prev:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+            background: #f3f0e8;
+        }
+
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    h5 {
+        font-size: 1.05rem;
+        color: var(--navy);
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text);
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+</style>
+<link rel="stylesheet" href="~/css/common-form.css" />
+<div class="page-shell">
+    <div class="page-container">
+
+        <!-- Header -->
+        <div class="page-header head">
+            @* <div class="header-eyebrow">Continuous Affiliation · Medical Library</div> *@
+            <div class="header-title">Library Details</div>
+            <div class="header-subtitle">Enter complete library infrastructure and facilities details</div>
+            @* <div class="header-badge">Step 10 of 27</div> *@
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="form-card">
+
+            <h3 class="text-center" style="color:var(--navy); font-family:'EB Garamond', serif; margin-bottom: 28px;">6. Library</h3>
+
+            <!-- SECTION 1: General Information & Library Items -->
+            <div class="section-label">
+                <span class="section-label-text">a–d — General Information &amp; Library Items</span>
+                <span class="section-label-line"></span>
+            </div>
+            <div class="section-block">
+                <div class="section-block-body">
+                    <form asp-action="SaveGeneralAndItems" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-4">
+                            <label>a. Library email ID</label>
+                            <input asp-for="General.LibraryEmailID" class="form-control" />
+                            <span asp-validation-for="General.LibraryEmailID" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label>b. Digital Library</label>
+                            <select name="General.DigitalLibrary" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="Y" selected="@(Model.General.DigitalLibrary == "Y")">Yes</option>
+                                <option value="N" selected="@(Model.General.DigitalLibrary == "N")">No</option>
+                            </select>
+                            <span asp-validation-for="General.DigitalLibrary" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label>c. HELINET services</label>
+                            <select name="General.HelinetServices" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="Y" selected="@(Model.General.HelinetServices == "Y")">Yes</option>
+                                <option value="N" selected="@(Model.General.HelinetServices == "N")">No</option>
+                            </select>
+                            <span asp-validation-for="General.HelinetServices" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label>d. Department wise Library</label>
+                            <select name="General.DepartmentWiseLibrary" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="Y" selected="@(Model.General.DepartmentWiseLibrary == "Y")">Yes</option>
+                                <option value="N" selected="@(Model.General.DepartmentWiseLibrary == "N")">No</option>
+                            </select>
+                            <span asp-validation-for="General.DepartmentWiseLibrary" class="text-danger"></span>
+                        </div>
+
+                        <h5>Library Items</h5>
+                        <div style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2" style="vertical-align:middle; text-align:center;">Items</th>
+                                        <th colspan="2" style="text-align:center;">Total as on current year</th>
+                                        <th colspan="2" style="text-align:center;">Added in previous year</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Foreign</th>
+                                        <th>Indian</th>
+                                        <th>Foreign</th>
+                                        <th>Indian</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Items.Count; i++)
+                                    {
+                                        var item = Model.Items[i];
+                                        var isJournalsRow = item.ItemName.Contains("Current Journals", StringComparison.OrdinalIgnoreCase);
+                                        <tr>
+                                            <td><strong>@item.ItemName</strong></td>
+                                            @if (isJournalsRow)
+                                            {
+                                                <td><input asp-for="Items[@i].CurrentForeign" type="number" min="0" class="form-control" /></td>
+                                                <td><input asp-for="Items[@i].CurrentIndian" type="number" min="0" class="form-control" /></td>
+                                                <td><input asp-for="Items[@i].PreviousForeign" type="number" min="0" class="form-control" /></td>
+                                                <td><input asp-for="Items[@i].PreviousIndian" type="number" min="0" class="form-control" /></td>
+                                            }
+                                            else
+                                            {
+                                                <td colspan="2">
+                                                    <input asp-for="Items[@i].CurrentForeign" type="number" min="0" class="form-control" placeholder="Total current year" />
+                                                </td>
+                                                <td colspan="2">
+                                                    <input asp-for="Items[@i].PreviousForeign" type="number" min="0" class="form-control" placeholder="Added previous year" />
+                                                </td>
+                                            }
+                                            <input type="hidden" asp-for="Items[@i].SlNo" />
+                                            <input type="hidden" asp-for="Items[@i].CurrentIndian" />
+                                            <input type="hidden" asp-for="Items[@i].PreviousIndian" />
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn-save">Save General &amp; Items</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Building -->
+            <div class="section-label">
+                <span class="section-label-text">e — Building</span>
+                <span class="section-label-line"></span>
+            </div>
+            <div class="section-block">
+                <div class="section-block-body">
+                    <form asp-action="SaveBuilding" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-4">
+                            <label>Whether the library is housed in an independent building</label>
+                            <select name="Building.IsIndependent" class="form-select" id="ddlIndependent">
+                                <option value="">-- Select --</option>
+                                <option value="Y" selected="@(Model.Building.IsIndependent == "Y")">Yes</option>
+                                <option value="N" selected="@(Model.Building.IsIndependent == "N")">No</option>
+                            </select>
+                            <span asp-validation-for="Building.IsIndependent" class="text-danger"></span>
+                        </div>
+
+                        <div id="areaDiv" style="display: @(Model.Building.IsIndependent == "Y" ? "block" : "none");">
+                            <label>Total floor area in Sq. Mtrs</label>
+                            <input asp-for="Building.AreaSqMtrs" type="number" min="0" step="0.01" class="form-control" />
+                            <span asp-validation-for="Building.AreaSqMtrs" class="text-danger"></span>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn-save">Save Building Details</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Technical Process -->
+            <div class="section-label">
+                <span class="section-label-text">f — Technical Process</span>
+                <span class="section-label-line"></span>
+            </div>
+            <div class="section-block">
+                <div class="section-block-body">
+                    <form asp-action="SaveTechnicalProcess" method="post">
+                        @Html.AntiForgeryToken()
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Schemes Used</th>
+                                    <th>Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.TechnicalProcess.Count; i++)
+                                {
+                                    <tr>
+                                        <td><strong>@Model.TechnicalProcess[i].ProcessName</strong></td>
+                                        <td><input asp-for="TechnicalProcess[@i].Value" class="form-control" /></td>
+                                        <input type="hidden" asp-for="TechnicalProcess[@i].SlNo" />
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn-save">Save Technical Process</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION 4: Library Equipments -->
+            <div class="section-label">
+                <span class="section-label-text">g — Library Equipments</span>
+                <span class="section-label-line"></span>
+            </div>
+            <div class="section-block">
+                <div class="section-block-body">
+                    <form asp-action="SaveEquipments" method="post">
+                        @Html.AntiForgeryToken()
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipment</th>
+                                    <th>Available</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Equipments.Count; i++)
+                                {
+                                    var item = Model.Equipments[i];
+                                    if (level == "UG" && item.EquipmentName == "Bindery") { continue; }
+                                    <tr>
+                                        <td><strong>@item.EquipmentName</strong></td>
+                                        <td>
+                                            <select name="Equipments[@i].HasEquipment" class="form-select">
+                                                <option value="">-- Select --</option>
+                                                <option value="Y" selected="@(item.HasEquipment == "Y")">Yes</option>
+                                                <option value="N" selected="@(item.HasEquipment == "N")">No</option>
+                                            </select>
+                                            <span asp-validation-for="Equipments[@i].HasEquipment" class="text-danger"></span>
+                                        </td>
+                                        <input type="hidden" asp-for="Equipments[@i].SlNo" />
+                                        <input type="hidden" asp-for="Equipments[@i].EquipmentName" />
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn-save">Save Library Equipments</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION 5: Library Finance -->
+            <div class="section-label">
+                <span class="section-label-text">h — Library Finance</span>
+                <span class="section-label-line"></span>
+            </div>
+            <div class="section-block">
+                <div class="section-block-body">
+                    <form asp-action="SaveFinance" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-4">
+                            <label>i. Total Budget proposed (Rupees in Lakhs)</label>
+                            <input asp-for="Finance.TotalBudgetLakhs" type="number" min="0" step="0.01" class="form-control" />
+                            <span asp-validation-for="Finance.TotalBudgetLakhs" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label>ii. Expenditure proposed for library Books</label>
+                            <input asp-for="Finance.ExpenditureBooksLakhs" type="number" min="0" step="0.01" class="form-control" />
+                            <span asp-validation-for="Finance.ExpenditureBooksLakhs" class="text-danger"></span>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn-save">Save Library Finance</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="navigation-buttons">
+                <a asp-controller="CA_Med_ResearchPublications"
+                   asp-action="CA_Med_ResearchPublicationsDetails"
+                   class="btn-prev">← Previous</a>
+                <a asp-controller="CA_Aff_MedicalLibrary"
+                   asp-action="MedicalLibrary"
+                   class="btn-save">Next →</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if (TempData["Success"] != null)
+        {
+            <text>
+                Swal.fire({
+                icon: 'success',
+                title: 'Saved Successfully!',
+                text: '@TempData["Success"]',
+                confirmButtonColor: '#28a745',
+                timer: 5000,
+                timerProgressBar: true
+                });
+            </text>
+        }
+
+        // Conditional display for building area
+        document.addEventListener("DOMContentLoaded", function () {
+        const ddl = document.getElementById("ddlIndependent");
+        const areaDiv = document.getElementById("areaDiv");
+        const areaInput = areaDiv ? areaDiv.querySelector("input[type='number']") : null;
+
+        function updateVisibility() {
+        if (ddl && areaDiv) {
+        areaDiv.style.display = ddl.value === "Y" ? "block" : "none";
+        }
+        }
+
+        if (ddl) {
+        ddl.addEventListener("change", updateVisibility);
+        updateVisibility();
+        }
+
+        // Validation for area when independent building
+        const buildingForm = ddl ? ddl.closest("form") : null;
+        if (buildingForm && areaInput) {
+        buildingForm.addEventListener("submit", function (e) {
+        if (ddl.value === "Y") {
+        const areaValue = parseFloat(areaInput.value);
+        if (!areaInput.value || isNaN(areaValue) || areaValue <= 0) {
+        e.preventDefault();
+        Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Total floor area is required and must be greater than zero when the library is in an independent building.',
+        confirmButtonColor: '#d33',
+        timer: 7000,
+        timerProgressBar: true
+        }).then(() => areaInput.focus());
+        }
+        }
+        });
+        }
+        });
+    </script>
+}
+
+

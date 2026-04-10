@@ -1,0 +1,333 @@
+﻿@model FellowshipDirectorDashboardListVm
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Director — Fellowship Applications";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+<style>
+    /* Modern card look */
+    .director-card {
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(36, 59, 85, 0.08);
+        overflow: hidden;
+    }
+
+    .director-header {
+        background: linear-gradient(90deg, #0b5ed7 0%, #0d6efd 60%);
+        color: #fff;
+        padding: 18px 20px;
+    }
+
+        .director-header h4 {
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: .2px;
+        }
+
+    .director-sub {
+        opacity: .9;
+        font-size: .9rem;
+    }
+
+    /* Controls */
+    .director-controls {
+        gap: 12px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .director-search {
+        min-width: 260px;
+        max-width: 420px;
+        flex: 1;
+    }
+
+    /* Table styling */
+    .table thead th {
+        vertical-align: middle;
+        font-weight: 600;
+    }
+
+    .college-name {
+        font-weight: 600;
+        color: #0b5ed7;
+    }
+
+    .small-muted {
+        color: #6c757d;
+        font-size: .85rem;
+    }
+
+    /* Status badges */
+    .badge-pending {
+        background: #6c757d;
+        color: #fff;
+    }
+
+    .badge-approved {
+        background: #198754;
+        color: #fff;
+    }
+
+    .badge-rejected {
+        background: #dc3545;
+        color: #fff;
+    }
+
+    /* Sticky footer save button on small screens */
+    .save-fixed {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+    }
+
+    /* Make remark inputs collapse when disabled */
+    .remark-input[disabled] {
+        display: none;
+    }
+
+    /* Responsive tweaks */
+    @@media (max-width: 900px) {
+        .table-responsive
+
+    {
+        font-size: .92rem;
+    }
+
+    .director-search {
+        min-width: 200px;
+    }
+
+    }
+
+    /* Subtle action button style */
+    .doc-btn:disabled {
+        opacity: .45;
+        pointer-events: none;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="card director-card">
+        <div class="director-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4>Director — Fellowship Applications</h4>
+                <div class="director-sub">Shows section officer status and allows director decision.</div>
+            </div>
+
+            <div class="d-flex align-items-center director-controls">
+                <input id="searchInput" class="form-control director-search form-control-sm" placeholder="Search by college, student, course, fellowship code..." />
+                <select id="filterSO" class="form-select form-select-sm w-auto">
+                    <option value="">All Section Officer Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <button type="submit" form="directorForm" class="btn btn-light btn-sm text-primary ms-2">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success m-3">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger m-3">@TempData["Error"]</div>
+            }
+
+            <form asp-action="DirectorDashboard_Fellowship" asp-controller="Fellowship" method="post" id="directorForm">
+                @Html.AntiForgeryToken()
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="min-width:180px">College</th>
+                                <th style="min-width:220px">Student / Course</th>
+                                <th style="min-width:160px">Dates</th>
+                                <th>Principal</th>
+                                <th style="min-width:160px">Fellowship / KMC</th>
+                                <th>Docs</th>
+                                <th style="min-width:160px">Section Officer</th>
+                                <th style="min-width:220px">Director Decision</th>
+                            </tr>
+                        </thead>
+                        <tbody id="directorTableBody">
+                            @for (int i = 0; i < (Model.Items?.Count ?? 0); i++)
+                            {
+                                var item = Model.Items[i];
+                                <tr data-college="@item.CollegeName" data-student="@item.StudentName" data-course="@item.Course" data-so="@item.SectionOfficerApproval">
+                                    <td>
+                                        <div class="college-name">@item.CollegeName</div>
+                                        <input type="hidden" asp-for="Items[@i].Id" />
+                                        <input type="hidden" asp-for="Items[@i].CollegeCode" />
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">@item.StudentName</div>
+                                        <div class="small-muted">@item.Course</div>
+                                    </td>
+
+                                    <td class="small-muted">
+                                        <div><strong>DOB:</strong> @(item.DOB == DateOnly.MinValue ? "-" : item.DOB.ToString("dd-MM-yyyy"))</div>
+                                        <div><strong>DOJ:</strong> @(item.Dateofjoining == DateOnly.MinValue ? "-" : item.Dateofjoining.ToString("dd-MM-yyyy"))</div>
+                                        <div><small>@(item.Admission_openingDate == DateOnly.MinValue ? "-" : item.Admission_openingDate.ToString("dd-MM-yyyy")) — @(item.EndingDate == DateOnly.MinValue ? "-" : item.EndingDate.ToString("dd-MM-yyyy"))</small></div>
+                                    </td>
+
+                                    <td>
+                                        <div>@item.principal_name</div>
+                                        @if (!string.IsNullOrWhiteSpace(item.principal_Declaration))
+                                        {
+                                            <span class="badge bg-secondary small">@item.principal_Declaration</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div>@item.FellowshipCode</div>
+                                        <div class="small-muted">KMC: @item.KMC_CertificateNumber</div>
+                                    </td>
+
+                                    <td>
+                                        <div class="btn-group" role="group" aria-label="documents">
+                                            <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="SSLC"
+                                               class="btn btn-outline-primary btn-sm doc-btn @(item.HasSSLC ? "" : "disabled")" target="_blank" title="SSLC">
+                                                <i class="fa-regular fa-file-pdf"></i>
+                                            </a>
+                                            <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="KMC"
+                                               class="btn btn-outline-primary btn-sm doc-btn @(item.HasKMC ? "" : "disabled")" target="_blank" title="KMC">
+                                                <i class="fa-regular fa-id-card"></i>
+                                            </a>
+                                            <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="EXP"
+                                               class="btn btn-outline-primary btn-sm doc-btn @(item.HasExperience ? "" : "disabled")" target="_blank" title="Experience">
+                                                <i class="fa-solid fa-briefcase"></i>
+                                            </a>
+                                            <a asp-action="Download" asp-route-id="@item.Id" asp-route-doc="APPT"
+                                               class="btn btn-outline-primary btn-sm doc-btn @(item.HasAppointment ? "" : "disabled")" target="_blank" title="Appointment">
+                                                <i class="fa-solid fa-file-signature"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div>
+                                            @{
+                                                var soStatus = string.IsNullOrWhiteSpace(item.SectionOfficerApproval) ? "Pending" : item.SectionOfficerApproval;
+                                                var badgeClass = soStatus == "Approved" ? "badge-approved" : soStatus == "Rejected" ? "badge-rejected" : "badge-pending";
+                                            }
+                                            <span class="badge @badgeClass">@soStatus</span>
+                                        </div>
+                                        @if (!string.IsNullOrWhiteSpace(item.SectionOfficerRemark))
+                                        {
+                                            <div class="small-muted mt-1">@item.SectionOfficerRemark</div>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex align-items-start gap-2">
+                                            <select asp-for="Items[@i].DirectorApprovalStatus" class="form-select form-select-sm w-auto director-select">
+                                                <option value="">--</option>
+                                                <option value="Pending" selected="@(item.DirectorApprovalStatus == "Pending")">Pending</option>
+                                                <option value="Approved" selected="@(item.DirectorApprovalStatus == "Approved")">Approved</option>
+                                                <option value="Rejected" selected="@(item.DirectorApprovalStatus == "Rejected")">Rejected</option>
+                                            </select>
+                                            <input asp-for="Items[@i].DirectorApprovalRemark" class="form-control form-control-sm remark-input" placeholder="Reason (required when Rejected)" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                            @if (Model.Items == null || Model.Items.Count == 0)
+                            {
+                                <tr><td colspan="8" class="text-center text-muted py-4">No applications found.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    (function () {
+        // Toggle remark visibility/required when director selects Rejected
+        function updateRemark(select) {
+            var row = $(select).closest("tr");
+            var remark = row.find(".remark-input");
+            if ($(select).val() === "Rejected") {
+                remark.prop("disabled", false).show().attr("required", "required");
+            } else {
+                remark.prop("disabled", true).hide().removeAttr("required").val("");
+            }
+        }
+
+        // Initialize rows
+        $(".director-select").each(function () {
+            updateRemark(this);
+        });
+
+        $(document).on("change", ".director-select", function () {
+            updateRemark(this);
+        });
+
+        // Client-side search / filter
+        $("#searchInput").on("input", function () {
+            var q = $(this).val().toString().toLowerCase().trim();
+            $("#directorTableBody tr").each(function () {
+                var $tr = $(this);
+                var college = ($tr.data("college") || "").toString().toLowerCase();
+                var student = ($tr.data("student") || "").toString().toLowerCase();
+                var course = ($tr.data("course") || "").toString().toLowerCase();
+                var so = ($tr.data("so") || "").toString().toLowerCase();
+                var match = !q || college.indexOf(q) !== -1 || student.indexOf(q) !== -1 || course.indexOf(q) !== -1 || so.indexOf(q) !== -1;
+                $tr.toggle(match);
+            });
+        });
+
+        // Filter by section officer status
+        $("#filterSO").on("change", function () {
+            var val = $(this).val();
+            $("#directorTableBody tr").each(function () {
+                var $tr = $(this);
+                var so = ($tr.data("so") || "") || "Pending";
+                if (!val || val === "") {
+                    $tr.show();
+                } else {
+                    $tr.toggle(so === val);
+                }
+            });
+        });
+
+        // Prevent submitting when required remark missing
+        $("#directorForm").on("submit", function () {
+            var invalid = false;
+            $("#directorTableBody tr:visible").each(function () {
+                var sel = $(this).find(".director-select");
+                if (sel.val() === "Rejected") {
+                    var remark = $(this).find(".remark-input");
+                    if (!remark.val().trim()) {
+                        remark.addClass("is-invalid");
+                        invalid = true;
+                    } else {
+                        remark.removeClass("is-invalid");
+                    }
+                }
+            });
+
+            if (invalid) {
+                alert("Please provide rejection reason(s) for rows you marked Rejected.");
+                return false;
+            }
+            return true;
+        });
+    })();
+</script>

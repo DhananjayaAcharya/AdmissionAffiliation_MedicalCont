@@ -1,0 +1,354 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var facultyIntCode = string.IsNullOrEmpty(facultyCode) ? 0 : Convert.ToInt64(facultyCode);
+    var CollegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
+    var CollegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
+    var logoutController = HttpContextAccessor.HttpContext.Session.GetString("logoutController");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+}
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+<!DOCTYPE html>
+<html lang="@Thread.CurrentThread.CurrentUICulture.Name">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RGUHS Admission Affiliation</title>
+
+    <!-- Bootstrap 5.3.8 (latest as of Feb 2026) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-M7i8m4v1m4g3y0vZ5p5o5l5f5g5h5i5j5k5l5m5n5o5p5q5r5s5t5u5v5w5x5y5z5"
+          crossorigin="anonymous">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <!-- Font Awesome 6.5.2 (free) – upgrade to 7.2.0 if you need Pro icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- DataTables 2.3.7 (latest stable) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.7/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.bootstrap5.min.css" />
+
+    <!-- SweetAlert2 11.26.18 (latest patch Feb 2026) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.18/dist/sweetalert2.min.css" />
+
+    <!-- Your custom styles -->
+    <style>
+        :root {
+            --primary-color: #097969;
+            --accent-color: #0a2647;
+            --white: #fff;
+            --header-bg: #0047AB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nirmala UI', 'Verdana', 'Arial', sans-serif;
+            font-weight: 600;
+        }
+
+        html, body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: url('@Url.Content("~/images/layout.jpg")') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        header {
+            background: var(--header-bg);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        }
+
+        .header-content {
+            padding: 0.7rem 1.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        #signupLogo {
+            height: 78px;
+            width: 78px;
+            border-radius: 50%;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            margin-right: 1.1rem;
+        }
+
+        .header-text {
+            flex: 1;
+            text-align: center;
+        }
+
+        .university-title {
+            font-size: 1.28rem;
+            font-weight: 700;
+            margin-bottom: 0.12rem;
+        }
+
+        .header-title {
+            font-size: 1.08rem;
+            font-weight: 700;
+            margin-bottom: 0.12rem;
+        }
+
+        .header-address {
+            font-size: 0.9rem;
+            opacity: 0.93;
+            line-height: 1.25;
+        }
+
+        .college-info {
+            margin-top: 0.35rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e0f7fa;
+            background: rgba(255,255,255,0.13);
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            line-height: 1.35;
+            max-width: 88%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+            .college-info .full-college-name {
+                white-space: normal !important;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
+
+        .logout-btn {
+            color: #096b63 !important;
+            border: 2px solid #096b63 !important;
+            background: transparent !important;
+            font-size: 0.92rem;
+            padding: 0.45rem 1.1rem !important;
+            transition: all 0.25s;
+        }
+
+            .logout-btn:hover {
+                background-color: #096b63 !important;
+                color: white !important;
+                border-color: white !important;
+            }
+
+        .language-switcher {
+            position: absolute;
+            top: 0.8rem;
+            right: 1.6rem;
+        }
+
+            .language-switcher select {
+                padding: 0.32rem 0.95rem;
+                font-size: 0.88rem;
+                border-radius: 30px;
+                background: linear-gradient(135deg, #ffd700, #ffae00);
+                color: #003087;
+                font-weight: bold;
+                border: none;
+                cursor: pointer;
+            }
+
+        main {
+            flex: 1;
+            padding: 1rem 0;
+        }
+
+        footer {
+            background: var(--header-bg);
+            color: white;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 0.82rem;
+            margin-top: auto;
+        }
+
+            footer p {
+                margin: 3px 0;
+            }
+
+            footer a {
+                color: #d0f0f8;
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    text-decoration: underline;
+                }
+        /* Mobile adjustments */
+        @@media (max-width: 991px) {
+            .header-content {
+                flex-direction: column;
+                padding: 0.7rem 1rem;
+            }
+
+            #signupLogo {
+                margin: 0 auto 0.7rem auto;
+            }
+
+            .college-info {
+                max-width: 96%;
+                font-size: 0.97rem;
+                padding: 0.38rem 0.9rem;
+            }
+
+            .language-switcher {
+                top: 0.6rem;
+                right: 1rem;
+            }
+        }
+        @@media (max-width: 576px) {
+            .university-title {
+                font-size: 1.12rem;
+            }
+
+            .header-title {
+                font-size: 0.97rem;
+            }
+
+            .header-address {
+                font-size: 0.84rem;
+            }
+
+            .college-info {
+                font-size: 0.94rem;
+            }
+
+            .logout-btn {
+                font-size: 0.88rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="d-flex align-items-center">
+                <img src="~/images/newLogo.jpeg" id="signupLogo" alt="RGUHS Logo" />
+            </div>
+            <div class="header-text">
+                <div class="university-title">@Localizer["UniversityTitle"]</div>
+                <div class="header-title">@Localizer["UniversityAddress"]</div>
+                @if (!string.IsNullOrEmpty(CollegeCode) && !string.IsNullOrEmpty(CollegeName))
+                {
+                    <div class="college-info">
+                        <i class="fas fa-university me-2"></i>
+                        <span class="full-college-name">@CollegeName</span>
+                    </div>
+                }
+            </div>
+            <div>
+                @if (facultyIntCode != 0)
+                {
+                    <form asp-controller="CollegeLogin" asp-action="Logout" method="post" class="mb-0">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn logout-btn">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <div class="language-switcher">
+            <select id="languageSelect" onchange="changeLanguage()" aria-label="@Localizer["SelectLanguage"]">
+                <option value="en" selected="@(Thread.CurrentThread.CurrentUICulture.Name == "en")">English</option>
+                <option value="kn" selected="@(Thread.CurrentThread.CurrentUICulture.Name == "kn")">ಕನ್ನಡ (Kannada)</option>
+            </select>
+        </div>
+
+        @if (string.IsNullOrEmpty(facultyCode))
+        {
+            <nav class="w-100 d-flex justify-content-end navigation bg-dark py-2 px-4">
+                <ul class="navbar-nav flex-row gap-4">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="@Url.Action("Index", "Home")">@Localizer["Nav_Home"]</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-white dropdown-toggle" href="#" id="loginDropdown" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                            @Localizer["Nav_Login"]
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="@Url.Action("Login", "Login")">@Localizer["Nav_Login_College"]</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("UniversityLogin", "Admin")">@Localizer["Nav_Login_University"]</a></li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Auth", "LICInspection")">
+                                    <i class="fas fa-user-graduate me-2 text-primary"></i>
+                                    RGUHS Assignment
+                                </a>
+
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </header>
+
+    <main>
+        <div class="container">
+            @RenderBody()
+             @RenderSection("Styles", required: false)
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>@Localizer["FooterText"]</p>
+            <p>
+                <a href="mailto:support@rguhs.ac.in">@Localizer["Nav_ContactSupp"]</a>
+                |
+                <a href="/Home/Privacy">@Localizer["Nav_Privacy"]</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts (updated versions) -->
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"
+            integrity="sha256-..." crossorigin="anonymous"></script> <!-- Replace integrity after testing -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-..." crossorigin="anonymous"></script>
+
+    <script src="https://cdn.datatables.net/2.3.7/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.18/dist/sweetalert2.all.min.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/language.js" asp-append-version="true"></script>
+
+    <input type="hidden" id="languageErrorTitle" value="@Localizer["ErrorTitle"]" />
+    <input type="hidden" id="languageErrorMessage" value="@Localizer["LanguageChangeError"]" />
+    <input type="hidden" id="languageOK" value="@Localizer["OK"]" />
+    <input type="hidden" id="setLanguageUrl" value="@Url.Action("SetLanguage", "Home")" />
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,452 @@
+﻿@model AffHostelDetailsCreateVm
+@{
+    ViewData["Title"] = "Affiliation Hostel Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 8px;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+    }
+
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        padding: 36px 0 48px;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: 10px 10px 0 0;
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: white;
+        letter-spacing: 0.01em;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+    }
+
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 40px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 28px 0 18px;
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    .section-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .section-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-block-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 7px 10px;
+        font-size: 0.82rem;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+
+    .toggle-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .toggle-pill-input {
+        display: none;
+    }
+
+    .toggle-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 16px;
+        border: 1.5px solid #d9d3c8;
+        border-radius: 4px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        background: white;
+    }
+
+        .toggle-pill:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+        }
+
+    .toggle-pill-input:checked + .toggle-pill {
+        background: var(--navy);
+        border-color: var(--navy);
+        color: white;
+    }
+
+    .toggle-pill-input.pill-yes:checked + .toggle-pill {
+        background: #1a6b3a;
+        border-color: #1a6b3a;
+    }
+
+    .toggle-pill-input.pill-no:checked + .toggle-pill {
+        background: #8b1a1a;
+        border-color: #8b1a1a;
+    }
+
+    .document-section {
+        background: #f8f9fa;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        margin-bottom: 16px;
+    }
+</style>
+<link rel="stylesheet" href="~/css/common-form.css" />
+
+
+<div class="page-shell">
+    <div class="page-container">
+
+        <div class="page-header head">
+            @* <div class="header-eyebrow">Continuous Affiliation · Infrastructure</div> *@
+            <div class="header-title">Affiliation Hostel Details</div>
+            <div class="header-subtitle">Provide hostel infrastructure and capacity details</div>
+        </div>
+
+        <div class="form-card">
+            <form asp-action="Aff_HostelDetails" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="CourseLevel" />
+
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <!-- Hostel Information -->
+                <div class="section-label">
+                    <span class="section-label-text">Hostel Information</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Basic Details</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label required">Hostel Type</label>
+                                <select asp-for="Hostel.HostelType"
+                                        asp-items="Model.HostelTypes"
+                                        class="form-select">
+                                    <option value="">Select hostel type</option>
+                                </select>
+                                <span asp-validation-for="Hostel.HostelType" class="text-danger"></span>
+                            </div>
+
+
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label required">Built-up Area (Sq Ft)</label>
+                                <input asp-for="Hostel.BuiltUpAreaSqFt" class="form-control" placeholder="e.g., 5000" />
+                                <span asp-validation-for="Hostel.BuiltUpAreaSqFt" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Has Separate Hostel</label>
+                            <div class="toggle-group">
+                                <input class="toggle-pill-input pill-yes" type="radio" name="Hostel.HasSeparateHostel" value="true" id="HasSeparateHostelYes" @(Model.Hostel.HasSeparateHostel == true ? "checked" : "") />
+                                <label class="toggle-pill" for="HasSeparateHostelYes">YES</label>
+                                <input class="toggle-pill-input pill-no" type="radio" name="Hostel.HasSeparateHostel" value="false" id="HasSeparateHostelNo" @(Model.Hostel.HasSeparateHostel == false ? "checked" : "") />
+                                <label class="toggle-pill" for="HasSeparateHostelNo">NO</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Separate Provision for Male/Female</label>
+                            <div class="toggle-group">
+                                <input class="toggle-pill-input pill-yes" type="radio" name="Hostel.SeparateProvisionMaleFemale" value="true" id="SeparateProvisionYes" @(Model.Hostel.SeparateProvisionMaleFemale == true ? "checked" : "") />
+                                <label class="toggle-pill" for="SeparateProvisionYes">YES</label>
+                                <input class="toggle-pill-input pill-no" type="radio" name="Hostel.SeparateProvisionMaleFemale" value="false" id="SeparateProvisionNo" @(Model.Hostel.SeparateProvisionMaleFemale == false ? "checked" : "") />
+                                <label class="toggle-pill" for="SeparateProvisionNo">NO</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Capacity -->
+                <div class="section-block">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Student Capacity</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Female Students</label>
+                                <input asp-for="Hostel.TotalFemaleStudents" class="form-control" type="number" />
+                                <span asp-validation-for="Hostel.TotalFemaleStudents" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Female Rooms</label>
+                                <input asp-for="Hostel.TotalFemaleRooms" class="form-control" type="number" />
+                                <span asp-validation-for="Hostel.TotalFemaleRooms" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Male Students</label>
+                                <input asp-for="Hostel.TotalMaleStudents" class="form-control" type="number" />
+                                <span asp-validation-for="Hostel.TotalMaleStudents" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Male Rooms</label>
+                                <input asp-for="Hostel.TotalMaleRooms" class="form-control" type="number" />
+                                <span asp-validation-for="Hostel.TotalMaleRooms" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Upload -->
+                <div class="section-block">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Possession Proof</span>
+                    </div>
+                    <div class="section-block-body">
+                        @if (Model.Hostel?.PossessionProofPath != null && Model.Hostel.PossessionProofPath.Length > 0)
+                        {
+                            <div class="document-section">
+                                <div class="document-header">
+                                    <div class="document-icon"><i class="fas fa-file-pdf"></i></div>
+                                    <p class="document-title">Current Possession Proof (PDF)</p>
+                                </div>
+                                <a href="@Url.Action("DownloadPossessionProof", new { collegeCode = Model.Hostel.CollegeCode, facultyCode = Model.Hostel.FacultyCode })"
+                                   target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View / Download
+                                </a>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label class="form-label">Upload New Possession Proof (PDF)</label>
+                            <input type="file" name="possessionFile" accept="application/pdf" class="form-control" />
+                            <small class="text-muted">New file will replace the existing document.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Amenities -->
+                <div class="section-label">
+                    <span class="section-label-text">Student Amenities</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block">
+                    <div class="section-block-header">
+                        <span class="section-block-title">In the College</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Common room for men students</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="Hostel.CommonRoomMen" value="true" id="CommonRoomMenYes" @(Model.Hostel.CommonRoomMen == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="CommonRoomMenYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="Hostel.CommonRoomMen" value="false" id="CommonRoomMenNo" @(Model.Hostel.CommonRoomMen == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="CommonRoomMenNo">NO</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Common room for lady students</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="Hostel.CommonRoomWomen" value="true" id="CommonRoomWomenYes" @(Model.Hostel.CommonRoomWomen == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="CommonRoomWomenYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="Hostel.CommonRoomWomen" value="false" id="CommonRoomWomenNo" @(Model.Hostel.CommonRoomWomen == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="CommonRoomWomenNo">NO</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Any other facility</label>
+                            <input asp-for="Hostel.AnyOtherFacility" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hostel Facilities -->
+                <div class="section-block">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Hostel Facilities</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Give details of facilities</label>
+                                <textarea asp-for="Hostel.HostelFacilityDetails" class="form-control" rows="3"></textarea>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">For men students</label>
+                                <input asp-for="Hostel.HostelMenCount" type="number" class="form-control" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">For lady students</label>
+                                <input asp-for="Hostel.HostelWomenCount" type="number" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Whether own or rented</label>
+                                <select asp-for="Hostel.OwnOrRented" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Own">Own</option>
+                                    <option value="Rented">Rented</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Space given to each student (sq.ft)</label>
+                                <input asp-for="Hostel.SpacePerStudent" type="number" step="0.01" class="form-control" />
+                            </div>
+                        </div>
+
+                        <!-- Yes/No Facilities -->
+                        <div class="row">
+                            @foreach (var field in new[] {
+                                                        ("Furniture provided for sleeping", "SleepingFurniture"),
+                                                        ("Sanitary and bathing facilities", "SanitaryBathing"),
+                                                        ("Dining hall", "DiningHall"),
+                                                        ("Common room", "HostelCommonRoom"),
+                                                        ("Visitors room", "VisitorsRoom"),
+                                                        ("Kitchen & pantry", "KitchenPantry"),
+                                                        ("Warden’s office", "WardenOffice"),
+                                                        ("Enquiry / Reception counter", "ReceptionCounter"),
+                                                        ("Facilities for games & recreation including playground", "GamesRecreation"),
+                                                        ("Medical examination & health services", "MedicalFacilities")
+                                                        })
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">@field.Item1</label>
+                                    <div class="toggle-group">
+                                        <input class="toggle-pill-input pill-yes" type="radio" name="@($"Hostel.{field.Item2}")" value="true"
+                                               id="@($"{field.Item2}Yes")" @(Model.Hostel?.GetType().GetProperty(field.Item2)?.GetValue(Model.Hostel)?.ToString() == "True" ? "checked" : "") />
+                                        <label class="toggle-pill" for="@($"{field.Item2}Yes")">YES</label>
+                                        <input class="toggle-pill-input pill-no" type="radio" name="@($"Hostel.{field.Item2}")" value="false"
+                                               id="@($"{field.Item2}No")" @(Model.Hostel?.GetType().GetProperty(field.Item2)?.GetValue(Model.Hostel)?.ToString() == "False" ? "checked" : "") />
+                                        <label class="toggle-pill" for="@($"{field.Item2}No")">NO</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="d-flex align-items-center gap-3 mt-4">
+                    <a asp-action="CA_VehicleDetails" asp-controller="Aff_AHS_ContinousApplication"
+                       class="btn btn-outline-secondary px-4">← Previous</a>
+                    <button type="submit" class="btn btn-primary px-4">Save &amp; Proceed →</button>
+                </div>
+
+                <div class="form-footer-note mt-3">
+                    Fields are saved against the logged-in College and Faculty codes from session.
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

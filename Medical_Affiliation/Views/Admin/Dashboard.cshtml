@@ -1,0 +1,161 @@
+﻿@model FacultyCollegeViewModel
+
+@{
+    ViewData["Title"] = "Course Intake Report";
+}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+
+<!-- Bootstrap Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a asp-controller="@ViewBag.Controller" asp-action="@ViewBag.Dashboard" asp-route-username="@ViewBag.UserName" class="nav-link btn btn-outline-primary">
+                        🏠 Home
+                    </a>
+                </li>
+            </ul>
+            @* <form asp-controller="@ViewBag.Controller" asp-action="Logout" method="post" class="mb-0">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form> *@
+        </div>
+    </div>
+</nav>
+
+
+<hr />
+
+<div class="container">
+    <form asp-action="Dashboard" asp-controller="Admin" method="post" class="border p-4 rounded shadow-sm bg-light">
+        @Html.AntiForgeryToken()
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="SelectedFacultyCode" class="form-label">Faculty</label>
+                <select asp-for="SelectedFacultyCode" asp-items="Model.FacultyList" class="form-select" id="facultyDropdown" required>
+                    <option value="All">-- Select faculties --</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="SelectedCollegeCode" class="form-label">College</label>
+                <select asp-for="SelectedCollegeCode" asp-items="Model.CollegeList" class="form-select" id="collegeDropdown" required>
+                    <option value="">-- Select Colleges --</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-4">Show Report</button>
+        </div>
+    </form>
+
+    @if (Model.ReportData != null && Model.ReportData.Any())
+    {
+        <div class="mt-5">
+            <h4 class="mb-3">Report Result</h4>
+            <table class="table table-bordered table-striped shadow-sm" id="reportTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Sl. No.</th>
+                        <th>College Code</th>
+                        <th>College Name</th>
+                        <th>Course Name</th>
+                        <th>RGUHS Intake</th>
+                        <th>College Intake</th>
+                        <th>Difference In Intake</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var serialNo = 1;
+                    }
+                    @foreach (var item in Model.ReportData)
+                    {
+                        var difference = item.ExistingIntake - item.PresentIntake;
+                        <tr class="@(difference != 0 ? "table-info" : "")">
+                            <td>@serialNo</td>
+                            <td>@item.CollegeCode</td>
+                            <td>@item.CollegeName</td>
+                            <td>@item.CourseName</td>
+                            <td>@item.ExistingIntake</td>
+                            <td>@item.PresentIntake</td>
+                            <td>@difference</td>
+                        </tr>
+                        serialNo++;
+                    }
+                </tbody>
+            </table>
+
+            <div class="alert alert-light text-center border my-3">
+                <strong style="font-size: 20px;">Total Colleges:</strong> <span class="text-primary">@Model.CollegesCount</span>
+            </div>
+
+        </div>
+    }
+    else if (Model.ReportData.Count() == 0)
+    {
+        <div class="alert alert-warning mt-4 text-center">
+            No report data found for the selected college.
+            @* Please select college *@
+        </div>
+    }
+</div>
+@Html.Hidden("Myurl", Url.Action("GetCollegesByFaculty", "Admin"))
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS and CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#facultyDropdown').change(function () {
+                var facultyId = $(this).val();
+
+                if (facultyId > 98) {
+                    $('#collegeDropdown').html('<option value="All">-- All Colleges --</option>');
+                } else {
+                    // $('#collegeDropdown').html('<option>Loading...</option>');
+                    $.ajax({
+                        url: $("#Myurl").val(),
+                        type: 'GET',
+                        data: { facultyId: facultyId },
+                        dataType: 'json',
+                        success: function (data) {
+                            var items = '<option value="">-- Select College --</option>';
+                            $.each(data, function (i, college) {
+                                items += `<option value="${college.value}">${college.text}</option>`;
+                            });
+                            $('#collegeDropdown').html(items);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error fetching colleges:', error);
+                        }
+                    });
+
+                }
+            });
+
+            // Initialize DataTable with export buttons
+            $('#reportTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: ['excelHtml5', 'pdfHtml5', 'print']
+            });
+        });
+    </script>
+}

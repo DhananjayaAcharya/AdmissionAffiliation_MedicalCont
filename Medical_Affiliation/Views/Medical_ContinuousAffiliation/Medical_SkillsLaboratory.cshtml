@@ -1,0 +1,945 @@
+﻿@model SkillsLabViewModel
+
+@{
+    ViewData["Title"] = "Skills Laboratory";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 6px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+    }
+
+    /* ── Page Shell ── */
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        padding: 36px 0 56px;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* ── Header ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        /* border-radius: 10px 10px 0 0; */
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .header-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+        position: relative;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+        position: relative;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+        font-weight: 300;
+        position: relative;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+
+    /* ── Main Card ── */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 40px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    /* ── Section Divider ── */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 28px 0 18px;
+    }
+
+        .section-label:first-child {
+            margin-top: 0;
+        }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ── Section Block ── */
+    .section-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .section-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-block-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .section-block-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 13px;
+            background: var(--gold);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+    .section-block-body {
+        padding: 20px 20px 16px;
+    }
+
+    /* ── Info Box ── */
+    .info-box {
+        background: #f3f0e8;
+        border-left: 3px solid var(--gold);
+        border-radius: var(--radius);
+        padding: 12px 16px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+        .info-box strong {
+            color: var(--navy);
+        }
+
+    /* ── Field Grid ── */
+    .field-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .g-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .g-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .g-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    @@media (max-width: 900px) {
+        .g-2, .g-3, .g-4 {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .g-2, .g-3, .g-4 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ── Form Controls ── */
+    .form-control, .form-select {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 7px 10px;
+        font-size: 0.82rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--white);
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+
+        .form-control[readonly] {
+            background: #f3f0e8;
+            color: var(--text-muted);
+            cursor: default;
+        }
+
+    select.form-select {
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 9px center;
+        padding-right: 28px;
+    }
+
+    .form-label-text {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+    }
+
+    .text-danger {
+        display: block;
+        font-size: 0.68rem;
+        color: var(--danger);
+        margin-top: 2px;
+    }
+
+    /* ── Toggle Pills ── */
+    .toggle-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .toggle-pill-input {
+        display: none;
+    }
+
+    .toggle-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 16px;
+        border: 1.5px solid #d9d3c8;
+        border-radius: 4px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+        user-select: none;
+        background: var(--white);
+    }
+
+        .toggle-pill:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+        }
+
+    .toggle-pill-input:checked + .toggle-pill {
+        background: var(--navy);
+        border-color: var(--navy);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(15,37,69,0.2);
+    }
+
+    .toggle-pill-input.pill-yes:checked + .toggle-pill {
+        background: #1a6b3a;
+        border-color: #1a6b3a;
+    }
+
+    .toggle-pill-input.pill-no:checked + .toggle-pill {
+        background: #8b1a1a;
+        border-color: #8b1a1a;
+    }
+
+    /* ── Summary Card ── */
+    .summary-card {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: var(--radius);
+        padding: 24px 24px 20px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .summary-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .summary-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--white);
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .summary-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+    .summary-boxes {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 14px;
+    }
+
+    @@media (max-width:700px) {
+        .summary-boxes {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .summary-box {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: var(--radius);
+        padding: 16px 14px;
+        text-align: center;
+    }
+
+    .summary-box-label {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.45);
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .summary-box-value {
+        font-family: 'EB Garamond', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    .val-required {
+        color: #fca5a5;
+    }
+
+    .val-available {
+        color: #67e8f9;
+    }
+
+    .val-short {
+        color: #fecaca;
+    }
+
+    .val-ok {
+        color: #a7f3d0;
+    }
+
+    /* ── Footer Nav ── */
+    .form-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+    }
+
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+        .btn-prev:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+            background: #f3f0e8;
+        }
+
+    .footer-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.15s, box-shadow 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-save::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #1a6b3a, #2e8b57);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 22px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        transition: opacity 0.15s;
+    }
+
+        .btn-next:hover {
+            opacity: 0.9;
+        }
+
+    .spinner-border-sm {
+        width: 14px;
+        height: 14px;
+        border-width: 2px;
+        display: inline-block;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.4);
+        border-top-color: #fff;
+        animation: spin 0.7s linear infinite;
+    }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .d-none {
+        display: none !important;
+    }
+</style>
+
+<link rel="stylesheet" href="~/css/common-form.css" />
+<div class="page-shell">
+    <div class="page-container">
+
+        <!-- Header -->
+        @* <div class="page-header">
+            <div class="header-eyebrow">Continuous Affiliation · Physical Facilities</div>
+            <div class="header-title">Skills Laboratory</div>
+            <div class="header-subtitle">Provide details of the Skills Lab infrastructure and compliance with NMC norms</div>
+            <div class="header-badge">Physical Facilities</div>
+        </div> *@
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <div class="emblem">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Skills Laboratory</h1>
+                @* <p>RGUHS · Affiliation Portal </p> *@
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+
+            <form id="skillsLabForm" asp-action="Medical_SkillsLaboratory" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger", style = "font-size:0.8rem;margin-bottom:12px;" })
+
+                <!-- ── Section Label ── -->
+                <div class="section-label">
+                    <span class="section-label-text">Skills Lab Details</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Area &amp; General Requirements</span>
+                    </div>
+                    <div class="section-block-body">
+
+                        <div class="info-box">
+                            Every medical institution shall have a Skills Laboratory where students can practise curriculum‑specified skills in a safe, simulated environment for at least <strong>six weeks</strong> before ward postings. The skills lab shall be <strong>600 Sq.m</strong> for intake up to 150 MBBS students and <strong>800 Sq.m</strong> for intake of 200/250 students.
+                        </div>
+
+                        <!-- Row 1: area fields -->
+                        <div class="field-grid g-4" style="margin-bottom:16px;">
+                            <div class="field-group">
+                                <label class="form-label-text">Annual MBBS Intake</label>
+                                <select class="form-select" asp-for="AnnualMbbsIntake" id="skillsIntake">
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                    <option value="250">250</option>
+                                </select>
+                                <span asp-validation-for="AnnualMbbsIntake" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Area Available (Sq.m)</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="TotalAreaAvailableSqm" id="skillsAreaAvail" placeholder="Enter area" />
+                                <span asp-validation-for="TotalAreaAvailableSqm" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Area Required (Sq.m)</label>
+                                <input type="number" class="form-control" asp-for="TotalAreaRequiredSqm" id="skillsAreaReq" readonly />
+                                <span asp-validation-for="TotalAreaRequiredSqm" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Area Deficiency (Sq.m)</label>
+                                <input type="number" class="form-control" asp-for="TotalAreaDeficiencySqm" id="skillsAreaDef" readonly />
+                                <span asp-validation-for="TotalAreaDeficiencySqm" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: yes/no fields -->
+                        <div class="field-grid g-3">
+
+                            <div class="field-group">
+                                <label class="form-label-text">Six Weeks Training Before Clinical Posting</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="SixWeeksTrainingCompletedBeforeClinical" value="true" id="skills6WeeksYes" />
+                                    <label class="toggle-pill" for="skills6WeeksYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="SixWeeksTrainingCompletedBeforeClinical" value="false" id="skills6WeeksNo" />
+                                    <label class="toggle-pill" for="skills6WeeksNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="SixWeeksTrainingCompletedBeforeClinical" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Number of Examination Rooms</label>
+                                <input type="number" class="form-control" asp-for="NumberOfExaminationRooms" placeholder="Min 4" />
+                                <span asp-validation-for="NumberOfExaminationRooms" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Minimum 4 Examination Rooms Available</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasMinFourExamRooms" value="true" id="skills4RoomsYes" />
+                                    <label class="toggle-pill" for="skills4RoomsYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasMinFourExamRooms" value="false" id="skills4RoomsNo" />
+                                    <label class="toggle-pill" for="skills4RoomsNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasMinFourExamRooms" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Demonstration Room for Small Groups</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasDemoRoomSmallGroups" value="true" id="skillsDemoYes" />
+                                    <label class="toggle-pill" for="skillsDemoYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasDemoRoomSmallGroups" value="false" id="skillsDemoNo" />
+                                    <label class="toggle-pill" for="skillsDemoNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasDemoRoomSmallGroups" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Review / Debriefing Area</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasDebriefArea" value="true" id="skillsDebriefYes" />
+                                    <label class="toggle-pill" for="skillsDebriefYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasDebriefArea" value="false" id="skillsDebriefNo" />
+                                    <label class="toggle-pill" for="skillsDebriefNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasDebriefArea" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Room for Skills Lab Faculty Coordinator</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasFacultyCoordinatorRoom" value="true" id="skillsCoordRoomYes" />
+                                    <label class="toggle-pill" for="skillsCoordRoomYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasFacultyCoordinatorRoom" value="false" id="skillsCoordRoomNo" />
+                                    <label class="toggle-pill" for="skillsCoordRoomNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasFacultyCoordinatorRoom" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Rooms for Support Staff</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasSupportStaffRoom" value="true" id="skillsStaffRoomYes" />
+                                    <label class="toggle-pill" for="skillsStaffRoomYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasSupportStaffRoom" value="false" id="skillsStaffRoomNo" />
+                                    <label class="toggle-pill" for="skillsStaffRoomNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasSupportStaffRoom" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Storage for Mannequins / Equipment</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasStorageForMannequins" value="true" id="skillsStorageYes" />
+                                    <label class="toggle-pill" for="skillsStorageYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasStorageForMannequins" value="false" id="skillsStorageNo" />
+                                    <label class="toggle-pill" for="skillsStorageNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasStorageForMannequins" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Video Recording &amp; Review Facility</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasVideoRecordingFacility" value="true" id="skillsVideoYes" />
+                                    <label class="toggle-pill" for="skillsVideoYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasVideoRecordingFacility" value="false" id="skillsVideoNo" />
+                                    <label class="toggle-pill" for="skillsVideoNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasVideoRecordingFacility" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Number of Skill Practice Stations</label>
+                                <input type="number" class="form-control" asp-for="NumberOfSkillStations" placeholder="Enter count" />
+                                <span asp-validation-for="NumberOfSkillStations" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Stations for Individual &amp; Group Practice</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasGroupAndIndividualStations" value="true" id="skillsStationsYes" />
+                                    <label class="toggle-pill" for="skillsStationsYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasGroupAndIndividualStations" value="false" id="skillsStationsNo" />
+                                    <label class="toggle-pill" for="skillsStationsNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasGroupAndIndividualStations" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Trainers / Mannequins as per CBME</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasRequiredTrainersAndMannequins" value="true" id="skillsTrainersYes" />
+                                    <label class="toggle-pill" for="skillsTrainersYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasRequiredTrainersAndMannequins" value="false" id="skillsTrainersNo" />
+                                    <label class="toggle-pill" for="skillsTrainersNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasRequiredTrainersAndMannequins" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Dedicated Technical Officer Posted</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasDedicatedTechnicalOfficer" value="true" id="skillsTechOfficerYes" />
+                                    <label class="toggle-pill" for="skillsTechOfficerYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasDedicatedTechnicalOfficer" value="false" id="skillsTechOfficerNo" />
+                                    <label class="toggle-pill" for="skillsTechOfficerNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasDedicatedTechnicalOfficer" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Adequate Support Staff Available</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="HasAdequateSupportStaff" value="true" id="skillsSupportYes" />
+                                    <label class="toggle-pill" for="skillsSupportYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="HasAdequateSupportStaff" value="false" id="skillsSupportNo" />
+                                    <label class="toggle-pill" for="skillsSupportNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="HasAdequateSupportStaff" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Teaching Areas Have Audio-Visual Facilities</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="TeachingAreasHaveAV" value="true" id="skillsAVYes" />
+                                    <label class="toggle-pill" for="skillsAVYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="TeachingAreasHaveAV" value="false" id="skillsAVNo" />
+                                    <label class="toggle-pill" for="skillsAVNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="TeachingAreasHaveAV" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Teaching Areas Have Internet Facility</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="TeachingAreasHaveInternet" value="true" id="skillsNetYes" />
+                                    <label class="toggle-pill" for="skillsNetYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="TeachingAreasHaveInternet" value="false" id="skillsNetNo" />
+                                    <label class="toggle-pill" for="skillsNetNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="TeachingAreasHaveInternet" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Skills Lab Enabled for E-Learning</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="SkillsLabEnabledForELearning" value="true" id="skillsELearnYes" />
+                                    <label class="toggle-pill" for="skillsELearnYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="SkillsLabEnabledForELearning" value="false" id="skillsELearnNo" />
+                                    <label class="toggle-pill" for="skillsELearnNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="SkillsLabEnabledForELearning" class="text-danger"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Area Summary ── -->
+                <div class="summary-card">
+                    <div class="summary-title">Area &amp; Facility Summary</div>
+                    <div class="summary-boxes">
+                        <div class="summary-box">
+                            <div class="summary-box-label">Required Skills Lab Area (Sq.m)</div>
+                            <div class="summary-box-value val-required" id="summaryRequired">0</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="summary-box-label">Available Skills Lab Area (Sq.m)</div>
+                            <div class="summary-box-value val-available" id="summaryAvailable">0</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="summary-box-label">Deficiency (Sq.m)</div>
+                            <div class="summary-box-value val-short" id="summaryDeficiency">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Footer ── -->
+                <div class="form-footer">
+                    <button type="button" class="btn-prev"
+                            onclick="window.location.href='@Url.Action("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation")'">
+                        ← Previous
+                    </button>
+                    <div class="footer-right">
+                        <button type="submit" class="btn-save" id="btnSave">
+                            <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
+                            &#128190; Save &amp; Continue
+                        </button>
+                        <button type="button" class="btn-next" id="btnNext"
+                                onclick="window.location.href='@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")'">
+                            Next →
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div><!-- /.form-card -->
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const skillsIntake    = document.getElementById('skillsIntake');
+            const skillsAreaAvail = document.getElementById('skillsAreaAvail');
+            const skillsAreaReq   = document.getElementById('skillsAreaReq');
+            const skillsAreaDef   = document.getElementById('skillsAreaDef');
+            const sumReq          = document.getElementById('summaryRequired');
+            const sumAvail        = document.getElementById('summaryAvailable');
+            const sumDef          = document.getElementById('summaryDeficiency');
+
+            const form    = document.getElementById('skillsLabForm');
+            const saveBtn = document.getElementById('btnSave');
+            const spinner = document.getElementById('saveSpinner');
+
+            /* ── Area calculation ── */
+            function recalcSkillsArea() {
+                const intake = parseInt(skillsIntake.value) || 0;
+                const avail  = parseFloat(skillsAreaAvail.value) || 0;
+                const req    = intake <= 150 ? 600 : 800;
+                const def    = Math.max(0, req - avail);
+
+                skillsAreaReq.value = req.toFixed(2);
+                skillsAreaDef.value = def.toFixed(2);
+
+                sumReq.textContent   = req.toFixed(2);
+                sumAvail.textContent = avail.toFixed(2);
+                sumDef.textContent   = def.toFixed(2);
+                sumDef.className     = 'summary-box-value ' + (def > 0 ? 'val-short' : 'val-ok');
+            }
+
+            skillsIntake.addEventListener('change', recalcSkillsArea);
+            let timeout;
+            skillsAreaAvail.addEventListener('input', function () {
+                clearTimeout(timeout);
+                timeout = setTimeout(recalcSkillsArea, 300);
+            });
+            recalcSkillsArea();
+
+            /* ── Form submit ── */
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                if (!this.checkValidity()) {
+                    this.reportValidity();
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                spinner.classList.remove('d-none');
+
+                try {
+                    const formData = new FormData(form);
+                    await fetch(form.action, { method: 'POST', body: formData });
+
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Saved Successfully!',
+                        text: 'Skills Laboratory details saved.',
+                        confirmButtonColor: '#0f2545'
+                    });
+
+                    window.location.href = '@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")';
+                } catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Save Failed',
+                        text: 'Please try again.',
+                        confirmButtonColor: '#c0392b'
+                    });
+                } finally {
+                    saveBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            });
+        });
+    </script>
+}

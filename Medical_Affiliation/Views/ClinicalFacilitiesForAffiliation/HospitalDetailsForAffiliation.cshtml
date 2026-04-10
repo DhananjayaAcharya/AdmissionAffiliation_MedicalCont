@@ -1,0 +1,168 @@
+﻿@model HospitalAffiliationCompositeViewModel
+@{
+    ViewData["Title"] = "Clinical Facilites";
+}
+@{
+    var docsPostModel = new HospitalDocumentsToBeUploadedPostModel
+    {
+        Documents = Model.HospitalDocumentsToBeUploadedList
+    };
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Hospital Details For Affiliation</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            /* background: linear-gradient(180deg, #eef3f8, #f8f9fa); */
+            min-height: 60vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .form-card {
+            border-radius: 16px;
+            border: none;
+            background: #ffffff;
+        }
+
+        .form-header {
+            background: #0d6efd;
+            color: #fff;
+            border-radius: 16px 16px 0 0;
+            padding: 1rem 1.5rem;
+        }
+
+        .form-section {
+            /* From https://css.glass */
+            background: rgba(52, 160, 196, 0.16);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(52, 160, 196, 0.35);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+            border-left: 4px solid #0d6efd;
+            padding-left: 10px;
+        }
+
+        label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0.35rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            /* min-height: 42px; */
+        }
+
+            .form-control:focus,
+            .form-select:focus {
+                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, .15);
+                border-color: #0d6efd;
+            }
+
+        .btn-primary {
+            border-radius: 25px;
+            padding: 0.6rem 3.5rem;
+        }
+
+        @@media (max-width: 576px) {
+            .section-title {
+                font-size: 1rem;
+            }
+        }
+
+        .input-error {
+            border: 2px solid #e74c3c !important;
+            background: #fdecea;
+        }
+
+        .required::after {
+            content: " *";
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-2 ">
+        <div class="card shadow-lg form-card" style="max-height: 60vh; overflow: hidden;">
+
+            <div class="form-header text-center sticky-top">
+                <h5 class="mb-0">Hospital Details For Affiliation</h5>
+            </div>
+
+            <div class="card-body" style="overflow-y: auto; height: calc(60vh - 50px) " id="formScrollContainer">
+
+                @* <form asp-action="HospitalDetailsForAffiliation" id="hospitalForm" method="post" enctype="multipart/form-data"> *@
+                <input asp-for="@Model.FacultyCode" type="hidden" value="@Model.FacultyCode" />
+                <input asp-for="@Model.CollegeCode" type="hidden" value="@Model.CollegeCode" />
+
+                <!-- 🔹 SECTION 1 -->
+                <div id="instructionSet">
+                    @Html.Partial("InstructionSet/_Medical")
+                </div>
+                <!-- 🔹 SECTION 2 -->
+                @* <div id="clinicalHospitalDetailsSection">
+                    @await Html.PartialAsync("Nursing/_ClinicalHospitalPartial", Model.ClinicalHospitalDetails)
+                    </div> *@
+
+                <!-- 🔹 SECTION 3 -->
+                @* <div id="clinicalCapacitiesSection">
+                    @await Html.PartialAsync("Nursing/_ClinicalCapacityPartial", Model.ClinicalCapacity)
+                    </div> *@
+
+
+                <!-- 🔹 SECTION 4 -->
+                @* <div id="clinicalFacilitiesSection">
+                    @await Html.PartialAsync("Nursing/_HospitalFacilitiesPartial", Model.ClinicalHospitalDetails.HospitalFacilities)
+                    </div> *@
+
+                <!-- 🔹 SECTION 5 -->
+                @* <div id="affDocumentsUploadSection">
+                    @await Html.PartialAsync("Nursing/_AffiliatedDocumentsToBeUploadedPartial", Model.AffiliatedDocumentsPostVM)
+                    </div> *@
+
+                <!-- 🔹 SECTION 6 -->
+                @* <div id="fieldPracticeAreaSection">
+                    @await Html.PartialAsync("Nursing/_FieldPracticeAreas", Model.FieldPracticeAreaPostVM)
+                    </div> *@
+
+                <!-- 🔹 SECTION 7 -->
+                @* <div id="addDocUploadSection">
+                        @await Html.PartialAsync("Nursing/_HospitalAdditionalDocumentsToBeUploaded", docsPostModel)
+                    </div> *@
+
+                @* <div class="text-center">
+                        <button type="submit" id="submitHospitalForm" class="btn btn-primary shadow">
+                            Submit Hospital Details
+                        </button>
+                    </div> *@
+
+                @* </form> *@
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

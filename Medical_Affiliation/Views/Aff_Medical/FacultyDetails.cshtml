@@ -1,0 +1,322 @@
+﻿@model List<Medical_Affiliation.Models.FacultyDetailsViewModel>
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Nodal Officer Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 5;
+}
+
+<style>
+    .progressbar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 20px 0 0;
+        list-style: none;
+    }
+
+        .progressbar li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+            .progressbar li:before {
+                counter-increment: step;
+                content: counter(step);
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                border: 2px solid #bbb;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px;
+                border-radius: 50%;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: #bbb;
+                top: 18px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: #0d6efd;
+            }
+
+                .progressbar li.active:before {
+                    border-color: #0d6efd;
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: #0d6efd;
+                }
+
+    .main-container {
+        margin-left: 11rem;
+        background: #fff;
+        padding: 5px;
+        border-radius: 12px;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+<div class="main-container">
+
+    <div class="container mt-5">
+        <div class="card shadow-lg rounded-4">
+            <div class="card-header bg-light">
+                <nav aria-label="Form progress">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="fw-bold mb-0">@HttpContextAccessor.HttpContext.Session.GetString("CollegeName")</h3>
+                        <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                            <button type="submit" class="btn btn-outline-danger">Logout</button>
+                        </form>
+                    </div>
+
+                    <ul class="progressbar" role="progressbar" aria-valuenow="@currentStep" aria-valuemin="1" aria-valuemax="5">
+                        <li class="@(currentStep >= 1 ? "active" : "")" aria-current="step">Basic Institute Details</li>
+                        <li class="@(currentStep >= 2 ? "active" : "")">Course Details</li>
+                        <li class="@(currentStep >= 3 ? "active" : "")">Clinical Material Details</li>
+                        <li class="@(currentStep >= 4 ? "active" : "")">College Designation Details</li>
+                        <li class="@(currentStep >= 5 ? "active" : "")">Add Faculty Details</li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">📘 Enclose List of Teachers (Department Wise)</h4>
+                <span class="badge bg-light text-dark">Faculty Registration</span>
+            </div>
+
+            <div class="card-body">
+                <form asp-action="FacultyDetails" method="post" id="facultyForm">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="facultyTable">
+                            <thead class="table-primary sticky-top">
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Name of Faculty</th>
+                                    <th>Degree</th>
+                                    <th>Designation</th>
+                                    <th>Recognized PG Teacher</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>PAN</th>
+                                    <th>Aadhaar</th>
+
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Count > 0)
+                                {
+                                    for (int i = 0; i < Model.Count; i++)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <select name="FacultyList[@i].SelectedDepartment" class="form-select form-select-sm">
+                                                    <option value="">-- Select Department --</option>
+                                                    @foreach (var dept in Model[i].DepartmentDetails ?? new List<SelectListItem>())
+                                                    {
+                                                        if (Model[i].SelectedDepartment != null &&
+                                                        dept.Value.Trim().Equals(Model[i].SelectedDepartment.Trim(), StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            <option value="@dept.Value" selected="selected">@dept.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@dept.Value">@dept.Text</option>
+                                                        }
+                                                    }
+                                                </select>
+
+                                            </td>
+
+                                            <td>
+                                                <input name="FacultyList[@i].NameOfFaculty" class="form-control form-control-sm" placeholder="Enter Name" value="@Model[i].NameOfFaculty" />
+                                            </td>
+
+
+                                            <td>
+                                                <select name="FacultyList[@i].Subject" class="form-select form-select-sm">
+                                                    <option value="">-- Select Subject --</option>
+                                                    @foreach (var subj in Model[i].Subjects ?? new List<SelectListItem>())
+                                                    {
+                                                        if (Model[i].Subject != null && subj.Value.Trim().Equals(Model[i].Subject.Trim(), StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            <option value="@subj.Value" selected>@subj.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@subj.Value">@subj.Text</option>
+                                                        }
+                                                    }
+                                                </select>
+
+                                            </td>
+
+                                            <td>
+                                                <select name="FacultyList[@i].Designation" class="form-select form-select-sm">
+                                                    <option value="">-- Select Designation --</option>
+                                                    @foreach (var des in Model[i].Designations ?? new List<SelectListItem>())
+                                                    {
+                                                        if (Model[i].Designation != null && des.Value.Trim().Equals(Model[i].Designation.Trim(), StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            <option value="@des.Value" selected>@des.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@des.Value">@des.Text</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <select name="FacultyList[@i].RecognizedPGTeacher" class="form-select form-select-sm">
+                                                    <option value="">-- Select --</option>
+
+                                                    @if (Model[i].RecognizedPGTeacher == "Yes")
+                                                    {
+                                                        <option value="Yes" selected>Yes</option>
+                                                        <option value="No">No</option>
+                                                    }
+                                                    else if (Model[i].RecognizedPGTeacher == "No")
+                                                    {
+                                                        <option value="Yes">Yes</option>
+                                                        <option value="No" selected>No</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Yes">Yes</option>
+                                                        <option value="No">No</option>
+                                                    }
+                                                </select>
+
+                                            </td>
+
+                                            <td>
+                                                <input name="FacultyList[@i].Mobile" class="form-control form-control-sm" placeholder="10-digit Mobile" value="@Model[i].Mobile" />
+                                            </td>
+
+                                            <td>
+                                                <input name="FacultyList[@i].Email" class="form-control form-control-sm" placeholder="Email Address" value="@Model[i].Email" />
+                                            </td>
+
+                                            <td>
+                                                <input name="FacultyList[@i].PAN" class="form-control form-control-sm" placeholder="Enter PAN" value="@Model[i].PAN" />
+                                            </td>
+
+                                            <td>
+                                                <input name="FacultyList[@i].Aadhaar" class="form-control form-control-sm" placeholder="Enter Aadhaar" value="@Model[i].Aadhaar" />
+                                            </td>
+
+
+
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-success addRow me-1"><i class="bi bi-plus-circle"></i></button>
+                                                <button type="button" class="btn btn-sm btn-danger deleteRow"><i class="bi bi-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="10" class="text-center text-muted">No faculty data found. Please add new rows.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="TeachingFacultyDetails" class="btn btn-outline-secondary px-4">⬅ Previous</a>
+                        <button type="submit" class="btn btn-primary px-5 shadow">✅ Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+    <script>
+        $(document).ready(function () {
+            let rowIdx = @Model.Count;
+
+            // Add Row
+            $('#facultyTable').on('click', '.addRow', function () {
+                let newRow = $('#facultyTable tbody tr:first').clone();
+                newRow.find('input, select').each(function () {
+                    $(this).val('');
+                    let name = $(this).attr('name');
+                    if (name) $(this).attr('name', name.replace(/\d+/, rowIdx));
+                });
+                $('#facultyTable tbody').append(newRow.hide().fadeIn(400));
+                rowIdx++;
+            });
+
+            // Delete Row
+            $('#facultyTable').on('click', '.deleteRow', function () {
+                if ($('#facultyTable tbody tr').length > 1) {
+                    $(this).closest('tr').fadeOut(300, function () { $(this).remove(); });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Oops...',
+                        text: 'At least one row is required!'
+                    });
+                }
+            });
+
+            // Success message
+            @if (TempData["Success"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: '@TempData["Success"]',
+                        showConfirmButton: true,
+                        confirmButtonColor: '#3085d6'
+                    });
+                </text>
+            }
+        });
+    </script>
+}

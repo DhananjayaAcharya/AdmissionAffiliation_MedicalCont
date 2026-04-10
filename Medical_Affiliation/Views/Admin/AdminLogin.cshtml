@@ -1,0 +1,308 @@
+﻿@model AdminLoginViewModel
+@{
+    ViewData["Title"] = "University Admin Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0047AB; /* RGUHS deep blue */
+            --primary-dark: #003366;
+            --accent: #097969; /* teal accent */
+            --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --card-bg: rgba(255, 255, 255, 0.07);
+            --text: rgba(255, 255, 255, 0.95);
+            --text-dim: rgba(255, 255, 255, 0.70);
+            --border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background: url('@Url.Content("~/images/layout.jpg")') center/cover no-repeat fixed;
+            background-blend-mode: overlay;
+            background-color: rgba(0, 71, 171, 0.08);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .login-header {
+            margin-bottom: 2.5rem;
+        }
+
+            .login-header h1 {
+                font-size: 2.1rem;
+                font-weight: 600;
+                color: white;
+                margin-bottom: 0.5rem;
+            }
+
+            .login-header p {
+                font-size: 1rem;
+                color: var(--text-dim);
+                margin: 0;
+            }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 1.8rem;
+            text-align: left;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+        }
+
+            .form-control:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 0.25rem rgba(9, 121, 105, 0.18);
+                background: rgba(255, 255, 255, 0.12);
+                outline: none;
+            }
+
+            .form-control::placeholder {
+                color: var(--text-dim);
+            }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 1.3rem;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 1.3rem;
+            transition: color 0.2s;
+        }
+
+            .toggle-password:hover {
+                color: white;
+            }
+
+        .form-label {
+            position: absolute;
+            left: 2.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: all 0.25s ease;
+        }
+
+        .form-control:focus + .form-label,
+        .form-control:not(:placeholder-shown) + .form-label {
+            top: -0.6rem;
+            left: 1rem;
+            font-size: 0.82rem;
+            color: var(--accent);
+            background: var(--card-bg);
+            padding: 0 0.35rem;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--primary);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1.5rem;
+        }
+
+            .btn-login:hover {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+            }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+            .back-link:hover {
+                color: white;
+            }
+
+        @@media (max-width: 576px) {
+            .login-card {
+                padding: 2.2rem 1.6rem;
+            }
+
+            .login-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-page">
+        <div class="login-card">
+
+            <div class="login-header">
+                <h1>University Admin Login</h1>
+                <p>Rajiv Gandhi University of Health Sciences</p>
+            </div>
+
+            <form asp-action="AdminLogin" id="loginForm" method="post" novalidate>
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <i class="bi bi-person input-icon"></i>
+                    <input asp-for="UserName" type="text" class="form-control" id="UserName" placeholder=" " autocomplete="username" />
+                    <label for="UserName" class="form-label">User ID / Username</label>
+                </div>
+
+                <div class="form-group">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input asp-for="Password" type="password" class="form-control" id="password" placeholder=" " autocomplete="current-password" />
+                    <label for="password" class="form-label">Password</label>
+                    <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+                </div>
+
+                <button type="submit" class="btn-login">Login</button>
+
+                <a href="@Url.Action("Rguhsdashboard", "MainDashboard")" class="back-link">← Back to Main Menu</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Toggle password visibility
+            $('#togglePassword').on('click', function () {
+                const $input = $('#password');
+                const type = $input.attr('type') === 'password' ? 'text' : 'password';
+                $input.attr('type', type);
+                $(this).toggleClass('bi-eye bi-eye-slash');
+            });
+
+            // Client-side validation + SweetAlert
+            $('#loginForm').on('submit', function (e) {
+                const username = $.trim($('#UserName').val());
+                const password = $.trim($('#password').val());
+
+                if (!username && !password) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required Fields',
+                        text: 'Please enter Username and Password.',
+                        confirmButtonColor: '#0047AB'
+                    });
+                    return;
+                }
+                if (!username) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Username Required',
+                        text: 'Please enter your User ID / Username.',
+                        confirmButtonColor: '#0047AB'
+                    });
+                    return;
+                }
+                if (!password) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Password Required',
+                        text: 'Please enter your password.',
+                        confirmButtonColor: '#0047AB'
+                    });
+                    return;
+                }
+            });
+
+            // Show server-side validation errors
+            @if (!ViewData.ModelState.IsValid)
+            {
+                    var allErrors = string.Join(" ", ViewData.ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage));
+
+                    <text>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Failed',
+                            html: '@Html.Raw(allErrors.Replace("\r\n", "<br>"))',
+                            confirmButtonColor: '#0047AB'
+                        });
+                    </text>
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+﻿@* Views/ContinuousAffiliation/ChooseLevel.cshtml *@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Continuous Affiliation";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    .ca-choose-page {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9f7f2;
+        padding: 40px 20px;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .ca-choose-inner {
+        text-align: center;
+        max-width: 860px;
+        width: 100%;
+    }
+
+    .ca-choose-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #b8882a;
+        margin-bottom: 10px;
+    }
+
+    .ca-choose-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 2.4rem;
+        font-weight: 500;
+        color: #0f2545;
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+
+    .ca-choose-sub {
+        font-size: 0.88rem;
+        color: #6b6358;
+        margin-bottom: 48px;
+    }
+
+    .ca-level-cards {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* Base card */
+    .ca-level-card {
+        flex: 1;
+        min-width: 220px;
+        max-width: 250px;
+        border: 1.5px solid #ddd8cc;
+        border-radius: 12px;
+        padding: 40px 24px 32px;
+        text-decoration: none;
+        color: #0f2545;
+        background: #ffffff;
+        transition: all 0.22s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .ca-level-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #b8882a, #d4a84b);
+            transform: scaleX(0);
+            transition: transform 0.22s ease;
+        }
+
+        .ca-level-card:hover {
+            border-color: #b8882a;
+            box-shadow: 0 10px 30px rgba(15,37,69,0.12);
+            transform: translateY(-5px);
+            color: #0f2545;
+            text-decoration: none;
+        }
+
+            .ca-level-card:hover::after {
+                transform: scaleX(1);
+            }
+
+        /* Disabled card (SS) */
+        .ca-level-card.disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #f5f5f0;
+        }
+
+            .ca-level-card.disabled::after {
+                display: none;
+            }
+
+    .ca-level-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0f2545, #1a3a6b);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.7rem;
+        color: #d4a84b;
+        flex-shrink: 0;
+    }
+
+    .ca-level-name {
+        font-family: 'EB Garamond', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: #0f2545;
+    }
+
+    .ca-level-desc {
+        font-size: 0.78rem;
+        color: #6b6358;
+        text-align: center;
+        line-height: 1.5;
+    }
+
+    .ca-level-badge {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        background: #f3eed8;
+        color: #b8882a;
+        border: 1px solid #ddd8cc;
+        border-radius: 99px;
+        padding: 3px 12px;
+    }
+
+        .ca-level-badge.coming {
+            background: #f0f0f0;
+            color: #aaa;
+            border-color: #e0e0e0;
+        }
+
+    .ca-level-arrow {
+        font-size: 1.1rem;
+        color: #b8882a;
+        opacity: 0;
+        transition: opacity 0.2s, transform 0.2s;
+        transform: translateX(-4px);
+    }
+
+    .ca-level-card:hover .ca-level-arrow {
+        opacity: 1;
+        transform: translateX(0);
+    }
+</style>
+
+<div class="ca-choose-page">
+    <div class="ca-choose-inner">
+
+        <div class="ca-choose-eyebrow">Affiliation Module · Faculty Based</div>
+        <div class="ca-choose-title">Continuous Affiliation</div>
+        <div class="ca-choose-sub">Select your course level to begin the affiliation process</div>
+
+        <div class="ca-level-cards">
+
+            <!-- UG — Active -->
+            <a href="@Url.Action("SetLevel", "ContinuousAffiliation", new { level = "UG" })"
+               class="ca-level-card">
+                <div class="ca-level-icon">&#127979;</div>
+                <div class="ca-level-name">UG</div>
+                <div class="ca-level-desc">Under Graduate<br />Programs</div>
+                <div class="ca-level-badge">Available</div>
+                <div class="ca-level-arrow">&#8594;</div>
+            </a>
+
+            <!-- PG — Active (same steps as UG) -->
+            <a href="@Url.Action("SetLevel", "ContinuousAffiliation", new { level = "PG" })"
+               class="ca-level-card">
+                <div class="ca-level-icon">&#127891;</div>
+                <div class="ca-level-name">PG</div>
+                <div class="ca-level-desc">Post Graduate<br />Programs</div>
+                <div class="ca-level-badge">Available</div>
+                <div class="ca-level-arrow">&#8594;</div>
+            </a>
+
+            <!-- SS — Disabled (Coming Soon) -->
+            <a href="#" class="ca-level-card disabled">
+                <div class="ca-level-icon">&#128203;</div>
+                <div class="ca-level-name">SS</div>
+                <div class="ca-level-desc">Super Speciality<br />Programs</div>
+                <div class="ca-level-badge coming">Coming Soon</div>
+            </a>
+
+        </div>
+    </div>
+</div>

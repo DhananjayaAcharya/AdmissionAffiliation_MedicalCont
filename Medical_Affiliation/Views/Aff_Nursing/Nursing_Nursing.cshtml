@@ -1,0 +1,296 @@
+﻿@model IEnumerable<Medical_Affiliation.Models.NursingFacultyViewModel>
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Nursing Faculty Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 6;
+    int slNo = 1;
+}
+<style>
+    .progressbar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 20px 0 0;
+        list-style: none;
+    }
+
+        .progressbar li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+            .progressbar li:before {
+                counter-increment: step;
+                content: counter(step);
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                border: 2px solid #bbb;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px;
+                border-radius: 50%;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: #bbb;
+                top: 18px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: #0d6efd;
+            }
+
+                .progressbar li.active:before {
+                    border-color: #0d6efd;
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: #0d6efd;
+                }
+
+    .main-container {
+        margin-left: 4rem;
+        background: #fff;
+        padding: 5px;
+        border-radius: 12px
+    }
+</style>
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-light">
+            <nav aria-label="Form progress">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="fw-bold mb-0">@HttpContextAccessor.HttpContext.Session.GetString("CollegeName")</h3>
+                    <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger">Logout</button>
+                    </form>
+                </div>
+
+                <ul class="progressbar" role="progressbar" aria-valuenow="@currentStep" aria-valuemin="1" aria-valuemax="5">
+                    <li class="@(currentStep >= 1 ? "active" : "")" aria-current="step">Basic Institute Details</li>
+                    <li class="@(currentStep >= 2 ? "active" : "")">Course Details</li>
+                    <li class="@(currentStep >= 3 ? "active" : "")">Clinical Material Details</li>
+                    <li class="@(currentStep >= 4 ? "active" : "")">Affiliated Clinical Material Details</li>
+                    <li class="@(currentStep >= 5 ? "active" : "")">College Designation Details</li>
+                    <li class="@(currentStep >= 6 ? "active" : "")">Add Faculty Details</li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div class="d-flex justify-content-between mt-4 align-items-center">
+    <!-- Previous Button -->
+    <a asp-action="Nursing_TeachingFacultyDetails"
+       class="btn btn-square px-4 py-2">
+        ⬅ Previous
+    </a>
+
+    <!-- Add Faculty Button -->
+    <a asp-controller="Aff_Nursing" asp-action="Nursing_FacultyDetails"
+       class="btn btn-gradient-square px-4 py-2">
+        <i class="bi bi-person-plus-fill me-2"></i> Add Faculty
+    </a>
+</div>
+    <br/>
+    <style>
+        /* Square modern gradient button with transparent background */
+        .btn-gradient-square {
+            background: transparent;
+            color: #6c757d; /* gray letters */
+            border: 2px solid;
+            border-image-slice: 1;
+            border-width: 2px;
+            border-image-source: linear-gradient(135deg, #0d6efd, #6610f2, #e83e8c);
+            border-radius: 6px; /* square-ish corners */
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .btn-gradient-square:hover {
+                color: white;
+                background: linear-gradient(135deg, #0d6efd, #6610f2, #e83e8c);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            }
+
+            .btn-gradient-square i {
+                transition: transform 0.3s ease;
+            }
+
+            .btn-gradient-square:hover i {
+                transform: translateX(3px);
+            }
+    </style>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Bootstrap Icons (for the person-plus icon) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Faculty Table -->
+    @if (Model != null && Model.Any())
+    {
+    <form asp-action="Nursing_Nursing" asp-controller="Aff_Nursing" method="post">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <table class="table table-hover table-bordered mb-0 align-middle text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Sl. No</th>
+                                <th>Teaching Faculty Name</th>
+                                <th>Designation</th>
+                                <th>Aadhaar Number</th>
+                                <th>PAN Number</th>
+                                <th>Subject</th>
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>Recognized PG Teacher Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                    @{
+                        var facultyList = Model.ToList(); // Convert IEnumerable to List
+                        int slNo = 1;
+                    }
+
+                    <tbody>
+                        @for (int i = 0; i < facultyList.Count; i++)
+                        {
+                            <tr>
+                                <td>@slNo</td>
+
+                                <td>
+                                    <input type="hidden" name="FacultyList[@i].Id" value="@facultyList[i].Id" />
+                                    <input type="text" class="form-control form-control-sm"
+                                           name="FacultyList[@i].TeachingFacultyName"
+                                           value="@facultyList[i].TeachingFacultyName" />
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           name="FacultyList[@i].Designation"
+                                           value="@facultyList[i].Designation" />
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           name="FacultyList[@i].AadhaarNumber"
+                                           value="@facultyList[i].AadhaarNumber" />
+                                </td>
+
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                           name="FacultyList[@i].PANNumber"
+                                           value="@facultyList[i].PANNumber" />
+                                </td>
+
+                                <td>
+                                    @Html.DropDownListFor(
+                                    m => facultyList[i].Subject,
+                                                        facultyList[i].Subjects,
+                                                        "Select Subject",
+                                                        new { @class = "form-control form-control-sm" }
+                                                        )
+                        </td>
+
+                        <td>
+                            <input type="text" class="form-control form-control-sm"
+                                   name="FacultyList[@i].Mobile"
+                                   value="@facultyList[i].Mobile" />
+                        </td>
+
+                        <td>
+                            <input type="email" class="form-control form-control-sm"
+                                   name="FacultyList[@i].Email"
+                                   value="@facultyList[i].Email" />
+                        </td>
+
+                        <td>
+                            <input type="date" class="form-control form-control-sm"
+                                   name="FacultyList[@i].RecognizedPgTeacherDate"
+                                   value="@(facultyList[i].RecognizedPgTeacherDate?.ToString("yyyy-MM-dd"))" />
+                        </td>
+
+                        <td>
+                            <button type="submit" class="btn btn-sm btn-primary"
+                                    name="saveId" value="@facultyList[i].Id">
+                                Save
+                            </button>
+                        </td>
+                    </tr>
+                                        slNo++;
+                    }
+                </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center mt-3">
+            No faculty records found for this College and Faculty.
+        </div>
+    }
+</div>
+
+<style>
+    body {
+        background-color: #f4f6f9;
+    }
+
+    h2 {
+        color: #0d6efd;
+    }
+
+    table th {
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+
+    table td {
+        font-size: 14px;
+    }
+
+    .modal-header {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+
+<!-- Bootstrap JS (for modal) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>

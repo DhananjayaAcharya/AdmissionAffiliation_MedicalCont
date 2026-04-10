@@ -1,0 +1,752 @@
+﻿@model CollegeCourseViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "College Course Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Tailwind -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <!-- Bootstrap for modals -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            /* page + surfaces */
+            --bg-page: #f1f5f9; /* slate-100 */
+            --bg-card: #ffffff;
+            --bg-soft: #f9fafb; /* gray-50 */
+            /* borders */
+            --border-subtle: #e2e8f0; /* slate-200 */
+            /* text */
+            --text-main: #0f172a; /* slate-900 */
+            --text-muted: #6b7280; /* gray-500 */
+            /* accents */
+            --accent: #4f46e5; /* indigo-600 */
+            --accent-soft: #eef2ff; /* indigo-50/100 */
+            --success: #0f766e; /* teal-700 */
+            --success-soft: #ccfbf1; /* teal-100 */
+            --danger: #dc2626; /* red-600 */
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+        }
+
+        .layout-container {
+            margin-left: 12rem !important;
+            max-width: 1280px !important;
+            padding: 1.75rem 1.5rem;
+        }
+
+        .app-card {
+            background-color: var(--bg-card);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+        }
+
+        .app-card-header {
+            border-bottom: 1px solid var(--border-subtle);
+            background: linear-gradient(to right, #f9fafb, #eef2ff);
+        }
+
+        .app-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .app-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .section-helper {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Form controls */
+        .form-control-custom {
+            display: block;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 0.7rem;
+            font-size: 0.875rem;
+            background-color: #ffffff;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+
+            .form-control-custom:focus {
+                outline: none;
+                border-color: var(--accent);
+                box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.18);
+            }
+
+            .form-control-custom[readonly],
+            .form-control-custom[disabled] {
+                background-color: #f9fafb;
+                color: #6b7280;
+            }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.15rem 0.6rem;
+            font-size: 0.75rem;
+            background-color: var(--accent-soft);
+            color: #4338ca;
+        }
+
+        /* Table */
+        .table-wrapper {
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-subtle);
+            overflow-x: auto;
+            background-color: var(--bg-soft);
+        }
+
+        #coursesTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background-color: #ffffff;
+        }
+
+            #coursesTable thead th {
+                background: linear-gradient(to right, #eef2ff, #f9fafb);
+                padding: 0.7rem 0.75rem;
+                text-align: left;
+                font-weight: 500;
+                color: #1f2933;
+                border-bottom: 1px solid var(--border-subtle);
+                white-space: nowrap;
+            }
+
+            #coursesTable tbody td {
+                padding: 0.65rem 0.75rem;
+                border-bottom: 1px solid #f3f4f6;
+                vertical-align: middle;
+            }
+
+            #coursesTable tbody tr:hover {
+                background-color: #f8fafc;
+            }
+
+            #coursesTable th:nth-child(1),
+            #coursesTable td:nth-child(1) {
+                width: 26%;
+            }
+
+            #coursesTable th:nth-child(2),
+            #coursesTable td:nth-child(2) {
+                width: 14%;
+            }
+
+            #coursesTable th:nth-child(3),
+            #coursesTable td:nth-child(3) {
+                width: 18%;
+            }
+
+            #coursesTable th:nth-child(4),
+            #coursesTable td:nth-child(4),
+            #coursesTable th:nth-child(5),
+            #coursesTable td:nth-child(5) {
+                width: 21%;
+            }
+
+        /* Buttons */
+        .btn-app {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 0.45rem 1.3rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-app-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+            .btn-app-primary:hover {
+                background-color: #4338ca;
+                border-color: #4338ca;
+            }
+
+        .btn-app-ghost {
+            background-color: #ffffff;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+            .btn-app-ghost:hover {
+                background-color: #f3f4f6;
+            }
+
+        .btn-app-success {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: #ffffff;
+        }
+
+            .btn-app-success:hover {
+                background-color: #0d4f4a;
+            }
+
+        .mandatory::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        /* Declarations */
+        .declaration-block {
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-subtle);
+            background-color: #f9fafb;
+        }
+
+            .declaration-block input[type="text"] {
+                border: none;
+                border-bottom: 1px solid #d1d5db;
+                padding: 0 0.25rem;
+                font-size: 0.85rem;
+                background-color: transparent;
+            }
+
+                .declaration-block input[type="text"]:focus {
+                    outline: none;
+                    border-bottom-color: var(--accent);
+                }
+
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        @@media (max-width: 1450px) {
+            .layout-container {
+                margin-left: 8.5rem !important;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .layout-container {
+                margin-left: 2.5rem !important;
+                margin-right: 1rem !important;
+                padding: 1rem;
+            }
+
+            #coursesTable th,
+            #coursesTable td {
+                padding: 0.5rem;
+                font-size: 0.78rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    @if (!string.IsNullOrEmpty(facultyCode))
+    {
+        @await Component.InvokeAsync("Sidebar")
+    }
+
+    <div class="layout-container mx-auto">
+        <!-- Main card -->
+        <div class="app-card overflow-hidden">
+            <!-- Header: Course level -->
+            <div class="app-card-header px-6 py-4 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div class="w-full md:w-1/2">
+                    <label for="courseLevelDropdown" class="section-title mb-1 block">
+                        Course level <span class="mandatory"></span>
+                    </label>
+                    <select id="courseLevelDropdown"
+                            asp-for="SelectedCourseLevel"
+                            name="SelectedCourseLevel"
+                            asp-items="Model.CourseLevelList"
+                            class="form-control-custom">
+                        <option value="">Select course level</option>
+                    </select>
+                    <p class="section-helper mt-1">
+                        Choose the level to view and update corresponding course details.
+                    </p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.SelectedCourseLevel))
+                {
+                    <div class="flex flex-col items-start md:items-end gap-1 text-sm">
+                        <span class="text-gray-500">Current selection</span>
+                        <span class="chip">@Model.SelectedCourseLevel</span>
+                    </div>
+                }
+            </div>
+
+            @if (Model.SelectedCourseLevel != null)
+            {
+                <form asp-action="GetExpectedDetails" method="post" enctype="multipart/form-data" id="formCourseDetails">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="CollegeCodeHidden" name="CollegeCode" value="@Model.CollegeCode" />
+                    <input type="hidden" id="SelectedCourseLevelHidden" name="SelectedCourseLevel" value="@Model.SelectedCourseLevel" />
+                    <input type="hidden" id="CurrentCourseLevel" value="@Model.SelectedCourseLevel" />
+
+                    <div class="px-6 py-5 space-y-6">
+                        <!-- PG list upload -->
+                        @if (Model.SelectedCourseLevel == "PG")
+                        {
+                            <section class="space-y-2">
+                                <h2 class="section-title">PG course list document</h2>
+                                <p class="section-helper">
+                                    Upload the list of PG courses with sanctioned seats on official letterhead, signed and sealed.
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    File type: PDF • Maximum size: 2 MB <span class="mandatory"></span>
+                                </p>
+                                <div class="flex flex-col md:flex-row items-start gap-3">
+                                    <input type="file"
+                                           id="AllDocuments"
+                                           name="AllDocuments"
+                                           class="form-control-custom md:max-w-md"
+                                           accept=".pdf" />
+                                    @if (Model.DocumentUpload?.IsDocsALlUploaded == true)
+                                    {
+                                        <a asp-action="ViewDocument1"
+                                           asp-route-collegeCode="@Model.CollegeCode"
+                                           asp-route-documentType="AllDocuments"
+                                           target="_blank"
+                                           class="btn-app btn-app-ghost text-xs">
+                                            <i class="fas fa-eye mr-1"></i> View existing
+                                        </a>
+                                    }
+                                </div>
+                            </section>
+                        }
+
+                        <!-- Courses table -->
+                        @if (Model?.Courses != null && Model.Courses.Any())
+                        {
+                            <section class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="section-title">Course-wise intake and documents</h2>
+                                    <p class="section-helper">
+                                        Upload LOP/NMC only when the proposed intake differs from existing intake.
+                                    </p>
+                                </div>
+
+                                <div class="table-wrapper">
+                                    <table id="coursesTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Course name <span class="mandatory"></span></th>
+                                                <th>2025–26 intake</th>
+                                                <th>2026–27 intake <span class="mandatory"></span></th>
+                                                <th>
+                                                    LOP 2026–27 <span class="mandatory"></span><br />
+                                                    <span class="text-[11px] text-gray-500 font-normal">PDF · max 2 MB</span>
+                                                </th>
+                                                <th>
+                                                    NMC 2026–27 <span class="mandatory"></span><br />
+                                                    <span class="text-[11px] text-gray-500 font-normal">PDF · max 2 MB</span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (int i = 0; i < Model.Courses.Count; i++)
+                                            {
+                                                var course = Model.Courses[i];
+                                                <tr>
+                                                    <td>
+                                                        <div class="text-sm font-medium text-gray-900">
+                                                            @course.CourseName
+                                                        </div>
+                                                        <input type="hidden" asp-for="Courses[i].CourseName" />
+                                                        <input type="hidden" asp-for="Courses[i].CourseCode" value="@course.CourseCode" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="number"
+                                                               asp-for="Courses[i].ExistingIntake"
+                                                               class="form-control-custom existing-intake"
+                                                               readonly disabled />
+                                                    </td>
+                                                    <td>
+                                                        <input type="number"
+                                                               asp-for="Courses[i].CollegeIntake202526"
+                                                               class="form-control-custom college-intake"
+                                                               min="0"
+                                                               required
+                                                               placeholder="Enter intake" />
+                                                    </td>
+                                                    <td class="lop-cell">
+                                                        <div class="flex items-center gap-2">
+                                                            <input type="file"
+                                                                   asp-for="Courses[i].DocumentLop202627"
+                                                                   class="form-control-custom"
+                                                                   accept=".pdf" />
+                                                            @if (course.IsDocumentLop202627Available == true)
+                                                            {
+                                                                <a asp-action="ViewDocument"
+                                                                   asp-route-collegeCode="@Model.CollegeCode"
+                                                                   asp-route-courseName="@course.CourseCode"
+                                                                   asp-route-documentType="DocumentLop202627"
+                                                                   target="_blank"
+                                                                   class="btn-app btn-app-ghost text-[11px]"
+                                                                   title="View LOP">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                    <td class="nmc-cell">
+                                                        <div class="flex items-center gap-2">
+                                                            <input type="file"
+                                                                   asp-for="Courses[i].DocumentNmc202627"
+                                                                   class="form-control-custom"
+                                                                   accept=".pdf" />
+                                                            @if (course.IsDocumentNmc202627Available == true)
+                                                            {
+                                                                <a asp-action="ViewDocument"
+                                                                   asp-route-collegeCode="@Model.CollegeCode"
+                                                                   asp-route-courseName="@course.CourseCode"
+                                                                   asp-route-documentType="DocumentNmc202627"
+                                                                   target="_blank"
+                                                                   class="btn-app btn-app-ghost text-[11px]"
+                                                                   title="View NMC">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        }
+                        else
+                        {
+                            <p class="section-helper italic">No course data available for the selected level.</p>
+                        }
+
+                        <!-- Declarations -->
+                        <section class="space-y-3">
+                            @if (Model.Courses.Any(c => c.CourseLevel == "UG"))
+                            {
+                                <div class="declaration-block px-4 py-3 text-sm text-gray-700">
+                                    <div class="flex items-start gap-2">
+                                        <input asp-for="DeclarationAcceptedUG"
+                                               id="DeclarationAcceptedUG"
+                                               type="checkbox"
+                                               class="mt-1 h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+                                        <label for="DeclarationAcceptedUG">
+                                            I,
+                                            <input type="text"
+                                                   name="PrincipalNameUG"
+                                                   value="@Model.PrincipalNameUG"
+                                                   required
+                                                   placeholder="Principal/Dean name" />
+                                            Principal/Dean of <span class="font-semibold">@Model.CollegeName</span>,
+                                            hereby declare that all UG details furnished are true and correct.
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.Courses.Any(c => c.CourseLevel == "PG"))
+                            {
+                                <div class="declaration-block px-4 py-3 text-sm text-gray-700">
+                                    <div class="flex items-start gap-2">
+                                        <input asp-for="DeclarationAcceptedPG"
+                                               id="DeclarationAcceptedPG"
+                                               type="checkbox"
+                                               class="mt-1 h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+                                        <label for="DeclarationAcceptedPG">
+                                            I,
+                                            <input type="text"
+                                                   name="PrincipalNamePG"
+                                                   value="@Model.PrincipalNamePG"
+                                                   required
+                                                   placeholder="Principal/Dean name" />
+                                            Principal/Dean of <span class="font-semibold">@Model.CollegeName</span>,
+                                            hereby declare that all PG details furnished are true and correct.
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.Courses.Any(c => c.CourseLevel == "SS"))
+                            {
+                                <div class="declaration-block px-4 py-3 text-sm text-gray-700">
+                                    <div class="flex items-start gap-2">
+                                        <input asp-for="DeclarationAcceptedSS"
+                                               id="DeclarationAcceptedSS"
+                                               type="checkbox"
+                                               class="mt-1 h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+                                        <label for="DeclarationAcceptedSS">
+                                            I,
+                                            <input type="text"
+                                                   name="PrincipalNameSS"
+                                                   value="@Model.PrincipalNameSS"
+                                                   required
+                                                   placeholder="Principal/Dean name" />
+                                            Principal/Dean of <span class="font-semibold">@Model.CollegeName</span>,
+                                            hereby declare that all SS details furnished are true and correct.
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </section>
+
+                        <!-- Submit buttons -->
+                        <section class="pt-1 flex flex-wrap gap-3">
+                            @if (Model.Courses.Any(c => c.CourseLevel == "UG"))
+                            {
+                                <button type="submit" name="SubmitLevel" value="UG" class="btn-app btn-app-success">
+                                    <i class="fas fa-save mr-1"></i> Submit UG
+                                </button>
+                            }
+                            @if (Model.Courses.Any(c => c.CourseLevel == "PG"))
+                            {
+                                <button type="submit" name="SubmitLevel" value="PG" class="btn-app btn-app-success">
+                                    <i class="fas fa-save mr-1"></i> Submit PG
+                                </button>
+                            }
+                            @if (Model.Courses.Any(c => c.CourseLevel == "SS"))
+                            {
+                                <button type="submit" name="SubmitLevel" value="SS" class="btn-app btn-app-success">
+                                    <i class="fas fa-save mr-1"></i> Submit SS
+                                </button>
+                            }
+                        </section>
+                    </div>
+                </form>
+            }
+        </div>
+
+        <!-- Password modals (Bootstrap default look) -->
+        @if (ViewBag.ShowPasswordPopup == true)
+        {
+            var popupCollegeName = TempData["CollegeName"]?.ToString() ?? "College";
+
+            <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-sm font-medium" id="welcomeModalLabel">
+                                <i class="fas fa-handshake me-1"></i> Welcome
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-sm text-gray-700">
+                            Welcome to <span class="font-semibold">@popupCollegeName</span>. Please change your password to proceed.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btn-sm" id="btnChangePassword">
+                                <i class="fas fa-key me-1"></i> Change password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-sm font-medium" id="changePasswordModalLabel">
+                                <i class="fas fa-lock me-1"></i> Change password
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="post" asp-action="ChangePassword">
+                            <input type="hidden" name="CollegeCode" value="@Model.CollegeCode" />
+                            <div class="modal-body text-sm space-y-3">
+                                <div>
+                                    <label class="block mb-1 text-gray-700">Old password <span class="mandatory"></span></label>
+                                    <input type="password" name="OldPassword" class="form-control-custom" required />
+                                </div>
+                                <div>
+                                    <label class="block mb-1 text-gray-700">New password <span class="mandatory"></span></label>
+                                    <input type="password" name="NewPassword" class="form-control-custom" required />
+                                </div>
+                                <div>
+                                    <label class="block mb-1 text-gray-700">Confirm new password <span class="mandatory"></span></label>
+                                    <input type="password" name="ConfirmNewPassword" class="form-control-custom" required />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check me-1"></i> Update
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+                const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+                welcomeModal.show();
+                document.getElementById('btnChangePassword').addEventListener('click', function () {
+                    welcomeModal.hide();
+                    setTimeout(() => { changePasswordModal.show(); }, 300);
+                });
+            </script>
+        }
+    </div>
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(function () {
+                $("#courseLevelDropdown").change(function () {
+                    var selectedLevel = $(this).val();
+                    var collegeCode = "@Model.CollegeCode";
+                    if (selectedLevel) {
+                        $('#SelectedCourseLevelHidden').val(selectedLevel);
+                        var baseUrl = '@Url.Action("GetExpectedDetails", "Collegelogin")';
+                        window.location.href = baseUrl + '?collegeCode=' + encodeURIComponent(collegeCode) + '&courseLevel=' + encodeURIComponent(selectedLevel);
+                    }
+                });
+
+                function toggleUploadCells() {
+                    $('#coursesTable tbody tr').each(function () {
+                        const existing = parseInt($(this).find('.existing-intake').val() || '0', 10);
+                        const college = parseInt($(this).find('.college-intake').val() || '0', 10);
+
+                        if (existing !== college) {
+                            $(this).find('.lop-cell, .nmc-cell').show();
+                        } else {
+                            $(this).find('.lop-cell, .nmc-cell').hide()
+                                .find('input[type="file"]').val('');
+                        }
+                    });
+                }
+
+                toggleUploadCells();
+
+                $('#coursesTable').on('input change', '.college-intake', function () {
+                    toggleUploadCells();
+                });
+
+                $('#formCourseDetails').submit(function (e) {
+                    let isValid = true;
+                    var active = $(document.activeElement);
+                    var submitLevel = active.attr('name') === 'SubmitLevel' ? active.val() : $('#CurrentCourseLevel').val();
+                    var declarationCheckbox = $('#DeclarationAccepted' + submitLevel);
+                    var principalNameInput = $('input[name="PrincipalName' + submitLevel + '"]');
+
+                    if (!declarationCheckbox.is(':checked')) {
+                        Swal.fire('Declaration required', `You must accept the ${submitLevel} declaration.`, 'warning');
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    if (!principalNameInput.val() || principalNameInput.val().trim() === '') {
+                        Swal.fire('Principal name required', `Please enter the Principal/Dean name for ${submitLevel}.`, 'warning');
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    $('#coursesTable tbody tr').each(function () {
+                        var collegeIntake = $(this).find('input[name$=".CollegeIntake202526"]').val();
+                        if (!collegeIntake || parseInt(collegeIntake) < 0) {
+                            Swal.fire('Validation error', '2026–27 intake is required and must be ≥ 0.', 'error');
+                            isValid = false;
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+
+                    let hasAllDocumentsUploaded = @Json.Serialize(Model.DocumentUpload?.IsDocsALlUploaded == true);
+                    const allDocumentsInput = $('#AllDocuments');
+                    const currentCourseLevel = $('#CurrentCourseLevel').val();
+                    if (currentCourseLevel === "PG" && !hasAllDocumentsUploaded && (!allDocumentsInput.length || !allDocumentsInput[0].files.length)) {
+                        Swal.fire({ icon: 'warning', title: 'Required', text: 'Please upload the PG courses document.' });
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    $(this).find('td:visible input[type="file"]').each(function () {
+                        const file = this.files[0];
+                        if (file) {
+                            if (file.size > 2 * 1024 * 1024) {
+                                Swal.fire({ icon: 'error', title: 'File too large', text: `${file.name} exceeds 2 MB.` });
+                                isValid = false;
+                                return false;
+                            }
+                            if (file.type !== "application/pdf") {
+                                Swal.fire({ icon: 'error', title: 'Invalid file type', text: `${file.name} must be a PDF.` });
+                                isValid = false;
+                                return false;
+                            }
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                    }
+                });
+
+                var successMessage = '@TempData["Success"]';
+                if (successMessage) {
+                    Swal.fire({ icon: 'success', title: 'Success', text: successMessage });
+                }
+
+                var validationErrors = '@TempData["ValidationErrors"]';
+                if (validationErrors) {
+                    var errors = JSON.parse(validationErrors);
+                    Swal.fire({ icon: 'error', title: 'Validation errors', html: errors.join('<br/>') });
+                }
+
+                var principalError = '@TempData["PrincipalErrorMessage"]';
+                if (principalError) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: principalError,
+                        confirmButtonColor: '#0d6efd'
+                    });
+                }
+            });
+        </script>
+    }
+</body>
+</html>

@@ -1,0 +1,366 @@
+﻿@model Admission_Affiliation.Models.TabsToggleViewModel
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+@{
+    ViewData["Title"] = "Tabs Toggle Permission";
+}
+
+<style>
+    .main-container {
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        max-width: 1200px;
+    }
+
+    .heading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #collegeTable {
+        width: 100%;
+        border-collapse: collapse;
+        display: block; /* allows scrollable tbody */
+    }
+
+        /* Header and body rows aligned */
+        #collegeTable thead,
+        #collegeTable tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        /* ✅ Fixed column widths */
+        #collegeTable th:nth-child(1),
+        #collegeTable td:nth-child(1) {
+            width: 15%;
+        }
+
+        #collegeTable th:nth-child(2),
+        #collegeTable td:nth-child(2) {
+            width: 40%;
+            text-align: left;
+        }
+
+        #collegeTable th:nth-child(3),
+        #collegeTable td:nth-child(3),
+        #collegeTable th:nth-child(4),
+        #collegeTable td:nth-child(4),
+        #collegeTable th:nth-child(5),
+        #collegeTable td:nth-child(5) {
+            width: 15%;
+        }
+
+        /* ✅ Fixed header styling */
+        #collegeTable thead th {
+            text-align: center;
+            vertical-align: middle;
+            background-color: #343a40;
+            color: white;
+        }
+
+        /* ✅ Scrollable body */
+        #collegeTable tbody {
+            display: block;
+            max-height: 30vh; /* 30% viewport height */
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+            /* ✅ Cell content alignment */
+            #collegeTable tbody td {
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            /* ✅ Nice scrollbar */
+            #collegeTable tbody::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            #collegeTable tbody::-webkit-scrollbar-thumb {
+                background-color: rgba(52, 58, 64, 0.5);
+                border-radius: 4px;
+            }
+
+
+    .select-all-checkbox {
+        margin-left: 0.5rem;
+        cursor: pointer;
+    }
+
+    /* Clean DataTable styling adjustments */
+    .dataTables_filter {
+        float: right !important;
+        margin-bottom: 10px;
+    }
+
+    .dataTables_info,
+    .dataTables_paginate {
+        display: none !important; /* hide paging + info */
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        border-radius: 6px;
+        padding: 4px 8px;
+        border: 1px solid #ccc;
+    }
+
+</style>
+
+<div class="container main-container my-3">
+    <div class="heading mb-3">
+        <a asp-action="AdminDashboard" class="text-decoration-none" style="font-size: 18px;">⬅️ Back</a>
+        <h2 class="text-center flex-grow-1">Sidebar Options Management</h2>
+    </div>
+
+    <!-- Faculty Selection -->
+    <div class="mb-3">
+        <label for="facultySelect" class="form-label fw-bold">Select Faculty:</label>
+        <select id="facultySelect" class="form-select" asp-for="SelectedFacultyId" asp-items="@(new SelectList(Model.FacultiesViewModel, "FacultyId", "FacultyName", Model.SelectedFacultyId))">
+            <option value="">-- Select Faculty --</option>
+        </select>
+
+    </div>
+
+    <!-- Form for saving -->
+    <form asp-action="TabsToggle" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="table-responsive main-table">
+            <table id="collegeTable" class="table table-striped table-bordered align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>College Code</th>
+                        <th>College Name</th>
+                        <th>
+                            Nodal Officer
+                            <input type="checkbox" class="select-all-checkbox" id="selectAllNodal" />
+                        </th>
+                        <th>
+                            Intake Details
+                            <input type="checkbox" class="select-all-checkbox" id="selectAllIntake" />
+                        </th>
+                        <th>
+                            Repository
+                            <input type="checkbox" class="select-all-checkbox" id="selectAllRepo" />
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.CollegeFlags != null && Model.CollegeFlags.Any())
+                    {
+                        foreach (var c in Model.CollegeFlags)
+                        {
+                            <tr>
+                                <td>@c.CollegeCode</td>
+                                <td>@c.CollegeName</td>
+                                <td>
+                                    <input type="checkbox" class="form-check-input nodal flag-toggle"
+                                           data-college="@c.CollegeCode"
+                                           data-flag="Nodal"
+                                           @(c.ShowNodalOfficerDetails ? "checked" : null) />
+                                </td>
+                                <td>
+                                    <input type="checkbox" class="form-check-input intake flag-toggle"
+                                           data-college="@c.CollegeCode"
+                                           data-flag="Intake"
+                                           @(c.ShowIntakeDetails ? "checked" : null) />
+                                </td>
+                                <td>
+                                    <input type="checkbox" class="form-check-input repo flag-toggle"
+                                           data-college="@c.CollegeCode"
+                                           data-flag="Repo"
+                                           @(c.ShowRepositoryDetails ? "checked" : null) />
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Please select a faculty to view colleges.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @* <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary px-4">💾 Save Flags</button>
+        </div> *@
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+        let dataTable;
+
+        // ✅ Initialize DataTable (safe)
+        function initDataTable() {
+            if ($.fn.DataTable.isDataTable('#collegeTable')) {
+                $('#collegeTable').DataTable().clear().destroy();
+            }
+
+            dataTable = $('#collegeTable').DataTable({
+                paging: false,
+                info: false,
+                searching: true,
+                ordering: true,
+                autoWidth: false,
+                scrollY: '30vh',
+                scrollCollapse: true
+            });
+        }
+
+        // ✅ Faculty selection loads colleges dynamically
+        $('#facultySelect').on('change', function () {
+            const facultyId = $(this).val();
+            const tbody = $('#collegeTable tbody');
+            tbody.empty();
+
+            // Destroy existing DataTable instance safely
+            if ($.fn.DataTable.isDataTable('#collegeTable')) {
+                $('#collegeTable').DataTable().clear().destroy();
+            }
+
+            if (!facultyId) {
+                tbody.append('<tr><td colspan="5" class="text-center text-muted">Please select a faculty to view colleges.</td></tr>');
+                return;
+            }
+
+            $.get('@Url.Action("GetCollegesByFacultyForTab", "Admin")', { facultyId: facultyId }, function (response) {
+                tbody.empty();
+
+                if (response.success && response.data.length > 0) {
+                    $.each(response.data, function (i, c) {
+                        tbody.append(`
+                                <tr>
+                                    <td>${c.collegeCode}</td>
+                                    <td>${c.collegeName}</td>
+                                    <td><input type="checkbox" class="form-check-input nodal flag-toggle"
+                                               data-college="${c.collegeCode}"
+                                               data-flag="Nodal"
+                                               ${c.showNodalOfficerDetails ? 'checked' : ''} /></td>
+                                    <td><input type="checkbox" class="form-check-input intake flag-toggle"
+                                               data-college="${c.collegeCode}"
+                                               data-flag="Intake"
+                                               ${c.showIntakeDetails ? 'checked' : ''} /></td>
+                                    <td><input type="checkbox" class="form-check-input repo flag-toggle"
+                                               data-college="${c.collegeCode}"
+                                               data-flag="Repo"
+                                               ${c.showRepositoryDetails ? 'checked' : ''} /></td>
+                                </tr>
+                            `);
+                    });
+
+                    // ✅ Initialize DataTable *only when valid rows exist*
+                    initDataTable();
+
+                } else {
+                    tbody.append('<tr><td colspan="5" class="text-center text-muted">No colleges found for this faculty.</td></tr>');
+                }
+            }).fail(function () {
+                tbody.html('<tr><td colspan="5" class="text-center text-danger">Error loading colleges.</td></tr>');
+            });
+        });
+
+        // ✅ Select all toggle
+        function handleSelectAll(selectAllId, checkboxClass, flagType) {
+            $(selectAllId).change(function () {
+                const isChecked = $(this).is(':checked');
+                const facultyId = $('#facultySelect').val();
+
+                if (!facultyId) {
+                    alert('Select a faculty first.');
+                    $(this).prop('checked', false);
+                    return;
+                }
+
+                $(checkboxClass).prop('checked', isChecked);
+
+                $.ajax({
+                    url: '@Url.Action("UpdateCollegeFlagsBulk", "Admin")',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    headers: { 'RequestVerificationToken': antiForgeryToken },
+                    data: JSON.stringify({ FacultyId: facultyId, FlagType: flagType, IsChecked: isChecked }),
+                    success: () => console.log(`Faculty ${flagType} flags updated`),
+                    error: () => alert(`Error updating ${flagType} flags`)
+                });
+            });
+        }
+
+        // ✅ Handle individual checkbox toggle
+        // $(document).on('change', '.flag-toggle', function () {
+        //     const checkbox = $(this);
+        //     const collegeCode = checkbox.data('college');
+        //     const flagType = checkbox.data('flag');
+        //     const isChecked = checkbox.is(':checked');
+
+        //     $.ajax({
+        //         url: '@Url.Action("UpdateCollegeFlag", "Admin")',
+        //         type: 'POST',
+        //         headers: { 'RequestVerificationToken': antiForgeryToken },
+        //         data: {
+        //             collegeCode: collegeCode,
+        //             flagType: flagType,
+        //             isChecked: isChecked
+        //         },
+        //         success: function (response) {
+        //             if (response.success) {
+        //                 console.log(`${collegeCode} - ${flagType} updated successfully`);
+        //             } else {
+        //                 console.warn(`Failed to update ${collegeCode} - ${flagType}`);
+        //             }
+        //         },
+        //         error: function () {
+        //             alert(`Error updating flag for ${collegeCode}`);
+        //         }
+        //     });
+
+
+        // });
+        function updateFlag(checkbox) {
+            const isChecked = checkbox.prop('checked');
+            const collegeCode = checkbox.data('college');
+            const flagType = checkbox.data('flag');
+
+            $.ajax({
+                url: '@Url.Action("UpdateCollegeFlag", "Admin")',
+                type: 'POST',
+                headers: { 'RequestVerificationToken': antiForgeryToken },
+                data: { collegeCode, flagType, isChecked }
+            });
+        }
+
+        $(document).on("click", "input[type=checkbox]", function (e) {
+            e.stopPropagation();
+            updateFlag($(this));  
+            // <-- fire ajax here
+        });
+
+        $(document).on('click', '#collegeTable tbody td', function (e) {
+            const checkbox = $(this).find('input[type="checkbox"]');
+            if (!checkbox.length) return;
+
+            checkbox.prop('checked', !checkbox.prop('checked'));
+            updateFlag(checkbox);     // <-- fire ajax here
+        });
+
+        handleSelectAll('#selectAllNodal', '.nodal', 'Nodal');
+        handleSelectAll('#selectAllIntake', '.intake', 'Intake');
+        handleSelectAll('#selectAllRepo', '.repo', 'Repo');
+    });
+</script>

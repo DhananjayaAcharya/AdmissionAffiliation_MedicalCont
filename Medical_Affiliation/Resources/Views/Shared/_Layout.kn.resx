@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FooterText" xml:space="preserve">
+    <value>© ಚಾಲಿತ: ಆರ್‌ಜೆಯುಎಚ್ಎಸ್ ಕಂಪ್ಯೂಟರ್ ಕೇಂದ್ರ (ಶೈಕ್ಷಣಿಕ) 2025. ಆವೃತ್ತಿ 1.0</value>
+    <comment>Footer copyright text in Kannada</comment>
+  </data>
+  <data name="Nav_ContactSupp" xml:space="preserve">
+    <value>ಸಹಾಯವನ್ನು ಸಂಪರ್ಕಿಸಿ</value>
+    <comment>Navigation → Contact link</comment>
+  </data>
+  <data name="Nav_Guide" xml:space="preserve">
+    <value>ಮಾರ್ಗದರ್ಶಿ</value>
+    <comment>Navigation → Guide dropdown title</comment>
+  </data>
+  <data name="Nav_Guide_Login" xml:space="preserve">
+    <value>ಮಾರ್ಗದರ್ಶಿ ಲಾಗಿನ್</value>
+    <comment>Navigation → Guide Login link</comment>
+  </data>
+  <data name="Nav_Guide_Registration" xml:space="preserve">
+    <value>ಮಾರ್ಗದರ್ಶಿ ನೋಂದಣಿ</value>
+    <comment>Navigation → Guide Registration link</comment>
+  </data>
+  <data name="Nav_Guide_Status" xml:space="preserve">
+    <value>ಸ್ಥಿತಿ ಟ್ರ್ಯಾಕರ್</value>
+    <comment>Navigation → Guide Status Tracker link</comment>
+  </data>
+  <data name="Nav_Home" xml:space="preserve">
+    <value>ಮುಖಪುಟ</value>
+    <comment>Navigation → Home link</comment>
+  </data>
+  <data name="Nav_Login" xml:space="preserve">
+    <value>ಲಾಗಿನ್</value>
+    <comment>Navigation → Login dropdown title</comment>
+  </data>
+  <data name="Nav_Login_College" xml:space="preserve">
+    <value>ಕಾಲೇಜ್ ಲಾಗಿನ್</value>
+    <comment>Navigation: Login → College Login link</comment>
+  </data>
+  <data name="Nav_Login_Officer" xml:space="preserve">
+    <value>ಅಧಿಕಾರಿಯ ಲಾಗಿನ್</value>
+    <comment>Navigation: Login → Officer Login link</comment>
+  </data>
+  <data name="Nav_Login_University" xml:space="preserve">
+    <value>ವಿಶ್ವವಿದ್ಯಾಲಯ ಲಾಗಿನ್</value>
+    <comment>Navigation: Login → Guide Login link</comment>
+  </data>
+  <data name="Nav_Aff_Dir_Login_University" xml:space="preserve">
+    <value>ಸಂಬಂಧ ನಿರ್ದೇಶಕ ಲಾಗಿನ್</value>
+    <comment>Navigation: Login → Affiliation Director Login link</comment>
+  </data>
+  <data name="Nav_Privacy" xml:space="preserve">
+    <value>ಗೌಪ್ಯತಾ ನೀತಿ</value>
+    <comment>Navigation → About link</comment>
+  </data>
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ</value>
+    <comment>Label for the language selection dropdown in Kannada</comment>
+  </data>
+  <data name="UniversityAddress" xml:space="preserve">
+    <value>4ನೇ 'ಟಿ' ಬ್ಲಾಕ್, ಜಯನಗರ, ಬೆಂಗಳೂರು - 560 041</value>
+    <comment>University address in Kannada</comment>
+  </data>
+  <data name="UniversityTitle" xml:space="preserve">
+    <value>ರಾಜೀವ್ ಗಾಂಧಿ ಆರೋಗ್ಯ ವಿಜ್ಞಾನಗಳ ವಿಶ್ವವಿದ್ಯಾಲಯ, ಕರ್ನಾಟಕ</value>
+    <comment>University title in Kannada</comment>
+  </data>
+</root>

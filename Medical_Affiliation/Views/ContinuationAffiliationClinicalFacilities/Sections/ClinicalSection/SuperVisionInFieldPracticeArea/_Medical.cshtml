@@ -1,0 +1,172 @@
+﻿@model Medical_Affiliation.Models.SuperVisionInFieldPracticeAreaPostVm
+
+<style>
+    .table-fixed {
+        table-layout: fixed;
+        min-width: 2200px; /* increased for better horizontal scroll */
+    }
+
+        .table-fixed th,
+        .table-fixed td {
+            white-space: nowrap;
+        }
+
+        .table-fixed input,
+        .table-fixed textarea {
+            width: 100%;
+        }
+
+    /* Added for horizontal scroll - minimal change */
+    .scroll-wrapper {
+        overflow-x: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 5px;
+        background: white;
+    }
+</style>
+
+<div class="container mt-3 form-section">
+    <div class="section-title required">
+        Super Vision In Field Practice Area
+    </div>
+
+    <form id="supervisionForm">
+        @Html.AntiForgeryToken()
+
+        <div class="scroll-wrapper">
+            <input type="hidden" name="CollegeCode" value="@Model.CollegeCode" />
+            <input type="hidden" name="FacultyCode" value="@Model.FacultyCode" />
+            <input type="hidden" name="AffiliationTypeId" value="@Model.AffiliationTypeId" />
+            <input type="hidden" name="HospitalDetailsId" value="@Model.HospitalDetailsId" />
+
+            <table class="table table-bordered table-fixed">
+                <thead>
+                    <tr>
+                        <th>Post</th>
+                        <th>Name</th>
+                        <th>Qualification</th>
+                        <th>Year Of Passing</th>
+                        <th>University</th>
+                        <th>UG From</th>
+                        <th>UG To</th>
+                        <th>PG From</th>
+                        <th>PG To</th>
+                        <th>Responsibilities</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="supervisionBody">
+                    @for (int i = 0; i < Model.ItemsSuperVision.Count; i++)
+                    {
+                        var item = Model.ItemsSuperVision[i];
+                        <tr>
+                            <input type="hidden" name="ItemsSuperVision[@i].Id" value="@item.Id" />
+                            <td><input class="form-control" name="ItemsSuperVision[@i].Post" value="@item.Post" /></td>
+                            <td><input class="form-control" name="ItemsSuperVision[@i].Name" value="@item.Name" /></td>
+                            <td><input class="form-control" name="ItemsSuperVision[@i].Qualification" value="@item.Qualification" /></td>
+                            <td><input class="form-control" name="ItemsSuperVision[@i].YearOfQualification" value="@item.YearOfQualification" /></td>
+                            <td><input class="form-control" name="ItemsSuperVision[@i].University" value="@item.University" /></td>
+                            <td><input type="date" class="form-control" name="ItemsSuperVision[@i].UgFromDate" value="@($"{item.UgFromDate:yyyy-MM-dd}")" /></td>
+                            <td><input type="date" class="form-control" name="ItemsSuperVision[@i].UgToDate" value="@($"{item.UgToDate:yyyy-MM-dd}")" /></td>
+                            <td><input type="date" class="form-control" name="ItemsSuperVision[@i].PgFromDate" value="@($"{item.PgFromDate:yyyy-MM-dd}")" /></td>
+                            <td><input type="date" class="form-control" name="ItemsSuperVision[@i].PgToDate" value="@($"{item.PgToDate:yyyy-MM-dd}")" /></td>
+                            <td><textarea class="form-control" name="ItemsSuperVision[@i].Responsibilities">@item.Responsibilities</textarea></td>
+                            <td><button type="button" class="btn btn-danger btn-outline-light delete-row-btn">Delete</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <button type="button" class="btn btn-secondary my-2" id="addRowBtn">+ Add Row</button>
+        <button type="submit" class="btn btn-success w-100">Save</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const tableBody = document.getElementById("supervisionBody");
+        const form = document.getElementById("supervisionForm");
+
+        document.getElementById("addRowBtn").addEventListener("click", () => {
+            const index = tableBody.rows.length;
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <input type="hidden" name="ItemsSuperVision[${index}].Id" />
+                <td><input class="form-control" name="ItemsSuperVision[${index}].Post"></td>
+                <td><input class="form-control" name="ItemsSuperVision[${index}].Name"></td>
+                <td><input class="form-control" name="ItemsSuperVision[${index}].Qualification"></td>
+                <td><input class="form-control" name="ItemsSuperVision[${index}].YearOfQualification"></td>
+                <td><input class="form-control" name="ItemsSuperVision[${index}].University"></td>
+                <td><input type="date" class="form-control" name="ItemsSuperVision[${index}].UgFromDate"></td>
+                <td><input type="date" class="form-control" name="ItemsSuperVision[${index}].UgToDate"></td>
+                <td><input type="date" class="form-control" name="ItemsSuperVision[${index}].PgFromDate"></td>
+                <td><input type="date" class="form-control" name="ItemsSuperVision[${index}].PgToDate"></td>
+                <td><textarea class="form-control" name="ItemsSuperVision[${index}].Responsibilities"></textarea></td>
+                <td><button type="button" class="btn btn-danger btn-outline-light delete-row-btn">Delete</button></td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+
+        // Delete row dynamically
+        tableBody.addEventListener("click", (e) => {
+            if (e.target && e.target.classList.contains("delete-row-btn")) {
+                const row = e.target.closest("tr");
+                row.remove();
+                updateRowIndices();
+            }
+        });
+
+        function updateRowIndices() {
+            Array.from(tableBody.rows).forEach((row, i) => {
+                Array.from(row.querySelectorAll("input, textarea")).forEach((input) => {
+                    const name = input.name;
+                    input.name = name.replace(/\[\d+\]/, `[${i}]`);
+                });
+            });
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const response = await fetch('@Url.Action("SaveSuperVisionInFieldPracticeArea", "ContinuationAffiliationClinicalFacilities")', {
+                method: "POST",
+                headers: { 'RequestVerificationToken': token },
+                body: new FormData(form)
+            });
+
+            const result = await response.json();
+            if (response.ok && result.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Saved!",
+                    text: result.message,
+                    confirmButtonColor: "#198754"
+                });
+            }
+            else {
+                let errorHtml = "";
+                if (result.errors) {
+                    for (const key in result.errors) {
+                        result.errors[key].forEach(msg => {
+                            errorHtml += `<li>${msg}</li>`;
+                        });
+                    }
+                } else {
+                    errorHtml = result.message || "Something went wrong.";
+                }
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Validation Error",
+                    html: `<ul style="text-align:left">${errorHtml}</ul>`,
+                    confirmButtonColor: "#dc3545"
+                });
+            }
+        });
+    });
+</script>

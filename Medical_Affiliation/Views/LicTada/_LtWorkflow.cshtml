@@ -1,0 +1,46 @@
+﻿@{
+    var active = ViewBag.WfActive as string ?? "";
+}
+<div style="background:#0f1b35;border-radius:14px;padding:14px 22px;margin-bottom:22px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(13,27,46,.12);position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;opacity:.015;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:24px 24px;pointer-events:none"></div>
+
+    @{
+        var steps = new (string Key, string Badge, string Label, string Cls)[] {
+        ("fo",      "FO",     "Finance Officer", "wfb-blue"),
+        ("cw",      "CW",     "Case Worker",     "wfb-violet"),
+        ("ao",      "AO/SO",  "Audit Officer",   "wfb-gold"),
+        ("fo2",     "FO2",    "Final Approval",  "wfb-blue"),
+        ("cashier", "CS",     "Cashier",         "wfb-emerald"),
+        };
+    }
+
+    @for (int i = 0; i < steps.Length; i++)
+    {
+        var s = steps[i];
+        bool isA = active == s.Key;
+        string bc = s.Cls == "wfb-blue" ? "rgba(45,107,228,.25)" : s.Cls == "wfb-violet" ? "rgba(109,53,204,.25)" : s.Cls == "wfb-gold" ? "rgba(232,160,32,.2)" : s.Cls == "wfb-emerald" ? "rgba(15,155,110,.2)" : "rgba(224,48,85,.2)";
+        string btc = s.Cls == "wfb-blue" ? "#7bb3ff" : s.Cls == "wfb-violet" ? "#c4a8f0" : s.Cls == "wfb-gold" ? "#f8c96c" : s.Cls == "wfb-emerald" ? "#5de3b9" : "#f4849e";
+        string bdc = s.Cls == "wfb-blue" ? "rgba(45,107,228,.4)" : s.Cls == "wfb-violet" ? "rgba(109,53,204,.4)" : s.Cls == "wfb-gold" ? "rgba(232,160,32,.35)" : s.Cls == "wfb-emerald" ? "rgba(15,155,110,.35)" : "rgba(224,48,85,.35)";
+
+        <div style="display:flex;align-items:center;gap:6px;position:relative;z-index:1">
+            <span style="border-radius:8px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.04em;border:1px solid @bdc;background:@bc;color:@btc;@(isA ? "transform:scale(1.08);box-shadow:0 0 0 3px rgba(45,107,228,.35),0 4px 12px rgba(0,0,0,.2)" : "")">
+                @s.Badge
+            </span>
+            <span style="font-size:11px;font-weight:@(isA ? "700" : "500");color:@(isA ? "rgba(255,255,255,.9)" : "rgba(255,255,255,.45)")">@s.Label</span>
+        </div>
+
+        @if (i == 3)
+        {
+            <span style="color:rgba(255,255,255,.2);font-size:16px;font-weight:700;line-height:1;position:relative;z-index:1">→</span>
+            <div style="display:flex;align-items:center;gap:6px;position:relative;z-index:1">
+                <span style="border-radius:8px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.04em;border:1px solid rgba(224,48,85,.35);background:rgba(224,48,85,.2);color:#f4849e">Reject</span>
+                <span style="font-size:11px;font-weight:500;color:rgba(255,255,255,.45)">Director</span>
+            </div>
+            <span style="color:rgba(255,255,255,.2);font-size:16px;font-weight:700;line-height:1;position:relative;z-index:1">/ →</span>
+        }
+        else if (i < steps.Length - 1)
+        {
+            <span style="color:rgba(255,255,255,.2);font-size:16px;font-weight:700;line-height:1;position:relative;z-index:1">→</span>
+        }
+    }
+</div>

@@ -1,0 +1,228 @@
+﻿@model AHSSOloginViewModel
+@{
+    ViewData["Title"] = "Section Officer Login";
+    Layout = null;
+}
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Poppins', sans-serif;
+        background: #1b4e8f;
+    }
+
+    .login-section {
+        width: 100%;
+        max-width: 420px;
+        padding: 40px 30px;
+        text-align: center;
+        color: #fff;
+        background: rgba(0,0,0,0.2);
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.5);
+        /* backdrop-filter: blur(10px); */
+    }
+
+    .field {
+        position: relative;
+        margin: 32px 0 24px 0;
+        text-align: left;
+    }
+
+        .field input {
+            width: 100%;
+            height: 46px;
+            padding: 0 50px 0 40px;
+            background: transparent !important;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,.75);
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            position: relative;
+            z-index: 2;
+        }
+
+            .field input::placeholder {
+                color: transparent; /* hide for floating label trick */
+            }
+
+        .field .ico {
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 26px;
+            height: 26px;
+            display: grid;
+            place-items: center;
+            opacity: .9;
+            z-index: 3;
+        }
+
+            .field .ico svg {
+                width: 18px;
+                height: 18px;
+                stroke: #fff;
+            }
+        /* Floating label styles */
+        .field label {
+            position: absolute;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            color: rgba(255,255,255,0.7);
+            pointer-events: none;
+            transition: all .19s cubic-bezier(.4,0,.2,1);
+            z-index: 1;
+        }
+
+        .field input:focus + label,
+        .field input:not(:placeholder-shown) + label {
+            top: -12px;
+            left: 5px;
+            font-size: 18px;
+            color: #fff;
+            background: transparent;
+            padding: 0 2px;
+            z-index: 4;
+        }
+
+    .eye-toggle {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+        .eye-toggle.active svg {
+            stroke: #ffd700;
+            filter: drop-shadow(0 0 4px #ffd700);
+        }
+
+    .btn-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn {
+        flex: 1;
+        height: 50px;
+        border: none;
+        background: #133a72;
+        color: #fff;
+        letter-spacing: .2em;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(0,0,0,.28);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+        .btn:hover {
+            background: #0e2d59;
+        }
+</style>
+<div class="login-section">
+    <h1>SECTION OFFICER LOGIN</h1>
+    <form asp-action="SOLogin" method="post" id="loginForm">
+        @Html.AntiForgeryToken()
+        <div style="display: flex; justify-content: end;">
+            <a href="~/Home/Index" style="color: white;">HOME</a>
+        </div>
+        <div class="field">
+            <span class="ico">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M3 7.5l9 6 9-6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    <rect x="3" y="5" width="18" height="14" rx="2" stroke-width="1.6" />
+                </svg>
+            </span>
+            <input asp-for="username" type="text" id="usernameField" placeholder=" " />
+            <label for="usernameField">Username / Email</label>
+        </div>
+        <div class="field">
+            <span class="ico">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <rect x="4.5" y="10.5" width="15" height="10" rx="2" stroke-width="1.6" />
+                    <path d="M8 10.5V8a4 4 0 1 1 8 0v2.5" stroke-width="1.6" stroke-linecap="round" />
+                </svg>
+            </span>
+            <input asp-for="password" type="password" id="passwordField" placeholder=" " />
+            <label for="passwordField">Password</label>
+            <span class="eye-toggle" id="eyeToggle">
+                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg>
+            </span>
+        </div>
+        <div class="btn-row">
+            <a href="~/Home/Index" class="btn">Back</a>
+            <button type="submit" class="btn">LOGIN</button>
+        </div>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Password toggle
+    const passwordField = document.getElementById("passwordField");
+    const eyeToggle = document.getElementById("eyeToggle");
+    const eyeIcon = document.getElementById("eyeIcon");
+    eyeToggle.addEventListener("click", () => {
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeToggle.classList.add("active");
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        } else {
+            passwordField.type = "password";
+            eyeToggle.classList.remove("active");
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>';
+        }
+    });
+    $(function () {
+        $('#loginForm').on('submit', function (e) {
+            var username = $.trim($('#usernameField').val());
+            var password = $.trim($('#passwordField').val());
+            if (username === "" && password === "") {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Credentials',
+                    text: 'Please enter your Username/Email and Password.',
+                    confirmButtonColor: '#2575fc'
+                });
+            } else if (username === "") {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Username',
+                    text: 'Please enter your Username or Email.',
+                    confirmButtonColor: '#2575fc'
+                });
+            } else if (password === "") {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Password',
+                    text: 'Please enter your Password.',
+                    confirmButtonColor: '#2575fc'
+                });
+            }
+        });
+    });
+</script>

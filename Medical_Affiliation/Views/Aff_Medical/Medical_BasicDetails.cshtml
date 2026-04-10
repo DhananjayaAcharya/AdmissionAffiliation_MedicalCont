@@ -1,0 +1,245 @@
+﻿@model Medical_Affiliation.Models.MedicalInstituteDetailViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Nodal Officer Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 1;
+}
+
+<style>
+    .progressbar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 20px 0 0;
+        list-style: none;
+    }
+
+        .progressbar li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+            .progressbar li:before {
+                counter-increment: step;
+                content: counter(step);
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                border: 2px solid #bbb;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px;
+                border-radius: 50%;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: #bbb;
+                top: 18px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: #0d6efd;
+            }
+
+                .progressbar li.active:before {
+                    border-color: #0d6efd;
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: #0d6efd;
+                }
+
+    .container {
+        margin-left: 160px;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-light">
+            <nav aria-label="Form progress">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="fw-bold mb-0">@HttpContextAccessor.HttpContext.Session.GetString("CollegeName")</h3>
+                    <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger">Logout</button>
+                    </form>
+                </div>
+
+                <ul class="progressbar" role="progressbar" aria-valuenow="@currentStep" aria-valuemin="1" aria-valuemax="5">
+                    <li class="@(currentStep >= 1 ? "active" : "")" aria-current="step">Basic Institute Details</li>
+                    <li class="@(currentStep >= 2 ? "active" : "")">Course Details</li>
+                    <li class="@(currentStep >= 3 ? "active" : "")">Clinical Material Details</li>
+                    <li class="@(currentStep >= 4 ? "active" : "")">College Designation Details</li>
+                    <li class="@(currentStep >= 5 ? "active" : "")">Add Faculty Details</li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add Institute Details</h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Medical_BasicDetails" method="post" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="InstituteName" class="form-label">Institute Name <span class="text-danger">*</span></label>
+                        <input asp-for="InstituteName" class="form-control" readonly aria-readonly="true" required />
+                        <span asp-validation-for="InstituteName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="InstituteAddress" class="form-label">College Address <span class="text-danger">*</span></label>
+                        <input asp-for="InstituteAddress" class="form-control" aria-readonly="true" required />
+                        <span asp-validation-for="InstituteAddress" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TrustSocietyName" class="form-label">Trust / Society Name <span class="text-danger">*</span></label>
+                        <input asp-for="TrustSocietyName" class="form-control" placeholder="Enter Trust / Society Name" maxlength="100" required />
+                        <span asp-validation-for="TrustSocietyName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="YearOfEstablishmentOfTrust" class="form-label">Year of Establishment (Trust) <span class="text-danger">*</span></label>
+                        <input asp-for="YearOfEstablishmentOfTrust" type="number" min="1800" max="@DateTime.Now.Year" placeholder="YYYY" class="form-control" required />
+                        <span asp-validation-for="YearOfEstablishmentOfTrust" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="YearOfEstablishmentOfCollege" class="form-label">Year of Establishment (College) <span class="text-danger">*</span></label>
+                        <input asp-for="YearOfEstablishmentOfCollege" type="number" min="1800" max="@DateTime.Now.Year" placeholder="YYYY" class="form-control" required />
+                        <span asp-validation-for="YearOfEstablishmentOfCollege" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="InstitutionType" class="form-label">Institution Type <span class="text-danger">*</span></label>
+                        <select asp-for="InstitutionType" class="form-select" required>
+                            <option value="">-- Select Institution Type --</option>
+                            <option value="Private" selected="@Model.InstitutionType==" Private">Private</option>
+                            <option value="Government" selected="@Model.InstitutionType==" Private">Government</option>
+                        </select>
+                        <span asp-validation-for="InstitutionType" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="HODOfInstitution" class="form-label">Director/Dean/Principal <span class="text-danger">*</span></label>
+                        <input asp-for="HODOfInstitution" class="form-control" maxlength="100" placeholder="Enter Head of Institution Name" required />
+                        <span asp-validation-for="HODOfInstitution" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DOB" class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                        <input asp-for="DOB" type="date" id="dobField" class="form-control" max="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")" required />
+                        <span asp-validation-for="DOB" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Age" class="form-label">Age</label>
+                        <input asp-for="Age" class="form-control" id="ageField" readonly aria-readonly="true" tabindex="-1" />
+                        <span asp-validation-for="Age" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TeachingExperience" class="form-label">Teaching Experience (in years) <span class="text-danger">*</span></label>
+                        <input asp-for="TeachingExperience" type="number" min="0" max="70" placeholder="Enter Teaching Experience" class="form-control" required />
+                        <span asp-validation-for="TeachingExperience" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedPGCourseId" class="form-label">Highest Degree <span class="text-danger">*</span></label>
+                        <select asp-for="SelectedPGCourseId" class="form-select" asp-items="Model.PGCourses" required>
+                            <option value="">-- Qualification Details --</option>
+                        </select>
+                        <span asp-validation-for="SelectedPGCourseId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SelectedDegree" class="form-label">Degree <span class="text-danger">*</span></label>
+                        <select asp-for="SelectedDegree" class="form-select" asp-items="Model.DegreeList" required>
+                            <option value="">-- Select Degree --</option>
+                        </select>
+                        <span asp-validation-for="SelectedPGCourseId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SelectedSpecialization" class="form-label">Specialization <span class="text-danger">*</span></label>
+                        <select asp-for="SelectedSpecialization" class="form-select" asp-items="Model.SpecializationList" required>
+                            <option value="">-- Select Specialization --</option>
+                        </select>
+                        <span asp-validation-for="SelectedPGCourseId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedQualification" class="form-label">Qualification <span class="text-danger">*</span></label>
+                        <input asp-for="SelectedQualification" class="form-control" placeholder="Enter Qualification" required />
+                        <span asp-validation-for="SelectedQualification" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <a asp-controller="Login" asp-action="Dashboard" class="btn btn-outline-secondary sidebar-btn">
+                        ⬅ Previous
+                    </a>
+                    <button type="submit" class="btn btn-outline-secondary sidebar-btn">
+                        💾 Save & Proceed ➡
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        (function () {
+            var dobInput = document.getElementById("dobField");
+            var ageInput = document.getElementById("ageField");
+
+            function calculateAge(dobStr) {
+                var dob = new Date(dobStr);
+                var today = new Date();
+                var age = today.getFullYear() - dob.getFullYear();
+                var m = today.getMonth() - dob.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                return (age >= 0 && !isNaN(age)) ? age : '';
+            }
+
+            dobInput?.addEventListener("change", function () {
+                ageInput.value = calculateAge(this.value);
+            });
+        })();
+    </script>
+}

@@ -1,0 +1,1017 @@
+﻿@model NursingInstituteDetailViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Nursing Institute Basic Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 1;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --navy: #0f1e3c;
+        --navy-mid: #1a3160;
+        --blue: #2563eb;
+        --blue-light: #3b82f6;
+        --accent: #06b6d4;
+        --success: #10b981;
+        --warn: #f59e0b;
+        --surface: #f8fafc;
+        --card: #ffffff;
+        --border: #e2e8f0;
+        --border-focus: #2563eb;
+        --text-1: #0f172a;
+        --text-2: #475569;
+        --text-3: #94a3b8;
+        --sidebar-w: 260px;
+        --header-h: 72px;
+        --radius-sm: 8px;
+        --radius-md: 14px;
+        --radius-lg: 20px;
+        --shadow-sm: 0 1px 3px rgba(15,30,60,.06), 0 1px 2px rgba(15,30,60,.04);
+        --shadow-md: 0 4px 16px rgba(15,30,60,.08), 0 2px 6px rgba(15,30,60,.05);
+        --shadow-lg: 0 12px 40px rgba(15,30,60,.10), 0 4px 12px rgba(15,30,60,.06);
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--surface);
+        color: var(--text-1);
+        min-height: 100vh;
+    }
+
+    /* ── Sidebar offset ── */
+    .page-shell {
+        margin-left: var(--sidebar-w);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ─────────────── STICKY HEADER / PROGRESS ─────────────── */
+    .top-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(255,255,255,.92);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        height: var(--header-h);
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+        .top-header .brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--navy);
+            white-space: nowrap;
+            letter-spacing: -.01em;
+        }
+
+            .top-header .brand span {
+                color: var(--blue);
+            }
+
+    /* Steps pipeline */
+    .pipeline {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        list-style: none;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex: 1;
+    }
+
+        .pipeline::-webkit-scrollbar {
+            display: none;
+        }
+
+    .pipeline-item {
+        display: flex;
+        align-items: center;
+    }
+
+        .pipeline-item + .pipeline-item::before {
+            content: '';
+            display: block;
+            width: 28px;
+            height: 1px;
+            background: var(--border);
+            flex-shrink: 0;
+            margin: 0 4px;
+        }
+
+        .pipeline-item.completed + .pipeline-item::before {
+            background: var(--success);
+        }
+
+    .step-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border: none;
+        background: none;
+        padding: 6px 10px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        font-size: .78rem;
+        font-weight: 500;
+        color: var(--text-3);
+        transition: background .18s, color .18s;
+        white-space: nowrap;
+        outline: none;
+    }
+
+        .step-btn .badge {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: .68rem;
+            font-weight: 700;
+            background: var(--border);
+            color: var(--text-3);
+            flex-shrink: 0;
+            transition: background .18s, color .18s;
+        }
+
+        .step-btn:hover {
+            background: var(--surface);
+            color: var(--navy);
+        }
+
+    .pipeline-item.active .step-btn {
+        color: var(--blue);
+        font-weight: 700;
+    }
+
+        .pipeline-item.active .step-btn .badge {
+            background: var(--blue);
+            color: #fff;
+        }
+
+    .pipeline-item.completed .step-btn {
+        color: var(--success);
+    }
+
+        .pipeline-item.completed .step-btn .badge {
+            background: var(--success);
+            color: #fff;
+        }
+
+    /* ─────────────── MAIN CONTENT ─────────────── */
+    .main-content {
+        flex: 1;
+        padding: 2.5rem 2rem 4rem;
+        max-width: 900px;
+        width: 100%;
+    }
+
+    /* Page title row */
+    .page-title-row {
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: flex-end;
+        gap: 1rem;
+    }
+
+        .page-title-row h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: -.02em;
+            line-height: 1.2;
+        }
+
+        .page-title-row .subtitle {
+            font-size: .85rem;
+            color: var(--text-3);
+            margin-bottom: 3px;
+        }
+
+    /* ─────────────── FORM CARD ─────────────── */
+    .form-card {
+        background: var(--card);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+
+    /* Section groups inside card */
+    .form-section {
+        padding: 2rem 2rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        margin-bottom: 1.25rem;
+    }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+    .section-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: #eff6ff;
+        display: grid;
+        place-items: center;
+        font-size: .85rem;
+        flex-shrink: 0;
+    }
+
+    /* Grid helpers */
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .form-grid-1 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    /* Field */
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: .45rem;
+    }
+
+        .field label {
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--text-2);
+            letter-spacing: .01em;
+        }
+
+            .field label .req {
+                color: #ef4444;
+                margin-left: 2px;
+            }
+
+        .field input,
+        .field textarea,
+        .field select {
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            color: var(--text-1);
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: .65rem .9rem;
+            transition: border-color .18s, box-shadow .18s, background .18s;
+            outline: none;
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .field select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .75rem center;
+            padding-right: 2.5rem;
+        }
+
+            .field input:focus,
+            .field textarea:focus,
+            .field select:focus {
+                border-color: var(--border-focus);
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+            }
+
+        .field input[readonly] {
+            background: #f1f5f9;
+            color: var(--text-2);
+            cursor: not-allowed;
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.55;
+        }
+
+        .field .hint {
+            font-size: .74rem;
+            color: var(--text-3);
+            margin-top: 2px;
+        }
+
+        .field .validation-msg {
+            font-size: .74rem;
+            color: #ef4444;
+            margin-top: 2px;
+        }
+
+    /* File upload */
+    .file-upload-wrap {
+        position: relative;
+    }
+
+        .file-upload-wrap input[type="file"] {
+            font-size: .82rem;
+            padding: .55rem .9rem;
+            cursor: pointer;
+            color: var(--text-2);
+        }
+
+            .file-upload-wrap input[type="file"]::-webkit-file-upload-button {
+                font-family: 'DM Sans', sans-serif;
+                font-size: .75rem;
+                font-weight: 600;
+                color: var(--blue);
+                background: #eff6ff;
+                border: 1px solid #bfdbfe;
+                border-radius: 5px;
+                padding: .3rem .75rem;
+                cursor: pointer;
+                margin-right: .75rem;
+                transition: background .15s;
+            }
+
+                .file-upload-wrap input[type="file"]::-webkit-file-upload-button:hover {
+                    background: #dbeafe;
+                }
+
+    .view-doc-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        margin-top: .5rem;
+        font-size: .75rem;
+        font-weight: 600;
+        color: var(--blue);
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 5px;
+        padding: .3rem .75rem;
+        text-decoration: none;
+        transition: background .15s, border-color .15s;
+    }
+
+        .view-doc-btn:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+        }
+
+    /* Checkboxes — degree pills */
+    .degree-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem;
+        margin-top: .25rem;
+    }
+
+    .degree-pill {
+        position: relative;
+    }
+
+        .degree-pill input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .degree-pill label {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .45rem 1rem;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text-2);
+            cursor: pointer;
+            transition: border-color .18s, background .18s, color .18s, box-shadow .18s;
+            letter-spacing: .01em;
+            user-select: none;
+        }
+
+            .degree-pill label::before {
+                content: '';
+                display: block;
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                border: 2px solid var(--border);
+                transition: border-color .18s, background .18s;
+                flex-shrink: 0;
+            }
+
+        .degree-pill input:checked + label {
+            border-color: var(--blue);
+            background: #eff6ff;
+            color: var(--blue);
+            box-shadow: 0 2px 8px rgba(37,99,235,.12);
+        }
+
+            .degree-pill input:checked + label::before {
+                background: var(--blue);
+                border-color: var(--blue);
+            }
+
+        .degree-pill label:hover {
+            border-color: #93c5fd;
+            background: #f8fbff;
+        }
+
+    /* Other degree textbox */
+    #otherDegreeContainer {
+        margin-top: .75rem;
+        animation: slideDown .22s ease;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Specialization */
+    #specializationContainer {
+        animation: fadeUp .3s ease;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .spec-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem;
+        margin-top: .5rem;
+    }
+
+    .spec-pill {
+        position: relative;
+    }
+
+        .spec-pill input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .spec-pill label {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .45rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            font-size: .8rem;
+            font-weight: 500;
+            color: var(--text-2);
+            cursor: pointer;
+            transition: border-color .18s, background .18s, color .18s;
+            user-select: none;
+        }
+
+        .spec-pill input:checked + label {
+            border-color: var(--accent);
+            background: #ecfeff;
+            color: #0e7490;
+        }
+
+        .spec-pill label:hover {
+            border-color: #67e8f9;
+            background: #f0fdff;
+        }
+
+    /* ─────────────── FORM FOOTER / SUBMIT ─────────────── */
+    .form-footer {
+        padding: 1.5rem 2rem;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .7rem 1.6rem;
+        font-family: 'DM Sans', sans-serif;
+        font-size: .88rem;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, var(--blue) 0%, var(--navy-mid) 100%);
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: opacity .18s, transform .15s, box-shadow .18s;
+        box-shadow: 0 4px 14px rgba(37,99,235,.3);
+        letter-spacing: .01em;
+    }
+
+        .btn-primary:hover {
+            opacity: .92;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(37,99,235,.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary svg {
+            width: 16px;
+            height: 16px;
+        }
+
+    /* ─────────────── RESPONSIVE ─────────────── */
+    @@media (max-width: 900px) {
+        .page-shell {
+            margin-left: 0;
+        }
+
+        .top-header {
+            padding: 0 1rem;
+        }
+
+        .main-content {
+            padding: 1.5rem 1rem 3rem;
+        }
+
+        .form-grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .pipeline {
+            gap: 0;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .page-title-row h1 {
+            font-size: 1.3rem;
+        }
+
+        .form-section {
+            padding: 1.5rem 1rem 1rem;
+        }
+
+        .top-header .brand {
+            display: none;
+        }
+    }
+
+    /* hide step text on very small */
+    @@media (max-width: 720px) {
+        .step-btn .step-text {
+            display: none;
+        }
+    }
+
+    /* Taluk disabled style */
+    select:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<div class="page-shell">
+
+    <main class="main-content">
+
+        <div class="page-title-row">
+            <div>
+                <p class="subtitle">Affiliation Application</p>
+                <h1>Institute Basic Details</h1>
+            </div>
+        </div>
+
+        <form asp-action="Unani_BasicDetails" method="post" enctype="multipart/form-data" id="facultyForm">
+            @Html.AntiForgeryToken()
+
+            <div class="form-card">
+
+                <div class="form-section">
+                    <div class="section-label">
+                        <span class="section-icon">🏛</span>
+                        Institute Information
+                    </div>
+
+                    <div class="form-grid-1">
+                        <div class="field">
+                            <label asp-for="InstituteName">Institute Name</label>
+                            <input asp-for="InstituteName" readonly placeholder="Auto-filled from registration" />
+                        </div>
+                    </div>
+
+                    <div class="form-grid-1" style="margin-top:1.25rem;">
+                        <div class="field">
+                            <label asp-for="InstituteAddress">Institute Address <span class="req">*</span></label>
+                            <textarea asp-for="InstituteAddress" rows="3" required placeholder="Full postal address of the institute"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2" style="margin-top:1.25rem;">
+                        <div class="field">
+                            <label asp-for="TrustSocietyName">Trust / Society Name <span class="req">*</span></label>
+                            <input asp-for="TrustSocietyName" required placeholder="e.g. ABC Educational Trust" />
+                        </div>
+                        <div class="field">
+                            <label asp-for="InstitutionType">Institution Type</label>
+                            <input asp-for="InstitutionType" placeholder="Govt / Govt Aided / Private" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-label">
+                        <span class="section-icon">📅</span>
+                        Establishment Details
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="field">
+                            <label asp-for="YearOfEstablishmentOfTrust">Year of Establishment — Trust</label>
+                            <input asp-for="YearOfEstablishmentOfTrust" type="date" />
+                        </div>
+                        <div class="field">
+                            <label asp-for="YearOfEstablishmentOfCollege">Year of Establishment — College</label>
+                            <input asp-for="YearOfEstablishmentOfCollege" type="date" />
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2" style="margin-top:1.25rem;">
+                        <div class="field">
+                            <label asp-for="TrustEstablishmentDocument">
+                                Trust Establishment Document
+                                <span class="hint" style="display:block;font-weight:400;">(Trustee Amendment documents)</span>
+                            </label>
+                            <div class="file-upload-wrap">
+                                <input asp-for="TrustEstablishmentDocument" type="file" />
+                            </div>
+                            @if (Model.TrustDocData != null && Model.TrustDocData.Length > 0)
+                            {
+                                <a href="@Url.Action("ViewTrustDoc", "Aff_Naturopathy")" target="_blank" class="view-doc-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                                    View Uploaded Document
+                                </a>
+                            }
+                        </div>
+                        <div class="field">
+                            <label asp-for="CollegeEstablishmentDocument">
+                                College Establishment Document
+                                <span class="hint" style="display:block;font-weight:400;">(GOK document)</span>
+                            </label>
+                            <div class="file-upload-wrap">
+                                <input asp-for="CollegeEstablishmentDocument" type="file" />
+                            </div>
+                            @if (Model.EstablishmentDocData != null && Model.EstablishmentDocData.Length > 0)
+                            {
+                                <a href="@Url.Action("ViewEstDoc", "Aff_Naturopathy")" target="_blank" class="view-doc-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                                    View Uploaded Document
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <div class="section-label">
+                        <span class="section-icon">📍</span>
+                        College Location
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="field">
+                            <label asp-for="SelectedDistrictId">District <span class="req">*</span></label>
+                            <select asp-for="SelectedDistrictId" id="districtDropdown" required>
+                                <option value="">— Select District —</option>
+                                @foreach (var item in Model.DistrictDropdownList)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SelectedDistrictId" class="validation-msg"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="SelectedTalukId">Taluk <span class="req">*</span></label>
+                            <select id="talukDropdown" class="taluk-visual" required>
+                                <option value="">— Select Taluk —</option>
+                            </select>
+
+                            <input type="hidden" asp-for="SelectedTalukId" id="SelectedTalukId_hidden" />
+                            <span asp-validation-for="SelectedTalukId" class="validation-msg"></span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-section">
+                    <div class="section-label">
+                        <span class="section-icon">👤</span>
+                        Principal Details
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="field">
+                            <label asp-for="HodofInstitution">Name of the Principal</label>
+                            <input asp-for="HodofInstitution" placeholder="Full name" />
+                        </div>
+                        <div class="field">
+                            <label asp-for="TeachingExperience">Teaching Experience (Years)</label>
+                            <input asp-for="TeachingExperience" type="number" step="0.1" min="0" placeholder="e.g. 12.5" />
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2" style="margin-top:1.25rem;">
+                        <div class="field">
+                            <label asp-for="Dob">Date of Birth</label>
+                            <input asp-for="Dob" type="date" id="dob" onchange="calculateAge()" />
+                        </div>
+                        <div class="field">
+                            <label asp-for="Age">Age (auto-calculated)</label>
+                            <input asp-for="Age" id="age" readonly placeholder="—" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-label">
+                        <span class="section-icon">🎓</span>
+                        Degree
+                    </div>
+
+                    <div class="degree-grid">
+                        <div class="degree-pill">
+                            <input class="form-check-input" type="checkbox" value="UG" name="Degree" id="degreeUG"
+                                   @(Model.Degree != null && Model.Degree.Contains("UG") ? "checked" : "") />
+                            <label for="degreeUG">B.Sc Nursing</label>
+                        </div>
+                        <div class="degree-pill">
+                            <input class="form-check-input" type="checkbox" value="PG" name="Degree" id="degreePG"
+                                   @(Model.Degree != null && Model.Degree.Contains("PG") ? "checked" : "") />
+                            <label for="degreePG">M.Sc Nursing</label>
+                        </div>
+                        <div class="degree-pill">
+                            <input class="form-check-input" type="checkbox" value="PhD" name="Degree" id="degreePhD"
+                                   @(Model.Degree != null && Model.Degree.Contains("PhD") ? "checked" : "") />
+                            <label for="degreePhD">Ph.D</label>
+                        </div>
+                        <div class="degree-pill">
+                            <input class="form-check-input" type="checkbox" value="Any Other" name="Degree" id="degreeOther"
+                                   @(Model.Degree != null && Model.Degree.Contains("Any Other") ? "checked" : "") />
+                            <label for="degreeOther">Any Other</label>
+                        </div>
+                    </div>
+
+                    <div id="otherDegreeContainer" style="display:none; margin-top:.75rem;">
+                        <div class="field">
+                            <input type="text" name="OtherDegreeText" placeholder="Please specify your degree"
+                                   value="@(Model.OtherDegreeText ?? "")" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-label">
+                        <span class="section-icon">📚</span>
+                        Course &amp; Specialization
+                    </div>
+
+                    <div class="field" style="max-width:400px;">
+                        <label for="CourseDropdown">Select Course</label>
+                        <select asp-for="CourseCode"
+                                asp-items="@(new SelectList(ViewBag.Courses, "CourseCode", "CourseName", Model.CourseCode))"
+                                id="CourseDropdown">
+                            <option value="">— Select Course —</option>
+                        </select>
+                    </div>
+
+                    <div id="specializationContainer" style="display:none; margin-top:1.25rem;">
+                        <div class="field">
+                            <label>Specialization</label>
+                            <div id="specializationOptions" class="spec-grid"></div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" asp-for="CourseSelectedSpecialities" id="CourseSelectedSpecialities" />
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        Save &amp; Proceed
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </main>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        /* ── Age calculator ── */
+        function calculateAge() {
+            const dob = document.getElementById('dob').value;
+            if (dob) {
+                const diff = Date.now() - new Date(dob).getTime();
+                document.getElementById('age').value = Math.abs(new Date(diff).getUTCFullYear() - 1970);
+            }
+        }
+
+        /* ── Course → Specialization ── */
+        const courseDropdown          = document.getElementById("CourseDropdown");
+        const specializationContainer = document.getElementById("specializationContainer");
+        const specializationOptions   = document.getElementById("specializationOptions");
+        const hiddenInput             = document.getElementById("CourseSelectedSpecialities");
+
+        const SPEC_MAP = {
+            "BSCN": ["Medical Surgical Nursing", "Community Health Nursing", "Pediatric Nursing"],
+            "MSCN": ["Obstetric & Gynecological Nursing", "Psychiatric Nursing", "Medical Surgical Nursing"],
+            "PHDN": ["Nursing Research", "Clinical Practice", "Health Administration"]
+        };
+
+        function renderSpecializations(courseCode, preSelected) {
+            const specs = SPEC_MAP[(courseCode || "").toUpperCase()] || [];
+            specializationOptions.innerHTML = "";
+            if (!specs.length) { specializationContainer.style.display = "none"; return; }
+
+            specializationContainer.style.display = "block";
+            specs.forEach(spec => {
+                const id = spec.replace(/\W+/g, '_');
+                const checked = preSelected && preSelected.includes(spec) ? "checked" : "";
+                specializationOptions.innerHTML += `
+                    <div class="spec-pill">
+                        <input type="checkbox" id="${id}" value="${spec}" ${checked}>
+                        <label for="${id}">${spec}</label>
+                    </div>`;
+            });
+        }
+
+        courseDropdown.addEventListener("change", function () {
+            renderSpecializations(this.value, []);
+        });
+
+        document.getElementById("facultyForm").addEventListener("submit", function () {
+            hiddenInput.value = Array.from(
+                document.querySelectorAll("#specializationOptions input:checked")
+            ).map(cb => cb.value).join(", ");
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const existing = "@Model.CourseSelectedSpecialities";
+            const preSelected = existing ? existing.split(",").map(v => v.trim()) : [];
+            if (courseDropdown.value) renderSpecializations(courseDropdown.value, preSelected);
+        });
+
+        /* ── Any Other Degree toggle ── */
+        function toggleOtherDegree() {
+            document.getElementById("otherDegreeContainer").style.display =
+                document.getElementById("degreeOther").checked ? "block" : "none";
+        }
+        document.getElementById("degreeOther").addEventListener("change", toggleOtherDegree);
+        window.addEventListener("DOMContentLoaded", toggleOtherDegree);
+
+        /* ── District → Taluk cascade ── */
+        (function () {
+            const districtDropdown = document.getElementById("districtDropdown");
+            const talukDropdown    = document.getElementById("talukDropdown");
+            const talukHidden      = document.getElementById("SelectedTalukId_hidden");
+            const preselectedTaluk = "@Model.SelectedTalukId";
+
+            talukDropdown.addEventListener("change", function () {
+                talukHidden.value = this.value;
+            });
+
+            function setLoading() {
+                talukDropdown.innerHTML = '<option value="">⏳ Loading taluks…</option>';
+                talukDropdown.style.opacity = "0.6";
+                talukDropdown.style.pointerEvents = "none";
+                talukHidden.value = "";
+            }
+
+            function setReady() {
+                talukDropdown.style.opacity = "";
+                talukDropdown.style.pointerEvents = "";
+            }
+
+            function loadTaluks(districtName, selectedTalukId) {
+                if (!districtName) {
+                    talukDropdown.innerHTML = '<option value="">— Select Taluk —</option>';
+                    talukHidden.value = "";
+                    setReady();
+                    return;
+                }
+
+                setLoading();
+
+                // ✅ FIXED — uses Url.Action for production-safe URL
+                fetch('@Url.Action("GetTaluksByDistrict", "Aff_Nursing")?districtName=' + encodeURIComponent(districtName))
+                    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+                    .then(data => {
+                        talukDropdown.innerHTML = '<option value="">— Select Taluk —</option>';
+                        (data || []).forEach(item => {
+                            const opt       = document.createElement("option");
+                            opt.value       = item.value;
+                            opt.textContent = item.text;
+                            if (String(item.value) === String(selectedTalukId)) {
+                                opt.selected      = true;
+                                talukHidden.value = item.value;
+                            }
+                            talukDropdown.appendChild(opt);
+                        });
+                        setReady();
+                    })
+                    .catch(err => {
+                        console.error("Taluk load failed:", err);
+                        talukDropdown.innerHTML = '<option value="">⚠ Error loading taluks</option>';
+                        talukHidden.value = "";
+                        setReady();
+                    });
+            }
+
+            if (districtDropdown) {
+                if (districtDropdown.value) {
+                    loadTaluks(districtDropdown.value, preselectedTaluk);
+                }
+                districtDropdown.addEventListener("change", function () {
+                    loadTaluks(this.value, null);
+                });
+            }
+        })();
+    </script>
+}

@@ -1,0 +1,410 @@
+﻿@model List<CollegeDesignationDetailsViewModel>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Required Faculty Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 4;
+}
+
+<style>
+
+    @@media (max-width: 1450px) {
+        .main-container {
+            max-width: 985px !important;
+            margin-left: 17rem !important;
+            padding: 1em !important;
+            padding-top: 10px !important;
+            max-height: 30vh;
+            overflow: auto;
+        }
+
+        .college-container {
+            margin-bottom: 8px !important;
+        }
+
+        .status-bar-container {
+            padding: 0.2rem 0;
+        }
+
+        .clg-basic {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .card.mb-3 {
+            margin-bottom: 5px;
+        }
+
+        .container.mt-4 {
+            margin-top: 5px !important;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        .btn{
+            padding: 0.3rem 1.0rem;
+        }
+    }
+    /* styles omitted for brevity (unchanged) */
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    #facultyTable {
+        width: 100%;
+        border-spacing: 0;
+        font-family: 'Inter', sans-serif;
+        background: #ffffff;
+    }
+
+        #facultyTable th, #facultyTable td {
+            padding: 14px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        #facultyTable thead th {
+            background: #f3f4f6;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #1f2a44;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+    .main-container {
+        margin-left: 20rem;
+        background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
+        padding: 2.5rem;
+        border-radius: 22px;
+        box-shadow: 0 16px 48px rgba(60, 110, 255, 0.07), 0 2px 8px rgba(36, 37, 38, 0.06);
+        max-height: 100vh;
+        overflow-y: auto;
+        transition: box-shadow 0.32s cubic-bezier(.57,.21,.69,1.25), background 0.5s;
+        box-sizing: border-box;
+    }
+
+    @@media (max-width: 768px) {
+        .main-container {
+            margin-left: 0.5rem;
+            padding: 1rem;
+            border-radius: 15px;
+        }
+    }
+
+    .form-check-label {
+        font-weight: 700;
+        color: #103172;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        transition: color 0.2s;
+        letter-spacing: 1px;
+        font-size: 1.06rem;
+    }
+
+        .form-check-label:hover {
+            color: #3b82f6;
+            text-shadow: 0 1px 8px #b8d3fa66;
+        }
+
+    #specializationOptions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 22px;
+        margin-top: 2rem;
+        animation: fadeIn 0.5s;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-check {
+        background: linear-gradient(100deg, #e3edfa 0%, #f9fafb 100%);
+        border: 1.5px solid #dbeafe;
+        border-radius: 10px;
+        padding: 16px 24px;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.09);
+        transition: box-shadow 0.25s, transform 0.2s, border-color 0.22s;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .form-check:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 14px 36px rgba(59, 130, 246, 0.16);
+            background: #ffffff;
+            border-color: #3b82f6;
+        }
+
+        .form-check:active {
+            border-color: #16a34a;
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.09);
+        }
+
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 21;
+        background: linear-gradient(90deg, #f3f4f6 60%, #e0e7ff 100%);
+        padding: 1.2rem 0;
+        border-bottom: 2px solid #dbeafe;
+        box-shadow: 0 3px 8px rgba(59, 130, 246, 0.07);
+        backdrop-filter: blur(2px);
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.8rem 0;
+        /* overflow-x: auto; */
+        scrollbar-width: thin;
+        scrollbar-color: #93c5fd #e0e7ff;
+    }
+
+    .progress-step-btn {
+        background: none;
+        border: none;
+        padding: 0.6rem 0.2rem;
+        font-weight: 700;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        color: #6b7280;
+        position: relative;
+        transition: color 0.22s, letter-spacing 0.15s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.93rem;
+        cursor: pointer;
+        outline: none;
+    }
+
+        .progress-step-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2.5px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #3b82f6 70%, #22d3ee 100%);
+            transition: width 0.3s cubic-bezier(.51,.08,.89,.66);
+        }
+
+        .progress-step-btn:hover:not(:disabled) {
+            color: #0c114e;
+            letter-spacing: 2px;
+        }
+
+        .progress-step-btn:hover::after,
+        .progress-step-btn.active::after {
+            width: 100%;
+        }
+
+        .progress-step-btn.active {
+            color: #3b82f6;
+        }
+
+        .progress-step-btn.completed {
+            color: #22c55e;
+            text-shadow: 0 1px 5px #bbf7d0;
+        }
+
+            .progress-step-btn.completed::after {
+                background: linear-gradient(90deg, #22c55e 70%, #a3e635 100%);
+            }
+
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 14px;
+        background: linear-gradient(to right, #ffffff 80%, #e3edfa 100%);
+        box-shadow: 0 6px 24px rgba(36,37,38,0.05);
+        padding: 0.5rem;
+    }
+
+    #facultyTable {
+        width: 100%;
+        border-spacing: 0;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        background: #ffffff;
+        border-collapse: separate;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+        #facultyTable th,
+        #facultyTable td {
+            padding: 16px 22px;
+            vertical-align: middle;
+            border-bottom: 1.5px solid #dbeafe;
+            transition: background 0.2s;
+            font-size: 1.01rem;
+        }
+
+        #facultyTable thead th {
+            background: linear-gradient(90deg, #e0e7ff 60%, #f3f4f6 100%);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #103172;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.05);
+        }
+
+        #facultyTable tbody tr {
+            transition: box-shadow 0.28s, background 0.18s;
+        }
+
+            #facultyTable tbody tr:hover {
+                background: #f9fafb;
+                box-shadow: 0 4px 18px rgba(59,130,246,0.08);
+            }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<div class="card-header bg-light">
+    <nav aria-label="Form progress">
+        <div class="d-flex justify-content-between align-items-center">
+            @using System.Text.RegularExpressions
+            @{
+                var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+                var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+                var stepTitles = new[] {
+                        "Institute Basic Details",
+                        "Course Details",
+                        "Hospital Details",
+                        "Required Faculty Details",
+                        "Add College Faculty details",
+                        "Academic Performance"
+                        };
+            }
+            <span class="fw-bold mb-0">@collegeName</span>
+        </div>
+
+        <ul class="progressbar-pipeline" role="progressbar">
+            @for (int i = 0; i < stepTitles.Length; i++)
+            {
+                var isActive = (currentStep == i + 1);
+                var isCompleted = (currentStep > i + 1);
+                <li class="@(isCompleted ? "completed" : "")">
+                    <span class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))">
+                        @stepTitles[i]
+                    </span>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Pharmacy_ManageDesignationIntake" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="table-responsive">
+        <table id="facultyTable" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th rowspan="2">Designation</th>
+                    <th colspan="3" class="text-center">UG</th>
+                    <th colspan="3" class="text-center">PG</th>
+                </tr>
+                <tr>
+                    <th class="text-center">GOK Sanctioned</th>
+                    <th class="text-center">RGUHS Intake</th>
+                    <th class="text-center">Present Intake</th>
+
+                    <th class="text-center">GOK Sanctioned</th>
+                    <th class="text-center">RGUHS Intake</th>
+                    <th class="text-center">Present Intake</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted">No designation records available.</td></tr>
+                }
+                else
+                {
+                    for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                @Model[i].Designation
+                                <input asp-for="@Model[i].DesignationCode" type="hidden" />
+                                <input asp-for="@Model[i].Designation" type="hidden" />
+                            </td>
+
+                            @* UG GOK Sanctioned *@
+                            <td>
+                                <input asp-for="@Model[i].GokSanctioned" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="@Model[i].GokSanctioned" class="text-danger small"></span>
+                            </td>
+
+                            @* UG RGUHS Intake *@
+                            <td>
+                                <input asp-for="@Model[i].UGUnderRGUHSIntake" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="@Model[i].UGUnderRGUHSIntake" class="text-danger small"></span>
+                            </td>
+
+                            @* UG Present Intake *@
+                            <td>
+                                <input asp-for="@Model[i].UGPresentIntake" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="@Model[i].UGPresentIntake" class="text-danger small"></span>
+                            </td>
+
+                            @* PG GOK Sanctioned *@
+                            <td>
+                                <input asp-for="@Model[i].PGGokSanctioned" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="@Model[i].PGGokSanctioned" class="text-danger small"></span>
+                            </td>
+
+                            @* PG RGUHS Intake *@
+                            <td>
+                                <input asp-for="@Model[i].PGUnderRGUHSIntake" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="@Model[i].PGUnderRGUHSIntake" class="text-danger small"></span>
+                            </td>
+
+                            @* PG Present Intake *@
+                            <td>
+                                <input asp-for="@Model[i].PGPresentIntake" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="@Model[i].PGPresentIntake" class="text-danger small"></span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-between">
+        <a asp-controller="Aff_Pharmacy" asp-action="Pharmacy_YearwiseMaterials" class="btn btn-outline-secondary">⬅ Previous</a>
+        <button type="submit" class="btn btn-outline-primary">💾 Save & Proceed ➡</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

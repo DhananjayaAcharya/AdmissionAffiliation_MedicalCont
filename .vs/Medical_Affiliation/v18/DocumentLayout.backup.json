@@ -1,0 +1,203 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\controllers\\collegelogincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\controllers\\collegelogincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\controllers\\basecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\controllers\\basecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\views\\login\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\views\\login\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\views\\shared\\_continuousaffiliationsidebar.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\views\\shared\\_continuousaffiliationsidebar.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|d:\\continuous_affiliation\\trail\\medicalaffiliation_02042026\\medical_affiliation\\medical_affiliation\\views\\collegelogin\\getexpecteddetails.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{F702BCA2-0BE0-47F1-B6AB-8BFF6E668915}|Medical_Affiliation\\Medical_Affiliation.csproj|solutionrelative:medical_affiliation\\views\\collegelogin\\getexpecteddetails.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\appsettings.json",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\appsettings.json",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\appsettings.json",
+              "RelativeToolTip": "Medical_Affiliation\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-08T12:32:28.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Login.cshtml",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Views\\Login\\Login.cshtml",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\Views\\Login\\Login.cshtml",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Views\\Login\\Login.cshtml",
+              "RelativeToolTip": "Medical_Affiliation\\Views\\Login\\Login.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABADAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T12:21:00.766Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CollegeloginController.cs",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Controllers\\CollegeloginController.cs",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\Controllers\\CollegeloginController.cs",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Controllers\\CollegeloginController.cs",
+              "RelativeToolTip": "Medical_Affiliation\\Controllers\\CollegeloginController.cs",
+              "ViewState": "AgIAAGUAAAAAAAAAAAAgwG0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T12:03:09.342Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "LoginController.cs",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Controllers\\LoginController.cs",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\Controllers\\LoginController.cs",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Controllers\\LoginController.cs",
+              "RelativeToolTip": "Medical_Affiliation\\Controllers\\LoginController.cs",
+              "ViewState": "AgIAABEBAAAAAAAAAAAlwJoAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T11:17:00.79Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BaseController.cs",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Controllers\\BaseController.cs",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\Controllers\\BaseController.cs",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Controllers\\BaseController.cs",
+              "RelativeToolTip": "Medical_Affiliation\\Controllers\\BaseController.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAswDcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T11:16:19.866Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "_ContinuousAffiliationSidebar.cshtml",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Views\\Shared\\_ContinuousAffiliationSidebar.cshtml",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\Views\\Shared\\_ContinuousAffiliationSidebar.cshtml",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Views\\Shared\\_ContinuousAffiliationSidebar.cshtml",
+              "RelativeToolTip": "Medical_Affiliation\\Views\\Shared\\_ContinuousAffiliationSidebar.cshtml",
+              "ViewState": "AgIAAHoAAAAAAAAAAAAlwIwAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T11:01:34.057Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "GetExpectedDetails.cshtml",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Views\\Collegelogin\\GetExpectedDetails.cshtml",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\Views\\Collegelogin\\GetExpectedDetails.cshtml",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Views\\Collegelogin\\GetExpectedDetails.cshtml",
+              "RelativeToolTip": "Medical_Affiliation\\Views\\Collegelogin\\GetExpectedDetails.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T10:59:06.735Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\DATA\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\DATA\\ApplicationDbContext.cs",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\DATA\\ApplicationDbContext.cs",
+              "RelativeToolTip": "Medical_Affiliation\\DATA\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAKYBAAAAAAAAAAA2wKwBAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T10:51:11.426Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Program.cs",
+              "RelativeDocumentMoniker": "Medical_Affiliation\\Program.cs",
+              "ToolTip": "D:\\Continuous_Affiliation\\Trail\\MedicalAffiliation_02042026\\Medical_Affiliation\\Medical_Affiliation\\Program.cs",
+              "RelativeToolTip": "Medical_Affiliation\\Program.cs",
+              "ViewState": "AgIAAIEAAAAAAAAAAAAYwIsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T09:57:03.415Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            }
+          ]
+        },
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            }
+          ]
+        },
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

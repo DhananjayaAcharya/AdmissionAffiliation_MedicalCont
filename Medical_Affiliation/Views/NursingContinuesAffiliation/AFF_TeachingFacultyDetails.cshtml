@@ -1,0 +1,1106 @@
+﻿@model IList<Aff_FacultyDetailsViewModel>
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Teaching/Non-Teaching Faculty Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 5;
+}
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-soft: rgba(79, 70, 229, 0.12);
+        --accent: #ec4899;
+        --bg-body: #060714;
+        --bg-gradient: radial-gradient(circle at top left, #1f2937 0, #020617 55%, #020617 100%);
+        --glass-bg: rgba(15, 23, 42, 0.85);
+        --glass-border: rgba(148, 163, 184, 0.35);
+        --input-bg: rgba(15, 23, 42, 0.9);
+        --input-border: rgba(148, 163, 184, 0.45);
+        --input-border-focus: rgba(129, 140, 248, 0.9);
+        --radius-lg: 20px;
+        --radius-md: 14px;
+        --shadow-soft: 0 24px 60px rgba(15, 23, 42, 0.85);
+        --shadow-chip: 0 10px 25px rgba(15, 23, 42, 0.65);
+        --text-main: #ffffff;
+        --text-muted: #9ca3af;
+        --danger: #f97373;
+    }
+
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-gradient);
+    }
+
+    .main-container {
+        margin-left: 18rem;
+        min-height: 89vh;
+        padding: 32px 0 40px;
+        background: var(--bg-gradient);
+    }
+
+    .institution-form-card {
+        background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.25), transparent 55%), radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.28), transparent 55%);
+        border-radius: 32px;
+        padding: 1px;
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+        .institution-form-card::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background: radial-gradient(circle at 0% 0%, rgba(244, 114, 182, 0.22), transparent 60%), radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.28), transparent 55%);
+            opacity: 0.4;
+            filter: blur(32px);
+            z-index: -2;
+        }
+
+    .institution-form-card-inner {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.92));
+        border-radius: 30px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        position: relative;
+        z-index: 1;
+        padding: 28px 26px 30px;
+    }
+
+    @@media (min-width: 992px) {
+        .institution-form-card-inner {
+            padding: 30px 34px 34px;
+        }
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+        .page-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+    .table-container {
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: rgba(15, 23, 42, 0.95);
+        box-shadow: var(--shadow-soft);
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 70vh;
+    }
+
+    #facultyTable {
+        width: 450%;
+        min-width: 5000px;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: transparent;
+        table-layout: fixed;
+    }
+
+        #facultyTable colgroup col.sl-no {
+            width: 4%;
+        }
+
+        #facultyTable colgroup col.name {
+            width: 8%;
+        }
+
+        #facultyTable colgroup col.subject {
+            width: 8%;
+        }
+
+        #facultyTable colgroup col.dob {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.department {
+            width: 8%;
+        }
+
+        #facultyTable colgroup col.rnrm {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.designation {
+            width: 8%;
+        }
+
+        #facultyTable colgroup col.qual {
+            width: 8%;
+        }
+
+        #facultyTable colgroup col.uginst {
+            width: 9%;
+        }
+
+        #facultyTable colgroup col.uginst-year {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.pginst {
+            width: 9%;
+        }
+
+        #facultyTable colgroup col.pginst-year {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.exp-ug {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.exp-pg {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.doj {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.pg-guide {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.pg-doc {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.phd-guide {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.phd-doc {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.examiner {
+            width: 8%;
+        }
+
+        #facultyTable colgroup col.litigation {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.litig-doc {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.mobile {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.email {
+            width: 9%;
+        }
+
+        #facultyTable colgroup col.pan {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.aadhaar {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.nrts {
+            width: 6%;
+        }
+
+        #facultyTable colgroup col.rguhs {
+            width: 6%;
+        }
+
+        /* extra columns for 4 document uploads + action */
+        #facultyTable colgroup col.aadhaar-doc {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.pan-doc {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.rnrm-doc {
+            width: 7%;
+        }
+
+        #facultyTable colgroup col.form16-doc {
+            width: 8%;
+        }
+
+        #facultyTable colgroup col.action {
+            width: 5%;
+        }
+
+        #facultyTable thead th {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(99, 102, 241, 0.1));
+            color: #ffffff !important;
+            border: none;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            padding: 1rem 0.6rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        #facultyTable tbody td {
+            border-color: #212529;
+            padding: 0.8rem 0.6rem;
+            vertical-align: middle;
+            color: #0d0a0a;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        #facultyTable tbody tr {
+            transition: all 0.3s ease;
+        }
+
+            #facultyTable tbody tr:hover {
+                background: rgba(79, 70, 229, 0.08);
+                transform: translateY(-1px);
+            }
+
+    .form-control,
+    .form-select {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 42px;
+        border-radius: 10px;
+        border: 1.5px solid var(--input-border);
+        background: var(--input-bg);
+        color: var(--text-main) !important;
+        font-size: 0.88rem;
+        padding: 0.7rem 1rem;
+        transition: all 0.18s ease-out;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.5);
+        box-sizing: border-box;
+        -webkit-text-fill-color: var(--text-main) !important;
+    }
+
+        .form-control::placeholder {
+            color: rgba(148, 163, 184, 0.75) !important;
+            opacity: 1;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--input-border-focus);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.4), 0 0 0 8px rgba(79, 70, 229, 0.2);
+            background: rgba(15, 23, 42, 0.98);
+            transform: translateY(-1px);
+        }
+
+        .form-control[type="file"] {
+            cursor: pointer;
+            background: radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.2), rgba(15, 23, 42, 0.96));
+            padding-right: 2rem;
+        }
+
+    .file-upload-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    .doc-viewer-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 2px solid rgba(148, 163, 184, 0.4);
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        flex-shrink: 0;
+    }
+
+        .doc-viewer-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5);
+        }
+
+    .examiner-options {
+        margin-top: 0.5rem;
+        padding: 0.75rem;
+        background: rgba(79, 70, 229, 0.12);
+        border: 1px solid rgba(79, 70, 229, 0.3);
+        border-radius: 8px;
+        font-size: 0.82rem;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+
+        .examiner-options label {
+            display: block;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.82rem;
+        }
+
+            .examiner-options label:hover {
+                background: rgba(79, 70, 229, 0.2);
+            }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .btn {
+        border-radius: 999px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.8rem;
+    }
+
+    .btn-primary {
+        background: conic-gradient(from 160deg, #6366f1, #ec4899, #8b5cf6, #6366f1);
+        color: #f9fafb;
+        box-shadow: 0 16px 40px rgba(79, 70, 229, 0.7);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px rgba(79, 70, 229, 0.8);
+        }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger), #ef4444);
+        box-shadow: 0 10px 25px rgba(249, 115, 115, 0.4);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(249, 115, 115, 0.5);
+        }
+
+    .btn-outline-secondary {
+        background: rgba(15, 23, 42, 0.9);
+        border: 2px solid rgba(148, 163, 184, 0.4);
+        color: var(--text-muted);
+    }
+
+    .remarks-box {
+        border: 2px solid var(--danger) !important;
+        background: rgba(249, 115, 115, 0.15) !important;
+        font-size: 0.82rem;
+    }
+
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    @@media (max-width: 768px) {
+        .main-container {
+            margin-left: 0 !important;
+            padding: 1rem;
+        }
+
+        .btn-container {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+            .btn-container > div {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+            }
+    }
+
+    @@media (max-width: 480px) {
+        .institution-form-card-inner {
+            padding: 20px 16px 24px;
+        }
+
+        #facultyTable thead th,
+        #facultyTable tbody td {
+            padding: 0.6rem 0.4rem;
+            font-size: 0.82rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 38px;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.85rem;
+        }
+    }
+
+    .container {
+        max-width: 950px;
+    }
+
+    .table-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, rgba(79, 70, 229, 0.6), rgba(236, 72, 153, 0.6));
+        border-radius: 4px;
+    }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.8), rgba(236, 72, 153, 0.8));
+        }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show position-fixed"
+         style="top: 20px; right: 20px; z-index: 9999; border-radius: 16px; border: none;
+                    background: linear-gradient(135deg, #10b981, #059669); color: white;
+                    box-shadow: var(--shadow-soft);">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill me-2" style="font-size: 1.5rem;"></i>
+            <strong>@TempData["Success"]</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show position-fixed"
+         style="top: 20px; right: 20px; z-index: 9999; border-radius: 16px; border: none;
+                    background: linear-gradient(135deg, #ef4444, #dc2626); color: white;
+                    box-shadow: var(--shadow-soft);">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 1.5rem;"></i>
+            <strong>@TempData["Error"]</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show position-fixed"
+         style="top: 20px; right: 20px; z-index: 9999; border-radius: 16px; border: none;
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white;
+                    box-shadow: var(--shadow-soft);">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-info-circle-fill me-2" style="font-size: 1.5rem;"></i>
+            <strong>@TempData["Info"]</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+
+@* <div class="main-container"> *@
+    <div class="institution-form-card">
+        <div class="institution-form-card-inner">
+            <div class="page-header">
+                <h1>Teaching Faculty Details</h1>
+            </div>
+
+            <form asp-action="AFF_TeachingFacultyDetails" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <div class="table-container table-responsive">
+                    <table class="table" id="facultyTable">
+                        <colgroup>
+                            <col class="sl-no" />
+                            <col class="name" />
+                            <col class="subject" />
+                            <col class="dob" />
+                            <col class="department" />
+                            <col class="rnrm" />
+                            <col class="designation" />
+                            <col class="qual" />
+                            <col class="uginst" />
+                            <col class="uginst-year" />
+                            <col class="pginst" />
+                            <col class="pginst-year" />
+                            <col class="exp-ug" />
+                            <col class="exp-pg" />
+                            <col class="doj" />
+                            <col class="pg-guide" />
+                            <col class="pg-doc" />
+                            <col class="phd-guide" />
+                            <col class="phd-doc" />
+                            <col class="examiner" />
+                            <col class="litigation" />
+                            <col class="litig-doc" />
+                            <col class="mobile" />
+                            <col class="email" />
+                            <col class="pan" />
+                            <col class="aadhaar" />
+                            <col class="nrts" />
+                            <col class="rguhs" />
+                            <col class="aadhaar-doc" />
+                            <col class="pan-doc" />
+                            <col class="rnrm-doc" />
+                            <col class="form16-doc" />
+                            <col class="action" />
+                        </colgroup>
+
+                        <thead>
+                            <tr>
+                                <th>Sl No</th>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>DOB</th>
+                                <th>Department</th>
+                                <th>RN/RM</th>
+                                <th>Designation</th>
+                                <th>Qualification</th>
+                                <th>UG Institute</th>
+                                <th>UG Year</th>
+                                <th>PG Institute</th>
+                                <th>PG Year</th>
+                                <th>Exp UG</th>
+                                <th>Exp PG</th>
+                                <th>DOJ</th>
+                                <th>PG Guide</th>
+                                <th>PG Doc</th>
+                                <th>PhD Guide</th>
+                                <th>PhD Doc</th>
+                                <th>Examiner</th>
+                                <th>Litigation</th>
+                                <th>Litig Doc</th>
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>PAN</th>
+                                <th>Aadhaar</th>
+                                <th>NRTS</th>
+                                <th>RGUHS TIN</th>
+                                <th>Aadhaar Doc</th>
+                                <th>PAN Doc</th>
+                                <th>RN/RM Doc</th>
+                                <th>Form16 / 6 Months</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    @Html.HiddenFor(m => m[i].FacultyDetailId)
+                                    @Html.HiddenFor(m => m[i].IsRemoved)
+                                    @Html.HiddenFor(m => m[i].DepartmentDetails)
+                                    @Html.HiddenFor(m => m[i].Department)
+                                    @Html.HiddenFor(m => m[i].PGPassingSpecialization)
+
+                                    <!-- Basic Information -->
+                                    <td>@Html.TextBoxFor(m => m[i].NameOfFaculty, new { @class = "form-control", placeholder = "Faculty name", required = "required" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].Subject, new { @class = "form-control", placeholder = "Subject" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].DateOfBirth, new { @class = "form-control", type = "date" })</td>
+                                    <td>@Html.DropDownListFor(m => m[i].SelectedDepartment, Model[i].DepartmentDetailsList, "Select Department", new { @class = "form-control" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].RN_RMNumber, new { @class = "form-control", placeholder = "RN/RM Number" })</td>
+
+                                    <!-- Designation & Qualification -->
+                                    <td>@Html.DropDownListFor(m => m[i].Designation, Model[i].Designations, "Select Designation", new { @class = "form-control" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].Qualification, new { @class = "form-control", placeholder = "Qualification" })</td>
+
+                                    <!-- UG Details -->
+                                    <td>@Html.TextBoxFor(m => m[i].UGInstituteName, new { @class = "form-control", placeholder = "UG Institute" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].UGYearOfPassing, new { @class = "form-control", type = "number", min = "1900", max = "2025" })</td>
+
+                                    <!-- PG Details -->
+                                    <td>@Html.TextBoxFor(m => m[i].PGInstituteName, new { @class = "form-control", placeholder = "PG Institute" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].PGYearOfPassing, new { @class = "form-control", type = "number", min = "1900", max = "2025" })</td>
+
+                                    <!-- Experience -->
+                                    <td>@Html.TextBoxFor(m => m[i].TeachingExperienceAfterUGYears, new { @class = "form-control", type = "number", min = "0", placeholder = "Years" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].TeachingExperienceAfterPGYears, new { @class = "form-control", type = "number", min = "0", placeholder = "Years" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].DateOfJoining, new { @class = "form-control", type = "date" })</td>
+
+                                    <!-- PG Guide - Dynamic Document Toggle -->
+                                    <td>
+                                        <select name="[@i].RecognizedPgTeacher" class="form-control pg-guide document-toggle" data-target="pg-doc-@i">
+                                            <option value="">Select</option>
+                                            @if (Model[i].RecognizedPgTeacher)
+                                            {
+                                                <option value="true" selected>Yes</option>
+                                                <option value="false">No</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="true">Yes</option>
+                                                <option value="false" selected>No</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td id="pg-doc-@i" style="display:@(Model[i].RecognizedPgTeacher ? "table-cell" : "none")">
+                                        <div class="file-upload-container">
+                                            <input asp-for="@Model[i].GuideRecognitionDoc" class="form-control pg-doc" accept=".pdf,.jpg,.jpeg,.png" />
+                                        </div>
+                                    </td>
+
+                                    <!-- PhD Guide - Dynamic Document Toggle -->
+                                    <td>
+                                        <select name="[@i].RecognizedPhDTeacher" class="form-control phd-guide document-toggle" data-target="phd-doc-@i">
+                                            <option value="">Select</option>
+                                            @if (Model[i].RecognizedPhDTeacher)
+                                            {
+                                                <option value="true" selected>Yes</option>
+                                                <option value="false">No</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="true">Yes</option>
+                                                <option value="false" selected>No</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td id="phd-doc-@i" style="display:@(Model[i].RecognizedPhDTeacher ? "table-cell" : "none")">
+                                        <div class="file-upload-container">
+                                            <input asp-for="@Model[i].PhDRecognitionDoc" class="form-control phd-doc" accept=".pdf,.jpg,.jpeg,.png" />
+                                        </div>
+                                    </td>
+
+                                    <!-- Examiner -->
+                                    <td>
+                                        <select name="[@i].IsExaminer" class="form-control examiner-check" data-index="@i">
+                                            <option value="">Select</option>
+                                            @if (Model[i].IsExaminer)
+                                            {
+                                                <option value="true" selected>Yes</option>
+                                                <option value="false">No</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="true">Yes</option>
+                                                <option value="false" selected>No</option>
+                                            }
+                                        </select>
+                                        <div class="examiner-options" id="examinerOptions_@i" style="display:@(Model[i].IsExaminer ? "block" : "none")">
+                                            @if (Model[i].ExaminerForList != null && Model[i].ExaminerForList.Any())
+                                            {
+                                                @foreach (var examiner in Model[i].ExaminerForList)
+                                                {
+                                                    <label class="d-block mb-1">
+                                                        <input type="checkbox" name="[@i].ExaminerForList" value="@examiner" checked /> @examiner
+                                                    </label>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <label class="d-block mb-1"><input type="checkbox" name="[@i].ExaminerForList" value="UG" /> UG</label>
+                                                <label class="d-block mb-1"><input type="checkbox" name="[@i].ExaminerForList" value="PG" /> PG</label>
+                                                <label class="d-block mb-1"><input type="checkbox" name="[@i].ExaminerForList" value="PhD" /> PhD</label>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <!-- Litigation - Dynamic Document Toggle -->
+                                    <td>
+                                        <select name="[@i].LitigationPending" class="form-control litigation-check document-toggle" data-target="litig-doc-@i">
+                                            <option value="">Select</option>
+                                            @if (Model[i].LitigationPending)
+                                            {
+                                                <option value="true" selected>Yes</option>
+                                                <option value="false">No</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="true">Yes</option>
+                                                <option value="false" selected>No</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td id="litig-doc-@i" style="display:@(Model[i].LitigationPending ? "table-cell" : "none")">
+                                        <div class="file-upload-container">
+                                            <input asp-for="@Model[i].LitigationDoc" class="form-control litig-doc" accept=".pdf,.jpg,.jpeg,.png" />
+                                        </div>
+                                    </td>
+
+                                    <!-- Contact -->
+                                    <td>@Html.TextBoxFor(m => m[i].Mobile, new { @class = "form-control", placeholder = "Mobile", pattern = "[0-9]{10}" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].Email, new { @class = "form-control", type = "email", placeholder = "Email" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].PAN, new { @class = "form-control", placeholder = "PAN", pattern = "[A-Z]{5}[0-9]{4}[A-Z]{1}", maxlength = "10" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].Aadhaar, new { @class = "form-control", placeholder = "Aadhaar", pattern = "[0-9]{12}", maxlength = "12" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].NRTSNumber, new { @class = "form-control", placeholder = "NRTS Number" })</td>
+                                    <td>@Html.TextBoxFor(m => m[i].RGUHSTIN, new { @class = "form-control", placeholder = "RGUHS TIN" })</td>
+
+                                    <!-- Aadhaar Document -->
+                                    <td>
+                                        <div class="file-upload-container">
+                                            <input asp-for="@Model[i].AadhaarDocument"
+                                                   class="form-control"
+                                                   type="file"
+                                                   accept=".pdf,.jpg,.jpeg,.png" />
+                                        </div>
+                                    </td>
+
+                                    <!-- PAN Document -->
+                                    <td>
+                                        <div class="file-upload-container">
+                                            <input asp-for="@Model[i].PANDocument"
+                                                   class="form-control"
+                                                   type="file"
+                                                   accept=".pdf,.jpg,.jpeg,.png" />
+                                        </div>
+                                    </td>
+
+                                    <!-- RN/RM Document -->
+                                    <td>
+                                        <div class="file-upload-container">
+                                            <input asp-for="@Model[i].RN_RMDocument"
+                                                   class="form-control"
+                                                   type="file"
+                                                   accept=".pdf,.jpg,.jpeg,.png" />
+                                        </div>
+                                    </td>
+
+                                    <!-- Form16 or Last 6 Months Statement -->
+                                    <td>
+                                        <div class="file-upload-container">
+                                            <input asp-for="@Model[i].Form16OrLast6MonthsStatement"
+                                                   class="form-control"
+                                                   type="file"
+                                                   accept=".pdf" />
+                                        </div>
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button type="button" class="btn btn-danger btn-sm remove-row" title="Remove Faculty">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            @Html.TextBoxFor(m => m[i].RemoveRemarks, new { @class = "form-control remarks-box mt-1", placeholder = "Remove remarks...", style = "display: none;" })
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="btn-container">
+                    <a asp-action="HospitalDetailsForAffiliation" asp-controller="ClinicalFacilitiesForAffiliation" class="btn btn-outline-secondary px-5">
+                        <i class="bi bi-chevron-left"></i> Previous
+                    </a>
+                    <div>
+                        <button type="button" id="addRow" class="btn btn-primary px-4">
+                            <i class="bi bi-plus-circle"></i> Add Row
+                        </button>
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="bi bi-save"></i> Save & Next
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+@* </div> *@
+
+@{
+    string deptOptions = string.Join("",
+        Model.FirstOrDefault()?.DepartmentDetailsList?.Any() == true
+            ? Model.FirstOrDefault().DepartmentDetailsList.Select(d => $"<option value='{d.Value}'>{d.Text}</option>")
+            : new List<string> { "<option value=''>No Departments</option>" }
+    );
+    string desigOptions = string.Join("",
+        Model.FirstOrDefault()?.Designations?.Any() == true
+            ? Model.FirstOrDefault().Designations.Select(d => $"<option value='{d.Value}'>{d.Text}</option>")
+            : new List<string> { "<option value=''>No Designations</option>" }
+    );
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+                const DepartmentOptions = `@Html.Raw(deptOptions)`;
+                const DesignationOptions = `@Html.Raw(desigOptions)`;
+                let rowIndex = @Model.Count;
+
+                $(document).ready(function () {
+                    // DYNAMIC DOCUMENT TOGGLE - Show/Hide on Yes/No selection
+                    $(document).on('change', '.document-toggle', function () {
+                        const targetId = $(this).data('target');
+                        const isVisible = $(this).val() === 'true';
+
+                        if (isVisible) {
+                            $('#' + targetId).slideDown(300);
+                        } else {
+                            $('#' + targetId).slideUp(300);
+                        }
+                    });
+
+                    // Initialize all toggles on page load
+                    $('.document-toggle').trigger('change');
+
+                    // Examiner toggle
+                    $(document).on('change', '.examiner-check', function () {
+                        const index = $(this).data('index') || rowIndex;
+                        const $row = $(this).closest('tr');
+                        let $examinerDiv = $row.find('.examiner-options');
+
+                        if ($(this).val() === 'true') {
+                            if ($examinerDiv.length === 0) {
+                                $examinerDiv = $(`
+                                    <div class="examiner-options" id="examinerOptions_${index}">
+                                        <label class="d-block mb-1"><input type="checkbox" name="[${index}].ExaminerForList" value="UG" /> UG</label>
+                                        <label class="d-block mb-1"><input type="checkbox" name="[${index}].ExaminerForList" value="PG" /> PG</label>
+                                        <label class="d-block mb-1"><input type="checkbox" name="[${index}].ExaminerForList" value="PhD" /> PhD</label>
+                                    </div>
+                                `);
+                                $(this).after($examinerDiv);
+                            }
+                            $examinerDiv.slideDown(300);
+                        } else {
+                            $examinerDiv.slideUp(300).find('input[type="checkbox"]').prop('checked', false);
+                        }
+                    });
+
+                    // Add new row
+                    $('#addRow').click(function () {
+                        const slNo = $('#facultyTable tbody tr').length + 1;
+                        const newRow = createNewRow(rowIndex, slNo);
+                        $('#facultyTable tbody').append(newRow);
+                        rowIndex++;
+                        updateSerialNumbers();
+                    });
+
+                    // Remove row
+                    $(document).on('click', '.remove-row', function () {
+                        const $row = $(this).closest('tr');
+                        const $remarks = $row.find('.remarks-box');
+
+                        if ($remarks.is(':visible')) {
+                            if ($remarks.val().trim()) {
+                                $row.find('input[name$=".IsRemoved"]').val('true');
+                                $row.slideUp(400, function () {
+                                    $(this).remove();
+                                    updateSerialNumbers();
+                                });
+                            } else {
+                                showToast('Please enter removal remarks', 'warning');
+                            }
+                        } else {
+                            $remarks.slideDown(300).focus();
+                        }
+                    });
+
+                    $(document).on('blur', '.remarks-box', function () {
+                        if (!$(this).val().trim()) {
+                            $(this).slideUp(200);
+                        }
+                    });
+
+                    // File validation
+                    $(document).on('change', 'input[type="file"]', function () {
+                        const file = this.files[0];
+                        if (file && file.size > 5 * 1024 * 1024) {
+                            showToast('File size should not exceed 5MB', 'warning');
+                            this.value = '';
+                        }
+                    });
+
+                    function createNewRow(index, slNo) {
+                        return `
+        <tr>
+            <td>${slNo}</td>
+            <input type="hidden" name="[${index}].FacultyDetailId" value="0" />
+            <input type="hidden" name="[${index}].IsRemoved" value="false" />
+            <input type="hidden" name="[${index}].DepartmentDetails" value="" />
+            <input type="hidden" name="[${index}].Department" value="" />
+            <input type="hidden" name="[${index}].PGPassingSpecialization" value="" />
+
+            <td><input name="[${index}].NameOfFaculty" class="form-control" placeholder="Faculty name" required /></td>
+            <td><input name="[${index}].Subject" class="form-control" placeholder="Subject" /></td>
+            <td><input name="[${index}].DateOfBirth" class="form-control" type="date" /></td>
+            <td>
+                <select name="[${index}].SelectedDepartment" class="form-control">
+                    <option value="">Select Department</option>
+                    ${DepartmentOptions}
+                </select>
+            </td>
+            <td><input name="[${index}].RN_RMNumber" class="form-control" placeholder="RN/RM Number" /></td>
+            <td>
+                <select name="[${index}].Designation" class="form-control">
+                    <option value="">Select Designation</option>
+                    ${DesignationOptions}
+                </select>
+            </td>
+            <td><input name="[${index}].Qualification" class="form-control" placeholder="Qualification" /></td>
+            <td><input name="[${index}].UGInstituteName" class="form-control" placeholder="UG Institute" /></td>
+            <td><input name="[${index}].UGYearOfPassing" class="form-control" type="number" min="1900" max="2025" /></td>
+            <td><input name="[${index}].PGInstituteName" class="form-control" placeholder="PG Institute" /></td>
+            <td><input name="[${index}].PGYearOfPassing" class="form-control" type="number" min="1900" max="2025" /></td>
+            <td><input name="[${index}].TeachingExperienceAfterUGYears" class="form-control" type="number" min="0" placeholder="Years" /></td>
+            <td><input name="[${index}].TeachingExperienceAfterPGYears" class="form-control" type="number" min="0" placeholder="Years" /></td>
+            <td><input name="[${index}].DateOfJoining" class="form-control" type="date" /></td>
+
+            <td>
+                <select name="[${index}].RecognizedPgTeacher" class="form-control pg-guide document-toggle" data-target="pg-doc-new-${index}">
+                    <option value="">Select</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </td>
+            <td id="pg-doc-new-${index}" style="display:none;">
+                <div class="file-upload-container">
+                    <input type="file" name="[${index}].GuideRecognitionDoc" class="form-control pg-doc" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+            </td>
+
+            <td>
+                <select name="[${index}].RecognizedPhDTeacher" class="form-control phd-guide document-toggle" data-target="phd-doc-new-${index}">
+                    <option value="">Select</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </td>
+            <td id="phd-doc-new-${index}" style="display:none;">
+                <div class="file-upload-container">
+                    <input type="file" name="[${index}].PhDRecognitionDoc" class="form-control phd-doc" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+            </td>
+
+            <td>
+                <select name="[${index}].IsExaminer" class="form-control examiner-check" data-index="${index}">
+                    <option value="">Select</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+                <div class="examiner-options" id="examinerOptions_${index}" style="display:none;">
+                    <label class="d-block mb-1"><input type="checkbox" name="[${index}].ExaminerForList" value="UG" /> UG</label>
+                    <label class="d-block mb-1"><input type="checkbox" name="[${index}].ExaminerForList" value="PG" /> PG</label>
+                    <label class="d-block mb-1"><input type="checkbox" name="[${index}].ExaminerForList" value="PhD" /> PhD</label>
+                </div>
+            </td>
+
+            <td>
+                <select name="[${index}].LitigationPending" class="form-control litigation-check document-toggle" data-target="litig-doc-new-${index}">
+                    <option value="">Select</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </td>
+            <td id="litig-doc-new-${index}" style="display:none;">
+                <div class="file-upload-container">
+                    <input type="file" name="[${index}].LitigationDoc" class="form-control litig-doc" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+            </td>
+
+            <td><input name="[${index}].Mobile" class="form-control" placeholder="Mobile" pattern="[0-9]{10}" /></td>
+            <td><input name="[${index}].Email" class="form-control" type="email" placeholder="Email" /></td>
+            <td><input name="[${index}].PAN" class="form-control" placeholder="PAN" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" maxlength="10" /></td>
+            <td><input name="[${index}].Aadhaar" class="form-control" placeholder="Aadhaar" pattern="[0-9]{12}" maxlength="12" /></td>
+            <td><input name="[${index}].NRTSNumber" class="form-control" placeholder="NRTS Number" /></td>
+            <td><input name="[${index}].RGUHSTIN" class="form-control" placeholder="RGUHS TIN" /></td>
+
+            <td>
+                <div class="file-upload-container">
+                    <input type="file" name="[${index}].AadhaarDocument" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+            </td>
+            <td>
+                <div class="file-upload-container">
+                    <input type="file" name="[${index}].PANDocument" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+            </td>
+            <td>
+                <div class="file-upload-container">
+                    <input type="file" name="[${index}].RN_RMDocument" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+            </td>
+            <td>
+                <div class="file-upload-container">
+                    <input type="file" name="[${index}].Form16OrLast6MonthsStatement" class="form-control" accept=".pdf" />
+                </div>
+            </td>
+
+            <td>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-danger btn-sm remove-row" title="Remove Faculty">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <input type="text" name="[${index}].RemoveRemarks" class="form-control remarks-box mt-1" placeholder="Remove remarks..." style="display:none;" />
+                </div>
+            </td>
+        </tr>`;
+                    }
+
+                    function updateSerialNumbers() {
+                        $('#facultyTable tbody tr').each(function (i) {
+                            $(this).find('td:first').text(i + 1);
+                        });
+                    }
+
+                    function showToast(message, type = 'success') {
+                        const bg = type === 'success'
+                            ? 'linear-gradient(135deg, #10b981, #059669)'
+                            : 'linear-gradient(135deg, #f59e0b, #d97706)';
+                        const toast = $(`
+                            <div class="toast position-fixed" style="top: 100px; right: 20px; z-index: 10000;
+                                   background: ${bg}; color: white; border-radius: 12px; padding: 1rem 1.5rem;
+                                   box-shadow: var(--shadow-soft); border: none;">
+                                ${message}
+                            </div>
+                        `);
+                        $('body').append(toast);
+                        toast.toast({ delay: 3000 });
+                        toast.toast('show');
+                        toast.on('hidden.bs.toast', function () { $(this).remove(); });
+                    }
+                });
+    </script>
+}

@@ -1,0 +1,1036 @@
+﻿@model LICInspectionDetailsViewModel
+@{
+    ViewData["Title"] = "LIC Inspection Details";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #0A2342;
+            --navy-mid: #0F3460;
+            --navy-light: #1A4A7A;
+            --gold: #C9A84C;
+            --gold-lt: #E8C97A;
+            --surface: #F4F6FA;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+            --border-dk: #CBD5E1;
+            --t1: #0F172A;
+            --t2: #475569;
+            --t3: #94A3B8;
+            --green: #059669;
+            --green-bg: #ECFDF5;
+            --green-bd: rgba(5,150,105,.2);
+            --sidebar-w: 240px;
+            --header-h: 64px;
+            --r-sm: 6px;
+            --r-md: 10px;
+            --r-lg: 14px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+            --shadow: 0 4px 16px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+            --ease: cubic-bezier(.4,0,.2,1);
+        }
+
+        html {
+            font-size: 15px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--t1);
+            min-height: 100vh;
+            display: flex;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════════════════════════════════════
+                   SIDEBAR
+                ══════════════════════════════════════════ */
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: var(--sidebar-w);
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            overflow: hidden;
+        }
+
+            .sidebar::before {
+                content: '';
+                position: absolute;
+                top: -80px;
+                right: -80px;
+                width: 240px;
+                height: 240px;
+                background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+        }
+
+            .sidebar-logo img {
+                width: 38px;
+                height: 38px;
+                border-radius: 8px;
+                object-fit: cover;
+                border: 2px solid rgba(201,168,76,.4);
+            }
+
+        .sidebar-logo-text {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--gold-lt);
+            letter-spacing: .03em;
+            line-height: 1.3;
+        }
+
+        .sidebar-logo-sub {
+            font-size: .65rem;
+            color: rgba(255,255,255,.35);
+            font-weight: 400;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+        }
+
+        .nav-label {
+            font-size: .63rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.25);
+            padding: 10px 10px 6px;
+            margin-top: 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.6);
+            text-decoration: none;
+            font-size: .85rem;
+            font-weight: 500;
+            transition: var(--ease) .18s;
+            position: relative;
+        }
+
+            .nav-link:hover {
+                background: rgba(255,255,255,.06);
+                color: rgba(255,255,255,.9);
+            }
+
+            .nav-link.active {
+                background: rgba(201,168,76,.15);
+                color: var(--gold-lt);
+            }
+
+                .nav-link.active::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 6px;
+                    bottom: 6px;
+                    width: 3px;
+                    background: var(--gold);
+                    border-radius: 0 3px 3px 0;
+                }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            opacity: .7;
+        }
+
+        .nav-link.active .nav-icon,
+        .nav-link:hover .nav-icon {
+            opacity: 1;
+        }
+
+        .sidebar-footer {
+            padding: 12px 10px 16px;
+            border-top: 1px solid rgba(255,255,255,.07);
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--navy-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: .8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.85);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            font-size: .68rem;
+            color: rgba(255,255,255,.35);
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 9px 12px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.5);
+            font-size: .82rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+            text-align: left;
+        }
+
+            .btn-logout:hover {
+                background: rgba(220,38,38,.12);
+                border-color: rgba(220,38,38,.25);
+                color: #FCA5A5;
+            }
+
+        /* ══════════════════════════════════════════
+                   MAIN
+                ══════════════════════════════════════════ */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            height: var(--header-h);
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .page-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: -.01em;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .75rem;
+            color: var(--t3);
+        }
+
+            .breadcrumb span {
+                color: var(--t2);
+            }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .welcome-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            font-size: .78rem;
+            color: var(--t2);
+        }
+
+            .welcome-chip strong {
+                color: var(--navy);
+                font-weight: 600;
+            }
+
+        /* ── Content ── */
+        .content {
+            flex: 1;
+            padding: 28px;
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ── Alert ── */
+        .alert-success {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--green-bg);
+            border: 1px solid var(--green-bd);
+            border-radius: var(--r-md);
+            color: #065F46;
+            font-size: .875rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+            animation: slideDown .3s var(--ease);
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ══════════════════════════════════════════
+                   SECTION CARDS
+                ══════════════════════════════════════════ */
+        .section-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 22px;
+            animation: fadeUp .4s var(--ease) both;
+        }
+
+            .section-card:nth-child(2) {
+                animation-delay: .07s;
+            }
+
+            .section-card:nth-child(3) {
+                animation-delay: .14s;
+            }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Card header */
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 22px;
+            background: #FAFBFC;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-head-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-head-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .icon-navy {
+            background: rgba(10,35,66,.07);
+        }
+
+        .icon-gold {
+            background: rgba(201,168,76,.1);
+        }
+
+        .card-head-title {
+            font-size: .92rem;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: -.01em;
+        }
+
+        .card-head-sub {
+            font-size: .72rem;
+            color: var(--t3);
+            margin-top: 1px;
+        }
+
+        /* Left accent by card type */
+        .card-head.basic-head {
+            border-left: 3px solid var(--navy);
+        }
+
+        .card-head.bank-head {
+            border-left: 3px solid var(--gold);
+        }
+
+        /* Card body */
+        .card-body {
+            padding: 22px 22px 6px;
+        }
+
+        /* ── Form grid ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--t3);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            padding: 9px 12px;
+            border: 1px solid var(--border-dk);
+            border-radius: var(--r-sm);
+            font-size: .875rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--t1);
+            background: var(--card);
+            transition: border-color .18s, box-shadow .18s;
+            width: 100%;
+        }
+
+            .form-input:focus {
+                outline: none;
+                border-color: var(--navy);
+                box-shadow: 0 0 0 3px rgba(10,35,66,.08);
+            }
+
+            .form-input.readonly {
+                background: var(--surface);
+                border-color: var(--border);
+                color: var(--t2);
+                cursor: not-allowed;
+            }
+
+        /* Mono inputs for codes */
+        .mono {
+            font-family: 'DM Mono', monospace;
+            font-size: .85rem;
+            letter-spacing: .04em;
+        }
+
+        /* Input hint */
+        .input-hint {
+            font-size: .67rem;
+            color: var(--t3);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Card footer / save row */
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 14px 22px;
+            border-top: 1px solid var(--border);
+            margin-top: 18px;
+            background: #FAFBFC;
+            gap: 10px;
+        }
+
+        .footer-hint {
+            font-size: .75rem;
+            color: var(--t3);
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-save {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 22px;
+            background: var(--navy);
+            color: #fff;
+            border: none;
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .18s var(--ease);
+            letter-spacing: .01em;
+        }
+
+            .btn-save:hover {
+                background: var(--navy-mid);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 14px rgba(10,35,66,.25);
+            }
+
+            .btn-save.gold {
+                background: var(--gold);
+                color: var(--navy);
+            }
+
+                .btn-save.gold:hover {
+                    background: var(--gold-lt);
+                    box-shadow: 0 4px 14px rgba(201,168,76,.3);
+                }
+
+        /* Field validation cues */
+        .field-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: .65rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-left: auto;
+        }
+
+        .badge-required {
+            background: #FEF2F2;
+            color: #DC2626;
+            border: 1px solid rgba(220,38,38,.15);
+        }
+
+        .badge-optional {
+            background: var(--surface);
+            color: var(--t3);
+            border: 1px solid var(--border);
+        }
+
+        .label-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        /* ── Responsive ── */
+        @@media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 12px;
+                gap: 6px;
+            }
+
+                .sidebar::before {
+                    display: none;
+                }
+
+            .sidebar-logo {
+                border-bottom: none;
+                padding: 6px;
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 4px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .nav-link {
+                padding: 7px 10px;
+                font-size: .78rem;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .card-body {
+                padding: 16px 16px 4px;
+            }
+
+            .card-footer {
+                padding: 12px 16px;
+            }
+
+            .btn-save {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="~/images/logo.jpg" alt="Logo" />
+            <div>
+                <div class="sidebar-logo-text">LIC Portal</div>
+                <div class="sidebar-logo-sub">Inspection Management</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main Menu</div>
+
+            <a class="nav-link" asp-action="Dashboard" asp-controller="LICInspection">
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+            </a>
+
+            <a class="nav-link active" asp-action="InspectionDetails" asp-controller="LICInspection">
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Personal Details
+            </a>
+
+            <a class="nav-link" asp-action="ClaimDetails" asp-controller="LICInspection">
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Claims
+            </a>
+
+            @if (Model.TypeofMember == "Senate Members")
+            {
+                <a class="nav-link" asp-action="OtherDetails" asp-controller="LICInspection">
+                    <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Other Members
+                </a>
+            }
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    @(Model.Name?.Length > 0 ? Model.Name[0].ToString().ToUpper() : "U")
+                </div>
+                <div>
+                    <div class="user-name">@Model.Name</div>
+                    <div class="user-role">@Model.TypeofMember</div>
+                </div>
+            </div>
+            <form asp-controller="LICInspection" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sign Out
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════
+         MAIN
+    ══════════════════════════════════════════ -->
+    <div class="main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="page-badge">
+                    <div class="page-badge-dot"></div>
+                    <span class="page-title">Personal Details</span>
+                </div>
+                <div class="breadcrumb">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    <span>Profile &amp; Bank Information</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="welcome-chip">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Welcome, <strong>@Model.Name</strong>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    @TempData["Message"]
+                </div>
+            }
+
+            <form method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <!-- ══════ BASIC DETAILS ══════ -->
+                <div class="section-card">
+                    <div class="card-head basic-head">
+                        <div class="card-head-left">
+                            <div class="card-head-icon icon-navy">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#0A2342" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="card-head-title">Basic Details</div>
+                                <div class="card-head-sub">Identity &amp; personal information</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="form-grid">
+
+                            <!-- Designation (readonly) -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">Designation</label>
+                                </div>
+                                <input class="form-input readonly" value="@Model.TypeofMember" readonly />
+                                <span class="input-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Auto-assigned from your role
+                                </span>
+                            </div>
+
+                            <!-- Name (readonly) -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">Full Name</label>
+                                </div>
+                                <input class="form-input readonly" value="@Model.Name" readonly />
+                                <span class="input-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Fetched from registration record
+                                </span>
+                            </div>
+
+                            <!-- Date of Birth -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">Date of Birth</label>
+                                    <span class="field-badge badge-required">Required</span>
+                                </div>
+                                <input type="date"
+                                       asp-for="DOB"
+                                       class="form-input mono" />
+                            </div>
+
+                            <!-- PAN Number -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">PAN Number</label>
+                                    <span class="field-badge badge-required">Required</span>
+                                </div>
+                                <input asp-for="PANNumber"
+                                       class="form-input mono"
+                                       maxlength="10"
+                                       minlength="10"
+                                       pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                                       title="Enter valid PAN (e.g., ABCDE1234F)"
+                                       placeholder="ABCDE1234F"
+                                       style="text-transform:uppercase"
+                                       oninput="this.value=this.value.toUpperCase()" />
+                                <span class="input-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Format: ABCDE1234F (10 characters)
+                                </span>
+                            </div>
+
+                            <!-- Aadhaar Number -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">Aadhaar Number</label>
+                                    <span class="field-badge badge-required">Required</span>
+                                </div>
+                                <input asp-for="AadhaarNumber"
+                                       class="form-input mono"
+                                       maxlength="12"
+                                       minlength="12"
+                                       pattern="[0-9]{12}"
+                                       title="Aadhaar must be 12 digits"
+                                       placeholder="xxxx xxxx xxxx"
+                                       oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+                                <span class="input-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                    12-digit unique identification number
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <span class="footer-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            Your data is securely stored and encrypted
+                        </span>
+                        <button type="submit" name="submitType" value="Basic" class="btn-save">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Save Basic Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ══════ BANK DETAILS ══════ -->
+                <div class="section-card">
+                    <div class="card-head bank-head">
+                        <div class="card-head-left">
+                            <div class="card-head-icon icon-gold">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="card-head-title">Bank Details</div>
+                                <div class="card-head-sub">Account &amp; payment information</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="form-grid">
+
+                            <!-- Account Holder Name -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">Account Holder Name</label>
+                                    <span class="field-badge badge-required">Required</span>
+                                </div>
+                                <input asp-for="AccountHolderName"
+                                       class="form-input"
+                                       placeholder="As per bank records" />
+                            </div>
+
+                            <!-- Account Number -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">Account Number</label>
+                                    <span class="field-badge badge-required">Required</span>
+                                </div>
+                                <input asp-for="AccountNumber"
+                                       class="form-input mono"
+                                       maxlength="18"
+                                       minlength="9"
+                                       pattern="[A-Za-z0-9]{9,18}"
+                                       title="9–18 alphanumeric characters"
+                                       placeholder="e.g. 001234567890"
+                                       oninput="this.value=this.value.replace(/[^A-Za-z0-9]/g,'')" />
+                                <span class="input-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    9–18 alphanumeric characters
+                                </span>
+                            </div>
+
+                            <!-- IFSC Code -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">IFSC Code</label>
+                                    <span class="field-badge badge-required">Required</span>
+                                </div>
+                                <input asp-for="IFSCCode"
+                                       class="form-input mono"
+                                       maxlength="11"
+                                       minlength="11"
+                                       placeholder="e.g. SBIN0001234"
+                                       style="text-transform:uppercase"
+                                       oninput="this.value=this.value.toUpperCase()" />
+                                <span class="input-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    11-character bank branch code
+                                </span>
+                            </div>
+
+                            <!-- Bank Name -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">Bank Name</label>
+                                    <span class="field-badge badge-required">Required</span>
+                                </div>
+                                <input asp-for="BankName"
+                                       class="form-input"
+                                       placeholder="e.g. State Bank of India" />
+                            </div>
+
+                            <!-- Branch Name -->
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label class="form-label">Branch Name</label>
+                                    <span class="field-badge badge-optional">Optional</span>
+                                </div>
+                                <input asp-for="BranchName"
+                                       class="form-input"
+                                       placeholder="e.g. MG Road Branch" />
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <span class="footer-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            Bank details used only for claim disbursement
+                        </span>
+                        <button type="submit" name="submitType" value="Bank" class="btn-save gold">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Update Bank Details
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

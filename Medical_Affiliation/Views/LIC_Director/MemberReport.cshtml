@@ -1,0 +1,1732 @@
+﻿@model LICMemberReportViewModel
+@{
+    ViewData["Title"] = "LIC Inspection Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --ink: #0b1623;
+        --ink-mid: #2c3e50;
+        --ink-soft: #5a6a7a;
+        --ink-muted: #93a3b4;
+        --gold: #c49a2a;
+        --gold-lt: #fdf6e3;
+        --gold-mid: #e8c55a;
+        --gov: #1a3a5c;
+        --gov-mid: #25517e;
+        --gov-lt: #e8eef5;
+        --gov-pale: #f4f7fa;
+        --success: #1b6e4e;
+        --success-lt: #e4f5ee;
+        --red: #b91c35;
+        --red-lt: #fdf0f2;
+        --surface: #ffffff;
+        --bg: #edf0f4;
+        --border: #d8dfe8;
+        --border-lt: #eaeff5;
+        --radius: 4px;
+        --radius-md: 6px;
+        --radius-lg: 8px;
+        --shadow-xs: 0 1px 3px rgba(11,22,35,0.07);
+        --shadow-sm: 0 4px 16px rgba(11,22,35,0.09);
+        --shadow-md: 0 12px 40px rgba(11,22,35,0.12);
+        --font-serif: 'Instrument Serif', Georgia, serif;
+        --font-body: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: var(--bg);
+        background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(11,22,35,0.03) 39px, rgba(11,22,35,0.03) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(11,22,35,0.03) 39px, rgba(11,22,35,0.03) 40px);
+        color: var(--ink);
+        font-family: var(--font-body);
+        min-height: 100vh;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .r-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* ── NAV ── */
+    .r-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+        animation: fadeSlide .35s ease both;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+        list-style: none;
+    }
+
+        .breadcrumb li {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+        }
+
+        .breadcrumb a {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--gov);
+            text-decoration: none;
+            letter-spacing: .02em;
+            transition: color .15s;
+        }
+
+            .breadcrumb a:hover {
+                color: var(--gold);
+            }
+
+        .breadcrumb .sep {
+            color: var(--ink-muted);
+            font-size: .7rem;
+        }
+
+        .breadcrumb .current {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+            letter-spacing: .02em;
+        }
+
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+    }
+
+    .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: .45rem 1rem;
+        font-family: var(--font-body);
+        font-size: .8rem;
+        font-weight: 600;
+        color: var(--ink-mid);
+        text-decoration: none;
+        cursor: pointer;
+        transition: all .15s;
+        box-shadow: var(--shadow-xs);
+    }
+
+        .btn-ghost:hover {
+            border-color: var(--gov);
+            color: var(--gov);
+            background: var(--gov-pale);
+        }
+
+    .btn-solid {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: var(--gov);
+        border: 1px solid var(--gov);
+        border-radius: var(--radius);
+        padding: .47rem 1.1rem;
+        font-family: var(--font-body);
+        font-size: .8rem;
+        font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        transition: all .15s;
+        box-shadow: 0 4px 14px rgba(26,58,92,0.25);
+    }
+
+        .btn-solid:hover {
+            background: #10294a;
+            box-shadow: 0 6px 20px rgba(26,58,92,0.35);
+        }
+
+    /* ── REPORT CARD ── */
+    .report-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        animation: fadeSlide .4s .05s ease both;
+    }
+
+    /* Header */
+    .r-header {
+        background: var(--gov);
+        background-image: linear-gradient(135deg,#0d2540 0%,#1a3a5c 55%,#1e4870 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .r-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(-45deg,transparent,transparent 18px,rgba(255,255,255,0.015) 18px,rgba(255,255,255,0.015) 19px);
+        }
+
+        .r-header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(180deg,var(--gold-mid),var(--gold));
+        }
+
+    .r-header-inner {
+        position: relative;
+        padding: 2rem 2.5rem 2rem 3rem;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .r-org-block {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .r-emblem {
+        display: inline-flex;
+        align-items: center;
+        gap: .6rem;
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: var(--radius);
+        padding: .4rem .9rem .4rem .7rem;
+        margin-bottom: .9rem;
+    }
+
+        .r-emblem i {
+            color: var(--gold-mid);
+            font-size: 1rem;
+        }
+
+    .r-emblem-text {
+        font-size: .67rem;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,.65);
+        line-height: 1.3;
+    }
+
+    .r-doc-title {
+        font-family: var(--font-serif);
+        font-size: clamp(1.5rem,3vw,2rem);
+        color: #fff;
+        line-height: 1.1;
+        letter-spacing: -.01em;
+        margin-bottom: .4rem;
+    }
+
+        .r-doc-title em {
+            font-style: italic;
+            color: var(--gold-mid);
+        }
+
+    .r-doc-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: .6rem;
+    }
+
+    .r-doc-meta-item {
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+        font-size: .78rem;
+        font-weight: 500;
+        color: rgba(255,255,255,.6);
+    }
+
+        .r-doc-meta-item i {
+            font-size: .72rem;
+        }
+
+        .r-doc-meta-item strong {
+            color: rgba(255,255,255,.9);
+            font-weight: 600;
+        }
+
+    .r-total-badge {
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: var(--radius-md);
+        padding: 1.1rem 1.5rem;
+        text-align: center;
+        min-width: 140px;
+        position: relative;
+    }
+
+        .r-total-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 2px;
+            background: linear-gradient(90deg,transparent,var(--gold-mid),transparent);
+        }
+
+    .r-total-badge-label {
+        font-size: .62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .14em;
+        color: rgba(255,255,255,.5);
+        margin-bottom: .35rem;
+    }
+
+    .r-total-badge-amount {
+        font-family: var(--font-serif);
+        font-size: 1.7rem;
+        color: #fff;
+        line-height: 1;
+    }
+
+        .r-total-badge-amount .sym {
+            font-size: 1rem;
+            color: var(--gold-mid);
+        }
+
+    .r-total-badge-sub {
+        font-size: .65rem;
+        color: rgba(255,255,255,.4);
+        margin-top: .2rem;
+        font-weight: 500;
+    }
+
+    /* Doc strip */
+    .r-docnum-strip {
+        background: #0d2845;
+        border-top: 1px solid rgba(255,255,255,.06);
+        padding: .6rem 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: .5rem;
+        position: relative;
+    }
+
+        .r-docnum-strip::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(180deg,var(--gold-mid),var(--gold));
+        }
+
+    .r-docnum-item {
+        font-size: .7rem;
+        font-weight: 600;
+        color: rgba(255,255,255,.45);
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+        letter-spacing: .04em;
+    }
+
+        .r-docnum-item i {
+            color: var(--gold);
+            font-size: .65rem;
+        }
+
+        .r-docnum-item span {
+            color: rgba(255,255,255,.75);
+        }
+
+    /* Body */
+    .r-body {
+        padding: 2.25rem 2.5rem;
+    }
+
+    .sec-head {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: .75rem;
+        border-bottom: 1px solid var(--border-lt);
+        position: relative;
+    }
+
+        .sec-head::before {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 48px;
+            height: 2px;
+            background: var(--gov);
+            border-radius: 2px;
+        }
+
+    .sec-icon {
+        width: 28px;
+        height: 28px;
+        background: var(--gov-lt);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gov);
+        font-size: .8rem;
+        flex-shrink: 0;
+        border: 1px solid rgba(26,58,92,.12);
+    }
+
+    .sec-title {
+        font-size: .68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .13em;
+        color: var(--gov);
+    }
+
+    .sec-count {
+        margin-left: auto;
+        font-size: .68rem;
+        font-weight: 600;
+        color: var(--ink-muted);
+        background: var(--gov-pale);
+        border: 1px solid var(--border-lt);
+        padding: .15em .65em;
+        border-radius: 999px;
+    }
+
+    /* Info grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+    }
+
+    .info-cell {
+        padding: 1rem 1.25rem;
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+        transition: background .15s;
+    }
+
+        .info-cell:hover {
+            background: var(--gov-pale);
+        }
+
+        .info-cell:nth-child(3n) {
+            border-right: none;
+        }
+
+        .info-cell:nth-last-child(-n+3) {
+            border-bottom: none;
+        }
+
+    .info-lbl {
+        font-size: .65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: var(--ink-muted);
+        margin-bottom: .3rem;
+    }
+
+    .info-val {
+        font-size: .88rem;
+        font-weight: 600;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+    }
+
+        .info-val i {
+            color: var(--gov);
+            font-size: .8rem;
+        }
+
+    .type-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        background: var(--gov-lt);
+        color: var(--gov);
+        border: 1px solid rgba(26,58,92,.18);
+        font-size: .7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        padding: .25em .8em;
+        border-radius: var(--radius);
+    }
+
+    .date-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .35rem;
+        margin-top: .1rem;
+    }
+
+    .date-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        background: var(--gold-lt);
+        color: #7a5a10;
+        border: 1px solid rgba(196,154,42,.25);
+        font-size: .72rem;
+        font-weight: 600;
+        padding: .25em .75em;
+        border-radius: var(--radius);
+    }
+
+        .date-pill i {
+            font-size: .65rem;
+        }
+
+    /* ── Claims Table ── */
+    .table-shell {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        margin-bottom: .25rem;
+    }
+
+    .claims-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .claims-tbl thead th {
+            background: var(--gov);
+            background-image: linear-gradient(90deg,#1a3a5c,#1e4870);
+            padding: .75rem 1rem;
+            font-size: .62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: rgba(255,255,255,.75);
+            white-space: nowrap;
+            text-align: left;
+        }
+
+            .claims-tbl thead th:first-child {
+                padding-left: 1.25rem;
+            }
+
+            .claims-tbl thead th:last-child {
+                padding-right: 1.25rem;
+            }
+
+            .claims-tbl thead th.grp-sep {
+                border-left: 1px solid rgba(255,255,255,.15);
+            }
+
+        .claims-tbl td.grp-sep {
+            border-left: 1px solid var(--border-lt);
+        }
+
+        .claims-tbl tbody tr {
+            border-bottom: 1px solid var(--border-lt);
+            transition: background .12s;
+        }
+
+            .claims-tbl tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .claims-tbl tbody tr:hover {
+                background: var(--gov-pale);
+            }
+
+        .claims-tbl td {
+            padding: .85rem 1rem;
+            font-size: .83rem;
+            vertical-align: middle;
+        }
+
+            .claims-tbl td:first-child {
+                padding-left: 1.25rem;
+            }
+
+            .claims-tbl td:last-child {
+                padding-right: 1.25rem;
+            }
+
+        /* Sub-header row */
+        .claims-tbl thead tr.sub-head th {
+            background: #112d4a;
+            font-size: .58rem;
+            letter-spacing: .09em;
+            color: rgba(255,255,255,.5);
+            padding: .45rem 1rem;
+            border-top: 1px solid rgba(255,255,255,.08);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+            .claims-tbl thead tr.sub-head th.grp-sep {
+                border-left: 1px solid rgba(255,255,255,.12);
+            }
+
+    .grp-label {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        background: rgba(255,255,255,.09);
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 3px;
+        padding: .18em .65em;
+        font-size: .58rem;
+        font-weight: 700;
+        color: rgba(255,255,255,.7);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+        .grp-label.ret {
+            background: rgba(232,197,90,.1);
+            border-color: rgba(232,197,90,.22);
+            color: var(--gold-mid);
+        }
+
+    .row-num {
+        width: 22px;
+        height: 22px;
+        background: var(--gov-lt);
+        color: var(--gov);
+        border-radius: var(--radius);
+        font-size: .68rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: .5rem;
+        border: 1px solid rgba(26,58,92,.12);
+    }
+
+    .route-cell {
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+        font-weight: 600;
+    }
+
+    .route-sep {
+        color: var(--ink-muted);
+        font-size: .72rem;
+    }
+
+    .km-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: .25rem;
+        background: var(--gov-pale);
+        color: var(--gov-mid);
+        border: 1px solid var(--border);
+        font-size: .7rem;
+        font-weight: 700;
+        padding: .22em .6em;
+        border-radius: var(--radius);
+    }
+
+        .km-tag i {
+            font-size: .62rem;
+        }
+
+    .mode-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: .28rem;
+        background: var(--surface);
+        color: var(--ink-mid);
+        border: 1px solid var(--border);
+        font-size: .7rem;
+        font-weight: 600;
+        padding: .22em .65em;
+        border-radius: var(--radius);
+    }
+
+    .amt-cell {
+        font-weight: 700;
+        font-size: .88rem;
+        color: var(--success);
+    }
+
+    .date-cell {
+        font-size: .78rem;
+        color: var(--ink-soft);
+        white-space: nowrap;
+    }
+
+    .ret-route {
+        color: var(--gov-mid);
+    }
+
+    .ret-empty {
+        font-size: .72rem;
+        color: var(--ink-muted);
+        font-style: italic;
+    }
+
+    /* Total Bar */
+    .total-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        background: linear-gradient(90deg,#0d2845,#1a3a5c);
+        border-radius: var(--radius-md);
+        padding: 1.1rem 1.5rem;
+        margin-top: 1.25rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .total-bar::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--gold-mid);
+        }
+
+    .total-bar-left {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-size: .8rem;
+        font-weight: 600;
+        color: rgba(255,255,255,.7);
+    }
+
+        .total-bar-left i {
+            color: var(--gold-mid);
+        }
+
+        .total-bar-left strong {
+            color: #fff;
+        }
+
+    .total-bar-right {
+        display: flex;
+        align-items: baseline;
+        gap: .4rem;
+    }
+
+    .total-sym {
+        font-size: .9rem;
+        color: var(--gold-mid);
+        font-weight: 700;
+    }
+
+    .total-num {
+        font-family: var(--font-serif);
+        font-size: 1.65rem;
+        color: #fff;
+        letter-spacing: -.01em;
+        line-height: 1;
+    }
+
+    /* Finance grid */
+    .finance-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .6rem;
+        margin-bottom: 1rem;
+    }
+
+    .fin-item {
+        background: var(--gov-pale);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: .9rem 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all .15s;
+    }
+
+        .fin-item:hover {
+            border-color: var(--gov);
+            background: var(--gov-lt);
+        }
+
+    .fin-item-label {
+        font-size: .78rem;
+        font-weight: 600;
+        color: var(--ink-soft);
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+    }
+
+        .fin-item-label i {
+            color: var(--gov);
+            font-size: .8rem;
+        }
+
+    .fin-item-amount {
+        font-size: .92rem;
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    .fin-total-row {
+        background: var(--gov);
+        background-image: linear-gradient(90deg,#0d2845,#1a3a5c);
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .fin-total-row::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--gold-mid);
+        }
+
+    .fin-total-label {
+        font-size: .82rem;
+        font-weight: 700;
+        color: rgba(255,255,255,.8);
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding-left: .5rem;
+    }
+
+        .fin-total-label i {
+            color: var(--gold-mid);
+        }
+
+    .fin-total-amount {
+        font-family: var(--font-serif);
+        font-size: 1.4rem;
+        color: #fff;
+    }
+
+        .fin-total-amount .sym {
+            font-size: .9rem;
+            color: var(--gold-mid);
+            margin-right: .15rem;
+        }
+
+    /* ── Alert Banners ── */
+    .alert-banner {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .85rem 1.1rem;
+        border-radius: var(--radius-md);
+        font-size: .82rem;
+        font-weight: 600;
+        margin-bottom: .85rem;
+        border: 1px solid;
+        animation: fadeSlide .3s ease both;
+    }
+
+    .alert-ok {
+        background: var(--success-lt);
+        color: var(--success);
+        border-color: rgba(27,110,78,.25);
+    }
+
+        .alert-ok i {
+            font-size: .95rem;
+        }
+
+    .alert-err {
+        background: var(--red-lt);
+        color: var(--red);
+        border-color: rgba(185,28,53,.2);
+    }
+
+        .alert-err i {
+            font-size: .95rem;
+        }
+
+    /* ── Document Upload Section ── */
+    .upload-section {
+        margin-top: 2.25rem;
+    }
+
+    .upload-card {
+        background: var(--gov-pale);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+    }
+
+    .upload-card-header {
+        background: linear-gradient(90deg,#0d2845,#1a3a5c);
+        padding: .85rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        position: relative;
+    }
+
+        .upload-card-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--gold-mid);
+        }
+
+    .upload-card-header-icon {
+        width: 28px;
+        height: 28px;
+        background: rgba(255,255,255,.1);
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold-mid);
+        font-size: .82rem;
+    }
+
+    .upload-card-header-text {
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: rgba(255,255,255,.8);
+    }
+
+    .upload-card-header-sub {
+        font-size: .65rem;
+        color: rgba(255,255,255,.45);
+        margin-top: .1rem;
+    }
+
+    .upload-card-body {
+        padding: 1.25rem;
+    }
+
+    .upload-info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1rem 1.25rem;
+        flex-wrap: wrap;
+    }
+
+    .upload-member-info {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .upload-member-name {
+        font-size: .9rem;
+        font-weight: 700;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+        margin-bottom: .25rem;
+    }
+
+        .upload-member-name i {
+            color: var(--gov);
+            font-size: .82rem;
+        }
+
+    .upload-member-meta {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .upload-meta-item {
+        font-size: .72rem;
+        color: var(--ink-soft);
+        display: flex;
+        align-items: center;
+        gap: .28rem;
+        font-weight: 500;
+    }
+
+        .upload-meta-item i {
+            color: var(--gov);
+            font-size: .68rem;
+        }
+
+    .upload-field-wrap {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        flex-wrap: wrap;
+        margin-top: .5rem;
+    }
+
+    .upload-file-label {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        background: var(--gov);
+        color: #fff;
+        border: 1px solid var(--gov);
+        border-radius: var(--radius);
+        padding: .48rem 1rem;
+        font-family: var(--font-body);
+        font-size: .78rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .15s;
+        box-shadow: 0 3px 10px rgba(26,58,92,.2);
+        white-space: nowrap;
+    }
+
+        .upload-file-label:hover {
+            background: #10294a;
+            box-shadow: 0 5px 16px rgba(26,58,92,.3);
+        }
+
+    .upload-file-input {
+        display: none;
+    }
+
+    .upload-file-name {
+        font-size: .78rem;
+        font-weight: 500;
+        color: var(--ink-soft);
+        background: var(--gov-pale);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: .45rem .9rem;
+        min-width: 180px;
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+        .upload-file-name.has-file {
+            color: var(--success);
+            font-weight: 600;
+            border-color: rgba(27,110,78,.3);
+            background: var(--success-lt);
+        }
+
+    .upload-existing {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: var(--success-lt);
+        color: var(--success);
+        border: 1px solid rgba(27,110,78,.25);
+        border-radius: var(--radius);
+        padding: .46rem 1rem;
+        font-size: .78rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all .15s;
+        white-space: nowrap;
+    }
+
+        .upload-existing:hover {
+            background: #d1f0e4;
+            border-color: rgba(27,110,78,.4);
+        }
+
+    .upload-save-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: var(--gold);
+        border: none;
+        border-radius: var(--radius);
+        padding: .48rem 1.1rem;
+        font-family: var(--font-body);
+        font-size: .78rem;
+        font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        transition: all .15s;
+        box-shadow: 0 3px 10px rgba(196,154,42,.3);
+        white-space: nowrap;
+    }
+
+        .upload-save-btn:hover {
+            background: #a8821f;
+            box-shadow: 0 5px 16px rgba(196,154,42,.4);
+        }
+
+    /* Footer */
+    .r-footer {
+        padding: 1.25rem 2.5rem;
+        background: var(--gov-pale);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .footer-stamp {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+    }
+
+    .stamp-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--gov);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: .85rem;
+    }
+
+    .stamp-text {
+        font-size: .75rem;
+        color: var(--ink-soft);
+        line-height: 1.4;
+    }
+
+        .stamp-text strong {
+            color: var(--ink-mid);
+            display: block;
+            font-size: .78rem;
+        }
+
+    .footer-btns {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+    }
+
+    @@keyframes fadeSlide {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media print {
+        body {
+            background: #fff !important;
+        }
+
+        .lic-main {
+            margin-left: 0 !important;
+        }
+
+        .r-nav, .r-footer, .upload-section {
+            display: none !important;
+        }
+
+        .report-card {
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+
+        .r-header, .r-docnum-strip, .total-bar, .fin-total-row, .claims-tbl thead {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .claims-tbl tbody tr:hover {
+            background: transparent !important;
+        }
+    }
+
+    @@media (max-width:900px) {
+        .claims-tbl {
+            font-size: .75rem;
+        }
+
+            .claims-tbl thead th, .claims-tbl td {
+                padding: .7rem .75rem;
+            }
+    }
+
+    @@media (max-width:768px) {
+        .r-body {
+            padding: 1.5rem;
+        }
+
+        .r-header-inner {
+            padding: 1.5rem 1.5rem 1.5rem 2rem;
+        }
+
+        .r-docnum-strip {
+            padding: .6rem 1.5rem .6rem 2rem;
+        }
+
+        .r-footer {
+            padding: 1rem 1.5rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .info-cell:nth-child(3n) {
+            border-right: 1px solid var(--border);
+        }
+
+        .info-cell:nth-child(2n) {
+            border-right: none;
+        }
+
+        .finance-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .r-wrap {
+            padding: 1.25rem 1rem 3rem;
+        }
+
+        .upload-info-row {
+            flex-direction: column;
+        }
+    }
+
+    @@media (max-width:520px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-cell {
+            border-right: none !important;
+        }
+    }
+
+    ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+    }
+</style>
+
+<div class="r-wrap">
+
+    <!-- NAV -->
+    <div class="r-nav">
+        <nav>
+            <ol class="breadcrumb">
+                <li>
+                    <a asp-controller="LIC_Director" asp-action="Dashboard"><i class="bi bi-house"></i> Dashboard</a>
+                    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+                </li>
+                <li>
+                    <a asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard"><i class="bi bi-building-check"></i> College Claims</a>
+                    <span class="sep"><i class="bi bi-chevron-right"></i></span>
+                </li>
+                <li><span class="current"><i class="bi bi-file-earmark-text"></i> Inspection Report</span></li>
+            </ol>
+        </nav>
+        <div class="nav-actions">
+            <a class="btn-ghost" asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <button class="btn-solid" onclick="window.print()">
+                <i class="bi bi-printer-fill"></i> Print / PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- REPORT CARD -->
+    <div class="report-card">
+
+        <!-- Header -->
+        <div class="r-header">
+            <div class="r-header-inner">
+                <div class="r-org-block">
+                    <div class="r-emblem">
+                        <i class="bi bi-shield-fill-check"></i>
+                        <div class="r-emblem-text">
+                            Rajiv Gandhi University of Health Sciences<br>
+                            Karnataka — LIC Division
+                        </div>
+                    </div>
+                    <div class="r-doc-title">LIC Inspection <em>Claim Report</em></div>
+                    <div class="r-doc-meta">
+                        <div class="r-doc-meta-item">
+                            <i class="bi bi-person-badge"></i>
+                            <strong>@Model.MemberName</strong>
+                        </div>
+                        <div class="r-doc-meta-item">
+                            <i class="bi bi-building"></i>
+                            <strong>@Model.CollegeName</strong>
+                        </div>
+                        <div class="r-doc-meta-item">
+                            <i class="bi bi-calendar3"></i>
+                            Generated: <strong id="headerDate">—</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="r-total-badge">
+                    <div class="r-total-badge-label">Total Claim</div>
+                    <div class="r-total-badge-amount">
+                        <span class="sym">₹</span>@((Model.TotalClaimAmount / 1000m).ToString("N1"))<span class="sym" style="font-size:.85rem">K</span>
+                    </div>
+                    <div class="r-total-badge-sub">₹ @Model.TotalClaimAmount.ToString("N0") exact</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doc strip -->
+        <div class="r-docnum-strip">
+            <div class="r-docnum-item"><i class="bi bi-hash"></i> Document Type: <span>LIC-INSPECTION-CLAIM</span></div>
+            <div class="r-docnum-item"><i class="bi bi-person-workspace"></i> Member: <span>@Model.TypeOfMember</span></div>
+            <div class="r-docnum-item"><i class="bi bi-list-check"></i> Entries: <span>@Model.Claims.Count() claim records</span></div>
+            <div class="r-docnum-item"><i class="bi bi-shield-check"></i> Status: <span>Verified &amp; Submitted</span></div>
+        </div>
+
+        <!-- BODY -->
+        <div class="r-body">
+
+            <!-- Member Info -->
+            <div class="sec-head">
+                <div class="sec-icon"><i class="bi bi-person-vcard"></i></div>
+                <span class="sec-title">Member Information</span>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-cell">
+                    <div class="info-lbl">Full Name</div>
+                    <div class="info-val"><i class="bi bi-person-circle"></i> @Model.MemberName</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-lbl">College / Institution</div>
+                    <div class="info-val"><i class="bi bi-building"></i> @Model.CollegeName</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-lbl">Member Type</div>
+                    <div class="info-val">
+                        <span class="type-chip"><i class="bi bi-award-fill"></i> @Model.TypeOfMember</span>
+                    </div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-lbl">Phone Number</div>
+                    <div class="info-val"><i class="bi bi-telephone"></i> @Model.PhoneNumber</div>
+                </div>
+                <div class="info-cell" style="grid-column:span 2;">
+                    <div class="info-lbl">Inspection Dates</div>
+                    <div class="date-list">
+                        @foreach (var date in Model.InspectionDates)
+                        {
+                            <span class="date-pill">
+                                <i class="bi bi-calendar-event"></i>
+                                @date.ToString("dd MMM yyyy")
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Travel & Claim Details -->
+            <div class="sec-head" style="margin-top:2rem;">
+                <div class="sec-icon"><i class="bi bi-map"></i></div>
+                <span class="sec-title">Travel &amp; Claim Details</span>
+                <span class="sec-count">@Model.Claims.Count() entries</span>
+            </div>
+
+            <div style="overflow-x:auto;" class="table-shell">
+                <table class="claims-tbl">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">#</th>
+                            <th colspan="3">
+                                <span class="grp-label"><i class="bi bi-arrow-right-circle"></i> Onward Route</span>
+                            </th>
+                            <th colspan="3" class="grp-sep">
+                                <span class="grp-label ret"><i class="bi bi-arrow-left-circle"></i> Return Route</span>
+                            </th>
+                            <th rowspan="2"><i class="bi bi-bus-front me-1"></i>Mode</th>
+                            <th rowspan="2"><i class="bi bi-currency-rupee me-1"></i>Amount</th>
+                            <th rowspan="2"><i class="bi bi-calendar3 me-1"></i>Date</th>
+                        </tr>
+                        <tr class="sub-head">
+                            <th>From</th>
+                            <th>To</th>
+                            <th><i class="bi bi-speedometer2 me-1"></i>Km</th>
+                            <th class="grp-sep">Return From</th>
+                            <th>Return To</th>
+                            <th><i class="bi bi-speedometer2 me-1"></i>Ret. Km</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int rowIdx = 1;
+                        }
+                        @foreach (var claim in Model.Claims)
+                        {
+                            <tr>
+                                <td><span class="row-num">@rowIdx</span></td>
+                                <td><span class="route-cell">@claim.FromPlace</span></td>
+                                <td><span class="route-cell">@claim.ToPlace</span></td>
+                                <td>
+                                    <span class="km-tag">
+                                        <i class="bi bi-speedometer2"></i> @claim.Kilometers km
+                                    </span>
+                                </td>
+                                <td class="grp-sep">
+                                    @if (!string.IsNullOrWhiteSpace(claim.ReturnFromPlace))
+                                    {
+                                        <span class="route-cell ret-route">@claim.ReturnFromPlace</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="ret-empty">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(claim.ReturnToPlace))
+                                    {
+                                        <span class="route-cell ret-route">@claim.ReturnToPlace</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="ret-empty">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if ((claim.ReturnKilometers ?? 0) > 0)
+                                    {
+                                        <span class="km-tag" style="background:rgba(232,197,90,.1);color:#7a5a10;border-color:rgba(196,154,42,.25);">
+                                            <i class="bi bi-speedometer2"></i> @claim.ReturnKilometers km
+                                        </span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="ret-empty">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="mode-tag">
+                                        @{
+                                            var modeIcon = (claim.ModeOfTravel?.ToLower()) switch
+                                            {
+                                                var m when m != null && m.Contains("air") => "bi-airplane",
+                                                var m when m != null && m.Contains("train") => "bi-train-front",
+                                                var m when m != null && m.Contains("bus") => "bi-bus-front",
+                                                var m when m != null && m.Contains("car") => "bi-car-front",
+                                                var m when m != null && m.Contains("auto") => "bi-scooter",
+                                                _ => "bi-signpost-2"
+                                            };
+                                        }
+                                        <i class="bi @modeIcon"></i> @claim.ModeOfTravel
+                                    </span>
+                                </td>
+                                <td class="amt-cell">₹ @((claim.TotalCost ?? 0).ToString("N2"))</td>
+                                <td class="date-cell">@claim.CreatedDate?.ToString("dd MMM yyyy")</td>
+                            </tr>
+                            rowIdx++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total -->
+            <div class="total-bar">
+                <div class="total-bar-left">
+                    <i class="bi bi-calculator"></i>
+                    Aggregate total for <strong>@Model.Claims.Count() travel entries</strong>
+                </div>
+                <div class="total-bar-right">
+                    <span class="total-sym">₹</span>
+                    <span class="total-num">@Model.TotalClaimAmount.ToString("N2")</span>
+                </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="sec-head" style="margin-top:2.25rem;">
+                <div class="sec-icon"><i class="bi bi-cash-coin"></i></div>
+                <span class="sec-title">Claim Financial Summary</span>
+            </div>
+
+            <div class="finance-grid">
+                <div class="fin-item">
+                    <span class="fin-item-label"><i class="bi bi-airplane"></i> Travel Cost</span>
+                    <span class="fin-item-amount">₹ @((Model.TravelCost ?? 0).ToString("N2"))</span>
+                </div>
+                <div class="fin-item">
+                    <span class="fin-item-label"><i class="bi bi-cup-hot"></i> DA Cost</span>
+                    <span class="fin-item-amount">₹ @((Model.DACost ?? 0).ToString("N2"))</span>
+                </div>
+                <div class="fin-item">
+                    <span class="fin-item-label"><i class="bi bi-clipboard2-check"></i> LCA Cost</span>
+                    <span class="fin-item-amount">₹ @((Model.LCACost ?? 0).ToString("N2"))</span>
+                </div>
+                <div class="fin-item">
+                    <span class="fin-item-label"><i class="bi bi-building"></i> College Cost</span>
+                    <span class="fin-item-amount">₹ @((Model.CollegeCost ?? 0).ToString("N2"))</span>
+                </div>
+                <div class="fin-item">
+                    <span class="fin-item-label"><i class="bi bi-airplane-engines"></i> Air Fare Cost</span>
+                    <span class="fin-item-amount">₹ @((Model.AirFareCost ?? 0).ToString("N2"))</span>
+                </div>
+                <div class="fin-item">
+                    <span class="fin-item-label"><i class="bi bi-signpost-split"></i> Air Road Cost</span>
+                    <span class="fin-item-amount">₹ @((Model.AirRoadCost ?? 0).ToString("N2"))</span>
+                </div>
+            </div>
+
+            <div class="fin-total-row">
+                <span class="fin-total-label"><i class="bi bi-coin"></i> Total Claim Amount</span>
+                <span class="fin-total-amount"><span class="sym">₹</span>@Model.TotalClaimAmount.ToString("N2")</span>
+            </div>
+
+            <!-- ── LIC Approval Document Upload ── -->
+            <div class="upload-section">
+                <div class="sec-head">
+                    <div class="sec-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
+                    <span class="sec-title">LIC Approval Document</span>
+                </div>
+
+                @* TempData alerts *@
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert-banner alert-ok">
+                        <i class="bi bi-check-circle-fill"></i>
+                        @TempData["Success"]
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert-banner alert-err">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        @TempData["Error"]
+                    </div>
+                }
+
+                <div class="upload-card">
+                    <div class="upload-card-header">
+                        <div class="upload-card-header-icon"><i class="bi bi-paperclip"></i></div>
+                        <div>
+                            <div class="upload-card-header-text">Upload Approval File — Per Member</div>
+                            <div class="upload-card-header-sub">PDF only · Max 5 MB · One document per person</div>
+                        </div>
+                    </div>
+
+                    <div class="upload-card-body">
+                        <form asp-controller="LIC_Director"
+                              asp-action="UploadMemberLicApproval"
+                              method="post"
+                              enctype="multipart/form-data"
+                              id="uploadForm">
+
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="memberName" value="@Model.MemberName" />
+                            <input type="hidden" name="collegeCode" value="@Model.CollegeCode" />
+                            <input type="hidden" name="typeOfMember" value="@Model.TypeOfMember" />
+
+                            <div class="upload-info-row">
+
+                                <!-- Member identity -->
+                                <div class="upload-member-info">
+                                    <div class="upload-member-name">
+                                        <i class="bi bi-person-badge-fill"></i>
+                                        @Model.MemberName
+                                    </div>
+                                    <div class="upload-member-meta">
+                                        <span class="upload-meta-item">
+                                            <i class="bi bi-building"></i> @Model.CollegeName
+                                        </span>
+                                        <span class="upload-meta-item">
+                                            <i class="bi bi-award"></i> @Model.TypeOfMember
+                                        </span>
+                                        <span class="upload-meta-item">
+                                            <i class="bi bi-telephone"></i> @Model.PhoneNumber
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Upload control -->
+                                <div class="upload-field-wrap">
+
+                                    @if (!string.IsNullOrEmpty(Model.LicApprovalFileName))
+                                    {
+                                        @* File already exists — show View + Replace *@
+                                        <a class="upload-existing"
+                                           asp-controller="LIC_Director"
+                                           asp-action="ViewMemberLicApproval"
+                                           asp-route-memberName="@Model.MemberName"
+                                           asp-route-collegeCode="@Model.CollegeCode"
+                                           asp-route-typeOfMember="@Model.TypeOfMember"
+                                           target="_blank">
+                                            <i class="bi bi-eye-fill"></i> View Document
+                                        </a>
+                                        <label class="upload-file-label" for="licFile" style="background:var(--gov-mid);">
+                                            <i class="bi bi-arrow-repeat"></i> Replace
+                                        </label>
+                                    }
+                                    else
+                                    {
+                                        @* No file yet *@
+                                        <label class="upload-file-label" for="licFile">
+                                            <i class="bi bi-cloud-upload-fill"></i> Choose PDF
+                                        </label>
+                                    }
+
+                                    <input class="upload-file-input"
+                                           type="file"
+                                           id="licFile"
+                                           name="licFile"
+                                           accept="application/pdf"
+                                           onchange="handleFileChange(this)" />
+
+                                    <span class="upload-file-name" id="fileNameDisplay">
+                                        @(string.IsNullOrEmpty(Model.LicApprovalFileName)
+                                                                                ? "No file chosen"
+                                                                                : Model.LicApprovalFileName)
+                                    </span>
+
+                                    <button type="submit" class="upload-save-btn" id="saveBtn" style="display:none;">
+                                        <i class="bi bi-floppy-fill"></i> Save
+                                    </button>
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div><!-- /upload-section -->
+
+        </div><!-- /r-body -->
+        <!-- Footer -->
+        <div class="r-footer">
+            <div class="footer-stamp">
+                <div class="stamp-icon"><i class="bi bi-shield-fill-check"></i></div>
+                <div class="stamp-text">
+                    <strong>LIC Director Portal — RGUHS</strong>
+                    Report generated on <span id="footerDate">—</span>
+                </div>
+            </div>
+            <div class="footer-btns">
+                <button class="btn-ghost" onclick="window.print()">
+                    <i class="bi bi-filetype-pdf"></i> Save as PDF
+                </button>
+                <button class="btn-solid" onclick="window.print()">
+                    <i class="bi bi-printer-fill"></i> Print Report
+                </button>
+            </div>
+        </div>
+
+    </div><!-- /report-card -->
+</div>
+
+@section Scripts {
+    <script>
+        // Date labels
+        const now = new Date();
+        const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+        const ds = now.toLocaleDateString('en-IN', opts);
+        document.getElementById('headerDate').textContent = ds;
+        document.getElementById('footerDate').textContent = ds;
+
+        // File picker feedback + validation
+        function handleFileChange(input) {
+            const display = document.getElementById('fileNameDisplay');
+            const saveBtn = document.getElementById('saveBtn');
+
+            if (input.files && input.files.length > 0) {
+                const file = input.files[0];
+
+                if (!file.name.toLowerCase().endsWith('.pdf')) {
+                    alert('Only PDF files are allowed.');
+                    input.value = '';
+                    display.textContent = 'No file chosen';
+                    display.classList.remove('has-file');
+                    saveBtn.style.display = 'none';
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5 MB.');
+                    input.value = '';
+                    display.textContent = 'No file chosen';
+                    display.classList.remove('has-file');
+                    saveBtn.style.display = 'none';
+                    return;
+                }
+
+                display.textContent = file.name;
+                display.classList.add('has-file');
+                saveBtn.style.display = 'inline-flex';
+            } else {
+                display.textContent = 'No file chosen';
+                display.classList.remove('has-file');
+                saveBtn.style.display = 'none';
+            }
+        }
+    </script>
+}

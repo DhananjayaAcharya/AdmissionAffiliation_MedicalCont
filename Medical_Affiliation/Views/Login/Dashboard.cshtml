@@ -1,0 +1,203 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@RenderSection("script", required: false)
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    :root {
+        --header-height: 140px;
+        --footer-height: 0px;
+    }
+
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: #f7f8fa;
+        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        color: #333;
+    }
+
+    .main-content {
+        padding: 2.5rem;
+        max-width: 1200px;
+        margin: var(--header-height) auto 0 auto;
+    }
+
+    .dashboard-card {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 1rem;
+        text-align: center;
+        box-shadow: 0 3px 32px rgba(44, 62, 80, .11), 0 1.5px 6px rgba(44,62,80,.05);
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .dashboard-card h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #146c43;
+        }
+
+    .info-box {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: #555;
+    }
+
+    .btn-primary {
+        border-radius: 30px;
+        padding: 0.6rem 1.7rem;
+        font-size: 1.13rem;
+        font-weight: 600;
+        background: linear-gradient(90deg, #146c43 50%, #20c997 100%);
+        border: none;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(20, 108, 67, 0.08);
+        transition: background 0.3s, box-shadow 0.3s;
+    }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background: linear-gradient(90deg, #20c997 50%, #146c43 100%);
+            box-shadow: 0 5px 15px rgba(20, 108, 67, 0.18);
+        }
+
+    .logout-btn {
+        display: inline-block;
+        border-radius: 30px;
+        padding: 0.6rem 1.7rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        background-color: #dc3545;
+        color: #fff;
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2);
+        }
+
+    @@media (max-width: 991px) {
+        .main-content {
+            padding: 1.5rem;
+            margin-top: 100px;
+        }
+
+        .dashboard-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+@* <div class="sidebar">
+    <h4>🎓 Admission Affiliation</h4>
+    <input type="hidden" name="facultyCode" id="facultyCode" value="@facultyCode" />
+
+    <select class="form-select affiliation-dropdown" id="typeOfAffiliationDropdown">
+        <option value="">-- Select Affiliation Type --</option>
+        @foreach (var item in ViewBag.TypeOfAffiliationList as List<SelectListItem>)
+        {
+            <option value="@item.Value">@item.Text</option>
+        }
+    </select>
+
+    <a asp-controller="Login" asp-action="NodalOfficerDetails" class="sidebar-btn">
+        👲 Nodal Officer Details
+    </a>
+    <a asp-controller="Collegelogin" asp-action="GetExpectedDetails" class="sidebar-btn">
+         Medical Intake Detail
+    </a>
+</div>
+ *@
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+<div class="main-content">
+    <div class="dashboard-card">
+        <h2>🎉 Welcome, @ViewBag.College!</h2>
+        <div class="info-box">📚 Faculty: <strong>@ViewBag.Faculty</strong></div>
+        <div class="info-box">🏫 College: <strong>@ViewBag.College</strong></div>
+
+        <form asp-controller="Login" asp-action="Logout" method="post">
+            <button type="submit" class="btn logout-btn">Logout</button>
+        </form>
+    </div>
+
+    <div id="dynamicContent"></div>
+</div>
+
+@section script {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(function () {
+            function toggleAHSButton() {
+                const selectedValue = $('#typeOfAffiliationDropdown').val();
+                // Assuming 'AHS' is the value indicating AHS based colleges
+                if (selectedValue === "AHS") {
+                    $('#ahsButton').show();
+                } else {
+                    $('#ahsButton').hide();
+                }
+            }
+
+            function loadInstitutionDetailsIfNeeded() {
+                const selectedValue = $('#typeOfAffiliationDropdown').val();
+                const facultyCode = $("#facultyCode").val();
+
+                toggleAHSButton();  // Ensure AHS button toggles accordingly
+
+                if (selectedValue === "2") {
+                    $.ajax({
+                        url: '@Url.Action("_BasicDetails", "Aff_Page")',
+                        type: 'GET',
+                        data: { facultyCode: facultyCode },
+                        success: function (response) {
+                            $(".dashboard-card").fadeOut(150, function () {
+                                $('#dynamicContent').html(response).hide().fadeIn(200);
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error loading partial view:", error);
+                        }
+                    });
+                } else {
+                    $('#dynamicContent').fadeOut(100, function () {
+                        $(this).html('').fadeIn(100);
+                    });
+                    $(".dashboard-card").fadeIn(150);
+                }
+            }
+
+            $('#typeOfAffiliationDropdown').on('change', loadInstitutionDetailsIfNeeded);
+
+            // Trigger on page load in case value is already selected
+            toggleAHSButton();
+            if ($('#typeOfAffiliationDropdown').val() === "2") {
+                loadInstitutionDetailsIfNeeded();
+            }
+        });
+    </script>
+
+}

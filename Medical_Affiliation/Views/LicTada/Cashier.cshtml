@@ -1,0 +1,452 @@
+﻿@model Medical_Affiliation.Models.LicTadaDashboardVM
+@{
+    Layout = null;
+    var userName = ViewBag.UserName as string ?? "Cashier";
+    var label = ViewBag.DesignationLabel as string ?? "Cashier";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Cashier — LIC TA/DA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/lictada.css" />
+    <style>
+        .lt-logout {
+            background: linear-gradient(135deg,#e03055,#ff6b81);
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'JetBrains Mono',monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }</style>
+</head>
+<body>
+
+    <nav class="lt-nav">
+        <div class="lt-brand">
+            <div class="lt-brand-icon">🎓</div>
+            <div>
+                <div class="lt-brand-name">LIC TA/DA Management</div>
+                <div class="lt-brand-sub">RGUHS · AFFILIATION PORTAL</div>
+            </div>
+        </div>
+        <div class="lt-user">
+            <span class="lt-desig-badge" style="background:#e5f7f2;color:#0f9b6e;border:1.5px solid #86e0c8">@label</span>
+            <span class="lt-uname">@userName</span>
+            <div class="lt-avatar" style="background:linear-gradient(135deg,#0f9b6e,#1ac48c)">
+                @(userName.Length >= 2 ? userName.Substring(0, 2).ToUpper() : "CS")
+            </div>
+            <form asp-controller="Admin" asp-action="FinanceLogout" method="post" style="display:inline;">
+                <button type="submit" class="lt-logout">
+                    ⏏ Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="lt-page">
+
+        <div class="lt-page-hd">
+            <div class="lt-ph-left">
+                <h1>Cashier Dashboard</h1>
+                <p>FO Final Approved — Process payments with bank details</p>
+            </div>
+        </div>
+
+        <div class="lt-workflow">
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-blue">FO</span><span class="lt-wf-label">Finance Officer</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-violet">CW</span><span class="lt-wf-label">Case Worker</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-gold">AO/SO</span><span class="lt-wf-label">Audit Officer</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-blue">FO2</span><span class="lt-wf-label">Final Approval</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-rose">Reject</span><span class="lt-wf-label">Director</span></div>
+            <span class="lt-wf-arrow">/ →</span>
+            <div class="lt-wf-step lt-wf-active"><span class="lt-wf-badge wfb-emerald">CS</span><span class="lt-wf-label">Cashier</span></div>
+        </div>
+
+        <!-- ═══ TABS ═══ -->
+        <div class="lt-tab-wrap">
+            <button class="lt-tab active" id="tabPending" onclick="ltSwitchTab('pending')">
+                💳 Pending Payments
+                <span class="lt-tab-badge" id="csBadge" style="background:#e5f7f2;color:#0f9b6e;border:1px solid #86e0c8">—</span>
+            </button>
+            <button class="lt-tab" id="tabPaid" onclick="ltSwitchTab('paid')">
+                ✅ Amount Paid List
+                <span class="lt-tab-badge" id="pdBadge" style="background:#e5f7f2;color:#0f9b6e;border:1px solid #86e0c8">—</span>
+            </button>
+        </div>
+
+        <!-- ═══ PENDING PAYMENTS CARD ═══ -->
+        <div id="cardPending">
+            <div class="lt-card">
+                <div class="lt-card-hd">
+                    <div>
+                        <div class="lt-card-title">💳 FO Approved — Ready for Payment</div>
+                        <div class="lt-card-sub">Verify bank details then mark as paid</div>
+                    </div>
+                    <button class="lt-btn-sec" id="btnCS" onclick="ltToggleFilter('filterCS','btnCS')">▼ Show Filters</button>
+                </div>
+
+                <div class="lt-filter" id="filterCS" style="display:none">
+                    <div class="lt-fg">
+                        <label class="lt-lbl">📅 Academic Year</label>
+                        <select id="ltYearCS" class="lt-sel">
+                            <option value="">— All Years —</option>
+                            @foreach (var y in Model.AcademicYears)
+                            {
+                                <option value="@y.Value">@y.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">🏛 Faculty</label>
+                        <select id="ltFacCS" class="lt-sel">
+                            <option value="">— All Faculties —</option>
+                            @foreach (var f in Model.Faculties)
+                            {
+                                <option value="@f.Value">@f.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">🏫 College</label>
+                        <select id="ltColCS" class="lt-sel">
+                            <option value="">— All Colleges —</option>
+                            @foreach (var c in Model.Colleges)
+                            {
+                                <option value="@c.Value">@c.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">&nbsp;</label>
+                        <button class="lt-btn-fetch" onclick="ltFetchCS()">🔍 Fetch Records</button>
+                    </div>
+                </div>
+
+                <div id="gridCS">
+                    <div class="lt-empty">
+                        <div style="font-size:42px;margin-bottom:10px">💳</div>
+                        Open filters and click Fetch to load payment records
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PAID LIST CARD ═══ -->
+        <div id="cardPaid" style="display:none">
+            <div class="lt-card">
+                <div class="lt-card-hd">
+                    <div>
+                        <div class="lt-card-title">✅ Amount Paid List</div>
+                        <div class="lt-card-sub">All payments processed by Cashier</div>
+                    </div>
+                    <button class="lt-btn-sec" id="btnPD" onclick="ltToggleFilter('filterPD','btnPD')">▼ Show Filters</button>
+                </div>
+
+                <div class="lt-filter" id="filterPD" style="display:none">
+                    <div class="lt-fg">
+                        <label class="lt-lbl">📅 Academic Year</label>
+                        <select id="ltYearPD" class="lt-sel">
+                            <option value="">— All Years —</option>
+                            @foreach (var y in Model.AcademicYears)
+                            {
+                                <option value="@y.Value">@y.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">🏛 Faculty</label>
+                        <select id="ltFacPD" class="lt-sel">
+                            <option value="">— All Faculties —</option>
+                            @foreach (var f in Model.Faculties)
+                            {
+                                <option value="@f.Value">@f.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">🏫 College</label>
+                        <select id="ltColPD" class="lt-sel">
+                            <option value="">— All Colleges —</option>
+                            @foreach (var c in Model.Colleges)
+                            {
+                                <option value="@c.Value">@c.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="lt-fg">
+                        <label class="lt-lbl">&nbsp;</label>
+                        <button class="lt-btn-fetch" onclick="ltFetchPD()">🔍 Fetch Records</button>
+                    </div>
+                </div>
+
+                <div id="gridPD">
+                    <div class="lt-empty">
+                        <div style="font-size:42px;margin-bottom:10px">✅</div>
+                        Open filters and click Fetch to load paid records
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="ltOverlay" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(10,18,38,.65);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px" onclick="ltCloseOut(event)">
+        <div style="background:#fff;border-radius:30px;width:100%;max-width:800px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 72px rgba(13,27,46,.22);animation:mIn .24s cubic-bezier(.34,1.2,.64,1)">
+            <div id="ltModalContent"><div class="lt-loading" style="padding:60px">⏳ Loading...</div></div>
+        </div>
+    </div>
+    <div id="ltToast" class="lt-toast" style="display:none"></div>
+
+    <style>
+        @@keyframes mIn {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(.96)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+    </style>
+
+    <script src="/js/lictada.js"></script>
+    <script>
+
+        /* ── TAB SWITCH ─────────────────────────────────────────────────────── */
+        function ltSwitchTab(tab) {
+            document.getElementById('cardPending').style.display = tab === 'pending' ? '' : 'none';
+            document.getElementById('cardPaid').style.display    = tab === 'paid'    ? '' : 'none';
+            document.getElementById('tabPending').classList.toggle('active', tab === 'pending');
+            document.getElementById('tabPaid').classList.toggle('active',    tab === 'paid');
+        }
+
+        /* ── SHARED: inject partial + load bank panels ──────────────────────── */
+               function injectGrid(gridEl, html, badgeEl) {
+            gridEl.innerHTML = '';
+            var tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            while (tmp.firstChild) gridEl.appendChild(tmp.firstChild);
+
+            // Re-execute injected scripts safely
+            var scripts = gridEl.querySelectorAll('script');
+            scripts.forEach(function(old) {
+                try {
+                    var s = document.createElement('script');
+                    // Use blob URL instead of textContent to avoid parse issues
+                    var blob = new Blob([old.textContent], { type: 'text/javascript' });
+                    var url  = URL.createObjectURL(blob);
+                    s.src = url;
+                    s.onload = function() { URL.revokeObjectURL(url); };
+                    s.onerror = function() { URL.revokeObjectURL(url); };
+                    document.body.appendChild(s);
+                } catch(e) {
+                    console.warn('[injectGrid] script exec failed:', e);
+                }
+            });
+
+            // Update badge
+            if (badgeEl) {
+                var rows = gridEl.querySelectorAll('.cs-row, .pd-row');
+                badgeEl.textContent = rows.length || '0';
+            }
+
+            // Load bank panels — delay slightly to allow blob scripts to execute
+            setTimeout(function() { loadBankPanels(gridEl); }, 300);
+        }
+        /* ── LOAD BANK PANELS ───────────────────────────────────────────────── */
+        function loadBankPanels(container) {
+            (container || document).querySelectorAll('.bank-panel[data-phone], .pd-bank-panel[data-phone]').forEach(function(p) {
+                if (p.getAttribute('data-loaded') === 'true') return;
+                var phone = (p.getAttribute('data-phone') || '').trim();
+                if (!phone) {
+                    p.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#c9b3f5;background:#f8f4ff;border:1px solid #e8e0fb;border-radius:8px;padding:6px 12px">⚠️ No phone number</div>';
+                    p.setAttribute('data-loaded', 'true');
+                    return;
+                }
+                p.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#b8cad9;text-align:center;padding:4px 0">⏳ Loading…</div>';
+
+                fetch('/LicTada/BankDetails?phone=' + encodeURIComponent(phone), {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    var found  = d && (d.found === true || d.Found === true);
+                    var acctNo = d ? (d.accountNumber || d.AccountNumber || '') : '';
+
+                    if (!found || !acctNo.trim()) {
+                        p.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#c9b3f5;'
+                                    + 'background:#f8f4ff;border:1px solid #e8e0fb;border-radius:8px;padding:6px 12px;display:inline-block">'
+                                    + '⚠️ No bank info on file</div>';
+                        p.setAttribute('data-loaded', 'true');
+                        return;
+                    }
+
+                    var bank   = d.bankName        || d.BankName        || '';
+                    var branch = d.branchName      || d.BranchName      || '';
+                    var name   = d.accountHolderName || d.AccountHolderName || '';
+                    var ifsc   = d.ifscCode        || d.IfscCode        || d.IFSCCode  || '';
+                    var pan    = d.panNumber       || d.PanNumber       || d.PANNumber || '';
+                    var travel = d.modeOfTravel    || d.ModeOfTravel    || '';
+                    var aadhar = d.aadhaarNumber   || d.AadhaarNumber   || '';
+
+                    var rows = [
+                        ['Bank',     bank + (branch ? ' · ' + branch : ''), '#0d1b2e', '700'],
+                        ['A/C Name', name,   '#0d1b2e', '500'],
+                        ['A/C No.',  acctNo, '#0f9b6e', '700'],
+                        ['IFSC',     ifsc,   '#2d6be4', '500'],
+                        ['PAN',      pan,    '#5a6e8a', '500'],
+                        ['Travel',   travel, '#5a6e8a', '500'],
+                        ['Aadhaar',  aadhar, '#5a6e8a', '500'],
+                    ].filter(function(x) { return x[1] && x[1].trim(); });
+
+                    var h = '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px 10px;font-family:\'JetBrains Mono\',monospace;font-size:11px">';
+                    rows.forEach(function(x) {
+                        h += '<span style="color:#8fa3be;font-size:9px;text-transform:uppercase;letter-spacing:.07em">' + esc(x[0]) + '</span>'
+                           + '<span style="color:' + x[2] + ';font-weight:' + x[3] + '">' + esc(x[1]) + '</span>';
+                    });
+                    h += '</div>';
+                    p.innerHTML = h;
+                    p.setAttribute('data-loaded', 'true');
+                })
+                .catch(function(err) {
+                    p.innerHTML = '<span style="color:#e03055;font-family:\'JetBrains Mono\',monospace;font-size:11px">⚠️ ' + esc(err.message) + '</span>';
+                    p.setAttribute('data-loaded', 'true');
+                });
+            });
+        }
+
+        /* ── FETCH PENDING ──────────────────────────────────────────────────── */
+        function ltFetchCS() {
+            var gridEl = document.getElementById('gridCS');
+            gridEl.innerHTML = '<div style="padding:40px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:13px;color:#8fa3be">⏳ Loading records...</div>';
+
+            fetch('/LicTada/CashierGrid', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+                body: 'year='     + encodeURIComponent(document.getElementById('ltYearCS').value)
+                    + '&faculty=' + encodeURIComponent(document.getElementById('ltFacCS').value)
+                    + '&college=' + encodeURIComponent(document.getElementById('ltColCS').value)
+            })
+            .then(function(r) { return r.text(); })
+            .then(function(html) {
+                injectGrid(gridEl, html, document.getElementById('csBadge'));
+            })
+            .catch(function(err) {
+                gridEl.innerHTML = '<div class="lt-empty">⚠️ Failed to load records.</div>';
+                console.error('[Cashier] ltFetchCS error:', err);
+            });
+        }
+
+        /* ── FETCH PAID LIST ────────────────────────────────────────────────── */
+               function ltFetchPD() {
+            var gridEl = document.getElementById('gridPD');
+            gridEl.innerHTML = '<div style="padding:40px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:13px;color:#8fa3be">⏳ Loading records...</div>';
+
+            fetch('/LicTada/CashierPaidGrid', {
+                method: 'POST', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+                body: 'year='     + encodeURIComponent(document.getElementById('ltYearPD').value)
+                    + '&faculty=' + encodeURIComponent(document.getElementById('ltFacPD').value)
+                    + '&college=' + encodeURIComponent(document.getElementById('ltColPD').value)
+            })
+            .then(function(r) { return r.text(); })
+            .then(function(html) {
+                // Inject HTML + re-execute scripts
+                gridEl.innerHTML = '';
+                var tmp = document.createElement('div');
+                tmp.innerHTML = html;
+                while (tmp.firstChild) gridEl.appendChild(tmp.firstChild);
+                       gridEl.querySelectorAll('script').forEach(function(old) {
+            try {
+                var s = document.createElement('script');
+                var blob = new Blob([old.textContent], { type: 'text/javascript' });
+                var url  = URL.createObjectURL(blob);
+                s.src = url;
+                s.onload = function() { URL.revokeObjectURL(url); };
+                s.onerror = function() { URL.revokeObjectURL(url); };
+                document.body.appendChild(s);
+            } catch(e) {
+                console.warn('[ltFetchPD] script exec failed:', e);
+            }
+        });
+
+                // Update badge
+                var rows = gridEl.querySelectorAll('#pd-tbody .pd-row');
+                document.getElementById('pdBadge').textContent = rows.length || '0';
+
+                // Trigger bank panel load
+                setTimeout(function() {
+                    if (typeof window.pdPrefetchAll === 'function') {
+                        window.pdPrefetchAll();
+                    } else {
+                        loadBankPanels(gridEl);
+                    }
+                }, 80);
+            })
+            .catch(function(err) {
+                gridEl.innerHTML = '<div class="lt-empty">⚠️ Failed to load records.</div>';
+                console.error('[Cashier] ltFetchPD error:', err);
+            });
+        }
+        /* ── MARK AS PAID ───────────────────────────────────────────────────── */
+        function ltCashierPay(id, btn) {
+            var rmk = prompt('Payment reference / remarks (optional):') || '';
+            if (!confirm('Mark this inspection as PAID?')) return;
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing...';
+            fetch('/LicTada/CashierPay', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + id + '&remarks=' + encodeURIComponent(rmk)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res.success) {
+                    ltToast('💳 Payment recorded successfully', 'ok');
+                    var row = btn.closest('tr');
+                    if (row) {
+                        row.style.transition = 'opacity .5s';
+                        row.style.opacity = '.25';
+                        setTimeout(function() { row.remove(); }, 700);
+                    }
+                } else {
+                    ltToast('Failed to record payment.', 'err');
+                    btn.disabled = false;
+                    btn.innerHTML = '💳 Mark as Paid';
+                }
+            })
+            .catch(function() {
+                ltToast('Network error.', 'err');
+                btn.disabled = false;
+                btn.innerHTML = '💳 Mark as Paid';
+            });
+        }
+
+        /* ── HTML ESCAPE ────────────────────────────────────────────────────── */
+        function esc(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+    </script>
+</body>
+</html>

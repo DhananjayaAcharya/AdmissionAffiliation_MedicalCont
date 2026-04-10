@@ -1,0 +1,567 @@
+﻿@model Medical_Affiliation.Models.CA_VehicleDetailsViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+}
+
+@{
+    //side bar and other settings
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f1923;
+        --navy-mid: #1a4c8b;
+        --gold: #c9a84c;
+        --gold-light: #e0c87a;
+        --cream: #f4f6f9;
+        --white: #ffffff;
+        --border: #d4dae3;
+        --text: #1a1a1a;
+        --text-muted: #6b7a8d;
+        --danger: #c0392b;
+        --success: #2ecc71;
+        --radius: 10px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        min-height: 100vh;
+    }
+
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        padding: 36px 0 48px;
+    }
+
+    .page-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* Elegant Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: 10px 10px 0 0;
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+        margin: 0 -24px;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-image: repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px);
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .header-eyebrow {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: white;
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+        font-weight: 300;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(201,168,76,0.15);
+        border: 1px solid rgba(201,168,76,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+
+    /* Clean Card Style */
+    .main-box {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+        padding: 32px 36px 36px;
+        margin-bottom: 28px;
+    }
+
+    h3 {
+        text-align: center;
+        margin-bottom: 28px;
+        font-weight: 600;
+        color: var(--navy);
+    }
+
+    /* Table Styles */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            background: var(--navy-mid);
+            color: white;
+            padding: 14px 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+            font-size: 0.92rem;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f0f4f8;
+        }
+
+    /* Form Controls */
+    .form-control, .form-select {
+        width: 100%;
+        background: #fafbfc;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.92rem;
+        color: var(--text);
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 4px rgba(26,76,139,0.12);
+        }
+
+    .text-danger {
+        color: var(--danger) !important;
+        font-size: 0.75rem;
+    }
+
+    /* Buttons */
+    .btn-success {
+        background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 28px;
+        font-weight: 600;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        border-radius: 8px;
+        padding: 10px 28px;
+        font-weight: 500;
+    }
+
+        .btn-secondary:hover {
+            background: #f3f0e8;
+            border-color: var(--navy-mid);
+            color: var(--navy);
+        }
+</style>
+<link rel="stylesheet" href="~/css/common-form.css" />
+
+<div class="page-shell">
+    <div class="page-container">
+
+        <!-- Elegant Header with Badge -->
+        @* <div class="page-header">
+            <div class="header-eyebrow">Affiliation Module · Vehicle Details</div>
+            <div class="header-title">Vehicle Details</div>
+            <div class="header-subtitle">Enter vehicle information associated with this institution</div>
+            <div class="header-badge">Step 11 of 21</div>   <!-- Update step number as needed -->
+        </div> *@
+        <div class="page-header">
+            <div class="emblem">
+                <i class="fas fa-book-medical"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Vehicle Details</h1>
+                <p>RGUHS · Vehicle Details</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-box">
+
+            <h3>VEHICLE DETAILS</h3>
+
+            <form id="vehicleForm" asp-action="CA_VehicleDetails" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger fw-bold text-center mb-3"></div>
+
+                <!-- Your original table remains unchanged -->
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th>Vehicle Registration Number *</th>
+                            <th>Vehicle For *</th>
+                            <th>Seats *</th>
+                            <th>Validity *</th>
+                            <th>RC *</th>
+                            <th>Insurance *</th>
+                            <th>DL *</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>@((Model.ExistingList?.Count ?? 0) + 1)</td>
+                            <td>
+                                <input asp-for="VehicleRegNo" class="form-control track" />
+                                <span asp-validation-for="VehicleRegNo" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <select asp-for="VehicleForCode" asp-items="Model.VehicleForList" class="form-select track">
+                                    <option value="">--Select--</option>
+                                </select>
+                                <span asp-validation-for="VehicleForCode" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <input asp-for="SeatingCapacity" type="number" class="form-control track" />
+                                <span asp-validation-for="SeatingCapacity" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <input asp-for="ValidityDate" type="date" class="form-control track" />
+                                <span asp-validation-for="ValidityDate" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <select asp-for="RcBookStatus" class="form-select track">
+                                    <option value="">--Select--</option>
+                                    <option value="A">Available</option>
+                                    <option value="N">Not Available</option>
+                                </select>
+                                <span asp-validation-for="RcBookStatus" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <select asp-for="InsuranceStatus" class="form-select track">
+                                    <option value="">--Select--</option>
+                                    <option value="A">Available</option>
+                                    <option value="N">Not Available</option>
+                                </select>
+                                <span asp-validation-for="InsuranceStatus" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <select asp-for="DrivingLicenseStatus" class="form-select track">
+                                    <option value="">--Select--</option>
+                                    <option value="A">Available</option>
+                                    <option value="N">Not Available</option>
+                                </select>
+                                <span asp-validation-for="DrivingLicenseStatus" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <button type="submit" class="btn btn-success">Add</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="CA_UserDetails" class="btn btn-secondary">Previous</a>
+                    @* <button class="btn btn-success">Save & Continue</button> *@
+                    <a asp-action="MedicalUGBedDistribution" asp-controller="ContinuesAffiliation_Facultybased" class="btn btn-success">Continue</a>
+
+                </div>
+            </form>
+            @if (Model.ExistingList != null && Model.ExistingList.Count > 0)
+            {
+                <h5 class="fw-bold mt-4" style="color: var(--navy);">Vehicle Details List</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sl.No.</th>
+                            <th>Vehicle Reg. No.</th>
+                            <th>Vehicle For</th>
+                            <th>Seating Capacity</th>
+                            <th>Validity Date</th>
+                            <th>RC Book</th>
+                            <th>Insurance</th>
+                            <th>Driving Licence</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            int index = 1;
+                        }
+
+                        @foreach (var item in Model.ExistingList)
+                        {
+                            var vehicleForName = Model.VehicleForList
+                            .FirstOrDefault(v => v.Value == item.VehicleForCode)?.Text
+                            ?? item.VehicleForCode;
+
+                            <tr id="row-@item.Id">
+                                <td>@index</td>
+
+                                <!-- Vehicle Reg No -->
+                                <td class="view-mode">@item.VehicleRegNo</td>
+                                <td class="edit-mode d-none">
+                                    <input id="editRegNo-@item.Id"
+                                           class="form-control"
+                                           value="@item.VehicleRegNo" />
+                                </td>
+
+                                <!-- Vehicle For -->
+                                <td class="view-mode">@vehicleForName</td>
+                                <td class="edit-mode d-none">
+                                    <select id="editVehicleFor-@item.Id" class="form-select">
+                                        @foreach (var v in Model.VehicleForList)
+                                        {
+                                            <option value="@v.Value"
+                                                    selected="@(v.Value == item.VehicleForCode)">
+                                                @v.Text
+                                            </option>
+                                        }
+                                    </select>
+                                </td>
+
+                                <!-- Seating Capacity -->
+                                <td class="view-mode">@item.SeatingCapacity</td>
+                                <td class="edit-mode d-none">
+                                    <input id="editSeat-@item.Id"
+                                           type="number"
+                                           min="1"
+                                           class="form-control"
+                                           value="@item.SeatingCapacity" />
+                                </td>
+
+                                <!-- Validity Date -->
+                                <td class="view-mode">@item.ValidityDate?.ToString("yyyy-MM-dd")</td>
+                                <td class="edit-mode d-none">
+                                    <input id="editValidity-@item.Id"
+                                           type="date"
+                                           class="form-control"
+                                           value="@(item.ValidityDate?.ToString("yyyy-MM-dd"))" />
+                                </td>
+
+                                <!-- RC Book -->
+                                <td class="view-mode">
+                                    @(item.RcBookStatus == "A" ? "Available" : "Not Available")
+                                </td>
+                                <td class="edit-mode d-none">
+                                    <select id="editRc-@item.Id" class="form-select">
+                                        <option value="A" selected="@(item.RcBookStatus == "A")">Available</option>
+                                        <option value="N" selected="@(item.RcBookStatus != "A")">Not Available</option>
+                                    </select>
+                                </td>
+
+                                <!-- Insurance -->
+                                <td class="view-mode">
+                                    @(item.InsuranceStatus == "A" ? "Available" : "Not Available")
+                                </td>
+                                <td class="edit-mode d-none">
+                                    <select id="editIns-@item.Id" class="form-select">
+                                        <option value="A" selected="@(item.InsuranceStatus == "A")">Available</option>
+                                        <option value="N" selected="@(item.InsuranceStatus != "A")">Not Available</option>
+                                    </select>
+                                </td>
+
+                                <!-- Driving Licence -->
+                                <td class="view-mode">
+                                    @(item.DrivingLicenseStatus == "A" ? "Available" : "Not Available")
+                                </td>
+                                <td class="edit-mode d-none">
+                                    <select id="editDl-@item.Id" class="form-select">
+                                        <option value="A" selected="@(item.DrivingLicenseStatus == "A")">Available</option>
+                                        <option value="N" selected="@(item.DrivingLicenseStatus != "A")">Not Available</option>
+                                    </select>
+                                </td>
+
+                                <!-- ACTION -->
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-warning btn-action"
+                                            onclick="editRow(@item.Id)">
+                                        Edit
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-success btn-action d-none"
+                                            id="saveBtn-@item.Id"
+                                            onclick="saveEdit(@item.Id)">
+                                        Save
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-danger btn-action"
+                                            onclick="confirmDelete(@item.Id)">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+
+                            index++;
+                        }
+                    </tbody>
+                </table>
+            }
+
+        </div>
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+
+        <script>
+                // 🔹 REMOVE validation dynamically on user input
+                document.querySelectorAll('.track').forEach(el => {
+                    el.addEventListener('input', clearError);
+                    el.addEventListener('change', clearError);
+                });
+
+                function clearError(e) {
+                    const field = e.target;
+                    field.classList.remove('is-invalid');
+
+                    const error = field.parentElement.querySelector('.text-danger');
+                    if (error) error.textContent = '';
+                }
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            function editRow(id) {
+            // Hide view-mode fields
+            document.querySelectorAll("#row-" + id + " .view-mode")
+            .forEach(el => el.classList.add("d-none"));
+
+            // Show edit-mode fields
+            document.querySelectorAll("#row-" + id + " .edit-mode")
+            .forEach(el => el.classList.remove("d-none"));
+
+            // Show Save button
+            const saveBtn = document.getElementById("saveBtn-" + id);
+            if (saveBtn) saveBtn.classList.remove("d-none");
+            }
+            function saveEdit(id) {
+            const model = {
+            Id: id,
+            VehicleRegNo: document.getElementById("editRegNo-" + id).value.trim(),
+            VehicleForCode: document.getElementById("editVehicleFor-" + id).value,
+            SeatingCapacity: parseInt(document.getElementById("editSeat-" + id).value) || 0,
+            ValidityDate: document.getElementById("editValidity-" + id).value,
+            RcBookStatus: document.getElementById("editRc-" + id).value,
+            InsuranceStatus: document.getElementById("editIns-" + id).value,
+            DrivingLicenseStatus: document.getElementById("editDl-" + id).value
+            };
+
+            const token = document.querySelector("input[name='__RequestVerificationToken']").value;
+
+            fetch('@Url.Action("CA_UpdateVehicleDetails", "Aff_AHS_ContinousApplication")', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+            },
+            body: JSON.stringify(model)
+            })
+            .then(response => response.json())
+            .then(data => {
+            if (data.success) {
+            Swal.fire({
+            icon: 'success',
+            title: 'Updated!',
+            text: data.message,
+            timer: 1500,
+            showConfirmButton: false
+            }).then(() => location.reload());
+            } else {
+            Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            html: data.message  // Supports <br> for multiple lines
+            });
+            }
+            })
+            .catch(() => {
+            Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to save changes.'
+            });
+            });
+            }
+   
+            function confirmDelete(id) {
+            Swal.fire({
+            title: 'Are you sure?',
+            text: 'This vehicle entry will be permanently deleted!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#2563eb',
+            confirmButtonText: 'Yes, Delete!',
+            cancelButtonText: 'Cancel'
+            }).then((result) => {
+            if (result.isConfirmed) {
+            window.location.href =
+            '@Url.Action("CA_DeleteVehicleDetails", "Aff_AHS_ContinousApplication")/' + id;
+            }
+            });
+            }
+        </script>
+
+    }

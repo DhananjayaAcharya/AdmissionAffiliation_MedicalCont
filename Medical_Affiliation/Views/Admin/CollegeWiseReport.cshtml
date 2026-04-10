@@ -1,0 +1,308 @@
+﻿@model FacultyAndCollege
+
+@{
+    ViewData["Title"] = "College Wise Report";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
+
+    <style>
+/* ========== SCREEN STYLES ========== */
+.college-section {
+    margin-bottom: 2rem;
+}
+
+.college-title {
+    color: #0d6efd;
+}
+
+.college-declaration {
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    text-align: justify;
+}
+
+.font-weight-bold { font-weight: 700; }
+.text-indigo-800 { color: #4b0082; }
+.print-button { margin-bottom: 1rem; }
+
+table th, table td {
+    font-weight: normal !important;
+    color: #000 !important;
+}
+
+/* ========== PRINT STYLES ========== */
+@@media print {
+    .no-print,
+    .navbar,
+    footer {
+        display: none !important;
+    }
+
+    @@page {
+        size: A4;
+        margin: 12mm 8mm 12mm 8mm;
+    }
+
+    body {
+        font-family: "Times New Roman", serif;
+        font-size: 11pt;
+        color: #000;
+        line-height: 1.2;
+    }
+
+    /* Title */
+    .container.mt-3 h5 {
+        display: block !important;
+        text-align: center !important;
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .college-section {
+        page-break-after: auto;
+        margin-bottom: 0;
+        padding-bottom: 5mm;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse;
+        font-size: 10pt;
+        table-layout: auto;
+    }
+
+    table th, table td {
+        border: 1px solid #000 !important;
+        padding: 2px 4px !important;
+        vertical-align: middle;
+        white-space: normal;
+        font-weight: normal !important;
+    }
+
+    thead {
+        background-color: #f0f0f0 !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact;
+    }
+
+    thead th {
+        font-weight: normal !important;
+    }
+
+    .college-declaration .font-weight-bold,
+    .college-declaration .font-bold {
+        font-weight: 700 !important;
+        color: #000 !important;
+    }
+
+    .college-declaration {
+        font-size: 9pt;
+        margin-top: 5mm;
+    }
+
+    table, tr, td, th {
+        page-break-inside: avoid !important;
+    }
+
+    .table-responsive, * {
+        overflow: visible !important;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- NAVBAR (hidden in print) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm no-print">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a asp-controller="@ViewBag.Controller" asp-action="@ViewBag.Dashboard"
+                           asp-route-username="@ViewBag.UserName"
+                           class="nav-link btn btn-outline-primary">🏠 Home</a>
+                    </li>
+                </ul>
+               @*  <form asp-controller="@ViewBag.Controller" asp-action="Logout" method="post" class="mb-0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form> *@
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGE TITLE -->
+    <div class="container mt-3">
+        <h5 class="mb-0 text-center">
+            College-wise PG seat details for the year 2025 - 26
+        </h5>
+    </div>
+
+    <!-- FILTER FORM -->
+    <form asp-action="CollegeWiseReport" method="post" class="no-print">
+        <div class="form-group">
+            <label asp-for="FacultyCode">Faculty</label>
+            <select asp-for="FacultyCode" id="FacultyDropdown" asp-items="Model.FacultyList" class="form-control"></select>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="CourseLevel">Course Level</label>
+            <select asp-for="CourseLevel" id="CourseLevelDropdown" asp-items="Model.CourseList" class="form-control"></select>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Search</button>
+    </form>
+
+    <hr />
+
+    <div class="container">
+        <!-- PRINT BUTTON -->
+        <div class="text-center no-print mb-3">
+            <button onclick="window.print()" class="btn btn-primary print-button">🖨 Print Report</button>
+        </div>
+
+        <!-- REPORT -->
+        @if (Model.IntakeList != null && Model.IntakeList.Any())
+        {
+            var groupedByCollege = Model.IntakeList.GroupBy(c => c.CollegeCode);
+            int collegeIndex = 0;
+
+            foreach (var collegeGroup in groupedByCollege)
+            {
+                var collegeName = collegeGroup.FirstOrDefault()?.CollegeName;
+                var totalRGUHS = collegeGroup.Sum(c => c.RGUSHSintake);
+                var totalCollege = collegeGroup.Sum(c => c.Presentintake);
+
+                <div class="college-section">
+                    <!-- College Name -->
+                    <h4 class="mt-4 text-black college-title text-center">
+                        @(collegeIndex + 1). @collegeName
+                    </h4>
+
+                    <!-- Courses Table -->
+                    <div class="table-responsive mb-4">
+                        <table id="collegeTable_@collegeIndex"
+                               class="display table table-bordered shadow-sm college-table">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Name of the course</th>
+                                    <th>RGUHS Data</th>
+                                    <th>College Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < collegeGroup.Count(); i++)
+                                {
+                                    var course = collegeGroup.ElementAt(i);
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>@course.courseName</td>
+                                        <td>@course.RGUSHSintake</td>
+                                        <td>@course.Presentintake</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="font-weight-bold bg-light">
+                                    <td colspan="2" class="text-end">Total</td>
+                                    <td>@totalRGUHS</td>
+                                    <td>@totalCollege</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Declaration -->
+                    <p class="college-declaration">
+                        I, <span class="font-weight-bold">@collegeGroup.FirstOrDefault()?.PrincipalName</span>,
+                        Principal / Dean of <span class="font-bold text-indigo-800">@collegeName</span>,
+                        hereby declare that all the information provided by the college with regard to the number
+                        of courses and the number of seats in each course that is being run by the college is true
+                        and according to the notifications issued by the relevant authorities in this regard.
+                        Any discrepancies, if present, will be my sole responsibility.
+                    </p>
+                </div>
+
+                collegeIndex++;
+            }
+        }
+    </div>
+    @Html.Hidden("Myurl", Url.Action("GetCourseLevelsForCollegeWise", "Admin"));
+
+    <!-- JS dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+
+    <!-- DataTables init -->
+    <script>
+        $(document).ready(function () {
+            $('.college-table').each(function () {
+                $(this).DataTable({
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    ordering: true,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'excelHtml5',
+                            title: $(this).closest('.college-section').find('.college-title').text().trim(),
+                            exportOptions: { columns: [0, 1, 2, 3] },
+                            className: 'btn btn-success btn-sm no-print'
+                        }
+                    ]
+                });
+            });
+
+            // Faculty → CourseLevel binding
+            $("#FacultyDropdown").change(function () {
+                var facultyId = $(this).val();
+                var collegesUrl = $("#Myurl").val();
+                var $courseDropdown = $("#CourseLevelDropdown");
+                $courseDropdown.empty().append('<option value="">-- Select Course Level --</option>');
+
+                if (facultyId) {
+                    $.get(collegesUrl, { facultyId: facultyId }, function (data) {
+                        if (data && data.length > 0) {
+                            $.each(data, function (index, courseLevel) {
+                                var selected = (courseLevel === '@Model.CourseLevel') ? 'selected' : '';
+                                $courseDropdown.append('<option value="' + courseLevel + '" ' + selected + '>' + courseLevel + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+
+            // Restore CourseLevel on postback
+            if ('@Model.FacultyCode' !== '') {
+                $("#FacultyDropdown").trigger("change");
+            }
+        });
+    </script>
+</body>
+</html>

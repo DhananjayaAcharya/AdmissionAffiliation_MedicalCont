@@ -1,0 +1,644 @@
+﻿@model ClassroomPageVM
+
+@{
+    ViewData["Title"] = "Classroom & Laboratory Details";
+}
+
+<style>
+    :root {
+        --primary: #3b82f6;
+        --primary-dark: #2563eb;
+        --bg: #0f172a;
+        --glass: rgba(20, 30, 55, 0.88);
+        --border: rgba(59, 130, 246, 0.3);
+        --text: #e0e7ff;
+        --accent: #60a5fa;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Segoe UI', sans-serif;
+        min-height: 100vh;
+        background-image: radial-gradient(circle at 10% 90%, rgba(59,130,246,0.12), transparent 40%), radial-gradient(circle at 90% 20%, rgba(147,197,253,0.1), transparent 50%);
+    }
+
+   /*  .page-header {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        padding: 22px 0;
+        border-bottom: 1px solid rgba(59,130,246,0.4);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    } */
+
+    .page-header {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        padding: 8px 20px;
+        border-bottom: 1px solid rgba(59,130,246,0.25);
+        box-shadow: 0 0 12px rgba(59,130,246,0.35), /* outer glow */
+        0 2px 10px rgba(0,0,0,0.3); /* shadow */
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        text-align: center;
+        margin-top: 8px;
+    }
+
+        /* Glowing Title */
+        .page-header h2 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            /* Neon Glow */
+            text-shadow: 0 0 6px #3b82f6, 0 0 10px #3b82f6, 0 0 14px rgba(59,130,246,0.6);
+        }
+
+
+
+
+    .glass-container {
+        background: var(--glass);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        padding: 40px;
+        margin: 35px auto;
+        max-width: 1300px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    .section-title {
+        color: var(--primary);
+        font-size: 1.7rem;
+        font-weight: 700;
+        margin: 30px 0 20px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid var(--primary);
+        display: inline-block;
+        width: auto;
+    }
+
+    .instructions {
+        background: rgba(59,130,246,0.15);
+        border-left: 6px solid var(--primary);
+        padding: 22px;
+        border-radius: 16px;
+        margin-bottom: 35px;
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+
+        .instructions ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin: 14px 0;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 14px;
+        margin: 25px 0;
+    }
+
+    th {
+        background: rgba(59,130,246,0.25);
+        color: var(--primary);
+        padding: 18px 16px;
+        font-weight: 600 1rem;
+        text-align: left;
+        border-bottom: 2px solid var(--primary);
+    }
+
+    td {
+        background: rgba(30,41,59,0.7);
+        padding: 16px;
+        border-radius: 12px;
+        transition: all 0.3s;
+    }
+
+    tr:hover td {
+        background: rgba(59,130,246,0.2);
+        transform: translateY(-2px);
+    }
+
+    input, select {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(59,130,246,0.5);
+        color: white;
+        border-radius: 10px;
+        padding: 12px 14px;
+        width: 100%;
+    }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.3);
+            background: rgba(255,255,255,0.18);
+        }
+
+    .deficiency {
+        background: rgba(239,68,68,0.22) !important;
+        color: #fca5a5;
+        font-weight: 600;
+    }
+
+    .agree-box {
+        background: rgba(34,197,94,0.18);
+        border: 2px solid rgba(74,222,128,0.5);
+        border-radius: 16px;
+        padding: 22px;
+        margin: 35px 0;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .btn-continue {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 16px 50px;
+        font-size: 1.15rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(59,130,246,0.5);
+        transition: all 0.4s;
+        float: right;
+    }
+
+        .btn-continue:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(59,130,246,0.6);
+        }
+        
+   .modern-deficiency-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1rem;
+        margin: 30px 0;
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .modern-deficiency-table th {
+        background: linear-gradient(135deg, #1e40af, #2563eb);
+        color: white;
+        padding: 18px 14px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .modern-deficiency-table th small {
+        display: block;
+        font-weight: normal;
+        font-size: 0.8rem;
+        opacity: 0.9;
+        margin-top: 4px;
+        text-transform: none;
+    }
+
+    .modern-deficiency-table td {
+        padding: 18px 14px;
+        text-align: center;
+        background: rgba(30, 41, 59, 0.5);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .modern-deficiency-table tbody tr:hover td {
+        background: rgba(59, 130, 246, 0.15);
+    }
+
+    /* Clean row striping */
+    .modern-deficiency-table tbody tr:nth-child(even) td {
+        background: rgba(30, 41, 59, 0.65);
+    }
+
+    /* Serial number styling */
+    .serial {
+        font-weight: 700;
+        color: #93c5fd;
+        background: rgba(59, 130, 246, 0.3);
+        border-radius: 8px;
+        width: 50px;
+        margin: 0 auto;
+    }
+
+    /* Course name left-aligned and highlighted */
+    .course {
+        text-align: left !important;
+        padding-left: 24px !important;
+        font-weight: 600;
+        color: #dbeafe;
+        background: rgba(99, 102, 241, 0.15) !important;
+    }
+
+    /* Deficiency cells - modern red badge */
+    .def-highlight {
+        /* background: linear-gradient(135deg, #ef4444) !important; */
+        color: white !important;
+        font-weight: 800;
+        font-size: 1.1rem;
+        border-radius: 10px;
+        padding: 8px 12px !important;
+        min-width: 80px;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6);
+    }
+
+    /* Deficient row subtle red tint */
+    .deficient-row td {
+        background: rgba(239, 68, 68, 0.08) !important;
+      /*   border-left: 4px solid #ef4444; */
+    }
+
+    /* NIL styling */
+    td:not(.def-highlight) {
+        color: #94a3b8;
+        font-style: italic;
+    }
+
+    /* Final touch: rounded corners on first/last */
+    .modern-deficiency-table thead tr:first-child th:first-child { border-top-left-radius: 16px; }
+    .modern-deficiency-table thead tr:first-child th:last-child { border-top-right-radius: 16px; }
+    .modern-deficiency-table tbody tr:last-child td:first-child { border-bottom-left-radius: 12px; }
+    .modern-deficiency-table tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
+    
+    .btn-nav {
+        padding: 16px 48px;
+        border-radius: 16px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        min-width: 180px;
+    }
+
+    .btn-back {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+    }
+
+    .btn-next {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 10px 30px rgba(59,130,246,0.7);
+    }
+
+        .btn-next:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59,130,246,0.8);
+        }
+</style>
+
+<!-- Header -->
+<div class="page-header">
+    <div class="container">
+        <h2>Classroom and Laboratory Details</h2>
+    </div>
+</div>
+
+<div class="container">
+    <div class="glass-container">
+        
+
+        <!-- Instructions -->
+        <div class="section-title">Instructions</div>
+        <div class="instructions">
+            <ul>
+                <li>One large skill lab/simulation lab can be constructed consisting of the labs specified with a total of 5500 sq.ft. size or can have five separate labs in the college.</li>
+                <li>At least 10-12 sets of all items needed. Simulators for advance skills e.g. administration of tube feeding, tracheostomy, gastrostomy/IV injection, BLS.</li>
+                <li>The newborn resuscitation model, etc. laboratory should have computers, internet connection, monitors and ventilator models/manikins/simulators for use in Critical Care Units.</li>
+                <li>For NPCC programme there should be Simulation lab with High fidelity Mannequins and task trainers available.</li>
+            </ul>
+        </div>
+
+        <!-- Agree Checkbox -->
+        <div class="agree-box">
+            <input type="checkbox" id="agree" required style="width:1.7em;height:1.7em;">
+            <label for="agree">I Agree to these above Terms and Conditions</label>
+        </div>
+
+        <form asp-action="ClassroomAndLaboratoryDetails" enctype="multipart/form-data">
+
+        <!-- Classroom Details Table -->
+        <div class="section-title">CLASSROOM DETAILS</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sl.No.</th>
+                        <th>Course</th>
+                        <th>No. of Classrooms Required</th>
+                        <th>Size Required (Sq.ft.)</th>
+                        <th>No. of Classrooms Available</th>
+                        <th>Size Available (Sq.ft.)</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (int i = 0; i < Model.ClassroomDetails.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+
+                            <td>@Model.ClassroomDetails[i].CourseName</td>
+
+                            <td>@Model.ClassroomDetails[i].RequiredClassrooms</td>
+
+                            <td>@Model.ClassroomDetails[i].RequiredSize</td>
+
+                                <input type="hidden" asp-for="ClassroomDetails[i].CourseCode" />
+                                <input type="hidden" asp-for="ClassroomDetails[i].CourseName" />
+                                <input type="hidden" asp-for="ClassroomDetails[i].RequiredClassrooms" />
+                                <input type="hidden" asp-for="ClassroomDetails[i].RequiredSize" />
+
+                            <!-- Available Classrooms Input -->
+                            <td>
+                                <input type="number"
+                                       class="form-control"
+                                       asp-for="ClassroomDetails[@i].AvailableClassrooms"
+                                       min="0" />
+                            </td>
+
+                            <!-- Available Size Input -->
+                            <td>
+                                <input type="number"
+                                       class="form-control"
+                                       asp-for="ClassroomDetails[@i].AvailableSize"
+                                       min="0" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Deficiency Summary -->
+        <!-- Deficiency Summary -->
+        @* <div class="section-title">CLASSROOM DEFICIENCY SUMMARY</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Sl.No.</th>
+                        <th>Course</th>
+                        <th>No of Class room Required</th>
+                        <th>No of Class room Available</th>
+                        <th>No of Class room Deficiency</th>
+                        <th>Class room Size Required in Sq.ft</th>
+                        <th>Class room Size Available in Sq.ft</th>
+                        <th>Class room Size Deficiency in Sq.ft</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.ClassroomDetails.Count; i++)
+                    {
+                        var item = Model.ClassroomDetails[i];
+                        <tr>
+                            <td>@(i + 1)</td>
+
+                            <td>@item.CourseName</td>
+
+                            <td>@item.RequiredClassrooms</td>
+
+                            <td>@item.AvailableClassrooms</td>
+
+                            <td>
+                                @((item.DeficiencyClassrooms > 0)
+                                                            ? item.DeficiencyClassrooms.ToString()
+                                                            : "NIL")
+                            </td>
+
+                            <td>@item.RequiredTotalSize</td>
+
+                            <td>@item.AvailableSize</td>
+
+                            <td>
+                                @((item.DeficiencySize > 0)
+                                                            ? item.DeficiencySize.ToString()
+                                                            : "NIL")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div> *@
+
+            <div class="section-title">CLASSROOM DEFICIENCY SUMMARY</div>
+
+            <div class="table-responsive">
+                <table class="modern-deficiency-table">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Course</th>
+                            <th>Required</th>
+                            <th>Available</th>
+                            <th>Deficiency</th>
+                            <th>Size Required<br><small>(sq.ft)</small></th>
+                            <th>Size Available<br><small>(sq.ft)</small></th>
+                            <th>Size Deficiency<br><small>(sq.ft)</small></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.ClassroomDetails.Count; i++)
+                        {
+                            var item = Model.ClassroomDetails[i];
+                            var roomDef = item.RequiredClassrooms - item.AvailableClassrooms;
+                            var sizeDef = item.RequiredTotalSize - item.AvailableSize;
+                            var hasDef = roomDef > 0 || sizeDef > 0;
+
+                            <tr class="@(hasDef ? "deficient-row" : "")">
+                                <td class="serial">@(i + 1)</td>
+                                <td class="course">@item.CourseName</td>
+                                <td>@item.RequiredClassrooms</td>
+                                <td>@item.AvailableClassrooms</td>
+                                <td class="def-cell @(roomDef > 0 ? "def-highlight" : "")">
+                                    @(roomDef > 0 ? roomDef.ToString() : "NIL")
+                                </td>
+                                <td>@item.RequiredTotalSize</td>
+                                <td>@item.AvailableSize</td>
+                                <td class="def-cell @(sizeDef > 0 ? "def-highlight" : "")">
+                                    @Html.Raw(sizeDef > 0 ? $"<strong>{sizeDef}</strong>" : "NIL")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        
+        <!-- LABORATORY DETAILS -->
+        <div class="section-title">LABORATORIES DETAILS</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sl.No.</th>
+                        <th>Laboratories</th>
+                        <th>No. of Labs as per norms</th>
+                        <th>Size in Sq.ft as per norms</th>
+                        <th>Size in Sq.ft Available</th>
+                        <th>No. of Mannequin/Simulator available</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.LaboratoryDetails.Count; i++)
+                        {
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>@Model.LaboratoryDetails[i].LaboratoryName</td>
+                                
+                                <td>@Model.LaboratoryDetails[i].RequiredLabs</td>
+                                <td>@Model.LaboratoryDetails[i].RequiredSize Sq.ft</td>
+
+                                <td>
+                                    <input asp-for="LaboratoryDetails[i].AvailableSize" class="form-control" />
+                                </td>
+
+                                <td>
+                                    <input asp-for="LaboratoryDetails[i].AvailableMannequin" class="form-control" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+            </table>
+        </div>
+
+
+           
+
+       <!-- LABORATORY DEFICIENCY SUMMARY -->
+            <div class="section-title">LABORATORY DEFICIENCY SUMMARY</div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sl.No.</th>
+                            <th>Laboratories</th>
+                            <th>Laboratory size required in Sq.ft</th>
+                            <th>Laboratory size available in Sq.ft</th>
+                            <th>Laboratory size deficiency in Sq.ft</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.LaboratoryDetails.Count; i++)
+                        {
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>@Model.LaboratoryDetails[i].LaboratoryName</td>
+                               
+                                <td>@Model.LaboratoryDetails[i].RequiredSize</td>
+
+                                <td>@Model.LaboratoryDetails[i].AvailableSize</td>
+                                <td>
+                                    @if (@Model.LaboratoryDetails[i].Deficiency > 0)
+                                    {
+                                        <strong>@Model.LaboratoryDetails[i].Deficiency</strong>
+                                    }
+                                    else
+                                    {
+                                        @:NIL
+                                    }
+                                </td>
+
+                                <input type="hidden" name="LaboratoryDetails[@i].LabID" value="@Model.LaboratoryDetails[i].LabID" />
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+
+                @* <div class="text-end mt-5">
+                    <button type="button" class="btn btn-back btn-nav"
+                            onclick="window.location.href='@Url.Action("Nursing_LandAndBuildingDetails", "NursingContinuesAffiliation")'">
+                        PREVIOUS
+                    </button>
+
+                    <button type="submit" class="btn btn-next btn-nav ms-3"
+                            onclick="window.location.href='@Url.Action("Nursing_EquipmentDetails", "NursingContinuesAffiliation")'">
+                        NEXT
+                    </button>
+                </div> *@
+
+            <div class="text-end mt-5">
+                <button type="button" class="btn btn-back btn-nav"
+                        onclick="window.location.href='@Url.Action("Nursing_LandAndBuildingDetails", "NursingContinuesAffiliation")'">
+                    PREVIOUS
+                </button>
+
+                <!-- Save submits the form to the server -->
+                <button type="submit" id="btnSave" class="btn btn-primary btn-nav ms-3">
+                    SAVE
+                </button>
+
+                <!-- Next just navigates, only allowed if saved -->
+                <button type="button" id="btnNext" class="btn btn-next btn-nav ms-3">
+                    NEXT
+                </button>
+            </div>
+
+ 
+             <!-- Continue Button -->
+            @* <div class="text-end mt-5">
+                <button class="btn-continue">Save & Continue</button>
+            </div> *@
+
+        </form>
+        
+
+    </div>
+</div>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    
+    window.formSaved = "@(ViewBag.FormSaved ?? "false")".toLowerCase();
+
+
+    @if (!string.IsNullOrEmpty((string)ViewBag.Success))
+    {
+            <text>
+            Swal.fire({
+                title: 'Saved',
+                text: '@ViewBag.Success',
+                icon: 'success',
+                confirmButtonColor: '#3085d6'
+            });
+            </text>
+    }
+
+ 
+    document.getElementById('btnNext').addEventListener('click', function () {
+
+        if (window.formSaved === "true") {
+           
+            window.location.href = '@Url.Action("Nursing_EquipmentDetails", "NursingContinuesAffiliation")';
+        } else {
+            
+            Swal.fire({
+                title: 'Please Save First',
+                text: 'You must save the details before going to the next section.',
+                icon: 'warning',
+                confirmButtonColor: '#3085d6'
+            });
+        }
+    });
+</script>

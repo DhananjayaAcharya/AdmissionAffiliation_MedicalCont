@@ -1,0 +1,753 @@
+﻿@model AcademicIntakePageViewModel1
+@{
+    ViewData["Title"] = "Academic Intake Data Submission";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container-xl py-5 position-relative">
+    <!-- Home / Dashboard Button - Top Right -->
+    <a href="@Url.Action("Dashboard", "CollegeLogin")"
+       class="btn btn-outline-secondary position-absolute top-0 end-0 mt-2 me-3 shadow-sm"
+       title="Go to College Dashboard">
+        <i class="bi bi-house-door-fill me-1"></i> Home / Dashboard
+    </a>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Success:</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Error:</strong> Please correct the errors below.
+            <ul class="mb-0 mt-2">
+                @foreach (var entry in ViewData.ModelState)
+                {
+                    foreach (var error in entry.Value.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form asp-action="AcademicIntakeData" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+        <input type="hidden" asp-for="CollegeName" />
+        <input type="hidden" asp-for="FacultyId" />
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs nav-fill mb-4 border-bottom-0" id="intakeTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold py-3" id="ug-tab" data-bs-toggle="tab" data-bs-target="#ug" type="button" role="tab" aria-selected="true">UG (Under Graduate)</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold py-3" id="pg-tab" data-bs-toggle="tab" data-bs-target="#pg" type="button" role="tab">PG (Post Graduate)</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold py-3" id="ss-tab" data-bs-toggle="tab" data-bs-target="#ss" type="button" role="tab">SS (Super Specialty)</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold py-3" id="saved-tab" data-bs-toggle="tab" data-bs-target="#saved" type="button" role="tab">Saved Records</button>
+            </li>
+        </ul>
+
+        <div class="tab-content border border-top-0 rounded-bottom shadow-sm mb-5" id="intakeTabContent">
+
+            <!-- UG Tab -->
+            <div class="tab-pane fade show active p-0" id="ug">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h5 class="mb-0 fw-bold">Under Graduate (UG) – Intake & Approval Details</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <h6 class="mb-0 fw-bold">Additional Courses</h6>
+                            <a asp-action="AddCourse" asp-controller="LatestMedicalAffiliation" class="btn btn-outline-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Add New Course
+                            </a>
+                        </div>
+
+                        @if (!Model.UgCourses.Any())
+                        {
+                            <div class="alert alert-info text-center py-4">
+                                No UG courses configured for this institution.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th rowspan="3" class="align-middle sticky-start border-end text-dark fw-bold"
+                                                style="min-width:160px; width:160px; background:#e9ecef; z-index:2;">
+                                                Course Name
+                                            </th>
+                                            <th colspan="1" class="text-center fw-bold" style="background:#f1f5f9; min-width:110px;">2024–25</th>
+                                            <th colspan="5" class="text-center fw-bold" style="background:#dbeafe; min-width:140px;">2025–26</th>
+                                            <th colspan="3" class="text-center fw-bold" style="background:#d4edda; min-width:140px;">2026–27</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center" style="background:#f1f5f9; min-width:110px;">Existing</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:140px;">Existing</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:160px;">LOP/NMC Increase Intake</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:140px;">Total</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:180px;">NMC Document</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:160px;">Date of LOP</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:140px;">Existing</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:160px;">Add. Course Requested</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:140px;">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.UgCourses.Count; i++)
+                                        {
+                                            var course = Model.UgCourses[i];
+                                            <tr>
+                                                <td class="sticky-start border-end fw-medium"
+                                                    style="min-width:160px; width:160px; background:#f8f9fa; z-index:1;">
+                                                    @Html.HiddenFor(m => m.UgCourses[i].CourseCode)
+                                                    @Html.HiddenFor(m => m.UgCourses[i].CourseName)
+                                                    @course.CourseName
+                                                </td>
+
+                                                <td class="text-end fw-bold" style="background:#f1f5f9; color:#495057; min-width:110px;">
+                                                    @Html.HiddenFor(m => m.UgCourses[i].AY2024_ExistingIntake)
+                                                    @Model.UgCourses[i].AY2024_ExistingIntake
+                                                </td>
+
+                                                <td class="text-end fw-bold" style="background:#eff6ff; color:#1e40af; min-width:140px;">
+                                                    @Html.HiddenFor(m => m.UgCourses[i].AY2025_ExistingIntake)
+                                                    @Model.UgCourses[i].AY2025_ExistingIntake
+                                                </td>
+
+                                                <td style="background:#eff6ff; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="UgCourses[i].AY2025_LopNmcIntake"
+                                                           class="form-control form-control-xs text-end lop-input"
+                                                           type="text"
+                                                           maxlength="3"
+                                                           inputmode="numeric"
+                                                           pattern="[0-9]*"
+                                                           data-row-index="@i" />
+                                                </td>
+
+                                                <td style="background:#eff6ff; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="UgCourses[i].AY2025_TotalIntake"
+                                                           class="form-control form-control-xs text-end readonly-total"
+                                                           readonly />
+                                                </td>
+
+                                                <td style="background:#eff6ff; min-width:180px; padding:0.4rem 0.5rem !important;">
+                                                    <div class="nmc-container position-relative" data-row-index="@i">
+                                                        <input type="file" name="UgCourses[@i].AY2025_NmcDocument"
+                                                               class="form-control form-control-xs nmc-file"
+                                                               accept=".pdf" />
+                                                        @if (!string.IsNullOrEmpty(course.AY2025_NmcDocumentUrl))
+                                                        {
+                                                            <div class="mt-1 small">
+                                                                <span class="badge bg-success">Uploaded</span>
+                                                                <a href="@course.AY2025_NmcDocumentUrl" target="_blank" class="ms-2 small">View</a>
+                                                            </div>
+                                                            <small class="text-muted d-block mt-1">Leave empty to keep current</small>
+                                                        }
+                                                        <div class="error-message mt-1 small fw-bold">NMC document required</div>
+                                                    </div>
+                                                </td>
+
+                                                <td style="background:#eff6ff; min-width:160px; padding:0.4rem 0.5rem !important;">
+                                                    <div class="date-container position-relative" data-row-index="@i">
+                                                        <input asp-for="UgCourses[i].AY2025_LopDate"
+                                                               class="form-control form-control-xs lop-date"
+                                                               type="date" />
+                                                        <div class="error-message mt-1 small fw-bold">LOP date required</div>
+                                                    </div>
+                                                </td>
+
+                                                <!-- 2026–27 Existing - carry forward from 2025–26 Total -->
+                                                <td class="text-end fw-bold" style="background:#e8f5e9; color:#155724; min-width:140px;">
+                                                    @Html.HiddenFor(m => m.UgCourses[i].AY2026_ExistingIntake)
+                                                    @Model.UgCourses[i].AY2026_ExistingIntake
+                                                </td>
+
+                                                <td style="background:#e8f5e9; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="UgCourses[i].AY2026_AddRequestedIntake"
+                                                           class="form-control form-control-xs text-end"
+                                                           type="text"
+                                                           maxlength="3"
+                                                           inputmode="numeric"
+                                                           pattern="[0-9]*" />
+                                                </td>
+
+                                                <td style="background:#e8f5e9; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="UgCourses[i].AY2026_TotalIntake"
+                                                           class="form-control form-control-xs text-end readonly-total"
+                                                           readonly />
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-light text-end py-3">
+                        <button type="submit" name="saveSection" value="UG" class="btn btn-primary px-5 fw-bold">
+                            <i class="bi bi-floppy me-2"></i> SAVE UG INTAKE
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG Tab -->
+            <div class="tab-pane fade p-0" id="pg">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white py-3">
+                        <h5 class="mb-0 fw-bold">Post Graduate (PG) – Intake & Approval Details</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <h6 class="mb-0 fw-bold">Additional Courses</h6>
+                            <a asp-action="AddCourse" asp-controller="LatestMedicalAffiliation" class="btn btn-outline-success">
+                                <i class="bi bi-plus-circle me-1"></i> Add New Course
+                            </a>
+                        </div>
+
+                        @if (!Model.PgCourses.Any())
+                        {
+                            <div class="alert alert-info text-center py-4">
+                                No PG courses configured for this institution.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th rowspan="3" class="align-middle sticky-start border-end text-dark fw-bold"
+                                                style="min-width:160px; width:160px; background:#e9ecef; z-index:2;">
+                                                Course Name
+                                            </th>
+                                            <th colspan="1" class="text-center fw-bold" style="background:#f1f5f9; min-width:110px;">2024–25</th>
+                                            <th colspan="5" class="text-center fw-bold" style="background:#dbeafe; min-width:140px;">2025–26</th>
+                                            <th colspan="3" class="text-center fw-bold" style="background:#d4edda; min-width:140px;">2026–27</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center" style="background:#f1f5f9; min-width:110px;">Existing</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:140px;">Existing</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:160px;">LOP/NMC Increase Intake</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:140px;">Total</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:180px;">NMC Document</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:160px;">Date of LOP</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:140px;">Existing</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:160px;">Add. Course Requested</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:140px;">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.PgCourses.Count; i++)
+                                        {
+                                            var course = Model.PgCourses[i];
+                                            <tr>
+                                                <td class="sticky-start border-end fw-medium"
+                                                    style="min-width:160px; width:160px; background:#f8f9fa; z-index:1;">
+                                                    @Html.HiddenFor(m => m.PgCourses[i].CourseCode)
+                                                    @Html.HiddenFor(m => m.PgCourses[i].CourseName)
+                                                    @course.CourseName
+                                                </td>
+
+                                                <td class="text-end fw-bold" style="background:#f1f5f9; color:#495057; min-width:110px;">
+                                                    @Html.HiddenFor(m => m.PgCourses[i].AY2024_ExistingIntake)
+                                                    @Model.PgCourses[i].AY2024_ExistingIntake
+                                                </td>
+
+                                                <td class="text-end fw-bold" style="background:#eff6ff; color:#1e40af; min-width:140px;">
+                                                    @Html.HiddenFor(m => m.PgCourses[i].AY2025_ExistingIntake)
+                                                    @Model.PgCourses[i].AY2025_ExistingIntake
+                                                </td>
+
+                                                <td style="background:#eff6ff; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="PgCourses[i].AY2025_LopNmcIntake"
+                                                           class="form-control form-control-xs text-end lop-input"
+                                                           type="text"
+                                                           maxlength="3"
+                                                           inputmode="numeric"
+                                                           pattern="[0-9]*"
+                                                           data-row-index="@i" />
+                                                </td>
+
+                                                <td style="background:#eff6ff; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="PgCourses[i].AY2025_TotalIntake"
+                                                           class="form-control form-control-xs text-end readonly-total"
+                                                           readonly />
+                                                </td>
+
+                                                <td style="background:#eff6ff; min-width:180px; padding:0.4rem 0.5rem !important;">
+                                                    <div class="nmc-container position-relative" data-row-index="@i">
+                                                        <input type="file" name="PgCourses[@i].AY2025_NmcDocument"
+                                                               class="form-control form-control-xs nmc-file"
+                                                               accept=".pdf" />
+                                                        @if (!string.IsNullOrEmpty(course.AY2025_NmcDocumentUrl))
+                                                        {
+                                                            <div class="mt-1 small">
+                                                                <span class="badge bg-success">Uploaded</span>
+                                                                <a href="@course.AY2025_NmcDocumentUrl" target="_blank" class="ms-2 small">View</a>
+                                                            </div>
+                                                            <small class="text-muted d-block mt-1">Leave empty to keep current</small>
+                                                        }
+                                                        else
+                                                        {
+                                                            <small class="text-muted d-block mt-1">Required if increase > 0</small>
+                                                        }
+                                                        <div class="error-message mt-1 small fw-bold">NMC document required</div>
+                                                    </div>
+                                                </td>
+
+                                                <td style="background:#eff6ff; min-width:160px; padding:0.4rem 0.5rem !important;">
+                                                    <div class="date-container position-relative" data-row-index="@i">
+                                                        <input asp-for="PgCourses[i].AY2025_LopDate"
+                                                               class="form-control form-control-xs lop-date"
+                                                               type="date" />
+                                                        <div class="error-message mt-1 small fw-bold">LOP date required</div>
+                                                    </div>
+                                                </td>
+
+                                                <td class="text-end fw-bold" style="background:#e8f5e9; color:#155724; min-width:140px;">
+                                                    @Html.HiddenFor(m => m.PgCourses[i].AY2026_ExistingIntake)
+                                                    @Model.PgCourses[i].AY2026_ExistingIntake
+                                                </td>
+
+                                                <td style="background:#e8f5e9; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="PgCourses[i].AY2026_AddRequestedIntake"
+                                                           class="form-control form-control-xs text-end"
+                                                           type="text"
+                                                           maxlength="3"
+                                                           inputmode="numeric"
+                                                           pattern="[0-9]*" />
+                                                </td>
+
+                                                <td style="background:#e8f5e9; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="PgCourses[i].AY2026_TotalIntake"
+                                                           class="form-control form-control-xs text-end readonly-total"
+                                                           readonly />
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-light text-end py-3">
+                        <button type="submit" name="saveSection" value="PG" class="btn btn-success px-5 fw-bold">
+                            <i class="bi bi-floppy me-2"></i> SAVE PG INTAKE
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SS Tab -->
+            <div class="tab-pane fade p-0" id="ss">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-info text-white py-3">
+                        <h5 class="mb-0 fw-bold">Super Specialty (SS) – Intake & Approval Details</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <h6 class="mb-0 fw-bold">Additional Courses</h6>
+                            <a asp-action="AddCourse" asp-controller="LatestMedicalAffiliation" class="btn btn-outline-info">
+                                <i class="bi bi-plus-circle me-1"></i> Add New Course
+                            </a>
+                        </div>
+
+                        @if (!Model.SsCourses.Any())
+                        {
+                            <div class="alert alert-info text-center py-4">
+                                No Super Specialty courses configured for this institution.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th rowspan="3" class="align-middle sticky-start border-end text-dark fw-bold"
+                                                style="min-width:160px; width:160px; background:#e9ecef; z-index:2;">
+                                                Course Name
+                                            </th>
+                                            <th colspan="1" class="text-center fw-bold" style="background:#f1f5f9; min-width:110px;">2024–25</th>
+                                            <th colspan="5" class="text-center fw-bold" style="background:#dbeafe; min-width:140px;">2025–26</th>
+                                            <th colspan="3" class="text-center fw-bold" style="background:#d4edda; min-width:140px;">2026–27</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center" style="background:#f1f5f9; min-width:110px;">Existing</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:140px;">Existing</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:160px;">LOP/NMC Increase Intake</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:140px;">Total</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:180px;">NMC Document</th>
+                                            <th class="text-center" style="background:#dbeafe; min-width:160px;">Date of LOP</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:140px;">Existing</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:160px;">Add. Course Requested</th>
+                                            <th class="text-center" style="background:#d4edda; min-width:140px;">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.SsCourses.Count; i++)
+                                        {
+                                            var course = Model.SsCourses[i];
+                                            <tr>
+                                                <td class="sticky-start border-end fw-medium"
+                                                    style="min-width:160px; width:160px; background:#f8f9fa; z-index:1;">
+                                                    @Html.HiddenFor(m => m.SsCourses[i].CourseCode)
+                                                    @Html.HiddenFor(m => m.SsCourses[i].CourseName)
+                                                    @course.CourseName
+                                                </td>
+
+                                                <td class="text-end fw-bold" style="background:#f1f5f9; color:#495057; min-width:110px;">
+                                                    @Html.HiddenFor(m => m.SsCourses[i].AY2024_ExistingIntake)
+                                                    @Model.SsCourses[i].AY2024_ExistingIntake
+                                                </td>
+
+                                                <td class="text-end fw-bold" style="background:#eff6ff; color:#1e40af; min-width:140px;">
+                                                    @Html.HiddenFor(m => m.SsCourses[i].AY2025_ExistingIntake)
+                                                    @Model.SsCourses[i].AY2025_ExistingIntake
+                                                </td>
+
+                                                <td style="background:#eff6ff; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="SsCourses[i].AY2025_LopNmcIntake"
+                                                           class="form-control form-control-xs text-end lop-input"
+                                                           type="text"
+                                                           maxlength="3"
+                                                           inputmode="numeric"
+                                                           pattern="[0-9]*"
+                                                           data-row-index="@i" />
+                                                </td>
+
+                                                <td style="background:#eff6ff; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="SsCourses[i].AY2025_TotalIntake"
+                                                           class="form-control form-control-xs text-end readonly-total"
+                                                           readonly />
+                                                </td>
+
+                                                <td style="background:#eff6ff; min-width:180px; padding:0.4rem 0.5rem !important;">
+                                                    <div class="nmc-container position-relative" data-row-index="@i">
+                                                        <input type="file" name="SsCourses[@i].AY2025_NmcDocument"
+                                                               class="form-control form-control-xs nmc-file"
+                                                               accept=".pdf" />
+                                                        @if (!string.IsNullOrEmpty(course.AY2025_NmcDocumentUrl))
+                                                        {
+                                                            <div class="mt-1 small">
+                                                                <span class="badge bg-success">Uploaded</span>
+                                                                <a href="@course.AY2025_NmcDocumentUrl" target="_blank" class="ms-2 small">View</a>
+                                                            </div>
+                                                            <small class="text-muted d-block mt-1">Leave empty to keep current</small>
+                                                        }
+                                                        else
+                                                        {
+                                                            <small class="text-muted d-block mt-1">Required if increase > 0</small>
+                                                        }
+                                                        <div class="error-message mt-1 small fw-bold">NMC document required</div>
+                                                    </div>
+                                                </td>
+
+                                                <td style="background:#eff6ff; min-width:160px; padding:0.4rem 0.5rem !important;">
+                                                    <div class="date-container position-relative" data-row-index="@i">
+                                                        <input asp-for="SsCourses[i].AY2025_LopDate"
+                                                               class="form-control form-control-xs lop-date"
+                                                               type="date" />
+                                                        <div class="error-message mt-1 small fw-bold">LOP date required</div>
+                                                    </div>
+                                                </td>
+
+                                                <td class="text-end fw-bold" style="background:#e8f5e9; color:#155724; min-width:140px;">
+                                                    @Html.HiddenFor(m => m.SsCourses[i].AY2026_ExistingIntake)
+                                                    @Model.SsCourses[i].AY2026_ExistingIntake
+                                                </td>
+
+                                                <td style="background:#e8f5e9; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="SsCourses[i].AY2026_AddRequestedIntake"
+                                                           class="form-control form-control-xs text-end"
+                                                           type="text"
+                                                           maxlength="3"
+                                                           inputmode="numeric"
+                                                           pattern="[0-9]*" />
+                                                </td>
+
+                                                <td style="background:#e8f5e9; padding:0.4rem 0.5rem !important;">
+                                                    <input asp-for="SsCourses[i].AY2026_TotalIntake"
+                                                           class="form-control form-control-xs text-end readonly-total"
+                                                           readonly />
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-light text-end py-3">
+                        <button type="submit" name="saveSection" value="SS" class="btn btn-info px-5 fw-bold text-white">
+                            <i class="bi bi-floppy me-2"></i> SAVE SS INTAKE
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Records Tab -->
+            <div class="tab-pane fade p-4" id="saved">
+                <div class="card border border-dark border-2 shadow">
+                    <div class="card-header bg-secondary text-white py-3">
+                        <h5 class="mb-0 fw-bold">Previously Saved Intake Records</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (!Model.SavedIntakes.Any())
+                        {
+                            <div class="alert alert-info text-center py-4">
+                                No previously saved intake records found.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Sl No.</th>
+                                            <th>Level</th>
+                                            <th>Course Name</th>
+                                            <th class="text-end">AY 2025-26 Total</th>
+                                            <th class="text-end">AY 2026-27 Total</th>
+                                            <th>NMC Doc</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.SavedIntakes.Count; i++)
+                                        {
+                                            var item = Model.SavedIntakes[i];
+                                            <tr>
+                                                <td>@(i + 1)</td>
+                                                <td>@item.CourseLevel</td>
+                                                <td>@item.CourseName</td>
+                                                <td class="text-end">@item.AY2025_TotalIntake</td>
+                                                <td class="text-end">@item.AY2026_TotalIntake</td>
+                                                <td>
+                                                    @if (item.HasNmcDocument)
+                                                    {
+                                                        <span class="badge bg-success">Yes</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">No</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        .form-control-xs {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.25;
+            border-radius: 0.25rem;
+            height: calc(1.25rem + 0.5rem + 2px);
+        }
+
+            .form-control-xs.text-end {
+                padding-right: 0.6rem;
+            }
+
+        input.form-control-xs {
+            width: 100%;
+            min-width: 60px;
+            max-width: 100%;
+        }
+
+        .readonly-total {
+            background-color: #f0f9ff !important;
+            font-weight: 700 !important;
+            color: #1d4ed8 !important;
+            border: 2px solid #93c5fd !important;
+            pointer-events: none;
+        }
+
+        .sticky-start {
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            background-color: inherit;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9 !important;
+        }
+
+        .form-control-xs:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.78rem;
+            display: none;
+            margin-top: 3px;
+        }
+
+        .field-error {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5 !important;
+        }
+
+        .row-invalid .error-message {
+            display: block;
+        }
+    </style>
+
+    <script>
+        function updateRow(row) {
+            // ──────────────────────────────
+            // 2025–26 calculation
+            // ──────────────────────────────
+            const ex2025Hidden = row.querySelector('input[name$=".AY2025_ExistingIntake"]');
+            const ex2025 = parseInt(ex2025Hidden?.value || '0', 10);
+
+            const lopInput = row.querySelector('.lop-input');
+            const lop = parseInt(lopInput?.value || '0', 10);
+
+            const total2025 = ex2025 + lop;
+            row.querySelector('input[name$=".AY2025_TotalIntake"]').value = total2025;
+
+            // ──────────────────────────────
+            // 2026–27 Existing = 2025–26 Total  (automatic carry forward)
+            // ──────────────────────────────
+            const ex2026Hidden = row.querySelector('input[name$=".AY2026_ExistingIntake"]');
+            const ex2026Display = row.cells[7]; // column index of 2026 Existing display
+
+            if (ex2026Hidden) {
+                ex2026Hidden.value = total2025;
+            }
+            if (ex2026Display) {
+                ex2026Display.textContent = total2025;
+            }
+
+            // ──────────────────────────────
+            // 2026–27 Total
+            // ──────────────────────────────
+            const add2026Input = row.querySelector('input[name$=".AY2026_AddRequestedIntake"]');
+            const add2026 = parseInt(add2026Input?.value || '0', 10);
+
+            const total2026 = total2025 + add2026;
+            row.querySelector('input[name$=".AY2026_TotalIntake"]').value = total2026;
+
+            // Validation logic (required fields when increase > 0)
+            validateRequiredFields(row, lop > 0);
+        }
+
+        function validateRequiredFields(row, hasIncrease) {
+            const fileInput = row.querySelector('input[type="file"]');
+            const dateInput = row.querySelector('input[type="date"]');
+            const nmcContainer = fileInput?.closest('.nmc-container');
+            const dateContainer = dateInput?.closest('.date-container');
+
+            if (!fileInput || !dateInput) return;
+
+            if (hasIncrease) {
+                fileInput.required = true;
+                dateInput.required = true;
+
+                const fileValid = fileInput.files?.length > 0 || !!fileInput.dataset.hasPrevious;
+                if (!fileValid) {
+                    fileInput.classList.add('field-error');
+                    nmcContainer?.classList.add('row-invalid');
+                } else {
+                    fileInput.classList.remove('field-error');
+                    nmcContainer?.classList.remove('row-invalid');
+                }
+
+                if (!dateInput.value) {
+                    dateInput.classList.add('field-error');
+                    dateContainer?.classList.add('row-invalid');
+                } else {
+                    dateInput.classList.remove('field-error');
+                    dateContainer?.classList.remove('row-invalid');
+                }
+            } else {
+                fileInput.required = false;
+                dateInput.required = false;
+                fileInput.classList.remove('field-error');
+                dateInput.classList.remove('field-error');
+                nmcContainer?.classList.remove('row-invalid');
+                dateContainer?.classList.remove('row-invalid');
+            }
+        }
+
+        let debounceTimer;
+        document.addEventListener('input', e => {
+            const input = e.target;
+            if (!input.closest('tbody')) return;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const row = input.closest('tr');
+                if (row) updateRow(row);
+            }, 180);
+        }, true);
+
+        document.querySelector('form')?.addEventListener('submit', e => {
+            let hasError = false;
+            document.querySelectorAll('tbody tr').forEach(row => {
+                const lopVal = parseInt(row.querySelector('.lop-input')?.value || '0', 10);
+                if (lopVal > 0) {
+                    const fileInput = row.querySelector('input[type="file"]');
+                    const dateInput = row.querySelector('input[type="date"]');
+                    if (fileInput && !fileInput.files?.length && !fileInput.dataset.hasPrevious) {
+                        hasError = true;
+                        fileInput.classList.add('field-error');
+                        fileInput.closest('.nmc-container')?.classList.add('row-invalid');
+                    }
+                    if (dateInput && !dateInput.value) {
+                        hasError = true;
+                        dateInput.classList.add('field-error');
+                        dateInput.closest('.date-container')?.classList.add('row-invalid');
+                    }
+                }
+            });
+
+            if (hasError) {
+                e.preventDefault();
+                alert('Please upload NMC document and select LOP date where LOP/NMC Increase Intake > 0.');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('tbody tr').forEach(row => {
+                updateRow(row);
+            });
+        });
+    </script>
+}

@@ -1,0 +1,68 @@
+﻿@model Medical_Affiliation.Models.NursingAffiliationViewModel
+
+@{
+    ViewData["Title"] = "Nursing Affiliation";
+}
+
+<h2>Nursing Affiliation</h2>
+
+<form asp-action="NursingAffiliation" asp-controller="NursingContinuesAffiliation" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div class="card mb-3">
+        <div class="card-header">Nursing Institute Details</div>
+        <div class="card-body">
+            @{
+                var vd1 = new ViewDataDictionary(ViewData);
+                vd1.TemplateInfo.HtmlFieldPrefix = "NursingInstituteDetails";
+            }
+            @await Html.PartialAsync("_Nursing_Institute_Details", Model.NursingInstituteDetails, vd1)
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">Institution Details</div>
+        <div class="card-body">
+            @{
+                var vd2 = new ViewDataDictionary(ViewData);
+                vd2.TemplateInfo.HtmlFieldPrefix = "InstituteDetails";
+            }
+            @await Html.PartialAsync("_InstituteDetails", Model.InstituteDetails, vd2)
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">Trust Member Details</div>
+        <div class="card-body">
+            @{
+                var vd3 = new ViewDataDictionary(ViewData);
+                vd3.TemplateInfo.HtmlFieldPrefix = "TrustMemberDetails";
+            }
+            @await Html.PartialAsync("_TrustMemberDetails", Model.TrustMemberDetails, vd3)
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">Course Details</div>
+        <div class="card-body">
+            @{
+                var vd4 = new ViewDataDictionary(ViewData);
+                vd4.TemplateInfo.HtmlFieldPrefix = "AffCourseDetails";
+            }
+            @await Html.PartialAsync("_AffCourseDetails", Model.AffCourseDetails, vd4)
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">Sanctioned Intake</div>
+        <div class="card-body">
+            @{
+                var vd5 = new ViewDataDictionary(ViewData);
+                vd5.TemplateInfo.HtmlFieldPrefix = "AffSanIntake";
+            }
+            @await Html.PartialAsync("_Aff_SanIntake", Model.AffSanIntake, vd5)
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save All</button>
+</form>

@@ -1,0 +1,909 @@
+﻿@model SidebarViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var isSubmitDisplayString = HttpContextAccessor.HttpContext.Session.GetString("IsSubmitDisplay");
+    var ugCourse = HttpContextAccessor.HttpContext.Session.GetString("UgCourse");
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var collegecode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
+    bool isSubmitDisplay = false;
+    var showNodalOfficer = HttpContextAccessor.HttpContext.Session.GetString("ShowNodalOfficer");
+    var showIntakeDetails = HttpContextAccessor.HttpContext.Session.GetString("ShowIntakeDetails");
+    var showRepository = HttpContextAccessor.HttpContext.Session.GetString("ShowRepository");
+    var sidebarActionMethod = HttpContextAccessor.HttpContext.Session.GetString("sidebarActionMethod");
+    var sidebarController = HttpContextAccessor.HttpContext.Session.GetString("sidebarController");
+
+    if (!string.IsNullOrEmpty(isSubmitDisplayString))
+    {
+        bool.TryParse(isSubmitDisplayString, out isSubmitDisplay);
+    }
+
+    // Helper to check active link (optional improvement)
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<style>
+    :root {
+        --sidebar-bg: #0f1e3a; /* deep navy */
+        --sidebar-accent: #097969; /* teal accent */
+        --sidebar-text: #e0f0ff;
+        --sidebar-hover: #1a355c;
+        --sidebar-active: #097969;
+        --sidebar-border: rgba(255,255,255,0.08);
+        --header-height-lg: 15vh;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: var(--header-height, 100px);
+        left: 0;
+        width: 280px;
+        height: calc(100vh - var(--header-height));
+        background: var(--sidebar-bg);
+        color: var(--sidebar-text);
+        box-shadow: 2px 0 20px rgba(0,0,0,0.35);
+        padding: 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        z-index: 900;
+        overflow-y: auto;
+        border-right: 1px solid var(--sidebar-border);
+        transition: width 0.3s ease;
+    }
+
+    .sidebar-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.2rem;
+        border-bottom: 1px solid var(--sidebar-border);
+    }
+
+        .sidebar-header h4 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 0;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-item {
+        margin-bottom: 0.35rem;
+    }
+
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        padding: 0.85rem 1.2rem;
+        color: var(--sidebar-text);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.98rem;
+        transition: all 0.25s ease;
+    }
+
+        .sidebar-link i {
+            margin-right: 12px;
+            font-size: 1.15rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-link:hover {
+            background: var(--sidebar-hover);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .sidebar-link.active {
+            background: var(--sidebar-active);
+            color: white;
+            font-weight: 600;
+        }
+
+    .sidebar-footer {
+        margin-top: auto;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar-btn-password {
+        width: 100%;
+        background: rgba(9,121,105,0.15);
+        border: 1px solid var(--sidebar-accent);
+        color: var(--sidebar-accent);
+        font-weight: 600;
+        padding: 0.75rem;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+        .sidebar-btn-password:hover {
+            background: var(--sidebar-accent);
+            color: white;
+        }
+
+    /* Mobile / responsive */
+    @@media (max-width: 991px) {
+        .sidebar {
+            position: relative;
+            width: 100%;
+            height: auto;
+            top: 0;
+            left: 0;
+            box-shadow: none;
+            border-right: none;
+            border-bottom: 1px solid var(--sidebar-border);
+            padding: 1.2rem;
+        }
+    }
+
+    @@media (max-width: 1200px) {
+        .sidebar {
+            width: 240px;
+        }
+
+        .sidebar-link {
+            font-size: 0.95rem;
+            padding: 0.75rem 1rem;
+        }
+    }
+
+    @@media (min-width: 1024px) {
+        .sidebar {
+            height: calc(100vh - var(--header-height-lg));
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar{
+            display: none;
+        }
+    }
+
+    .sidebar .dropdown-menu {
+        position: static !important;
+        display: block;
+        margin-left: 10px;
+        background: transparent;
+        border: none;
+    }
+
+    .sidebar .dropdown-item {
+        color: #e0f0ff;
+        padding-left: 20px;
+    }
+
+        .sidebar .dropdown-item:hover {
+            background: #1a355c;
+        }
+
+    .d-none {
+        display: none !important;
+    }
+
+    splay: none;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(Model.FacultyCode))
+{
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h4>College Dashboard</h4>
+        </div>
+
+        <ul class="sidebar-menu">
+            @if (facultyCode == "1")
+            {
+                <li class="sidebar-item">
+                    <a asp-controller="AcademicIntake" asp-action="AcademicIntakeData"
+                       class="sidebar-link @(currentController == "AcademicIntake" ? "active" : "")">
+                        <i class="bi bi-journal-text"></i>
+                        Application for Affiliation 2026-27
+                    </a>
+                </li>
+            }
+            @if (facultyCode == "1")
+            {
+                <li class="sidebar-item">
+                    <a asp-controller="ContinuousAffiliationIncreaseintake" asp-action="IncreaseIntake"
+                       class="sidebar-link @(currentController == "AcademicIntake" ? "active" : "")">
+                        <i class="bi bi-journal-text"></i>
+                        Application for Increase Intake
+                    </a>
+                </li>
+            }
+
+            @if (facultyCode == "1")
+            {
+                <li class="sidebar-item">
+                    <a class="sidebar-link"
+                       href="#"
+                       onclick="toggleMenu(event, 'mainMenu')">
+                        <i class="bi bi-journal-text"></i>
+                        Continuous Affiliation ▾
+                    </a>
+
+                    <!-- MAIN MENU -->
+                    <ul class="dropdown-menu d-none" id="mainMenu">
+
+                        <!-- ================= UG ================= -->
+                        <li>
+                            <a class="dropdown-item"
+                               href="#"
+                               onclick="toggleMenu(event, 'ugMenu')">
+                                UG ▸
+                            </a>
+
+                            <!-- UG MENU -->
+                            <ul class="dropdown-menu d-none" id="ugMenu">
+
+                                <!-- BASIC DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="UG"
+                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                       asp-route-redirectAction="Institution_Details">
+                                        BASIC DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- ================= PHYSICAL FACILITIES ================= -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       href="#"
+                                       onclick="toggleMenu(event, 'physicalMenu')">
+                                        PHYSICAL FACILITIES DETAILS ▸
+                                    </a>
+
+                                    <ul class="dropdown-menu d-none" id="physicalMenu">
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="UG"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_LandBuildingdetails">
+                                                LAND AND BUILDING DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="UG"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_SkillsLaboratory">
+                                                CLASSROOM AND LABORATORY DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="UG"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_EquimentDetails">
+                                                EQUIPMENT DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="UG"
+                                               asp-route-redirectController="CA_Med_ResearchPublications"
+                                               asp-route-redirectAction="CA_Med_ResearchPublicationsDetails">
+                                                LIBRARY DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="UG"
+                                               asp-route-redirectController="Aff_AHS_ContinousApplication"
+                                               asp-route-redirectAction="CA_VehicleDetails">
+                                                VEHICLE DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="UG"
+                                               asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                               asp-route-redirectAction="Administrative_teachingBlock">
+                                                ADMINISTRATIVE DETAILS
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+
+                                <!-- CLINICAL FACILITIES -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="UG"
+                                       asp-route-redirectController="ContinuationAffiliationClinicalFacilities"
+                                       asp-route-redirectAction="ClinicalFacilities">
+                                        CLINICAL FACILITIES
+                                    </a>
+                                </li>
+
+                                <!-- FACULTY DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="UG"
+                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                       asp-route-redirectAction="aff_FacultyDetails">
+                                        FACULTY DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- ACADEMIC MATTERS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="UG"
+                                       asp-route-redirectController="CA_Aff_AcademicMatters"
+                                       asp-route-redirectAction="AcademicMatters">
+                                        ACADEMIC MATTERS
+                                    </a>
+                                </li>
+
+                                <!-- FINANCIAL DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="UG"
+                                       asp-route-redirectController="Aff_CA_Med_FinanceDetails"
+                                       asp-route-redirectAction="Med_CA_AccountAndFeeDetails">
+                                        FINANCIAL DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- SS COURSES APPLIED -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="UG"
+                                       asp-route-redirectController="Aff_CA_SS_CoursesApplied"
+                                       asp-route-redirectAction="CA_SS_CoursesApplied">
+                                        SS COURSES APPLIED
+                                    </a>
+                                </li>
+
+                                <!-- PAYMENT -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Payment"
+                                       asp-action="Index">
+                                        PAYMENT DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- DECLARATION -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Declaration"
+                                       asp-action="Index">
+                                        DECLARATION
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                        <!-- ================= PG ================= -->
+                        <li>
+                            <a class="dropdown-item"
+                               href="#"
+                               onclick="toggleMenu(event, 'pgMenu')">
+                                PG ▸
+                            </a>
+
+                            <!-- PG MENU -->
+                            <ul class="dropdown-menu d-none" id="pgMenu">
+
+                                <!-- BASIC DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="PG"
+                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                       asp-route-redirectAction="Institution_Details">
+                                        BASIC DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- ================= PHYSICAL FACILITIES ================= -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       href="#"
+                                       onclick="toggleMenu(event, 'physicalMenu')">
+                                        PHYSICAL FACILITIES DETAILS ▸
+                                    </a>
+
+                                    <ul class="dropdown-menu d-none" id="physicalMenu">
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="PG"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_LandBuildingdetails">
+                                                LAND AND BUILDING DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="PG"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_SkillsLaboratory">
+                                                CLASSROOM AND LABORATORY DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="PG"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_EquimentDetails">
+                                                EQUIPMENT DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="PG"
+                                               asp-route-redirectController="CA_Med_ResearchPublications"
+                                               asp-route-redirectAction="CA_Med_ResearchPublicationsDetails">
+                                                LIBRARY DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="PG"
+                                               asp-route-redirectController="Aff_AHS_ContinousApplication"
+                                               asp-route-redirectAction="CA_VehicleDetails">
+                                                VEHICLE DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="PG"
+                                               asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                               asp-route-redirectAction="Administrative_teachingBlock">
+                                                ADMINISTRATIVE DETAILS
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+
+                                <!-- CLINICAL FACILITIES -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="PG"
+                                       asp-route-redirectController="ContinuationAffiliationClinicalFacilities"
+                                       asp-route-redirectAction="ClinicalFacilities">
+                                        CLINICAL FACILITIES
+                                    </a>
+                                </li>
+
+                                <!-- FACULTY DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="PG"
+                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                       asp-route-redirectAction="aff_FacultyDetails">
+                                        FACULTY DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- ACADEMIC MATTERS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="PG"
+                                       asp-route-redirectController="CA_Aff_AcademicMatters"
+                                       asp-route-redirectAction="AcademicMatters">
+                                        ACADEMIC MATTERS
+                                    </a>
+                                </li>
+
+                                <!-- FINANCIAL DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="PG"
+                                       asp-route-redirectController="Aff_CA_Med_FinanceDetails"
+                                       asp-route-redirectAction="Med_CA_AccountAndFeeDetails">
+                                        FINANCIAL DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- SS COURSES APPLIED -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="PG"
+                                       asp-route-redirectController="Aff_CA_SS_CoursesApplied"
+                                       asp-route-redirectAction="CA_SS_CoursesApplied">
+                                        SS COURSES APPLIED
+                                    </a>
+                                </li>
+
+                                <!-- PAYMENT -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Payment"
+                                       asp-action="Index">
+                                        PAYMENT DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- DECLARATION -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Declaration"
+                                       asp-action="Index">
+                                        DECLARATION
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                        <!-- ================= SS ================= -->
+                        
+                        <li>
+                            <a class="dropdown-item"
+                               href="#"
+                               onclick="toggleMenu(event, 'ssMenu')">
+                                SS ▸
+                            </a>
+
+                            <!-- SS MENU -->
+                            <ul class="dropdown-menu d-none" id="ssMenu">
+
+                                <!-- BASIC DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="SS"
+                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                       asp-route-redirectAction="Institution_Details">
+                                        BASIC DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- ================= PHYSICAL FACILITIES ================= -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       href="#"
+                                       onclick="toggleMenu(event, 'ssphysicalMenu')">
+                                        PHYSICAL FACILITIES DETAILS ▸
+                                    </a>
+
+                                    <ul class="dropdown-menu d-none" id="ssphysicalMenu">
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="SS"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_LandBuildingdetails">
+                                                LAND AND BUILDING DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="SS"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_SkillsLaboratory">
+                                                CLASSROOM AND LABORATORY DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="SS"
+                                               asp-route-redirectController="Medical_ContinuousAffiliation"
+                                               asp-route-redirectAction="Medical_EquimentDetails">
+                                                EQUIPMENT DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="SS"
+                                               asp-route-redirectController="CA_Med_ResearchPublications"
+                                               asp-route-redirectAction="CA_Med_ResearchPublicationsDetails">
+                                                LIBRARY DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="SS"
+                                               asp-route-redirectController="Aff_AHS_ContinousApplication"
+                                               asp-route-redirectAction="CA_VehicleDetails">
+                                                VEHICLE DETAILS
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Home"
+                                               asp-action="SetCourseLevel"
+                                               asp-route-courseLevel="SS"
+                                               asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                               asp-route-redirectAction="Administrative_teachingBlock">
+                                                ADMINISTRATIVE DETAILS
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+
+                                <!-- CLINICAL FACILITIES -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="SS"
+                                       asp-route-redirectController="ContinuationAffiliationClinicalFacilities"
+                                       asp-route-redirectAction="ClinicalFacilities">
+                                        CLINICAL FACILITIES
+                                    </a>
+                                </li>
+
+                                <!-- FACULTY DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="SS"
+                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
+                                       asp-route-redirectAction="aff_FacultyDetails">
+                                        FACULTY DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- ACADEMIC MATTERS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="SS"
+                                       asp-route-redirectController="CA_Aff_AcademicMatters"
+                                       asp-route-redirectAction="AcademicMatters">
+                                        ACADEMIC MATTERS
+                                    </a>
+                                </li>
+
+                                <!-- FINANCIAL DETAILS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="SS"
+                                       asp-route-redirectController="Aff_CA_Med_FinanceDetails"
+                                       asp-route-redirectAction="Med_CA_AccountAndFeeDetails">
+                                        FINANCIAL DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- SS COURSES APPLIED -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Home"
+                                       asp-action="SetCourseLevel"
+                                       asp-route-courseLevel="SS"
+                                       asp-route-redirectController="Aff_CA_SS_CoursesApplied"
+                                       asp-route-redirectAction="CA_SS_CoursesApplied">
+                                        SS COURSES APPLIED
+                                    </a>
+                                </li>
+
+                                <!-- PAYMENT -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Payment"
+                                       asp-action="Index">
+                                        PAYMENT DETAILS
+                                    </a>
+                                </li>
+
+                                <!-- DECLARATION -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Declaration"
+                                       asp-action="Index">
+                                        DECLARATION
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                    </ul>
+                </li>
+            }
+
+            @if (facultyCode == "12")
+            {
+                <li class="sidebar-item">
+                    <a asp-controller="Fellowship" asp-action="FellowshipMedical_Details"
+                       class="sidebar-link @(currentController == "Fellowship" ? "active" : "")">
+                        <i class="bi bi-mortarboard"></i>
+                        Fellowship Application
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a asp-controller="Fellowship" asp-action="AcceptedRejectedDashboard"
+                       class="sidebar-link">
+                        <i class="bi bi-check2-circle"></i>
+                        Approved / Rejected Applications
+                    </a>
+                </li>
+            }
+
+            <li class="sidebar-item">
+                <a asp-controller="CollegeBasicDetails" asp-action="Institution_Details"
+                   class="sidebar-link @(currentController == "CollegeBasicDetails" ? "active" : "")">
+                    <i class="bi bi-building"></i>
+                    College Basic Details
+                </a>
+            </li>
+
+            <!-- Digital Repository – shown conditionally based on faculty -->
+            @{
+                var repoLinks = new Dictionary<string, (string Controller, string Action, string Text)>
+                {
+                {"1", ("MedicalRepository", "Medical_BasicDetails", "Medical")},
+                {"2", ("Aff_Dental", "Dental_BasicDetails", "Dental")},
+                {"3", ("Aff_Nursing", "Nursing_BasicDetails", "Nursing")},
+                {"4", ("AyurvedhaRepository", "Ayurvedha_BasicDetails", "Ayurveda")},
+                {"5", ("Aff_Homeopathy", "Homeopathy_BasicDetails", "Homeopathy")},
+                {"7", ("Aff_Unani", "Unani_BasicDetails", "Unani")},
+                {"8", ("Aff_Pharmacy", "Pharmacy_BasicDetails", "Pharmacy")},
+                {"9", ("Aff_AHS", "AHS_BasicDetails", "Allied Health Sciences")},
+                {"10", ("Aff_PhysioTherapy", "PhysioTherapy_BasicDetails", "Physiotherapy")},
+                {"11", ("Aff_SowaRigPaiController", "SowaRigPai_BasicDetails", "Sowa-Rigpa")}
+                };
+            }
+
+            @if (repoLinks.ContainsKey(facultyCode))
+            {
+                var repo = repoLinks[facultyCode];
+                <li class="sidebar-item">
+                    <a asp-controller="@repo.Controller" asp-action="@repo.Action"
+                       class="sidebar-link">
+                        <i class="bi bi-folder2-open"></i>
+                        @repo.Text Digital Repository
+                    </a>
+                </li>
+            }
+
+            <!-- Update Password -->
+            <li class="sidebar-item sidebar-footer">
+                <button class="sidebar-btn-password" data-bs-toggle="modal" data-bs-target="#updatePasswordModal">
+                    <i class="bi bi-lock"></i> Update Password
+                </button>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Update Password Modal -->
+    <div class="modal fade" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form asp-action="UpdatePassword" asp-controller="CollegeLogin" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updatePasswordModalLabel">Change Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="CollegeCode" value="@collegecode" />
+                        <div class="mb-3 position-relative">
+                            <label for="NewPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="NewPassword" name="UpdatedPassword" required autocomplete="new-password" />
+                            <span class="position-absolute top-50 end-0 translate-middle-y pe-3 toggle-password" style="cursor:pointer; transform: translateY(-50%);">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.querySelector(".toggle-password");
+        const passwordInput = document.getElementById("NewPassword");
+        const toggleIcon = document.getElementById("toggleIcon");
+
+        if (toggleBtn && passwordInput && toggleIcon) {
+            toggleBtn.addEventListener("click", function () {
+                const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+                passwordInput.setAttribute("type", type);
+                toggleIcon.className = type === "password" ? "bi bi-eye" : "bi bi-eye-slash";
+            });
+        }
+    });
+
+    function toggleMenu(e, id) {
+        e.preventDefault();
+
+        const menu = document.getElementById(id);
+        if (!menu) return;
+
+        menu.classList.toggle("d-none");
+    }
+</script>

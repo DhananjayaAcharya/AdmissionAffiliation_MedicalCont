@@ -1,0 +1,555 @@
+﻿@model AffCourseDetailsListVM
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Nursing Course Details";
+}
+
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-soft: rgba(79, 70, 229, 0.12);
+        --accent: #ec4899;
+        --bg-body: #060714;
+        --bg-gradient: radial-gradient(circle at top left, #1f2937 0, #020617 55%, #020617 100%);
+        --glass-bg: rgba(15, 23, 42, 0.85);
+        --glass-border: rgba(148, 163, 184, 0.35);
+        --input-bg: rgba(15, 23, 42, 0.9);
+        --input-border: rgba(148, 163, 184, 0.45);
+        --input-border-focus: rgba(129, 140, 248, 0.9);
+        --radius-lg: 20px;
+        --radius-md: 14px;
+        --shadow-soft: 0 24px 60px rgba(15, 23, 42, 0.85);
+        --shadow-chip: 0 10px 25px rgba(15, 23, 42, 0.65);
+        --text-main: #ffffff;
+        --text-muted: #9ca3af;
+        --danger: #f97373;
+    }
+
+    /* Course name column - PERFECT VISIBILITY */
+    .course-name-cell {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(99, 102, 241, 0.08)) !important;
+        min-width: 280px !important;
+        max-width: 320px !important;
+        position: relative;
+    }
+
+        .course-name-cell .course-title {
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            display: block;
+            padding-right: 8px;
+        }
+
+        .course-name-cell::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            border-radius: 0 4px 4px 0;
+        }
+
+    body {
+        background: var(--bg-gradient);
+    }
+
+    .institution-form-shell {
+        background: var(--bg-gradient);
+        min-height: 100vh;
+        padding: 32px 0 40px;
+    }
+
+    .institution-form-card {
+        background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.25), transparent 55%), radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.28), transparent 55%);
+        border-radius: 32px;
+        padding: 1px;
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .institution-form-card::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background: radial-gradient(circle at 0% 0%, rgba(244, 114, 182, 0.22), transparent 60%), radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.28), transparent 55%);
+            opacity: 0.4;
+            filter: blur(32px);
+            z-index: -2;
+        }
+
+    .institution-form-card-inner {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.92));
+        border-radius: 30px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        position: relative;
+        z-index: 1;
+        padding: 28px 26px 30px;
+    }
+
+    @@media (min-width: 992px) {
+        .institution-form-card-inner {
+            padding: 30px 34px 34px;
+        }
+    }
+
+    .form-header-modern {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .form-header-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-header-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 0, #e5e7eb 0, #9ca3af 12%, #111827 55%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #020617;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.85);
+        position: relative;
+    }
+
+        .form-header-icon::after {
+            content: "";
+            position: absolute;
+            inset: 2px;
+            border-radius: inherit;
+            border: 1px solid rgba(148, 163, 184, 0.55);
+        }
+
+    .form-header-title h4 {
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--text-main);
+        font-size: 1.35rem;
+    }
+
+    .form-header-title span {
+        display: block;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    .form-header-badge {
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 0 0, rgba(59, 130, 246, 0.72), rgba(79, 70, 229, 0.9));
+        color: #e5e7eb;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid rgba(191, 219, 254, 0.8);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.6);
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 11px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        color: var(--text-muted);
+        box-shadow: var(--shadow-chip);
+    }
+
+        .section-chip span.dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 0, #a5b4fc 0, #4f46e5 60%);
+            box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.35);
+        }
+
+    .section-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        margin-top: 6px;
+    }
+
+        .section-title-row h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+            letter-spacing: 0.02em;
+        }
+
+    .section-panel.soft {
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--glass-border);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.94));
+        padding: 16px 16px 4px;
+        margin-bottom: 18px;
+    }
+
+    .table {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        color: var(--text-main);
+        width: 100%;
+        table-layout: fixed;
+    }
+
+        .table thead th {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(99, 102, 241, 0.1));
+            color: #ffffff !important;
+            border: none;
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 14px 12px;
+        }
+
+            /* Column widths for perfect layout */
+            .table thead th:nth-child(1) {
+                width: 28%;
+            }
+            /* Course Name */
+            .table thead th:nth-child(2) {
+                width: 12%;
+            }
+            /* Recognized */
+            .table thead th:nth-child(3) {
+                width: 20%;
+            }
+            /* RGUHS */
+            .table thead th:nth-child(4) {
+                width: 20%;
+            }
+            /* Upload */
+            .table thead th:nth-child(5) {
+                width: 20%;
+            }
+        /* Existing */
+
+        .table tbody td {
+            border-color: rgba(148, 163, 184, 0.1);
+            padding: 14px 12px;
+            vertical-align: middle;
+            color: var(--text-main);
+        }
+
+        .table tbody tr:hover {
+            background: rgba(79, 70, 229, 0.08);
+        }
+
+    .form-control, .form-select {
+        border-radius: 999px;
+        border: 1px solid var(--input-border);
+        background: var(--input-bg);
+        color: var(--text-main);
+        font-size: 0.86rem;
+        padding: 6px 12px;
+        transition: all 0.18s ease-out;
+        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9);
+        width: 100%;
+    }
+
+        .form-control::placeholder {
+            color: rgba(148, 163, 184, 0.75);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--input-border-focus);
+            outline: none;
+            box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.6), 0 0 0 6px rgba(79, 70, 229, 0.25);
+            background: rgba(15, 23, 42, 0.98);
+        }
+
+        .form-control[type="file"] {
+            padding: 8px 12px;
+            cursor: pointer;
+            background: radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.2), rgba(15, 23, 42, 0.96));
+        }
+
+            .form-control[type="file"]::-webkit-file-upload-button {
+                border: none;
+                border-radius: 999px;
+                padding: 6px 14px;
+                margin-right: 10px;
+                background: linear-gradient(135deg, #4f46e5, #6366f1);
+                color: #e5e7eb;
+                font-size: 0.78rem;
+                text-transform: uppercase;
+                letter-spacing: 0.09em;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+    .text-danger {
+        font-size: 0.75rem;
+        margin-top: 3px;
+        color: var(--danger) !important;
+    }
+
+    .btn-primary.modern {
+        border-radius: 999px;
+        border: 0;
+        padding: 10px 30px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        background: conic-gradient(from 160deg, #6366f1, #ec4899, #8b5cf6, #6366f1);
+        color: #f9fafb;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 16px 40px rgba(79, 70, 229, 0.7);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary.modern span.pulse {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 0 0, rgba(248, 250, 252, 0.24), transparent 60%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .btn-primary.modern:hover span.pulse {
+            opacity: 1;
+        }
+
+        .btn-primary.modern:hover {
+            transform: translateY(-1px);
+        }
+
+    .btn-outline-primary {
+        border-color: rgba(79, 70, 229, 0.6);
+        color: #a5b4fc;
+        background: rgba(79, 70, 229, 0.12);
+        padding: 4px 12px;
+        font-size: 0.75rem;
+    }
+
+        .btn-outline-primary:hover {
+            background: rgba(79, 70, 229, 0.25);
+            color: #e5e7eb;
+        }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+
+    .form-footer-note {
+        margin-top: 10px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    @@media (max-width: 768px) {
+        .institution-form-card-inner {
+            padding: 18px 16px 24px;
+        }
+
+        .form-header-modern {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .course-name-cell {
+            min-width: 220px !important;
+            font-size: 0.9rem !important;
+        }
+    }
+</style>
+
+<div class="institution-form-shell">
+    <div class="container">
+        <div class="institution-form-card">
+            <div class="institution-form-card-inner">
+                <div class="form-header-modern">
+                    <div class="form-header-title">
+                        <div class="form-header-icon">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <div>
+                            <h4>Nursing Course Details</h4>
+                            <span>Select recognized courses and upload documents</span>
+                        </div>
+                    </div>
+                    <div class="form-header-badge">
+                        <i class="bi bi-shield-check"></i>
+                        Affiliation Module
+                    </div>
+                </div>
+
+                <form asp-action="AffCourseDetails" method="post" enctype="multipart/form-data">
+                    <div class="section-panel soft">
+                        <div class="section-title-row">
+                            <div>
+                                <div class="section-chip">
+                                    <span class="dot"></span>
+                                    Course Recognition
+                                </div>
+                                <h5>Course list & documents</h5>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle shadow-sm mb-0">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Course Name</th>
+                                        <th>Recognized (Yes / No)</th>
+                                        <th>RGUHS Notification No</th>
+                                        <th>Upload Supporting Document</th>
+                                        <th>Existing Document</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Courses.Count; i++)
+                                    {
+                                        <tr>
+                                            <td class="course-name-cell">
+                                                <span class="course-title">@Model.Courses[i].CourseName</span>
+                                                <input type="hidden" asp-for="Courses[i].Id" />
+                                                <input type="hidden" asp-for="Courses[i].CollegeCode" />
+                                                <input type="hidden" asp-for="Courses[i].FacultyCode" />
+                                                <input type="hidden" asp-for="Courses[i].CourseId" />
+                                                <input type="hidden" asp-for="Courses[i].CourseName" />
+                                                <input type="hidden" asp-for="Courses[i].CreatedOn" />
+                                                <input type="hidden" asp-for="Courses[i].CreatedBy" />
+                                            </td>
+
+                                            <td class="text-center">
+                                                <select class="form-select form-select-sm recognized-select"
+                                                        asp-for="Courses[i].IsRecognized"
+                                                        data-row-index="@i">
+                                                    <option value="false">No</option>
+                                                    <option value="true">Yes</option>
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <div class="rguhs-section"
+                                                     data-row="@i"
+                                                     style="display:@(Model.Courses[i].IsRecognized ? "block" : "none")">
+                                                    <input asp-for="Courses[i].RguhsNotificationNo"
+                                                           class="form-control form-control-sm"
+                                                           placeholder="Enter RGUHS Notification No"
+                                                           autocomplete="off" />
+                                                    <span asp-validation-for="Courses[i].RguhsNotificationNo"
+                                                          class="text-danger"></span>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div class="supporting-section" data-row="@i"
+                                                     style="display:@(Model.Courses[i].IsRecognized ? "block" : "none")">
+                                                    <input type="file"
+                                                           class="form-control form-control-sm"
+                                                           asp-for="Courses[i].SupportingFile"
+                                                           accept=".pdf,.doc,.docx" />
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center">
+                                                @if (Model.Courses[i].Id > 0)   @* or any condition you use to decide file exists *@
+                                                {
+                                                    <a asp-controller="NursingContinuesAffiliation"
+                                                       asp-action="DownloadAffCourseFile"
+                                                       asp-route-id="@Model.Courses[i].Id"
+                                                       target="_blank"
+                                                       class="btn btn-outline-primary btn-sm rounded-pill">
+                                                        <i class="bi bi-eye-fill"></i> View
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">No File</span>
+                                                }
+                                            </td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-action="InstituteDetails" asp-controller="NursingContinuesAffiliation" class="btn btn-outline-secondary px-4">⬅ Previous</a>
+                            <div class="mt-4 d-flex justify-content-between">
+                                <button type="submit" class="btn btn-outline-primary">💾 Save & Proceed ➡</button>
+                            </div>
+                        </div>
+                        <div class="form-footer-note">
+                            Courses with "Yes" must have a notification number and supporting document.
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Trigger initial state for existing selections
+            document.querySelectorAll(".recognized-select").forEach(function (sel) {
+                sel.dispatchEvent(new Event('change'));
+            });
+
+            // Handle dropdown changes
+            document.querySelectorAll(".recognized-select").forEach(function (sel) {
+                sel.addEventListener("change", function () {
+                    var index = this.getAttribute("data-row-index");
+                    var show = this.value === "true";
+                    var rguhs = document.querySelector('.rguhs-section[data-row="' + index + '"]');
+                    var supp = document.querySelector('.supporting-section[data-row="' + index + '"]');
+                    if (rguhs) rguhs.style.display = show ? "block" : "none";
+                    if (supp) supp.style.display = show ? "block" : "none";
+                });
+            });
+        });
+    </script>
+}

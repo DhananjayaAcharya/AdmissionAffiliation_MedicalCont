@@ -1,0 +1,593 @@
+﻿@model Medical_TrustMemberDetailsListVM
+
+@{
+    ViewBag.Title = "Trust Member Details";
+    Layout = null;
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 6px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        min-height: 100vh;
+    }
+
+    /* ── Page Shell ── */
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        padding: 36px 0 48px;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* ── Header Banner ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: 10px 10px 0 0;
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .header-eyebrow {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+        position: relative;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+        position: relative;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+        font-weight: 300;
+        position: relative;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+
+    /* ── Card ── */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 36px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    /* ── Section Label ── */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+        .data-table thead {
+            background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        }
+
+            .data-table thead th {
+                padding: 11px 12px;
+                font-size: 0.68rem;
+                font-weight: 600;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--navy);
+                border-bottom: 2px solid var(--border);
+                white-space: nowrap;
+                text-align: left;
+            }
+
+                .data-table thead th:first-child {
+                    border-left: 3px solid var(--gold);
+                }
+
+        .data-table tbody tr {
+            transition: background 0.15s;
+            border-bottom: 1px solid #f0ece4;
+        }
+
+            .data-table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .data-table tbody tr:nth-child(even) {
+                background: #faf8f4;
+            }
+
+            .data-table tbody tr:hover {
+                background: #f3eed8 !important;
+            }
+
+        .data-table td {
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
+
+            .data-table td:first-child {
+                text-align: center;
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                width: 48px;
+            }
+
+    /* ── Inputs ── */
+    .form-control {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 6px 9px;
+        font-size: 0.85rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--white);
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 9px center;
+        padding-right: 28px;
+    }
+
+    .text-danger {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--danger);
+        margin-top: 3px;
+    }
+
+    /* ── Action Buttons (row) ── */
+    .btn-remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: transparent;
+        border: 1.5px solid #e0bcbc;
+        color: var(--danger);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        line-height: 1;
+    }
+
+        .btn-remove:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+        }
+
+    /* ── Footer Controls ── */
+    .form-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        margin-top: 4px;
+    }
+
+    .btn-add {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: transparent;
+        border: 1.5px solid var(--success);
+        color: var(--success);
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 7px 18px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+    }
+
+        .btn-add:hover {
+            background: var(--success);
+            color: #fff;
+        }
+
+    .btn-add-icon {
+        font-size: 1.1rem;
+        line-height: 1;
+    }
+
+    .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+        .btn-prev:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+            background: #f3f0e8;
+        }
+
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.15s, box-shadow 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-save::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+        }
+
+    /* ── Empty state ── */
+    .empty-notice {
+        text-align: center;
+        padding: 28px 16px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        background: #faf8f4;
+    }
+
+    .row-index {
+        font-family: 'EB Garamond', serif;
+        font-size: 0.95rem;
+        color: var(--navy-mid);
+        font-weight: 600;
+    }
+</style>
+
+<div class="page-shell">
+    <div class="page-container">
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-eyebrow">Affiliation Module · College Registration</div>
+            <div class="header-title">Trust Member Details</div>
+            <div class="header-subtitle">Enter details of all governing trust members associated with this institution</div>
+            <div class="header-badge">Step 2 of 5</div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+
+            @using (Html.BeginForm("Aff_TrustMemberDetails", "CollegeBasicDetails", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.FacultyCode)
+                @Html.HiddenFor(m => m.CollegeCode)
+
+                <div class="section-label">
+                    <span class="section-label-text">Member Records</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table" id="tblTrust">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Trust Member Name</th>
+                                <th>Designation</th>
+                                <th>Qualification</th>
+                                <th>Mobile Number</th>
+                                <th>Age</th>
+                                <th>Joining Date</th>
+                                <th style="width:60px; text-align:center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Rows.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="8" class="empty-notice">
+                                        No records added. Click <strong>+ Add Row</strong> to begin.
+                                    </td>
+                                </tr>
+                            }
+                            @for (int i = 0; i < Model.Rows.Count; i++)
+                            {
+                                <tr>
+                                    <td><span class="row-index">@(i + 1)</span></td>
+
+                                    @Html.HiddenFor(m => m.Rows[i].SlNo)
+                                    @Html.HiddenFor(m => m.Rows[i].FacultyCode)
+                                    @Html.HiddenFor(m => m.Rows[i].CollegeCode)
+
+                                    <td style="min-width:170px;">
+                                        @Html.TextBoxFor(m => m.Rows[i].TrustMemberName,
+                                        new { @class = "form-control", placeholder = "Full name" })
+                                <span asp-validation-for="Rows[i].TrustMemberName" class="text-danger"></span>
+                            </td>
+
+                            <td style="min-width:160px;">
+                                @Html.DropDownListFor(m => m.Rows[i].DesignationCode,
+                                                                Model.DesignationList,
+                                                                "— Select —",
+                                                                new { @class = "form-control" })
+                            </td>
+
+                            <td style="min-width:140px;">
+                                @Html.TextBoxFor(m => m.Rows[i].Qualification,
+                                                                new { @class = "form-control", placeholder = "e.g. M.B.B.S" })
+                            </td>
+
+                            <td style="min-width:130px;">
+                                @Html.TextBoxFor(m => m.Rows[i].MobileNumber,
+                                                                new { @class = "form-control", placeholder = "10-digit number" })
+                            </td>
+
+                            <td style="width:80px;">
+                                @Html.TextBoxFor(m => m.Rows[i].Age,
+                                                                new { @class = "form-control", type = "number", min = "0", placeholder = "Age" })
+                            </td>
+
+                            <td style="min-width:145px;">
+                                @Html.TextBoxFor(m => m.Rows[i].JoiningDateString,
+                                                                new { @class = "form-control", type = "date" })
+                                <span asp-validation-for="Rows[i].JoiningDateString" class="text-danger"></span>
+                            </td>
+
+                            <td style="text-align:center;">
+                                <button type="button" class="btn-remove btn-remove-row" title="Remove row">&#8722;</button>
+                            </td>
+                        </tr>
+                                                }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-footer">
+                <button type="button" id="btnAddRow" class="btn-add">
+                    <span class="btn-add-icon">+</span> Add Row
+                </button>
+
+                <div class="nav-controls">
+                    <a asp-action="Aff_InstituteDetails"
+                       asp-controller="CollegeBasicDetails"
+                       class="btn-prev">
+                        ← Previous
+                    </a>
+                    <button type="submit" class="btn-save">
+                        Submit
+                    </button>
+                </div>
+            </div>
+                        }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $(function () {
+            function refreshIndices() {
+                $("#tblTrust tbody tr:not(:has(td[colspan]))").each(function (i, tr) {
+                    $(tr).find("td:first .row-index").text(i + 1);
+                });
+            }
+
+            $("#btnAddRow").click(function () {
+                // Remove empty-state row if present
+                $("#tblTrust tbody tr td[colspan]").closest("tr").remove();
+
+                var index = $("#tblTrust tbody tr").length;
+
+                var desigOptions = `<option value="">— Select —</option>`;
+                @foreach (var item in Model.DesignationList)
+                {
+                        <text>desigOptions += `<option value="@item.Value">@item.Text</option>`;</text>
+                }
+
+                var rowHtml = `
+                <tr>
+                    <td>
+                        <span class="row-index">${index + 1}</span>
+                        <input type="hidden" name="Rows[${index}].SlNo" value="0" />
+                        <input type="hidden" name="Rows[${index}].FacultyCode" value="@Model.FacultyCode" />
+                        <input type="hidden" name="Rows[${index}].CollegeCode" value="@Model.CollegeCode" />
+                    </td>
+                    <td style="min-width:170px;">
+                        <input class="form-control" name="Rows[${index}].TrustMemberName" placeholder="Full name" />
+                    </td>
+                    <td style="min-width:160px;">
+                        <select class="form-control" name="Rows[${index}].DesignationCode">
+                            ${desigOptions}
+                        </select>
+                    </td>
+                    <td style="min-width:140px;">
+                        <input class="form-control" name="Rows[${index}].Qualification" placeholder="e.g. M.B.B.S" />
+                    </td>
+                    <td style="min-width:130px;">
+                        <input class="form-control" name="Rows[${index}].MobileNumber" placeholder="10-digit number" />
+                    </td>
+                    <td style="width:80px;">
+                        <input class="form-control" name="Rows[${index}].Age" type="number" min="0" placeholder="Age" />
+                    </td>
+                    <td style="min-width:145px;">
+                        <input class="form-control" name="Rows[${index}].JoiningDateString" type="date" />
+                    </td>
+                    <td style="text-align:center;">
+                        <button type="button" class="btn-remove btn-remove-row" title="Remove row">&#8722;</button>
+                    </td>
+                </tr>`;
+
+                $("#tblTrust tbody").append(rowHtml);
+            });
+
+            $("#tblTrust").on("click", ".btn-remove-row", function () {
+                $(this).closest("tr").remove();
+
+                if ($("#tblTrust tbody tr").length === 0) {
+                    $("#tblTrust tbody").html(
+                        `<tr><td colspan="8" class="empty-notice">No records added. Click <strong>+ Add Row</strong> to begin.</td></tr>`
+                    );
+                } else {
+                    refreshIndices();
+                }
+            });
+        });
+    </script>
+}

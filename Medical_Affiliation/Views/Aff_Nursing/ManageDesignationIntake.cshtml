@@ -1,0 +1,284 @@
+﻿@model List<CollegeDesignationDetailsViewModel>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Designation Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 4;
+}
+
+
+<style>
+    .main-container {
+        margin-left: 26rem;
+        background: #ffffff;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-height: 100vh;
+        overflow-y: auto;
+        transition: all 0.3s ease-in-out;
+    }
+
+    @@media (max-width: 1450px) {
+        .main-container {
+            max-width: 985px !important;
+            margin-left: 17rem !important;
+            padding: 1em !important;
+            padding-top: 10px !important;
+            max-height: 66vh;
+            overflow: auto;
+        }
+
+        .college-container {
+            margin-bottom: 8px !important;
+        }
+
+        .status-bar-container {
+            padding: 0.2rem 0;
+        }
+
+        .clg-basic {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .card.mb-3 {
+            margin-bottom: 5px;
+        }
+
+        .container.mt-4 {
+            margin-top: 5px !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            padding: 0.3rem 1.0rem;
+        }
+    }
+
+    .form-check-label {
+        font-weight: 600;
+        color: #1f2a44;
+        font-family: 'Inter', sans-serif;
+    }
+
+    #specializationOptions {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+        margin-top: 1.5rem;
+    }
+
+    .form-check {
+        padding: 14px 20px;
+        border-radius: 12px;
+        background: #f9fafb;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid #e5e7eb;
+    }
+
+        .form-check:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+        }
+
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ffffff;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+        /* overflow-x: auto; */
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db #f9fafb;
+    }
+
+    .progress-step-btn {
+        background: none;
+        border: none;
+        padding: 0.5rem 0;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        color: #6b7280;
+        position: relative;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+
+        .progress-step-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .progress-step-btn:hover:not(:disabled) {
+            color: #1f2a44;
+        }
+
+        .progress-step-btn:hover::after, .progress-step-btn.active::after {
+            width: 100%;
+        }
+
+        .progress-step-btn.active {
+            color: #3b82f6;
+        }
+
+        .progress-step-btn.completed {
+            color: #22c55e;
+        }
+
+            .progress-step-btn.completed::after {
+                background: #22c55e;
+            }
+
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    #facultyTable {
+        width: 100%;
+        border-spacing: 0;
+        font-family: 'Inter', sans-serif;
+        background: #ffffff;
+    }
+
+        #facultyTable th, #facultyTable td {
+            padding: 14px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s ease;
+        }
+
+        #facultyTable thead th {
+            background: #f3f4f6;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #1f2a44;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #facultyTable tbody tr:hover {
+            background: #f9fafb;
+        }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+
+
+@* <div class="main-container" > *@
+<div class="card-header bg-light">
+    <nav aria-label="Form progress">
+        <div class="d-flex justify-content-between align-items-center">
+            @using System.Text.RegularExpressions
+            @{
+                var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+                var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+                var stepTitles = new[] {
+                        "Basic Institute Details",
+                        "Course Details",
+                        "Clinical Material Details",
+                        "Designation Details",
+                        "Add College Faculty",
+                        "College Performance"
+                        };
+            }
+            @* <span class="fw-bold mb-0">@collegeName</span>
+            <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-danger">Logout</button>
+            </form> *@
+        </div>
+
+        <ul class="progressbar-pipeline" role="progressbar">
+            @for (int i = 0; i < stepTitles.Length; i++)
+            {
+                var isActive = (currentStep == i + 1);
+                var isCompleted = (currentStep > i + 1);
+                <li class="@(isCompleted ? "completed" : "")">
+                    <span class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))">
+                        @stepTitles[i]
+                    </span>
+                </li>
+            }
+        </ul>
+
+    </nav>
+</div>
+
+<h2>@ViewData["Title"]</h2>
+
+
+<form asp-action="ManageDesignationIntake" method="post">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Designation</th>
+                <th>Present Intake</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model[i].Designation
+                        <input type="hidden" name="[@i].DesignationCode" value="@Model[i].DesignationCode" />
+                        <input type="hidden" name="[@i].Designation" value="@Model[i].Designation" />
+                    </td>
+                    <td>
+                        <input type="number"
+                               name="[@i].PresentIntake"
+                               value="@Model[i].PresentIntake"
+                               class="form-control"
+                               min="0"
+                               required />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+        <div class="mt-4 d-flex justify-content-between">
+            <a asp-controller="Aff_Nursing" asp-action="Nursing_Affiliated_YearwiseMaterials" class="btn btn-outline-secondary">⬅ Previous</a>
+            <button type="submit" class="btn btn-outline-primary">💾 Save & Proceed ➡</button>
+        </div>
+</form>
+@* </div> *@

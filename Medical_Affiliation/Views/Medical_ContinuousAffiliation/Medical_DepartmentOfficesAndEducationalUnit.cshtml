@@ -1,0 +1,862 @@
+﻿@model DepartmentOfficesMeuViewModel
+
+@{
+    ViewBag.Title = "DepartmentOffices Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+
+<style>
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    :root {
+        --ink: #0f1923;
+        --ink-mid: #2e3d4f;
+        --ink-muted: #6b7a8d;
+        --border: #d4dae3;
+        --bg: #f4f6f9;
+        --surface: #ffffff;
+        --accent: #1a4c8b;
+        --accent-lt: #e8edf7;
+        --danger: #c0392b;
+        --gold: #c9a84c;
+        --radius: 10px;
+        --shadow: 0 2px 16px rgba(15,25,35,.07);
+    }
+
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+    }
+
+    /* ── PAGE HEADER ── */
+    .dm-page-header {
+        background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+        padding: 28px 40px 24px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        border-bottom: 3px solid var(--gold);
+    }
+
+        .dm-page-header .emblem {
+            width: 54px;
+            height: 54px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+            .dm-page-header .emblem i {
+                color: var(--gold);
+                font-size: 22px;
+            }
+
+    .dm-page-header-text h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.45rem;
+        color: #fff;
+        letter-spacing: .02em;
+        margin: 0;
+    }
+
+    .dm-page-header-text p {
+        font-size: .78rem;
+        color: rgba(255,255,255,.55);
+        margin: 3px 0 0;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    /* ── FORM WRAP ── */
+    .dm-form-wrap {
+        max-width: 1240px;
+        margin: 32px auto;
+        padding: 0 24px 60px;
+    }
+
+    /* ── SECTION CARDS ── */
+    .section-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 20px;
+        animation: fadeUp .35s ease both;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .section-card:nth-child(1) {
+        animation-delay: .04s;
+    }
+
+    .section-card:nth-child(2) {
+        animation-delay: .08s;
+    }
+
+    .section-card:nth-child(3) {
+        animation-delay: .12s;
+    }
+
+    .section-card:nth-child(4) {
+        animation-delay: .16s;
+    }
+
+    .section-header {
+        padding: 13px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .section-header .icon-wrap {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .section-header h2 {
+            font-size: .82rem;
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .section-header .sh-sub {
+            font-size: .72rem;
+            color: var(--ink-muted);
+            margin-left: auto;
+        }
+
+    .sh-blue .icon-wrap {
+        background: #e8edf7;
+        color: #1a4c8b;
+    }
+
+    .sh-blue h2 {
+        color: #1a4c8b;
+    }
+
+    .sh-slate .icon-wrap {
+        background: #eef0f3;
+        color: #3d5166;
+    }
+
+    .sh-slate h2 {
+        color: #3d5166;
+    }
+
+    .sh-teal .icon-wrap {
+        background: #e3f4f4;
+        color: #1a7f7a;
+    }
+
+    .sh-teal h2 {
+        color: #1a7f7a;
+    }
+
+    .sh-green .icon-wrap {
+        background: #e7f6ee;
+        color: #1e7e4e;
+    }
+
+    .sh-green h2 {
+        color: #1e7e4e;
+    }
+
+    .sh-indigo .icon-wrap {
+        background: #eeecfb;
+        color: #4338ca;
+    }
+
+    .sh-indigo h2 {
+        color: #4338ca;
+    }
+
+    .sh-amber .icon-wrap {
+        background: #fdf3e0;
+        color: #a0660a;
+    }
+
+    .sh-amber h2 {
+        color: #a0660a;
+    }
+
+    .section-body {
+        padding: 24px;
+    }
+
+    /* ── INFO BOX ── */
+    .info-box {
+        background: var(--accent-lt);
+        border-left: 4px solid var(--accent);
+        border-radius: 0 8px 8px 0;
+        padding: 14px 18px;
+        font-size: .84rem;
+        color: var(--ink-mid);
+        line-height: 1.7;
+        margin-bottom: 24px;
+    }
+
+        .info-box i {
+            color: var(--accent);
+            margin-right: 6px;
+        }
+
+    /* ── FORM LABELS ── */
+    label {
+        display: block;
+        font-size: .72rem;
+        font-weight: 600;
+        color: var(--ink-mid);
+        margin-bottom: 5px;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+    }
+
+        label i {
+            color: var(--ink-muted);
+            margin-right: 4px;
+            font-size: .7rem;
+        }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="file"],
+    select,
+    textarea {
+        width: 100%;
+        font-family: 'DM Sans', sans-serif;
+        font-size: .85rem;
+        color: var(--ink);
+        background: #fafbfc;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 8px 12px;
+        transition: border-color .18s, box-shadow .18s, background .18s;
+        outline: none;
+    }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+        }
+
+    textarea {
+        resize: vertical;
+    }
+
+    .text-danger {
+        color: var(--danger) !important;
+        font-size: .7rem;
+        margin-top: 3px;
+        display: block;
+    }
+
+    /* ── YES / NO TOGGLE ── */
+    .yn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 6px;
+    }
+
+        .yn-group input[type="radio"] {
+            display: none;
+        }
+
+    .yn-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 20px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fafbfc;
+        font-size: .82rem;
+        font-weight: 600;
+        color: var(--ink-mid);
+        cursor: pointer;
+        transition: all .18s;
+        user-select: none;
+        letter-spacing: .02em;
+        text-transform: none;
+    }
+
+        .yn-label:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-lt);
+        }
+
+    .yn-group input[type="radio"]:checked + .yn-label {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        box-shadow: 0 3px 12px rgba(26,76,139,.3);
+    }
+
+        .yn-group input[type="radio"]:checked + .yn-label.yn-no {
+            background: #c0392b;
+            border-color: #c0392b;
+            box-shadow: 0 3px 12px rgba(192,57,43,.3);
+        }
+
+    /* ── QUESTION BLOCK ── */
+    .q-block {
+        background: #fafbfc;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 16px 18px;
+        transition: background .15s;
+    }
+
+        .q-block:hover {
+            background: #f0f4fb;
+        }
+
+    .q-text {
+        font-size: .85rem;
+        font-weight: 500;
+        color: var(--ink-mid);
+        line-height: 1.5;
+        margin-bottom: 10px;
+    }
+
+    /* ── FILE BADGE ── */
+    .file-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: .7rem;
+        font-weight: 600;
+        color: #1e7e4e;
+        background: #eafaf1;
+        border: 1px solid #a9dfbf;
+        border-radius: 20px;
+        padding: 3px 10px;
+        margin-top: 6px;
+    }
+
+    .btn-view-pdf {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: .75rem;
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--ink-mid);
+        text-decoration: none;
+        transition: all .16s;
+        margin-top: 6px;
+    }
+
+        .btn-view-pdf:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-lt);
+        }
+
+    /* ── FOOTER ACTIONS ── */
+    .dm-form-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 0 0;
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+    }
+
+    .dm-form-footer-note {
+        font-size: .75rem;
+        color: var(--ink-muted);
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .btn-dm {
+        font-family: 'DM Sans', sans-serif;
+        font-size: .83rem;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 9px 24px;
+        cursor: pointer;
+        letter-spacing: .03em;
+        border: none;
+        transition: all .18s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-dm-ghost {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--ink-muted);
+    }
+
+        .btn-dm-ghost:hover {
+            border-color: var(--ink-muted);
+            color: var(--ink);
+        }
+
+    .btn-dm-primary {
+        background: linear-gradient(135deg, #1a4c8b, #1564c0);
+        color: #fff;
+        box-shadow: 0 3px 14px rgba(26,76,139,.3);
+    }
+
+        .btn-dm-primary:hover {
+            box-shadow: 0 5px 20px rgba(26,76,139,.4);
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        .btn-dm-primary:active {
+            transform: translateY(0);
+        }
+
+    .btn-dm-success {
+        background: linear-gradient(135deg, #1e7e4e, #27ae60);
+        color: #fff;
+        box-shadow: 0 3px 14px rgba(30,126,78,.3);
+    }
+
+        .btn-dm-success:hover {
+            box-shadow: 0 5px 20px rgba(30,126,78,.4);
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+    /* meu hidden block transition */
+    #meu-details-block {
+        transition: opacity .25s;
+    }
+
+    @@media (max-width: 768px) {
+        .dm-page-header {
+            padding: 18px 20px;
+        }
+
+        .dm-form-wrap {
+            padding: 0 12px 40px;
+        }
+    }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="dm-page-header">
+    <div class="emblem">
+        <i class="fas fa-building"></i>
+    </div>
+    <div class="dm-page-header-text">
+        <h1>Department Offices &amp; Medical Education Unit</h1>
+        <p>RGUHS · Affiliation Portal · Continuous Affiliation</p>
+    </div>
+</div>
+
+<form asp-action="Medical_DepartmentOfficesAndEducationalUnit" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+    <input type="hidden" asp-for="CourseLevel" />
+
+    <div class="dm-form-wrap">
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION — Department Offices & Staff Rooms
+        ════════════════════════════════════════════════════ -->
+        <div class="section-card">
+            <div class="section-header sh-blue">
+                <div class="icon-wrap"><i class="fas fa-door-open"></i></div>
+                <h2>Department Offices, Rooms for Staff &amp; Other Requirements</h2>
+                <span class="sh-sub">NMC Minimum Standard Requirements</span>
+            </div>
+            <div class="section-body">
+
+                <div class="info-box">
+                    <i class="fas fa-circle-info"></i>
+                    Every teaching department shall have dedicated rooms for the Head of Department with attached
+                    department office and record storage, rooms for teaching faculty and residents, faculty rooms with IT
+                    facilities, and rooms for non-teaching staff as per NMC Minimum Standard Requirements.
+                </div>
+
+                <div class="row g-3">
+
+                    <!-- (k) HOD Room -->
+                    <div class="col-lg-6">
+                        <div class="q-block">
+                            <p class="q-text">
+                                <i class="fas fa-user-tie" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                Room for Head of Department with space for Department Office, office staff and storage of records
+                            </p>
+                            <div class="yn-group">
+                                <input class="btn-check" type="radio" asp-for="HasHodRoomWithOfficeAndRecords" value="true" id="hodRoomYes" />
+                                <label class="yn-label" for="hodRoomYes"><i class="fas fa-check"></i> Yes</label>
+
+                                <input class="btn-check" type="radio" asp-for="HasHodRoomWithOfficeAndRecords" value="false" id="hodRoomNo" />
+                                <label class="yn-label yn-no" for="hodRoomNo"><i class="fas fa-xmark"></i> No</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.HasHodRoomWithOfficeAndRecords, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <!-- (l) Faculty + Residents Rooms -->
+                    <div class="col-lg-6">
+                        <div class="q-block">
+                            <p class="q-text">
+                                <i class="fas fa-users" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                Rooms with adequate space for teaching faculty and Tutors / Demonstrators / Residents (Junior &amp; Senior)
+                            </p>
+                            <div class="yn-group">
+                                <input class="btn-check" type="radio" asp-for="HasRoomsForFacultyAndResidents" value="true" id="facultyRoomsYes" />
+                                <label class="yn-label" for="facultyRoomsYes"><i class="fas fa-check"></i> Yes</label>
+
+                                <input class="btn-check" type="radio" asp-for="HasRoomsForFacultyAndResidents" value="false" id="facultyRoomsNo" />
+                                <label class="yn-label yn-no" for="facultyRoomsNo"><i class="fas fa-xmark"></i> No</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.HasRoomsForFacultyAndResidents, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <!-- (m) Faculty IT Rooms -->
+                    <div class="col-lg-6">
+                        <div class="q-block">
+                            <p class="q-text">
+                                <i class="fas fa-wifi" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                Rooms for faculty provided with communication, computer and internet facilities
+                            </p>
+                            <div class="yn-group">
+                                <input class="btn-check" type="radio" asp-for="FacultyRoomsHaveCommunicationComputerInternet" value="true" id="facITYes" />
+                                <label class="yn-label" for="facITYes"><i class="fas fa-check"></i> Yes</label>
+
+                                <input class="btn-check" type="radio" asp-for="FacultyRoomsHaveCommunicationComputerInternet" value="false" id="facITNo" />
+                                <label class="yn-label yn-no" for="facITNo"><i class="fas fa-xmark"></i> No</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.FacultyRoomsHaveCommunicationComputerInternet, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <!-- (n) Non-teaching Rooms -->
+                    <div class="col-lg-6">
+                        <div class="q-block">
+                            <p class="q-text">
+                                <i class="fas fa-person" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                Rooms for non-teaching staff
+                            </p>
+                            <div class="yn-group">
+                                <input class="btn-check" type="radio" asp-for="HasRoomsForNonTeachingStaff" value="true" id="nonTeachRoomsYes" />
+                                <label class="yn-label" for="nonTeachRoomsYes"><i class="fas fa-check"></i> Yes</label>
+
+                                <input class="btn-check" type="radio" asp-for="HasRoomsForNonTeachingStaff" value="false" id="nonTeachRoomsNo" />
+                                <label class="yn-label yn-no" for="nonTeachRoomsNo"><i class="fas fa-xmark"></i> No</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.HasRoomsForNonTeachingStaff, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION — Medical Education Unit (Availability)
+        ════════════════════════════════════════════════════ -->
+        <div class="section-card">
+            <div class="section-header sh-teal">
+                <div class="icon-wrap"><i class="fas fa-microscope"></i></div>
+                <h2>Medical Education Unit</h2>
+                <span class="sh-sub">Availability &amp; infrastructure</span>
+            </div>
+            <div class="section-body">
+
+                <div class="info-box">
+                    <i class="fas fa-circle-info"></i>
+                    There shall be a Medical Education Unit for faculty development and providing teaching and learning
+                    resource material, with audio-visual and internet facilities and an area of at least 150–160 Sq.m.
+                </div>
+
+                <div class="row g-3">
+
+                    <!-- MEU Available -->
+                    <div class="col-lg-6">
+                        <div class="q-block">
+                            <p class="q-text">
+                                <i class="fas fa-building-columns" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                Medical Education Unit Available
+                            </p>
+                            <div class="yn-group">
+                                <input class="btn-check" type="radio" asp-for="HasMedicalEducationUnit" value="true" id="meuAvailableYes" />
+                                <label class="yn-label" for="meuAvailableYes"><i class="fas fa-check"></i> Yes</label>
+
+                                <input class="btn-check" type="radio" asp-for="HasMedicalEducationUnit" value="false" id="meuAvailableNo" />
+                                <label class="yn-label yn-no" for="meuAvailableNo"><i class="fas fa-xmark"></i> No</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.HasMedicalEducationUnit, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <!-- MEU Area -->
+                    <div class="col-lg-6">
+                        <label>
+                            <i class="fas fa-ruler-combined"></i>
+                            Medical Education Unit Area (Sq.m)
+                            <span style="font-size:.68rem;color:var(--ink-muted);font-weight:400;text-transform:none;margin-left:4px;">Minimum 150–160 Sq.m</span>
+                        </label>
+                        <input type="number" step="0.01" class="meu-field" id="meuArea"
+                               asp-for="MedicalEducationUnitAreaSqm"
+                               placeholder="Enter MEU total area" />
+                    </div>
+
+                    <!-- AV Facilities -->
+                    <div class="col-lg-6">
+                        <div class="q-block">
+                            <p class="q-text">
+                                <i class="fas fa-tv" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                MEU has Audio-Visual Facilities
+                            </p>
+                            <div class="yn-group">
+                                <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasAudioVisual" value="true" id="meuAvYes" />
+                                <label class="yn-label" for="meuAvYes"><i class="fas fa-check"></i> Yes</label>
+
+                                <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasAudioVisual" value="false" id="meuAvNo" />
+                                <label class="yn-label yn-no" for="meuAvNo"><i class="fas fa-xmark"></i> No</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.MedicalEducationUnitHasAudioVisual, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <!-- Internet Facilities -->
+                    <div class="col-lg-6">
+                        <div class="q-block">
+                            <p class="q-text">
+                                <i class="fas fa-globe" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                MEU has Internet Facilities
+                            </p>
+                            <div class="yn-group">
+                                <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasInternet" value="true" id="meuInternetYes" />
+                                <label class="yn-label" for="meuInternetYes"><i class="fas fa-check"></i> Yes</label>
+
+                                <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasInternet" value="false" id="meuInternetNo" />
+                                <label class="yn-label yn-no" for="meuInternetNo"><i class="fas fa-xmark"></i> No</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.MedicalEducationUnitHasInternet, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION — MEU Coordinator Details (conditional)
+        ════════════════════════════════════════════════════ -->
+        <div id="meu-details-block">
+
+            <div class="section-card">
+                <div class="section-header sh-indigo">
+                    <div class="icon-wrap"><i class="fas fa-user-doctor"></i></div>
+                    <h2>MEU Coordinator Details</h2>
+                    <span class="sh-sub">Designated liaison for Medical Education Unit</span>
+                </div>
+                <div class="section-body">
+                    <div class="row g-3">
+
+                        <div class="col-lg-6">
+                            <label><i class="fas fa-user"></i> MEU Coordinator Name</label>
+                            <input type="text" class="meu-field" asp-for="MeuCoordinatorName" placeholder="Enter coordinator name" />
+                            @Html.ValidationMessageFor(m => m.MeuCoordinatorName, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label><i class="fas fa-briefcase"></i> Designation and Department</label>
+                            <input type="text" class="meu-field" asp-for="MeuCoordinatorDesignationDepartment" placeholder="e.g., Professor, Dept. of Medicine" />
+                            @Html.ValidationMessageFor(m => m.MeuCoordinatorDesignationDepartment, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label><i class="fas fa-phone"></i> Phone</label>
+                            <input type="text" class="meu-field" asp-for="MeuCoordinatorPhone" placeholder="Phone number" />
+                            @Html.ValidationMessageFor(m => m.MeuCoordinatorPhone, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label><i class="fas fa-envelope"></i> Email ID</label>
+                            <input type="email" class="meu-field" asp-for="MeuCoordinatorEmail" placeholder="Email ID" />
+                            @Html.ValidationMessageFor(m => m.MeuCoordinatorEmail, "", new { @class = "text-danger small" })
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════
+                 SECTION — MEU Members & Activities
+            ════════════════════════════════════════════════════ -->
+            <div class="section-card">
+                <div class="section-header sh-amber">
+                    <div class="icon-wrap"><i class="fas fa-people-group"></i></div>
+                    <h2>MEU Members &amp; Activities</h2>
+                    <span class="sh-sub">Member list and last academic year activities</span>
+                </div>
+                <div class="section-body">
+                    <div class="row g-3">
+
+                        <div class="col-lg-6">
+                            <label>
+                                <i class="fas fa-file-pdf"></i> MEU Members List
+                                <span style="font-size:.68rem;color:var(--danger);font-weight:400;text-transform:none;margin-left:4px;">PDF upload mandatory</span>
+                            </label>
+                            <input type="file" class="meu-field" asp-for="MeuMembersListFile" accept=".pdf" />
+                            <input type="hidden" asp-for="HasMeuMembersListFile" />
+                            @Html.ValidationMessageFor(m => m.MeuMembersListFile, "", new { @class = "text-danger small" })
+
+                            @if (Model != null && Model.HasMeuMembersListFile)
+                            {
+                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                <br />
+                                <a asp-action="ViewMeuMembersList" target="_blank" class="btn-view-pdf">
+                                    <i class="fas fa-eye"></i> View Uploaded PDF
+                                </a>
+                            }
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label><i class="fas fa-list-check"></i> List of MEU Activities – Last Academic Year</label>
+                            <textarea class="meu-field" asp-for="MeuActivitiesLastAcademicYear" rows="4"
+                                      placeholder="Summarize key activities conducted in last A.Y."></textarea>
+                            @Html.ValidationMessageFor(m => m.MeuActivitiesLastAcademicYear, "", new { @class = "text-danger small" })
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /#meu-details-block -->
+        <!-- ═══════════════════════════════════════════════════
+             FOOTER ACTIONS
+        ════════════════════════════════════════════════════ -->
+        <div class="dm-form-footer d-flex justify-content-end gap-2">
+
+            <button type="button" class="btn-dm btn-dm-ghost"
+                    onclick="window.location.href='@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")'">
+                <i class="fas fa-arrow-left"></i> Previous
+            </button>
+
+            <button type="submit" class="btn-dm btn-dm-primary" id="btnSave">
+                <i class="fas fa-floppy-disk"></i> Save
+            </button>
+
+            <button type="button" class="btn-dm btn-dm-success"
+                    onclick="window.location.href='@Url.Action("CA_Med_ResearchPublicationsDetails", "CA_Med_ResearchPublications")'">
+                Next <i class="fas fa-arrow-right"></i>
+            </button>
+
+        </div>
+
+        
+    </div><!-- /dm-form-wrap -->
+
+</form>
+
+@section Scripts {
+
+    @if (TempData["SaveSuccess"] != null)
+    {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+        <script>
+            setTimeout(function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Saved Successfully',
+                    text: '@Html.Raw(TempData["SaveSuccess"])',
+                    confirmButtonColor: '#1a4c8b'
+                });
+            }, 300);
+        </script>
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const meuYes    = document.getElementById('meuAvailableYes');
+            const meuNo     = document.getElementById('meuAvailableNo');
+            const meuBlock  = document.getElementById('meu-details-block');
+            const meuFields = document.querySelectorAll('.meu-field');
+            const area      = document.getElementById('meuArea');
+            const fileInput = document.querySelector('[name="MeuMembersListFile"]');
+            const hasFile   = document.querySelector('[name="HasMeuMembersListFile"]');
+
+            function clearValidation(field) {
+                if (!field) return;
+                field.classList.remove('input-validation-error');
+                const span = document.querySelector(`[data-valmsg-for="${field.name}"]`);
+                if (span) span.textContent = '';
+            }
+
+            function enableMeuFields(enable) {
+                meuFields.forEach(field => {
+                    field.disabled = !enable;
+                    if (!enable) clearValidation(field);
+                });
+            }
+
+            function handleMeuToggle() {
+                if (meuYes && meuYes.checked) {
+                    meuBlock.style.display = 'block';
+                    meuBlock.style.opacity = '1';
+                    enableMeuFields(true);
+                    area.setAttribute('required', 'required');
+                    area.setAttribute('min', '150');
+                    if (fileInput && hasFile && hasFile.value !== 'True') {
+                        fileInput.setAttribute('required', 'required');
+                    }
+                } else {
+                    meuBlock.style.opacity = '0';
+                    setTimeout(() => { meuBlock.style.display = 'none'; }, 220);
+                    enableMeuFields(false);
+                    area.removeAttribute('required');
+                    area.removeAttribute('min');
+                    if (fileInput) fileInput.removeAttribute('required');
+                }
+            }
+
+            if (meuYes) meuYes.addEventListener('change', handleMeuToggle);
+            if (meuNo)  meuNo.addEventListener('change', handleMeuToggle);
+
+            handleMeuToggle();
+        });
+    </script>
+}

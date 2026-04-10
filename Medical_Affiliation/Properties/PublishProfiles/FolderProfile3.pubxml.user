@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- https://go.microsoft.com/fwlink/?LinkID=208121. -->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>D:\17092025_Admission_AFF_LocalPb</_PublishTargetUrl>
+    <History>True|2025-09-17T10:58:06.9670708Z||;True|2025-09-17T16:23:18.0642975+05:30||;True|2025-09-17T15:45:26.3199455+05:30||;True|2025-09-17T14:21:48.6183072+05:30||;True|2025-09-17T14:18:01.1986979+05:30||;True|2025-09-17T14:13:37.8001107+05:30||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="DefaultConnection">
+      <Value>Server=WIN-88F8M30MDR6%3bDatabase=Admission_Affiliation%3bUser ID=sa%3bPassword=Admin%40123##%3bTrustServerCertificate=True%3b</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>

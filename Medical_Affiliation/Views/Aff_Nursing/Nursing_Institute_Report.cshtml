@@ -1,0 +1,71 @@
+﻿@model NursingInstituteDetailViewModel
+
+<div class="container mt-5">
+    <h2 class="fw-bold mb-4 text-center">Institute Details Report</h2>
+
+    <div class="card shadow-sm p-4">
+        <table class="table table-striped table-bordered align-middle">
+            <tbody>
+                <tr>
+                    <th style="width: 35%">Institute Name</th>
+                    <td>@Model.InstituteName</td>
+                </tr>
+                <tr>
+                    <th>Address</th>
+                    <td>@Model.InstituteAddress</td>
+                </tr>
+                <tr>
+                    <th>Trust / Society Name</th>
+                    <td>@Model.TrustSocietyName</td>
+                </tr>
+                <tr>
+                    <th>Year of Establishment of Trust</th>
+                    <td>@Model.YearOfEstablishmentOfTrust?.ToString("yyyy-MM-dd")</td>
+                </tr>
+                <tr>
+                    <th>Year of Establishment of College</th>
+                    <td>@Model.YearOfEstablishmentOfCollege?.ToString("yyyy-MM-dd")</td>
+                </tr>
+                <tr>
+                    <th>Institution Type</th>
+                    <td>@Model.InstitutionType</td>
+                </tr>
+                <tr>
+                    <th>Head of Institution</th>
+                    <td>@Model.HodofInstitution</td>
+                </tr>
+                <tr>
+                    <th>Date of Birth (HOD)</th>
+                    <td>@Model.Dob?.ToString("yyyy-MM-dd")</td>
+                </tr>
+                <tr>
+                    <th>Age</th>
+                    <td>@Model.Age</td>
+                </tr>
+                <tr>
+                    <th>Teaching Experience (Years)</th>
+                    <td>@Model.TeachingExperience</td>
+                </tr>
+                <tr>
+                    <th>PG Degree</th>
+                    <td>@Model.Degree</td>
+                </tr>
+                <tr>
+                    <th>Course</th>
+                    <td>@Model.CourseCode</td>
+                </tr>
+                <tr>
+                    <th>Selected Specialities</th>
+                    <td>@Model.CourseSelectedSpecialities</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-controller="Login" asp-action="Dashboard" class="btn btn-outline-secondary">⬅ Back to Dashboard</a>
+            <a asp-action="Nursing_BasicDetails" asp-controller="Nursing" asp-route-readOnly="false" class="btn btn-outline-primary">
+                ✏ Edit Details
+            </a>
+        </div>
+    </div>
+</div>

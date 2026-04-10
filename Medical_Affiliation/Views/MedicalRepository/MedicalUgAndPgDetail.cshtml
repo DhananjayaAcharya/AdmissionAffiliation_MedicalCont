@@ -1,0 +1,1364 @@
+﻿@using Medical_Affiliation.Models
+@model List<Ugdetail>
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = null;
+    ViewData["Title"] = "Course Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 2;
+    var courses = ViewBag.Courses as List<MstCourse> ?? new List<MstCourse>();
+    var courseLevels = ViewBag.CourseLevels as List<string> ?? new List<string>();
+    var courseDict = courses.ToDictionary(x => x.CourseCode, x => x.CourseName);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course Details — Medical Affiliation Portal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Remix Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <!-- Animate.css (subtle entrance animations) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        /* ══════════════════════════════════════════════
+                   DESIGN TOKENS
+                ══════════════════════════════════════════════ */
+        :root {
+            --c-navy: #0b1f42;
+            --c-navy-mid: #153063;
+            --c-navy-lite: #1e4080;
+            --c-navy-ghost: #e8edf7;
+            --c-gold: #b07d2a;
+            --c-gold-lite: #d4a03c;
+            --c-gold-pale: #fdf4e2;
+            --c-cream: #f8f7f4;
+            --c-white: #ffffff;
+            --c-ink: #111827;
+            --c-muted: #6b7490;
+            --c-border: #dde2ef;
+            --c-border-gold: #c9a03a;
+            --c-red: #a61d24;
+            --c-green: #146c43;
+            --c-green-bg: #eaf5ee;
+            --c-amber-bg: #fef4e0;
+            --c-amber: #8c5a00;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-card: 0 2px 12px rgba(11,31,66,0.08), 0 1px 3px rgba(11,31,66,0.05);
+            --shadow-deep: 0 8px 32px rgba(11,31,66,0.14), 0 2px 8px rgba(11,31,66,0.07);
+        }
+
+        /* ══════════════════════════════════════════════
+                   RESET & BASE
+                ══════════════════════════════════════════════ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            color: var(--c-ink);
+            background: #edf0f7;
+            background-image: radial-gradient(ellipse 80% 50% at 10% -10%, rgba(21,48,99,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 110%, rgba(176,125,42,0.05) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════════════════════
+                   GOVERNMENT HEADER
+                ══════════════════════════════════════════════ */
+        .gov-header {
+            background: var(--c-navy);
+            border-bottom: 3px solid var(--c-gold-lite);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(11,31,66,0.4);
+        }
+
+        .gov-header-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 28px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .gov-seal {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #c9a03a 0%, #7a5616 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 0 0 3px rgba(201,160,58,0.25), 0 3px 10px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .gov-header-title {
+            flex: 1;
+        }
+
+            .gov-header-title .line1 {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.18rem;
+                font-weight: 700;
+                color: #e8c97a;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                line-height: 1.2;
+            }
+
+            .gov-header-title .line2 {
+                font-size: 0.72rem;
+                color: rgba(255,255,255,0.45);
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                margin-top: 2px;
+            }
+
+        .gov-header-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+            .gov-header-meta .meta-tag {
+                font-family: 'DM Mono', monospace;
+                font-size: 0.68rem;
+                color: rgba(255,255,255,0.4);
+                letter-spacing: 0.8px;
+            }
+
+            .gov-header-meta .meta-portal {
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--c-gold-lite);
+                letter-spacing: 0.5px;
+            }
+
+        /* ══════════════════════════════════════════════
+                   PAGE SHELL
+                ══════════════════════════════════════════════ */
+        .page-shell {
+            max-width: 1160px;
+            margin: 36px auto 72px;
+            padding: 0 20px;
+        }
+
+        /* ══════════════════════════════════════════════
+                   BREADCRUMB
+                ══════════════════════════════════════════════ */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: var(--c-muted);
+            margin-bottom: 20px;
+        }
+
+            .breadcrumb a {
+                color: var(--c-navy-lite);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.15s;
+            }
+
+                .breadcrumb a:hover {
+                    color: var(--c-gold);
+                }
+
+            .breadcrumb .sep {
+                opacity: 0.4;
+            }
+
+            .breadcrumb .current {
+                color: var(--c-navy);
+                font-weight: 600;
+            }
+
+        /* ══════════════════════════════════════════════
+                   STEP PROGRESS HEADER
+                ══════════════════════════════════════════════ */
+        .step-header {
+            background: var(--c-white);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border: 1px solid var(--c-border);
+            border-bottom: none;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .step-header-top {
+            padding: 22px 32px 18px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--c-border);
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--c-navy);
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+        }
+
+        .page-title .subtitle {
+            font-size: 0.82rem;
+            color: var(--c-muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .required-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.76rem;
+            color: var(--c-red);
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* ── Progress Steps ── */
+        .progress-steps {
+            display: flex;
+        }
+
+        .p-step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-right: 1px solid var(--c-border);
+            font-size: 0.82rem;
+            color: var(--c-muted);
+            background: #f7f9fc;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+            .p-step:last-child {
+                border-right: none;
+            }
+
+            .p-step.done {
+                background: #f0f8f3;
+                color: var(--c-green);
+            }
+
+            .p-step.active {
+                background: var(--c-white);
+                color: var(--c-navy);
+                font-weight: 600;
+            }
+
+                .p-step.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--c-navy-lite), var(--c-gold-lite));
+                }
+
+        .p-step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            border: 2px solid currentColor;
+            transition: all 0.2s;
+        }
+
+        .p-step.done .p-step-num {
+            background: var(--c-green);
+            border-color: var(--c-green);
+            color: #fff;
+        }
+
+        .p-step.active .p-step-num {
+            background: var(--c-navy);
+            border-color: var(--c-navy);
+            color: #fff;
+        }
+
+        /* ══════════════════════════════════════════════
+                   FORM CARD
+                ══════════════════════════════════════════════ */
+        .form-card {
+            background: var(--c-white);
+            border: 1px solid var(--c-border);
+            border-top: none;
+            padding: 36px 40px 38px;
+            box-shadow: var(--shadow-card);
+        }
+
+        /* ── Section Divider ── */
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .section-head-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--c-navy) 0%, var(--c-navy-lite) 100%);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--c-gold-lite);
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .section-head-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--c-navy);
+            letter-spacing: 0.3px;
+        }
+
+        .section-head-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--c-border-gold), transparent);
+        }
+
+        /* ── Form Layout ── */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+            .form-row.three {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            .form-row.four {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }
+
+            .form-row.one {
+                grid-template-columns: 1fr;
+            }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--c-navy-mid);
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .req-star {
+            color: var(--c-red);
+            font-size: 0.85rem;
+        }
+
+        .field-control {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--c-ink);
+            background: #fafbfd;
+            border: 1.5px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            outline: none;
+            appearance: none;
+            transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+        }
+
+            .field-control:focus {
+                border-color: var(--c-navy-lite);
+                background: var(--c-white);
+                box-shadow: 0 0 0 3px rgba(30,64,128,0.1);
+            }
+
+            .field-control:hover:not(:focus) {
+                border-color: #a0aec0;
+            }
+
+        select.field-control {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7490' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        input[type="file"].field-control {
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            background: #f7f9fc;
+            cursor: pointer;
+            color: var(--c-muted);
+        }
+
+            input[type="file"].field-control::file-selector-button {
+                background: var(--c-navy-ghost);
+                color: var(--c-navy-mid);
+                border: 1px solid var(--c-border);
+                border-radius: 3px;
+                padding: 4px 12px;
+                font-size: 0.78rem;
+                font-family: 'DM Sans', sans-serif;
+                font-weight: 600;
+                cursor: pointer;
+                margin-right: 10px;
+                transition: background 0.15s;
+            }
+
+                input[type="file"].field-control::file-selector-button:hover {
+                    background: var(--c-navy);
+                    color: #fff;
+                    border-color: var(--c-navy);
+                }
+
+        /* ── Documents Zone ── */
+        .doc-zone-header {
+            background: linear-gradient(90deg, var(--c-navy) 0%, var(--c-navy-mid) 100%);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            padding: 11px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0;
+        }
+
+            .doc-zone-header span {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--c-gold-lite);
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+            }
+
+            .doc-zone-header small {
+                font-size: 0.7rem;
+                color: rgba(255,255,255,0.4);
+                font-family: 'DM Sans', sans-serif;
+                margin-left: auto;
+            }
+
+        .doc-zone-body {
+            border: 1.5px solid var(--c-border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            padding: 22px 24px 20px;
+            background: #fbfcff;
+            margin-bottom: 28px;
+        }
+
+        .doc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        /* ── Action Row ── */
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 24px;
+            border-top: 1px solid #edf0f7;
+            gap: 14px;
+        }
+
+        .actions-left {
+            font-size: 0.78rem;
+            color: var(--c-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .actions-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1.5px solid transparent;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-ghost {
+            background: var(--c-white);
+            color: var(--c-muted);
+            border-color: var(--c-border);
+        }
+
+            .btn-ghost:hover {
+                background: #f1f4fb;
+                color: var(--c-navy);
+                border-color: #b0bcd8;
+            }
+
+        .btn-primary {
+            background: var(--c-navy);
+            color: var(--c-white);
+            border-color: var(--c-navy);
+            position: relative;
+            overflow: hidden;
+            padding: 10px 30px;
+        }
+
+            .btn-primary::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 60%);
+                pointer-events: none;
+            }
+
+            .btn-primary:hover {
+                background: var(--c-navy-lite);
+                border-color: var(--c-navy-lite);
+                box-shadow: 0 4px 16px rgba(11,31,66,0.28);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:active {
+                transform: translateY(0);
+                box-shadow: none;
+            }
+
+        .btn-danger-ghost {
+            background: transparent;
+            color: var(--c-red);
+            border-color: #f5c0c0;
+            font-size: 0.79rem;
+            padding: 5px 14px;
+        }
+
+            .btn-danger-ghost:hover {
+                background: var(--c-red);
+                color: #fff;
+                border-color: var(--c-red);
+            }
+
+        /* ══════════════════════════════════════════════
+                   RECORDS TABLE
+                ══════════════════════════════════════════════ */
+        .records-card {
+            background: var(--c-white);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-md);
+            margin-top: 28px;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .records-header {
+            background: var(--c-navy);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .records-header .rh-left {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .records-header .rh-icon {
+                width: 34px;
+                height: 34px;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--c-gold-lite);
+                font-size: 1rem;
+            }
+
+            .records-header .rh-title {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.12rem;
+                font-weight: 700;
+                color: #e8c97a;
+                letter-spacing: 0.8px;
+            }
+
+            .records-header .rh-count {
+                font-size: 0.72rem;
+                color: rgba(255,255,255,0.4);
+                letter-spacing: 0.5px;
+                margin-top: 1px;
+            }
+
+        .records-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+            .records-badge.live {
+                background: rgba(20,108,67,0.2);
+                color: #6ee7b7;
+                border: 1px solid rgba(110,231,183,0.2);
+            }
+
+        .records-table-wrap {
+            overflow-x: auto;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+            .records-table thead tr {
+                background: #f4f6fc;
+            }
+
+            .records-table th {
+                padding: 12px 14px;
+                text-align: left;
+                font-size: 0.72rem;
+                font-weight: 700;
+                color: var(--c-navy-mid);
+                letter-spacing: 0.9px;
+                text-transform: uppercase;
+                border-bottom: 2px solid var(--c-border-gold);
+                border-right: 1px solid var(--c-border);
+                white-space: nowrap;
+            }
+
+                .records-table th:last-child {
+                    border-right: none;
+                }
+
+            .records-table td {
+                padding: 11px 14px;
+                border-bottom: 1px solid #eef0f8;
+                border-right: 1px solid #eef0f8;
+                color: #2c3454;
+                vertical-align: middle;
+            }
+
+                .records-table td:last-child {
+                    border-right: none;
+                }
+
+            .records-table tbody tr {
+                transition: background 0.12s;
+            }
+
+                .records-table tbody tr:hover {
+                    background: #f5f8ff;
+                }
+
+                .records-table tbody tr.empty-row td {
+                    text-align: center;
+                    padding: 48px;
+                    color: var(--c-muted);
+                    font-style: italic;
+                }
+
+        .row-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--c-muted);
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+            .badge.fresh {
+                background: var(--c-green-bg);
+                color: var(--c-green);
+                border: 1px solid #a7d7b8;
+            }
+
+            .badge.increase {
+                background: var(--c-amber-bg);
+                color: var(--c-amber);
+                border: 1px solid #f5ca7a;
+            }
+
+        .doc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--c-navy-lite);
+            text-decoration: none;
+            border: 1px solid #c2cce8;
+            padding: 3px 10px;
+            border-radius: 3px;
+            background: #f0f4fc;
+            transition: all 0.12s;
+            white-space: nowrap;
+        }
+
+            .doc-link:hover {
+                background: var(--c-navy);
+                color: var(--c-white);
+                border-color: var(--c-navy);
+            }
+
+        .no-doc {
+            color: #d1d5e0;
+            font-size: 0.85rem;
+        }
+
+        /* ══════════════════════════════════════════════
+                   NAV FOOTER
+                ══════════════════════════════════════════════ */
+        .nav-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding: 0 2px;
+        }
+
+        .btn-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            transition: all 0.14s;
+            border: 1.5px solid var(--c-border);
+        }
+
+        .btn-nav-prev {
+            background: var(--c-white);
+            color: var(--c-muted);
+        }
+
+            .btn-nav-prev:hover {
+                background: #f1f4fb;
+                color: var(--c-navy);
+                border-color: #a0aec0;
+            }
+
+        .btn-nav-next {
+            background: var(--c-navy);
+            color: var(--c-white);
+            border-color: var(--c-navy);
+        }
+
+            .btn-nav-next:hover {
+                background: var(--c-navy-lite);
+                border-color: var(--c-navy-lite);
+                box-shadow: 0 4px 16px rgba(11,31,66,0.25);
+                transform: translateY(-1px);
+            }
+
+        /* ══════════════════════════════════════════════
+                   FLOATING SEAL
+                ══════════════════════════════════════════════ */
+        .page-seal {
+            position: fixed;
+            bottom: 28px;
+            right: 32px;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            border: 2px solid rgba(176,125,42,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: rgba(176,125,42,0.18);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* ══════════════════════════════════════════════
+                   TOAST NOTIFICATION AREA
+                ══════════════════════════════════════════════ */
+        .toast-area {
+            position: fixed;
+            top: 84px;
+            right: 24px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ══════════════════════════════════════════════
+                   RESPONSIVE
+                ══════════════════════════════════════════════ */
+        @@media (max-width: 960px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+                .form-row.two {
+                    grid-template-columns: 1fr 1fr;
+                }
+
+            .doc-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-card {
+                padding: 24px 22px;
+            }
+
+            .step-header-top {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .progress-steps {
+                overflow-x: auto;
+            }
+
+            .p-step {
+                min-width: 150px;
+            }
+        }
+
+        @@media (max-width: 600px) {
+            .form-row.two {
+                grid-template-columns: 1fr;
+            }
+
+            .gov-header-meta {
+                display: none;
+            }
+
+            .nav-footer {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn-nav {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══ GOVERNMENT HEADER ══ -->
+    <header class="gov-header">
+        <div class="gov-header-inner">
+            <div class="gov-seal">🏛</div>
+            <div class="gov-header-title">
+                <div class="line1">Rajiv Gandhi University of Health Sciences</div>
+                <div class="line2">Medical Affiliation Management System &nbsp;·&nbsp; Government of Karnataka</div>
+            </div>
+            <div class="gov-header-meta">
+                <span class="meta-portal">Affiliation Portal</span>
+                <span class="meta-tag" id="portal-date-header"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ══ PAGE SHELL ══ -->
+    <div class="page-shell animate__animated animate__fadeIn" style="animation-duration:0.4s;">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <i class="ri-home-4-line"></i>
+            <a href="#">Dashboard</a>
+            <span class="sep">/</span>
+            <a href="#">Medical Affiliation</a>
+            <span class="sep">/</span>
+            <span class="current">Course Details</span>
+        </nav>
+
+        <!-- ══ STEP HEADER ══ -->
+        <div class="step-header">
+            <div class="step-header-top">
+                <div class="page-title">
+                    <h1>Course Details</h1>
+                    <div class="subtitle">
+                        <i class="ri-information-line" style="color:var(--c-gold);"></i>
+                        Step 2 of 4 — Add course information and supporting documents
+                    </div>
+                </div>
+                <div class="required-note">
+                    <i class="ri-error-warning-line"></i>
+                    Fields marked <strong>&nbsp;★&nbsp;</strong> are mandatory
+                </div>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="p-step done">
+                    <div class="p-step-num"><i class="ri-check-line" style="font-size:0.8rem;"></i></div>
+                    <span>Basic Details</span>
+                </div>
+                <div class="p-step active">
+                    <div class="p-step-num">2</div>
+                    <span>Course Details</span>
+                </div>
+                <div class="p-step">
+                    <div class="p-step-num">3</div>
+                    <span>Year-wise Materials</span>
+                </div>
+                <div class="p-step">
+                    <div class="p-step-num">4</div>
+                    <span>Review &amp; Submit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ FORM CARD ══ -->
+        <div class="form-card">
+
+            <!-- Section Head -->
+            <div class="section-head">
+                <div class="section-head-icon"><i class="ri-book-open-line"></i></div>
+                <div class="section-head-label">Course Information</div>
+                <div class="section-head-line"></div>
+            </div>
+
+            <form asp-action="MedicalUgAndPgDetail" enctype="multipart/form-data" method="post">
+
+                <!-- Row 1: Course Level + Affiliation Type -->
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="field-label" for="CourseLevel">
+                            Course Level <span class="req-star">★</span>
+                        </label>
+                        <select name="CourseLevel" id="CourseLevel" class="field-control" required>
+                            <option value="">— Select Course Level —</option>
+                            @foreach (var level in courseLevels)
+                            {
+                                <option value="@level">@level</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label" for="AffiliationType">
+                            Affiliation Type <span class="req-star">★</span>
+                        </label>
+                        <select name="AffiliationType" id="AffiliationType" class="field-control" required>
+                            <option value="fresh">Fresh Affiliation</option>
+                            <option value="increase">Increase of Intake</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row 2: Course + First LOP Date -->
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="field-label" for="CourseCode">
+                            Course <span class="req-star">★</span>
+                        </label>
+                        <select name="CourseCode" id="CourseCode" class="field-control" required>
+                            <option value="">— Select Course —</option>
+                            @foreach (var course in courses)
+                            {
+                                <option value="@course.CourseCode">@course.CourseName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label" for="FirstLopdate">
+                            First LOP Date <span class="req-star">★</span>
+                        </label>
+                        <input type="date" name="FirstLopdate" id="FirstLopdate"
+                               class="field-control" required />
+                    </div>
+                </div>
+
+                <!-- Row 3: Seats + Permitted Year + Recognized Year -->
+                <div class="form-row three">
+                    <div class="form-field">
+                        <label class="field-label" for="NumberOfSeats">
+                            Number of Seats <span class="req-star">★</span>
+                        </label>
+                        <input type="text" name="NumberOfSeats" id="NumberOfSeats"
+                               class="field-control"
+                               pattern="\d+" title="Enter numeric value only"
+                               placeholder="e.g. 100" required />
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label" for="PermittedYear">
+                            Permitted Year <span class="req-star">★</span>
+                        </label>
+                        <input type="text" name="PermittedYear" id="PermittedYear"
+                               class="field-control"
+                               pattern="\d{4}" title="Enter a valid 4-digit year"
+                               placeholder="e.g. 2024" maxlength="4" required />
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label" for="RecognizedYear">
+                            Recognized Year <span class="req-star">★</span>
+                        </label>
+                        <input type="text" name="RecognizedYear" id="RecognizedYear"
+                               class="field-control"
+                               pattern="\d{4}" title="Enter a valid 4-digit year"
+                               placeholder="e.g. 2024" maxlength="4" required />
+                    </div>
+                </div>
+
+                <!-- Documents Zone -->
+                <div>
+                    <div class="doc-zone-header">
+                        <i class="ri-file-shield-2-line" style="color:var(--c-gold-lite);"></i>
+                        <span>Supporting Documents</span>
+                        <small>Upload certified copies &nbsp;·&nbsp; PDF / JPEG accepted</small>
+                    </div>
+                    <div class="doc-zone-body">
+                        <div class="doc-grid">
+                            <div class="form-field">
+                                <label class="field-label" for="Rguhsnotification">
+                                    <i class="ri-file-text-line" style="color:var(--c-gold);"></i>
+                                    RGUHS Notification
+                                </label>
+                                <input type="file" name="Rguhsnotification" id="Rguhsnotification"
+                                       class="field-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            </div>
+                            <div class="form-field">
+                                <label class="field-label" for="Gmc">
+                                    <i class="ri-file-text-line" style="color:var(--c-gold);"></i>
+                                    GMC Letter
+                                </label>
+                                <input type="file" name="Gmc" id="Gmc"
+                                       class="field-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            </div>
+                            <div class="form-field">
+                                <label class="field-label" for="Nmc">
+                                    <i class="ri-file-text-line" style="color:var(--c-gold);"></i>
+                                    NMC Certificate
+                                </label>
+                                <input type="file" name="Nmc" id="Nmc"
+                                       class="field-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            </div>
+                            <div class="form-field">
+                                <label class="field-label" for="KSNC">
+                                    <i class="ri-file-text-line" style="color:var(--c-gold);"></i>
+                                    KSNC Certificate
+                                </label>
+                                <input type="file" name="KSNC" id="KSNC"
+                                       class="field-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <div class="actions-left">
+                        <i class="ri-lock-2-line"></i>
+                        All uploads are encrypted and stored securely.
+                    </div>
+                    <div class="actions-right">
+                        <button type="reset" class="btn btn-ghost">
+                            <i class="ri-refresh-line"></i> Clear Form
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri-save-3-line"></i> Save &amp; Continue
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- ══ RECORDS TABLE ══ -->
+        <div class="records-card">
+            <div class="records-header">
+                <div class="rh-left">
+                    <div class="rh-icon"><i class="ri-table-2"></i></div>
+                    <div>
+                        <div class="rh-title">Submitted Course Records</div>
+                        <div class="rh-count">
+                            @((Model != null && Model.Any()) ? $"{Model.Count} record(s) on file" : "No records submitted yet")
+                        </div>
+                    </div>
+                </div>
+                @if (Model != null && Model.Any())
+                {
+                    <span class="records-badge live"><i class="ri-checkbox-circle-line"></i> &nbsp;Active</span>
+                }
+            </div>
+
+            <div class="records-table-wrap">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Level</th>
+                            <th>Course Name</th>
+                            <th>Affil. Type</th>
+                            <th>First LOP Date</th>
+                            <th>Seats</th>
+                            <th>Permitted</th>
+                            <th>Recognized</th>
+                            <th>RGUHS</th>
+                            <th>GMC</th>
+                            <th>NMC</th>
+                            <th>KSNC</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            int rowNum = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><span class="row-num">@rowNum</span></td>
+                                    <td>@item.CourseLevel</td>
+                                    <td style="font-weight:500;max-width:180px;">
+                                        @(item.CourseCode != null && courseDict.ContainsKey(Convert.ToInt32(item.CourseCode))
+                                                                        ? courseDict[Convert.ToInt32(item.CourseCode)]
+                                                                        : item.CourseCode ?? "—")
+                                    </td>
+                                    <td>
+                                        @if (item.FreshOrIncrease?.ToLower() == "fresh")
+                                        {
+                                            <span class="badge fresh">Fresh</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge increase">Increase</span>
+                                        }
+                                    </td>
+                                    <td style="white-space:nowrap;">@item.FirstLopdate?.ToString("dd MMM yyyy")</td>
+                                    <td style="text-align:center;font-weight:600;">@item.NumberOfSeats</td>
+                                    <td style="text-align:center;">@item.PermittedYear</td>
+                                    <td style="text-align:center;">@item.RecognizedYear</td>
+                                    <td>
+                                        @if (item.Rguhsnotification != null)
+                                        {
+                                            <a class="doc-link" href="@Url.Action("DownloadUgFile", "MedicalRepository", new { id = item.Id, fileType = "Rguhsnotification" })" target="_blank">
+                                                <i class="ri-external-link-line"></i> View
+                                            </a>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="no-doc">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Gmc != null)
+                                        {
+                                            <a class="doc-link" href="@Url.Action("DownloadUgFile", "MedicalRepository", new { id = item.Id, fileType = "Gmc" })" target="_blank">
+                                                <i class="ri-external-link-line"></i> View
+                                            </a>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="no-doc">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Nmc != null)
+                                        {
+                                            <a class="doc-link" href="@Url.Action("DownloadUgFile", "MedicalRepository", new { id = item.Id, fileType = "Nmc" })" target="_blank">
+                                                <i class="ri-external-link-line"></i> View
+                                            </a>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="no-doc">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Ksnc != null)
+                                        {
+                                            <a class="doc-link" href="@Url.Action("DownloadUgFile", "MedicalRepository", new { id = item.Id, fileType = "Ksnc" })" target="_blank">
+                                                <i class="ri-external-link-line"></i> View
+                                            </a>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="no-doc">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <form asp-action="DeleteUgdetail" asp-controller="MedicalRepository" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-danger-ghost"
+                                                    onclick="return confirm('Permanently delete this record?');">
+                                                <i class="ri-delete-bin-6-line"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                rowNum++;
+                            }
+                        }
+                        else
+                        {
+                            <tr class="empty-row">
+                                <td colspan="13">
+                                    <i class="ri-inbox-line" style="font-size:1.4rem;display:block;margin-bottom:8px;opacity:0.3;"></i>
+                                    No course records have been submitted yet.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ══ NAVIGATION FOOTER ══ -->
+        <div class="nav-footer">
+            <a asp-controller="MedicalRepository" asp-action="Medical_BasicDetails" class="btn-nav btn-nav-prev">
+                <i class="ri-arrow-left-line"></i> Previous Step
+            </a>
+            <a asp-controller="MedicalRepository" asp-action="Medical_YearwiseMaterials" class="btn-nav btn-nav-next">
+                Next Step <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Floating Seal -->
+    <div class="page-seal"><i class="ri-government-line"></i></div>
+
+    <!-- Toast Area -->
+    <div class="toast-area" id="toastArea"></div>
+
+    <script>
+        // Live date in header
+        (function () {
+            const el = document.getElementById('portal-date-header');
+            if (el) {
+                el.textContent = new Date().toLocaleDateString('en-IN', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+            }
+        })();
+
+        // Numeric-only enforcement for seats & year fields
+        ['NumberOfSeats', 'PermittedYear', 'RecognizedYear'].forEach(function (id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', function () {
+                    this.value = this.value.replace(/\D/g, '');
+                });
+            }
+        });
+
+        // File input label enhancement
+        document.querySelectorAll('input[type="file"]').forEach(function (input) {
+            input.addEventListener('change', function () {
+                if (this.files.length > 0) {
+                    this.style.borderColor = 'var(--c-navy-lite)';
+                    this.style.background = '#f0f4fc';
+                }
+            });
+        });
+
+        // Subtle form entrance
+        document.querySelectorAll('.form-field').forEach(function (el, i) {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(8px)';
+            setTimeout(function () {
+                el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, 60 + i * 30);
+        });
+    </script>
+
+</body>
+</html>

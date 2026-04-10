@@ -1,0 +1,330 @@
+﻿@model AdminLoginViewModel
+@{
+    ViewData["Title"] = "Affiliation Director Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fg: rgba(255,255,255,.92);
+            --fg-dim: rgba(255,255,255,.70);
+            --line: rgba(255,255,255,.75);
+            --btn: #133a72;
+            --btn-hover: #0e2d59;
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            --accent: #4fc3f7;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--fg);
+            background: radial-gradient(900px 500px at 12% 15%, rgba(255,255,255,0.18), transparent 60%), radial-gradient(700px 400px at 88% 85%, rgba(255,255,255,0.08), transparent 60%), linear-gradient(135deg, #0f172a 0%, #1e3a8a 40%, #0b1120 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login {
+            width: 100%;
+            max-width: 460px;
+            padding: 10px 28px 28px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 14px auto;
+            border-radius: 50%;
+            background: #1e4e92;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,.25), inset 0 0 0 2px rgba(255,255,255,.10);
+        }
+
+            .avatar svg {
+                width: 48px;
+                height: 48px;
+                stroke: #fff;
+            }
+
+        h1 {
+            margin: 8px 0 30px 0;
+            font-size: 32px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: var(--fg);
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            position: relative;
+        }
+
+            .field label {
+                font-size: 16px;
+                text-align: justify;
+                font-weight: 500;
+                color: rgba(255,255,255,0.82);
+                margin-bottom: 6px;
+                letter-spacing: 0.05em;
+                padding-left: 2px;
+            }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+            position: relative;
+        }
+
+            .input-row .ico {
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+                .input-row .ico svg {
+                    width: 20px;
+                    height: 20px;
+                    stroke: rgba(255,255,255,0.8);
+                }
+
+            .input-row input {
+                flex: 1;
+                height: 40px;
+                padding: 0 8px;
+                background: transparent;
+                border: none;
+                color: var(--fg);
+                font-size: 15px;
+                outline: none;
+                border-radius: 8px;
+            }
+
+            .toggle-password {
+                position: absolute;
+                top:3em;
+                right:1.5em;
+                cursor: pointer;
+                font-size: 16px;
+                /* color: rgba(255,255,255,0.75); */
+                color: #000;
+                user-select: none;
+            }
+
+            .input-row input:focus {
+                box-shadow: 0 0 0 1px var(--accent);
+            }
+
+        .row {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--fg-dim);
+        }
+
+            .row label {
+                display: inline-flex;
+                gap: 6px;
+                align-items: center;
+                cursor: pointer;
+            }
+
+            .row input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+                accent-color: #1e4e92;
+            }
+
+        .btn {
+            flex: 1;
+            height: 52px;
+            border: none;
+            background: var(--btn);
+            color: #fff;
+            letter-spacing: .15em;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            line-height: 52px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.28);
+            text-decoration: none;
+        }
+
+            .btn:hover {
+                background: var(--btn-hover);
+            }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 26px;
+        }
+
+        @@media (max-width: 420px) {
+            h1 {
+                letter-spacing: .32em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login">
+        <div class="avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="4" stroke-width="1.8" />
+                <path d="M4.5 20c1.8-3.6 5-5.5 7.5-5.5S17.7 16.4 19.5 20" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+        </div>
+        <h1>Affiliation Director Login</h1>
+        <form asp-action="AffiliationDirLogin" id="loginForm" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="field">
+                <label for="UserName">User ID</label>
+                <div class="input-row">
+                    <span class="ico">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M3 7.5l9 6 9-6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                            <rect x="3" y="5" width="18" height="14" rx="2" stroke-width="1.6" />
+                        </svg>
+                    </span>
+                    <input asp-for="UserName" type="text" id="UserName" placeholder=" " autocomplete="username" />
+                </div>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <div class="input-row">
+                <span class="ico">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <rect x="4.5" y="10.5" width="15" height="10" rx="2" stroke-width="1.6" />
+                        <path d="M8 10.5V8a4 4 0 1 1 8 0v2.5" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                </span>
+                <input asp-for="Password" type="password" id="password" placeholder=" " autocomplete="current-password" />
+                </div>
+                <span class="toggle-password" onclick="togglePassword()">👁</span>
+            </div>
+            @* <div class="field mt-3" style="display: flex; align-items: self-start; justify-content: center">
+            <div class="captcha-box" style="display: inline-block; padding: 10px 20px; background: #2661ab; font-weight: bold; letter-spacing: 4px; border-radius: 8px; font-size: 20px;">
+            @Model.CaptchaString
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary ms-2 refresh-captcha text-center" style="font-size: 22px; border-radius: 10px;display: inline">↻</button>
+            <input type="hidden" asp-for="CaptchaString" />
+
+            </div>
+
+            <div class="field">
+            <input asp-for="CaptchaInput" type="text" placeholder="" style="color: white;" />
+            <label for="CaptchaInput">Enter Captcha</label>
+
+            <span asp-validation-for="CaptchaInput" class="text-danger"></span>
+            </div> *@
+            <div class="btn-row">
+                <button type="submit" class="btn">LOGIN</button>
+            </div>
+            <div style="text-align: end; margin-top: 10px">
+                <a href="@Url.Action("Index", "Home")" style="color: white; text-decoration: none;">⬅️ Back To Main Menu</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        function togglePassword() {
+            var pwd = document.getElementById("password");
+            if (pwd.type === "password") {
+                pwd.type = "text";
+            } else {
+                pwd.type = "password";
+            }
+        }
+    </script>
+</body>
+</html>
+@* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> *@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if (!ViewData.ModelState.IsValid)
+{
+    var allErrors = string.Join(" ", ViewData.ModelState.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage));
+
+    <text>
+        <script>
+            $(document).ready(function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Failed',
+                    text: '@allErrors',
+                    confirmButtonColor: '#2575fc'
+                });
+            });
+        </script>
+    </text>
+}
+<script>
+    $(function () {
+        $('#loginForm').on('submit', function (e) {
+            var username = $.trim($('#UserName').val());
+            var password = $.trim($('#password').val());
+            if (username === "" && password === "") {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Credentials',
+                    text: 'Please enter your Username/Email and Password.',
+                    confirmButtonColor: '#2575fc'
+                });
+            } else if (username === "") {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Username',
+                    text: 'Please enter your Username or Email.',
+                    confirmButtonColor: '#2575fc'
+                });
+            } else if (password === "") {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Password',
+                    text: 'Please enter your Password.',
+                    confirmButtonColor: '#2575fc'
+                });
+            }
+        });
+
+    });
+</script>

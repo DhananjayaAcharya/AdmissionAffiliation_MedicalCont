@@ -1,0 +1,316 @@
+﻿@model SectionOfficerCourseWiseRguhsIntakeViewModel
+
+<style>
+    body {
+        /* background: linear-gradient(120deg, #4679a7 0%, #8deff7 100%); */
+        min-height: 100vh;
+        color: #fff;
+        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    }
+    .glass-box {
+        background: rgba(255,255,255,0.17);
+        backdrop-filter: blur(30px);
+        border-radius: 22px;
+        box-shadow: 0 8px 28px rgba(31,38,135,0.14), 0 1.5px 10px rgba(94,228,255,0.11);
+        border: 2px solid rgba(255,255,255,0.25);
+        padding: 2.3rem 2.2rem;
+        margin-top: 3vh;
+        transition: box-shadow 0.2s;
+        max-width: 70vw;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .page-title {
+        color: #256fa1;
+        font-size: 2.1rem;
+        font-weight: 700;
+        /* text-shadow: 0 2px 14px #b8f5fa80; */
+        letter-spacing: .5px;
+        margin-bottom: 18px;
+    }
+    label {
+        font-weight: 600;
+        /* color: #25718d; */
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+    .form-control, .form-select {
+        /* background: rgba(255,255,255,0.65) !important; */
+        border-radius: 11px;
+        border: 1.2px solid #ddefff;
+        transition: border-color 0.17s;
+        font-size: 15px;
+        margin-bottom: 10px;
+        color: #184b7f;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #4debff;
+        box-shadow: 0 0 0 2px #4debff10;
+        background: rgba(255,255,255,0.92)!important;
+        color: #184b7f;
+    }
+    /* Table */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    #adminTable {
+        margin-bottom: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background: rgba(255,255,255,0.23);
+    }
+    #adminTable thead {
+        background: linear-gradient(90deg, #15d4cf 70%, #4debff 100%);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    #adminTable th {
+        font-size: 15px;
+        font-weight: 800;
+        color: #215496;
+        padding: 12px;
+        background: transparent;
+        border-bottom: 2.5px solid #b5e6f0;
+        text-align: center;
+    }
+    #adminTable td {
+        color: #fff;
+        font-size: 15px;
+        font-weight: 500;
+        text-align: center;
+        border-bottom: 1.2px solid #ddefff60;
+        padding: 12px 10px;
+        background: transparent;
+    }
+    /* Fantastic scrollable table body */
+    #adminTable tbody {
+        display: block;
+        width: 100%;
+        max-height: 45vh;
+        /* min-height: 120px; */
+        overflow-y: auto;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        /* scrollbar-color: #4debff #fff; */
+    }
+    #adminTable thead, #adminTable tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    
+    /* Improve scrollbar look */
+    #adminTable tbody::-webkit-scrollbar {
+        width: 7px;
+        background: #000;
+    }
+    #adminTable tbody::-webkit-scrollbar-thumb {
+        background: #19e8ffb7;
+        border-radius: 7px;
+        border: 2px solid #eafcff;
+    }
+
+    /* #collegeSelect{
+        width: 70%;
+    } */
+    .badge-status {
+        font-size: 13px;
+        border-radius: 12px;
+        padding: 6px 16px;
+        font-weight: 650;
+        box-shadow: 0 1px 10px #15d4cf2a;
+        letter-spacing: .3px;
+    }
+    .badge.bg-success {
+        background: linear-gradient(90deg, #57e596 50%, #33b488 100%);
+        color: #fff;
+    }
+    .badge.bg-warning {
+        background: linear-gradient(90deg, #ffd700 60%, #ffed86 100%);
+        color: #534700;
+    }
+    /* Button at bottom */
+    .btn-success {
+        background: linear-gradient(90deg, #39edbb 23%, #15d4cf 100%);
+        border: none;
+        font-weight: 700;
+        font-size: 17px;
+        color: #fff;
+        letter-spacing: .75px;
+        border-radius: 14px;
+        box-shadow: 0 2px 14px #13dbb010;
+        margin-top: 16px;
+        padding: 14px;
+        transition: background 0.22s, box-shadow 0.22s, transform .16s;
+    }
+    .btn-success:hover {
+        background: linear-gradient(91deg, #13beff 33%, #07a7cf 90%);
+        /* transform: translateY(-2px) scale(1.03); */
+    }
+    .btn-success:active { scale: .97; }
+    /* Responsive */
+    @@media (max-width: 900px) {
+        .glass-box { padding: 1.1rem .6rem;}
+        #adminTable tbody {max-height: 31vh;}
+    }
+    @@media (max-width: 668px) {
+        .row {display: block;}
+        .col-md-4 {width: 100%; display: block; margin-bottom: 11px;}
+        #adminTable tbody {max-height: 18vh;}
+        .btn-success {width: 100%; margin-top: 10px;}
+    }
+</style>
+
+
+<div class="container" style="color: white">
+
+    <div class="glass-box">
+        <div class="page-title text-center">Admin RGUHS Intake Approval</div>
+
+        <!-- FILTER SELECTION -->
+        <div class="row mb-3">
+
+            <div class="col-md-4">
+                <label>Faculty</label>
+                <select id="facultySelect" class="form-select">
+                    <option value="">Select Faculty</option>
+                    @foreach (var f in Model.faculties)
+                    {
+                        <option value="@f.FacultyId">@f.FacultyName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-7">
+                <label>College</label>
+                <select id="collegeSelect" class="form-select">
+                    <option value="">Select College</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-responsive">
+            <table class="table" id="adminTable">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>RGUHS Existing Intake</th>
+                        <th>RGUHS Change Intake</th>
+                        <th>Approval Status</th>
+                        <th>Approve</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+
+        <!-- APPROVE ALL -->
+        <div class="d-flex text-center">
+            <button class="btn btn-success w-100" id="approveAllBtn">Approve All</button>
+        </div>
+        @Html.AntiForgeryToken()
+    </div>
+</div>
+
+<script>
+    document.getElementById("facultySelect").addEventListener("change", async function () {
+        const facultyId = this.value;
+        const collegeSelect = document.getElementById("collegeSelect");
+        collegeSelect.innerHTML = "<option value=''>Select College</option>";
+
+        const response = await fetch("@Url.Action("FetchCollegesByFaculty", "Admin")?facultyId=" + facultyId);
+        const data = await response.json();
+
+        data.forEach(d => {
+            const option = document.createElement("option");
+            option.value = d.value;
+            option.textContent = d.text;
+            collegeSelect.appendChild(option);
+        });
+    });
+
+
+    document.getElementById("collegeSelect").addEventListener("change", async function () {
+        const collegeCode = this.value;
+        const tbody = document.querySelector("#adminTable tbody");
+        tbody.innerHTML = "";
+
+        // Here we fetch ALL courses for that college
+        const response = await fetch("@Url.Action("FetchCoursesByCollege_AllCourses", "Admin")?collegeCode=" + collegeCode);
+        const data = await response.json();
+
+        data.forEach(c => {
+
+            const tr = document.createElement("tr");
+            tr.dataset.id = c.id;
+
+            let badge = `<span class="badge-status badge bg-warning text-dark">Pending</span>`;
+            if (c.approvalByAdmin === 1)
+                badge = `<span class="badge-status badge bg-success">Approved</span>`;
+
+            tr.innerHTML = `
+                    <td>${c.courseName}</td>
+                    <td>${c.existingIntake}</td>
+                    <td>${c.rguhsIntake}</td>
+                    <td>${badge}</td>
+                    <td><button class="btn btn-primary btn-sm approveOne">Approve</button></td>
+                `;
+            tbody.appendChild(tr);
+        });
+    });
+
+
+    // Approve ONE
+    document.addEventListener("click", async function (e) {
+
+        if (e.target.classList.contains("approveOne")) {
+
+            const row = e.target.closest("tr");
+            const intakeId = row.dataset.id;
+
+            const result = await fetch("@Url.Action("ApproveSingleIntake", "Admin")", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify( intakeId )
+            });
+
+            if (result.ok) {
+                row.querySelector(".badge-status").outerHTML =
+                    `<span class="badge-status badge bg-success">Approved</span>`;
+                e.target.disabled = true;
+            }
+        }
+
+    });
+
+
+    // Approve ALL
+    document.getElementById("approveAllBtn").addEventListener("click", async function () {
+
+        const collegeCode = document.getElementById("collegeSelect").value;
+
+        const result = await fetch("@Url.Action("ApproveAllIntakes", "Admin")", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(collegeCode)
+        });
+        if (result.ok) {
+            document.querySelectorAll(".badge-status").forEach(el => {
+                el.outerHTML = `<span class="badge-status badge bg-success">Approved</span>`;
+            });
+
+            document.querySelectorAll(".approveOne").forEach(btn => btn.disabled = true);
+            alert("All Intake values Approved ✔");
+        }
+    });
+</script>

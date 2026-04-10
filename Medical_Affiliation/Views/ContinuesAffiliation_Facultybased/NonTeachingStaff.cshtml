@@ -1,0 +1,208 @@
+﻿@model NonTeachingStaffVm
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Non-Teaching Staff Details";
+}
+
+<form asp-action="NonTeachingStaff" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="CollegeCode" />
+    <input type="hidden" asp-for="FacultyCode" />
+
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Non-Teaching Staff Details</h5>
+        </div>
+
+        <div class="card-body">
+
+            <!-- SUCCESS MESSAGE -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- ADD PERSON BUTTON -->
+            <div class="text-end mb-3">
+                <button type="button" class="btn btn-success" onclick="addPerson()">
+                    <i class="fas fa-user-plus"></i> Add Person
+                </button>
+            </div>
+
+            <!-- STAFF TABLE -->
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle" id="staffTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:20%">Name</th>
+                            <th style="width:20%">Designation</th>
+                            <th style="width:15%">Mobile Number</th>
+                            <th style="width:15%">Salary Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.StaffList.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <input asp-for="StaffList[@i].Name"
+                                           class="form-control"
+                                           placeholder="Enter Name" />
+                                </td>
+
+                                <td>
+                                    <select asp-for="StaffList[@i].Designation"
+                                            asp-items="Model.DesignationList"
+                                            class="form-select">
+                                        <option value="">-- Select Designation --</option>
+                                    </select>
+                                </td>
+
+                                <td>
+                                    <input asp-for="StaffList[@i].MobileNumber"
+                                           maxlength="10"
+                                           class="form-control"
+                                           placeholder="10 digit mobile" />
+                                </td>
+
+                                <td>
+                                    <input asp-for="StaffList[@i].SalaryPaid"
+                                           type="number"
+                                           step="0.01"
+                                           class="form-control"
+                                           placeholder="Amount" />
+                                </td>
+                            </tr>
+
+                            <!-- COMPLIANCE DETAILS -->
+                            <tr class="table-secondary">
+                                <td colspan="4">
+                                    <div class="row g-3">
+
+                                        <div class="col-md-3">
+                                            <label class="fw-bold">PF Provided</label><br />
+                                            <input asp-for="StaffList[@i].PfProvided" type="radio" value="true" /> Yes
+                                            <input asp-for="StaffList[@i].PfProvided" type="radio" value="false" /> No
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="fw-bold">ESI Provided</label><br />
+                                            <input asp-for="StaffList[@i].EsiProvided" type="radio" value="true" /> Yes
+                                            <input asp-for="StaffList[@i].EsiProvided" type="radio" value="false" /> No
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="fw-bold">Service Register Maintained</label><br />
+                                            <input asp-for="StaffList[@i].ServiceRegisterMaintained" type="radio" value="true" /> Yes
+                                            <input asp-for="StaffList[@i].ServiceRegisterMaintained" type="radio" value="false" /> No
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="fw-bold">Salary Acquaintance Register</label><br />
+                                            <input asp-for="StaffList[@i].SalaryAcquaintanceRegister" type="radio" value="true" /> Yes
+                                            <input asp-for="StaffList[@i].SalaryAcquaintanceRegister" type="radio" value="false" /> No
+                                        </div>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="text-end mt-4">
+                @* <a asp-action="TeachingFacultyDetails" class="btn btn-secondary">
+                    Back
+                </a> *@
+
+                <a asp-action="TeachingFacultyDetails" class="btn btn-secondary">
+                    Back to Teaching Faculty
+                </a>
+
+
+                <button type="submit" class="btn btn-primary ms-2">
+                    Save and proceed
+                </button>
+
+                @* below button added by ram on 30-01-26 *@
+                <!-- After Save button -->
+                @* <a asp-action="Details_Of_MBBS" class="btn btn-primary ms-2">
+                    Next → MBBS Details
+                </a> *@
+            </div>
+
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+            let index = @Model.StaffList.Count;
+
+            function addPerson() {
+
+                const tbody = document.querySelector("#staffTable tbody");
+
+                const row = `
+        <tr>
+        <td><input name="StaffList[${index}].Name" class="form-control" /></td>
+
+        <td>
+        <select name="StaffList[${index}].Designation" class="form-select">
+        <option value="">-- Select Designation --</option>
+        @foreach (var d in Model.DesignationList)
+        {
+            <text><option value="@d.Value">@d.Text</option></text>
+        }
+        </select>
+        </td>
+
+        <td><input name="StaffList[${index}].MobileNumber" maxlength="10" class="form-control" /></td>
+
+        <td><input name="StaffList[${index}].SalaryPaid" type="number" step="0.01" class="form-control" /></td>
+        </tr>
+
+        <tr class="table-secondary">
+        <td colspan="4">
+        <div class="row g-3">
+
+        <div class="col-md-3">
+        PF<br />
+        <input type="radio" name="StaffList[${index}].PfProvided" value="true" /> Yes
+        <input type="radio" name="StaffList[${index}].PfProvided" value="false" /> No
+        </div>
+
+        <div class="col-md-3">
+        ESI<br />
+        <input type="radio" name="StaffList[${index}].EsiProvided" value="true" /> Yes
+        <input type="radio" name="StaffList[${index}].EsiProvided" value="false" /> No
+        </div>
+
+        <div class="col-md-3">
+        Service Register<br />
+        <input type="radio" name="StaffList[${index}].ServiceRegisterMaintained" value="true" /> Yes
+        <input type="radio" name="StaffList[${index}].ServiceRegisterMaintained" value="false" /> No
+        </div>
+
+        <div class="col-md-3">
+        Salary Register<br />
+        <input type="radio" name="StaffList[${index}].SalaryAcquaintanceRegister" value="true" /> Yes
+        <input type="radio" name="StaffList[${index}].SalaryAcquaintanceRegister" value="false" /> No
+        </div>
+
+        </div>
+        </td>
+        </tr>`;
+
+                tbody.insertAdjacentHTML("beforeend", row);
+                index++;
+            }
+    </script>
+}

@@ -1,0 +1,698 @@
+﻿@model IList<Medical_Affiliation.Models.FacultyDetailsViewModel>
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Faculty Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 5;
+}
+<style>
+    @@media (max-width: 1450px) {
+        .main-container {
+            max-width: 985px !important;
+            margin-left: 17rem !important;
+            padding: 1em !important;
+            padding-top: 10px !important;
+            max-height: 66vh;
+            overflow: auto;
+        }
+
+        .college-container {
+            margin-bottom: 8px !important;
+        }
+
+        .status-bar-container {
+            padding: 0.2rem 0;
+        }
+
+        .clg-basic {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .card.mb-3 {
+            margin-bottom: 5px;
+        }
+
+        .container.mt-4 {
+            margin-top: 5px !important;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            padding: 0.3rem 1.0rem;
+        }
+    }
+
+    .main-container {
+        margin-left: 23rem;
+        background: #fff;
+        padding: 6px;
+        border-radius: 9px;
+        width: 100%;
+        max-width: 1451px;
+    }
+
+    .container-fluid {
+        width: 100% !important;
+        max-width: 1800px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .progressbar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 20px 0 0;
+        list-style: none;
+    }
+
+        .progressbar li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+            .progressbar li:before {
+                counter-increment: step;
+                content: counter(step);
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                border: 2px solid #bbb;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px;
+                border-radius: 50%;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: #bbb;
+                top: 18px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: #0d6efd;
+            }
+
+                .progressbar li.active:before {
+                    border-color: #0d6efd;
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: #0d6efd;
+                }
+
+    .table-container {
+        overflow-x: auto;
+        width: 100%;
+        padding-bottom: 1rem;
+    }
+
+    #facultyTable {
+        width: max-content;
+        min-width: 100%;
+        border-collapse: collapse;
+    }
+
+        #facultyTable th, #facultyTable td {
+            min-width: 150px;
+            white-space: nowrap;
+        }
+
+        #facultyTable thead th {
+            text-align: center;
+            font-weight: 600;
+        }
+
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ffffff;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+        /* overflow-x: auto; */
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db #f9fafb;
+    }
+
+    .progress-step-btn {
+        background: none;
+        border: none;
+        padding: 0.5rem 0;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        color: #6b7280;
+        position: relative;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+
+        .progress-step-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .progress-step-btn:hover:not(:disabled) {
+            color: #1f2a44;
+        }
+
+        .progress-step-btn:hover::after {
+            width: 100%;
+        }
+
+        .progress-step-btn.active {
+            color: #3b82f6;
+        }
+
+            .progress-step-btn.active::after {
+                width: 100%;
+                background: #3b82f6;
+            }
+
+        .progress-step-btn.completed {
+            color: #22c55e;
+        }
+
+            .progress-step-btn.completed::after {
+                width: 100%;
+                background: #22c55e;
+            }
+</style>
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Success!</strong> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@* <div class="main-container"> *@
+<div class="container-fluid">
+    @* Fixed Status Bar *@
+    <div class="status-bar-container">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            @using System.Text.RegularExpressions
+            @{
+                var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+                var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+                var stepUrls = new[] {
+                        Url.Action("Naturopathy_BasicDetails", "Aff_Naturopathy"),
+                        Url.Action("Naturopathy_UGPG", "Aff_Naturopathy"),
+                        Url.Action("Naturopathy_Affiliated_YearwiseMaterials", "Aff_Naturopathy"),
+                        Url.Action("ManageDesignationIntake", "Aff_Naturopathy"),
+                        Url.Action("Naturopathy_FacultyDetails", "Aff_Naturopathy"),
+                        Url.Action("NaturopathyExamResults", "Aff_Naturopathy"),
+                        };
+                var stepTitles = new[] {
+                        "Institute Basic Details",
+                        "Course Details",
+                        //"Clinical Material Details",
+                        "Hospital Details",
+                        "Required Faculty Details",
+                        "Add College Faculty details",
+                        "Academic Performance"
+                        };
+            }
+
+            @* <span class="fw-bold">@collegeName</span>
+            <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-danger">Logout</button>
+            </form> *@
+        </div>
+        <ul class="progressbar-pipeline" role="progressbar">
+            @for (int i = 0; i < stepTitles.Length; i++)
+            {
+                var isActive = (currentStep == i + 1);
+                var isCompleted = (currentStep > i + 1);
+                <li class="@(isCompleted ? "completed" : "")">
+                    <form method="get" action="@stepUrls[i]" style="display:inline;">
+                        <button type="submit"
+                                class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))"
+                                @(isActive ? "" : "")>
+                            @stepTitles[i]
+                        </button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="container-fluid mt-4">
+        <h3 class="mb-3 text-center fw-bold text-primary" style="text-decoration: underline;">
+            Faculty Details
+        </h3>
+
+        <form asp-action="Naturopathy_FacultyDetails" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div class="table-container">
+                <table class="table table-bordered" id="facultyTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Name of Faculty</th>
+                            <th>Department</th>
+                            @*  <th>Subject</th> *@
+                            <th>Designation</th>
+                            <th>Recognized PG Guide</th>
+                            <th>Guide Shift Letter</th>
+                            <th>Recognized PhD Guide</th>
+                            <th>Guide Shift Letter</th>
+                            <th>Litigation Pending</th>
+                            <th>Supporting Document for Litigation </th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>PAN</th>
+                            <th>Aadhaar</th>
+                            <th>Is Examiner</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <tr>
+                                <td>@(i + 1)</td>
+
+                                @Html.HiddenFor(m => m[i].FacultyDetailId)
+
+
+                                <td>@Html.TextBoxFor(m => m[i].NameOfFaculty, new { @class = "form-control" })</td>
+                                <td>@Html.DropDownListFor(m => m[i].SelectedDepartment, Model[i].DepartmentDetails, "Select Department", new { @class = "form-control" })</td>
+                                @*  <td>@Html.DropDownListFor(m => m[i].Subject, Model[i].Subjects, "Select Subject", new { @class = "form-control" })</td> *@
+                                <td>@Html.DropDownListFor(m => m[i].Designation, Model[i].Designations, "Select Designation", new { @class = "form-control" })</td>
+                                <td>
+                                    @Html.DropDownListFor(m => m[i].RecognizedPGTeacher, new List<SelectListItem> {
+                                    new SelectListItem { Text = "Select", Value = "" },
+                                                                new SelectListItem { Text = "Yes", Value = "Yes" },
+                                                                new SelectListItem { Text = "No", Value = "No" }
+                                                                }, new { @class = "form-control pg-teacher" })
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="file"
+                                           name="[@i].GuideRecognitionDoc"
+                                           class="form-control pg-doc"
+                                           style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none")" />
+
+                                    @if (Model[i].PGRecognitionDocData != null)
+                                    {
+                                        <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "pg", mode = "view" })"
+                                           target="_blank"
+                                           class="btn btn-outline-primary btn-sm rounded-pill">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                    }
+                                </div>
+                            </td>
+
+
+                            <td>
+                                @Html.DropDownListFor(m => m[i].RecognizedPhDTeacher, new List<SelectListItem> {
+                                new SelectListItem { Text = "Select", Value = "" },
+                                                                new SelectListItem { Text = "Yes", Value = "Yes" },
+                                                                new SelectListItem { Text = "No", Value = "No" }
+                                                                }, new { @class = "form-control phd-teacher" })
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="file"
+                                           name="[@i].PhDRecognitionDoc"
+                                           class="form-control phd-doc"
+                                           style="display:@(Model[i].RecognizedPhDTeacher == "Yes" ? "block" : "none")" />
+
+                                    @if (Model[i].PhDRecognitionDocData != null)
+                                    {
+                                        <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "phd", mode = "view" })"
+                                           target="_blank"
+                                           class="btn btn-outline-primary btn-sm rounded-pill">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                    }
+                                </div>
+                            </td>
+
+
+                            <td>
+                                @Html.DropDownListFor(m => m[i].LitigationPending, new List<SelectListItem> {
+                                new SelectListItem { Text = "Select", Value = "" },
+                                                                new SelectListItem { Text = "Yes", Value = "Yes" },
+                                                                new SelectListItem { Text = "No", Value = "No" }
+                                                                }, new { @class = "form-control litig-teacher" })
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="file"
+                                           name="[@i].LitigationDoc"
+                                           class="form-control litig-doc"
+                                           style="display:@(Model[i].LitigationPending == "Yes" ? "block" : "none")" />
+
+                                    @if (Model[i].LitigationDocData != null)
+                                    {
+                                        <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "litig", mode = "view" })"
+                                           target="_blank"
+                                           class="btn btn-outline-primary btn-sm rounded-pill">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                    }
+                                </div>
+                            </td>
+
+                            <td>@Html.TextBoxFor(m => m[i].Mobile, new { @class = "form-control" })</td>
+                            <td>@Html.TextBoxFor(m => m[i].Email, new { @class = "form-control" })</td>
+                            <td>@Html.TextBoxFor(m => m[i].PAN, new { @class = "form-control" })</td>
+                            <td>@Html.TextBoxFor(m => m[i].Aadhaar, new { @class = "form-control" })</td>
+                            <td>
+                                <!-- Yes/No dropdown -->
+                                @Html.DropDownListFor(m => m[i].IsExaminer, new List<SelectListItem> {
+                                new SelectListItem { Text = "Select", Value = "" },
+                                                                new SelectListItem { Text = "Yes", Value = "Yes" },
+                                                                new SelectListItem { Text = "No", Value = "No" }
+                                                                }, new { @class = "form-control is-examiner", data_index = i })
+
+                                <!-- Checkbox list (hidden unless Yes is selected) -->
+                                <div class="examiner-options mt-2" id="examinerOptions_@i"
+                                     style="display:@(Model[i].IsExaminer == "Yes" ? "block" : "none")">
+
+                                    <label>
+                                        <input type="checkbox" name="[@i].ExaminerForList" value="UG"
+                                               @(Model[i].ExaminerForList?.Contains("UG") == true ? "checked" : "") />
+                                        UG
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="[@i].ExaminerForList" value="PG"
+                                               @(Model[i].ExaminerForList?.Contains("PG") == true ? "checked" : "") />
+                                        PG
+                                    </label>
+
+                                    <label>
+                                        <input type="checkbox" name="[@i].ExaminerForList" value="PhD"
+                                               @(Model[i].ExaminerForList?.Contains("PhD") == true ? "checked" : "") />
+                                        PhD
+                                    </label>
+
+                                </div>
+                            </td>
+
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
+
+                                <input type="text"
+                                       name="[@i].RemoveRemarks"
+                                       class="form-control mt-2 remarks-box"
+                                       placeholder="Enter remarks"
+                                       style="display:none;" />
+                            </td>
+                        </tr>
+                                                }
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a asp-action="Naturopathy_ManageDesignationIntake" class="btn btn-outline-secondary px-4">⬅ Previous</a>
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="button" id="addRow" class="btn btn-primary">Add Row</button>
+                    <button type="submit" class="btn btn-outline-primary">💾 Save & Proceed ➡</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@* </div> *@
+
+
+
+@{
+    string deptOptions = string.Join("",
+        Model.First().DepartmentDetails
+            .Select(d => $"<option value='{d.Value}'>{d.Text}</option>")
+    );
+
+    string desigOptions = string.Join("",
+        Model.First().Designations
+            .Select(d => $"<option value='{d.Value}'>{d.Text}</option>")
+    );
+}
+
+
+
+
+@section Scripts {
+    <script>
+        const DepartmentOptions = `@Html.Raw(deptOptions)`;
+        const DesignationOptions = `@Html.Raw(desigOptions)`;
+
+        $(document).ready(function () {
+
+            var rowIndex = @Model.Count;
+
+            function toggleFileInput(selectElem) {
+                var row = $(selectElem).closest("tr");
+
+                row.find(".pg-doc").toggle(row.find(".pg-teacher").val() === "Yes");
+                row.find(".phd-doc").toggle(row.find(".phd-teacher").val() === "Yes");
+                row.find(".litig-doc").toggle(row.find(".litig-teacher").val() === "Yes");
+            }
+
+            $(document).on("change", ".pg-teacher, .phd-teacher, .litig-teacher", function () {
+                toggleFileInput(this);
+            });
+
+            $("#addRow").click(function () {
+
+                var slno = $("#facultyTable tbody tr").length + 1;
+
+                // SAFE names for dynamic rows
+                var pgName = `[${rowIndex}].GuideRecognitionDoc`;
+                var phdName = `[${rowIndex}].PhDRecognitionDoc`;
+                var litigName = `[${rowIndex}].LitigationDoc`;
+
+                var newRow = `
+                <tr>
+                    <td>${slno}</td>
+
+                            <input type="hidden" name="[${rowIndex}].FacultyDetailId" value="0" />
+
+
+                    <td><input name="[${rowIndex}].NameOfFaculty" class="form-control" /></td>
+
+                    <td>
+                        <select name="[${rowIndex}].SelectedDepartment" class="form-control">
+                            <option value="">Select</option>
+                            ${DepartmentOptions}
+                        </select>
+                    </td>
+
+                    <td>
+                        <select name="[${rowIndex}].Designation" class="form-control">
+                            <option value="">Select</option>
+                            ${DesignationOptions}
+                        </select>
+                    </td>
+
+                    <td>
+                        <select name="[${rowIndex}].RecognizedPGTeacher" class="form-control pg-teacher">
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </td>
+
+                    <td><input type="file" name="${pgName}" class="form-control pg-doc" style="display:none;" /></td>
+
+                    <td>
+                        <select name="[${rowIndex}].RecognizedPhDTeacher" class="form-control phd-teacher">
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </td>
+
+                    <td><input type="file" name="${phdName}" class="form-control phd-doc" style="display:none;" /></td>
+
+                    <td>
+                        <select name="[${rowIndex}].LitigationPending" class="form-control litig-teacher">
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </td>
+
+                    <td><input type="file" name="${litigName}" class="form-control litig-doc" style="display:none;" /></td>
+
+
+                    <td><input name="[${rowIndex}].Mobile" class="form-control" /></td>
+                    <td><input name="[${rowIndex}].Email" class="form-control" /></td>
+                    <td><input name="[${rowIndex}].PAN" class="form-control" /></td>
+                    <td><input name="[${rowIndex}].Aadhaar" class="form-control" /></td>
+
+
+                                     <!-- ⭐ NEW: IsExaminer + checkbox list -->
+                            <td>
+                                <select name="[${rowIndex}].IsExaminer" class="form-control is-examiner" data-index="${rowIndex}">
+                                    <option value="">Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+
+                                <div class="examiner-options mt-2" id="examinerOptions_${rowIndex}" style="display:none;">
+                                    <label class="d-block">
+                                        <input type="checkbox" name="[${rowIndex}].ExaminerForList" value="UG" /> UG
+                                    </label>
+                                    <label class="d-block">
+                                        <input type="checkbox" name="[${rowIndex}].ExaminerForList" value="PG" /> PG
+                                    </label>
+                                    <label class="d-block">
+                                        <input type="checkbox" name="[${rowIndex}].ExaminerForList" value="PhD" /> PhD
+                                    </label>
+                                </div>
+                            </td>
+
+                            <!-- REMARKS box must be present in every row (existing + dynamic) -->
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
+                                <input type="text"
+                                       name="[${rowIndex}].RemoveRemarks"
+                                       class="form-control mt-2 remarks-box"
+                                       placeholder="Enter remarks"
+                                       style="display:none;" />
+                            </td>
+                </tr>`;
+
+                $("#facultyTable tbody").append(newRow);
+                rowIndex++;
+                updateSlNo(); // update serials if needed
+            });
+
+            // $(document).on("click", ".remove-row", function () {
+            //     $(this).closest("tr").remove();
+            //     $("#facultyTable tbody tr").each(function (i) {
+            //         $(this).find("td:first").text(i + 1);
+            //     });
+            // });
+
+
+            // helper to renumber visible rows
+            function updateSlNo() {
+                $("#facultyTable tbody tr:visible").each(function (i) {
+                    $(this).find("td:first").text(i + 1);
+                });
+            }
+
+            // Remove / remarks handler
+            $(document).on("click", ".remove-row", function () {
+                var row = $(this).closest("tr");
+                var remarks = row.find(".remarks-box");
+
+                // If remarks box is not visible, show it and focus
+                if (remarks.is(":hidden")) {
+                    remarks.show().focus();
+
+                    // attach single-use handlers
+                    remarks.one("blur keydown", function (e) {
+                        // If keydown and not Enter, ignore
+                        if (e.type === "keydown" && e.key !== "Enter") return;
+
+                        var val = $(this).val().toString().trim();
+                        if (val !== "") {
+                            // hide visually but keep in DOM so it posts
+                            row.hide();
+                            updateSlNo();
+                        } else {
+                            // empty -> keep shown so user can enter
+                            // optionally show a tiny validation
+                            $(this).addClass("is-invalid");
+                        }
+                    });
+
+                    return;
+                }
+
+                // If remarks box already visible and user clicks remove again,
+                // check if remarks typed and hide
+                var val = remarks.val().toString().trim();
+                if (val !== "") {
+                    row.hide();
+                    updateSlNo();
+                } else {
+                    remarks.show().focus();
+                }
+            });
+
+
+
+        });
+    </script>
+
+    <script>
+        $(document).on("change", ".is-examiner", function () {
+            let index = $(this).attr("data-index");
+            let value = $(this).val();
+
+            if (value === "Yes") {
+                $("#examinerOptions_" + index).show();
+            } else {
+                $("#examinerOptions_" + index).hide();
+                $("#examinerOptions_" + index + " input[type='checkbox']").prop("checked", false);
+            }
+        });
+    </script>
+
+}
+

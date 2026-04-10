@@ -1,0 +1,27 @@
+﻿<div id="ltOverlay"
+     style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(10,18,38,.65);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px"
+     onclick="ltCloseOut(event)">
+    <div style="background:#ffffff;border-radius:30px;width:100%;max-width:800px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 72px rgba(13,27,46,.22);animation:mIn .24s cubic-bezier(.34,1.2,.64,1)">
+        <div id="ltModalContent">
+            <div style="padding:60px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:#8fa3be">
+                <div style="font-size:32px;margin-bottom:10px">⏳</div>Loading...
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    @@keyframes mIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(28px) scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+
+    }
+</style>

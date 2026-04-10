@@ -1,0 +1,90 @@
+﻿@model SidebarViewModel
+<style>
+    :root{
+        --header-gradient: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        --header-height: 140px;
+    }
+    .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 300px;
+            height: calc(100vh - var(--header-height));
+            background: rgba(22, 33, 62, 0.95);
+            box-shadow: 0 0 50px rgba(34, 43, 65, 0.23);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+    .sidebar h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+    .affiliation-dropdown {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            backdrop-filter: blur(3px);
+        }
+
+        .sidebar-btn {
+            display: block;
+            margin-bottom: 12px;
+            padding: 10px;
+            font-weight: 600;
+            border-radius: 8px;
+            background-color: #0d6efd;
+            color: #fff;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+
+            .sidebar-btn:hover {
+                background: #0b5ed7;
+            }
+    @@media (max-width: 991px) {
+            .sidebar
+
+        {
+            position: relative;
+            width: 100%;
+            height: auto;
+            padding: 20px;
+            overflow: visible;
+        }
+
+        .main-content {
+            margin-left: 0;
+            margin-top: var(--header-height);
+            height: auto;
+            overflow: visible;
+        }
+
+        }
+</style>
+
+@if (!string.IsNullOrEmpty(Model.FacultyCode))
+{
+    <div class="sidebar" style="color: white; padding:1rem; background:#146c43;">
+        <h4>🎓 Admission Affiliation</h4>
+        <input type="hidden" id="facultyCode" value="@Model.FacultyCode" />
+
+        <select class="form-select affiliation-dropdown" id="typeOfAffiliationDropdown" style="margin-bottom:1rem;">
+            <option value="">-- Select Affiliation Type --</option>
+            @foreach (var item in Model.TypeOfAffiliationList)
+            {
+                <option value="@item.Value">@item.Text</option>
+            }
+        </select>
+            <a asp-controller="LatestMedicalAffiliation" asp-action="Medical_LatestIntakeData" class="sidebar-btn btn btn-light mb-1 d-block">
+                👲 Medical Latest Intake
+            </a>
+
+       @*  <a asp-controller="Collegelogin" asp-action="GetExpectedDetails" class="sidebar-btn btn btn-light d-block">
+            Medical Intake Detail
+        </a> *@
+    </div>
+}

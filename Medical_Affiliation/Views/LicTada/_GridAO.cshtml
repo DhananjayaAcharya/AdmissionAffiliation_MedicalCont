@@ -1,0 +1,369 @@
+﻿@model List<Medical_Affiliation.Models.LicTadaGridRow>
+
+@if (Model == null || !Model.Any())
+{
+    <div style="padding:72px 24px;text-align:center;font-family:'JetBrains Mono',monospace">
+        <div style="font-size:44px;margin-bottom:14px">🏛</div>
+        <div style="font-size:14px;font-weight:700;color:#2d3f5c;margin-bottom:6px">No Pending Records</div>
+        <div style="font-size:12px;color:#a0b3cc">Records appear here after Case Worker verifies them</div>
+    </div>
+}
+else
+{
+    <style>
+        .ao-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            font-family: 'Segoe UI',system-ui,sans-serif
+        }
+
+            .ao-tbl thead tr {
+                background: linear-gradient(to right,#fffbf0,#fffdf8);
+                border-bottom: 2px solid #f5d98a
+            }
+
+            .ao-tbl th {
+                padding: 11px 14px;
+                text-align: left;
+                font-family: 'JetBrains Mono',monospace;
+                font-size: 9px;
+                font-weight: 700;
+                color: #c97b00;
+                text-transform: uppercase;
+                letter-spacing: .12em;
+                white-space: nowrap
+            }
+
+            .ao-tbl td {
+                padding: 10px 14px;
+                vertical-align: middle
+            }
+
+            .ao-tbl tr.ao-first td {
+                border-bottom: 1px dashed #fef3d0;
+                background: #fff
+            }
+
+            .ao-tbl tr.ao-mid td {
+                border-bottom: 1px dashed #fef3d0;
+                background: #fff
+            }
+
+            .ao-tbl tr.ao-last td {
+                border-bottom: 2px solid #f5d98a;
+                background: #fff
+            }
+
+            .ao-tbl tr.ao-first:hover td,
+            .ao-tbl tr.ao-mid:hover td,
+            .ao-tbl tr.ao-last:hover td {
+                background: #fffbf0
+            }
+
+            .ao-tbl tr.ao-first td.grp-start {
+                border-left: 3px solid #c97b00
+            }
+
+        .mt-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono',monospace;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            white-space: nowrap
+        }
+
+        .mt-senate {
+            background: #eef3ff;
+            color: #3b5fc0;
+            border: 1px solid #c5d4f5
+        }
+
+        .mt-ac {
+            background: #edfaf3;
+            color: #1a7a4a;
+            border: 1px solid #a3e4c2
+        }
+
+        .mt-expert {
+            background: #fff7ed;
+            color: #c97b00;
+            border: 1px solid #fce49a
+        }
+
+        .mem-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-family: 'JetBrains Mono',monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: #1a2e4a;
+            transition: color .12s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px
+        }
+
+            .mem-btn:hover {
+                color: #c97b00;
+                text-decoration: underline;
+                text-underline-offset: 3px
+            }
+
+        .mem-empty {
+            font-family: 'JetBrains Mono',monospace;
+            font-size: 11px;
+            color: #c8d6e5;
+            font-style: italic
+        }
+
+        .mem-phone {
+            font-family: 'JetBrains Mono',monospace;
+            font-size: 10.5px;
+            color: #8fa3be
+        }
+
+        .amt-chip {
+            display: inline-block;
+            font-family: 'JetBrains Mono',monospace;
+            font-size: 12px;
+            font-weight: 800;
+            color: #0d1b2e;
+            background: #fffbf0;
+            border: 1px solid #f5d98a;
+            border-radius: 6px;
+            padding: 3px 10px
+        }
+
+            .amt-chip.amt-empty {
+                background: #f8fafc;
+                color: #c8d6e5;
+                border-color: #edf1f7;
+                font-style: italic;
+                font-weight: 400;
+                font-size: 11px
+            }
+
+        .ao-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #fef3d0;
+            background: linear-gradient(to right,#fffdf8,#fffbf0);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+    </style>
+
+    <div style="overflow-x:auto">
+        <table class="ao-tbl">
+            <thead>
+                <tr>
+                    <th style="width:36px">#</th>
+                    <th>Academic Year</th>
+                    <th>College</th>
+                    <th>Type of Member</th>
+                    <th>Name</th>
+                    <th>Mobile Number</th>
+                    <th style="min-width:140px">CW Remarks</th>
+                    <th style="min-width:130px">Claim ₹</th>
+                    <th style="min-width:120px">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var r = Model[i];
+
+                    <tr class="ao-first">
+                        <!-- # -->
+                        <td rowspan="3" class="grp-start"
+                            style="font-family:'JetBrains Mono',monospace;color:#b0bfd4;font-size:11px;
+                                       text-align:center;border-right:1px solid #fef3d0;vertical-align:middle">
+                            @(i + 1)
+                        </td>
+
+                        <!-- Year -->
+                        <td rowspan="3" style="border-right:1px solid #fef3d0;min-width:90px;vertical-align:middle">
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
+                                             color:#c97b00;background:#fff7ed;padding:3px 9px;border-radius:6px">
+                                @r.AcademicYear
+                            </span>
+                        </td>
+
+                        <!-- College -->
+                        <td rowspan="3" style="border-right:1px solid #fef3d0;min-width:200px;vertical-align:middle">
+                            <div style="font-weight:700;color:#0d1b2e;font-size:13px;line-height:1.4">@r.CollegeName</div>
+                            <div style="color:#8fa3be;font-size:10.5px;font-family:'JetBrains Mono',monospace;margin-top:3px">📍 @r.CollegeTown</div>
+                            <div style="color:#b0bfd4;font-size:9.5px;font-family:'JetBrains Mono',monospace;margin-top:2px">@r.CollegeCode</div>
+                        </td>
+
+                        <!-- Senate -->
+                        <td><span class="mt-badge mt-senate">Senate</span></td>
+                        <td style="min-width:180px">
+                            @if (!string.IsNullOrWhiteSpace(r.SenetMember))
+                            {
+                                <button class="mem-btn" onclick="ltOpen('@r.SenetMemberPhNo','@r.SenetMember','ao','')">👤 @r.SenetMember</button>
+                            }
+                            else
+                            {
+
+                                <span class="mem-empty">— Not Assigned</span>
+                            }
+                        </td>
+                        <td style="min-width:130px">
+                            @if (!string.IsNullOrWhiteSpace(r.SenetMemberPhNo))
+                            {
+                                <span class="mem-phone">📞 @r.SenetMemberPhNo</span>
+                            }
+                            else
+                            {
+
+                                <span class="mem-empty">—</span>
+                            }
+                        </td>
+
+                        <!-- CW Remarks (rowspan=3, shared) -->
+                        <td rowspan="3" style="border-left:1px solid #fef3d0;border-right:1px solid #fef3d0;
+                                                   min-width:140px;vertical-align:middle">
+                            @if (!string.IsNullOrWhiteSpace(r.CaseWorkerRemarks))
+                            {
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#5a6e8a;font-style:italic">"@r.CaseWorkerRemarks"</span>
+                            }
+                            else
+                            {
+
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#c8d6e5">No remarks</span>
+                            }
+                        </td>
+
+                        <!-- Senate individual amount -->
+                        <td style="border-left:1px solid #fef3d0">
+                            @if (r.SenetMemberAmount > 0)
+                            {
+                                <span class="amt-chip">₹ @string.Format("{0:#,##0}", r.SenetMemberAmount)</span>
+                            }
+                            else
+                            {
+
+                                <span class="amt-chip amt-empty">—</span>
+                            }
+                        </td>
+
+                        <!-- Action -->
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(r.SenetMember))
+                            {
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8fa3be">Click name →</span>
+                            }
+                        </td>
+                    </tr>
+
+                    <!-- AC Member -->
+                    <tr class="ao-mid">
+                        <td><span class="mt-badge mt-ac">AC Member</span></td>
+                        <td style="min-width:180px">
+                            @if (!string.IsNullOrWhiteSpace(r.AcMember))
+                            {
+                                <button class="mem-btn" onclick="ltOpen('@r.AcMemberPhNo','@r.AcMember','ao','')">👤 @r.AcMember</button>
+                            }
+                            else
+                            {
+
+                                <span class="mem-empty">— Not Assigned</span>
+                            }
+                        </td>
+                        <td style="min-width:130px">
+                            @if (!string.IsNullOrWhiteSpace(r.AcMemberPhNo))
+                            {
+                                <span class="mem-phone">📞 @r.AcMemberPhNo</span>
+                            }
+                            else
+                            {
+
+                                <span class="mem-empty">—</span>
+                            }
+                        </td>
+                        <td style="border-left:1px solid #fef3d0">
+                            @if (r.AcMemberAmount > 0)
+                            {
+                                <span class="amt-chip">₹ @string.Format("{0:#,##0}", r.AcMemberAmount)</span>
+                            }
+                            else
+                            {
+
+                                <span class="amt-chip amt-empty">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(r.AcMember))
+                            {
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8fa3be">Click name →</span>
+                            }
+                        </td>
+                    </tr>
+
+                    <!-- Expert -->
+                    <tr class="ao-last">
+                        <td><span class="mt-badge mt-expert">Expert</span></td>
+                        <td style="min-width:180px">
+                            @if (!string.IsNullOrWhiteSpace(r.SubjectExpertise))
+                            {
+                                <button class="mem-btn" onclick="ltOpen('@r.SubjectExpertisePhNo','@r.SubjectExpertise','ao','')">👤 @r.SubjectExpertise</button>
+                            }
+                            else
+                            {
+
+                                <span class="mem-empty">— Not Assigned</span>
+                            }
+                        </td>
+                        <td style="min-width:130px">
+                            @if (!string.IsNullOrWhiteSpace(r.SubjectExpertisePhNo))
+                            {
+                                <span class="mem-phone">📞 @r.SubjectExpertisePhNo</span>
+                            }
+                            else
+                            {
+
+                                <span class="mem-empty">—</span>
+                            }
+                        </td>
+                        <td style="border-left:1px solid #fef3d0">
+                            @if (r.SubjectExpertiseAmount > 0)
+                            {
+                                <span class="amt-chip">₹ @string.Format("{0:#,##0}", r.SubjectExpertiseAmount)</span>
+                            }
+                            else
+                            {
+
+                                <span class="amt-chip amt-empty">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(r.SubjectExpertise))
+                            {
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8fa3be">Click name →</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="ao-footer">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8fa3be">
+            🗂 <strong style="color:#2d3f5c">@Model.Count</strong> college(s) pending AO approval
+        </span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#c97b00;font-weight:700">
+            ⚡ Click member name to Approve or Reject
+        </span>
+    </div>
+}

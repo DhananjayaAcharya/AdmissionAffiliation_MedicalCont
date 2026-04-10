@@ -1,0 +1,1139 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Course Intake details";
+    var courseLevels = ViewBag.CourseLevels as List<string> ?? new List<string>();
+    var repositoryRows = ViewBag.RepositoryRows as List<UgandPgrepository> ?? new List<UgandPgrepository>();
+    var freshIncreaseOptions = ViewBag.FreshIncreaseOptions as string[] ?? new[] { "Fresh", "Increase" };
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 2;
+    var isSidebarVisible = !string.IsNullOrEmpty(facultyCode);
+    var collegeName = ViewBag.CollegeName as string ?? "College";
+    var collegeCode = ViewBag.CollegeCode as string ?? "";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Academic Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        /* ━━━━━━━━━━━━━━━━ TOKENS ━━━━━━━━━━━━━━━━ */
+        :root {
+            --ink: #0b1629;
+            --ink-mid: #1c3257;
+            --ink-soft: #2d4a7a;
+            --gold: #b9933a;
+            --gold-lt: #d4aa5a;
+            --gold-glow: rgba(185,147,58,.18);
+            --off-white: #f6f4ef;
+            --surface: #ffffff;
+            --muted: #64748b;
+            --border: #e4e1d9;
+            --sidebar-w: 260px;
+            --topbar-h: 68px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 2px 8px rgba(11,22,41,.07);
+            --shadow-md: 0 8px 28px rgba(11,22,41,.11);
+            --shadow-lg: 0 20px 56px rgba(11,22,41,.16);
+            --transition: .25s cubic-bezier(.4,0,.2,1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--off-white);
+            color: var(--ink);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ━━━━━━━━━━━━━━━━ TOPBAR ━━━━━━━━━━━━━━━━ */
+        .topbar {
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: var(--topbar-h);
+            background: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 900;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+
+            .topbar::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 50%, transparent 100%);
+            }
+
+        .tb-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+
+        .tb-emblem {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+            border-radius: var(--radius-sm);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            box-shadow: 0 4px 14px var(--gold-glow);
+            flex-shrink: 0;
+        }
+
+        .tb-brand-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: .3px;
+        }
+
+        .tb-brand-sub {
+            font-size: 10.5px;
+            color: rgba(255,255,255,.4);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .tb-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .tb-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 40px;
+            padding: 6px 16px 6px 10px;
+            color: rgba(255,255,255,.75);
+            font-size: 12.5px;
+            font-weight: 500;
+        }
+
+            .tb-pill i {
+                font-size: 14px;
+                color: var(--gold-lt);
+            }
+
+        .tb-code-tag {
+            background: var(--gold-glow);
+            border: 1px solid rgba(185,147,58,.35);
+            color: var(--gold-lt);
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .8px;
+        }
+
+        .tb-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--ink-mid);
+            border: 2px solid rgba(185,147,58,.5);
+            display: grid;
+            place-items: center;
+            color: var(--gold-lt);
+            font-size: 16px;
+            cursor: pointer;
+            transition: border-color var(--transition);
+        }
+
+            .tb-avatar:hover {
+                border-color: var(--gold);
+            }
+
+        /* ━━━━━━━━━━━━━━━━ LAYOUT ━━━━━━━━━━━━━━━━ */
+        .layout {
+            display: flex;
+            padding-top: var(--topbar-h);
+            min-height: 100vh;
+        }
+
+        .sidebar-wrap {
+            width: var(--sidebar-w);
+            flex-shrink: 0;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 44px 52px 60px;
+            animation: fadeUp .5s ease both;
+        }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ━━━━━━━━━━━━━━━━ BREADCRUMB ━━━━━━━━━━━━ */
+        .breadcrumb-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11.5px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            margin-bottom: 36px;
+        }
+
+            .breadcrumb-row i {
+                font-size: 13px;
+            }
+
+            .breadcrumb-row .current {
+                color: var(--ink);
+                font-weight: 600;
+            }
+
+        /* ━━━━━━━━━━━━━━━━ HERO ━━━━━━━━━━━━━━━━━━ */
+        .hero {
+            background: linear-gradient(120deg, var(--ink) 0%, var(--ink-mid) 60%, var(--ink-soft) 100%);
+            border-radius: var(--radius-lg);
+            padding: 44px 48px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            animation: fadeUp .5s .08s ease both;
+        }
+
+            .hero::before {
+                content: '';
+                position: absolute;
+                top: -60px;
+                right: -60px;
+                width: 280px;
+                height: 280px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(185,147,58,.22) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+            .hero::after {
+                content: '';
+                position: absolute;
+                bottom: -40px;
+                left: 40%;
+                width: 180px;
+                height: 180px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(45,74,122,.6) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(185,147,58,.15);
+            border: 1px solid rgba(185,147,58,.3);
+            color: var(--gold-lt);
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 16px;
+        }
+
+        .hero-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 14px;
+            letter-spacing: -.3px;
+        }
+
+        .hero-desc {
+            font-size: 14.5px;
+            color: rgba(255,255,255,.58);
+            max-width: 520px;
+            line-height: 1.75;
+        }
+
+        .hero-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(26,122,74,.18);
+            border: 1px solid rgba(26,122,74,.35);
+            color: #5bcc8f;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 12.5px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #3dcc7a;
+            border-radius: 50%;
+            animation: ripple 1.8s infinite;
+        }
+
+        @@keyframes ripple {
+            0% {
+                box-shadow: 0 0 0 0 rgba(61,204,122,.5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 8px rgba(61,204,122,0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(61,204,122,0);
+            }
+        }
+
+        .step-label-small {
+            font-size: 10.5px;
+            color: rgba(255,255,255,.38);
+            text-align: right;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .9px;
+        }
+
+        .step-tracker {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .step-dot {
+            width: 30px;
+            height: 5px;
+            border-radius: 99px;
+            background: rgba(255,255,255,.13);
+        }
+
+            .step-dot.active {
+                background: var(--gold);
+                box-shadow: 0 0 10px var(--gold-glow);
+            }
+
+        .step-caption {
+            font-size: 11px;
+            color: rgba(255,255,255,.38);
+            margin-left: 6px;
+            letter-spacing: .5px;
+        }
+
+        /* ━━━━━━━━━━━━━━━━ STAT CARDS ━━━━━━━━━━━━ */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+            animation: fadeUp .5s .16s ease both;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 26px 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--ink), var(--ink-soft));
+                opacity: 0;
+                transition: opacity var(--transition);
+            }
+
+            .stat-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+            }
+
+                .stat-card:hover::before {
+                    opacity: 1;
+                }
+
+            /* ── College Name card: reduced height ── */
+            .stat-card.gold-accent {
+                padding: 14px 24px;
+            }
+
+                .stat-card.gold-accent::before {
+                    background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+                    opacity: 1;
+                }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            margin-bottom: 18px;
+        }
+
+            .stat-icon.blue {
+                background: #eef3ff;
+            }
+
+            .stat-icon.amber {
+                background: #fff8ec;
+            }
+
+            .stat-icon.teal {
+                background: #edfaf5;
+            }
+
+        .stat-label {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.1;
+        }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* ━━━━━━━━━━━━━━━━ BOTTOM GRID ━━━━━━━━━━━ */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+            animation: fadeUp .5s .24s ease both;
+        }
+
+        /* ── Panel shell ── */
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            color: var(--muted);
+        }
+
+        .panel-badge {
+            font-size: 11px;
+            background: #f0f4ff;
+            color: var(--ink-soft);
+            border-radius: 40px;
+            padding: 3px 10px;
+            font-weight: 600;
+        }
+
+        /* ── Action rows ── */
+        .action-list {
+            padding: 10px 14px;
+        }
+
+        .action-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 12px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--ink);
+            transition: background var(--transition), transform var(--transition);
+        }
+
+            .action-row:hover {
+                background: var(--off-white);
+                transform: translateX(4px);
+                color: var(--ink);
+                text-decoration: none;
+            }
+
+            .action-row + .action-row {
+                border-top: 1px solid var(--border);
+            }
+
+        .action-ico {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+            .action-ico.navy {
+                background: linear-gradient(135deg, var(--ink), var(--ink-mid));
+            }
+
+            .action-ico.gold {
+                background: linear-gradient(135deg, #a07828, var(--gold-lt));
+            }
+
+            .action-ico.teal {
+                background: linear-gradient(135deg, #0d6e55, #1ab585);
+            }
+
+            .action-ico.slate {
+                background: linear-gradient(135deg, #334155, #64748b);
+            }
+
+        .action-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 1px;
+        }
+
+        .action-desc {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .action-text {
+            flex: 1;
+        }
+
+        .action-arr {
+            color: var(--border);
+            font-size: 18px;
+            transition: color var(--transition), transform var(--transition);
+        }
+
+        .action-row:hover .action-arr {
+            color: var(--ink-soft);
+            transform: translateX(3px);
+        }
+
+        /* ── Side stack ── */
+        .side-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .info-block-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+            .detail-row + .detail-row {
+                border-top: 1px solid var(--border);
+            }
+
+        .detail-key {
+            font-size: 12.5px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .detail-key i {
+                font-size: 14px;
+            }
+
+        .detail-val {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        /* progress */
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+            .progress-label span:last-child {
+                font-weight: 600;
+                color: var(--ink);
+            }
+
+        .prog-track {
+            height: 7px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .prog-fill {
+            height: 100%;
+            width: 40%;
+            background: linear-gradient(90deg, var(--ink), var(--ink-soft));
+            border-radius: 99px;
+            animation: growBar 1s .5s ease both;
+        }
+
+        @@keyframes growBar {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 40%;
+            }
+        }
+
+        /* notice */
+        .notice {
+            display: flex;
+            gap: 13px;
+            background: #fffbec;
+            border: 1px solid #f0d97a;
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #7a5c00;
+            line-height: 1.65;
+            margin-top: 16px;
+        }
+
+            .notice i {
+                font-size: 18px;
+                color: #c9960a;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+
+        /* ━━━━━━━━━━━━━━━━ MODAL ━━━━━━━━━━━━━━━━━ */
+        .modal-content {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            background: linear-gradient(120deg, var(--ink), var(--ink-mid));
+            padding: 26px 30px;
+            border: none;
+            position: relative;
+        }
+
+            .modal-header::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--gold), transparent);
+            }
+
+        .modal-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .modal-ico {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--gold-glow);
+            border: 1px solid rgba(185,147,58,.35);
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+        }
+
+        .modal-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0;
+        }
+
+        .modal-sub {
+            font-size: 12px;
+            color: rgba(255,255,255,.45);
+            margin-top: 2px;
+        }
+
+        .btn-close {
+            filter: invert(1) brightness(2);
+            opacity: .6;
+        }
+
+            .btn-close:hover {
+                opacity: 1;
+            }
+
+        .modal-body {
+            padding: 36px 36px 24px;
+        }
+
+            .modal-body p {
+                color: var(--muted);
+                line-height: 1.75;
+                font-size: 14.5px;
+            }
+
+                .modal-body p + p {
+                    margin-top: 10px;
+                }
+
+            .modal-body strong {
+                color: var(--ink);
+            }
+
+        .modal-footer {
+            padding: 20px 36px 32px;
+            border: none;
+            gap: 12px;
+        }
+
+        .btn-primary-modal {
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 13px 30px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        }
+
+            .btn-primary-modal:hover {
+                background: var(--ink-mid);
+                transform: translateY(-1px);
+                box-shadow: 0 8px 20px rgba(11,22,41,.2);
+            }
+
+        .btn-dismiss {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 22px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background var(--transition);
+        }
+
+            .btn-dismiss:hover {
+                background: var(--off-white);
+            }
+
+        /* ━━━━━━━━━━━━━━━━ RESPONSIVE ━━━━━━━━━━━━ */
+        @@media (max-width: 1024px) {
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-stack {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .info-block {
+                flex: 1;
+                min-width: 240px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .main {
+                padding: 28px 20px 48px;
+            }
+
+            .stat-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .hero {
+                padding: 32px 26px;
+            }
+
+            .hero-name {
+                font-size: 32px;
+            }
+
+            .hero-right {
+                align-items: flex-start;
+            }
+
+            .topbar {
+                padding: 0 18px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .stat-row {
+                grid-template-columns: 1fr;
+            }
+
+            .tb-code-tag, .tb-pill {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════ TOPBAR ═══════════════════════ -->
+    <header class="topbar">
+        <a class="tb-brand" href="#">
+            <div class="tb-emblem">🎓</div>
+            <div>
+                <div class="tb-brand-name">Academic Portal</div>
+                <div class="tb-brand-sub">Course Intake Management System</div>
+            </div>
+        </a>
+        <div class="tb-right">
+            @if (!string.IsNullOrEmpty(collegeCode))
+            {
+                <div class="tb-code-tag">Code: @collegeCode</div>
+            }
+            <div class="tb-pill">
+                <i class="bi bi-calendar3"></i>
+                Academic Year 2024–25
+            </div>
+            <div class="tb-avatar" title="@collegeName">
+                <i class="bi bi-person-fill"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════ LAYOUT ═══════════════════════ -->
+    <div class="layout">
+
+        @if (!string.IsNullOrEmpty(facultyCode))
+        {
+            <div class="sidebar-wrap">
+                @await Component.InvokeAsync("Sidebar")
+            </div>
+        }
+
+        <main class="main">
+
+            <!-- Breadcrumb -->
+            <div class="breadcrumb-row">
+                <i class="bi bi-house-door"></i> Home
+                <i class="bi bi-chevron-right"></i>
+                <span class="current">Dashboard</span>
+            </div>
+
+            <!-- Hero -->
+            <div class="hero">
+                <div class="hero-inner">
+                    <div>
+                        <div class="hero-eyebrow">
+                            <i class="bi bi-building"></i>
+                            Institutional Dashboard
+                        </div>
+                        <h1 class="hero-name">@collegeName</h1>
+                        <p class="hero-desc">
+                            Manage course intake submissions, update institutional details,
+                            and track your application progress from a single unified portal.
+                        </p>
+                    </div>
+                    <div class="hero-right">
+                        <div class="live-badge">
+                            <div class="live-dot"></div>
+                            Session Active
+                        </div>
+                        <div>
+                            <div class="step-label-small">Completion Progress</div>
+                            <div class="step-tracker">
+                                @for (int s = 1; s <= 5; s++)
+                                {
+                                    <div class="step-dot @(s <= currentStep ? "active" : "")"></div>
+                                }
+                                <span class="step-caption">Step @currentStep / 5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stat-row">
+                <div class="stat-card gold-accent">
+                    <div class="stat-icon amber">🏛️</div>
+                    <div class="stat-label">Institution</div>
+                    <div class="stat-value">@collegeName</div>
+                    <div class="stat-sub">Registered college</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">🔖</div>
+                    <div class="stat-label">College Code</div>
+                    <div class="stat-value">@(string.IsNullOrEmpty(collegeCode) ? "—" : collegeCode)</div>
+                    <div class="stat-sub">Unique identifier</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon teal">📋</div>
+                    <div class="stat-label">Current Step</div>
+                    <div class="stat-value">Step @currentStep</div>
+                    <div class="stat-sub">of 5 total steps</div>
+                </div>
+            </div>
+
+            <!-- Bottom Grid -->
+            <div class="bottom-grid">
+
+                <!-- Quick Actions Panel -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title">Quick Actions</div>
+                        <div class="panel-badge">4 available</div>
+                    </div>
+                    <div class="action-list">
+                        <a href="@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")" class="action-row">
+                            <div class="action-ico navy">📝</div>
+                            <div class="action-text">
+                                <div class="action-name">Course Intake Form</div>
+                                <div class="action-desc">Submit or update intake requirements</div>
+                            </div>
+                            <i class="bi bi-chevron-right action-arr"></i>
+                        </a>
+                        <a href="@Url.Action("Dashboard", "Collegelogin")" class="action-row">
+                            <div class="action-ico gold">🏫</div>
+                            <div class="action-text">
+                                <div class="action-name">Institution Profile</div>
+                                <div class="action-desc">View and manage college information</div>
+                            </div>
+                            <i class="bi bi-chevron-right action-arr"></i>
+                        </a>
+                        <a href="@Url.Action("Dashboard", "Collegelogin")" class="action-row">
+                            <div class="action-ico teal">📊</div>
+                            <div class="action-text">
+                                <div class="action-name">Applications</div>
+                                <div class="action-desc">Monitor and track submitted applications</div>
+                            </div>
+                            <i class="bi bi-chevron-right action-arr"></i>
+                        </a>
+                        <a href="@Url.Action("CollegeLogin", "UpdatePassword")" class="action-row">
+                            <div class="action-ico slate">🔑</div>
+                            <div class="action-text">
+                                <div class="action-name">Security Settings</div>
+                                <div class="action-desc">Update account password</div>
+                            </div>
+                            <i class="bi bi-chevron-right action-arr"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Side Stack -->
+                <div class="side-stack">
+
+                    <div class="info-block">
+                        <div class="info-block-title">Account Details</div>
+                        <div class="detail-row">
+                            <div class="detail-key"><i class="bi bi-building"></i> College</div>
+                            <div class="detail-val">@collegeName</div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(collegeCode))
+                        {
+                            <div class="detail-row">
+                                <div class="detail-key"><i class="bi bi-upc-scan"></i> Code</div>
+                                <div class="detail-val">@collegeCode</div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(facultyCode))
+                        {
+                            <div class="detail-row">
+                                <div class="detail-key"><i class="bi bi-person-badge"></i> Faculty</div>
+                                <div class="detail-val">@facultyCode</div>
+                            </div>
+                        }
+                        <div class="detail-row">
+                            <div class="detail-key"><i class="bi bi-layers"></i> Step</div>
+                            <div class="detail-val">@currentStep / 5</div>
+                        </div>
+                    </div>
+
+                    <div class="info-block">
+                        <div class="info-block-title">Intake Completion</div>
+                        <div class="progress-label">
+                            <span style="color:var(--muted)">Overall Progress</span>
+                            <span>40%</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill"></div>
+                        </div>
+                        <div class="notice">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <div>Ensure all intake details are submitted before the deadline. Contact admissions for any discrepancies.</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+
+    <!-- ═══════════════════════ WELCOME MODAL ═══════════════════════ -->
+    @if (TempData["ShowWelcomePopup"] != null && (bool)TempData["ShowWelcomePopup"])
+    {
+        var popupCollegeName = TempData["CollegeName"]?.ToString() ?? "College";
+
+        <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title-wrap">
+                            <div class="modal-ico">🎓</div>
+                            <div>
+                                <div class="modal-title">Welcome Aboard</div>
+                                <div class="modal-sub">First-time login detected</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p>Welcome to the Academic Portal, <strong>@popupCollegeName</strong>.</p>
+                        <p>Your account has been set up successfully. For your security, please set a new password before proceeding.</p>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn-dismiss" data-bs-dismiss="modal">Later</button>
+                        <button type="button" class="btn-primary-modal" id="btnChangePassword">
+                            <i class="bi bi-shield-lock-fill"></i> Change Password Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        @if (TempData["ShowWelcomePopup"] != null && (bool)TempData["ShowWelcomePopup"])
+        {
+                    <text>
+                    var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+                    welcomeModal.show();
+                    document.getElementById('btnChangePassword').addEventListener('click', function () {
+                        welcomeModal.hide();
+                        window.location.href = '@Url.Action("ChangePassword", "Collegelogin")';
+                    });
+                    </text>
+        }
+    </script>
+</body>
+</html>

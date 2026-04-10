@@ -1,0 +1,943 @@
+﻿@model LICInspectionDetailsViewModel
+@{
+    ViewData["Title"] = "Inspection Submission";
+    Layout = null;
+}
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<style>
+    .section-divider {
+        border: none;
+        border-top: 1px dashed #dee2e6;
+    }
+
+    .college-info-box {
+        background: #f0f4ff;
+        border: 1px solid #c7d7fc;
+        border-radius: 10px;
+        padding: 12px 16px;
+    }
+
+    #uploadArea {
+        border: 2px dashed #b0c4de !important;
+        border-radius: 10px;
+        padding: 40px 20px;
+        text-align: center;
+        background: #f8faff;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+        position: relative;
+    }
+
+        #uploadArea:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8 !important;
+        }
+
+    .completion-card {
+        background-color: #f0f4ff;
+        border: 1px solid #c7d7fc;
+        border-radius: 10px;
+    }
+
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 50%;
+        background-color: #1a73e8;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border-color: #d1d5db;
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
+        }
+
+    .input-group-text {
+        border-radius: 8px 0 0 8px !important;
+        border-color: #d1d5db;
+        background-color: #f8f9fa;
+    }
+
+    .input-group .form-control,
+    .input-group .form-select {
+        border-radius: 0 8px 8px 0 !important;
+    }
+
+    .btn-primary {
+        background-color: #1a73e8;
+        border-color: #1a73e8;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+        .btn-primary:hover {
+            background-color: #1558b0;
+            border-color: #1558b0;
+        }
+
+    .btn-outline-secondary {
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .btn-back {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        color: #fff;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        padding: 5px 14px;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.35);
+            color: #fff;
+        }
+
+    .card {
+        border-radius: 12px;
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+    }
+
+    .info-label {
+        font-size: 0.72rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #1a1a2e;
+        font-size: 0.95rem;
+    }
+
+    .file-preview-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .table thead th {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6c757d;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f0f4ff;
+    }
+
+    .college-status-item {
+        font-size: .82rem;
+        line-height: 1.4;
+        padding: 6px 8px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+    }
+
+        .college-status-item.completed {
+            background: #d1fae5;
+            border-left: 3px solid #10b981;
+        }
+
+        .college-status-item.pending {
+            background: #fef9c3;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .college-status-item.not-submitted {
+            background: #f1f5f9;
+            border-left: 3px solid #94a3b8;
+        }
+</style>
+
+<div class="container py-4">
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE HEADER
+    ════════════════════════════════════════════════ -->
+    <div class="d-flex align-items-center justify-content-between mb-4"
+         style="background: linear-gradient(135deg, #1D4E9E 0%, #0F2F5F 100%);
+                border-radius: 12px; padding: 20px 28px; color: white;">
+        <div class="d-flex align-items-center gap-3">
+            <a asp-controller="LICInspection" asp-action="InspectionDetails" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Home
+            </a>
+            <div>
+                <h4 class="mb-1 fw-bold">
+                    <i class="bi bi-clipboard2-pulse me-2"></i>My Visits
+                </h4>
+                <small style="opacity:0.9;">Submit inspection details for your assigned college</small>
+            </div>
+        </div>
+        <div class="text-end d-none d-md-block">
+            <div class="info-label text-white-50 mb-1">Logged in as</div>
+            <div class="fw-semibold fs-6">@Model.Name</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         ALERTS
+    ════════════════════════════════════════════════ -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-3" role="alert">
+            <i class="bi bi-check-circle-fill fs-4"></i>
+            <div>@TempData["Message"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+            <div>@TempData["Error"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-warning alert-dismissible fade show d-flex align-items-start gap-3" role="alert">
+            <i class="bi bi-exclamation-circle-fill fs-4 mt-1"></i>
+            <div class="flex-grow-1">
+                <strong>Please correct the following errors:</strong>
+                <ul class="mb-0 mt-2 ps-4">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- ═══════════════════════════════════════════════
+         MAIN CONTENT ROW
+    ════════════════════════════════════════════════ -->
+    <div class="row g-4">
+
+        <!-- ─────────────────────────────────────────────
+             LEFT COLUMN — Member & Assigned Colleges
+        ──────────────────────────────────────────────── -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header text-white py-3"
+                     style="background: linear-gradient(135deg, #1D4E9E, #0F2F5F);">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="bi bi-person-badge-fill me-2"></i>Member Information
+                    </h6>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-4">
+                        <div class="info-label mb-1">Full Name</div>
+                        <div class="info-value">@Model.Name</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="info-label mb-1">Phone Number</div>
+                        <div class="info-value">
+                            <i class="bi bi-telephone-fill text-primary me-1 small"></i>
+                            @Model.PhoneNumber
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="info-label mb-2">Member Type / Role</div>
+                        @{
+                            var badgeClass = Model.TypeofMember switch
+                            {
+                                "Academic Council" => "bg-primary",
+                                "Senate Members" => "bg-success",
+                                "Subject Expertise" => "bg-warning text-dark",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @badgeClass px-3 py-2 fs-6">@Model.TypeofMember</span>
+                    </div>
+
+                    <hr class="section-divider my-3" />
+
+                    @{
+                        // ── All assigned colleges (excluding placeholder) ──
+                        var allAssigned = Model.CollegeOptions != null
+                        ? Model.CollegeOptions.Where(c => !string.IsNullOrWhiteSpace(c.Value)).ToList()
+                        : new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+
+                        // ── Saved inspections keyed by college code ──
+                        var savedDict = Model.SavedInspections != null
+                        ? Model.SavedInspections
+                        .Where(s => !string.IsNullOrWhiteSpace(s.SelectedCollegeCode))
+                        .GroupBy(s => s.SelectedCollegeCode)
+                        .ToDictionary(g => g.Key, g => g.First())
+                        : new Dictionary<string, LicinspectionDetail>();
+
+                        int completedCount = savedDict.Values.Count(s => s.IsCompleted == true);
+                        int pendingCount = savedDict.Values.Count(s => s.IsCompleted != true);
+
+                        // ── Build full college list: assigned + any saved-but-not-in-assigned ──
+                        var assignedCodes = allAssigned.Select(c => c.Value).ToHashSet();
+
+                        // saved colleges that were removed from dropdown (already submitted)
+                        var submittedColleges = Model.SavedInspections != null
+                        ? Model.SavedInspections
+                        .Where(s => !string.IsNullOrWhiteSpace(s.SelectedCollegeCode))
+                        .Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                        {
+                            Value = s.SelectedCollegeCode,
+                            Text = s.CollegeName
+                        })
+                        .GroupBy(x => x.Value)
+                        .Select(g => g.First())
+                        .Where(x => !assignedCodes.Contains(x.Value))
+                        .ToList()
+                        : new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+
+                        var fullCollegeList = allAssigned.Concat(submittedColleges).ToList();
+                        int totalColleges = fullCollegeList.Count;
+                    }
+
+                    <!-- College count summary -->
+                    <div class="mb-3">
+                        <div class="info-label mb-1">Total Colleges Assigned</div>
+                        <div class="info-value text-primary">
+                            <i class="bi bi-building me-1"></i>
+                            @(totalColleges > 0 ? totalColleges + " College(s)" : "No colleges assigned")
+                        </div>
+                    </div>
+
+                    <!-- ✅ Progress summary badges -->
+                    @if (totalColleges > 0)
+                    {
+                        <div class="d-flex gap-2 flex-wrap mb-3">
+                            <span class="badge bg-success px-2 py-1">
+                                <i class="bi bi-check-circle-fill me-1"></i>@completedCount Completed
+                            </span>
+                            <span class="badge bg-warning text-dark px-2 py-1">
+                                <i class="bi bi-hourglass-split me-1"></i>@pendingCount In Progress
+                            </span>
+                            <span class="badge bg-secondary px-2 py-1">
+                                <i class="bi bi-circle me-1"></i>@(totalColleges - completedCount - pendingCount) Not Submitted
+                            </span>
+                        </div>
+                    }
+
+                    <!-- ✅ College list with status indicator -->
+                    @if (fullCollegeList.Any())
+                    {
+                        <div>
+                            <div class="info-label mb-2">Assigned College(s)</div>
+                            <div>
+                                @foreach (var col in fullCollegeList)
+                                {
+                                    var saved = savedDict.ContainsKey(col.Value) ? savedDict[col.Value] : null;
+                                    string statusClass, statusIcon, statusText;
+
+                                    if (saved == null)
+                                    {
+                                        statusClass = "not-submitted";
+                                        statusIcon = "bi-circle text-secondary";
+                                        statusText = "Not Submitted";
+                                    }
+                                    else if (saved.IsCompleted == true)
+                                    {
+                                        statusClass = "completed";
+                                        statusIcon = "bi-check-circle-fill text-success";
+                                        statusText = "Completed";
+                                    }
+                                    else
+                                    {
+                                        statusClass = "pending";
+                                        statusIcon = "bi-hourglass-split text-warning";
+                                        statusText = "In Progress";
+                                    }
+
+                                    <div class="college-status-item @statusClass d-flex align-items-start gap-2">
+                                        <i class="bi @statusIcon mt-1 flex-shrink-0" style="font-size:.85rem;"></i>
+                                        <div>
+                                            <div class="fw-semibold" style="font-size:.82rem;">@col.Text</div>
+                                            <div style="font-size:.72rem; color:#6b7280;">@statusText</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning py-2 px-3 small mb-0">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            No colleges have been assigned to your account yet.
+                            Please contact the administrator.
+                        </div>
+                    }
+
+                </div>
+
+                <div class="card-footer bg-light border-0 px-4 py-3">
+                    @if (Model.IsCompleted)
+                    {
+                        <span class="badge bg-success px-3 py-2 fs-6">
+                            <i class="bi bi-check-circle-fill me-1"></i> Inspection Completed
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark px-3 py-2 fs-6">
+                            <i class="bi bi-hourglass-split me-1"></i> Pending
+                        </span>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             RIGHT COLUMN — Inspection Form
+        ──────────────────────────────────────────────── -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark">
+                            <i class="bi bi-clipboard2-check-fill me-2 text-primary"></i>
+                            Inspection Details Form
+                        </h6>
+                        <small class="text-muted">
+                            <span class="text-danger fw-bold">*</span> Required fields
+                        </small>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <form asp-action="InspectionCollegeDetails"
+                          asp-controller="LICInspection"
+                          method="post"
+                          enctype="multipart/form-data"
+                          id="inspectionForm"
+                          novalidate>
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="SelectedCollegeName" />
+                        <input type="hidden" asp-for="Name" />
+                        <input type="hidden" asp-for="PhoneNumber" />
+                        <input type="hidden" asp-for="TypeofMember" />
+
+                        <div class="row g-4">
+
+                            <!-- ══════════════════════════════════════
+                                 STEP 1: Faculty
+                            ═══════════════════════════════════════ -->
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-circle">1</div>
+                                    <h6 class="mb-0 fw-semibold">Faculty</h6>
+                                </div>
+                                <label asp-for="SelectedFacultyId" class="form-label fw-semibold">
+                                    Select Faculty <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-mortarboard text-secondary"></i>
+                                    </span>
+                                    <select asp-for="SelectedFacultyId"
+                                            asp-items="Model.FacultyOptions"
+                                            class="form-select"
+                                            id="facultySelect"
+                                            required>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="SelectedFacultyId"
+                                      class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <!-- ══════════════════════════════════════
+                                 STEP 2: College Information
+                            ═══════════════════════════════════════ -->
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-circle">2</div>
+                                    <h6 class="mb-0 fw-semibold">College Information</h6>
+                                </div>
+                                <label asp-for="SelectedCollegeCode" class="form-label fw-semibold">
+                                    Select Assigned College <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-building text-secondary"></i>
+                                    </span>
+                                    <select asp-for="SelectedCollegeCode"
+                                            asp-items="Model.CollegeOptions"
+                                            class="form-select"
+                                            id="collegeSelect"
+                                            required>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="SelectedCollegeCode"
+                                      class="text-danger small mt-1 d-block"></span>
+
+                                @if (Model.CollegeOptions == null || Model.CollegeOptions.Count <= 1)
+                                {
+                                    <div class="alert alert-warning py-2 px-3 mt-2 small mb-0">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        No colleges are assigned to your account.
+                                        Please contact the administrator.
+                                    </div>
+                                }
+
+                                <div class="college-info-box mt-3 d-none" id="collegeInfoBox">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <i class="bi bi-building-fill text-primary fs-4"></i>
+                                        <div>
+                                            <div class="fw-semibold text-dark"
+                                                 id="selectedCollegeNameDisplay"></div>
+                                            <div class="text-muted small">
+                                                College Code:
+                                                <strong id="selectedCollegeCodeDisplay"></strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ══════════════════════════════════════
+                                 STEP 3: Inspection Date
+                            ═══════════════════════════════════════ -->
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-circle">3</div>
+                                    <h6 class="mb-0 fw-semibold">Inspection Date</h6>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="DateOfInspection" class="form-label fw-semibold">
+                                            Date of Inspection <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="bi bi-calendar3 text-secondary"></i>
+                                            </span>
+                                            <input asp-for="DateOfInspection"
+                                                   type="date"
+                                                   class="form-control"
+                                                   max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                        </div>
+                                        <span asp-validation-for="DateOfInspection"
+                                              class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ══════════════════════════════════════
+                                 STEP 4: Attendance Document
+                            ═══════════════════════════════════════ -->
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-circle">4</div>
+                                    <h6 class="mb-0 fw-semibold">Attendance Document</h6>
+                                </div>
+
+                                <div id="uploadArea">
+                                    <input asp-for="AttendenceDoc"
+                                           type="file"
+                                           class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
+                                           style="cursor:pointer;"
+                                           accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                           id="attendanceDocInput" />
+                                    <i class="bi bi-cloud-arrow-up fs-1 text-primary mb-3 d-block"></i>
+                                    <div class="fw-semibold mb-2">
+                                        Click here or drag &amp; drop your file
+                                    </div>
+                                    <div class="text-muted small">
+                                        Supported formats: PDF, JPG, PNG, DOC, DOCX<br />
+                                        Maximum file size: <strong>5 MB</strong>
+                                    </div>
+                                </div>
+
+                                <div id="filePreviewArea" class="mt-3 d-none">
+                                    <div class="file-preview-badge">
+                                        <i class="bi bi-file-earmark-check fs-4"></i>
+                                        <div>
+                                            <div class="fw-semibold" id="fileNameDisplay"></div>
+                                            <div class="small text-muted" id="fileSizeDisplay"></div>
+                                        </div>
+                                        <button type="button"
+                                                class="btn btn-sm text-danger p-0 ms-2"
+                                                id="removeFileBtn"
+                                                title="Remove file">
+                                            <i class="bi bi-x-circle-fill fs-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <span asp-validation-for="AttendenceDoc"
+                                      class="text-danger small mt-2 d-block"></span>
+
+                                @if (Model.Id > 0)
+                                {
+                                    <div class="mt-3 small text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Uploading a new file will replace the previously saved document.
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- ══════════════════════════════════════
+                                 STEP 5: Inspection Status
+                            ═══════════════════════════════════════ -->
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-circle">5</div>
+                                    <h6 class="mb-0 fw-semibold">Inspection Status</h6>
+                                </div>
+                                <div class="completion-card p-4">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                        <div>
+                                            <div class="fw-semibold mb-1">Mark as Completed</div>
+                                            <div class="text-muted small">
+                                                Enable this only when the full inspection
+                                                process for this college is finished.
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch m-0">
+                                            <input asp-for="IsCompleted"
+                                                   class="form-check-input"
+                                                   type="checkbox"
+                                                   role="switch"
+                                                   id="isCompletedSwitch"
+                                                   style="width:3.2em; height:1.6em;" />
+                                            <label class="form-check-label visually-hidden"
+                                                   for="isCompletedSwitch">
+                                                Completion status
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <!-- JS sets correct badge on page load AND on every toggle -->
+                                        <span id="statusBadge"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <hr class="section-divider my-0" />
+                            </div>
+
+                            <!-- ACTION BUTTONS -->
+                            <div class="col-12">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                    <a asp-action="InspectionDetails"
+                                       class="btn btn-outline-secondary px-5 py-2">
+                                        <i class="bi bi-x-lg me-1"></i> Cancel
+                                    </a>
+                                    <button type="submit"
+                                            class="btn btn-primary px-5 py-2"
+                                            id="submitBtn">
+                                        <span id="submitText">
+                                            <i class="bi bi-send-fill me-2"></i>Submit
+                                        </span>
+                                        <span id="submitSpinner" class="d-none">
+                                            <span class="spinner-border spinner-border-sm me-2"
+                                                  role="status" aria-hidden="true"></span>
+                                            Submitting...
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SUBMITTED INSPECTIONS TABLE
+    ════════════════════════════════════════════════ -->
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header py-3 px-4"
+             style="background: linear-gradient(135deg, #1D4E9E, #0F2F5F);">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-semibold text-white">
+                    <i class="bi bi-table me-2"></i>Submitted Inspection Records
+                </h6>
+                @if (Model.SavedInspections != null && Model.SavedInspections.Any())
+                {
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        Total: @Model.SavedInspections.Count
+                    </span>
+                }
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            @if (Model.SavedInspections != null && Model.SavedInspections.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-4" style="width:50px;">Sl No</th>
+                                <th>Faculty</th>
+                                <th>College Name</th>
+                                <th style="width:160px;">Date of Inspection</th>
+                                <th style="width:130px;">Status</th>
+                                <th style="width:120px;">Document</th>
+                                <th style="width:180px;">Last Updated</th>
+                                <th class="text-center" style="width:90px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.SavedInspections.Count; i++)
+                            {
+                                var item = Model.SavedInspections[i];
+                                <tr>
+                                    <!-- Serial Number -->
+                                    <td class="px-4 text-muted fw-semibold">@(i + 1)</td>
+
+                                    <!-- Faculty -->
+                                    <td>
+                                        <span class="text-dark small fw-semibold">
+                                            @(string.IsNullOrWhiteSpace(item.Faculty) ? "—" : item.Faculty)
+                                        </span>
+                                    </td>
+
+                                    <!-- College Name -->
+                                    <td>
+                                        <div class="fw-semibold text-dark">@item.CollegeName</div>
+                                    </td>
+
+                                    <!-- Date of Inspection -->
+                                    <td>
+                                        <i class="bi bi-calendar3 text-muted me-1 small"></i>
+                                        @(item.DateOfInspection.HasValue
+                                                                        ? item.DateOfInspection.Value.ToString("dd MMM yyyy")
+                                                                        : "—")
+                            </td>
+
+                                    <!-- Status -->
+                                    <td>
+                                @if (item.IsCompleted == true)
+                                        {
+                                            <span class="badge bg-success px-3 py-2">
+                                                <i class="bi bi-check-circle-fill me-1"></i>Completed
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark px-3 py-2">
+                                                <i class="bi bi-hourglass-split me-1"></i>Pending
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- Document -->
+                                    <td>
+                                        @if (item.AttendenceDoc != null && item.AttendenceDoc.Length > 0)
+                                        {
+                                            <a asp-action="DownloadAttendanceDoc"
+                                               asp-controller="LICInspection"
+                                               asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                                <i class="bi bi-download me-1"></i>Download
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">
+                                                <i class="bi bi-dash-circle me-1"></i>No file
+                                            </span>
+                                        }
+                                </td>
+
+                                <!-- Last Updated -->
+                                <td class="text-muted small">
+                                    <i class="bi bi-clock-history me-1"></i>
+                                    @(item.UpdatedDate.HasValue
+                                                                    ? item.UpdatedDate.Value.ToString("dd MMM yyyy, hh:mm tt")
+                                                                    : "—")
+                            </td>
+
+                                    <!-- Action -->
+                                    <td class="text-center">
+                                        <a asp-action="InspectionCollegeDetails"
+                                           asp-controller="LICInspection"
+                                           asp-route-collegeCode="@item.SelectedCollegeCode"
+                                           class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                           title="Edit this record">
+                                            <i class="bi bi-pencil-fill me-1"></i>Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                                                }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                    <div class="fw-semibold text-muted">No inspection records submitted yet.</div>
+                    <div class="text-muted small mt-1">
+                        Use the form above to submit your first inspection.
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // ── 1. College Dropdown → Info Box ──────────────────────────────
+        const collegeSelect              = document.getElementById('collegeSelect');
+        const collegeInfoBox             = document.getElementById('collegeInfoBox');
+        const selectedCollegeNameDisplay = document.getElementById('selectedCollegeNameDisplay');
+        const selectedCollegeCodeDisplay = document.getElementById('selectedCollegeCodeDisplay');
+
+        function updateCollegeInfoBox() {
+            const selected = collegeSelect.options[collegeSelect.selectedIndex];
+            if (selected && selected.value) {
+                const fullText  = selected.text;
+                const codeMatch = fullText.match(/\(([^)]+)\)$/);
+                const code      = codeMatch ? codeMatch[1] : selected.value;
+                const name      = fullText.replace(/\s*\([^)]*\)$/, '').trim();
+                selectedCollegeNameDisplay.textContent = name;
+                selectedCollegeCodeDisplay.textContent = code;
+                collegeInfoBox.classList.remove('d-none');
+            } else {
+                collegeInfoBox.classList.add('d-none');
+            }
+        }
+
+        collegeSelect.addEventListener('change', updateCollegeInfoBox);
+        updateCollegeInfoBox();
+
+        // ── 2. File Upload Preview & Validation ─────────────────────────
+        const docInput        = document.getElementById('attendanceDocInput');
+        const filePreviewArea = document.getElementById('filePreviewArea');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const fileSizeDisplay = document.getElementById('fileSizeDisplay');
+        const removeFileBtn   = document.getElementById('removeFileBtn');
+        const uploadArea      = document.getElementById('uploadArea');
+
+        function formatBytes(bytes) {
+            if (bytes < 1024)    return bytes + ' bytes';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(2) + ' MB';
+        }
+
+        docInput.addEventListener('change', function () {
+            if (!this.files || !this.files[0]) {
+                filePreviewArea.classList.add('d-none');
+                return;
+            }
+            const file = this.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File is too large. Maximum allowed size is 5 MB.');
+                this.value = '';
+                filePreviewArea.classList.add('d-none');
+                uploadArea.style.borderColor = '#b0c4de';
+                return;
+            }
+            fileNameDisplay.textContent = file.name;
+            fileSizeDisplay.textContent = formatBytes(file.size);
+            filePreviewArea.classList.remove('d-none');
+            uploadArea.style.borderColor = '#1a73e8';
+        });
+
+        removeFileBtn.addEventListener('click', function () {
+            docInput.value = '';
+            filePreviewArea.classList.add('d-none');
+            uploadArea.style.borderColor = '#b0c4de';
+        });
+
+        uploadArea.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            this.style.background  = '#e8f0fe';
+            this.style.borderColor = '#1a73e8';
+        });
+
+        uploadArea.addEventListener('dragleave', function () {
+            this.style.background  = '';
+            this.style.borderColor = '#b0c4de';
+        });
+
+        // ── 3. Completion Toggle → Live Badge ───────────────────────────
+        const completedSwitch = document.getElementById('isCompletedSwitch');
+        const statusBadge     = document.getElementById('statusBadge');
+
+        function updateStatusBadge(isChecked) {
+            if (isChecked) {
+                statusBadge.className = 'badge bg-success px-4 py-2 fs-6';
+                statusBadge.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Completed';
+            } else {
+                statusBadge.className = 'badge bg-warning text-dark px-4 py-2 fs-6';
+                statusBadge.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>In Progress / Pending';
+            }
+        }
+
+        updateStatusBadge(completedSwitch.checked);
+
+        completedSwitch.addEventListener('change', function () {
+            updateStatusBadge(this.checked);
+        });
+
+        // ── 4. Submit Button → Loading Spinner ──────────────────────────
+        document.getElementById('inspectionForm').addEventListener('submit', function () {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            document.getElementById('submitText').classList.add('d-none');
+            document.getElementById('submitSpinner').classList.remove('d-none');
+        });
+    </script>
+}

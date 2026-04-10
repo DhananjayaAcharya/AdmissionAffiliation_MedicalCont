@@ -1,0 +1,959 @@
+﻿@model IEnumerable<TeachingFacultyViewModel>
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = null;
+    ViewData["Title"] = "Teaching Faculty Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 5;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teaching Faculty Details — Medical Affiliation Portal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* ══════════════════════════════════════════════
+                   DESIGN TOKENS
+                ══════════════════════════════════════════════ */
+        :root {
+            --c-navy: #0b1f42;
+            --c-navy-mid: #153063;
+            --c-navy-lite: #1e4080;
+            --c-navy-ghost: #e8edf7;
+            --c-gold: #b07d2a;
+            --c-gold-lite: #d4a03c;
+            --c-gold-pale: #fdf4e2;
+            --c-white: #ffffff;
+            --c-ink: #111827;
+            --c-muted: #6b7490;
+            --c-border: #dde2ef;
+            --c-border-gold: #c9a03a;
+            --c-red: #a61d24;
+            --c-green: #146c43;
+            --c-green-bg: #eaf5ee;
+            --c-amber: #8c5a00;
+            --c-amber-bg: #fef4e0;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-card: 0 2px 12px rgba(11,31,66,0.08), 0 1px 3px rgba(11,31,66,0.05);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            color: var(--c-ink);
+            background: #edf0f7;
+            background-image: radial-gradient(ellipse 80% 50% at 10% -10%, rgba(21,48,99,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 110%, rgba(176,125,42,0.05) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════════════════════
+                   GOVERNMENT HEADER
+                ══════════════════════════════════════════════ */
+        .gov-header {
+            background: var(--c-navy);
+            border-bottom: 3px solid var(--c-gold-lite);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(11,31,66,0.4);
+        }
+
+        .gov-header-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 28px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .gov-seal {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #c9a03a 0%, #7a5616 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 0 0 3px rgba(201,160,58,0.25), 0 3px 10px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .gov-header-title {
+            flex: 1;
+        }
+
+            .gov-header-title .line1 {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.18rem;
+                font-weight: 700;
+                color: #e8c97a;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                line-height: 1.2;
+            }
+
+            .gov-header-title .line2 {
+                font-size: 0.72rem;
+                color: rgba(255,255,255,0.45);
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                margin-top: 2px;
+            }
+
+        .gov-header-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+            .gov-header-meta .meta-tag {
+                font-family: 'DM Mono', monospace;
+                font-size: 0.68rem;
+                color: rgba(255,255,255,0.4);
+                letter-spacing: 0.8px;
+            }
+
+            .gov-header-meta .meta-portal {
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--c-gold-lite);
+                letter-spacing: 0.5px;
+            }
+
+        /* ══════════════════════════════════════════════
+                   PAGE SHELL
+                ══════════════════════════════════════════════ */
+        .page-shell {
+            max-width: 1200px;
+            margin: 36px auto 72px;
+            padding: 0 20px;
+        }
+
+        /* BREADCRUMB */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: var(--c-muted);
+            margin-bottom: 20px;
+        }
+
+            .breadcrumb a {
+                color: var(--c-navy-lite);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.15s;
+            }
+
+                .breadcrumb a:hover {
+                    color: var(--c-gold);
+                }
+
+            .breadcrumb .sep {
+                opacity: 0.4;
+            }
+
+            .breadcrumb .current {
+                color: var(--c-navy);
+                font-weight: 600;
+            }
+
+        /* ══════════════════════════════════════════════
+                   STEP HEADER
+                ══════════════════════════════════════════════ */
+        .step-header {
+            background: var(--c-white);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border: 1px solid var(--c-border);
+            border-bottom: none;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .step-header-top {
+            padding: 22px 32px 18px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--c-border);
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--c-navy);
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+        }
+
+        .page-title .subtitle {
+            font-size: 0.82rem;
+            color: var(--c-muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Intake Pill */
+        .intake-pill {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            background: var(--c-navy-ghost);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-md);
+            padding: 10px 18px;
+            flex-shrink: 0;
+        }
+
+            .intake-pill .ip-label {
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--c-muted);
+                letter-spacing: 0.8px;
+                text-transform: uppercase;
+            }
+
+            .intake-pill .ip-value {
+                font-family: 'DM Mono', monospace;
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: var(--c-navy);
+                line-height: 1;
+            }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+        }
+
+        .p-step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-right: 1px solid var(--c-border);
+            font-size: 0.82rem;
+            color: var(--c-muted);
+            background: #f7f9fc;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+            .p-step:last-child {
+                border-right: none;
+            }
+
+            .p-step.done {
+                background: #f0f8f3;
+                color: var(--c-green);
+            }
+
+            .p-step.active {
+                background: var(--c-white);
+                color: var(--c-navy);
+                font-weight: 600;
+            }
+
+                .p-step.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--c-navy-lite), var(--c-gold-lite));
+                }
+
+        .p-step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            border: 2px solid currentColor;
+        }
+
+        .p-step.done .p-step-num {
+            background: var(--c-green);
+            border-color: var(--c-green);
+            color: #fff;
+        }
+
+        .p-step.active .p-step-num {
+            background: var(--c-navy);
+            border-color: var(--c-navy);
+            color: #fff;
+        }
+
+        /* ══════════════════════════════════════════════
+                   FORM CARD
+                ══════════════════════════════════════════════ */
+        .form-card {
+            background: var(--c-white);
+            border: 1px solid var(--c-border);
+            border-top: none;
+            padding: 36px 40px 38px;
+            box-shadow: var(--shadow-card);
+        }
+
+        /* Section Head */
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section-head-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--c-navy) 0%, var(--c-navy-lite) 100%);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--c-gold-lite);
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .section-head-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--c-navy);
+        }
+
+        .section-head-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--c-border-gold), transparent);
+        }
+
+        /* Notice Banner */
+        .notice-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: var(--c-amber-bg);
+            border: 1px solid #f0c97a;
+            border-left: 4px solid var(--c-gold);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            font-size: 0.84rem;
+            color: var(--c-amber);
+            font-weight: 500;
+        }
+
+            .notice-banner i {
+                font-size: 1.05rem;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+
+        /* ══════════════════════════════════════════════
+                   FACULTY TABLE
+                ══════════════════════════════════════════════ */
+        .faculty-table-wrap {
+            overflow-x: auto;
+            border: 1.5px solid var(--c-border);
+            border-radius: var(--radius-md);
+            margin-bottom: 28px;
+        }
+
+        .faculty-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+            /* Thead */
+            .faculty-table thead tr {
+                background: linear-gradient(90deg, var(--c-navy) 0%, var(--c-navy-mid) 100%);
+            }
+
+            .faculty-table th {
+                padding: 13px 16px;
+                text-align: left;
+                font-size: 0.72rem;
+                font-weight: 700;
+                color: var(--c-gold-lite);
+                letter-spacing: 0.9px;
+                text-transform: uppercase;
+                border-right: 1px solid rgba(255,255,255,0.08);
+                white-space: nowrap;
+            }
+
+                .faculty-table th:last-child {
+                    border-right: none;
+                }
+
+            /* Tbody */
+            .faculty-table td {
+                padding: 10px 16px;
+                border-bottom: 1px solid #eef0f8;
+                border-right: 1px solid #eef0f8;
+                vertical-align: middle;
+                color: #2c3454;
+            }
+
+                .faculty-table td:last-child {
+                    border-right: none;
+                }
+
+            .faculty-table tbody tr {
+                transition: background 0.12s;
+            }
+
+                .faculty-table tbody tr:hover {
+                    background: #f5f8ff;
+                }
+
+            /* Department group row */
+            .faculty-table td.dept-cell {
+                font-weight: 700;
+                color: var(--c-navy-mid);
+                font-size: 0.84rem;
+                background: #f3f5fb;
+            }
+
+            .faculty-table td.dept-cell-empty {
+                background: #f7f9fc;
+            }
+
+        /* Intake value cells */
+        .intake-val {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--c-navy-lite);
+            text-align: center;
+        }
+
+        /* Present intake input */
+        .intake-input {
+            width: 100%;
+            max-width: 110px;
+            padding: 7px 10px;
+            font-size: 0.88rem;
+            font-family: 'DM Mono', monospace;
+            font-weight: 600;
+            color: var(--c-ink);
+            background: #fafbfd;
+            border: 1.5px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            outline: none;
+            text-align: center;
+            -moz-appearance: textfield;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+            .intake-input::-webkit-outer-spin-button,
+            .intake-input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .intake-input:focus {
+                border-color: var(--c-navy-lite);
+                background: var(--c-white);
+                box-shadow: 0 0 0 3px rgba(30,64,128,0.1);
+            }
+
+            .intake-input:hover:not(:focus) {
+                border-color: #a0aec0;
+            }
+
+        /* Empty state */
+        .empty-state td {
+            text-align: center;
+            padding: 56px 20px;
+            color: var(--c-muted);
+            font-style: italic;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1.5px solid transparent;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-ghost {
+            background: var(--c-white);
+            color: var(--c-muted);
+            border-color: var(--c-border);
+        }
+
+            .btn-ghost:hover {
+                background: #f1f4fb;
+                color: var(--c-navy);
+                border-color: #b0bcd8;
+            }
+
+        .btn-primary {
+            background: var(--c-navy);
+            color: var(--c-white);
+            border-color: var(--c-navy);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .btn-primary::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 60%);
+                pointer-events: none;
+            }
+
+            .btn-primary:hover {
+                background: var(--c-navy-lite);
+                border-color: var(--c-navy-lite);
+                box-shadow: 0 4px 16px rgba(11,31,66,0.28);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:active {
+                transform: translateY(0);
+                box-shadow: none;
+            }
+
+        /* Form actions */
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 24px;
+            border-top: 1px solid #edf0f7;
+            gap: 14px;
+        }
+
+        .actions-left {
+            font-size: 0.78rem;
+            color: var(--c-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .actions-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ══════════════════════════════════════════════
+                   NAV FOOTER
+                ══════════════════════════════════════════════ */
+        .nav-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .btn-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            transition: all 0.14s;
+            border: 1.5px solid var(--c-border);
+            cursor: pointer;
+        }
+
+        .btn-nav-prev {
+            background: var(--c-white);
+            color: var(--c-muted);
+        }
+
+            .btn-nav-prev:hover {
+                background: #f1f4fb;
+                color: var(--c-navy);
+                border-color: #a0aec0;
+            }
+
+        .btn-nav-next {
+            background: var(--c-navy);
+            color: var(--c-white);
+            border-color: var(--c-navy);
+        }
+
+            .btn-nav-next:hover {
+                background: var(--c-navy-lite);
+                border-color: var(--c-navy-lite);
+                box-shadow: 0 4px 16px rgba(11,31,66,0.25);
+                transform: translateY(-1px);
+            }
+
+        /* Floating Seal */
+        .page-seal {
+            position: fixed;
+            bottom: 28px;
+            right: 32px;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            border: 2px solid rgba(176,125,42,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: rgba(176,125,42,0.18);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* ══════════════════════════════════════════════
+                   RESPONSIVE
+                ══════════════════════════════════════════════ */
+        @@media (max-width: 960px) {
+            .form-card {
+                padding: 24px 22px;
+            }
+
+            .step-header-top {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .intake-pill {
+                align-self: flex-start;
+            }
+        }
+
+        @@media (max-width: 600px) {
+            .gov-header-meta {
+                display: none;
+            }
+
+            .nav-footer {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn-nav {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .actions-right {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══ GOVERNMENT HEADER ══ -->
+    <header class="gov-header">
+        <div class="gov-header-inner">
+            <div class="gov-seal">🏛</div>
+            <div class="gov-header-title">
+                <div class="line1">Rajiv Gandhi University of Health Sciences</div>
+                <div class="line2">Medical Affiliation Management System &nbsp;·&nbsp; Government of Karnataka</div>
+            </div>
+            <div class="gov-header-meta">
+                <span class="meta-portal">Affiliation Portal</span>
+                <span class="meta-tag" id="portal-date-header"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ══ PAGE SHELL ══ -->
+    <div class="page-shell animate__animated animate__fadeIn" style="animation-duration:0.4s;">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <i class="ri-home-4-line"></i>
+            <a href="#">Dashboard</a>
+            <span class="sep">/</span>
+            <a href="#">Medical Affiliation</a>
+            <span class="sep">/</span>
+            <span class="current">Teaching Faculty Details</span>
+        </nav>
+
+        <!-- ══ STEP HEADER ══ -->
+        <div class="step-header">
+            <div class="step-header-top">
+                <div class="page-title">
+                    <h1>Teaching Faculty Details</h1>
+                    <div class="subtitle">
+                        <i class="ri-information-line" style="color:var(--c-gold);"></i>
+                        Department-wise faculty strength as per NMC norms
+                    </div>
+                </div>
+                <div class="intake-pill">
+                    <span class="ip-label">UG MBBS Existing Intake</span>
+                    <span class="ip-value">@ViewBag.UGMBBSIntake</span>
+                </div>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="p-step done">
+                    <div class="p-step-num"><i class="ri-check-line" style="font-size:0.8rem;"></i></div>
+                    <span>Basic Details</span>
+                </div>
+                <div class="p-step done">
+                    <div class="p-step-num"><i class="ri-check-line" style="font-size:0.8rem;"></i></div>
+                    <span>Course Details</span>
+                </div>
+                <div class="p-step done">
+                    <div class="p-step-num"><i class="ri-check-line" style="font-size:0.8rem;"></i></div>
+                    <span>Year-wise Materials</span>
+                </div>
+                <div class="p-step done">
+                    <div class="p-step-num"><i class="ri-check-line" style="font-size:0.8rem;"></i></div>
+                    <span>Faculty Details</span>
+                </div>
+                <div class="p-step active">
+                    <div class="p-step-num">5</div>
+                    <span>Teaching Faculty</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ FORM CARD ══ -->
+        <div class="form-card">
+
+            <!-- Section Head -->
+            <div class="section-head">
+                <div class="section-head-icon"><i class="ri-user-star-line"></i></div>
+                <div class="section-head-label">Department-wise Teaching Faculty Strength</div>
+                <div class="section-head-line"></div>
+            </div>
+
+            <!-- Notice Banner -->
+            <div class="notice-banner">
+                <i class="ri-alert-line"></i>
+                <span>
+                    This section is for <strong>UG details only.</strong>&nbsp;
+                    If no data is applicable to your institution, you may skip by clicking <strong>Save &amp; Proceed</strong> directly.
+                </span>
+            </div>
+
+            <form asp-action="TeachingFacultyDetails" method="post" id="teachingFacultyForm">
+                @Html.AntiForgeryToken()
+
+                <!-- Faculty Table -->
+                <div class="faculty-table-wrap">
+                    <table class="faculty-table" id="facultyTable">
+                        <thead>
+                            <tr>
+                                <th><i class="ri-building-line" style="margin-right:5px;opacity:0.7;"></i>Department</th>
+                                <th><i class="ri-user-line" style="margin-right:5px;opacity:0.7;"></i>Faculty</th>
+                                <th><i class="ri-briefcase-line" style="margin-right:5px;opacity:0.7;"></i>Designation</th>
+                                <th style="text-align:center;">Existing Intake</th>
+                                <th style="text-align:center;">Present Intake</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                string lastDept = null;
+                                int index = 0;
+                                foreach (var item in Model)
+                                {
+                                    bool isNewDept = (lastDept != item.DepartmentName);
+                                    <tr>
+                                        <!-- Hidden fields -->
+                                        <input type="hidden" name="[@index].DepartmentCode" value="@item.DepartmentCode" />
+                                        <input type="hidden" name="[@index].FacultyCode" value="@item.FacultyCode" />
+                                        <input type="hidden" name="[@index].DesignationCode" value="@item.DesignationCode" />
+                                        <input type="hidden" name="[@index].CollegeCode" value="@item.CollegeCode" />
+                                        <input type="hidden" name="[@index].DepartmentName" value="@item.DepartmentName" />
+                                        <input type="hidden" name="[@index].Faculty" value="@item.Faculty" />
+                                        <input type="hidden" name="[@index].DesignationName" value="@item.DesignationName" />
+                                        <input type="hidden" name="[@index].SeatSlabId" value="@item.SeatSlabId" />
+                                        <input type="hidden" name="[@index].ExistingSeatIntake" value="@item.ExistingSeatIntake" />
+
+                                        @if (isNewDept)
+                                        {
+                                            <td class="dept-cell">
+                                                <span style="display:flex;align-items:center;gap:7px;">
+                                                    <i class="ri-stethoscope-line" style="color:var(--c-gold);font-size:0.9rem;"></i>
+                                                    @item.DepartmentName
+                                                </span>
+                                            </td>
+                                            lastDept = item.DepartmentName;
+                                        }
+                                        else
+                                        {
+                                            <td class="dept-cell-empty"></td>
+                                        }
+
+                                        <td>@item.Faculty</td>
+                                        <td>
+                                            <span style="font-size:0.82rem;color:var(--c-muted);">@item.DesignationName</span>
+                                        </td>
+                                        <td class="intake-val">
+                                            <span style="background:var(--c-navy-ghost);border:1px solid var(--c-border);padding:3px 12px;border-radius:20px;display:inline-block;">
+                                                @item.ExistingSeatIntake
+                                            </span>
+                                        </td>
+                                        <td style="text-align:center;">
+                                            <input type="number"
+                                                   name="[@index].PresentSeatIntake"
+                                                   value="@item.PresentSeatIntake"
+                                                   class="intake-input" />
+                                        </td>
+                                    </tr>
+                                    index++;
+                                }
+                            }
+                            else
+                            {
+                                <tr class="empty-state">
+                                    <td colspan="5">
+                                        <i class="ri-inbox-line" style="font-size:1.6rem;display:block;margin-bottom:10px;opacity:0.3;"></i>
+                                        No faculty records available for this institution.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <div class="actions-left">
+                        <i class="ri-lock-2-line"></i>
+                        All data is saved securely. You may proceed even without entries.
+                    </div>
+                    <div class="actions-right">
+                        <a asp-controller="MedicalRepository" asp-action="FacultyDetails" class="btn btn-ghost">
+                            <i class="ri-arrow-left-line"></i> Previous
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri-save-3-line"></i> Save &amp; Proceed
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- ══ NAVIGATION FOOTER ══ -->
+        <div class="nav-footer">
+            <a asp-controller="MedicalRepository" asp-action="FacultyDetails" class="btn-nav btn-nav-prev">
+                <i class="ri-arrow-left-line"></i> Previous Step
+            </a>
+            <button type="submit" form="teachingFacultyForm" class="btn-nav btn-nav-next">
+                Save &amp; Proceed <i class="ri-arrow-right-line"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Floating Seal -->
+    <div class="page-seal"><i class="ri-government-line"></i></div>
+
+    <script>
+        // Live date
+        (function () {
+            const el = document.getElementById('portal-date-header');
+            if (el) el.textContent = new Date().toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            });
+        })();
+
+        // Staggered row entrance
+        document.querySelectorAll('#facultyTable tbody tr').forEach(function (row, i) {
+            row.style.opacity   = '0';
+            row.style.transform = 'translateY(6px)';
+            setTimeout(function () {
+                row.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                row.style.opacity    = '1';
+                row.style.transform  = 'translateY(0)';
+            }, 40 + i * 18);
+        });
+
+        // Highlight changed intake inputs
+        document.querySelectorAll('.intake-input').forEach(function (input) {
+            var original = input.value;
+            input.addEventListener('input', function () {
+                if (this.value !== original && this.value !== '') {
+                    this.style.borderColor = 'var(--c-navy-lite)';
+                    this.style.background  = '#f0f4fc';
+                } else {
+                    this.style.borderColor = '';
+                    this.style.background  = '';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

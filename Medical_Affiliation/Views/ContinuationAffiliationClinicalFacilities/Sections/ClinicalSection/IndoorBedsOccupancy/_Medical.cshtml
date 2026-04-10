@@ -1,0 +1,103 @@
+﻿@model IndoorBedsOccupancyPostVM
+
+
+<div class="form-section">
+    <div class="section-title required">
+        Indoor Beds Requirements
+    </div>
+    <form id="indoorBedsForm">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="CollegeCode" />
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="AffiliationTypeId" />
+        <input type="hidden" asp-for="HospitalDetailsId" />
+
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>Department</th>
+                    <th>Seat Slab</th>
+                    <th>Requirements</th>
+                    <th>Available Requirements</th>
+                    <th>Deficiency</th>
+                </tr>
+            </thead>
+            <tbody class="beds">
+                @for (int i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            @Model.Items[i].DepartmentName
+                            <input type="hidden" asp-for="Items[@i].DepartmentId" />
+                        </td>
+                        <td>
+                            @Model.Items[i].SeatSlab
+                            <input type="hidden" asp-for="Items[@i].SeatSlabId" />
+                        </td>
+                        <td>
+                            <input asp-for="Items[@i].RGUHSintake"
+                                   class="form-control rguhs form-control-sm"
+                                   type="number" readonly />
+                        </td>
+                        <td>
+                            <input asp-for="Items[@i].CollegeIntake"
+                                   class="form-control college-intake form-control-sm"
+                                   type="number" min="0" />
+                        </td>
+                        <td><span class="difference"></span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <button type="button"
+                    class="btn btn-primary"
+                    onclick="saveIndoorBeds()">
+                Save Indoor Bed Requirements
+            </button>
+        </div>
+    </form>
+
+</div>
+<script>
+    function calculateDifference(row) {
+        const rguhs = parseInt(row.querySelector(".rguhs").value) || 0;
+        const clg = parseInt(row.querySelector(".college-intake").value) || 0;
+        let diff = Math.abs(clg - rguhs);
+
+        row.querySelector(".difference").innerText = clg >= rguhs ? "Nil" : Math.abs(clg - rguhs);
+
+    }
+
+    // 🔁 On user input
+    document.addEventListener("input", function (e) {
+        if (!e.target.classList.contains("college-intake")) return;
+        calculateDifference(e.target.closest("tr"));
+    });
+
+    // 🚀 On page load
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("tbody.beds tr").forEach(row => {
+            calculateDifference(row);
+        });
+    });
+    function saveIndoorBeds() {
+        const form = document.getElementById('indoorBedsForm');
+        const data = new FormData(form);
+
+        fetch('@Url.Action("SaveIndoorBedsOccupancy", "ContinuationAffiliationClinicalFacilities")', {
+            method: 'POST',
+            body: data
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                Swal.fire("Saved", "Indoor beds occupancy saved successfully", "success");
+            } else {
+                Swal.fire("Error", res.message, "error");
+            }
+        });
+    }
+</script>

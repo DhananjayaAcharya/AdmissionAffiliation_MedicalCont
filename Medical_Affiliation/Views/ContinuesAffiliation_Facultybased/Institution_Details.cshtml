@@ -1,0 +1,947 @@
+﻿@model InstitutionViewModel
+
+@{
+    ViewData["Title"] = "Institution Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Institution Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --ink: #0f1923;
+                --ink-mid: #2e3d4f;
+                --ink-muted: #6b7a8d;
+                --border: #d4dae3;
+                --bg: #f4f6f9;
+                --surface: #ffffff;
+                --accent: #1a4c8b;
+                --accent-lt: #e8edf7;
+                --danger: #c0392b;
+                --gold: #c9a84c;
+                --radius: 10px;
+                --shadow: 0 2px 16px rgba(15,25,35,.07);
+            }
+
+            body {
+                font-family: 'DM Sans', sans-serif;
+                background: var(--bg);
+                color: var(--ink);
+                min-height: 100vh;
+            }
+
+            /* ─── TOP HEADER BAND ─────────────────────────────── */
+            .page-header {
+                background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+                padding: 1rem 2rem .6rem;
+                display: flex;
+                align-items: center;
+                position: fixed;
+                width: 100%;
+                z-index: 5;
+                gap: 18px;
+                border-bottom: 3px solid var(--gold);
+            }
+
+                .page-header .emblem {
+                    width: 54px;
+                    height: 54px;
+                    border: 2px solid var(--gold);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+
+                    .page-header .emblem svg {
+                        width: 28px;
+                        height: 28px;
+                        fill: var(--gold);
+                    }
+
+            .page-header-text h1 {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.3rem;
+                color: #ffffff;
+                letter-spacing: .05em;
+            }
+
+            .page-header-text p {
+                font-size: .6rem;
+                color: rgba(255,255,255,.55);
+                margin-top: 1px;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+            }
+
+            /* ─── STEP INDICATOR ──────────────────────────────── */
+            .stepper-wrap {
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                padding: 14px 40px;
+                display: flex;
+                align-items: center;
+                gap: 0;
+                overflow-x: auto;
+            }
+
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: .75rem;
+                font-weight: 500;
+                color: var(--ink-muted);
+                white-space: nowrap;
+            }
+
+                .step.active {
+                    color: var(--accent);
+                }
+
+                .step .dot {
+                    width: 26px;
+                    height: 26px;
+                    border-radius: 50%;
+                    border: 2px solid var(--border);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: .7rem;
+                    font-weight: 600;
+                    background: var(--surface);
+                }
+
+                .step.active .dot {
+                    background: var(--accent);
+                    border-color: var(--accent);
+                    color: #fff;
+                }
+
+                .step.done .dot {
+                    background: #2ecc71;
+                    border-color: #2ecc71;
+                    color: #fff;
+                }
+
+            .step-line {
+                flex: 1;
+                min-width: 24px;
+                height: 1px;
+                background: var(--border);
+                margin: 0 6px;
+            }
+
+            /* ─── MAIN LAYOUT ─────────────────────────────────── */
+            .form-wrap {
+                max-width: 1240px;
+                margin: 32px auto;
+                padding: 6rem 24px 60px;
+                /* padding: 0 24px 60px; */
+            }
+
+            .grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            @@media (max-width: 900px) {
+                .grid-2 {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            /* ─── SECTION CARDS ───────────────────────────────── */
+            .section-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                overflow: hidden;
+                margin-bottom: 20px;
+                animation: fadeUp .35s ease both;
+            }
+
+            @@keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .section-card:nth-child(1) {
+                animation-delay: .04s;
+            }
+
+            .section-card:nth-child(2) {
+                animation-delay: .08s;
+            }
+
+            .section-card:nth-child(3) {
+                animation-delay: .12s;
+            }
+
+            .section-card:nth-child(4) {
+                animation-delay: .16s;
+            }
+
+            .section-card:nth-child(5) {
+                animation-delay: .20s;
+            }
+
+            .section-card:nth-child(6) {
+                animation-delay: .24s;
+            }
+
+            .section-header {
+                padding: 13px 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                border-bottom: 1px solid var(--border);
+            }
+
+                .section-header .icon-wrap {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 7px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                    .section-header .icon-wrap svg {
+                        width: 15px;
+                        height: 15px;
+                    }
+
+                .section-header h2 {
+                    font-size: .82rem;
+                    font-weight: 600;
+                    letter-spacing: .04em;
+                    text-transform: uppercase;
+                }
+
+            /* colour themes per section */
+            .sh-blue .icon-wrap {
+                background: #e8edf7;
+            }
+
+                .sh-blue .icon-wrap svg {
+                    fill: #1a4c8b;
+                }
+
+            .sh-blue h2 {
+                color: #1a4c8b;
+            }
+
+            .sh-slate .icon-wrap {
+                background: #eef0f3;
+            }
+
+                .sh-slate .icon-wrap svg {
+                    fill: #3d5166;
+                }
+
+            .sh-slate h2 {
+                color: #3d5166;
+            }
+
+            .sh-teal .icon-wrap {
+                background: #e3f4f4;
+            }
+
+                .sh-teal .icon-wrap svg {
+                    fill: #1a7f7a;
+                }
+
+            .sh-teal h2 {
+                color: #1a7f7a;
+            }
+
+            .sh-green .icon-wrap {
+                background: #e7f6ee;
+            }
+
+                .sh-green .icon-wrap svg {
+                    fill: #1e7e4e;
+                }
+
+            .sh-green h2 {
+                color: #1e7e4e;
+            }
+
+            .sh-amber .icon-wrap {
+                background: #fdf3e0;
+            }
+
+                .sh-amber .icon-wrap svg {
+                    fill: #a0660a;
+                }
+
+            .sh-amber h2 {
+                color: #a0660a;
+            }
+
+            .sh-dark .icon-wrap {
+                background: #eaebee;
+            }
+
+                .sh-dark .icon-wrap svg {
+                    fill: #2d3748;
+                }
+
+            .sh-dark h2 {
+                color: #2d3748;
+            }
+
+            .section-body {
+                padding: 20px;
+            }
+
+            /* ─── FORM FIELDS ─────────────────────────────────── */
+            .field-grid {
+                display: grid;
+                gap: 14px;
+                width: 100%;
+            }
+
+            .col-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .col-3 {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            .col-1 {
+                grid-template-columns: 1fr;
+            }
+
+            @@media (max-width: 600px) {
+                .col-2, .col-3 {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            label {
+                display: block;
+                font-size: .72rem;
+                font-weight: 600;
+                color: var(--ink-mid);
+                margin-bottom: 5px;
+                letter-spacing: .03em;
+                text-transform: uppercase;
+            }
+
+                label .req {
+                    color: var(--danger);
+                    margin-left: 2px;
+                }
+
+            input[type="text"],
+            input[type="number"],
+            input[type="email"],
+            input[type="url"],
+            input[type="date"],
+            input[type="file"],
+            select,
+            textarea {
+                width: 100%;
+                font-family: 'DM Sans', sans-serif;
+                font-size: .85rem;
+                color: var(--ink);
+                background: #fafbfc;
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 8px 12px;
+                transition: border-color .18s, box-shadow .18s, background .18s;
+                outline: none;
+            }
+
+                input:focus, select:focus, textarea:focus {
+                    border-color: var(--accent);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+                }
+
+            select {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a8d' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                padding-right: 32px;
+            }
+
+            textarea {
+                resize: vertical;
+            }
+
+            input[readonly] {
+                color: var(--ink-muted);
+                cursor: not-allowed;
+                background: #f0f2f5;
+            }
+
+            .field-hint {
+                font-size: .7rem;
+                color: var(--ink-muted);
+                margin-top: 4px;
+            }
+
+            .text-danger {
+                color: var(--danger);
+                font-size: .7rem;
+                margin-top: 3px;
+                display: block;
+            }
+
+            /* checkbox row */
+            .check-group {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding-top: 4px;
+            }
+
+            .check-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: .82rem;
+                font-weight: 500;
+                color: var(--ink-mid);
+                cursor: pointer;
+                text-transform: none;
+                letter-spacing: 0;
+            }
+
+                .check-label input[type="checkbox"] {
+                    width: 16px;
+                    height: 16px;
+                    cursor: pointer;
+                    accent-color: var(--accent);
+                    border-radius: 4px;
+                    padding: 0;
+                }
+
+            /* file upload */
+            .file-drop {
+                border: 2px dashed var(--border);
+                border-radius: 9px;
+                padding: 22px 16px;
+                text-align: center;
+                cursor: pointer;
+                transition: border-color .2s, background .2s;
+                background: #fafbfd;
+            }
+
+                .file-drop:hover {
+                    border-color: var(--accent);
+                    background: var(--accent-lt);
+                }
+
+                .file-drop input[type="file"] {
+                    position: absolute;
+                    inset: 0;
+                    opacity: 0;
+                    cursor: pointer;
+                    border: none;
+                    padding: 0;
+                    border-radius: 0;
+                }
+
+            .file-drop-inner {
+                position: relative;
+            }
+
+            .file-drop-icon svg {
+                width: 28px;
+                height: 28px;
+                fill: var(--ink-muted);
+                margin-bottom: 8px;
+            }
+
+            .file-drop p {
+                font-size: .8rem;
+                color: var(--ink-muted);
+                margin: 0;
+            }
+
+            .file-drop strong {
+                color: var(--accent);
+            }
+
+            /* ─── READONLY BADGE PAIR ─────────────────────────── */
+            .meta-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+            }
+
+            /* ─── FOOTER ACTIONS ──────────────────────────────── */
+            .form-footer {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 12px;
+                padding: 20px 0 0;
+                border-top: 1px solid var(--border);
+                margin-top: 8px;
+            }
+
+            .btn {
+                font-family: 'DM Sans', sans-serif;
+                font-size: .83rem;
+                font-weight: 600;
+                border-radius: 8px;
+                padding: 9px 24px;
+                cursor: pointer;
+                letter-spacing: .03em;
+                border: none;
+                transition: all .18s;
+            }
+
+            .btn-ghost {
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--ink-muted);
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+            }
+
+                .btn-ghost:hover {
+                    border-color: var(--ink-muted);
+                    color: var(--ink);
+                }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #1a4c8b, #1564c0);
+                color: #fff;
+                box-shadow: 0 3px 14px rgba(26,76,139,.3);
+            }
+
+                .btn-primary:hover {
+                    box-shadow: 0 5px 20px rgba(26,76,139,.4);
+                    transform: translateY(-1px);
+                }
+
+                .btn-primary:active {
+                    transform: translateY(0);
+                }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE HEADER -->
+    @* <div class="page-header">
+        <div class="emblem">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+        </div>
+        <div class="page-header-text">
+            <h1>Institution Details</h1>
+        </div>
+    </div> *@
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="emblem">
+            <i class="fas fa-hospital"></i>
+        </div>
+        <div class="page-header-text">
+            <h1>Institution Details</h1>
+            @* <p>RGUHS · Affiliation Portal </p> *@
+        </div>
+    </div>
+
+    <!-- FORM BODY -->
+    <div class="form-wrap">
+        <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:16px;font-size:.83rem;"></div>
+
+        <form asp-action="Institution_Details" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div class="grid-2">
+
+                <!-- ═══════════ LEFT COLUMN ═══════════ -->
+                <div>
+
+                    <!-- 1. Basic Information -->
+                    <div class="section-card">
+                        <div class="section-header sh-blue">
+                            <div class="icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm-7 3a3 3 0 110 6 3 3 0 010-6zm6 13H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V20z" /></svg>
+                            </div>
+                            <h2>Basic Information</h2>
+                        </div>
+                        <div class="section-body">
+                            <div class="field-grid col-2">
+                                <div>
+                                    <label asp-for="TypeOfInstitution">Type of Institution <span class="req">*</span></label>
+                                    <select asp-for="TypeOfInstitution" asp-items="Model.institutetypelist">
+                                        <option value="">— Select —</option>
+                                    </select>
+                                    <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="StatusOfCollege">Status of College <span class="req">*</span></label>
+                                    <select asp-for="StatusOfCollege" asp-items="Model.Institutestatuslist">
+                                        <option value="">— Select —</option>
+                                    </select>
+                                    <span asp-validation-for="StatusOfCollege" class="text-danger"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="NameOfInstitution">Name of Institution <span class="req">*</span></label>
+                                    <input asp-for="NameOfInstitution" maxlength="200" placeholder="Full legal name" />
+                                    <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="YearOfEstablishment">Year of Establishment <span class="req">*</span></label>
+                                    <input asp-for="YearOfEstablishment" type="number" min="1900" max="2100" placeholder="e.g. 1995" />
+                                    <span asp-validation-for="YearOfEstablishment" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="field-grid col-1" style="margin-top:14px;">
+                                <div>
+                                    <label asp-for="Address">Address <span class="req">*</span></label>
+                                    <textarea asp-for="Address" rows="3" placeholder="Street / Area / Locality"></textarea>
+                                    <span asp-validation-for="Address" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="field-grid col-2" style="margin-top:14px;">
+                                <div>
+                                    <label asp-for="VillageTownCity">Village / Town / City</label>
+                                    <input asp-for="VillageTownCity" maxlength="100" />
+                                </div>
+                                <div>
+                                    <label asp-for="PinCode">PIN Code <span class="req">*</span></label>
+                                    <input asp-for="PinCode" pattern="\d{6}" title="6-digit PIN" placeholder="000000" />
+                                    <span asp-validation-for="PinCode" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Location & Contact -->
+                    <div class="section-card">
+                        <div class="section-header sh-slate">
+                            <div class="icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                            </div>
+                            <h2>Location &amp; Contact</h2>
+                        </div>
+                        <div class="section-body">
+                            <div class="field-grid col-2">
+                                <div>
+                                    <label asp-for="Taluk">Taluk</label>
+                                    <select asp-for="Taluk" asp-items="Model.TalukList">
+                                        <option value="">— Select —</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label asp-for="District">District</label>
+                                    <select asp-for="District" asp-items="Model.DistrictList">
+                                        <option value="">— Select —</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label asp-for="StdCode">STD Code</label>
+                                    <input asp-for="StdCode" pattern="\d{2,4}" placeholder="e.g. 080" />
+                                </div>
+                                <div>
+                                    <label asp-for="MobileNumber">Mobile Number</label>
+                                    <input asp-for="MobileNumber" pattern="[6-9]\d{9}" placeholder="10-digit" />
+                                </div>
+                                <div>
+                                    <label asp-for="AltLandlineMobile">Alternate / Landline</label>
+                                    <input asp-for="AltLandlineMobile" />
+                                </div>
+                                <div>
+                                    <label asp-for="Fax">Fax Number</label>
+                                    <input asp-for="Fax" />
+                                </div>
+                                <div>
+                                    <label asp-for="EmailId">Email ID <span class="req">*</span></label>
+                                    <input asp-for="EmailId" type="email" />
+                                    <span asp-validation-for="EmailId" class="text-danger"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="AltEmailId">Alternate Email</label>
+                                    <input asp-for="AltEmailId" type="email" />
+                                </div>
+                                <div>
+                                    <label asp-for="Website">Website</label>
+                                    <input asp-for="Website" type="url" placeholder="https://" />
+                                </div>
+                                <div>
+                                    <label asp-for="College_URL">College URL</label>
+                                    <input asp-for="College_URL" type="url" placeholder="https://" />
+                                </div>
+                                <div>
+                                    <label asp-for="SurveyNoPidNo">Survey No / PID No</label>
+                                    <input asp-for="SurveyNoPidNo" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Head & Principal -->
+                    <div class="section-card">
+                        <div class="section-header sh-teal">
+                            <div class="icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
+                            </div>
+                            <h2>Head of Institution &amp; Principal</h2>
+                        </div>
+                        <div class="section-body">
+                            <div class="field-grid col-2">
+                                <div>
+                                    <label asp-for="HeadOfInstitution">Head of Institution</label>
+                                    <input asp-for="HeadOfInstitution" />
+                                </div>
+                                <div>
+                                    <label asp-for="HeadOfInstitution_Mob_NO">Head Mobile No</label>
+                                    <input asp-for="HeadOfInstitution_Mob_NO" pattern="[6-9]\d{9}" />
+                                </div>
+                                <div>
+                                    <label asp-for="HeadOfInstitution_Email">Head Email</label>
+                                    <input asp-for="HeadOfInstitution_Email" type="email" />
+                                </div>
+                                <div>
+                                    <label asp-for="HeadAddress">Head Address</label>
+                                    <textarea asp-for="HeadAddress" rows="2"></textarea>
+                                </div>
+                                <div>
+                                    <label asp-for="Principal_Name">Principal Name</label>
+                                    <input asp-for="Principal_Name" />
+                                </div>
+                                <div>
+                                    <label asp-for="Principal_Mob_No">Principal Mobile</label>
+                                    <input asp-for="Principal_Mob_No" pattern="[6-9]\d{9}" />
+                                </div>
+                                <div>
+                                    <label asp-for="Principal_Email">Principal Email</label>
+                                    <input asp-for="Principal_Email" type="email" />
+                                </div>
+                                <div>
+                                    <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile</label>
+                                    <input asp-for="PrincipalMobileNumber" pattern="[6-9]\d{9}" />
+                                </div>
+                                <div>
+                                    <label asp-for="PrincipalEmailId">Principal Alt. Email</label>
+                                    <input asp-for="PrincipalEmailId" type="email" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /LEFT -->
+                <!-- ═══════════ RIGHT COLUMN ═══════════ -->
+                <div>
+
+                    <!-- 4. Nodal Officer & Academic -->
+                    <div class="section-card">
+                        <div class="section-header sh-green">
+                            <div class="icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 14.93V17a1 1 0 01-2 0v-.07A8.001 8.001 0 014.07 11H4a1 1 0 010-2h.07A8.001 8.001 0 0111 3.07V3a1 1 0 012 0v.07A8.001 8.001 0 0119.93 9H20a1 1 0 010 2h-.07A8.001 8.001 0 0113 16.93zM13 12a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
+                            </div>
+                            <h2>Nodal Officer &amp; Academic Info</h2>
+                        </div>
+                        <div class="section-body">
+                            <div class="field-grid col-2">
+                                <div>
+                                    <label asp-for="NodalOfficer_Name">Nodal Officer Name</label>
+                                    <input asp-for="NodalOfficer_Name" />
+                                </div>
+                                <div>
+                                    <label asp-for="NodalOfficer_Mob_Number">Nodal Officer Mobile</label>
+                                    <input asp-for="NodalOfficer_Mob_Number" pattern="[6-9]\d{9}" />
+                                </div>
+                                <div>
+                                    <label asp-for="NodalOfficer_Email">Nodal Officer Email</label>
+                                    <input asp-for="NodalOfficer_Email" type="email" />
+                                </div>
+                                <div>
+                                    <label asp-for="RunningCourse">Running Course</label>
+                                    <select asp-for="RunningCourse" asp-items="Model.CourseList">
+                                        <option value="">— Select —</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label asp-for="CourseApplied">Course Applied For</label>
+                                    <input asp-for="CourseApplied" />
+                                </div>
+                                <div>
+                                    <label asp-for="FinancingAuthority">Financing Authority</label>
+                                    <input asp-for="FinancingAuthority" />
+                                </div>
+                                <div>
+                                    <label asp-for="MinorityCategory">Minority Category</label>
+                                    <input asp-for="MinorityCategory" placeholder="e.g. Linguistic / Religious" />
+                                </div>
+                            </div>
+                            <!-- Checkboxes -->
+                            <div style="margin-top:16px; background:#f8f9fc; border:1px solid var(--border); border-radius:8px; padding:14px;">
+                                <p style="font-size:.72rem;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Flags</p>
+                                <div style="display:flex;gap:28px;flex-wrap:wrap;">
+                                    <label class="check-label">
+                                        <input asp-for="MinorityInstitute" type="checkbox" />
+                                        Minority Institution
+                                    </label>
+                                    <label class="check-label">
+                                        <input asp-for="AttachedToMedicalClg" type="checkbox" />
+                                        Attached to Medical College
+                                    </label>
+                                    <label class="check-label">
+                                        <input asp-for="RuralInstitute" type="checkbox" />
+                                        Rural Institution
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Trust / Management -->
+                    <div class="section-card">
+                        <div class="section-header sh-amber">
+                            <div class="icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l6 2.67V11c0 3.72-2.55 7.2-6 8.18C8.55 18.2 6 14.72 6 11V7.67L12 5z" /></svg>
+                            </div>
+                            <h2>Trust / Management Details</h2>
+                        </div>
+                        <div class="section-body">
+                            <div class="field-grid col-2">
+                                <div>
+                                    <label asp-for="TrustName">Trust Name</label>
+                                    <input asp-for="TrustName" />
+                                </div>
+                                <div>
+                                    <label asp-for="TrustEstablishmentDate">Establishment Date</label>
+                                    <input asp-for="TrustEstablishmentDate" type="date" />
+                                </div>
+                            </div>
+                            <div class="field-grid col-1" style="margin-top:14px;">
+                                <div>
+                                    <label asp-for="TrustAddress">Trust Address</label>
+                                    <textarea asp-for="TrustAddress" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="field-grid col-2" style="margin-top:14px;">
+                                <div>
+                                    <label asp-for="TrustPresidentName">President Name</label>
+                                    <input asp-for="TrustPresidentName" />
+                                </div>
+                                <div>
+                                    <label asp-for="TrustPresidentContactNo">President Contact</label>
+                                    <input asp-for="TrustPresidentContactNo" pattern="[6-9]\d{9}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Dean & Document Upload -->
+                    <div class="section-card">
+                        <div class="section-header sh-dark">
+                            <div class="icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" /></svg>
+                            </div>
+                            <h2>Dean &amp; Document Upload</h2>
+                        </div>
+                        <div class="section-body">
+                            <div class="field-grid col-3">
+                                <div>
+                                    <label asp-for="DeanName">Dean Name</label>
+                                    <input asp-for="DeanName" />
+                                </div>
+                                <div>
+                                    <label asp-for="DeanMobileNumber">Dean Mobile</label>
+                                    <input asp-for="DeanMobileNumber" pattern="[6-9]\d{9}" />
+                                </div>
+                                <div>
+                                    <label asp-for="DeanEmailId">Dean Email</label>
+                                    <input asp-for="DeanEmailId" type="email" />
+                                </div>
+                            </div>
+
+                            <!-- Existing doc info -->
+                            <div class="meta-row" style="margin-top:14px;">
+                                <div>
+                                    <label>Uploaded Document Name</label>
+                                    <input asp-for="DocumentName" readonly placeholder="— none —" />
+                                </div>
+                                <div>
+                                    <label>Document Content Type</label>
+                                    <input asp-for="DocumentContentType" readonly placeholder="—" />
+                                </div>
+                            </div>
+
+                            <!-- Drop zone -->
+                            <div style="margin-top:16px;">
+                                <label>Upload Supporting Document</label>
+                                <div class="file-drop">
+                                    <div class="file-drop-inner">
+                                        <input type="file" id="documentFile" name="documentFile" accept=".pdf,.jpg,.jpeg,.png" />
+                                        <div class="file-drop-icon">
+                                            <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" /></svg>
+                                        </div>
+                                        <p><strong>Click to upload</strong> or drag &amp; drop</p>
+                                        <p style="margin-top:4px;">PDF, JPG, PNG &mdash; max 10 MB</p>
+
+                                        <p id="fileName" style="margin-top:8px; color:green;"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /RIGHT -->
+
+            </div><!-- /grid-2 -->
+            <!-- FOOTER ACTIONS -->
+            <div class="form-footer">
+                <a asp-action="Dashboard" asp-controller="Collegelogin" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save &amp; Proceed →</button>
+            </div>
+
+        </form>
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+                const fileInput = document.getElementById("documentFile");
+                const fileNameDisplay = document.getElementById("fileName");
+
+                fileInput.addEventListener("change", function () {
+                    if (this.files.length > 0) {
+                        fileNameDisplay.textContent = "Selected: " + this.files[0].name;
+                    } else {
+                        fileNameDisplay.textContent = "";
+                    }
+                });
+        </script>
+    }
+</body>
+</html>

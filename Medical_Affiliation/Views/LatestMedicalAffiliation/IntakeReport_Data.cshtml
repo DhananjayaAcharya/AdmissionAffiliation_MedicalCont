@@ -1,0 +1,112 @@
+﻿@model IntakeReportViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewBag.Title = "IntakeDetailsLatest Report";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    <h3>IntakeDetailsLatest — Faculty / College Report</h3>
+
+    <div class="card p-3 mb-3">
+        <form asp-action="IntakeReport_Data"
+              asp-controller="LatestMedicalAffiliation"
+              method="post"
+              class="row g-2 align-items-end">
+
+            @Html.AntiForgeryToken()
+
+            <!-- Faculty -->
+            <div class="col-md-4">
+                <label class="form-label">Faculty</label>
+                <select asp-for="SelectedFaculty"
+                        asp-items="Model.FacultyList"
+                        class="form-select"
+                        onchange="this.form.submit()">
+                    <option value="">-- Select Faculty --</option>
+                </select>
+            </div>
+
+            <!-- College -->
+            <div class="col-md-4">
+                <label class="form-label">College</label>
+                <select asp-for="SelectedCollege"
+                        asp-items="Model.CollegeList"
+                        class="form-select">
+                    <option value="">-- Select College --</option>
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">
+                    Generate Report
+                </button>
+                <a asp-action="IntakeReport"
+                   asp-controller="LatestMedicalAffiliation"
+                   class="btn btn-outline-secondary ms-2">
+                    Reset
+                </a>
+            </div>
+
+        </form>
+    </div>
+
+    @if (Model.Results != null && Model.Results.Any())
+    {
+        <div class="card p-3">
+            <h5>
+                Report —
+                @Model.SelectedFaculty / @Model.SelectedCollege
+            </h5>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Level</th>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Existing Intake (CA)</th>
+                            <th>Additional Requested</th>
+                            <th>New Course Seats</th>
+                            <th>Total Intake</th>
+                            <th>Declared</th>
+                            <th>Principal</th>
+                            <th>Created On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.Results)
+                        {
+                            <tr>
+                                <td>@r.CourseLevel</td>
+                                <td>@r.CourseCode</td>
+                                <td>@r.CourseName</td>
+                                <td>@r.ExistingIntake</td>
+                                <td>@r.AdditionalIntake</td>
+                                <td>@r.NewCourseSeatRequested</td>
+                                <td>@r.TotalIntake</td>
+                                <td>@(r.NewCourseSeatRequested > 0 ? "Yes" : "No")</td>
+                                <td>@r.PrincipalName</td>
+                                <td>
+                                    @(r.CreatedOn == default
+                                                                ? ""
+                                                                : r.CreatedOn.ToString("yyyy-MM-dd HH:mm"))
+                        </td>
+                    </tr>
+                                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-muted">
+            No records to display.
+            Choose faculty and college and click <strong>Generate Report</strong>.
+        </div>
+    }
+</div>

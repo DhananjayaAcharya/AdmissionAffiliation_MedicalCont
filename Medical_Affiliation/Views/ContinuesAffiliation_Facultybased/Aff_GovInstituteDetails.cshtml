@@ -1,0 +1,777 @@
+﻿@model InstitutionDetailsViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Institute Details";
+}
+
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #3730a3;
+        --accent: #ec4899;
+        --success: #10b981;
+        --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #020617 100%);
+        --glass-bg: rgba(15, 23, 42, 0.95);
+        --glass-border: rgba(148, 163, 184, 0.2);
+        --glass-border-hover: rgba(129, 140, 248, 0.3);
+        --input-bg: rgba(17, 24, 39, 0.9);
+        --input-border: rgba(148, 163, 184, 0.4);
+        --input-border-focus: rgba(79, 70, 229, 0.5);
+        --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        --shadow-xl: 0 35px 60px -12px rgba(0, 0, 0, 0.6);
+        --radius-xl: 24px;
+        --radius-full: 9999px;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --danger: #f87171;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-gradient);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .institution-form-shell {
+        padding: 2rem 0 3rem;
+        min-height: 100vh;
+    }
+
+    .institution-form-card {
+        max-width: 900px;
+        margin: 0 auto;
+        border-radius: var(--radius-xl);
+        padding: 2px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95));
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .institution-form-card:hover {
+            box-shadow: 0 0 0 1px var(--glass-border-hover), var(--shadow-xl);
+            transform: translateY(-2px);
+        }
+
+    .institution-form-card-inner {
+        padding: 2.5rem;
+        border-radius: calc(var(--radius-xl) - 2px);
+        background: var(--glass-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .form-header-modern {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(148,163,184,0.1);
+    }
+
+    .form-header-title {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .form-header-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-full);
+        background: linear-gradient(135deg, var(--primary), #6366f1, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        box-shadow: 0 10px 25px rgba(79,70,229,0.4);
+    }
+
+    .form-header-title h4 {
+        margin: 0 0 0.25rem 0;
+        color: var(--text-primary);
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .form-header-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        font-weight: 400;
+        margin: 0;
+    }
+
+    .form-header-badge {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: var(--radius-full);
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .section-panel {
+        border-radius: var(--radius-xl);
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        background: rgba(15,23,42,0.97);
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .section-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-border-hover), transparent);
+        }
+
+        .section-panel:hover {
+            border-color: var(--glass-border-hover);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: translateY(-1px);
+        }
+
+        .section-panel.alt {
+            background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,41,59,0.95));
+        }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 1rem;
+        border-radius: var(--radius-full);
+        background: rgba(79,70,229,0.2);
+        color: var(--primary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid rgba(79,70,229,0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+        .section-chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: var(--radius-full);
+            background: var(--primary);
+        }
+
+    .section-title-row {
+        margin-bottom: 1.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(148,163,184,0.1);
+    }
+
+        .section-title-row h5 {
+            margin: 0.5rem 0 0 0;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .section-title-row small {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+    .form-label {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+        .form-label i {
+            color: var(--text-secondary);
+            width: 16px;
+        }
+
+    .form-control,
+    textarea.form-control,
+    .form-select,
+    input[type="file"].form-control {
+        width: 100%;
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        color: var(--text-primary);
+        padding: 0.875rem 1rem;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+    }
+
+        .form-control:focus,
+        .form-select:focus,
+        input[type="file"].form-control:focus {
+            outline: none;
+            border-color: var(--input-border-focus);
+            box-shadow: 0 0 0 4px rgba(79,70,229,0.1), 0 10px 25px rgba(79,70,229,0.15);
+            background: rgba(17,24,39,0.98);
+            transform: translateY(-1px);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-control[readonly] {
+            background: rgba(30,41,59,0.6);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+    .form-check {
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0.125rem;
+        margin-right: 0.75rem;
+        background: var(--input-bg);
+        border: 2px solid var(--input-border);
+        border-radius: 6px;
+    }
+
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+    .form-check-label {
+        color: var(--text-primary);
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 0;
+    }
+
+    .text-danger {
+        color: var(--danger) !important;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.875rem 1.75rem;
+        border-radius: var(--radius-full);
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-primary.modern {
+        background: linear-gradient(135deg, var(--primary), #6366f1);
+        color: white;
+        box-shadow: 0 10px 25px rgba(79,70,229,0.4);
+        min-width: 160px;
+        justify-content: center;
+    }
+
+        .btn-primary.modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(79,70,229,0.5);
+            background: linear-gradient(135deg, var(--primary-dark), #4f46e5);
+        }
+
+    .btn-outline-secondary {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text-secondary);
+        padding: 0.75rem 1.5rem;
+    }
+
+        .btn-outline-secondary:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.3);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .form-footer-note {
+        background: rgba(79,70,229,0.15);
+        border: 1px solid rgba(79,70,229,0.3);
+        border-radius: 16px;
+        padding: 1.25rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .d-flex.gap-2 {
+        gap: 0.75rem;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .institution-form-shell {
+            padding: 1.5rem 0 2rem;
+        }
+
+        .institution-form-card-inner {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-header-modern {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-header-title {
+            gap: 0.75rem;
+        }
+
+        .form-header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.1rem;
+        }
+
+        .form-header-title h4 {
+            font-size: 1.5rem;
+        }
+
+        .section-panel {
+            padding: 1.5rem;
+        }
+
+        .form-grid .row {
+            margin: 0;
+        }
+
+            .form-grid .row > div {
+                padding: 0.5rem !important;
+            }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .institution-form-card-inner {
+            padding: 1.5rem 1rem;
+        }
+
+        .section-panel {
+            padding: 1.25rem;
+        }
+    }
+
+    /* File input styling */
+    input[type="file"].form-control {
+        padding-right: 3rem;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(15,23,42,0.5);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(148,163,184,0.5);
+        border-radius: 4px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148,163,184,0.8);
+        }
+</style>
+
+<div class="institution-form-shell">
+    <div class="container">
+        <div class="institution-form-card">
+            <div class="institution-form-card-inner">
+                <div class="form-header-modern">
+                    <div class="form-header-title">
+                        <div class="form-header-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div>
+                            <h4>Institute Details</h4>
+                            <p class="form-header-subtitle">Provide basic information about the institution</p>
+                        </div>
+                    </div>
+                    <div class="form-header-badge">
+                        Affiliation Portal
+                    </div>
+                </div>
+
+                <form asp-action="Aff_GovInstituteDetails"
+                      asp-controller="ContinuesAffiliation_Facultybased"
+                      method="post"
+                      enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <input asp-for="CollegeCode" type="hidden" />
+                    <input asp-for="FacultyCode" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="form-grid">
+                        <div class="section-panel">
+                            <div class="section-title-row">
+                                <div>
+                                    <div class="section-chip">
+                                        <span class="dot"></span>
+                                        Basic Details
+                                    </div>
+                                    <h5>Institution information</h5>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="NameOfInstitution" class="form-label">
+                                        <i class="fas fa-clinic-medical"></i>
+                                        Name of Institution
+                                    </label>
+                                    <input asp-for="NameOfInstitution" class="form-control" readonly />
+                                    <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="TypeOfInstitution" class="form-label">
+                                        <i class="fas fa-layer-group"></i>
+                                        Type of Institution
+                                    </label>
+                                    <input asp-for="TypeOfInstitution" class="form-control" />
+                                    <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-12">
+                                    <label asp-for="Address" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        Address
+                                    </label>
+                                    <input asp-for="Address" class="form-control" />
+                                    <span asp-validation-for="Address" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="VillageTownCity" class="form-label">
+                                        <i class="fas fa-city"></i>
+                                        Village / Town / City
+                                    </label>
+                                    <input asp-for="VillageTownCity" class="form-control" />
+                                    <span asp-validation-for="VillageTownCity" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="Taluk" class="form-label">
+                                        <i class="fas fa-map"></i>
+                                        Taluk
+                                    </label>
+                                    <input asp-for="Taluk" class="form-control" />
+                                    <span asp-validation-for="Taluk" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="District" class="form-label">
+                                        <i class="fas fa-map"></i>
+                                        District
+                                    </label>
+                                    <input asp-for="District" class="form-control" />
+                                    <span asp-validation-for="District" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label asp-for="PinCode" class="form-label">
+                                        <i class="fas fa-mail-bulk"></i>
+                                        PIN Code
+                                    </label>
+                                    <input asp-for="PinCode" class="form-control" />
+                                    <span asp-validation-for="PinCode" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label asp-for="MobileNumber" class="form-label">
+                                        <i class="fas fa-phone-alt"></i>
+                                        Mobile Number
+                                    </label>
+                                    <input asp-for="MobileNumber" class="form-control" />
+                                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label asp-for="StdCode" class="form-label">
+                                        <i class="fas fa-phone"></i>
+                                        STD Code
+                                    </label>
+                                    <input asp-for="StdCode" class="form-control" />
+                                    <span asp-validation-for="StdCode" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label asp-for="Fax" class="form-label">
+                                        <i class="fas fa-fax"></i>
+                                        Fax
+                                    </label>
+                                    <input asp-for="Fax" class="form-control" />
+                                    <span asp-validation-for="Fax" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="Website" class="form-label">
+                                        <i class="fas fa-globe"></i>
+                                        Website
+                                    </label>
+                                    <input asp-for="Website" class="form-control" />
+                                    <span asp-validation-for="Website" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="SurveyNoPidNo" class="form-label">
+                                        <i class="fas fa-file-alt"></i>
+                                        Survey / PID No.
+                                    </label>
+                                    <input asp-for="SurveyNoPidNo" class="form-control" />
+                                    <span asp-validation-for="SurveyNoPidNo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-panel alt">
+                            <div class="section-title-row">
+                                <div>
+                                    <div class="section-chip">
+                                        <span class="dot"></span>
+                                        Status & Contact
+                                    </div>
+                                    <h5>Institution characteristics</h5>
+                                </div>
+                                <small>Minority / rural status and contact details</small>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="form-check d-flex align-items-center">
+                                        <input asp-for="MinorityInstitute" class="form-check-input" />
+                                        <label asp-for="MinorityInstitute" class="form-check-label">
+                                            Minority Institute
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-check d-flex align-items-center">
+                                        <input asp-for="AttachedToMedicalClg" class="form-check-input" />
+                                        <label asp-for="AttachedToMedicalClg" class="form-check-label">
+                                            Attached To Medical College
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-check d-flex align-items-center">
+                                        <input asp-for="RuralInstitute" class="form-check-input" />
+                                        <label asp-for="RuralInstitute" class="form-check-label">
+                                            Rural Institute
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label asp-for="YearOfEstablishment" class="form-label">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Year of Establishment
+                                    </label>
+                                    <input asp-for="YearOfEstablishment" type="text" class="form-control"
+                                           placeholder="e.g. 2020 or 2020-04-01" />
+                                    <span asp-validation-for="YearOfEstablishment" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="EmailId" class="form-label">
+                                        <i class="fas fa-envelope"></i>
+                                        Email
+                                    </label>
+                                    <input asp-for="EmailId" class="form-control" />
+                                    <span asp-validation-for="EmailId" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="AltLandlineMobile" class="form-label">
+                                        <i class="fas fa-phone-square"></i>
+                                        Alt. Landline / Mobile
+                                    </label>
+                                    <input asp-for="AltLandlineMobile" class="form-control" />
+                                    <span asp-validation-for="AltLandlineMobile" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="AltEmailId" class="form-label">
+                                        <i class="fas fa-envelope-open"></i>
+                                        Alt. Email
+                                    </label>
+                                    <input asp-for="AltEmailId" class="form-control" />
+                                    <span asp-validation-for="AltEmailId" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="HeadOfInstitution" class="form-label">
+                                        <i class="fas fa-user-tie"></i>
+                                        Head of Institution
+                                    </label>
+                                    <input asp-for="HeadOfInstitution" class="form-control" />
+                                    <span asp-validation-for="HeadOfInstitution" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="HeadAddress" class="form-label">
+                                        <i class="fas fa-home"></i>
+                                        Head Address
+                                    </label>
+                                    <input asp-for="HeadAddress" class="form-control" />
+                                    <span asp-validation-for="HeadAddress" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="FinancingAuthority" class="form-label">
+                                        <i class="fas fa-hand-holding-usd"></i>
+                                        Financing Authority
+                                    </label>
+                                    <input asp-for="FinancingAuthority" class="form-control" />
+                                    <span asp-validation-for="FinancingAuthority" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="StatusOfCollege" class="form-label">
+                                        <i class="fas fa-flag"></i>
+                                        Status of College
+                                    </label>
+                                    <input asp-for="StatusOfCollege" class="form-control" />
+                                    <span asp-validation-for="StatusOfCollege" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="CourseApplied" class="form-label">
+                                        <i class="fas fa-book"></i>
+                                        Course Applied
+                                    </label>
+                                    <input asp-for="CourseApplied" class="form-control" />
+                                    <span asp-validation-for="CourseApplied" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-panel">
+                            <div class="section-title-row">
+                                <div>
+                                    <div class="section-chip">
+                                        <span class="dot"></span>
+                                        Attachments
+                                    </div>
+                                    <h5>GOK Notification</h5>
+                                </div>
+                                <small>Upload GOK Notification As Per Courses</small>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label asp-for="DocumentFile" class="form-label">
+                                        <i class="fas fa-paperclip"></i>
+                                        Upload Document
+                                    </label>
+                                    <div class="d-flex gap-2">
+                                        <input asp-for="DocumentFile" type="file" class="form-control flex-grow-1" />
+                                        @if (!string.IsNullOrEmpty(Model.CollegeCode) && !string.IsNullOrEmpty(Model.FacultyCode))
+                                        {
+                                            <a asp-action="DownloadDocument"
+                                               asp-controller="ContinuesAffiliation_Facultybased"
+                                               asp-route-collegeCode="@Model.CollegeCode"
+                                               asp-route-facultyCode="@Model.FacultyCode"
+                                               class="btn btn-outline-secondary btn-sm"
+                                               target="_blank">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                    <span asp-validation-for="DocumentFile" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center gap-3 mt-4">
+                            <a asp-action="Aff_TrustMemberDetails"
+                               asp-controller="ContinuesAffiliation_Facultybased"
+                               class="btn btn-outline-secondary">
+                                ⬅ Previous
+                            </a>
+                            <button type="submit" class="btn btn-primary modern">
+                                💾 Save & Proceed ➡
+                            </button>
+                        </div>
+
+                        <div class="form-footer-note">
+                            Ensure all details match the official institute records before submission.
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

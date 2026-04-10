@@ -1,0 +1,361 @@
+﻿@model IEnumerable<TeachingFacultyViewModel>
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Nodal Officer Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 5;
+}
+
+<style>
+    /* Global modern look */
+    .main-container {
+        margin-left: 10rem;
+        background: #ffffff;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-height: 100vh;
+        overflow-y: auto;
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* Form label styling */
+    .form-check-label {
+        font-weight: 600;
+        color: #1f2a44;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Specialization grid */
+    #specializationOptions {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+        margin-top: 1.5rem;
+    }
+
+    .form-check {
+        padding: 14px 20px;
+        border-radius: 12px;
+        background: #f9fafb;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid #e5e7eb;
+    }
+
+        .form-check:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+        }
+
+    /* Sticky progress bar */
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ffffff;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 2rem; /* More spacing for a minimalist look */
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #d1d5db #f9fafb;
+    }
+
+    .progress-step-btn {
+        background: none; /* Remove background for a cleaner look */
+        border: none;
+        padding: 0.5rem 0;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        color: #6b7280; /* Neutral gray for inactive */
+        position: relative;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem; /* Slightly smaller for elegance */
+    }
+
+        .progress-step-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6; /* Blue for active state */
+            transition: width 0.3s ease;
+        }
+
+        .progress-step-btn:hover:not(:disabled) {
+            color: #1f2a44; /* Darker on hover */
+        }
+
+        .progress-step-btn:hover::after {
+            width: 100%; /* Underline grows on hover */
+        }
+
+        .progress-step-btn.active {
+            color: #3b82f6; /* Bright blue for active */
+        }
+
+            .progress-step-btn.active::after {
+                width: 100%; /* Full underline for active */
+                background: #3b82f6;
+            }
+
+        .progress-step-btn.completed {
+            color: #22c55e; /* Green for completed */
+        }
+
+            .progress-step-btn.completed::after {
+                width: 100%; /* Full underline for completed */
+                background: #22c55e;
+            }
+
+    /* Table styling */
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    #facultyTable {
+        width: 100%;
+        border-spacing: 0;
+        font-family: 'Inter', sans-serif;
+        background: #ffffff;
+    }
+
+        #facultyTable th, #facultyTable td {
+            padding: 14px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s ease;
+        }
+
+        #facultyTable thead th {
+            background: #f3f4f6;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #1f2a44;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #facultyTable tbody tr:hover {
+            background: #f9fafb;
+        }
+</style>
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<div class="main-container">
+
+    <div class="card-header bg-light">
+        <nav aria-label="Form progress">
+            <div class="d-flex justify-content-between align-items-center">
+                @using System.Text.RegularExpressions
+                @{
+                    var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+                    var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+                    // Define step urls here
+                    var stepUrls = new[] {
+                                Url.Action("Nursing_BasicDetails", "Aff_Nursing"),
+                                Url.Action("Nursing_UGPG", "Aff_Nursing"),
+                                Url.Action("Nursing_YearwiseMaterials", "Aff_Nursing"),
+                                Url.Action("Nursing_Affiliated_YearwiseMaterials", "Aff_Nursing"),
+                                Url.Action("Nursing_TeachingFacultyDetails", "Aff_Nursing"),
+                                Url.Action("Nursing_FacultyDetails", "Aff_Nursing"),
+                                Url.Action("FacultyExamResults", "Aff_Nursing")
+                                };
+                    var stepTitles = new[] {
+                                "Basic Institute Details",
+                                "Course Details",
+                                "Clinical Material Details",
+                                "Affiliated Clinical Material",
+                                "Designation Details",
+                                "Add College Faculty",
+                                "College Performance"
+                                };
+                }
+                <span class="fw-bold mb-0">@collegeName</span>
+                <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-danger">Logout</button>
+                </form>
+            </div>
+
+            <ul class="progressbar-pipeline" role="progressbar">
+                @for (int i = 0; i < stepTitles.Length; i++)
+                {
+                    var isActive = (currentStep == i + 1);
+                    var isCompleted = (currentStep > i + 1);
+                    <li class="@(isCompleted ? "completed" : "")">
+                        <form method="get" action="@stepUrls[i]" style="display:inline;">
+                            <button type="submit"
+                                    class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))"
+                                    @(isActive ? "" : "")>
+                                @stepTitles[i]
+                            </button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+    <div class="container mt-4">
+        <div class="row mb-4 align-items-center">
+            <div class="row justify-content-center mb-4">
+                <div class="col-md-6 text-center">
+                    <h2 class="page-title">Teaching Faculty Details</h2>
+                    <p class="text-muted">Department-wise faculty strength as per NMC norms</p>
+                </div>
+            </div>
+
+
+            @* <div class="col-md-6 text-end">
+                <h5>UG MBBS Existing Intake</h5>
+                <span class="fw-bold">@ViewBag.UGMBBSIntake</span>
+            </div> *@
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card shadow-lg rounded-3">
+                    <div class="card-body p-4">
+
+                        <form asp-action="Nursing_TeachingFacultyDetails" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <table id="facultyTable" class="table table-striped table-hover align-middle faculty-table">
+                                <thead>
+                                    <tr>
+                                        <th>Department</th>
+                                        @* <th>Faculty</th> *@
+                                        <th>Designation</th>
+                                        <!--<th>Deficiency</th>-->
+                                        <!--<th>Existing Intake</th>-->
+                                        <th>Present Intake</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null && Model.Any())
+                                    {
+                                        string lastDept = null;
+                                        int index = 0;
+
+                                        foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <!-- hidden fields stay -->
+                                                <input type="hidden" name="[@index].DepartmentCode" value="@item.DepartmentCode" />
+                                                <input type="hidden" name="[@index].FacultyCode" value="@item.FacultyCode" />
+                                                <input type="hidden" name="[@index].DesignationCode" value="@item.DesignationCode" />
+                                                <input type="hidden" name="[@index].CollegeCode" value="@item.CollegeCode" />
+                                                <input type="hidden" name="[@index].DepartmentName" value="@item.DepartmentName" />
+                                                @* <input type="hidden" name="[@index].Faculty" value="@item.Faculty" /> *@
+                                                <input type="hidden" name="[@index].DesignationName" value="@item.DesignationName" />
+                                                <input type="hidden" name="[@index].SeatSlabId" value="@item.SeatSlabId" />
+                                                <input type="hidden" name="[@index].ExistingSeatIntake" value="@item.ExistingSeatIntake" />
+
+                                                <td>
+                                                    @if (lastDept != item.DepartmentName)
+                                                    {
+                                                        @item.DepartmentName
+                                                        lastDept = item.DepartmentName;
+                                                    }
+                                                </td>
+                                                @* <td>@item.Faculty</td> *@
+                                                <td>@item.DesignationName</td>
+
+                                                <!--<td class="deficiency-cell">0</td>-->
+                                                <!--<td>@item.ExistingSeatIntake</td>-->
+
+                                                <td>
+                                                    <input type="number"
+                                                           name="[@index].PresentSeatIntake"
+                                                           value="@item.PresentSeatIntake"
+                                                           class="form-control present-intake"
+                                                           min="0"
+                                                           data-existing="@item.ExistingSeatIntake" />
+                                                </td>
+                                            </tr>
+
+                                            index++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">No faculty records available</td>
+                                        </tr>
+                                    }
+                                </tbody>
+
+                            </table>
+
+                            <div class="d-flex justify-content-between">
+                                <a asp-controller="Aff_Nursing" asp-action="Nursing_Affiliated_YearwiseMaterials" class="btn btn-outline-secondary sidebar-btn">
+                                    ⬅ Previous
+                                </a>
+
+                                <button type="submit" class="btn btn-outline-secondary sidebar-btn">
+                                    💾 Save & Proceed ➡
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function updateDeficiency(row) {
+            let input = row.querySelector("input.present-intake");
+            if (!input) return;
+
+            let existing = parseInt(input.dataset.existing) || 0;
+            let present = parseInt(input.value) || 0;
+            let deficiency = existing - present;
+
+            row.querySelector(".deficiency-cell").textContent = deficiency;
+        }   
+
+        // Initial calculation
+        document.querySelectorAll("#facultyTable tbody tr").forEach(row => {
+            if (row.querySelector("input.present-intake")) {
+                updateDeficiency(row);
+
+                // Recalculate on input
+                row.querySelector("input.present-intake").addEventListener("input", function () {
+                    updateDeficiency(row);
+                });
+            }
+        });
+    });
+</script>

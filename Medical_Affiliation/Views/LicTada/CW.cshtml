@@ -1,0 +1,143 @@
+﻿@model Medical_Affiliation.Models.LicTadaDashboardVM
+@{
+    Layout = null; var userName = ViewBag.UserName as string ?? "Case Worker"; var label = ViewBag.DesignationLabel as string ?? "Case Worker";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Case Worker — LIC TA/DA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/lictada.css" />
+    <style>
+        .lt-logout {
+            background: linear-gradient(135deg,#e03055,#ff6b81);
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'JetBrains Mono',monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }</style>
+</head>
+<body>
+    <nav class="lt-nav">
+        <div class="lt-brand">
+            <div class="lt-brand-icon">🎓</div>
+            <div><div class="lt-brand-name">LIC TA/DA Management</div><div class="lt-brand-sub">RGUHS · AFFILIATION PORTAL</div></div>
+        </div>
+        <div class="lt-user">
+            <span class="lt-desig-badge" style="background:#f0eafd;color:#6d35cc;border:1.5px solid #c9b3f5">@label</span>
+            <span class="lt-uname">@userName</span>
+            <div class="lt-avatar" style="background:linear-gradient(135deg,#6d35cc,#c27bdb)">@(userName.Length >= 2 ? userName.Substring(0, 2).ToUpper() : "CW")</div>
+            <form asp-controller="Admin" asp-action="FinanceLogout" method="post" style="display:inline;">
+                <button type="submit" class="lt-logout">
+                    ⏏ Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+    <div class="lt-page">
+        <div class="lt-page-hd"><div class="lt-ph-left"><h1>Case Worker Dashboard</h1><p>Verify KM · Review Bills · Mark Members as Verified</p></div></div>
+        <div class="lt-workflow">
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-blue">FO</span><span class="lt-wf-label">Finance Officer</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step lt-wf-active"><span class="lt-wf-badge wfb-violet">CW</span><span class="lt-wf-label">Case Worker</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-gold">AO/SO</span><span class="lt-wf-label">Audit Officer</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-blue">FO2</span><span class="lt-wf-label">Final Approval</span></div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-rose">Reject</span><span class="lt-wf-label">Director</span></div>
+            <span class="lt-wf-arrow">/ →</span>
+            <div class="lt-wf-step"><span class="lt-wf-badge wfb-emerald">CS</span><span class="lt-wf-label">Cashier</span></div>
+        </div>
+        <div class="lt-tab-wrap">
+            <button class="lt-tab active">
+                🔍 Pending Verification
+                <span class="lt-tab-badge" id="cwBadge" style="background:#f0eafd;color:#6d35cc;border:1px solid #c9b3f5">—</span>
+            </button>
+        </div>
+        <div class="lt-card">
+            <div class="lt-card-hd">
+                <div><div class="lt-card-title">🔍 Records Forwarded by Finance Officer</div><div class="lt-card-sub">Click ⊕ on each member to verify KM and bills</div></div>
+                <button class="lt-btn-sec" id="btnCW" onclick="ltToggleFilter('filterCW','btnCW')">▼ Show Filters</button>
+            </div>
+            <div class="lt-filter" id="filterCW" style="display:none">
+                <div class="lt-fg">
+                    <label class="lt-lbl">📅 Academic Year</label>
+                    <select id="ltYearCW" class="lt-sel">
+                        <option value="">— All Years —</option>
+                        @foreach (var y in Model.AcademicYears)
+                        {
+                            <option value="@y.Value">@y.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="lt-fg">
+                    <label class="lt-lbl">🏛 Faculty</label>
+                    <select id="ltFacCW" class="lt-sel">
+                        <option value="">— All Faculties —</option>
+                        @foreach (var f in Model.Faculties)
+                        {
+                            <option value="@f.Value">@f.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="lt-fg">
+                    <label class="lt-lbl">🏫 College</label>
+                    <select id="ltColCW" class="lt-sel">
+                        <option value="">— All Colleges —</option>
+                        @foreach (var c in Model.Colleges)
+                        {
+                            <option value="@c.Value">@c.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="lt-fg">
+                    <label class="lt-lbl">&nbsp;</label>
+                    <button class="lt-btn-fetch" onclick="ltFetchCW()">🔍 Fetch Records</button>
+                </div>
+            </div>
+            <div id="gridCW"><div class="lt-empty"><div style="font-size:42px;margin-bottom:10px">🔍</div>Open filters and click Fetch to load records</div></div>
+        </div>
+    </div>
+    <div id="ltOverlay" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(10,18,38,.65);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px" onclick="ltCloseOut(event)">
+        <div style="background:#fff;border-radius:30px;width:100%;max-width:800px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 72px rgba(13,27,46,.22);animation:mIn .24s cubic-bezier(.34,1.2,.64,1)">
+            <div id="ltModalContent"><div class="lt-loading" style="padding:60px">⏳ Loading...</div></div>
+        </div>
+    </div>
+    <div id="ltToast" class="lt-toast" style="display:none"></div>
+    <style>
+        @@keyframes mIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(28px) scale(.96)
+        }
+
+        to {
+            opacity: 1;
+            transform: none
+        }
+
+        }</style>
+    <script src="/js/lictada.js"></script>
+    <script>
+        function ltFetchCW() {
+            ltDoFetch('/LicTada/CWGrid','gridCW',
+                document.getElementById('ltYearCW').value,
+                document.getElementById('ltFacCW').value,
+                document.getElementById('ltColCW').value,
+                function(n){ document.getElementById('cwBadge').textContent=n; });
+        }
+    </script>
+</body>
+</html>

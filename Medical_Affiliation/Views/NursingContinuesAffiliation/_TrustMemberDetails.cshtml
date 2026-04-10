@@ -1,0 +1,343 @@
+﻿@model TrustMemberDetailsListVM
+
+@{
+    ViewBag.Title = "Trust Member Details";
+}
+
+<h3 class="text-light mb-3">Trust Member Details</h3>
+
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-soft: rgba(79, 70, 229, 0.12);
+        --accent: #ec4899;
+        --bg-body: #060714;
+        --bg-gradient: radial-gradient(circle at top left, #1f2937 0, #020617 55%, #020617 100%);
+        --glass-bg: rgba(15, 23, 42, 0.85);
+        --glass-border: rgba(148, 163, 184, 0.35);
+        --input-bg: rgba(15, 23, 42, 0.9);
+        --input-border: rgba(148, 163, 184, 0.45);
+        --input-border-focus: rgba(129, 140, 248, 0.9);
+        --radius-lg: 20px;
+        --radius-md: 14px;
+        --shadow-soft: 0 24px 60px rgba(15, 23, 42, 0.85);
+        --shadow-chip: 0 10px 25px rgba(15, 23, 42, 0.65);
+        --text-main: #e5e7eb;
+        --text-muted: #9ca3af;
+        --danger: #f97373;
+    }
+
+    body {
+        background: var(--bg-gradient);
+    }
+
+    .institution-form-shell {
+        background: var(--bg-gradient);
+        min-height: 100vh;
+        padding: 32px 0 40px;
+    }
+
+    .institution-form-card {
+        background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.25), transparent 55%), radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.28), transparent 55%);
+        border-radius: 32px;
+        padding: 1px;
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .institution-form-card-inner {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.92));
+        border-radius: 30px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        position: relative;
+        z-index: 1;
+        padding: 24px 22px 26px;
+    }
+
+    @@media (min-width: 992px) {
+        .institution-form-card-inner {
+            padding: 28px 30px 30px;
+        }
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: var(--text-main);
+        font-size: 0.82rem;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .form-control {
+        border-radius: 999px;
+        border: 1px solid var(--input-border);
+        background: var(--input-bg);
+        color: var(--text-main);
+        font-size: 0.86rem;
+        padding: 7px 12px;
+        transition: all 0.18s ease-out;
+        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9);
+    }
+
+        .form-control::placeholder {
+            color: rgba(148, 163, 184, 0.75);
+        }
+
+        .form-control:focus {
+            border-color: var(--input-border-focus);
+            outline: none;
+            box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.6), 0 0 0 6px rgba(79, 70, 229, 0.25);
+            background: rgba(15, 23, 42, 0.98);
+            color: #f9fafb;
+        }
+
+    .table-neon {
+        color: var(--text-main);
+        border-color: rgba(148, 163, 184, 0.35);
+    }
+
+        .table-neon thead th {
+            background: #111827;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.55);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .table-neon tbody tr:nth-child(even) {
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .table-neon tbody tr:nth-child(odd) {
+            background: rgba(15, 23, 42, 0.86);
+        }
+
+        .table-neon td,
+        .table-neon th {
+            vertical-align: middle;
+            padding: 6px 8px;
+        }
+
+    .btn-pill {
+        border-radius: 999px;
+        font-size: 0.78rem;
+        padding: 5px 14px;
+    }
+
+    .btn-add-row {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        border: none;
+        color: #e5e7eb;
+        box-shadow: 0 10px 25px rgba(22, 163, 74, 0.6);
+    }
+
+        .btn-add-row:hover {
+            filter: brightness(1.05);
+        }
+
+    .btn-save {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        border: none;
+        color: #e5e7eb;
+        box-shadow: 0 12px 30px rgba(79, 70, 229, 0.7);
+    }
+
+        .btn-save:hover {
+            filter: brightness(1.05);
+        }
+
+    .text-danger {
+        font-size: 0.75rem;
+    }
+</style>
+
+<div class="institution-form-shell">
+    <div class="container">
+        <div class="institution-form-card">
+            <div class="institution-form-card-inner">
+
+                @using (Html.BeginForm("TrustMemberDetails", "NursingContinuesAffiliation", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.HiddenFor(m => m.FacultyCode)
+                    @Html.HiddenFor(m => m.CollegeCode)
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-neon" id="tblTrust">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">Sl No.</th>
+                                    <th>Trust Member Name</th>
+                                    <th>Designation</th>
+                                    <th>Qualification</th>
+                                    <th>Mobile Number</th>
+                                    <th style="width:80px;">Age</th>
+                                    <th style="width:150px;">Joining Date</th>
+                                    <th style="width:80px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Rows.Count; i++)
+                                {
+                                    <tr>
+                                        <td>@(i + 1)</td>
+
+                                        @Html.HiddenFor(m => m.Rows[i].SlNo)
+                                        @Html.HiddenFor(m => m.Rows[i].FacultyCode)
+                                        @Html.HiddenFor(m => m.Rows[i].CollegeCode)
+
+                                        <td>
+                                            @Html.TextBoxFor(
+                                            m => m.Rows[i].TrustMemberName,
+                                                                        new { @class = "form-control", placeholder = "Enter name" })
+                                    <span asp-validation-for="Rows[i].TrustMemberName" class="text-danger"></span>
+                                </td>
+
+                                <td>
+                                    @Html.DropDownListFor(
+                                                                        m => m.Rows[i].DesignationCode,
+                                                                        Model.DesignationList,
+                                                                        "-- Select Designation --",
+                                                                        new { @class = "form-control" })
+                                </td>
+
+                                <td>
+                                    @Html.TextBoxFor(
+                                                                        m => m.Rows[i].Qualification,
+                                                                        new { @class = "form-control", placeholder = "Qualification" })
+                                </td>
+
+                                <td>
+                                    @Html.TextBoxFor(
+                                                                        m => m.Rows[i].MobileNumber,
+                                                                        new { @class = "form-control", placeholder = "Mobile" })
+                                </td>
+
+                                <td>
+                                    @Html.TextBoxFor(
+                                                                        m => m.Rows[i].Age,
+                                                                        new { @class = "form-control", type = "number", min = "0" })
+                                </td>
+
+                                <td>
+                                    @Html.TextBoxFor(
+                                                                        m => m.Rows[i].JoiningDateString,
+                                                                        new { @class = "form-control", type = "date" })
+                                    <span asp-validation-for="Rows[i].JoiningDateString" class="text-danger"></span>
+                                </td>
+
+                                <td class="text-center">
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm btn-pill btn-remove-row">
+                                        −
+                                    </button>
+                                </td>
+                            </tr>
+                                                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <button type="button" id="btnAddRow"
+                            class="btn btn-sm btn-pill btn-add-row">
+                        + Add Row
+                    </button>
+
+                    <div class="d-flex align-items-center">
+                        <a asp-action="Nursing_Institute_Details"
+                           asp-controller="NursingContinuesAffiliation"
+                           class="btn btn-outline-secondary px-4 me-3">
+                            ⬅ Previous
+                        </a>
+
+                        <button type="submit" class="btn btn-outline-primary btn-save">
+                            💾 Save &amp; Proceed ➡
+                        </button>
+                    </div>
+                </div>
+                                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $(function () {
+            $("#btnAddRow").click(function () {
+                var index = $("#tblTrust tbody tr").length;
+
+                var rowHtml = `
+        <tr>
+            <td>${index + 1}</td>
+            <input type="hidden" name="Rows[${index}].SlNo" value="0" />
+            <input type="hidden" name="Rows[${index}].FacultyCode" value="@Model.FacultyCode" />
+            <input type="hidden" name="Rows[${index}].CollegeCode" value="@Model.CollegeCode" />
+            <td>
+                <input class="form-control"
+                       name="Rows[${index}].TrustMemberName"
+                       placeholder="Enter name" />
+            </td>
+            <td>
+                <select class="form-control"
+                        name="Rows[${index}].DesignationId">
+                    <option value="">-- Select Designation --</option>
+                    @foreach (var item in Model.DesignationList)
+                    {
+                                <option value="@item.Value">@item.Text</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <input class="form-control"
+                       name="Rows[${index}].Qualification"
+                       placeholder="Qualification" />
+            </td>
+            <td>
+                <input class="form-control"
+                       name="Rows[${index}].MobileNumber"
+                       placeholder="Mobile" />
+            </td>
+            <td>
+                <input class="form-control"
+                       name="Rows[${index}].Age"
+                       type="number" min="0" />
+            </td>
+            <td>
+                <input class="form-control"
+                       name="Rows[${index}].JoiningDateString"
+                       type="date" />
+            </td>
+            <td class="text-center">
+                <button type="button"
+                        class="btn btn-danger btn-sm btn-pill btn-remove-row">
+                    −
+                </button>
+            </td>
+        </tr>`;
+
+                $("#tblTrust tbody").append(rowHtml);
+            });
+
+            $("#tblTrust").on("click", ".btn-remove-row", function () {
+                $(this).closest("tr").remove();
+
+                $("#tblTrust tbody tr").each(function (i, tr) {
+                    $(tr).find("td:first").text(i + 1);
+                });
+            });
+        });
+    </script>
+}

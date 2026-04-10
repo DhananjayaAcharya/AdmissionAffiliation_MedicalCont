@@ -1,0 +1,214 @@
+﻿@{
+    ViewData["Title"] = "Section Officer Dashboard";
+}
+
+<style>
+    .outer-container{
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.85); /* translucent white */
+        backdrop-filter: blur(8px); /* frosted glass effect */
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div class="container outer-container">
+
+    <!-- Top Bar -->
+    <div class="d-flex justify-content-center align-items-center mb-4">
+        <h2 class="fw-bold text-dark">👨‍💼 Section Officer Dashboard</h2>
+        @* <form asp-controller="SectionOfficer" asp-action="Logout" method="post" class="mb-0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger btn-sm px-3">
+                Logout
+            </button>
+        </form> *@
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-4">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @if (ViewBag.isAhsSoLogin)
+                {
+                    <div class="col">
+                        <a asp-action="SOIntakeDetails" asp-controller="SectionOfficer" asp-route-facultyCode="@ViewBag.FacultyId"
+                           class="dashboard-card bg-light-blue">
+                            <i class="fas fa-university card-icon text-primary"></i>
+                            <span class="card-title">Update College-wise, Course-wise Intake</span>
+                        </a>
+                    </div>
+                }
+
+                <div class="col">
+                    <a asp-action="Dashboard" asp-controller="Admin" class="dashboard-card bg-light-green">
+                        <i class="fas fa-chart-line card-icon text-success"></i>
+                        <span class="card-title">College Intake Report</span>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a asp-action="AdminDocumentReport" asp-controller="Admin" class="dashboard-card bg-light-yellow">
+                        <i class="fas fa-file-alt card-icon text-warning"></i>
+                        <span class="card-title">College Documents Report</span>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a asp-action="AdminDocumentIncompleteReport" asp-controller="Admin" class="dashboard-card bg-light-red">
+                        <i class="fas fa-exclamation-circle card-icon text-danger"></i>
+                        <span class="card-title">College Intake Incomplete Report</span>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a asp-action="CollegeDocsReport" asp-controller="Admin" class="dashboard-card bg-light-cyan">
+                        <i class="fas fa-upload card-icon text-info"></i>
+                        <span class="card-title">Single Uploads from College</span>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a asp-action="CollegeWiseReport" asp-controller="Admin" class="dashboard-card bg-light-purple">
+                        <i class="fas fa-school card-icon text-secondary"></i>
+                        <span class="card-title">College-Wise Intake Report</span>
+                    </a>
+                </div>
+                <div class="col text-center">
+                    <a asp-action="SOMobileAndPasswordUpdate"
+                       asp-controller="SectionOfficer"
+                       style="
+                           display: block;
+                           text-decoration: none;
+                           background: linear-gradient(135deg, #f3e8ff, #ede9fe);
+                           border: 1px solid rgba(0, 0, 0, 0.05);
+                           border-radius: 1rem;
+                           padding: 2rem 1rem;
+                           box-shadow: 0 4px 12px rgba(150, 100, 250, 0.1);
+                           transition: all 0.3s ease;
+                           color: #2d2d2d;
+                       "
+                       onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(150,100,250,0.25)'; this.style.background='linear-gradient(135deg, #e9d5ff, #ddd6fe)';"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(150,100,250,0.1)'; this.style.background='linear-gradient(135deg, #f3e8ff, #ede9fe)';">
+
+                        <i class="fas fa-mobile-alt"
+                           style="font-size: 2.8rem; color: #6b21a8; margin-bottom: 1rem;"></i>
+                        <div style="font-size: 1.1rem; font-weight: 600;">Principal Contact Details</div>
+                    </a>
+                </div>
+                <div class="col">
+                    <a asp-action="AdminRGUHSIncompleteReport" asp-controller="Admin" class="dashboard-card bg-light-red">
+                        <i class="fas fa-exclamation-circle card-icon text-danger"></i>
+                        <span class="card-title">RGUHS Intake Incomplete Report</span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a asp-action="UpdateDistrictsAndTaluksForColleges" asp-controller="SectionOfficer" class="dashboard-card bg-light-green">
+                        <i class="fas fa-map-marked-alt card-icon text-warning"></i>
+                        <span class="card-title">Update Districts and Taluks for Colleges</span>
+                    </a>
+                </div>
+
+                <div class="col">
+                    <a asp-action="GetCollegesByFacultyForSOUpdate" asp-controller="SectionOfficer" class="dashboard-card bg-light-yellow">
+                        <i class="fas fa-user-check card-icon text-success"></i>
+                        <span class="card-title">Update RGUHS Intake</span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a asp-action="YearWiseReport" asp-controller="SectionOfficer" class="dashboard-card bg-light-green">
+                        <i class="fas fa-map-marked-alt card-icon text-warning"></i>
+                        <span class="card-title">Year Wise Intake Report</span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a asp-action="CollegeFacultyReport" asp-controller="LatestMedicalAffiliation" class="dashboard-card bg-light-yellow">
+                        <i class="fas fa-file-alt card-icon text-warning"></i>
+                        <span class="card-title">New Intake Detais Report</span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a asp-action="LatestMedicalReport" asp-controller="LatestMedicalIntakeReport" class="dashboard-card bg-light-yellow">
+                        <i class="fas fa-file-alt card-icon text-warning"></i>
+                        <span class="card-title">Latest Medical Intake Report for 2026-27</span>
+                    </a>
+                </div>
+               
+                <div class="col">
+                    <a asp-action="Dashboard" asp-controller="LIC_Director" class="dashboard-card bg-light-yellow">
+                        <i class="fas fa-file-alt card-icon text-warning"></i>
+                        <span class="card-title">Medical LIC Inspection</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styling -->
+<style>
+    body {
+        background-color: #f4f6f9; /* Soft gray background */
+    }
+
+    .dashboard-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 30px;
+        border-radius: 1rem;
+        text-decoration: none;
+        height: 180px;
+        color: #333;
+        font-weight: 600;
+        border: none;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+        }
+
+    .card-icon {
+        font-size: 2rem;
+        margin-bottom: 12px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    /* Pastel Backgrounds */
+    .bg-light-blue {
+        background: #eaf4ff;
+    }
+
+    .bg-light-green {
+        background: #eaffea;
+    }
+
+    .bg-light-yellow {
+        background: #fff9e6;
+    }
+
+    .bg-light-red {
+        background: #ffeaea;
+    }
+
+    .bg-light-cyan {
+        background: #e6fcff;
+    }
+
+    .bg-light-purple {
+        background: #f5eaff;
+    }
+</style>
+
+<!-- Font Awesome (icons) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />

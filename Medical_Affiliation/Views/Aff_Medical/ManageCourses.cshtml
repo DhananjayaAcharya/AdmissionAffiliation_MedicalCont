@@ -1,0 +1,659 @@
+﻿@model Medical_Affiliation.Models.UGPGSSDetailsFormViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Nodal Officer Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 2;
+}
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+<style>
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e0f7fa 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #495057;
+    }
+
+    h2, h4 {
+        color: #00796b; /* Teal color for headings */
+        font-weight: 700;
+    }
+
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        background: #ffffff;
+        padding: 20px;
+
+    }
+
+    .table thead {
+        background: #009688; /* Teal header */
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+        text-align: center;
+        padding: 0.75rem;
+    }
+
+    .btn-pill {
+        border-radius: 999px;
+        padding: .5rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-add {
+        background: #009688; /* Teal Add button */
+        color: #ffffff;
+    }
+
+        .btn-add:hover {
+            background: #00796b;
+            transform: translateY(-1px);
+        }
+
+    .btn-del {
+        background: #e57373; /* Soft red for delete */
+        color: #ffffff;
+    }
+
+        .btn-del:hover {
+            background: #ef5350;
+            transform: translateY(-1px);
+        }
+
+    .section-actions {
+        display: flex;
+        gap: .75rem;
+        justify-content: flex-end;
+    }
+
+    .overflow-wrap {
+        overflow-x: auto;
+    }
+    .container{
+        max-width: 1500px;
+        margin-left: 190px;
+    }
+
+</style>
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-light">
+            <nav aria-label="Form progress">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="fw-bold mb-0">@HttpContextAccessor.HttpContext.Session.GetString("CollegeName")</h3>
+                    <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger">Logout</button>
+                    </form>
+                </div>
+
+                <ul class="progressbar" role="progressbar" aria-valuenow="@currentStep" aria-valuemin="1" aria-valuemax="5">
+                    <li class="@(currentStep >= 1 ? "active" : "")" aria-current="step">Basic Institute Details</li>
+                    <li class="@(currentStep >= 2 ? "active" : "")">Course Details</li>
+                    <li class="@(currentStep >= 3 ? "active" : "")">Clinical Material Details</li>
+                    <li class="@(currentStep >= 4 ? "active" : "")">College Designation Details</li>
+                    <li class="@(currentStep >= 5 ? "active" : "")">Add Faculty Details</li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div class="container py-4">
+    <h2 class="mb-4 text-center">UG / PG / SS Details</h2>
+
+    <form asp-action="ManageCourses" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+
+        <!-- =================== UG Section =================== -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="mb-3">Under Graduate (UG)</h4>
+                <div class="section-actions mb-2">
+                    <button type="button" class="btn btn-pill btn-add" onclick="addRow('ug')">
+                        <i class="bi bi-plus-lg"></i> Add UG Row
+                    </button>
+                </div>
+
+                <div class="overflow-wrap">
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th>UG Intake</th>
+                                <th>Course</th>
+                                <th>Fresh/Increase</th>
+                                <th>First LOP Date</th>
+                                <th>No. of Seats</th>
+                                <th>Permitted Year</th>
+                                <th>Recognized Year</th>
+                                <th>RGUHS</th>
+                                <th>GMC</th>
+                                <th>NMC</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ugBody">
+                            @for (int i = 0; i < (Model.UGDetailsList?.Count ?? 0); i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <select asp-for="UGDetailsList[i].UGIntake"
+                                                asp-items="Model.UGDetailsList[i].UGIntakeOptions"
+                                                class="form-select">
+                                            <option value="">-- Select Intake --</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-select" name="UGDetailsList[@i].Course" onchange="onCourseChange(this,'UG')">
+                                            <option value="">-- Select Course --</option>
+                                            @foreach (var course in Model.UGCourses)
+                                            {
+                                                <option value="@course.CourseCode" selected="@(course.CourseCode == Model.UGDetailsList[i].Course)">
+                                                    @course.CourseName
+                                                </option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td><input class="form-control" name="UGDetailsList[@i].FreshOrIncrease" value="@Model.UGDetailsList[i].FreshOrIncrease" /></td>
+                                    <td><input class="form-control" type="date" name="UGDetailsList[@i].FirstLOPDate" value="@(Model.UGDetailsList[i].FirstLOPDate?.ToString("yyyy-MM-dd"))" /></td>
+                                    <td><input class="form-control" name="UGDetailsList[@i].NumberOfSeats" value="@Model.UGDetailsList[i].NumberOfSeats" /></td>
+                                    <td><input class="form-control" name="UGDetailsList[@i].PermittedYear" value="@Model.UGDetailsList[i].PermittedYear" /></td>
+                                    <td><input class="form-control" name="UGDetailsList[@i].RecognizedYear" value="@Model.UGDetailsList[i].RecognizedYear" /></td>
+
+                                    <td>
+                                        @if (Model.UGDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.UGDetailsList[i].Id, fileType = "RGUHS" })" target="_blank">View File</a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="UGDetailsList[@i].RGUHSNotificationFile" />
+                                    </td>
+
+
+                                    <td>
+                                        @if (Model.UGDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.UGDetailsList[i].Id, fileType = "GMC" })" target="_blank">
+                                                View File
+                                            </a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="UGDetailsList[@i].GMCFile" />
+                                    </td>
+
+                                    <td>
+                                        @if (Model.UGDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.UGDetailsList[i].Id, fileType = "NMC" })" target="_blank">
+                                                View File
+                                            </a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="UGDetailsList[@i].NMCFile" />
+                                    </td>
+
+
+                                    @* <td><input class="form-control" type="file" name="UGDetailsList[@i].RGUHSNotificationFile" /></td>
+                                    <td><input class="form-control" type="file" name="UGDetailsList[@i].GMCFile" /></td>
+                                    <td><input class="form-control" type="file" name="UGDetailsList[@i].NMCFile" /></td> *@
+                                    <td>
+                                        <button type="button" class="btn btn-pill btn-add" onclick="addRow('ug')"><i class="bi bi-plus-lg"></i></button>
+                                        <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'ug')"><i class="bi bi-x-lg"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================== PG Section =================== -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="mb-3">Post Graduate (PG)</h4>
+                <div class="section-actions mb-2">
+                    <button type="button" class="btn btn-pill btn-add" onclick="addRow('pg')">
+                        <i class="bi bi-plus-lg"></i> Add PG Row
+                    </button>
+                </div>
+
+                <div class="overflow-wrap">
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th>PG Intake</th>
+                                <th>Course</th>
+                                <th>Fresh/Increase</th>
+                                <th>First LOP Date</th>
+                                <th>No. of Seats</th>
+                                <th>Permitted Year</th>
+                                <th>Recognized Year</th>
+                                <th>RGUHS</th>
+                                <th>GMC</th>
+                                <th>NMC</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pgBody">
+                            @for (int i = 0; i < (Model.PGDetailsList?.Count ?? 0); i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <input class="form-control" name="PGDetailsList[@i].PGIntake"
+                                               value="@(Model.PGDetailsList[i].PGIntake ?? "")"  />
+                                    </td>
+                                    <td>
+                                        <select class="form-select" name="PGDetailsList[@i].Course" onchange="onCourseChange(this,'PG')">
+                                            <option value="">-- Select Course --</option>
+                                            @foreach (var course in Model.PGCourses)
+                                            {
+                                                <option value="@course.CourseCode" selected="@(course.CourseCode == Model.PGDetailsList[i].Course)">
+                                                    @course.CourseName
+                                                </option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td><input class="form-control" name="PGDetailsList[@i].FreshOrIncrease" value="@Model.PGDetailsList[i].FreshOrIncrease" /></td>
+                                    <td><input class="form-control" type="date" name="PGDetailsList[@i].FirstLOPDate" value="@(Model.PGDetailsList[i].FirstLOPDate?.ToString("yyyy-MM-dd"))" /></td>
+                                    <td><input class="form-control" name="PGDetailsList[@i].NumberOfSeats" value="@Model.PGDetailsList[i].NumberOfSeats" /></td>
+                                    <td><input class="form-control" name="PGDetailsList[@i].PermittedYear" value="@Model.PGDetailsList[i].PermittedYear" /></td>
+                                    <td><input class="form-control" name="PGDetailsList[@i].RecognizedYear" value="@Model.PGDetailsList[i].RecognizedYear" /></td>
+                                    <td>
+                                        @if (Model.PGDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.PGDetailsList[i].Id, fileType = "RGUHS" })" target="_blank">
+                                                View File
+                                            </a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="PGDetailsList[@i].RGUHSNotificationFile" />
+                                    </td>
+
+                                    <td>
+                                        @if (Model.PGDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.PGDetailsList[i].Id, fileType = "GMC" })" target="_blank">
+                                                View File
+                                            </a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="PGDetailsList[@i].GMCFile" />
+                                    </td>
+
+                                    <td>
+                                        @if (Model.PGDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.PGDetailsList[i].Id, fileType = "NMC" })" target="_blank">
+                                                View File
+                                            </a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="PGDetailsList[@i].NMCFile" />
+                                    </td>
+
+
+                                    @*  <td><input class="form-control" type="file" name="PGDetailsList[@i].RGUHSNotificationFile" /></td>
+                                    <td><input class="form-control" type="file" name="PGDetailsList[@i].GMCFile" /></td>
+                                    <td><input class="form-control" type="file" name="PGDetailsList[@i].NMCFile" /></td> *@
+                                    <td>
+                                        <button type="button" class="btn btn-pill btn-add" onclick="addRow('pg')"><i class="bi bi-plus-lg"></i></button>
+                                        <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'pg')"><i class="bi bi-x-lg"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================== SS Section =================== -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="mb-3">Super Speciality (SS)</h4>
+                <div class="section-actions mb-2">
+                    <button type="button" class="btn btn-pill btn-add" onclick="addRow('ss')">
+                        <i class="bi bi-plus-lg"></i> Add SS Row
+                    </button>
+                </div>
+
+                <div class="overflow-wrap">
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th>SS Intake</th>
+                                <th>Course</th>
+                                <th>Fresh/Increase</th>
+                                <th>First LOP Date</th>
+                                <th>No. of Seats</th>
+                                <th>Permitted Year</th>
+                                <th>Recognized Year</th>
+                                <th>RGUHS</th>
+                                <th>GMC</th>
+                                <th>NMC</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ssBody">
+                            @for (int i = 0; i < (Model.SSDetailsList?.Count ?? 0); i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <input class="form-control" name="SSDetailsList[@i].SSIntake"
+                                               value="@(Model.SSDetailsList[i].SSIntake ?? "")"  />
+                                    </td>
+                                    <td>
+                                        <select class="form-select" name="SSDetailsList[@i].Course" onchange="onCourseChange(this,'SS')">
+                                            <option value="">-- Select Course --</option>
+                                            @foreach (var course in Model.SSCourses)
+                                            {
+                                                <option value="@course.CourseCode" selected="@(course.CourseCode == Model.SSDetailsList[i].Course)">
+                                                    @course.CourseName
+                                                </option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td><input class="form-control" name="SSDetailsList[@i].FreshOrIncrease" value="@Model.SSDetailsList[i].FreshOrIncrease" /></td>
+                                    <td><input class="form-control" type="date" name="SSDetailsList[@i].FirstLOPDate" value="@(Model.SSDetailsList[i].FirstLOPDate?.ToString("yyyy-MM-dd"))" /></td>
+                                    <td><input class="form-control" name="SSDetailsList[@i].NumberOfSeats" value="@Model.SSDetailsList[i].NumberOfSeats" /></td>
+                                    <td><input class="form-control" name="SSDetailsList[@i].PermittedYear" value="@Model.SSDetailsList[i].PermittedYear" /></td>
+                                    <td><input class="form-control" name="SSDetailsList[@i].RecognizedYear" value="@Model.SSDetailsList[i].RecognizedYear" /></td>
+                                    <td>
+                                        @if (Model.SSDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.SSDetailsList[i].Id, fileType = "RGUHS" })" target="_blank">
+                                                View File
+                                            </a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="SSDetailsList[@i].RGUHSNotificationFile" />
+                                    </td>
+
+                                    <td>
+                                        @if (Model.SSDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.SSDetailsList[i].Id, fileType = "GMC" })" target="_blank">
+                                                View File
+                                            </a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="SSDetailsList[@i].GMCFile" />
+                                    </td>
+
+                                    <td>
+                                        @if (Model.SSDetailsList[i].Id > 0)
+                                        {
+                                            <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.SSDetailsList[i].Id, fileType = "NMC" })" target="_blank">
+                                                View File
+                                            </a>
+                                        }
+                                        <input class="form-control mt-1" type="file" name="SSDetailsList[@i].NMCFile" />
+                                    </td>
+
+                                    <td>
+                                        <button type="button" class="btn btn-pill btn-add" onclick="addRow('ss')"><i class="bi bi-plus-lg"></i></button>
+                                        <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'ss')"><i class="bi bi-x-lg"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a asp-controller="Aff_Medical" asp-action="Medical_BasicDetails" class="btn btn-outline-secondary sidebar-btn">
+                ⬅ Previous
+            </a>
+
+            <button type="submit" class="btn btn-outline-secondary sidebar-btn">
+                💾 Save & Proceed ➡
+            </button>
+        </div>
+    </form>
+</div>
+
+
+
+
+
+@* ---------- TEMPLATES (used for adding rows) ---------- *@
+
+<style>
+    .progressbar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        padding: 0;
+        margin: 20px 0 0;
+        list-style: none;
+    }
+
+        .progressbar li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+            .progressbar li:before {
+                counter-increment: step;
+                content: counter(step);
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                border: 2px solid #bbb;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px;
+                border-radius: 50%;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: #bbb;
+                top: 18px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: #0d6efd;
+            }
+
+                .progressbar li.active:before {
+                    border-color: #0d6efd;
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: #0d6efd;
+                }
+</style>
+
+
+
+
+
+
+<script type="text/template" id="tpl-ug">
+    <tr>
+        <td>
+            <select class="form-select" name="UGDetailsList[__index__].UGIntake">
+                <option value="">-- Select Intake --</option>
+                    @foreach (var intake in Model.UGDetailsList[0].UGIntakeOptions)
+                    {
+                           <option value="@intake.Value">@intake.Text</option>
+                    }
+            </select>
+        </td>
+        <td>
+            <select class="form-select" name="UGDetailsList[__index__].Course" onchange="onCourseChange(this,'UG')">
+                <option value="">-- Select Course --</option>
+    @foreach (var c in Model.UGCourses)
+    {
+                                <option value="@c.CourseCode">@c.CourseName</option>
+    }
+            </select>
+        </td>
+        <td><input class="form-control" name="UGDetailsList[__index__].FreshOrIncrease" /></td>
+        <td><input class="form-control" type="date" name="UGDetailsList[__index__].FirstLOPDate" /></td>
+        <td><input class="form-control" name="UGDetailsList[__index__].NumberOfSeats" /></td>
+        <td><input class="form-control" name="UGDetailsList[__index__].PermittedYear" /></td>
+        <td><input class="form-control" name="UGDetailsList[__index__].RecognizedYear" /></td>
+        <td><input class="form-control" type="file" name="UGDetailsList[__index__].RGUHSNotificationFile" /></td>
+        <td><input class="form-control" type="file" name="UGDetailsList[__index__].GMCFile" /></td>
+        <td><input class="form-control" type="file" name="UGDetailsList[__index__].NMCFile" /></td>
+        <td>
+            <button type="button" class="btn btn-pill btn-add" onclick="addRow('ug')"><i class="bi bi-plus-lg"></i></button>
+            <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'ug')"><i class="bi bi-x-lg"></i></button>
+        </td>
+    </tr>
+</script>
+
+<script type="text/template" id="tpl-pg">
+    <tr>
+        <td><input class="form-control" name="PGDetailsList[__index__].PGIntake"  /></td>
+        <td>
+            <select class="form-select" name="PGDetailsList[__index__].Course" onchange="onCourseChange(this,'PG')">
+                <option value="">-- Select Course --</option>
+    @foreach (var c in Model.PGCourses)
+    {
+                                <option value="@c.CourseCode">@c.CourseName</option>
+    }
+            </select>
+        </td>
+        <td><input class="form-control" name="PGDetailsList[__index__].FreshOrIncrease" /></td>
+        <td><input class="form-control" type="date" name="PGDetailsList[__index__].FirstLOPDate" /></td>
+        <td><input class="form-control" name="PGDetailsList[__index__].NumberOfSeats" /></td>
+        <td><input class="form-control" name="PGDetailsList[__index__].PermittedYear" /></td>
+        <td><input class="form-control" name="PGDetailsList[__index__].RecognizedYear" /></td>
+        <td><input class="form-control" type="file" name="PGDetailsList[__index__].RGUHSNotificationFile" /></td>
+        <td><input class="form-control" type="file" name="PGDetailsList[__index__].GMCFile" /></td>
+        <td><input class="form-control" type="file" name="PGDetailsList[__index__].NMCFile" /></td>
+        <td>
+            <button type="button" class="btn btn-pill btn-add" onclick="addRow('pg')"><i class="bi bi-plus-lg"></i></button>
+            <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'pg')"><i class="bi bi-x-lg"></i></button>
+        </td>
+    </tr>
+</script>
+
+<script type="text/template" id="tpl-ss">
+    <tr>
+        <td><input class="form-control" name="SSDetailsList[__index__].SSIntake"  /></td>
+        <td>
+            <select class="form-select" name="SSDetailsList[__index__].Course" onchange="onCourseChange(this,'SS')">
+                <option value="">-- Select Course --</option>
+    @foreach (var c in Model.SSCourses)
+    {
+                                <option value="@c.CourseCode">@c.CourseName</option>
+    }
+            </select>
+        </td>
+        <td><input class="form-control" name="SSDetailsList[__index__].FreshOrIncrease" /></td>
+        <td><input class="form-control" type="date" name="SSDetailsList[__index__].FirstLOPDate" /></td>
+        <td><input class="form-control" name="SSDetailsList[__index__].NumberOfSeats" /></td>
+        <td><input class="form-control" name="SSDetailsList[__index__].PermittedYear" /></td>
+        <td><input class="form-control" name="SSDetailsList[__index__].RecognizedYear" /></td>
+        <td><input class="form-control" type="file" name="SSDetailsList[__index__].RGUHSNotificationFile" /></td>
+        <td><input class="form-control" type="file" name="SSDetailsList[__index__].GMCFile" /></td>
+        <td><input class="form-control" type="file" name="SSDetailsList[__index__].NMCFile" /></td>
+        <td>
+            <button type="button" class="btn btn-pill btn-add" onclick="addRow('ss')"><i class="bi bi-plus-lg"></i></button>
+            <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'ss')"><i class="bi bi-x-lg"></i></button>
+        </td>
+    </tr>
+</script>
+
+<script>
+    var ugIntakes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.UGIntakes ?? new Dictionary<string, int>()));
+    var pgIntakes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PGIntakes ?? new Dictionary<string, int>()));
+    var ssIntakes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.SSIntakes ?? new Dictionary<string, int>()));
+
+    function countRows(section) {
+        return document.getElementById(section + 'Body').querySelectorAll('tr').length;
+    }
+
+    function addRow(section) {
+        const body = document.getElementById(section + 'Body');
+        const idx = countRows(section);
+        let tpl = document.getElementById('tpl-' + section).innerHTML.replaceAll('__index__', idx);
+        body.insertAdjacentHTML('beforeend', tpl);
+
+        // Trigger Intake auto-fill if course is selected
+        const newRow = body.querySelectorAll('tr')[idx];
+        const selectEl = newRow.querySelector('select');
+        if (selectEl && selectEl.value) {
+            onCourseChange(selectEl, section.toUpperCase());
+        }
+    }
+
+    function deleteRow(btn, section) {
+        const body = document.getElementById(section + 'Body');
+        const rows = body.querySelectorAll('tr');
+        if (rows.length <= 1) {
+            alert('At least one row is required in ' + section.toUpperCase() + '.');
+            return;
+        }
+        btn.closest('tr').remove();
+        reindex(section);
+    }
+
+    function reindex(section) {
+        const listName = section.toUpperCase() + 'DetailsList';
+        const tbody = document.getElementById(section + 'Body');
+        tbody.querySelectorAll('tr').forEach((tr, i) => {
+            tr.querySelectorAll('input, select, textarea').forEach(el => {
+                if (el.name) el.name = el.name.replace(/\[(\d+)\]/, '[' + i + ']');
+                if (el.id) el.id = el.id.replace(/_(\d+)_/, '_' + i + '_');
+                if (el.type === 'file') el.value = null;
+            });
+        });
+    }
+
+    function beforeSubmitReindex() {
+        reindex('ug'); reindex('pg'); reindex('ss');
+    }
+
+    (function ensureInitialRows() {
+        if (countRows('ug') === 0) addRow('ug');
+        if (countRows('pg') === 0) addRow('pg');
+        if (countRows('ss') === 0) addRow('ss');
+    })();
+
+    function onCourseChange(selectEl, type) {
+        const row = selectEl.closest('tr');
+        const input = row.querySelector('input[name*="' + type + 'Intake"]');
+        if (!input) return;
+
+        const map = type === 'UG' ? ugIntakes : type === 'PG' ? pgIntakes : ssIntakes;
+        input.value = map[selectEl.value] || '';
+    }
+</script>
+
+
+

@@ -1,0 +1,579 @@
+﻿@model NursingInstituteDetailViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Homeopathy Institute Basic Details";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 1;
+}
+
+<style>
+    @@media (max-width: 1450px) {
+        .main-container {
+            max-width: 985px !important;
+            margin-left: 17rem !important;
+            padding: 1em !important;
+            padding-top: 10px !important;
+            max-height: 30vh;
+            overflow: auto;
+        }
+
+        .college-container {
+            margin-bottom: 8px !important;
+        }
+
+        .status-bar-container {
+            padding: 0.2rem 0;
+        }
+
+        .clg-basic {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .card.mb-3 {
+            margin-bottom: 5px;
+        }
+
+        .container.mt-4 {
+            margin-top: 5px !important;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            padding: 0.3rem 1.0rem;
+        }
+    }
+
+    .main-container {
+        margin-left: 20rem;
+        background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
+        padding: 2.5rem;
+        border-radius: 22px;
+        box-shadow: 0 16px 48px rgba(60, 110, 255, 0.07), 0 2px 8px rgba(36, 37, 38, 0.06);
+        max-height: 100vh;
+        overflow-y: auto;
+        transition: box-shadow 0.32s cubic-bezier(.57,.21,.69,1.25), background 0.5s;
+        box-sizing: border-box;
+    }
+
+    @@media (max-width: 768px) {
+        .main-container {
+            margin-left: 0.5rem;
+            padding: 1rem;
+            border-radius: 15px;
+        }
+    }
+
+    .form-check-label {
+        font-weight: 700;
+        color: #103172;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        transition: color 0.2s;
+        letter-spacing: 1px;
+        font-size: 1.06rem;
+    }
+
+        .form-check-label:hover {
+            color: #3b82f6;
+            text-shadow: 0 1px 8px #b8d3fa66;
+        }
+
+    #specializationOptions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 22px;
+        margin-top: 2rem;
+        animation: fadeIn 0.5s;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-check {
+        background: linear-gradient(100deg, #e3edfa 0%, #f9fafb 100%);
+        border: 1.5px solid #dbeafe;
+        border-radius: 10px;
+        padding: 16px 24px;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.09);
+        transition: box-shadow 0.25s, transform 0.2s, border-color 0.22s;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .form-check:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 14px 36px rgba(59, 130, 246, 0.16);
+            background: #ffffff;
+            border-color: #3b82f6;
+        }
+
+        .form-check:active {
+            border-color: #16a34a;
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.09);
+        }
+
+    .status-bar-container {
+        position: sticky;
+        top: 0;
+        z-index: 21;
+        background: linear-gradient(90deg, #f3f4f6 60%, #e0e7ff 100%);
+        padding: 1.2rem 0;
+        border-bottom: 2px solid #dbeafe;
+        box-shadow: 0 3px 8px rgba(59, 130, 246, 0.07);
+        backdrop-filter: blur(2px);
+    }
+
+    .progressbar-pipeline {
+        display: flex;
+        align-items: center;
+        gap: 2.4rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.8rem 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #93c5fd #e0e7ff;
+    }
+
+    .progress-step-btn {
+        background: none;
+        border: none;
+        padding: 0.6rem 0.2rem;
+        font-weight: 700;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        color: #6b7280;
+        position: relative;
+        transition: color 0.22s, letter-spacing 0.15s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.93rem;
+        cursor: pointer;
+        outline: none;
+    }
+
+        .progress-step-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2.5px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #3b82f6 70%, #22d3ee 100%);
+            transition: width 0.3s cubic-bezier(.51,.08,.89,.66);
+        }
+
+        .progress-step-btn:hover:not(:disabled) {
+            color: #0c114e;
+            letter-spacing: 2px;
+        }
+
+        .progress-step-btn:hover::after,
+        .progress-step-btn.active::after {
+            width: 100%;
+        }
+
+        .progress-step-btn.active {
+            color: #3b82f6;
+        }
+
+        .progress-step-btn.completed {
+            color: #22c55e;
+            text-shadow: 0 1px 5px #bbf7d0;
+        }
+
+            .progress-step-btn.completed::after {
+                background: linear-gradient(90deg, #22c55e 70%, #a3e635 100%);
+            }
+
+    .table-responsive {
+        overflow-x: auto;
+        border-radius: 14px;
+        background: linear-gradient(to right, #ffffff 80%, #e3edfa 100%);
+        box-shadow: 0 6px 24px rgba(36,37,38,0.05);
+        padding: 0.5rem;
+    }
+
+    #facultyTable {
+        width: 100%;
+        border-spacing: 0;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        background: #ffffff;
+        border-collapse: separate;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+        #facultyTable th,
+        #facultyTable td {
+            padding: 16px 22px;
+            vertical-align: middle;
+            border-bottom: 1.5px solid #dbeafe;
+            transition: background 0.2s;
+            font-size: 1.01rem;
+        }
+
+        #facultyTable thead th {
+            background: linear-gradient(90deg, #e0e7ff 60%, #f3f4f6 100%);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #103172;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.05);
+        }
+
+        #facultyTable tbody tr {
+            transition: box-shadow 0.28s, background 0.18s;
+        }
+
+            #facultyTable tbody tr:hover {
+                background: #f9fafb;
+                box-shadow: 0 4px 18px rgba(59,130,246,0.08);
+            }
+</style>
+
+
+@if (!string.IsNullOrEmpty(facultyCode))
+{
+    @await Component.InvokeAsync("Sidebar")
+}
+
+@* <div class="main-container"> *@
+<div class="status-bar-container">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        @using System.Text.RegularExpressions
+        @{
+            var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+            var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+            var stepUrls = new[] {
+
+                Url.Action("Homeopathy_BasicDetails", "Aff_Homeopathy"),
+                Url.Action("Homeopathy_UGPG", "Aff_Homeopathy"),
+                Url.Action("Homeopathy_Affiliated_YearwiseMaterials", "Aff_Homeopathy"),
+                Url.Action("ManageDesignationIntake", "Aff_Homeopathy"),
+                Url.Action("Homeopathy_FacultyDetails", "Aff_Homeopathy"),
+                Url.Action("HomeopathyExamResults", "Aff_Homeopathy"),
+                };
+            var stepTitles = new[] {
+                "Institute Basic Details",
+                "Course Details",
+                //"Clinical Material Details",
+                "Hospital Details",
+                "Required Faculty Details",
+                "Add College Faculty details",
+                "Academic Performance"
+                };
+        }
+        @* <span class="fw-bold">@collegeName</span> *@
+    </div>
+    <ul class="progressbar-pipeline" role="progressbar">
+        @for (int i = 0; i < stepTitles.Length; i++)
+        {
+            var isActive = (currentStep == i + 1);
+            var isCompleted = (currentStep > i + 1);
+            <li class="@(isCompleted ? "completed" : "")">
+                <form method="get" action="@stepUrls[i]" style="display:inline;">
+                    <button type="submit"
+                            class="progress-step-btn @(isActive ? "active" : (isCompleted ? "completed" : ""))"
+                            @(isActive ? "" : "")>
+                        @stepTitles[i]
+                    </button>
+                </form>
+            </li>
+        }
+    </ul>
+</div>
+
+<div class="container mt-4 pb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">College Basic Details</h2>
+    </div>
+
+    <form asp-action="Homeopathy_BasicDetails" method="post" enctype="multipart/form-data" id="facultyForm">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="card p-4 shadow-sm">
+
+            <div class="mb-3">
+                <label asp-for="InstituteName" class="form-label">Institute Name</label>
+                <input asp-for="InstituteName" class="form-control" readonly />
+                <span asp-validation-for="InstituteName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="InstituteAddress" class="form-label">Institute Address</label>
+                <textarea asp-for="InstituteAddress" class="form-control" rows="3" required></textarea>
+                <span asp-validation-for="InstituteAddress" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TrustSocietyName" class="form-label">Trust/Society Name</label>
+                <input asp-for="TrustSocietyName" class="form-control" required />
+                <span asp-validation-for="TrustSocietyName" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="YearOfEstablishmentOfTrust" class="form-label">Year of Establishment of Trust</label>
+                    <input asp-for="YearOfEstablishmentOfTrust" type="date" class="form-control" required />
+                    <span asp-validation-for="YearOfEstablishmentOfTrust" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="YearOfEstablishmentOfCollege" class="form-label">Year of Establishment of College</label>
+                    <input asp-for="YearOfEstablishmentOfCollege" type="date" class="form-control" required />
+                    <span asp-validation-for="YearOfEstablishmentOfCollege" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TrustEstablishmentDocument" class="form-label">Year of Establishment of Trust (Amendment documents, if any)</label>
+                    <input asp-for="TrustEstablishmentDocument" type="file" class="form-control" />
+                    <span asp-validation-for="TrustEstablishmentDocument" class="text-danger small"></span>
+
+                    @if (Model.TrustDocData != null && Model.TrustDocData.Length > 0)
+                    {
+                        <div class="mt-2">
+                            <a href="@Url.Action("ViewTrustDoc", "Aff_Homeopathy")"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary mt-1 py-1 px-2">
+                                View
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CollegeEstablishmentDocument" class="form-label">Upload College Establishment Document</label>
+                    <input asp-for="CollegeEstablishmentDocument" type="file" class="form-control" />
+                    <span asp-validation-for="CollegeEstablishmentDocument" class="text-danger small"></span>
+
+                    @if (Model.EstablishmentDocData != null && Model.EstablishmentDocData.Length > 0)
+                    {
+                        <div class="mt-2">
+                            <a href="@Url.Action("ViewEstDoc", "aff_Homeopathy")"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary mt-1 py-1 px-2">
+                                View
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="InstitutionType" class="form-label">Institution Type(Gove/Gov Aided/Private)</label>
+                <input asp-for="InstitutionType" class="form-control" required />
+                <span asp-validation-for="InstitutionType" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="HodofInstitution" class="form-label">Name Of the Principle</label>
+                <input asp-for="HodofInstitution" class="form-control" required />
+                <span asp-validation-for="HodofInstitution" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Dob" class="form-label">Date of Birth</label>
+                    <input asp-for="Dob" type="date" class="form-control" id="dob" onchange="calculateAge()" required />
+                    <span asp-validation-for="Dob" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Age" class="form-label">Age</label>
+                    <input asp-for="Age" class="form-control" id="age" readonly />
+                    <span asp-validation-for="Age" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TeachingExperience" class="form-label">Teaching Experience (Years)</label>
+                <input asp-for="TeachingExperience" type="number" step="0.1" class="form-control" required min="0" />
+                <span asp-validation-for="TeachingExperience" class="text-danger small"></span>
+            </div>
+
+            <!-- PG Degree (Checkbox List) -->
+            <div class="mb-3">
+                <label class="form-label">Degree <span class="text-danger">*</span></label>
+                <div id="degreeGroup" class="mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               value="UG"
+                               name="Degree" id="degreeUG"
+                               @(Model.Degree != null && Model.Degree.Contains("UG") ? "checked" : "") />
+                        <label class="form-check-label" for="degreeUG">UG</label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               value="PG"
+                               name="Degree" id="degreePG"
+                               @(Model.Degree != null && Model.Degree.Contains("PG") ? "checked" : "") />
+                        <label class="form-check-label" for="degreePG">PG</label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               value="PhD"
+                               name="Degree" id="degreePhD"
+                               @(Model.Degree != null && Model.Degree.Contains("PhD") ? "checked" : "") />
+                        <label class="form-check-label" for="degreePhD">PhD</label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               value="Any Other"
+                               name="Degree" id="degreeOther"
+                               @(Model.Degree != null && Model.Degree.Contains("Any Other") ? "checked" : "") />
+                        <label class="form-check-label" for="degreeOther">Any Other</label>
+                    </div>
+                </div>
+
+                <div id="degreeError" class="text-danger small" style="display:none;">Please select at least one degree.</div>
+
+                <div id="otherDegreeContainer" class="mt-2" style="display:none;">
+                    <input type="text" class="form-control"
+                           name="OtherDegreeText"
+                           placeholder="Please specify"
+                           value="@(Model.OtherDegreeText ?? "")" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <select asp-for="CourseCode" class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Courses, "CourseCode", "CourseName", Model.CourseCode))"
+                        id="CourseDropdown" required>
+                    <option value="">-- Select Course --</option>
+                </select>
+                <span asp-validation-for="CourseCode" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3" id="specializationContainer" style="display:none;">
+                <label class="form-label fw-semibold">Specialization</label>
+                <div id="specializationOptions" class="mb-3 d-flex flex-wrap gap-3"></div>
+            </div>
+
+            <input type="hidden" asp-for="CourseSelectedSpecialities" id="CourseSelectedSpecialities" />
+
+            <div class="mt-4 d-flex justify-content-between">
+                <button type="submit" class="btn btn-outline-primary">💾 Save & Proceed ➡</button>
+            </div>
+        </div>
+    </form>
+</div>
+@* </div> *@
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function calculateAge() {
+            const dob = document.getElementById('dob').value;
+            if (dob) {
+                const diff = Date.now() - new Date(dob).getTime();
+                const ageDt = new Date(diff);
+                document.getElementById('age').value = Math.abs(ageDt.getUTCFullYear() - 1970);
+            }
+        }
+
+        const courseDropdown = document.getElementById("CourseDropdown");
+        const specializationContainer = document.getElementById("specializationContainer");
+        const specializationOptions = document.getElementById("specializationOptions");
+        const hiddenInput = document.getElementById("CourseSelectedSpecialities");
+
+        courseDropdown.addEventListener("change", function () {
+            const courseCode = this.value.trim().toUpperCase();
+            specializationOptions.innerHTML = "";
+            specializationContainer.style.display = "none";
+
+            let specializations = [];
+            if (courseCode === "BSCN") {
+                specializations = ["Medical Surgical Nursing", "Community Health Nursing", "Pediatric Nursing"];
+            } else if (courseCode === "MSCN") {
+                specializations = ["Obstetric & Gynecological Nursing", "Psychiatric Nursing", "Medical Surgical Nursing"];
+            } else if (courseCode === "PHDN") {
+                specializations = ["Nursing Research", "Clinical Practice", "Health Administration"];
+            }
+
+            if (specializations.length > 0) {
+                specializationContainer.style.display = "block";
+                specializations.forEach(spec => {
+                    const id = spec.replace(/\s+/g, '');
+                    specializationOptions.innerHTML += `
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="${id}" value="${spec}">
+                                    <label class="form-check-label" for="${id}">${spec}</label>
+                                </div>`;
+                });
+            }
+        });
+
+        document.getElementById("facultyForm").addEventListener("submit", function (e) {
+            // Degree validation: at least one must be selected
+            const degreeChecks = document.querySelectorAll("#degreeGroup input[type='checkbox']");
+            let anyChecked = false;
+            degreeChecks.forEach(cb => { if (cb.checked) anyChecked = true; });
+
+            if (!anyChecked) {
+                e.preventDefault();
+                document.getElementById("degreeError").style.display = "block";
+                document.getElementById("degreeGroup").scrollIntoView({ behavior: "smooth", block: "center" });
+                return false;
+            } else {
+                document.getElementById("degreeError").style.display = "none";
+            }
+
+            const selectedSpecializations = Array.from(document.querySelectorAll("#specializationOptions input:checked"))
+                .map(cb => cb.value);
+            const combined = selectedSpecializations.join(", ");
+            hiddenInput.value = combined;
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const existingValues = "@Model.CourseSelectedSpecialities";
+            if (existingValues) {
+                existingValues.split(",").map(v => v.trim()).forEach(value => {
+                    const specBox = document.querySelector(`#specializationOptions input[value='${value}']`);
+                    if (specBox) specBox.checked = true;
+                });
+            }
+
+            // show/hide other degree textbox on load
+            toggleOtherDegreeTextbox();
+        });
+
+        function toggleOtherDegreeTextbox() {
+            const checkOther = document.getElementById("degreeOther");
+            const container = document.getElementById("otherDegreeContainer");
+
+            if (checkOther && checkOther.checked) {
+                container.style.display = "block";
+            } else {
+                container.style.display = "none";
+            }
+        }
+
+        document.getElementById("degreeOther")?.addEventListener("change", toggleOtherDegreeTextbox);
+    </script>
+}

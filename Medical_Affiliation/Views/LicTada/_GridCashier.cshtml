@@ -1,0 +1,574 @@
+﻿@model List<Medical_Affiliation.Models.LicTadaGridRow>
+
+@if (Model == null || !Model.Any())
+{
+    <div style="padding:64px 24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:#8fa3be;line-height:2">
+        <div style="font-size:44px;margin-bottom:12px">💳</div>
+        No records pending payment.<br />
+        <span style="font-size:11px;color:#b8cad9">Records appear here after FO Level 2 approval</span>
+    </div>
+}
+else
+{
+    <!-- ═══ SUMMARY BAR ═══ -->
+    <div style="padding:14px 24px;background:linear-gradient(90deg,#f0fdf8,#f8fafc);border-bottom:1px solid #e2e8f3;
+                    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5a6e8a">
+                💳 <strong>@Model.Count</strong> inspection(s) pending payment
+            </span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#0f9b6e;font-weight:800">
+                Total: ₹ @string.Format("{0:#,##0}", Model.Sum(x => x.TotalClaimAmount))
+            </span>
+            <button id="btn-cs-print-all"
+                    style="background:linear-gradient(135deg,#2d6be4,#5b8ef0);border:none;color:#fff;
+                               border-radius:8px;padding:7px 14px;cursor:pointer;font-size:11px;
+                               font-family:'JetBrains Mono',monospace;font-weight:600;display:inline-flex;
+                               align-items:center;gap:5px;box-shadow:0 3px 10px rgba(45,107,228,.3)">
+                🖨 Print All
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══ TABLE ═══ -->
+    <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px" id="cs-table">
+            <thead>
+                <tr style="background:linear-gradient(to right,#f8fafc,#ffffff);border-bottom:2px solid #e2e8f3">
+                    @{
+                        string thStyle = "padding:13px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#5a6e8a;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap";
+                    }
+                    <th style="@thStyle">#</th>
+                    <th style="@thStyle">Year</th>
+                    <th style="@thStyle">College</th>
+                    <th style="@thStyle">Members &amp; Bank Details</th>
+                    <th style="@thStyle">Total ₹</th>
+                    <th style="@thStyle">Action</th>
+                </tr>
+            </thead>
+            <tbody id="cs-tbody">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var r = Model[i];
+                    var members = new[]
+                    {
+                        new { Tag="SN", TagClr="#2d6be4", TagBg="#e8f0fd", Name=r.SenetMember,      Phone=r.SenetMemberPhNo,      Id=r.SenetMemberId,      Amt=r.SenetMemberAmount      },
+                        new { Tag="AC", TagClr="#6d35cc", TagBg="#f0eafd", Name=r.AcMember,         Phone=r.AcMemberPhNo,         Id=r.AcMemberId,         Amt=r.AcMemberAmount         },
+                        new { Tag="EX", TagClr="#0f9b6e", TagBg="#e5f7f2", Name=r.SubjectExpertise, Phone=r.SubjectExpertisePhNo, Id=r.SubjectExpertiseId, Amt=r.SubjectExpertiseAmount },
+                        };
+
+                    <tr class="cs-row" data-index="@i"
+                        data-college-code="@r.CollegeCode"
+                        data-academic-year="@r.AcademicYear"
+                        style="border-bottom:1px solid #edf1f7;background:#ffffff"
+                        onmouseover="this.style.background='#f0fdf8'"
+                        onmouseout="this.style.background='#ffffff'">
+
+                        <td style="padding:13px 16px;vertical-align:top;font-family:'JetBrains Mono',monospace;color:#8fa3be;font-size:11px">
+                            <span class="cs-row-num">@(i + 1)</span>
+                        </td>
+
+                        <td style="padding:13px 16px;vertical-align:top">
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#0f9b6e">@r.AcademicYear</span>
+                        </td>
+
+                        <td style="padding:13px 16px;vertical-align:top;min-width:160px">
+                            <div style="font-weight:700;color:#0d1b2e;font-size:13px">@r.CollegeName</div>
+                            <div style="color:#8fa3be;font-size:11px;font-family:'JetBrains Mono',monospace;margin-top:2px">@r.CollegeTown</div>
+                            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#b8cad9;margin-top:3px">@r.CollegeCode</div>
+                        </td>
+
+                        <td style="padding:13px 16px;vertical-align:top;min-width:340px">
+                            <div style="display:flex;flex-direction:column;gap:10px">
+                                @foreach (var mem in members)
+                                {
+                                    if (string.IsNullOrEmpty(mem.Name)) { continue; }
+                                    <div class="mem-block"
+                                         data-phone="@mem.Phone"
+                                         data-name="@mem.Name"
+                                         data-amt="@mem.Amt"
+                                         data-college="@r.CollegeName"
+                                         data-year="@r.AcademicYear"
+                                         style="border:1.5px solid #e2e8f3;border-radius:12px;overflow:hidden">
+
+                                        <div style="padding:8px 12px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:8px">
+                                            <div style="display:flex;align-items:center;gap:7px">
+                                                <span style="font-size:8.5px;padding:2px 6px;border-radius:4px;background:@mem.TagBg;color:@mem.TagClr;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.05em">@mem.Tag</span>
+                                                <button onclick="ltOpen('@mem.Phone','@mem.Name','cashier','')"
+                                                        style="background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#0d1b2e;padding:0;text-align:left"
+                                                        onmouseover="this.style.color='#2d6be4';this.style.textDecoration='underline'"
+                                                        onmouseout="this.style.color='#0d1b2e';this.style.textDecoration='none'">
+                                                    @mem.Name
+                                                </button>
+                                            </div>
+                                            <div style="display:flex;align-items:center;gap:8px">
+                                                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#0f9b6e">
+                                                    ₹ @string.Format("{0:#,##0}", mem.Amt)
+                                                </span>
+                                                <button class="btn-print-slip"
+                                                        title="Print payment slip"
+                                                        style="background:#f0f5ff;border:1px solid #b3cdfb;color:#2d6be4;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap"
+                                                        onmouseover="this.style.background='#e8f0fd'"
+                                                        onmouseout="this.style.background='#f0f5ff'">
+                                                    🖨 PDF
+                                                </button>
+                                                <!-- ★ Individual Pay button per member -->
+                                                <button class="btn-member-pay"
+                                                        data-id="@mem.Id"
+                                                        data-name="@mem.Name"
+                                                        title="Mark @mem.Name as Paid"
+                                                        style="background:linear-gradient(135deg,#0f9b6e,#0a7a58);border:none;color:#fff;
+                                                                           border-radius:6px;padding:3px 10px;cursor:pointer;font-size:10px;
+                                                                           font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap;
+                                                                           box-shadow:0 2px 6px rgba(15,155,110,.3)"
+                                                        onmouseover="this.style.opacity='0.85'"
+                                                        onmouseout="this.style.opacity='1'">
+                                                    💳 Pay
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="bank-panel"
+                                             id="bp_@mem.Id"
+                                             data-phone="@mem.Phone"
+                                             data-loaded="false"
+                                             style="padding:10px 13px;background:#ffffff;min-height:36px">
+                                            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#b8cad9;text-align:center;padding:4px 0">
+                                                ⏳ Loading…
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                }
+                            </div>
+                        </td>
+
+                        <td style="padding:13px 16px;vertical-align:top;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:#0f9b6e;white-space:nowrap">
+                            ₹ @string.Format("{0:#,##0}", r.TotalClaimAmount)
+                        </td>
+
+                        <td style="padding:13px 16px;vertical-align:top">
+                            <div style="display:flex;flex-direction:column;gap:8px">
+                                <!-- ★ Pay All button marks ALL members in this college/year group -->
+                                <button class="btn-pay-all"
+                                        data-college-code="@r.CollegeCode"
+                                        data-academic-year="@r.AcademicYear"
+                                        data-college-name="@r.CollegeName"
+                                        style="background:linear-gradient(135deg,#0f9b6e,#0a7a58);border:none;color:#fff;border-radius:8px;
+                                                       padding:8px 16px;cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace;
+                                                       font-weight:600;white-space:nowrap;box-shadow:0 3px 10px rgba(15,155,110,.3);
+                                                       display:inline-flex;align-items:center;gap:5px"
+                                        onmouseover="this.style.transform='translateY(-1px)'"
+                                        onmouseout="this.style.transform='none'">
+                                    💳 Mark All as Paid
+                                </button>
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#b8cad9;text-align:center">
+                                    @{
+                                        var memCount = members.Count(m => !string.IsNullOrEmpty(m.Name));
+                                    }
+                                    @memCount member(s)
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══ PAGINATION ═══ -->
+    <div style="padding:14px 24px;border-top:1px solid #edf1f7;background:#f8fafc;
+                    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8fa3be">
+            Showing <span id="cs-page-info">—</span>
+        </div>
+        <div id="cs-pagination" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
+    </div>
+}
+
+<script>
+    var _AT = String.fromCharCode(64);
+
+    var SLIP_CSS = [
+        'body{font-family:Arial,sans-serif;padding:36px 40px;color:#0d1b2e;max-width:680px;margin:auto}',
+        'h1{margin:0 0 3px;font-size:22px}',
+        '.sub{margin:0;color:#5a6e8a;font-size:13px}',
+        'hr{border:none;border-top:2px solid #e2e8f3;margin:20px 0}',
+        '.lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#8fa3be;font-weight:700;margin-bottom:3px}',
+        '.amt{font-size:30px;font-weight:800;color:#0f9b6e;margin:0}',
+        '.badge{display:inline-block;padding:4px 14px;border-radius:20px;background:#e5f7f2;color:#0f9b6e;font-size:11px;font-weight:700;border:1px solid #86e0c8}',
+        'footer{margin-top:30px;text-align:center;font-size:10px;color:#b8cad9;border-top:1px solid #eee;padding-top:10px}',
+        '.pbtn{margin:20px auto;display:block;padding:9px 28px;background:#2d6be4;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}'
+    ].join('') + _AT + 'media print{.pbtn{display:none}body{padding:18px}}';
+
+    var ALL_CSS = [
+        'body{font-family:Arial,sans-serif;padding:28px;color:#0d1b2e}',
+        'h2{margin:0 0 2px;font-size:20px}',
+        'h3{margin:0;font-size:14px;color:#2d6be4}',
+        '.block{border:1.5px solid #e2e8f3;border-radius:8px;padding:16px;margin-bottom:22px}',
+        'table{width:100%;border-collapse:collapse;font-size:12px}',
+        '.pbtn{margin:16px auto;display:block;padding:9px 28px;background:#2d6be4;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}'
+    ].join('') + _AT + 'media print{.pbtn{display:none}.block{page-break-inside:avoid}}';
+
+    var bankCache = {};
+    var inFlight  = {};
+
+    (function () {
+
+        function fetchBank(phone) {
+            if (!phone || !phone.trim()) return Promise.resolve(null);
+            phone = phone.trim();
+            if (bankCache[phone] !== undefined) return Promise.resolve(bankCache[phone].raw);
+            if (inFlight[phone]) return inFlight[phone];
+
+            var url = '/LicTada/BankDetails?phone=' + encodeURIComponent(phone);
+            inFlight[phone] = fetch(url, {
+                method: 'GET', credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+            .then(function(d) {
+                bankCache[phone] = { raw: d, html: buildScreenHtml(d) };
+                delete inFlight[phone]; return d;
+            })
+            .catch(function(err) {
+                bankCache[phone] = { raw: null, html: '<span style="color:#e03055;font-size:11px">⚠️ ' + err.message + '</span>' };
+                delete inFlight[phone]; return null;
+            });
+            return inFlight[phone];
+        }
+
+        function buildScreenHtml(d) {
+            var found  = d && (d.found === true || d.Found === true);
+            var acctNo = d ? (d.accountNumber || d.AccountNumber || '') : '';
+            if (!found || !acctNo || !acctNo.trim()) {
+                return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#c9b3f5;'
+                     + 'background:#f8f4ff;border:1px solid #e8e0fb;border-radius:8px;padding:6px 12px;display:inline-block">'
+                     + '⚠️ No bank info on file</div>';
+            }
+            var bank = d.bankName || d.BankName || '';
+            var branch = d.branchName || d.BranchName || '';
+            var items = [
+                { l:'Bank',     v: bank + (branch ? ' · ' + branch : ''), bold:true,  c:'#0d1b2e' },
+                { l:'A/C Name', v: d.accountHolderName || d.AccountHolderName || '', bold:false, c:'#0d1b2e' },
+                { l:'A/C No.',  v: acctNo,                                            bold:true,  c:'#0f9b6e' },
+                { l:'IFSC',     v: d.ifscCode || d.IfscCode || d.IFSCCode || '',      bold:false, c:'#2d6be4' },
+                { l:'PAN',      v: d.panNumber || d.PanNumber || d.PANNumber || '',   bold:false, c:'#5a6e8a' },
+                { l:'Travel',   v: d.modeOfTravel || d.ModeOfTravel || '',            bold:false, c:'#5a6e8a' },
+                { l:'Aadhaar',  v: d.aadhaarNumber || d.AadhaarNumber || '',          bold:false, c:'#5a6e8a' },
+            ].filter(function(x){ return x.v && x.v.trim(); });
+            var h = '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px 10px;font-family:\'JetBrains Mono\',monospace;font-size:11px">';
+            items.forEach(function(x){
+                h += '<span style="color:#8fa3be;font-size:9px;text-transform:uppercase;letter-spacing:.07em">' + x.l + '</span>'
+                   + '<span style="color:' + x.c + ';font-weight:' + (x.bold ? '700' : '500') + '">' + esc(x.v) + '</span>';
+            });
+            return h + '</div>';
+        }
+
+        function buildPrintTable(d) {
+            var found  = d && (d.found === true || d.Found === true);
+            var acctNo = d ? (d.accountNumber || d.AccountNumber || '') : '';
+            if (!found || !acctNo || !acctNo.trim())
+                return '<p style="color:#999;font-size:12px;margin:4px 0">⚠️ No bank info on file</p>';
+            var bank = d.bankName || d.BankName || '';
+            var branch = d.branchName || d.BranchName || '';
+            var items = [
+                ['Bank',           bank + (branch ? ' · ' + branch : '')],
+                ['Account Name',   d.accountHolderName || d.AccountHolderName || ''],
+                ['Account No.',    acctNo],
+                ['IFSC Code',      d.ifscCode || d.IfscCode || d.IFSCCode || ''],
+                ['PAN',            d.panNumber || d.PanNumber || d.PANNumber || ''],
+                ['Mode of Travel', d.modeOfTravel || d.ModeOfTravel || ''],
+                ['Aadhaar',        d.aadhaarNumber || d.AadhaarNumber || ''],
+            ].filter(function(x){ return x[1] && x[1].trim(); });
+            var t = '<table style="width:100%;border-collapse:collapse;font-size:12px">';
+            items.forEach(function(r){
+                t += '<tr>'
+                   + '<td style="padding:5px 8px;border:1px solid #e2e8f3;color:#888;font-size:10px;text-transform:uppercase;width:130px">' + esc(r[0]) + '</td>'
+                   + '<td style="padding:5px 8px;border:1px solid #e2e8f3;font-weight:600;color:#0d1b2e">' + esc(r[1]) + '</td>'
+                   + '</tr>';
+            });
+            return t + '</table>';
+        }
+
+        function renderPanel(el) {
+            if (el.getAttribute('data-loaded') === 'true') return;
+            var phone = (el.getAttribute('data-phone') || '').trim();
+            if (!phone) {
+                el.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#c9b3f5;'
+                             + 'background:#f8f4ff;border:1px solid #e8e0fb;border-radius:8px;padding:6px 12px">⚠️ No phone</div>';
+                el.setAttribute('data-loaded', 'true'); return;
+            }
+            fetchBank(phone).then(function() {
+                var cached = bankCache[phone];
+                el.innerHTML = (cached && cached.html) ? cached.html
+                    : '<span style="color:#e03055;font-size:11px">⚠️ No data returned</span>';
+                el.setAttribute('data-loaded', 'true');
+            });
+        }
+
+        function prefetchAll() {
+            document.querySelectorAll('.bank-panel[data-phone]').forEach(function(p) { renderPanel(p); });
+        }
+
+        /* ── INDIVIDUAL PAY (single member by Id) ───────────────────────────── */
+        function memberPay(id, memberName, btn) {
+            var rmk = prompt('Payment remarks for ' + memberName + ' (optional):') || '';
+            if (!confirm('Mark ' + memberName + ' as PAID?')) return;
+            btn.disabled = true;
+            btn.textContent = '⏳...';
+
+            fetch('/LicTada/CashierPay', {
+                method: 'POST', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + id + '&remarks=' + encodeURIComponent(rmk)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res.success) {
+                    // Mark just this member block as paid
+                    var memBlock = btn.closest('.mem-block');
+                    if (memBlock) {
+                        memBlock.style.transition = 'opacity .4s';
+                        memBlock.style.opacity = '0.35';
+                        btn.style.background = 'linear-gradient(135deg,#8fa3be,#b8cad9)';
+                        btn.textContent = '✅ Paid';
+                        btn.disabled = true;
+                    }
+                    // Check if all members in this row are now paid
+                    var row = btn.closest('tr');
+                    if (row) {
+                        var unpaid = row.querySelectorAll('.btn-member-pay:not([data-paid])');
+                        var allPaid = true;
+                        unpaid.forEach(function(b) { if (!b.disabled || b.textContent.trim() !== '✅ Paid') allPaid = false; });
+                        if (allPaid) {
+                            setTimeout(function() {
+                                row.style.transition = 'opacity .5s';
+                                row.style.opacity = '.2';
+                                setTimeout(function() { row.remove(); }, 600);
+                            }, 400);
+                        }
+                    }
+                    if (typeof ltToast === 'function') ltToast('💳 ' + memberName + ' marked as paid', 'ok');
+                } else {
+                    if (typeof ltToast === 'function') ltToast('Failed to record payment for ' + memberName, 'err');
+                    btn.disabled = false;
+                    btn.textContent = '💳 Pay';
+                }
+            })
+            .catch(function() {
+                if (typeof ltToast === 'function') ltToast('Network error.', 'err');
+                btn.disabled = false;
+                btn.textContent = '💳 Pay';
+            });
+        }
+
+        /* ── PAY ALL (all members in college/year group) ────────────────────── */
+        function payAll(collegeCode, academicYear, collegeName, btn) {
+            var rmk = prompt('Payment reference for all members of ' + collegeName + ' (optional):') || '';
+            if (!confirm('Mark ALL members of ' + collegeName + ' (' + academicYear + ') as PAID?')) return;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Processing...';
+
+            fetch('/LicTada/CashierPayAll', {
+                method: 'POST', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'collegeCode='   + encodeURIComponent(collegeCode)
+                    + '&academicYear=' + encodeURIComponent(academicYear)
+                    + '&remarks='      + encodeURIComponent(rmk)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res.success) {
+                    if (typeof ltToast === 'function') ltToast('💳 All members of ' + collegeName + ' marked as paid', 'ok');
+                    var row = btn.closest('tr');
+                    if (row) {
+                        row.style.transition = 'opacity .5s';
+                        row.style.opacity = '.2';
+                        setTimeout(function() { row.remove(); }, 600);
+                    }
+                } else {
+                    if (typeof ltToast === 'function') ltToast('Failed to record payments.', 'err');
+                    btn.disabled = false;
+                    btn.innerHTML = '💳 Mark All as Paid';
+                }
+            })
+            .catch(function() {
+                if (typeof ltToast === 'function') ltToast('Network error.', 'err');
+                btn.disabled = false;
+                btn.innerHTML = '💳 Mark All as Paid';
+            });
+        }
+
+        /* ── EVENT DELEGATION ───────────────────────────────────────────────── */
+        document.addEventListener('click', function(e) {
+            // PDF slip
+            var slipBtn = e.target.closest('.btn-print-slip');
+            if (slipBtn) {
+                var mb = slipBtn.closest('.mem-block');
+                if (mb) printSlip(mb.getAttribute('data-phone'), mb.getAttribute('data-name'),
+                                   mb.getAttribute('data-college'), mb.getAttribute('data-year'), mb.getAttribute('data-amt'));
+                return;
+            }
+            // Individual pay
+            var payBtn = e.target.closest('.btn-member-pay');
+            if (payBtn) {
+                memberPay(payBtn.getAttribute('data-id'), payBtn.getAttribute('data-name'), payBtn);
+                return;
+            }
+            // Pay all
+            var payAllBtn = e.target.closest('.btn-pay-all');
+            if (payAllBtn) {
+                payAll(payAllBtn.getAttribute('data-college-code'),
+                       payAllBtn.getAttribute('data-academic-year'),
+                       payAllBtn.getAttribute('data-college-name'), payAllBtn);
+                return;
+            }
+        });
+
+        /* ── PRINT ALL BUTTON ───────────────────────────────────────────────── */
+        var printAllBtn = document.getElementById('btn-cs-print-all');
+        if (printAllBtn) printAllBtn.addEventListener('click', printAll);
+
+        /* ── OPEN PRINT WINDOW ──────────────────────────────────────────────── */
+        function openPrintWindow(html) {
+            var w = window.open('', '_blank', 'width=820,height=960,scrollbars=yes');
+            if (!w) { alert('Pop-up blocked! Please allow pop-ups.'); return; }
+            w.document.open(); w.document.write(html); w.document.close(); w.focus();
+            w.onload = function() { try { w.print(); } catch(e){} };
+            setTimeout(function() { try { w.print(); } catch(e){} }, 900);
+        }
+
+        function printSlip(phone, memberName, collegeName, year, amt) {
+            fetchBank(phone).then(function(d) {
+                var bankTable = buildPrintTable(d);
+                var amtFmt    = 'Rs. ' + parseFloat(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                var dateStr   = new Date().toLocaleString('en-IN');
+                var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payment Slip</title>'
+                    + '<style>' + SLIP_CSS + '</style></head><body>'
+                    + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+                    +   '<div><h1>' + esc(memberName) + '</h1>'
+                    +   '<p class="sub">' + esc(collegeName) + ' &nbsp;&middot;&nbsp; ' + esc(year) + '</p></div>'
+                    +   '<div style="text-align:right"><span class="badge">Payment Slip</span><br>'
+                    +   '<span style="font-size:10px;color:#8fa3be">' + dateStr + '</span></div>'
+                    + '</div><hr>'
+                    + '<div class="lbl">Claim Amount</div><p class="amt">' + amtFmt + '</p><hr>'
+                    + '<div class="lbl">Bank Details</div>' + bankTable
+                    + '<footer>Generated by Medical Affiliation System &middot; ' + dateStr + '</footer>'
+                    + '<button class="pbtn" onclick="window.print()">Print / Save as PDF</button>'
+                    + '</body></html>';
+                openPrintWindow(html);
+            });
+        }
+
+        function printAll() {
+            var phones = [];
+            document.querySelectorAll('.bank-panel[data-phone]').forEach(function(p) {
+                var ph = (p.getAttribute('data-phone') || '').trim();
+                if (ph && phones.indexOf(ph) < 0) phones.push(ph);
+            });
+            Promise.all(phones.map(fetchBank)).then(function() {
+                var content = '';
+                document.querySelectorAll('#cs-tbody .cs-row').forEach(function(row, idx) {
+                    var year    = (row.querySelector('td:nth-child(2) span') || {}).innerText || '';
+                    var college = (row.querySelector('td:nth-child(3) div') || {}).innerText || '';
+                    var total   = (row.querySelector('td:nth-child(5)')     || {}).innerText || '';
+                    var memberRows = '';
+                    row.querySelectorAll('.mem-block').forEach(function(mb) {
+                        var phone  = (mb.getAttribute('data-phone') || '').trim();
+                        var name   = mb.getAttribute('data-name') || '';
+                        var amt    = mb.getAttribute('data-amt')  || '0';
+                        var amtFmt = 'Rs. ' + parseFloat(amt).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                        var cached = bankCache[phone];
+                        var tbl    = cached ? buildPrintTable(cached.raw) : '<p style="color:#aaa">No data</p>';
+                        memberRows += '<tr style="vertical-align:top">'
+                            + '<td style="padding:8px 10px;border:1px solid #e2e8f3;white-space:nowrap;font-size:12px"><strong>' + esc(name) + '</strong><br>'
+                            + '<span style="color:#0f9b6e;font-weight:700">' + amtFmt + '</span></td>'
+                            + '<td style="padding:8px 10px;border:1px solid #e2e8f3">' + tbl + '</td></tr>';
+                    });
+                    content += '<div class="block">'
+                        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+                        + '<h3>' + (idx+1) + '. ' + esc(college.trim()) + ' &nbsp;&middot;&nbsp; ' + esc(year.trim()) + '</h3>'
+                        + '<span style="font-size:14px;font-weight:800;color:#0f9b6e">' + esc(total.trim()) + '</span></div>'
+                        + '<table style="width:100%;border-collapse:collapse"><thead><tr>'
+                        + '<th style="padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f3;font-size:10px;text-transform:uppercase;color:#5a6e8a;text-align:left;width:180px">Member</th>'
+                        + '<th style="padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f3;font-size:10px;text-transform:uppercase;color:#5a6e8a;text-align:left">Bank Details</th>'
+                        + '</tr></thead><tbody>' + memberRows + '</tbody></table></div>';
+                });
+                var dateStr = new Date().toLocaleString('en-IN');
+                var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pending Payments Report</title>'
+                    + '<style>' + ALL_CSS + '</style></head><body>'
+                    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:2px solid #e2e8f3;padding-bottom:14px">'
+                    + '<div><h2>Pending Payments Report</h2><p style="margin:0;color:#8fa3be;font-size:11px">Generated: ' + dateStr + '</p></div></div>'
+                    + content + '<button class="pbtn" onclick="window.print()">Print / Save as PDF</button>'
+                    + '</body></html>';
+                openPrintWindow(html);
+            });
+        }
+
+        /* ── PAGINATION ─────────────────────────────────────────────────────── */
+        var PAGE_SIZE = 10;
+        var allRows   = [];
+
+        function initPagination() {
+            allRows = Array.from(document.querySelectorAll('#cs-tbody .cs-row'));
+            renderPage(1);
+        }
+
+        function renderPage(page) {
+            var total = allRows.length;
+            var pages = Math.ceil(total / PAGE_SIZE) || 1;
+            var start = (page - 1) * PAGE_SIZE;
+            var end   = Math.min(start + PAGE_SIZE, total);
+            allRows.forEach(function(r, idx) {
+                r.style.display = (idx >= start && idx < end) ? '' : 'none';
+                if (idx >= start && idx < end) { var n = r.querySelector('.cs-row-num'); if (n) n.textContent = idx + 1; }
+            });
+            var info = document.getElementById('cs-page-info');
+            if (info) info.textContent = (start + 1) + '-' + end + ' of ' + total;
+            var pg = document.getElementById('cs-pagination');
+            if (!pg) return;
+            pg.innerHTML = '';
+            function mkBtn(lbl, tp, active, disabled) {
+                var b = document.createElement('button');
+                b.textContent = lbl; b.disabled = disabled;
+                b.style.cssText = 'padding:5px 11px;border-radius:7px;font-family:\'JetBrains Mono\',monospace;font-size:11px;'
+                    + 'font-weight:' + (active?'700':'500') + ';cursor:' + (disabled?'default':'pointer') + ';'
+                    + 'border:1.5px solid ' + (active?'#2d6be4':'#e2e8f3') + ';'
+                    + 'background:' + (active?'#2d6be4':'#fff') + ';'
+                    + 'color:' + (active?'#fff':disabled?'#c0cfe0':'#2d3f5c') + ';transition:all .15s';
+                if (!disabled && !active) { b.onmouseover = function(){this.style.background='#f0f5ff';}; b.onmouseout = function(){this.style.background='#fff';}; }
+                b.onclick = function() { if (!disabled) renderPage(tp); };
+                return b;
+            }
+            pg.appendChild(mkBtn('Prev', page-1, false, page===1));
+            var sp = Math.max(1, Math.min(page-2, pages-4));
+            var ep = Math.min(pages, sp+4);
+            for (var p = sp; p <= ep; p++) pg.appendChild(mkBtn(p, p, p===page, false));
+            pg.appendChild(mkBtn('Next', page+1, false, page===pages));
+        }
+
+        function esc(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        window.csPrefetchAll = function() {
+            document.querySelectorAll('.bank-panel[data-phone]').forEach(function(p) {
+                p.setAttribute('data-loaded', 'false');
+                p.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#b8cad9;text-align:center;padding:4px 0">⏳ Loading…</div>';
+            });
+            bankCache = {}; inFlight = {};
+            prefetchAll(); initPagination();
+        };
+
+        setTimeout(function() {
+            if (document.querySelectorAll('.bank-panel[data-phone]').length > 0) {
+                prefetchAll(); initPagination();
+            }
+        }, 150);
+
+    })();
+</script>

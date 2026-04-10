@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- https://go.microsoft.com/fwlink/?LinkID=208121. -->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>D:\Aff_PB_100925</_PublishTargetUrl>
+    <History>True|2026-04-09T06:10:42.7943705Z||;True|2026-04-09T11:37:42.2457479+05:30||;True|2026-04-09T11:33:23.3327573+05:30||;True|2026-04-09T11:32:25.6663086+05:30||;True|2025-09-10T11:17:15.4319818+05:30||;True|2025-09-10T11:03:38.2412394+05:30||;True|2025-09-10T10:34:47.9491046+05:30||;True|2025-09-10T10:25:56.9289398+05:30||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="DefaultConnection">
+      <Value>Server=DESKTOP-HSD6G32\SQLEXPRESS%3bDatabase=Admission_Affiliation%3bTrustServerCertificate=True%3bTrusted_Connection=true%3b</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>

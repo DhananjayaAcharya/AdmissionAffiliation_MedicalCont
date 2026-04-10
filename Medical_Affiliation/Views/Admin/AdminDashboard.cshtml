@@ -1,0 +1,339 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+    var faculties = ViewBag.Faculties;
+    var username = ViewBag.UserName as string ?? "Administrator";
+    var IsAdmin = ViewBag.IsAdmin ?? true;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<style>
+    :root {
+        --primary: #0047AB;
+        --primary-dark: #003366;
+        --accent: #097969;
+        --sidebar-bg: #0f1e3a;
+        --sidebar-text: #e0f0ff;
+        --card-bg: white;
+        --shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    body {
+        background: #f5f7fa;
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        height: 100vh;
+        background: var(--sidebar-bg);
+        color: var(--sidebar-text);
+        padding-top: 80px;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+        box-shadow: 2px 0 20px rgba(0,0,0,0.25);
+    }
+
+    .sidebar-header {
+        padding: 1.5rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        text-align: center;
+    }
+
+        .sidebar-header h4 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+            color: white;
+        }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 1rem 0;
+    }
+
+    .sidebar-item a {
+        display: flex;
+        align-items: center;
+        padding: 0.9rem 1.5rem;
+        color: var(--sidebar-text);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.25s;
+    }
+
+        .sidebar-item a:hover,
+        .sidebar-item a.active {
+            background: rgba(9,121,105,0.15);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+    .sidebar-item i {
+        margin-right: 12px;
+        font-size: 1.3rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    .main-content {
+        margin-left: 260px;
+        padding: 2rem;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+    }
+
+    .dashboard-welcome {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.6rem;
+        box-shadow: var(--shadow);
+        transition: transform 0.25s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+        }
+
+    .action-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.8rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-action {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1rem 1.4rem;
+        font-size: 1.05rem;
+        border-radius: 10px;
+        background: white;
+        border: 1px solid #dee2e6;
+        color: var(--primary);
+        transition: all 0.28s;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        width: 100%;
+        justify-content: flex-start;
+        text-decoration: none;
+    }
+
+        .btn-action:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0,71,171,0.18);
+        }
+
+    @@media (max-width: 992px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .navbar-toggler {
+            display: block !important;
+        }
+    }
+</style>
+
+<!-- Sidebar Toggle (mobile) -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark d-lg-none">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <span class="navbar-brand ms-2">Admin Panel</span>
+    </div>
+</nav>
+
+<!-- Sidebar -->
+<aside class="sidebar collapse d-lg-block" id="sidebarMenu">
+    <div class="sidebar-header">
+        <h4>Admin Panel</h4>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="@Url.Action("Dashboard", "Admin")" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+        <li class="sidebar-item"><a href="@Url.Action("AddCollege", "Admin")"><i class="bi bi-building-add"></i> Add College</a></li>
+        <li class="sidebar-item"><a href="@Url.Action("AddCourse", "Admin")"><i class="bi bi-journal-plus"></i> Add Course</a></li>
+        <li class="sidebar-item"><a href="@Url.Action("NodalOfficersForAdmin", "Admin")"><i class="bi bi-person-badge-fill"></i> Nodal Officers</a></li>
+        <li class="sidebar-item"><a href="@Url.Action("AdminDocumentReport", "Admin")"><i class="bi bi-file-earmark-check"></i> Document Reports</a></li>
+        <li class="sidebar-item"><a href="@Url.Action("CollegeWiseReport", "Admin")"><i class="bi bi-building-check"></i> College Reports</a></li>
+        <li class="sidebar-item"><a href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+    </ul>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+    <div class="dashboard-welcome">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1">Welcome back, <strong>@username</strong></h2>
+                <p class="mb-0 opacity-75">Manage colleges, courses, nodal officers & reports</p>
+            </div>
+            @if (IsAdmin)
+            {
+                <button class="btn btn-light px-4 py-2" data-bs-toggle="modal" data-bs-target="#facultyModal">
+                    <i class="bi bi-gear me-2"></i>Manage Faculties
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center">
+                <h3 class="fw-bold text-primary">248</h3>
+                <p class="text-muted mb-0">Active Colleges</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center">
+                <h3 class="fw-bold text-accent">1,842</h3>
+                <p class="text-muted mb-0">Total Courses</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center">
+                <h3 class="fw-bold text-warning">67</h3>
+                <p class="text-muted mb-0">Pending Approvals</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card text-center">
+                <h3 class="fw-bold text-success">94%</h3>
+                <p class="text-muted mb-0">Documents Verified</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Groups -->
+    <div class="row g-4">
+        <!-- Management Actions -->
+        <div class="col-lg-6">
+            <div class="action-card">
+                <h5 class="mb-4 fw-semibold border-bottom pb-2">Management Actions</h5>
+                <div class="d-grid gap-3">
+                    <a asp-action="AddCollege" class="btn-action"><i class="bi bi-building-add"></i> Add New College</a>
+                    <a asp-action="AddCourse" class="btn-action"><i class="bi bi-journal-plus"></i> Add Course to College</a>
+                    <a asp-action="AddCourseToMstCourse" class="btn-action"><i class="bi bi-book"></i> Add to Course Master</a>
+                    <a asp-action="AddDepartmentToDepartmentMaster" class="btn-action"><i class="bi bi-diagram-3"></i> Add Department</a>
+                    <a asp-action="NodalOfficersForAdmin" class="btn-action"><i class="bi bi-person-badge-fill"></i> Manage Nodal Officers</a>
+                    <a asp-action="TabsToggle" class="btn-action"><i class="bi bi-layout-sidebar-inset"></i> Sidebar Settings</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports & Approvals -->
+        <div class="col-lg-6">
+            <div class="action-card">
+                <h5 class="mb-4 fw-semibold border-bottom pb-2">Reports & Approvals</h5>
+                <div class="d-grid gap-3">
+                    <a asp-action="Dashboard" asp-route-facultyId="@ViewBag.FacultyId" class="btn-action"><i class="bi bi-bar-chart-line"></i> College Intake Report</a>
+                    <a asp-action="AdminDocumentReport" class="btn-action"><i class="bi bi-file-earmark-check"></i> College Documents Report</a>
+                    <a asp-action="AdminDocumentIncompleteReport" class="btn-action"><i class="bi bi-exclamation-triangle"></i> Incomplete Intake Report</a>
+                    <a asp-action="CollegeWiseReport" class="btn-action"><i class="bi bi-building-check"></i> College-Wise Summary</a>
+                    <a asp-action="NodalOfficerReport" class="btn-action"><i class="bi bi-people"></i> Nodal Officer Report</a>
+                    <a asp-action="AdminGetUpdatedRGUHSIntakeBySectionOfficer" class="btn-action"><i class="bi bi-check2-square"></i> Approve Section Intake</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Faculty Management Modal -->
+@if (IsAdmin)
+{
+    <div class="modal fade" id="facultyModal" tabindex="-1" aria-labelledby="facultyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="facultyModalLabel">Faculty Status Management</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Faculty Name</th>
+                                <th class="text-center" style="width: 180px;">Active / Inactive</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var faculty in faculties)
+                            {
+                                <tr>
+                                    <td class="align-middle">@faculty.FacultyName</td>
+                                    <td class="text-center align-middle">
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input class="form-check-input faculty-status"
+                                                   type="checkbox"
+                                                   data-id="@faculty.FacultyId"
+                                                   @(faculty.Status == "Active" ? "checked" : "") />
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.faculty-status').on('change', function () {
+                const $chk = $(this);
+                const facultyId = $chk.data('id');
+                const status = $chk.is(':checked') ? 'Active' : 'Inactive';
+
+                $.ajax({
+                    url: '@Url.Action("UpdateFacultyStatus", "Admin")',
+                    type: 'POST',
+                    data: { facultyId, status },
+                    success: function () {
+                        console.log('Status updated');
+                    },
+                    error: function () {
+                        alert('Failed to update status');
+                        $chk.prop('checked', !$chk.is(':checked'));
+                    }
+                });
+            });
+
+            $('#facultyModal').on('hidden.bs.modal', function () {
+                location.reload();
+            });
+        });
+    </script>
+}

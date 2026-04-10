@@ -1,0 +1,49 @@
+﻿@{
+    var role = ViewBag.Role as string ?? "";
+    var uname = ViewBag.UserName as string ?? "User";
+    var label = ViewBag.DesignationLabel as string ?? role;
+    var inits = uname.Length >= 2 ? uname.Substring(0, 2).ToUpper() : "U";
+
+    string bdgBg = role == "Finance" ? "#e8f0fd" : role == "CaseWorker" ? "#f0eafd" : role == "AO" ? "#fff8e6" : role == "Cashier" ? "#e5f7f2" : "#f8fafc";
+    string bdgClr = role == "Finance" ? "#2d6be4" : role == "CaseWorker" ? "#6d35cc" : role == "AO" ? "#c97b00" : role == "Cashier" ? "#0f9b6e" : "#64748b";
+    string bdgBdr = role == "Finance" ? "#b3cdfb" : role == "CaseWorker" ? "#c9b3f5" : role == "AO" ? "#fce49a" : role == "Cashier" ? "#86e0c8" : "#e2e8f3";
+    string avGrad = role == "Finance" ? "linear-gradient(135deg,#2d6be4,#6d35cc)"
+                  : role == "CaseWorker" ? "linear-gradient(135deg,#6d35cc,#c27bdb)"
+                  : role == "AO" ? "linear-gradient(135deg,#c97b00,#e8a020)"
+                  : role == "Cashier" ? "linear-gradient(135deg,#0f9b6e,#1ac48c)"
+                  : "linear-gradient(135deg,#64748b,#94a3b8)";
+}
+<style>
+    .lt-logout {
+        background: linear-gradient(135deg,#e03055,#ff6b81);
+        border: none;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'JetBrains Mono',monospace;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }</style>
+<nav style="background:#0f1b35;height:64px;position:sticky;top:0;z-index:300;padding:0 32px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(13,27,46,.3)">
+    <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2d6be4,#6d35cc);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 12px rgba(45,107,228,.4)">🎓</div>
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#ffffff;letter-spacing:-.01em;font-family:'Outfit',sans-serif">LIC TA/DA Management</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(255,255,255,.4);letter-spacing:.18em;text-transform:uppercase;margin-top:1px">RGUHS · AFFILIATION PORTAL</div>
+        </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+        <span style="border-radius:20px;padding:4px 13px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;background:@bdgBg;color:@bdgClr;border:1.5px solid @bdgBdr">@label</span>
+        <span style="font-size:13px;font-weight:600;color:rgba(255,255,255,.85);font-family:'Outfit',sans-serif">@uname</span>
+        <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:800;flex-shrink:0;border:2px solid rgba(255,255,255,.15);background:@avGrad">@inits</div>
+        <form asp-controller="Admin" asp-action="FinanceLogout" method="post" style="display:inline;">
+            <button type="submit" class="lt-logout">
+                ⏏ Logout
+            </button>
+        </form>
+    </div>
+</nav>

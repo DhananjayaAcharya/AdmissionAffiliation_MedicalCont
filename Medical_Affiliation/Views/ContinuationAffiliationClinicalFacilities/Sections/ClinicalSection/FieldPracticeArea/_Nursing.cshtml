@@ -1,0 +1,196 @@
+﻿@model FieldPracticeAreasPostViewModel
+
+<form asp-action="SaveFieldPracticeAreas"
+      method="post"
+      id="fieldPracticeForm">
+
+    @Html.AntiForgeryToken()
+
+    <div class="form-section field-form">
+        <div class="section-title">Field Practice Area</div>
+        <input type="hidden" name="FacultyCode" value="@ViewBag.FacultyCode" />
+        @for (int i = 0; i < Model.FieldPracticeAreas.Count; i++)
+        {
+            var area = Model.FieldPracticeAreas[i];
+
+            <div class="border rounded p-3 mb-3">
+
+                @{
+                    var fieldTypeText =
+                    area.FieldTypeOptions
+                    .FirstOrDefault(x => x.Value == area.SelectedFieldTypeId?.ToString())
+                    ?.Text ?? "Unknown";
+                }
+
+                <h5 class="mb-3">@fieldTypeText</h5>
+
+                <!-- 🔹 REQUIRED HIDDEN FIELDS -->
+                <input type="hidden"
+                       name="FieldPracticeAreas[@i].SelectedFieldTypeId"
+                       value="@area.SelectedFieldTypeId" />
+
+                <input type="hidden"
+                       name="FieldPracticeAreas[@i].FieldType"
+                       value="@area.FieldType" />
+
+                <input type="hidden" name="FieldPracticeAreas[@i].CollegeCode" value="@area.CollegeCode" />
+                <input type="hidden" name="FieldPracticeAreas[@i].FacultyCode" value="@area.FacultyCode" />
+
+                <div class="row g-3">
+
+                    <!-- Planning Type -->
+                    <div class="col-md-4">
+                        <label class="required">Planning Type</label>
+                        <select class="form-select"
+                                name="FieldPracticeAreas[@i].SelectedPlanningTypeId">
+                            <option value="">-- Select --</option>
+                            @foreach (var item in area.AdopAffTypeOptions)
+                            {
+                                <option value="@item.Value"
+                                        selected="@(item.Value == area.SelectedPlanningTypeId?.ToString())">
+                                    @item.Text
+                                </option>
+                            }
+                        </select>
+                        <input type="hidden"
+                               name="FieldPracticeAreas[@i].AdopAffType"
+                               value="@area.AdopAffType" />
+                    </div>
+
+                    <!-- Administration Type -->
+                    <div class="col-md-4">
+                        <label class="required">Administration Type</label>
+                        <select class="form-select"
+                                name="FieldPracticeAreas[@i].SelectedAdministrationTypeId">
+                            <option value="">-- Select --</option>
+                            @foreach (var item in area.AdministrationTypeOptions)
+                            {
+                                <option value="@item.Value"
+                                        selected="@(item.Value == area.SelectedAdministrationTypeId?.ToString())">
+                                    @item.Text
+                                </option>
+                            }
+                        </select>
+                        <input type="hidden"
+                               name="FieldPracticeAreas[@i].AdminType"
+                               value="@area.AdminType" />
+                    </div>
+
+                    <!-- Name of CHC -->
+                    <div class="col-md-4">
+                        <label class="required">Name of CHC</label>
+                        <input class="form-control"
+                               name="FieldPracticeAreas[@i].NameOfCHC"
+                               value="@area.NameOfCHC"
+                               placeholder="Enter the CHC name" />
+                    </div>
+
+                    <!-- Distance -->
+                    <div class="col-md-4">
+                        <label class="required">Distance (KM)</label>
+                        <input class="form-control"
+                               name="FieldPracticeAreas[@i].DistanceFromNursingInstitution"
+                               value="@area.DistanceFromNursingInstitution"
+                               placeholder="Enter distance in KM" />
+                    </div>
+
+                    <!-- Services -->
+                    <div class="col-md-4">
+                        <label class="required">Services Rendered</label>
+                        <input class="form-control"
+                               name="FieldPracticeAreas[@i].ServicesRendered"
+                               value="@area.ServicesRendered"
+                               placeholder="Enter services rendered" />
+                    </div>
+
+                </div>
+            </div>
+        }
+
+        <!-- 🔹 SUBMIT -->
+        <div class="text-center mt-4">
+            <button type="submit"
+                    class="btn btn-primary px-4">
+                Save Field Practice Areas
+            </button>
+        </div>
+    </div>
+
+</form>
+<script>
+    document.getElementById("fieldPracticeForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+                'RequestVerificationToken':
+                    form.querySelector('input[name="__RequestVerificationToken"]').value
+            }
+        })
+        .then(res => {
+                if (!res.ok) throw res;
+                return res.json();
+            })
+            .then(data => {
+                Swal.fire("Success", data.message, "success");
+            })
+        .catch(async err => {
+            let errors = [];
+
+            if (err instanceof Response) {
+                try {
+                    const errorData = await err.json();
+
+                    // Case 1: normalized API errors
+                    if (Array.isArray(errorData.errors)) {
+                        errorData.errors.forEach(e => {
+                            if (Array.isArray(e.messages)) {
+                                errors.push(...e.messages);
+                            }
+                        });
+                    }
+                    // Case 2: ASP.NET ModelState dictionary
+                    @* else if (typeof errorData === "object") {
+                        Object.values(errorData).forEach(messages => {
+                            if (Array.isArray(messages)) {
+                                errors.push(...messages);
+                            }
+                        });
+                    } *@
+                } catch {
+                    // Response was not JSON (401, 500, HTML page, etc.)
+                    errors.push("Your session may have expired. Please refresh and try again.");
+                }
+            } else {
+                errors.push("An unexpected error occurred.");
+            }
+
+            Swal.fire({
+                title: "Validation Error",
+                html: errors.length ? errors.join("<br>") : "Something went wrong",
+                icon: "error"
+            });
+        });
+
+    });
+
+    document.addEventListener("change", function (e) {
+        if (e.target.name.includes("SelectedPlanningTypeId")) {
+            const row = e.target.closest(".border");
+            row.querySelector("input[name$='.AdopAffType']").value =
+                e.target.options[e.target.selectedIndex].text;
+        }
+
+        if (e.target.name.includes("SelectedAdministrationTypeId")) {
+            const row = e.target.closest(".border");
+            row.querySelector("input[name$='.AdminType']").value =
+                e.target.options[e.target.selectedIndex].text;
+        }
+    });
+
+</script>

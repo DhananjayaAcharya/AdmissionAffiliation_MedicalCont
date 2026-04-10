@@ -1,0 +1,1637 @@
+﻿@model SmallGroupTeachingViewModel
+@{
+    ViewData["Title"] = "Land, Building & Teaching Facilities";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --info: #1a5c8a;
+        --radius: 6px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+    }
+
+    /* ── Page Shell ── */
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        /* padding: 36px 0 56px; */
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        /* padding: 0 24px; */
+    }
+
+    /* ── Header ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        /* border-radius: 10px 10px 0 0; */
+        /* padding: 28px 36px 24px; */
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .header-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+        position: relative;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+        position: relative;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+        font-weight: 300;
+        position: relative;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+
+    /* ── Main card ── */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 40px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    /* ── Section divider ── */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 28px 0 18px;
+    }
+
+        .section-label:first-child {
+            margin-top: 0;
+        }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ── Section block ── */
+    .section-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .section-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-block-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .section-block-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 13px;
+            background: var(--gold);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+    .section-block-body {
+        padding: 20px 20px 16px;
+    }
+
+    /* ── Info box ── */
+    .info-box {
+        background: #f3f0e8;
+        border-left: 3px solid var(--gold);
+        border-radius: var(--radius);
+        padding: 12px 16px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+        .info-box strong {
+            color: var(--navy);
+        }
+
+    /* ── Summary card (deficiency) ── */
+    .summary-card {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: var(--radius);
+        padding: 24px 24px 20px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .summary-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .summary-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--white);
+        margin-bottom: 18px;
+        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .summary-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+    .summary-boxes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+
+    .summary-box {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: var(--radius);
+        padding: 16px 14px;
+        text-align: center;
+    }
+
+    .summary-box-label {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.45);
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .summary-box-value {
+        font-family: 'EB Garamond', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    .val-required {
+        color: #fca5a5;
+    }
+
+    .val-available {
+        color: #67e8f9;
+    }
+
+    .val-short {
+        color: #fecaca;
+    }
+
+    .val-ok {
+        color: #a7f3d0;
+    }
+
+    /* ── Form controls ── */
+    .form-control, .form-select {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 7px 10px;
+        font-size: 0.82rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--white);
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+
+        .form-control[readonly] {
+            background: #f3f0e8;
+            color: var(--text-muted);
+            cursor: default;
+        }
+
+    select.form-control, .form-select {
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 9px center;
+        padding-right: 28px;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 70px;
+    }
+
+    .form-label-text {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+    }
+
+        .form-label-text.required::after {
+            content: ' *';
+            color: var(--danger);
+            font-weight: 800;
+        }
+
+    .text-danger {
+        display: block;
+        font-size: 0.68rem;
+        color: var(--danger);
+        margin-top: 2px;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 4px;
+    }
+
+    /* ── Grid ── */
+    .field-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .g-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .g-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .g-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    @@media (max-width: 900px) {
+        .g-2, .g-3, .g-4 {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .g-2, .g-3, .g-4 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ── Radio / Checkbox toggle pills ── */
+    .toggle-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .toggle-pill-input {
+        display: none;
+    }
+
+    .toggle-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 16px;
+        border: 1.5px solid #d9d3c8;
+        border-radius: 4px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+        user-select: none;
+        background: var(--white);
+    }
+
+        .toggle-pill:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+        }
+
+    .toggle-pill-input:checked + .toggle-pill {
+        background: var(--navy);
+        border-color: var(--navy);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(15,37,69,0.2);
+    }
+    /* Green for YES options */
+    .toggle-pill-input.pill-yes:checked + .toggle-pill {
+        background: #1a6b3a;
+        border-color: #1a6b3a;
+    }
+    /* Red-ish for NO options */
+    .toggle-pill-input.pill-no:checked + .toggle-pill {
+        background: #8b1a1a;
+        border-color: #8b1a1a;
+    }
+
+    /* Available / Shared checkbox pills */
+    .toggle-pill-input.pill-avail:checked + .toggle-pill {
+        background: var(--info);
+        border-color: var(--info);
+    }
+
+    .toggle-pill-input.pill-shared:checked + .toggle-pill {
+        background: #7a5c1a;
+        border-color: #7a5c1a;
+    }
+
+    /* Sub-section mini header */
+    .sub-heading {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--navy-mid);
+        padding: 10px 0 6px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 14px;
+        margin-top: 6px;
+        grid-column: 1 / -1;
+    }
+
+    /* ── Footer nav ── */
+    .form-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+    }
+
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+        .btn-prev:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+            background: #f3f0e8;
+            text-decoration: none;
+        }
+
+    .footer-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.15s, box-shadow 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-save::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+        }
+
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #1a6b3a, #2e8b57);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 22px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        transition: opacity 0.15s;
+    }
+
+        .btn-next:hover {
+            opacity: 0.9;
+        }
+
+    /* Error highlight */
+    .form-control.input-error,
+    .form-select.input-error {
+        border-color: var(--danger) !important;
+        background: #fff5f5;
+    }
+
+    .section-block.error-section {
+        border-color: var(--danger) !important;
+    }
+
+        .section-block.error-section .section-block-header {
+            background: #fff0f0;
+            border-bottom-color: var(--danger);
+        }
+
+    /* File upload */
+    input[type="file"].form-control {
+        padding: 5px 9px;
+        background: #faf8f4;
+        cursor: pointer;
+    }
+
+    .btn-view-pdf {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 7px;
+        background: transparent;
+        border: 1px solid var(--navy-mid);
+        border-radius: 4px;
+        color: var(--navy-mid);
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+    }
+
+        .btn-view-pdf:hover {
+            background: var(--navy-mid);
+            color: #fff;
+            text-decoration: none;
+        }
+</style>
+<link rel="stylesheet" href="~/css/common-form.css" />
+
+<div class="page-shell">
+    <div class="page-container">
+
+        <!-- Header -->
+        @* <div class="page-header">
+            <div class="header-eyebrow">Continuous Affiliation · Physical Facilities</div>
+            <div class="header-title">Land, Building &amp; Teaching Facilities</div>
+            <div class="header-subtitle">Provide details of physical infrastructure and teaching facility compliance</div>
+            <div class="header-badge">Physical Facilities</div>
+        </div> *@
+
+        <div class="page-header">
+            <div class="emblem">
+                <i class="fas fa-book-medical"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Land, Building &amp; Teaching Facilities</h1>
+                <p>Continuous Affiliation · Physical Facilities</p>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+
+            <form asp-action="Medical_LandBuildingdetails" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger", style = "font-size:0.8rem; margin-bottom:12px;" })
+
+                <!-- ══════════════════════════════════════
+                     LAND DETAILS
+                ══════════════════════════════════════ -->
+                <div class="section-label">
+                    <span class="section-label-text">College Land Details</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" id="block-land">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Land Information</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="field-grid g-2">
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Minimum land available as per council norms</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="IsMinimumLandAvailable" value="true" id="landYes" />
+                                    <label class="toggle-pill" for="landYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="IsMinimumLandAvailable" value="false" id="landNo" />
+                                    <label class="toggle-pill" for="landNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="IsMinimumLandAvailable" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Land Details (if Yes)</label>
+                                <textarea class="form-control" asp-for="LandDetailsIfYes" rows="2" placeholder="Describe land details..."></textarea>
+                            </div>
+
+                            <div class="field-group" id="landNoSection" style="display:none;">
+                                <label class="form-label-text">Purchase Plan Available (if No)</label>
+                                <select class="form-select" asp-for="HasPurchasePlanIfNo">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group" id="budgetSection" style="display:none;">
+                                <label class="form-label-text">Budget Provision Made (if No)</label>
+                                <select class="form-select" asp-for="HasBudgetProvisionIfNo">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Space available for future expansion</label>
+                                <select class="form-select" asp-for="HasFutureExpansionSpace">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="HasFutureExpansionSpace" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Upload Land Records</label>
+                                <input type="file" class="form-control" asp-for="LandRecordsDocument" />
+                                @if (Model != null && Model.HasLandRecordsFile)
+                                {
+                                    <a asp-action="ViewLandRecords" target="_blank" class="btn-view-pdf">
+                                        &#128196; View Uploaded PDF
+                                    </a>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════════════
+                     BUILDING DETAILS
+                ══════════════════════════════════════ -->
+                <div class="section-label">
+                    <span class="section-label-text">College Building Details</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" id="block-building">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Building Information</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="field-grid g-3">
+
+                            <div class="field-group" style="grid-column: span 3;">
+                                <label class="form-label-text required">Building available as per council norms</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" asp-for="IsBuildingAsPerCouncilNorms" value="true" id="bldYes" />
+                                    <label class="toggle-pill" for="bldYes">&#10003; YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" asp-for="IsBuildingAsPerCouncilNorms" value="false" id="bldNo" />
+                                    <label class="toggle-pill" for="bldNo">&#10007; NO</label>
+                                </div>
+                                <span asp-validation-for="IsBuildingAsPerCouncilNorms" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Land Ownership</label>
+                                <select class="form-select" asp-for="LandOwnershipType">
+                                    <option value="">— Select —</option>
+                                    <option>Owned</option>
+                                    <option>Lease</option>
+                                    <option>Rent</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Building Ownership</label>
+                                <select class="form-select" asp-for="BuildingOwnershipType">
+                                    <option value="">— Select —</option>
+                                    <option>Owned</option>
+                                    <option>Lease</option>
+                                    <option>Rent</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Floor Area (Sq.ft)</label>
+                                <input type="number" class="form-control" asp-for="FloorAreaSqFt" placeholder="0" />
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">No. of Blocks</label>
+                                <input type="number" class="form-control" asp-for="NumberOfBlocks" placeholder="0" />
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">No. of Floors</label>
+                                <input type="number" class="form-control" asp-for="NumberOfFloors" placeholder="0" />
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Year of Construction</label>
+                                <input type="number" class="form-control" asp-for="YearOfConstruction" placeholder="YYYY" />
+                            </div>
+
+                            <div class="field-group" style="grid-column: span 3;">
+                                <label class="form-label-text">Upload Approved Building Plan</label>
+                                <input type="file" class="form-control" asp-for="ApprovedBuildingPlanDocument" />
+                                @if (Model != null && Model.HasApprovedBuildingPlanFile)
+                                {
+                                    <a asp-action="ViewBuildingPlan" target="_blank" class="btn-view-pdf">
+                                        &#128196; View Building Plan PDF
+                                    </a>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════════════
+                     ADMINISTRATIVE SECTION
+                ══════════════════════════════════════ -->
+                <div class="section-label">
+                    <span class="section-label-text">Administrative Section — Physical Facilities</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" id="block-admin">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Area &amp; Facility Details</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="field-grid g-3">
+
+                            <span class="sub-heading">Area Details (sq ft)</span>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Principal Chamber</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="PrincipalChamberAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="PrincipalChamberAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Office Room</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="OfficeRoomAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="OfficeRoomAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Department Staff Rooms</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="StaffRoomsAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="StaffRoomsAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Lecture Halls</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="LectureHallsAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="LectureHallsAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Laboratories</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="LaboratoriesAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="LaboratoriesAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Seminar Hall</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="SeminarHallAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="SeminarHallAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Auditorium</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="AuditoriumAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="AuditoriumAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Museum</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="MuseumAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="MuseumAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Committee Rooms</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="CommitteeRoomsAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="CommitteeRoomsAreaSqFt" class="text-danger"></span>
+                            </div>
+
+                            <span class="sub-heading">Facilities Availability</span>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Examination Hall</label>
+                                <select class="form-select" asp-for="ExaminationHallAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="ExaminationHallAvailable" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Animal House</label>
+                                <select class="form-select" asp-for="AnimalHouseAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="AnimalHouseAvailable" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Common Room — Men Students</label>
+                                <select class="form-select" asp-for="CommonRoomMenAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="CommonRoomMenAvailable" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Common Room — Lady Students</label>
+                                <select class="form-select" asp-for="CommonRoomWomenAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="CommonRoomWomenAvailable" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Students Hostel</label>
+                                <select class="form-select" asp-for="StudentHostelAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="StudentHostelAvailable" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Registered under Anatomy Act 1969</label>
+                                <select class="form-select" asp-for="RegisteredUnderAnatomyAct">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="RegisteredUnderAnatomyAct" class="text-danger"></span>
+                            </div>
+
+                            <span class="sub-heading">Staff Quarters</span>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Principal Residential Quarter</label>
+                                <select class="form-select" asp-for="StaffQuartersPrincipal">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="StaffQuartersPrincipal" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Other Staff Quarters</label>
+                                <select class="form-select" asp-for="StaffQuartersOtherStaff">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="StaffQuartersOtherStaff" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Teaching &amp; Ancillary Staff Quarters</label>
+                                <select class="form-select" asp-for="StaffQuartersTeachingAncillary">
+                                    <option value="">— Select —</option>
+                                    <option value="true">YES</option>
+                                    <option value="false">NO</option>
+                                </select>
+                                <span asp-validation-for="StaffQuartersTeachingAncillary" class="text-danger"></span>
+                            </div>
+
+                            <span class="sub-heading">Workshop Details</span>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Workshop Staff Count</label>
+                                <input type="number" class="form-control" asp-for="WorkshopStaffCount" placeholder="0" />
+                                <span asp-validation-for="WorkshopStaffCount" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Workshop Equipment</label>
+                                <input type="text" class="form-control" asp-for="WorkshopEquipmentDetails" placeholder="Equipment details" />
+                                <span asp-validation-for="WorkshopEquipmentDetails" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Scope of Work</label>
+                                <input type="text" class="form-control" asp-for="WorkshopScopeOfWork" placeholder="Scope description" />
+                                <span asp-validation-for="WorkshopScopeOfWork" class="text-danger"></span>
+                            </div>
+
+                            <span class="sub-heading">Animal House Details</span>
+
+                            <div class="field-group">
+                                <label class="form-label-text">Area (sq ft)</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="AnimalHouseAreaSqFt" placeholder="0.00" />
+                                <span asp-validation-for="AnimalHouseAreaSqFt" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Staff Count</label>
+                                <input type="number" class="form-control" asp-for="AnimalHouseStaffCount" placeholder="0" />
+                                <span asp-validation-for="AnimalHouseStaffCount" class="text-danger"></span>
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Type of Animals</label>
+                                <input type="text" class="form-control" asp-for="AnimalTypes" placeholder="e.g. Rats, Rabbits" />
+                                <span asp-validation-for="AnimalTypes" class="text-danger"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════════════
+                     GENERAL REQUIREMENTS
+                ══════════════════════════════════════ -->
+                <div class="section-label">
+                    <span class="section-label-text">General Requirements</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" id="block-general">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Small Group Teaching — General</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="info-box">
+                            The size of each small group batch shall be about <strong>15 students</strong>. The common pool of teaching rooms, student practical laboratories, museums and lecture theatres shall be used for small group teaching, shared by all departments, and all such areas shall have audio-visual and internet facilities with digital linkage.
+                        </div>
+
+                        <div class="field-grid g-2">
+                            <div class="field-group">
+                                <label class="form-label-text required">Annual MBBS Intake</label>
+                                <select class="form-select" asp-for="AnnualMbbsIntake">
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                    <option value="250">250</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Small Group Batch Size</label>
+                                <input type="number" class="form-control" asp-for="SmallGroupBatchSize" readonly />
+                            </div>
+
+                            <!-- FIXED: Each Yes/No pair now has its own unique name -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Teaching Areas Shared by All Departments</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="TeachingAreasSharedAllDepts" value="true" id="sharedAllYes" @(Model.TeachingAreasSharedAllDepts == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="sharedAllYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="TeachingAreasSharedAllDepts" value="false" id="sharedAllNo" @(Model.TeachingAreasSharedAllDepts == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="sharedAllNo">NO</label>
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Audio-Visual Facilities in All Teaching Areas</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="AvInAllTeachingAreas" value="true" id="avAllYes" @(Model.AvInAllTeachingAreas == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="avAllYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="AvInAllTeachingAreas" value="false" id="avAllNo" @(Model.AvInAllTeachingAreas == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="avAllNo">NO</label>
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Internet Facility in All Teaching Areas</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="InternetInAllTeachingAreas" value="true" id="internetAllYes" @(Model.InternetInAllTeachingAreas == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="internetAllYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="InternetInAllTeachingAreas" value="false" id="internetAllNo" @(Model.InternetInAllTeachingAreas == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="internetAllNo">NO</label>
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Digitally Linked Between All Teaching Areas</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="DigitalLinkAllTeachingAreas" value="true" id="digitalLinkYes" @(Model.DigitalLinkAllTeachingAreas == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="digitalLinkYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="DigitalLinkAllTeachingAreas" value="false" id="digitalLinkNo" @(Model.DigitalLinkAllTeachingAreas == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="digitalLinkNo">NO</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════════════
+                     TEACHING ROOMS
+                ══════════════════════════════════════ -->
+                <div class="section-label">
+                    <span class="section-label-text">Teaching Rooms</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" id="block-teaching">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Area &amp; Compliance</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="info-box">
+                            Minimum number of teaching rooms as per annual MBBS intake shall be provided and shared by all departments.
+                            Each teaching room shall provide at least <strong>1.2 sq.m per student</strong> and shall be connected to larger lecture halls and internet facilities.
+                        </div>
+
+                        <div class="field-grid g-4">
+                            <div class="field-group">
+                                <label class="form-label-text required">No. of Students (Small Group)</label>
+                                <input type="number" class="form-control" asp-for="SmallGroupStudents" id="studentCount" placeholder="Enter count" />
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text required">Required Area (Sq.m) <small style="font-weight:400;text-transform:none;">×1.2</small></label>
+                                <input type="number" class="form-control" asp-for="RequiredAreaSqm" id="requiredArea" readonly />
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text required">Available Area (Sq.m)</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="AvailableAreaSqm" id="availableArea" placeholder="0.00" />
+                            </div>
+                            <div class="field-group">
+                                <label class="form-label-text required">Area Deficiency (Sq.m)</label>
+                                <input type="number" class="form-control" asp-for="AreaDeficiencySqm" id="deficiencyArea" readonly />
+                            </div>
+                        </div>
+
+                        <div class="field-grid g-2" style="margin-top:14px;">
+
+                            <!-- Teaching Rooms Shared by All Departments -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Teaching Rooms Shared by All Departments</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="RoomsSharedByAllDepts" value="true" id="sharedYes"
+                                           @(Model.RoomsSharedByAllDepts == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="sharedYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="RoomsSharedByAllDepts" value="false" id="sharedNo"
+                                           @(Model.RoomsSharedByAllDepts == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="sharedNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Appropriate Area in Each Teaching Specialty -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Appropriate Area in Each Teaching Specialty</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="AppropriateAreaEachSpecialty" value="true" id="specYes"
+                                           @(Model.AppropriateAreaEachSpecialty == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="specYes">Available</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="AppropriateAreaEachSpecialty" value="false" id="specNo"
+                                           @(Model.AppropriateAreaEachSpecialty == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="specNo">Not Available</label>
+                                </div>
+                            </div>
+
+                            <!-- Connected to Larger Lecture Halls -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Connected to Larger Lecture Halls</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="ConnectedToLectureHalls" value="true" id="lecYes"
+                                           @(Model.ConnectedToLectureHalls == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="lecYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="ConnectedToLectureHalls" value="false" id="lecNo"
+                                           @(Model.ConnectedToLectureHalls == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="lecNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Internet Facility in Teaching Rooms -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Internet Facility in Teaching Rooms</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="InternetInTeachingRooms" value="true" id="netYes"
+                                           @(Model.InternetInTeachingRooms == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="netYes">Available</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="InternetInTeachingRooms" value="false" id="netNo"
+                                           @(Model.InternetInTeachingRooms == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="netNo">Not Available</label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Area Summary ── -->
+                <div class="summary-card">
+                    <div class="summary-title">Area &amp; Facility Summary</div>
+                    <div class="summary-boxes">
+                        <div class="summary-box">
+                            <div class="summary-box-label">Required Teaching Room Area (Sq.m)</div>
+                            <div class="summary-box-value val-required" id="summaryRequired">0</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="summary-box-label">Available Teaching Room Area (Sq.m)</div>
+                            <div class="summary-box-value val-available" id="summaryAvailable">0</div>
+                        </div>
+                        <div class="summary-box">
+                            <div class="summary-box-label">Deficiency (Sq.m)</div>
+                            <div class="summary-box-value val-short" id="summaryDeficiency">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════════════
+                     STUDENT PRACTICAL LABS
+                ══════════════════════════════════════ -->
+                <div class="section-label">
+                    <span class="section-label-text">Student Practical Laboratories</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" id="block-labs">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Laboratory Availability &amp; Sharing</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="info-box">
+                            There shall be practical laboratories for Histology, Clinical Physiology, Biochemistry, Histopathology &amp; Cytopathology,
+                            Clinical Pathology &amp; Hematology, Microbiology, Clinical Pharmacology and CAL in Pharmacology.
+                            Labs may be shared with mutual consent and must have adequate workstations with AV and internet facilities.
+                        </div>
+
+                        <div class="field-grid g-2">
+
+                            <!-- Histology -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Histology Laboratory</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-avail" type="checkbox" asp-for="HistologyAvailable" id="histologyAvail" />
+                                    <label class="toggle-pill" for="histologyAvail">Available</label>
+                                    <input class="toggle-pill-input pill-shared" type="checkbox" asp-for="HistologyShared" id="histologyShared" />
+                                    <label class="toggle-pill" for="histologyShared">Shared</label>
+                                </div>
+                                <span asp-validation-for="HistologyAvailable" class="text-danger"></span>
+                            </div>
+
+                            <!-- Clinical Physiology -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Clinical Physiology Laboratory</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-avail" type="checkbox" asp-for="ClinicalPhysiologyAvailable" id="physioAvail" />
+                                    <label class="toggle-pill" for="physioAvail">Available</label>
+                                    <input class="toggle-pill-input pill-shared" type="checkbox" asp-for="ClinicalPhysiologyShared" id="physioShared" />
+                                    <label class="toggle-pill" for="physioShared">Shared</label>
+                                </div>
+                                <span asp-validation-for="ClinicalPhysiologyAvailable" class="text-danger"></span>
+                            </div>
+
+                            <!-- Biochemistry -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Biochemistry Laboratory</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-avail" type="checkbox" asp-for="BiochemistryAvailable" id="bioAvail" />
+                                    <label class="toggle-pill" for="bioAvail">Available</label>
+                                    <input class="toggle-pill-input pill-shared" type="checkbox" asp-for="BiochemistryShared" id="bioShared" />
+                                    <label class="toggle-pill" for="bioShared">Shared</label>
+                                </div>
+                                <span asp-validation-for="BiochemistryAvailable" class="text-danger"></span>
+                            </div>
+
+                            <!-- Histopathology & Cytopathology -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Histopathology &amp; Cytopathology Laboratory</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-avail" type="checkbox" asp-for="HistopathCytopathAvailable" id="histoPathAvail" />
+                                    <label class="toggle-pill" for="histoPathAvail">Available</label>
+                                    <input class="toggle-pill-input pill-shared" type="checkbox" asp-for="HistopathCytopathShared" id="histoPathShared" />
+                                    <label class="toggle-pill" for="histoPathShared">Shared</label>
+                                </div>
+                                <span asp-validation-for="HistopathCytopathAvailable" class="text-danger"></span>
+                            </div>
+
+                            <!-- Clinical Pathology & Hematology -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Clinical Pathology &amp; Hematology Laboratory</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-avail" type="checkbox" asp-for="ClinPathHemeAvailable" id="clinPathAvail" />
+                                    <label class="toggle-pill" for="clinPathAvail">Available</label>
+                                    <input class="toggle-pill-input pill-shared" type="checkbox" asp-for="ClinPathHemeShared" id="clinPathShared" />
+                                    <label class="toggle-pill" for="clinPathShared">Shared</label>
+                                </div>
+                                <span asp-validation-for="ClinPathHemeAvailable" class="text-danger"></span>
+                            </div>
+
+                            <!-- Microbiology -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Microbiology Laboratory</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-avail" type="checkbox" asp-for="MicrobiologyAvailable" id="microAvail" />
+                                    <label class="toggle-pill" for="microAvail">Available</label>
+                                    <input class="toggle-pill-input pill-shared" type="checkbox" asp-for="MicrobiologyShared" id="microShared" />
+                                    <label class="toggle-pill" for="microShared">Shared</label>
+                                </div>
+                                <span asp-validation-for="MicrobiologyAvailable" class="text-danger"></span>
+                            </div>
+
+                            <!-- Clinical Pharmacology -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Clinical Pharmacology Laboratory</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-avail" type="checkbox" asp-for="ClinicalPharmAvailable" id="pharmaAvail" />
+                                    <label class="toggle-pill" for="pharmaAvail">Available</label>
+                                    <input class="toggle-pill-input pill-shared" type="checkbox" asp-for="ClinicalPharmShared" id="pharmaShared" />
+                                    <label class="toggle-pill" for="pharmaShared">Shared</label>
+                                </div>
+                                <span asp-validation-for="ClinicalPharmAvailable" class="text-danger"></span>
+                            </div>
+
+                            <!-- CAL in Pharmacology -->
+                            <div class="field-group">
+                                <label class="form-label-text required">CAL Laboratory — Pharmacology</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-avail" type="checkbox" asp-for="CalPharmAvailable" id="calAvail" />
+                                    <label class="toggle-pill" for="calAvail">Available</label>
+                                    <input class="toggle-pill-input pill-shared" type="checkbox" asp-for="CalPharmShared" id="calShared" />
+                                    <label class="toggle-pill" for="calShared">Shared</label>
+                                </div>
+                                <span asp-validation-for="CalPharmAvailable" class="text-danger"></span>
+                            </div>
+
+                            <!-- Global Lab Requirements -->
+                            <div class="field-group">
+                                <label class="form-label-text required">All Labs Have Audio-Visual Facilities</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="checkbox" asp-for="AllLabsHaveAV" id="labsAv" />
+                                    <label class="toggle-pill" for="labsAv">YES</label>
+                                </div>
+                                <span asp-validation-for="AllLabsHaveAV" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">All Labs Have Internet Facilities</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="checkbox" asp-for="AllLabsHaveInternet" id="labsInternet" />
+                                    <label class="toggle-pill" for="labsInternet">YES</label>
+                                </div>
+                                <span asp-validation-for="AllLabsHaveInternet" class="text-danger"></span>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Facilities for Technical Staff Ensured</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="checkbox" asp-for="TechnicalStaffFacilitiesEnsured" id="techStaff" />
+                                    <label class="toggle-pill" for="techStaff">YES</label>
+                                </div>
+                                <span asp-validation-for="TechnicalStaffFacilitiesEnsured" class="text-danger"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════════════
+                     MUSEUMS
+                ══════════════════════════════════════ -->
+                <div class="section-label">
+                    <span class="section-label-text">Museums</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="section-block" id="block-museums">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Museum Availability &amp; Compliance</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="info-box">
+                            Museums shall exist for Anatomy, Pathology, Forensic Medicine, Pharmacology, Microbiology and Community Medicine,
+                            with adequate specimens and seating for at least <strong>50 students at 1.2 sq.m per student</strong>,
+                            with AV, internet, and digital linkage to other teaching areas.
+                        </div>
+
+                        <div class="field-grid g-3">
+
+                            <!-- Separate Anatomy Museum -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Separate Anatomy Museum</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="SeparateAnatomyMuseumAvailable" value="true" id="anatMuseumYes"
+                                           @(Model.SeparateAnatomyMuseumAvailable == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="anatMuseumYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="SeparateAnatomyMuseumAvailable" value="false" id="anatMuseumNo"
+                                           @(Model.SeparateAnatomyMuseumAvailable == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="anatMuseumNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Pathology & Forensic Medicine Shared Museum -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Pathology &amp; Forensic Medicine Shared Museum</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="PathologyForensicSharedMuseum" value="true" id="pathForMuseumYes"
+                                           @(Model.PathologyForensicSharedMuseum == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="pathForMuseumYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="PathologyForensicSharedMuseum" value="false" id="pathForMuseumNo"
+                                           @(Model.PathologyForensicSharedMuseum == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="pathForMuseumNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Pharmacology, Microbiology & Community Medicine Shared Museum -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Pharmacology, Microbiology &amp; Community Medicine Shared Museum</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="PharmMicroCommSharedMuseum" value="true" id="pharmMicroCommMuseumYes"
+                                           @(Model.PharmMicroCommSharedMuseum == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="pharmMicroCommMuseumYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="PharmMicroCommSharedMuseum" value="false" id="pharmMicroCommMuseumNo"
+                                           @(Model.PharmMicroCommSharedMuseum == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="pharmMicroCommMuseumNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Audio-Visual Facilities in Museums -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Audio-Visual Facilities in Museums</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsHaveAV" value="true" id="museumAVYes"
+                                           @(Model.MuseumsHaveAV == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumAVYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="MuseumsHaveAV" value="false" id="museumAVNo"
+                                           @(Model.MuseumsHaveAV == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumAVNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Internet Facility in Museums -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Internet Facility in Museums</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsHaveInternet" value="true" id="museumInternetYes"
+                                           @(Model.MuseumsHaveInternet == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumInternetYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="MuseumsHaveInternet" value="false" id="museumInternetNo"
+                                           @(Model.MuseumsHaveInternet == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumInternetNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Digitally Linked to LT / Rooms / Labs -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Digitally Linked to LT / Rooms / Labs</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsDigitallyLinked" value="true" id="museumDigitalLinkYes"
+                                           @(Model.MuseumsDigitallyLinked == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumDigitalLinkYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="MuseumsDigitallyLinked" value="false" id="museumDigitalLinkNo"
+                                           @(Model.MuseumsDigitallyLinked == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumDigitalLinkNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Adequate Racks / Shelves for Specimens -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Adequate Racks / Shelves for Specimens</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsHaveRacksShelves" value="true" id="museumRacksYes"
+                                           @(Model.MuseumsHaveRacksShelves == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumRacksYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="MuseumsHaveRacksShelves" value="false" id="museumRacksNo"
+                                           @(Model.MuseumsHaveRacksShelves == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumRacksNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Facilities to Display Radiological & Digital Images -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Facilities to Display Radiological &amp; Digital Images</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsHaveRadiologyDisplay" value="true" id="museumRadiologyYes"
+                                           @(Model.MuseumsHaveRadiologyDisplay == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumRadiologyYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="MuseumsHaveRadiologyDisplay" value="false" id="museumRadiologyNo"
+                                           @(Model.MuseumsHaveRadiologyDisplay == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumRadiologyNo">NO</label>
+                                </div>
+                            </div>
+
+                            <!-- Teaching Time Sharing Programmed by College -->
+                            <div class="field-group">
+                                <label class="form-label-text required">Teaching Time Sharing Programmed by College</label>
+                                <div class="toggle-group">
+                                    <input class="toggle-pill-input pill-yes" type="radio" name="TeachingTimeSharingProgrammed" value="true" id="museumTimeSharingYes"
+                                           @(Model.TeachingTimeSharingProgrammed == true ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumTimeSharingYes">YES</label>
+                                    <input class="toggle-pill-input pill-no" type="radio" name="TeachingTimeSharingProgrammed" value="false" id="museumTimeSharingNo"
+                                           @(Model.TeachingTimeSharingProgrammed == false ? "checked" : "") />
+                                    <label class="toggle-pill" for="museumTimeSharingNo">NO</label>
+                                </div>
+                            </div>
+
+                            <span class="sub-heading">Museum Seating Area</span>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Seating Capacity per Museum</label>
+                                <input type="number" class="form-control" asp-for="SeatingCapacityPerMuseum" id="museumSeating" placeholder="Min 50" />
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Seating Area Available (Sq.m)</label>
+                                <input type="number" step="0.01" class="form-control" asp-for="SeatingAreaAvailableSqm" id="museumSeatingArea" placeholder="0.00" />
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Required Seating Area (Sq.m) <small style="font-weight:400;text-transform:none;">×1.2</small></label>
+                                <input type="number" class="form-control" asp-for="SeatingAreaRequiredSqm" id="museumRequiredArea" readonly />
+                            </div>
+
+                            <div class="field-group">
+                                <label class="form-label-text required">Seating Area Deficiency (Sq.m)</label>
+                                <input type="number" class="form-control" asp-for="SeatingAreaDeficiencySqm" id="museumDefArea" readonly />
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Footer ── -->
+                <div class="form-footer">
+                   @*  <button type="button" class="btn-prev"
+                            onclick="window.location.href='@Url.Action("Nursing_Institute_Details", "Medical_ContinuousAffiliation")'">
+                        ← Previous
+                    </button> *@
+                    <div class="footer-right">
+                        <button type="submit" class="btn-save" id="btnSave">&#128190; Save</button>
+                        
+                    </div>
+                </div>
+
+            </form>
+        </div><!-- /.form-card -->
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/language.js"></script>
+
+    <script>
+        $(function () {
+
+            /* ── Teaching room area calc ── */
+            const studentCount  = document.getElementById('studentCount');
+            const requiredArea  = document.getElementById('requiredArea');
+            const availableArea = document.getElementById('availableArea');
+            const defArea       = document.getElementById('deficiencyArea');
+            const sumReq        = document.getElementById('summaryRequired');
+            const sumAvail      = document.getElementById('summaryAvailable');
+            const sumDef        = document.getElementById('summaryDeficiency');
+
+            function recalcTeaching() {
+                const s   = parseInt(studentCount?.value)   || 0;
+                const av  = parseFloat(availableArea?.value) || 0;
+                const req = s * 1.2;
+                const def = Math.max(0, req - av);
+                if (requiredArea) requiredArea.value = req.toFixed(2);
+                if (defArea)      defArea.value      = def.toFixed(2);
+                if (sumReq)       sumReq.textContent  = req.toFixed(2);
+                if (sumAvail)     sumAvail.textContent = av.toFixed(2);
+                if (sumDef) {
+                    sumDef.textContent = def.toFixed(2);
+                    sumDef.className   = 'summary-box-value ' + (def > 0 ? 'val-short' : 'val-ok');
+                }
+            }
+            studentCount?.addEventListener('input', recalcTeaching);
+            availableArea?.addEventListener('input', recalcTeaching);
+
+            /* ── Museum area calc ── */
+            const mSeating = document.getElementById('museumSeating');
+            const mArea    = document.getElementById('museumSeatingArea');
+            const mReq     = document.getElementById('museumRequiredArea');
+            const mDef     = document.getElementById('museumDefArea');
+
+            function recalcMuseum() {
+                const s   = parseInt(mSeating?.value)  || 0;
+                const av  = parseFloat(mArea?.value)   || 0;
+                const req = s * 1.2;
+                const def = Math.max(0, req - av);
+                if (mReq) mReq.value = req.toFixed(2);
+                if (mDef) mDef.value = def.toFixed(2);
+            }
+            mSeating?.addEventListener('input', recalcMuseum);
+            mArea?.addEventListener('input', recalcMuseum);
+
+            /* ── Land NO section toggle ── */
+            function toggleLandNo() {
+                const isNo = document.getElementById('landNo')?.checked;
+                document.getElementById('landNoSection').style.display = isNo ? '' : 'none';
+                document.getElementById('budgetSection').style.display  = isNo ? '' : 'none';
+            }
+            document.getElementById('landYes')?.addEventListener('change', toggleLandNo);
+            document.getElementById('landNo')?.addEventListener('change', toggleLandNo);
+            toggleLandNo();
+
+            /* ── Save validation ── */
+            $("#btnSave").on("click", function (e) {
+                e.preventDefault();
+                $(".input-error").removeClass("input-error");
+                $(".section-block").removeClass("error-section");
+
+                let isValid = true;
+                document.querySelectorAll(".form-label-text.required").forEach(label => {
+                    const parent = label.closest(".field-group");
+                    if (!parent) return;
+
+                    const radios = parent.querySelectorAll("input[type='radio']");
+                    if (radios.length) {
+                        if (!Array.from(radios).some(r => r.checked)) {
+                            isValid = false;
+                            parent.closest(".section-block")?.classList.add("error-section");
+                        }
+                        return;
+                    }
+
+                    const input = parent.querySelector("input:not([type='radio']):not([type='checkbox']), select, textarea");
+                    if (input && !input.value.trim()) {
+                        isValid = false;
+                        input.classList.add("input-error");
+                        parent.closest(".section-block")?.classList.add("error-section");
+                    }
+                });
+
+                if (!isValid) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Missing Fields",
+                        text: "Please fill all required fields marked with *",
+                        confirmButtonColor: "#0f2545"
+                    });
+                    const first = document.querySelector(".input-error, .error-section");
+                    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+                    return;
+                }
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Saved Successfully!",
+                    confirmButtonColor: "#1a6b3a",
+                    timer: 2000, timerProgressBar: true
+                }).then(() => { $("form").submit(); });
+            });
+
+            $("#btnNext").on("click", function () {
+                $("#btnSave").click();
+                setTimeout(() => {
+                    if (!$(".input-error").length && !$(".error-section").length) {
+                        window.location.href = '@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")';
+                    }
+                }, 2500);
+            });
+
+            /* ── Initial calc ── */
+            recalcTeaching();
+            recalcMuseum();
+        });
+    </script>
+}
