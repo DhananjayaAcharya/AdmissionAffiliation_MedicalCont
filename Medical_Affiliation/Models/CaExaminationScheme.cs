@@ -20,4 +20,6 @@ public partial class CaExaminationScheme
     public DateTime? CreatedOn { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public virtual CaMstExaminationScheme Scheme { get; set; } = null!;
 }

@@ -1,0 +1,106 @@
+﻿@model Medical_Affiliation.Models.ClinicalHospitalDisplayViewModel
+
+<!-- ===================== CLINICAL HOSPITAL SUMMARY ===================== -->
+
+<div class="general-body ">
+    <div class="section-block mt-4">
+
+        <!-- HEADER -->
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-hospital"></i>
+                Clinical Hospital Summary
+            </div>
+
+            <p class="section-description">
+                Key details and operational statistics of the hospital
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Detail</th>
+                        <th class="text-center">Value / Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (Model != null)
+                    {
+                        <tr>
+                            <td>Hospital Name</td>
+                            <td class="text-center">@Model.HospitalName</td>
+                        </tr>
+
+                        <tr>
+                            <td>Location</td>
+                            <td class="text-center">
+                                @Model.Location, @Model.TalukName, @Model.DistrictName
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Hospital Type</td>
+                            <td class="text-center">@Model.HospitalType</td>
+                        </tr>
+
+                        <tr>
+                            <td>Hospital Owned By</td>
+                            <td class="text-center">@Model.HospitalOwnedBy</td>
+                        </tr>
+
+                        <tr>
+                            <td>Hospital Owner Name</td>
+                            <td class="text-center">@Model.OwnerName</td>
+                        </tr>
+
+                        <tr>
+                            <td>Owner is a Trust Member</td>
+                            <td class="text-center">
+                                @if (Model.IsOwnerAmemberOfTrust)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle"></i> Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        <i class="bi bi-x-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Total Beds</td>
+                            <td class="text-center">@Model.TotalBeds</td>
+                        </tr>
+
+                        <tr>
+                            <td>OPD / Day</td>
+                            <td class="text-center">@Model.OpdPerDay</td>
+                        </tr>
+
+                        <tr>
+                            <td>IPD Occupancy (%)</td>
+                            <td class="text-center">@Model.IpdOccupancyPercent<span>%</span></td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">
+                                Clinical hospital details not available
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

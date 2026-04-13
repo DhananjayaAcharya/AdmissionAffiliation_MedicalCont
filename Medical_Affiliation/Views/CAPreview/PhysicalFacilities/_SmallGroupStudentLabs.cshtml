@@ -1,0 +1,100 @@
+﻿@model SmallGroupStudentLabsDisplayViewModel
+
+@if (Model != null)
+{
+    <div class="general-body">
+
+        <div class="section-block">
+
+            <!-- Section Header -->
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-flask"></i>
+                    Student Practical Laboratories
+                </div>
+
+                <p class="section-description">
+                    Availability and sharing status of student practical laboratories
+                </p>
+            </div>
+
+            <!-- Labs Table -->
+            <div class="data-table-wrapper">
+                <table class="table data-table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Laboratory</th>
+                            <th class="text-center">Available</th>
+                            <th class="text-center">Shared</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Histology</td>
+                            <td class="text-center">@Model.HistologyAvailable</td>
+                            <td class="text-center">@Model.HistologyShared</td>
+                        </tr>
+                        <tr>
+                            <td>Clinical Physiology</td>
+                            <td class="text-center">@Model.ClinicalPhysiologyAvailable</td>
+                            <td class="text-center">@Model.ClinicalPhysiologyShared</td>
+                        </tr>
+                        <tr>
+                            <td>Biochemistry</td>
+                            <td class="text-center">@Model.BiochemistryAvailable</td>
+                            <td class="text-center">@Model.BiochemistryShared</td>
+                        </tr>
+                        <tr>
+                            <td>Histopath / Cytopath</td>
+                            <td class="text-center">@Model.HistopathCytopathAvailable</td>
+                            <td class="text-center">@Model.HistopathCytopathShared</td>
+                        </tr>
+                        <tr>
+                            <td>Clinical Pathology / Hematology</td>
+                            <td class="text-center">@Model.ClinPathHemeAvailable</td>
+                            <td class="text-center">@Model.ClinPathHemeShared</td>
+                        </tr>
+                        <tr>
+                            <td>Microbiology</td>
+                            <td class="text-center">@Model.MicrobiologyAvailable</td>
+                            <td class="text-center">@Model.MicrobiologyShared</td>
+                        </tr>
+                        <tr>
+                            <td>Clinical Pharmacology</td>
+                            <td class="text-center">@Model.ClinicalPharmAvailable</td>
+                            <td class="text-center">@Model.ClinicalPharmShared</td>
+                        </tr>
+                        <tr>
+                            <td>Calculative Pharmacology</td>
+                            <td class="text-center">@Model.CalPharmAvailable</td>
+                            <td class="text-center">@Model.CalPharmShared</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Status Row -->
+            <div class="status-row">
+
+                <div class="status-item @(Model.AllLabsHaveAV ? "yes" : "no")">
+                    <i class="bi @(Model.AllLabsHaveAV ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                    AV facilities available in all labs
+                </div>
+
+                <div class="status-item @(Model.AllLabsHaveInternet ? "yes" : "no")">
+                    <i class="bi @(Model.AllLabsHaveInternet ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                    Internet available in all labs
+                </div>
+
+                <div class="status-item @(Model.TechnicalStaffFacilitiesEnsured ? "yes" : "no")">
+                    <i class="bi @(Model.TechnicalStaffFacilitiesEnsured ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                    Technical staff facilities ensured
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}

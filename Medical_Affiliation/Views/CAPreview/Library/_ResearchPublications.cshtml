@@ -1,0 +1,58 @@
+﻿@model MedicalLibraryDisplayViewModel
+
+@if (Model.ResearchPublicationsDisplayViewModel != null)
+{
+    <div class="general-body">
+        <div class="section-block">
+
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-journal-text"></i>
+                    Research Publications
+                </div>
+            </div>
+            <div class="data-table-wrapper" >
+                <table class="table data-table align-middle">
+                    <tbody>
+                        <tr>
+                            <th>Number of Publications</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.PublicationsNo ?? 0)</td>
+                        </tr>
+                        <tr>
+                            <th>Principal Investigator</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.Pi ?? "—")</td>
+                        </tr>
+                        <tr>
+                            <th>RGUHS Funded Projects</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.RguhsFunded ?? 0)</td>
+                        </tr>
+                        <tr>
+                            <th>Externally Funded Projects</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.ExternalBodyFunding ?? 0)</td>
+                        </tr>
+                        <tr>
+                            <th>Publications Document</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.HasPublicationsPdf ? "Available" : "—")</td>
+                        </tr>
+                        <tr>
+                            <th>Projects Document</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.HasProjectsPdf ? "Available" : "—")</td>
+                        </tr>
+                        <tr>
+                            <th>Clinical Trials Document</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.HasClinicalTrialsPdf ? "Available" : "—")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <p>No research publications data available.</p>
+    </div>
+}

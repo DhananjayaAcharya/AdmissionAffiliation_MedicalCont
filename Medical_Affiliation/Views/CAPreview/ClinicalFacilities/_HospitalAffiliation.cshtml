@@ -1,0 +1,68 @@
+﻿@model HospitalAffiliationCompositeDisplayVM
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+<div class="general-section">
+    <div class="general-header">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h2 class="academic-title academic-badge">
+                        <i class="bi bi-list-check"></i>
+                        Clinical Facilities Requirements
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- 🏥 Hospital Summary -->
+@if (Model.ClinicalHospitalDetails!= null)
+{
+    @await Html.PartialAsync("ClinicalFacilities/_ClinicalHospitalSummary", Model.ClinicalHospitalDetails)
+}
+   
+
+<!-- 🔥 Department-wise Requirements -->
+@if (Model.Sections?.Any() == true)
+{
+    
+
+    @foreach (var deptSection in Model.Sections)
+    {
+        @await Html.PartialAsync("ClinicalFacilities/_DepartmentSection", deptSection)
+    }
+}
+
+<!-- 📄 Hospital Documents -->
+@if (Model.HospitalDocumentsToBeUploadedList?.Any() == true)
+{
+    @await Html.PartialAsync(
+    "ClinicalFacilities/_HospitalDocumentsToBeUploaded",
+        Model.HospitalDocumentsToBeUploadedList)
+}
+
+    <!-- Affiliated Hospital Documents  -->
+@if (Model.AffiliatedHospitalDocuments?.Any() == true)
+{
+    
+    @await Html.PartialAsync(
+        "ClinicalFacilities/_AffiliatedHospitalDocuments",
+        Model.AffiliatedHospitalDocuments)
+}
+
+
+<!-- 🛏 Indoor Beds Occupancy -->
+@if (Model.IndoorBedsOccupancy?.Any() == true)
+{
+    @await Html.PartialAsync(
+    "ClinicalFacilities/_IndoorBedsOccupancy",
+        Model.IndoorBedsOccupancy)
+}
+
+<!-- 👩‍⚕️ Supervision in Field Practice Area -->
+@if (Model.SuperVisionInFPa?.Any() == true)
+{
+    @await Html.PartialAsync(
+    "ClinicalFacilities/_SuperVisionInFieldPractice",
+        Model.SuperVisionInFPa.First())
+}
+
+</div>

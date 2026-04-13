@@ -1,0 +1,54 @@
+﻿@model InstituionBasicDetailsDisplayVM
+
+@if (Model != null && Model.IntakeForCourseVM.Items.Any())
+{
+    <div class="general-body">
+        <div class="section-block">
+
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-journal-check"></i>
+                    Sanctioned Intake Details
+                </div>
+
+                <p class="section-description">
+                    Course-wise sanctioned intake and eligibility details
+                </p>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Course Name</th>
+                            <th class="text-center">Sanctioned Intake</th>
+                            <th class="text-center">Eligible Seat Slab</th>
+                            <th class="text-center">Document</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.IntakeForCourseVM.Items)
+                        {
+                            <tr>
+                                <td>@item.CourseName</td>
+                                <td class="text-center">@item.SanctionedIntake</td>
+                                <td class="text-center">@(item.EligibleSeatSlab ?? "—")</td>
+                                <td class="text-center">
+                                    @(item.HasDocument ? "Available" : "—")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No sanctioned intake details available.</p>
+    </div>
+}

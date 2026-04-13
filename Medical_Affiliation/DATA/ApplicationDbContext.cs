@@ -66,6 +66,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AffiliationOtherCoursesPermittedByNmc> AffiliationOtherCoursesPermittedByNmcs { get; set; }
 
+    public virtual DbSet<AffiliationPayment> AffiliationPayments { get; set; }
+
     public virtual DbSet<AffiliationPgSsCourseDetail> AffiliationPgSsCourseDetails { get; set; }
 
     public virtual DbSet<AffiliationPgSsCourseDetailsForGok> AffiliationPgSsCourseDetailsForGoks { get; set; }
@@ -422,9 +424,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1098,6 +1100,49 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<AffiliationPayment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC071BE3BA8F");
+
+            entity.ToTable("Affiliation_Payment");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode }, "IX_Payment_College_Faculty");
+
+            entity.HasIndex(e => e.TransactionReferenceNo, "UQ_Payment_TransactionReference").IsUnique();
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.PaymentDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.RegistrationNumber)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.SupportingDocument).HasMaxLength(255);
+            entity.Property(e => e.TransactionReferenceNo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.AffiliationPayments)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Payment_AffiliationType");
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.AffiliationPayments)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Payment_College");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.AffiliationPayments)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Payment_Faculty");
+        });
+
         modelBuilder.Entity<AffiliationPgSsCourseDetail>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07EEA3226E");
@@ -1335,6 +1380,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.PassPercentage).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.Remarks).HasMaxLength(500);
+
+            entity.HasOne(d => d.YearOfStudy).WithMany(p => p.CaAcademicPerformances)
+                .HasForeignKey(d => d.YearOfStudyId)
+                .HasConstraintName("FK_AcademicPerformance_Year");
         });
 
         modelBuilder.Entity<CaCourseCurriculum>(entity =>
@@ -1350,6 +1399,11 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.CurriculumPdfPath).HasMaxLength(500);
             entity.Property(e => e.PdfFileName).HasMaxLength(200);
+
+            entity.HasOne(d => d.Curriculum).WithMany(p => p.CaCourseCurricula)
+                .HasForeignKey(d => d.CurriculumId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CourseCurriculum_Master");
         });
 
         modelBuilder.Entity<CaCourseDetailsInFinancialDetail>(entity =>
@@ -1402,6 +1456,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Scheme).WithMany(p => p.CaExaminationSchemes)
+                .HasForeignKey(d => d.SchemeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ExamScheme_Scheme");
         });
 
         modelBuilder.Entity<CaFinancialDetail>(entity =>
@@ -2034,8 +2093,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.IsMaintained).HasMaxLength(10);
             entity.Property(e => e.RegisterRecord).HasMaxLength(20);
+
+            entity.HasOne(d => d.RegisterRecordNavigation).WithMany(p => p.CaStudentRegisterRecords)
+                .HasForeignKey(d => d.RegisterRecordId)
+                .HasConstraintName("FK_StudentRegister_Record");
         });
 
         modelBuilder.Entity<CaVehicleDetail>(entity =>

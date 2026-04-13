@@ -1,0 +1,46 @@
+﻿@model InstituionBasicDetailsDisplayVM
+
+@if (Model?.AffCoursesVM.Items != null && Model.AffCoursesVM.Items.Any())
+{
+    <div class="general-body">
+        <div class="section-block">
+
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-mortarboard"></i>
+                    Affiliated Courses
+                </div>
+            </div>
+            <div class="data-table-wrapper">
+
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Course Name</th>
+                            <th class="text-center">Recognized</th>
+                            <th>RGUHS Notification No</th>
+                            <th class="text-center">Document</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.AffCoursesVM.Items)
+                        {
+                            <tr>
+                                <td>@item.CourseName</td>
+                                <td class="text-center">@((item.IsRecognized) ? "Yes" : "No")</td>
+                                <td>@(item.RguhsNotificationNo ?? "—")</td>
+                                <td class="text-center">@((item.HasDocument) ? "Available" : "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        No affiliated courses data available.
+    </div>
+}

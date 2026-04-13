@@ -12,4 +12,6 @@ public partial class CaMstCourseCurriculum
     public bool? IsActive { get; set; }
 
     public DateTime? CreatedOn { get; set; }
+
+    public virtual ICollection<CaCourseCurriculum> CaCourseCurricula { get; set; } = new List<CaCourseCurriculum>();
 }

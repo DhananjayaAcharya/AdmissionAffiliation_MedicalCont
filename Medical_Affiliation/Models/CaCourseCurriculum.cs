@@ -26,4 +26,6 @@ public partial class CaCourseCurriculum
     public string? CurriculumPdfPath { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public virtual CaMstCourseCurriculum Curriculum { get; set; } = null!;
 }

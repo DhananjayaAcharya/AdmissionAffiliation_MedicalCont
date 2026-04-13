@@ -1,0 +1,21 @@
+﻿@model MedicalLibraryDisplayViewModel
+
+
+@if (Model != null)
+{
+    <div id="library-services">
+        @await Html.PartialAsync("Library/_LibraryServices", Model)
+        @await Html.PartialAsync("Library/_LibraryCommitteePreview", Model)
+        @await Html.PartialAsync("Library/_LibraryGeneralPreview", Model)
+        @await Html.PartialAsync("Library/_LibraryItems", Model)
+        @await Html.PartialAsync("Library/_LibraryBuildingDetails", Model)
+        @await Html.PartialAsync("Library/_LibraryTechnicalProcess", Model)
+        @await Html.PartialAsync("Library/_LibraryFinance", Model)
+        @await Html.PartialAsync("Library/_LibraryEquipment", Model)
+        @await Html.PartialAsync("Library/_ResearchPublications", Model)
+    </div>
+    @* <div id="library-committee">
+    </div>
+    <div id="library-general">
+    </div> *@
+}

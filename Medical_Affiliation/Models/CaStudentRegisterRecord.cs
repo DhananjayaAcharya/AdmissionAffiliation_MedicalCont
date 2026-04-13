@@ -15,11 +15,13 @@ public partial class CaStudentRegisterRecord
 
     public int? RegisterRecordId { get; set; }
 
-    public string? IsMaintained { get; set; }
+    public bool? IsMaintained { get; set; }
 
     public DateTime? CreatedOn { get; set; }
 
     public string? CourseLevel { get; set; }
 
     public string? RegisterRecord { get; set; }
+
+    public virtual CaMstRegisterRecord? RegisterRecordNavigation { get; set; }
 }

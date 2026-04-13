@@ -1,0 +1,73 @@
+﻿@model LaboratoryEquipmentDisplayViewModel
+
+@if (Model?.Courses != null && Model.Courses.Any())
+{
+        <!-- Body -->
+    <div class="general-body">
+
+        @foreach (var course in Model.Courses)
+        {
+            @foreach (var subject in course.Subjects)
+            {
+                <div class="section-block">
+
+                    <!-- Subject Header -->
+                    <div class="section-title-text department-badge mb-2">
+                        <i class="bi bi-journal-medical"></i>
+                        @subject.Subject
+                        <span class="count-badge ms-2">
+                            @subject.Equipments.Count Equipment
+                        </span>
+                    </div>
+
+                    <div class="data-table-wrapper mb-3">
+                        <table class="table data-table requirements-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Equipment</th>
+                                    <th class="text-center">Required</th>
+                                    <th class="text-center">Available</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in subject.Equipments)
+                                {
+                                    <tr>
+                                        <td>@item.EquipmentName</td>
+                                        <td class="text-center">@item.RequiredAsPerNorm</td>
+                                        <td class="text-center">@(item.IsAvailable ? "Yes" : "No")</td>
+                                        <td class="text-center">@(item.AvailableQuantity ?? 0)</td>
+                                        <td class="text-center">
+                                            @if (!item.IsAvailable)
+                                            {
+                                                <span class="status-badge-not-maintained">Not Available</span>
+                                            }
+                                            else if (item.IsDeficient)
+                                            {
+                                                <span class="status-badge-not-maintained">Deficient</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge-maintained">Adequate</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            }
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No laboratory equipment data available.</p>
+    </div>
+}
