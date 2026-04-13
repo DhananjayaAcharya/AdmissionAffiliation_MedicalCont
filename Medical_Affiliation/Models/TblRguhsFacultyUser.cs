@@ -17,6 +17,8 @@ public partial class TblRguhsFacultyUser
 
     public bool IsActive { get; set; }
 
+    public bool? IsSection { get; set; }
+
     public int? Faculty { get; set; }
 
     public bool? IsFinance { get; set; }
@@ -24,6 +26,4 @@ public partial class TblRguhsFacultyUser
     public string? FinanceDesignation { get; set; }
 
     public string? DesignationDescription { get; set; }
-
-    public bool? IsSection { get; set; }
 }

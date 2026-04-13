@@ -342,8 +342,8 @@ public class InstitutionViewModel
     public string StatusOfCollege { get; set; }
     public string CourseApplied { get; set; }
 
-    public string DocumentName { get; set; }
-    public string DocumentContentType { get; set; }
+    public string? DocumentName { get; set; }
+    public string? DocumentContentType { get; set; }
     // DocumentData will be handled via IFormFile in controller, not in ViewModel
 
     public string NodalOfficer_Name { get; set; }

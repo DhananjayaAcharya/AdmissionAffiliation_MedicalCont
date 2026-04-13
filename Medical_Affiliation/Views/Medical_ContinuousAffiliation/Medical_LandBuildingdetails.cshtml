@@ -696,8 +696,8 @@
                                 <label class="form-label-text required">Space available for future expansion</label>
                                 <select class="form-select" asp-for="HasFutureExpansionSpace">
                                     <option value="">— Select —</option>
-                                    <option value="true">YES</option>
-                                    <option value="false">NO</option>
+                                    <option value="true" selected="@(Model?.HasFutureExpansionSpace == true)">YES</option>
+                                    <option value="false" selected="@(Model?.HasFutureExpansionSpace == false)">NO</option>
                                 </select>
                                 <span asp-validation-for="HasFutureExpansionSpace" class="text-danger"></span>
                             </div>
@@ -732,6 +732,7 @@
                     <div class="section-block-body">
                         <div class="field-grid g-3">
 
+                            <!-- Building as per Council Norms (Toggle - Already Good) -->
                             <div class="field-group" style="grid-column: span 3;">
                                 <label class="form-label-text required">Building available as per council norms</label>
                                 <div class="toggle-group">
@@ -743,44 +744,53 @@
                                 <span asp-validation-for="IsBuildingAsPerCouncilNorms" class="text-danger"></span>
                             </div>
 
+                            <!-- Land Ownership - FIXED -->
                             <div class="field-group">
                                 <label class="form-label-text required">Land Ownership</label>
                                 <select class="form-select" asp-for="LandOwnershipType">
                                     <option value="">— Select —</option>
-                                    <option>Owned</option>
-                                    <option>Lease</option>
-                                    <option>Rent</option>
+                                    <option value="Owned" selected="@(Model?.LandOwnershipType == "Owned")">Owned</option>
+                                    <option value="Lease" selected="@(Model?.LandOwnershipType == "Lease")">Lease</option>
+                                    <option value="Rent" selected="@(Model?.LandOwnershipType == "Rent")">Rent</option>
                                 </select>
+                                <span asp-validation-for="LandOwnershipType" class="text-danger"></span>
                             </div>
 
+                            <!-- Building Ownership - FIXED -->
                             <div class="field-group">
                                 <label class="form-label-text required">Building Ownership</label>
                                 <select class="form-select" asp-for="BuildingOwnershipType">
                                     <option value="">— Select —</option>
-                                    <option>Owned</option>
-                                    <option>Lease</option>
-                                    <option>Rent</option>
+                                    <option value="Owned" selected="@(Model?.BuildingOwnershipType == "Owned")">Owned</option>
+                                    <option value="Lease" selected="@(Model?.BuildingOwnershipType == "Lease")">Lease</option>
+                                    <option value="Rent" selected="@(Model?.BuildingOwnershipType == "Rent")">Rent</option>
                                 </select>
+                                <span asp-validation-for="BuildingOwnershipType" class="text-danger"></span>
                             </div>
 
+                            <!-- Other fields remain the same -->
                             <div class="field-group">
                                 <label class="form-label-text required">Floor Area (Sq.ft)</label>
                                 <input type="number" class="form-control" asp-for="FloorAreaSqFt" placeholder="0" />
+                                <span asp-validation-for="FloorAreaSqFt" class="text-danger"></span>
                             </div>
 
                             <div class="field-group">
                                 <label class="form-label-text required">No. of Blocks</label>
                                 <input type="number" class="form-control" asp-for="NumberOfBlocks" placeholder="0" />
+                                <span asp-validation-for="NumberOfBlocks" class="text-danger"></span>
                             </div>
 
                             <div class="field-group">
                                 <label class="form-label-text required">No. of Floors</label>
                                 <input type="number" class="form-control" asp-for="NumberOfFloors" placeholder="0" />
+                                <span asp-validation-for="NumberOfFloors" class="text-danger"></span>
                             </div>
 
                             <div class="field-group">
                                 <label class="form-label-text required">Year of Construction</label>
                                 <input type="number" class="form-control" asp-for="YearOfConstruction" placeholder="YYYY" />
+                                <span asp-validation-for="YearOfConstruction" class="text-danger"></span>
                             </div>
 
                             <div class="field-group" style="grid-column: span 3;">
@@ -861,69 +871,80 @@
                                 <span asp-validation-for="CommitteeRoomsAreaSqFt" class="text-danger"></span>
                             </div>
 
+                           
+
                             <span class="sub-heading">Facilities Availability</span>
 
-                            <div class="field-group">
-                                <label class="form-label-text">Examination Hall</label>
-                                <select class="form-select" asp-for="ExaminationHallAvailable">
-                                    <option value="">— Select —</option>
-                                    <option value="true">YES</option>
-                                    <option value="false">NO</option>
-                                </select>
-                                <span asp-validation-for="ExaminationHallAvailable" class="text-danger"></span>
-                            </div>
-                            <div class="field-group">
-                                <label class="form-label-text">Animal House</label>
-                                <select class="form-select" asp-for="AnimalHouseAvailable">
-                                    <option value="">— Select —</option>
-                                    <option value="true">YES</option>
-                                    <option value="false">NO</option>
-                                </select>
-                                <span asp-validation-for="AnimalHouseAvailable" class="text-danger"></span>
-                            </div>
-                            <div class="field-group">
-                                <label class="form-label-text">Common Room — Men Students</label>
-                                <select class="form-select" asp-for="CommonRoomMenAvailable">
-                                    <option value="">— Select —</option>
-                                    <option value="true">YES</option>
-                                    <option value="false">NO</option>
-                                </select>
-                                <span asp-validation-for="CommonRoomMenAvailable" class="text-danger"></span>
-                            </div>
-                            <div class="field-group">
-                                <label class="form-label-text">Common Room — Lady Students</label>
-                                <select class="form-select" asp-for="CommonRoomWomenAvailable">
-                                    <option value="">— Select —</option>
-                                    <option value="true">YES</option>
-                                    <option value="false">NO</option>
-                                </select>
-                                <span asp-validation-for="CommonRoomWomenAvailable" class="text-danger"></span>
-                            </div>
-                            <div class="field-group">
-                                <label class="form-label-text">Students Hostel</label>
-                                <select class="form-select" asp-for="StudentHostelAvailable">
-                                    <option value="">— Select —</option>
-                                    <option value="true">YES</option>
-                                    <option value="false">NO</option>
-                                </select>
-                                <span asp-validation-for="StudentHostelAvailable" class="text-danger"></span>
-                            </div>
-                            <div class="field-group">
-                                <label class="form-label-text">Registered under Anatomy Act 1969</label>
-                                <select class="form-select" asp-for="RegisteredUnderAnatomyAct">
-                                    <option value="">— Select —</option>
-                                    <option value="true">YES</option>
-                                    <option value="false">NO</option>
-                                </select>
-                                <span asp-validation-for="RegisteredUnderAnatomyAct" class="text-danger"></span>
-                            </div>
+                            
+
+                                <div class="field-group">
+                                    <label class="form-label-text">Examination Hall</label>
+                                    <select class="form-select" asp-for="ExaminationHallAvailable">
+                                        <option value="">— Select —</option>
+                                        <option value="true" selected="@(Model?.ExaminationHallAvailable == true)">YES</option>
+                                        <option value="false" selected="@(Model?.ExaminationHallAvailable == false)">NO</option>
+                                    </select>
+                                    <span asp-validation-for="ExaminationHallAvailable" class="text-danger"></span>
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="form-label-text">Animal House</label>
+                                    <select class="form-select" asp-for="AnimalHouseAvailable">
+                                        <option value="">— Select —</option>
+                                        <option value="true" selected="@(Model?.AnimalHouseAvailable == true)">YES</option>
+                                        <option value="false" selected="@(Model?.AnimalHouseAvailable == false)">NO</option>
+                                    </select>
+                                    <span asp-validation-for="AnimalHouseAvailable" class="text-danger"></span>
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="form-label-text">Common Room — Men Students</label>
+                                    <select class="form-select" asp-for="CommonRoomMenAvailable">
+                                        <option value="">— Select —</option>
+                                        <option value="true" selected="@(Model?.CommonRoomMenAvailable == true)">YES</option>
+                                        <option value="false" selected="@(Model?.CommonRoomMenAvailable == false)">NO</option>
+                                    </select>
+                                    <span asp-validation-for="CommonRoomMenAvailable" class="text-danger"></span>
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="form-label-text">Common Room — Lady Students</label>
+                                    <select class="form-select" asp-for="CommonRoomWomenAvailable">
+                                        <option value="">— Select —</option>
+                                        <option value="true" selected="@(Model?.CommonRoomWomenAvailable == true)">YES</option>
+                                        <option value="false" selected="@(Model?.CommonRoomWomenAvailable == false)">NO</option>
+                                    </select>
+                                    <span asp-validation-for="CommonRoomWomenAvailable" class="text-danger"></span>
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="form-label-text">Students Hostel</label>
+                                    <select class="form-select" asp-for="StudentHostelAvailable">
+                                        <option value="">— Select —</option>
+                                        <option value="true" selected="@(Model?.StudentHostelAvailable == true)">YES</option>
+                                        <option value="false" selected="@(Model?.StudentHostelAvailable == false)">NO</option>
+                                    </select>
+                                    <span asp-validation-for="StudentHostelAvailable" class="text-danger"></span>
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="form-label-text">Registered under Anatomy Act 1969</label>
+                                    <select class="form-select" asp-for="RegisteredUnderAnatomyAct">
+                                        <option value="">— Select —</option>
+                                        <option value="true" selected="@(Model?.RegisteredUnderAnatomyAct == true)">YES</option>
+                                        <option value="false" selected="@(Model?.RegisteredUnderAnatomyAct == false)">NO</option>
+                                    </select>
+                                    <span asp-validation-for="RegisteredUnderAnatomyAct" class="text-danger"></span>
+                                </div>
+
+                            
 
                             <span class="sub-heading">Staff Quarters</span>
 
                             <div class="field-group">
                                 <label class="form-label-text">Principal Residential Quarter</label>
                                 <select class="form-select" asp-for="StaffQuartersPrincipal">
-                                    <option value="">— Select —</option>
+                                   
                                     <option value="true">YES</option>
                                     <option value="false">NO</option>
                                 </select>
@@ -932,7 +953,7 @@
                             <div class="field-group">
                                 <label class="form-label-text">Other Staff Quarters</label>
                                 <select class="form-select" asp-for="StaffQuartersOtherStaff">
-                                    <option value="">— Select —</option>
+                                  
                                     <option value="true">YES</option>
                                     <option value="false">NO</option>
                                 </select>
@@ -941,7 +962,7 @@
                             <div class="field-group">
                                 <label class="form-label-text">Teaching &amp; Ancillary Staff Quarters</label>
                                 <select class="form-select" asp-for="StaffQuartersTeachingAncillary">
-                                    <option value="">— Select —</option>
+                                 
                                     <option value="true">YES</option>
                                     <option value="false">NO</option>
                                 </select>

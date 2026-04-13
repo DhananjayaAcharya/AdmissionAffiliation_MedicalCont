@@ -330,9 +330,13 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             var record = await _context.MedCaAccountAndFeeDetails
-                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode);
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            x.CourseLevel == courseLevel);
 
             if (record == null) return NotFound();
 

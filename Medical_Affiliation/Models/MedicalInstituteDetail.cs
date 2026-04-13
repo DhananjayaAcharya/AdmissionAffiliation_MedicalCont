@@ -13,6 +13,10 @@ public partial class MedicalInstituteDetail
 
     public string InstituteName { get; set; } = null!;
 
+    public string? Taluk { get; set; }
+
+    public string? District { get; set; }
+
     public string? TrustSocietyName { get; set; }
 
     public string? YearOfEstablishmentOfTrust { get; set; }
@@ -44,8 +48,4 @@ public partial class MedicalInstituteDetail
     public byte[]? EshtablishmentDoc { get; set; }
 
     public byte[]? TrustDoc { get; set; }
-
-    public string? District { get; set; }
-
-    public string? Taluk { get; set; }
 }

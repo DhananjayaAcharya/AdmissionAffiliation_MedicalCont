@@ -17,9 +17,18 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // 🔹 MVC + Localization
-builder.Services.AddControllersWithViews()
-    .AddViewLocalization()
-    .AddDataAnnotationsLocalization();
+//builder.Services.AddControllersWithViews()
+//    .AddViewLocalization()
+//    .AddDataAnnotationsLocalization();
+
+builder.Services.AddScoped<AutoProgressFilter>();   // ✅ ADD THIS
+
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<AutoProgressFilter>();      // ✅ ADD THIS
+})
+.AddViewLocalization()
+.AddDataAnnotationsLocalization();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
@@ -45,6 +54,12 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IUserContext, SessionUserContext>();
+builder.Services.AddScoped<LicTadaService>();
 // =============================================
 // 🔥 DATA PROTECTION
 // =============================================

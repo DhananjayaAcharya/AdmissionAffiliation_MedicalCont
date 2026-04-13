@@ -13,18 +13,21 @@
         <input type="hidden" asp-for="Form.AffiliationType" />
 
         <div class="row g-3">
-            @if(Model.Form.FacultyCode == "3")
+            @if (Model.Form.FacultyCode == "3")
             {
-            <div class="col-md-3">
-                <label class="required">Parent Medical College Exists</label>
-                <select asp-for="Form.ParentMedicalCollegeExists" class="form-select">
-                    <option value="">Select</option>
-                    @foreach (var i in Model.ParentMedicalCollegeExistsOptions)
-                    {
-                        <option value="@i.Value">@i.Text</option>
-                    }
-                </select>
-            </div>
+                <div class="col-md-3">
+                    <label class="required">Parent Medical College Exists</label>
+                    <select asp-for="Form.ParentMedicalCollegeExists" class="form-select">
+                        <option value="">Select</option>
+                        @foreach (var i in Model.ParentMedicalCollegeExistsOptions)
+                        {
+                            <option value="@i.Value"
+                                    selected="@(Model.Form.ParentMedicalCollegeExists?.ToString() == i.Value)">
+                                @i.Text
+                            </option>
+                        }
+                    </select>
+                </div>
             }
 
             <div class="col-md-3">
@@ -33,7 +36,10 @@
                     <option value="">Select</option>
                     @foreach (var i in Model.HospitalTypes)
                     {
-                        <option value="@i.Value">@i.Text</option>
+                        <option value="@i.Value"
+                                selected="@(Model.Form.HospitalType?.ToString() == i.Value)">
+                            @i.Text
+                        </option>
                     }
                 </select>
             </div>
@@ -42,13 +48,17 @@
                 <label class="required">Hospital Name</label>
                 <input asp-for="Form.HospitalName" class="form-control" placeholder="Enter Hospital name" />
             </div>
+
             <div class="col-6">
                 <label class="required">Hospital Owned By</label>
                 <select asp-for="Form.HospitalOwnedBy" class="form-select">
                     <option value="">Select</option>
                     @foreach (var i in Model.HospitalOwnedByOptions)
                     {
-                        <option value="@i.Value">@i.Text</option>
+                        <option value="@i.Value"
+                                selected="@(Model.Form.HospitalOwnedBy?.ToString() == i.Value)">
+                            @i.Text
+                        </option>
                     }
                 </select>
             </div>
@@ -64,7 +74,10 @@
                     <option value="">Select</option>
                     @foreach (var d in Model.Districts)
                     {
-                        <option value="@d.Value">@d.Text</option>
+                        <option value="@d.Value"
+                                selected="@(Model.Form.HospitalDistrictId?.ToString() == d.Value)">
+                            @d.Text
+                        </option>
                     }
                 </select>
             </div>
@@ -75,7 +88,11 @@
                     <option value="">Select</option>
                     @foreach (var t in Model.Taluks)
                     {
-                        <option value="@t.TalukID" data-district="@t.DistrictID">@t.TalukName</option>
+                        <option value="@t.TalukID"
+                                data-district="@t.DistrictID"
+                                selected="@(Model.Form.HospitalTalukId == t.TalukID)">
+                            @t.TalukName
+                        </option>
                     }
                 </select>
             </div>
@@ -86,10 +103,14 @@
                     <option value="">Select</option>
                     @foreach (var l in Model.Locations)
                     {
-                        <option value="@l">@l</option>
+                        <option value="@l"
+                                selected="@(Model.Form.Location == l)">
+                            @l
+                        </option>
                     }
                 </select>
             </div>
+
             @if (Model.Form.FacultyCode == "3")
             {
                 <div class="col-md-6">
@@ -100,7 +121,10 @@
                         <option value="">Select</option>
                         @foreach (var i in Model.IsParentHospitalForOtherNursingInstitutionOptions)
                         {
-                            <option value="@i.Value">@i.Text</option>
+                            <option value="@i.Value"
+                                    selected="@(Model.Form.IsParentHospitalForOtherNursingInstitution?.ToString() == i.Value)">
+                                @i.Text
+                            </option>
                         }
                     </select>
                 </div>
@@ -108,13 +132,11 @@
 
             <div class="col-md-6" id="supportingDocSection" style="display: @(Model.Form.IsParentHospitalForOtherNursingInstitution == true ? "block" : "none")">
                 <label class="support d-block">Supporting Document (if parent hospital)</label>
-                @* <input asp-for="IsSupportingDocExists" type="file" class="form-control" /> *@
                 <input asp-for="SupportingDoc"
                        type="file"
                        class="supporting-doc"
                        id="supportingDocInput"
                        style="display:none;" />
-
                 <button type="button"
                         class="btn btn-sm btn-outline-primary choose-supporting-file">
                     Upload
@@ -129,7 +151,6 @@
                     </a>
                 </div>
             }
-
         </div>
 
         <div class="text-center mt-3">
