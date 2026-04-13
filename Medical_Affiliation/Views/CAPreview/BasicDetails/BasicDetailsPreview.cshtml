@@ -1,0 +1,55 @@
+﻿@model InstituionBasicDetailsDisplayVM
+
+<div class="general-section">
+    <div class="general-header">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h2 class="academic-title academic-badge">Basic Details</h2>
+                </div>
+
+                <a class="edit-button"
+                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode })">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    @if (Model != null)
+    {
+        <div id="trust-members">
+            @await Html.PartialAsync("BasicDetails/_TrustMembersDetails", Model)
+        </div>
+    }
+    @if (Model != null)
+    {
+        <div id="Sanctioned-intake">
+            @await Html.PartialAsync("BasicDetails/_AffiliatedSanctionedIntake", Model)
+        </div>
+    }
+    @if (Model != null)
+    {
+        <div id="course-intake">
+            @await Html.PartialAsync("BasicDetails/_AffCourseDetails", Model)
+        </div>
+    }
+    @if (Model != null)
+    {
+        <div id="ug-intake">
+            @await Html.PartialAsync("BasicDetails/_AffiliatedUgCourseDetails", Model)
+        </div>
+    }
+    @if (Model != null)
+    {
+        <div id="ug-intake">
+            @await Html.PartialAsync("BasicDetails/_DeanOrDirectorDetails", Model)
+        </div>
+    }
+    @if (Model != null)
+    {
+        <div id="ug-intake">
+            @await Html.PartialAsync("BasicDetails/_PrincipalDetails", Model)
+        </div>
+    }
+</div>

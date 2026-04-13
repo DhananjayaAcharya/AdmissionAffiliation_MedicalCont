@@ -1,10 +1,10 @@
-﻿//using Medical_Affiliation.Models;
+﻿using Medical_Affiliation.Models;
 
-//namespace Medical_Affiliation.Services.Interfaces
-//{
-//    public interface ICAHospitalAffiliationService
-//    {
-//        Task<HospitalAffiliationCompositeDisplayVM> GetHospitalAffiliationAsync();
-//    }
+namespace Medical_Affiliation.Services.Interfaces
+{
+    public interface ICAHospitalAffiliationService
+    {
+        Task<HospitalAffiliationCompositeDisplayVM> GetHospitalAffiliationAsync();
+    }
 
-//}
+}

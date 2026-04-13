@@ -1,0 +1,60 @@
+﻿@model List<Medical_Affiliation.Models.FacultyDetailDisplayVM>
+
+<div class="general-body">
+    <div class="section-block">
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge">
+                <i class="bi bi-people"></i>
+                Faculty Details
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Designation</th>
+                            <th>Course</th>
+                            <th>PG Teacher</th>
+                            <th>PhD Teacher</th>
+                            <th>Litigation</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>Documents</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.NameOfFaculty</td>
+                                <td>@item.Designation</td>
+                                <td>@(item.Course ?? "—")</td>
+                                <td>@(item.RecognizedPgTeacher ?? "—")</td>
+                                <td>@(item.RecognizedPhDteacher ?? "—")</td>
+                                <td>@(item.LitigationPending ?? "—")</td>
+                                <td>@item.Mobile</td>
+                                <td>@item.Email</td>
+                                <td>
+                                    @(item.HasGuideRecognitionDoc ? "Guide " : "")
+                                    @(item.HasPhDRecognitionDoc ? "PhD " : "")
+                                    @(item.HasLitigationDoc ? "Litigation" : "—")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No faculty details available.</p>
+            </div>
+        }
+    </div>
+</div>

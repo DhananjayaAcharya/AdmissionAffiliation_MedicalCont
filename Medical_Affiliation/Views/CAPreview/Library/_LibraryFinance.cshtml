@@ -1,0 +1,39 @@
+﻿@model MedicalLibraryDisplayViewModel
+
+<!-- ===================== LIBRARY FINANCE DETAILS ===================== -->
+<div class="general-body">
+    <div class="section-block">
+
+        <!-- HEADER -->
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-cash-stack"></i>
+                Library Finance
+            </div>
+
+            <p class="section-description">
+                Budget allocation and expenditure for library resources
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table table-bordered align-middle">
+                <tbody>
+                    <tr>
+                        <td>Total Budget (in Lakhs)</td>
+                        <td class="text-end">
+                            @(Model.LibraryFinancVM.TotalBudgetLakhs.HasValue ? $"₹{Model.LibraryFinancVM.TotalBudgetLakhs.Value:N2}" : "—")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Expenditure on Books (in Lakhs)</td>
+                        <td class="text-end">
+                            @(Model.LibraryFinancVM.ExpenditureBooksLakhs.HasValue ? $"₹{Model.LibraryFinancVM.ExpenditureBooksLakhs.Value:N2}" : "—")
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

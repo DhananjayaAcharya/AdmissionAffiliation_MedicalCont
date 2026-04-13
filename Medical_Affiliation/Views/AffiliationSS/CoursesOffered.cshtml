@@ -353,8 +353,132 @@
 
     </div>
 
-    @section Scripts {
+   @*  @section Scripts {
         <partial name="_ValidationScriptsPartial" />
+    } *@
+
+    @*
+        Changes by ram on 09/04/2026- shows only SS, any number of rows can be saved, commented below 
+        is the code, currently one more condition for this current code (below) 
+        admitted, sanctioned logic is active the code
+    *@
+
+    @* @section Scripts {
+      
+
+        <script>
+            $("form").submit(function (e) {
+
+                var isValid = true;
+
+                $("tbody tr").each(function () {
+
+                    var admitted = $(this).find("input[name*='Admitted']").val();
+                    var year = $(this).find("input[name*='YearOfStarting']").val();
+                    var remarks = $(this).find("textarea[name*='Remarks']").val();
+
+                    // 👉 check if row has ANY data
+                    var isRowStarted = admitted || year || remarks;
+
+                    // ✅ CASE 1: empty row → ignore
+                    if (!isRowStarted) {
+                        $(this).find("input, textarea").each(function () {
+                            $(this).removeAttr("data-val");
+                            $(this).removeAttr("data-val-required");
+                        });
+                    }
+                    else {
+                        // ❌ CASE 2: partially filled → block save
+                        if (!admitted || !year || !remarks) {
+                            isValid = false;
+
+                            // highlight row
+                            $(this).css("background", "#fff3cd");
+
+                            // focus first empty field
+                            if (!admitted) {
+                                $(this).find("input[name*='Admitted']").focus();
+                            } else if (!year) {
+                                $(this).find("input[name*='YearOfStarting']").focus();
+                            } else if (!remarks) {
+                                $(this).find("textarea[name*='Remarks']").focus();
+                            }
+
+                            return false; // stop loop
+                        }
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault(); // ❌ stop submit
+                }
+            });
+        </script>
+    } *@
+
+   @*  adding admitted, sanctioned validation to above code *@
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+                        $("form").submit(function (e) {
+
+                var isValid = true;
+
+                $("tbody tr").each(function () {
+
+                    // ✅ Get course name (CORRECT COLUMN)
+                    var courseName = $(this).find("td:eq(0)").text().trim();
+
+                    var sanctioned = $(this).find("input[name*='Sanctioned']").val();
+                    var admitted = $(this).find("input[name*='Admitted']").val();
+                    var year = $(this).find("input[name*='YearOfStarting']").val();
+                    var remarks = $(this).find("textarea[name*='Remarks']").val();
+
+                    sanctioned = parseInt(sanctioned) || 0;
+                    admitted = parseInt(admitted) || 0;
+
+                    var isRowStarted = admitted || year || remarks;
+
+                    if (!isRowStarted) return true;
+
+                    // ❌ Row incomplete
+                    if (!admitted || !year || !remarks) {
+
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Incomplete Entry',
+                            text: `Please complete all fields for "${courseName}".`,
+                            confirmButtonColor: '#1a4c8b'
+                        });
+
+                        isValid = false;
+                        return false;
+                    }
+
+                    // ❌ Admitted > Sanctioned
+                    if (admitted > sanctioned) {
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Input',
+                            text: `For "${courseName}", admitted value must not be greater than sanctioned value.Please enter the correct values to proceed.`,
+                            confirmButtonColor: '#c0392b'
+                        });
+
+                        $(this).find("input[name*='Admitted']").focus();
+                        isValid = false;
+
+                        return false;
+                    }
+
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+        </script>
     }
 
 </body>

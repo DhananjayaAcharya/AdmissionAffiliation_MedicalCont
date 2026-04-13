@@ -15,6 +15,8 @@ public partial class Faculty
 
     public string? Status { get; set; }
 
+    public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();
+
     public virtual ICollection<HealthCenterChp> HealthCenterChps { get; set; } = new List<HealthCenterChp>();
 
     public virtual ICollection<HospitalDocumentDetail> HospitalDocumentDetails { get; set; } = new List<HospitalDocumentDetail>();

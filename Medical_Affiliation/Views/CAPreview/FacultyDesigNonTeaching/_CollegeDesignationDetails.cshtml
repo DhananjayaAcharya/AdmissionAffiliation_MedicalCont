@@ -1,0 +1,65 @@
+﻿@model List<Medical_Affiliation.Models.CollegeDesignationDepartmentGroupVM>
+
+<div class="general-body">
+    <div class="section-block">
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge">
+                <i class="bi bi-people"></i>
+                Designation & Intake Details
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th class="text-center">Required Intake</th>
+                            <th class="text-center">Available Intake</th>
+                            <th class="text-center">Seat Slab</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in Model)
+                        {
+                            bool firstRow = true;
+
+                            foreach (var item in group.Designations)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (firstRow)
+                                        {
+                                            <strong>@(group.Department ?? "—")</strong>
+                                        }
+                                        else
+                                        {
+                                            @:&nbsp;
+                                        }
+                                    </td>
+
+                                    <td>@item.Designation</td>
+                                    <td class="text-center">@item.RequiredIntake</td>
+                                    <td class="text-center">@item.AvailableIntake</td>
+                                    <td class="text-center">@(item.SeatSlab.ToString() ?? "—")</td>
+                                </tr>
+
+                                firstRow = false;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No designation details available.</p>
+            </div>
+        }
+    </div>
+</div>

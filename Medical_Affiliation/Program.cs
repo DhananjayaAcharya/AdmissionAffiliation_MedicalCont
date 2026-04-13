@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,8 @@ builder.Services.AddControllersWithViews(options =>
 .AddDataAnnotationsLocalization();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -74,6 +77,23 @@ builder.Services.AddDataProtection()
 // 🔹 HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<LicTadaService>();
+builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();
+//builder.Services.AddScoped<IFacultyHospitalHandler, NursingHospitalHandler>();
+builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
+builder.Services.AddScoped<ICALibraryService, CALibraryService>();
+builder.Services.AddScoped<ICAVehicleService, CAVehicleService>();
+builder.Services.AddScoped<ICAHospitalAffiliationService, CAHospitalAffiliationService>();
+builder.Services.AddScoped<ICALandClassEquipmentService, CALandAndEquipmentService>();
+builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
+builder.Services.AddScoped<ICAFinanceService, CAFinanceService>();
+builder.Services.AddScoped<ICAAdminTeachAndHostel, CAAdminTeachAndHostelService>();
+builder.Services.AddScoped<ICAFacultyDesigNonTeaching, CAFacultyDesigNonTeachingService>();
+builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+builder.Services.AddScoped<IUserContext, SessionUserContext>();
+builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
 
 // =============================================
 // 🔥 AUTHENTICATION - DYNAMIC COOKIE PATH (Fixed for Local + Server)
@@ -167,6 +187,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Login}/{action=Login}/{id?}");
+    pattern: "{controller=MainDashboard}/{action=Rguhsdashboard}/{id?}");
 
 app.Run();

@@ -203,9 +203,7 @@ namespace Medical_Affiliation.Controllers
                     {
                         RegisterRecordId = m.RegisterRecordId,
 
-                        IsMaintained = saved != null
-                            ? string.Equals(saved.IsMaintained, "Yes", StringComparison.OrdinalIgnoreCase)
-                            : (bool?)null,
+                        IsMaintained = saved.IsMaintained,
                         RegisterName = m.RegisterName,
 
 
@@ -423,7 +421,7 @@ namespace Medical_Affiliation.Controllers
                             CourseLevel = courseLevel,
                             AffiliationType = model.AffiliationType ?? 0,
                             RegisterRecordId = rec.RegisterRecordId ?? 0,
-                            IsMaintained = rec.IsMaintained == true ? "Yes" : rec.IsMaintained == false ? "No" : null,
+                            IsMaintained = rec.IsMaintained,
 
 
                             CreatedOn = DateTime.Now
@@ -519,7 +517,7 @@ namespace Medical_Affiliation.Controllers
                     return new StudentRegisterRecordViewModel
                     {
                         RegisterRecordId = m.RegisterRecordId,
-                        IsMaintained = posted?.IsMaintained
+                        IsMaintained = posted.IsMaintained
                     };
                 })
                 .ToList();

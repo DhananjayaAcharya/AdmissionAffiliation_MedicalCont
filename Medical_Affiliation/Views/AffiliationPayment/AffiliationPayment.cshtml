@@ -1,0 +1,343 @@
+﻿@model List<AffiliationPaymentViewModel>
+
+@{
+    ViewData["Title"] = "Affiliation Payment";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    /* ================= ROOT ================= */
+    :root {
+        --ink: #0f1923;
+        --ink-mid: #2e3d4f;
+        --ink-muted: #6b7a8d;
+        --border: #d4dae3;
+        --bg: #f4f6f9;
+        --surface: #ffffff;
+        --accent: #1a4c8b;
+        --accent-lt: #e8edf7;
+        --gold: #c9a84c;
+        --radius: 10px;
+        --shadow: 0 2px 16px rgba(15,25,35,.07);
+    }
+
+    /* ================= BODY ================= */
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+    }
+
+    /* ================= HEADER ================= */
+    .page-header {
+        background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+        padding: 26px 36px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 3px solid var(--gold);
+    }
+
+    .page-header-text h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: #fff;
+    }
+
+    .page-header-text p {
+        font-size: .75rem;
+        color: rgba(255,255,255,.6);
+        letter-spacing: .05em;
+    }
+
+    /* ================= WRAPPER ================= */
+    .form-wrap {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px 60px;
+    }
+
+    .section-body {
+        padding: 16px 20px;
+    }
+
+    /* ================= CARD ================= */
+    .section-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+
+    /* ================= HEADER ================= */
+    .section-header {
+        padding: 14px 22px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+        background: #fafbfc;
+    }
+
+        .section-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+    /* ================= TABLE ================= */
+    .scrollable-table-container {
+        max-height: 350px;
+        overflow-y: auto;
+        border-radius: 8px;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .custom-table thead {
+            position: sticky;
+            top: 0;
+            background: #f8f9fc;
+            z-index: 2;
+        }
+
+        .custom-table th {
+            padding: 12px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--ink-mid);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .custom-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .custom-table tr:hover {
+            background: #f8fbff;
+        }
+
+    /* ================= INPUT ================= */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"] {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #fafbfc;
+        font-size: 0.85rem;
+    }
+
+    input:focus {
+        border-color: var(--accent);
+        background: #fff;
+        box-shadow: 0 0 0 2px rgba(26,76,139,.1);
+    }
+
+    /* ================= FILE ================= */
+    input[type="file"] {
+        display: none;
+    }
+
+    .custom-upload-btn {
+        background: #f1f3f7;
+        border: 1px solid var(--border);
+        padding: 7px 14px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+
+        .custom-upload-btn:hover {
+            background: var(--accent-lt);
+            color: var(--accent);
+        }
+
+    /* ================= BUTTON ================= */
+    .btn-primary {
+        background: linear-gradient(135deg, #1a4c8b, #1564c0);
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+</style>
+
+<div class="page-header">
+    <div class="emblem">
+        <i class="bi bi-cash-stack" style="font-size: 1.5rem; color: gold;"></i>
+    </div>
+    <div class="page-header-text">
+        <h1>Affiliation Payment</h1>
+        <p>Affiliation & Recognition Portal — Payment Details</p>
+    </div>
+</div>
+
+<div class="form-wrap">
+
+    <!-- PAYMENT TABLE -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="icon-wrap" style="background:#e8edf7;">
+                <i class="bi bi-credit-card" style="font-size:1.3rem; color:#1a4c8b;"></i>
+            </div>
+            <h2>Payment Details</h2>
+        </div>
+
+        <div class="section-body">
+            <form asp-action="SavePayment" method="post" enctype="multipart/form-data">
+
+                <div class="scrollable-table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Payment Date</th>
+                                <th>Amount</th>
+                                <th>Transaction Ref No</th>
+                                <th>Registration No</th>
+                                <th>Supporting Doc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var index = 0;
+                            }
+
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="date" name="[@index].PaymentDate"
+                                                   value="@item.PaymentDate.ToString("yyyy-MM-dd")" />
+                                        </td>
+
+                                        <td>
+                                            <input type="number" step="0.01"
+                                                   name="[@index].Amount"
+                                                   value="@item.Amount" />
+                                        </td>
+
+                                        <td>
+                                            <input type="text"
+                                                   name="[@index].TransactionReferenceNo"
+                                                   value="@item.TransactionReferenceNo" />
+                                        </td>
+
+                                        <td>
+                                            <input type="text"
+                                                   name="[@index].RegistrationNumber"
+                                                   value="@item.RegistrationNumber" />
+                                        </td>
+
+                                        <td>
+                                            <!-- Hidden File Input -->
+                                            <input type="file" id="file_@index"
+                                                   name="[@index].File"
+                                                   onchange="updateFileName(@index)" />
+
+                                            <!-- Custom Upload Button -->
+                                            <label for="file_@index" class="custom-upload-btn">
+                                                <i class="bi bi-upload"></i> Upload Document
+                                            </label>
+
+                                            <!-- File Name Display -->
+                                            <span id="fileName_@index"
+                                                  class="small text-muted fw-medium ms-2 d-none"></span>
+
+                                            <!-- View Button -->
+                                            @if (!string.IsNullOrEmpty(item.SupportingDocument))
+                                            {
+                                                <a href="@item.SupportingDocument"
+                                                       target="_blank"
+                                                       class="btn btn-ghost ms-2">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            }
+                                        </td>
+                                        <!-- Hidden -->
+                                        <input type="hidden" name="[@index].Id" value="@item.Id" />
+                                        <input type="hidden" name="[@index].CollegeCode" value="@item.CollegeCode" />
+                                        <input type="hidden" name="[@index].FacultyCode" value="@item.FacultyCode" />
+                                        <input type="hidden" name="[@index].AffiliationTypeId" value="@item.AffiliationTypeId" />
+
+                                    </tr>
+
+                                    index++;
+                                }
+                            }
+                            else
+                            {
+                                <!-- Empty Row for First Entry -->
+                                <tr>
+                                    <td><input type="date" name="[0].PaymentDate" /></td>
+                                    <td><input type="number" step="0.01" name="[0].Amount" /></td>
+                                    <td><input type="text" name="[0].TransactionReferenceNo" /></td>
+                                    <td><input type="text" name="[0].RegistrationNumber" /></td>
+                                    <td>
+                                        <input type="file" id="file_0" name="[0].File" />
+                                        <label for="file_0" class="custom-upload-btn">
+                                            Upload
+                                        </label>
+                                    </td>
+
+                                    <input type="hidden" name="[0].CollegeCode" value="@Context.Session.GetString("CollegeCode")" />
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- SAVE BUTTON -->
+                <div style="padding:20px; text-align:center;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-2"></i> Save Payment
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function updateFileName(index) {
+        const input = document.getElementById("file_" + index);
+        const label = document.getElementById("fileName_" + index);
+
+        if (!input || !label) return;
+
+        if (input.files.length === 0) {
+            label.classList.add("d-none");
+            return;
+        }
+
+        const file = input.files[0];
+
+        // Optional size validation (1MB)
+        const maxSize = 1 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+            alert("File size must be less than 1 MB");
+            input.value = "";
+            label.classList.add("d-none");
+            return;
+        }
+
+        label.innerText = file.name;
+        label.classList.remove("d-none");
+    }
+</script>

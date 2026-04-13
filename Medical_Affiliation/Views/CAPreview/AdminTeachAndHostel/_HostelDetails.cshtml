@@ -1,0 +1,56 @@
+﻿@model List<Medical_Affiliation.Models.HostelDetailDisplayVM>
+
+<div class="general-body">
+    <div class="section-block">
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge">
+                <i class="bi bi-house-door"></i>
+                Hostel Details
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Hostel Type</th>
+                            <th>Built-up Area (Sq.Ft)</th>
+                            <th>Separate Hostel</th>
+                            <th>Separate M/F Provision</th>
+                            <th>Female Students</th>
+                            <th>Female Rooms</th>
+                            <th>Male Students</th>
+                            <th>Male Rooms</th>
+                            <th>Possession Proof</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.HostelType</td>
+                                <td>@item.BuiltUpAreaSqFt</td>
+                                <td>@(item.HasSeparateHostel ? "Yes" : "No")</td>
+                                <td>@(item.SeparateProvisionMaleFemale ? "Yes" : "No")</td>
+                                <td>@item.TotalFemaleStudents</td>
+                                <td>@item.TotalFemaleRooms</td>
+                                <td>@item.TotalMaleStudents</td>
+                                <td>@item.TotalMaleRooms</td>
+                                <td>@(item.HasPossessionProof ? "Available" : "Not Available")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No hostel details available.</p>
+            </div>
+        }
+    </div>
+</div>

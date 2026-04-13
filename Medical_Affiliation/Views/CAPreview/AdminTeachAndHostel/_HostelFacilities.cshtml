@@ -1,0 +1,42 @@
+﻿@model List<Medical_Affiliation.Models.AffHostelFacilityDisplayVM>
+
+<div class="general-body">
+    <div class="section-block">
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge>
+                <i class="bi bi-list-check"></i>
+                Hostel Facilities
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Facility</th>
+                            <th>Availability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.FacilityName</td>
+                                <td>@(item.IsAvailable ? "Available" : "Not Available")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No hostel facility details available.</p>
+            </div>
+        }
+    </div>
+</div>
