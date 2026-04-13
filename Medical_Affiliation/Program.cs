@@ -54,12 +54,6 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
-builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
-builder.Services.AddScoped<IUserContext, SessionUserContext>();
-builder.Services.AddScoped<LicTadaService>();
 // =============================================
 // 🔥 DATA PROTECTION
 // =============================================
@@ -77,6 +71,7 @@ builder.Services.AddDataProtection()
 // 🔹 HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<LicTadaService>();
+
 builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();
 //builder.Services.AddScoped<IFacultyHospitalHandler, NursingHospitalHandler>();
 builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();

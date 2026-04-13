@@ -1,5 +1,6 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Medical_Affiliation.Services.Interfaces;
 using Medical_Affiliation.Services.UserContext;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,13 @@ namespace Medical_Affiliation.Controllers
     public class AffiliationPaymentController : Controller
     {
         public readonly ApplicationDbContext _context;
-        public readonly SessionUserContext _userContext;
+        public readonly IUserContext _userContext;
+
+        public AffiliationPaymentController(ApplicationDbContext context, IUserContext userContext)
+        {
+            _context = context;
+            _userContext = userContext;
+        }
 
         [HttpGet]
         public async Task<IActionResult> AffiliationPayment()
@@ -32,11 +39,10 @@ namespace Medical_Affiliation.Controllers
                     Amount = x.Amount,
                     TransactionReferenceNo = x.TransactionReferenceNo,
                     SupportingDocument = x.SupportingDocument,
-                    RegistrationNumber = x.RegistrationNumber
                 })
-                .ToListAsync();
+                .FirstOrDefaultAsync();
 
-            return Ok(data);
+            return View(data ?? new AffiliationPaymentViewModel());
         }
 
         [HttpPost]
@@ -66,22 +72,15 @@ namespace Medical_Affiliation.Controllers
                 entity.PaymentDate = model.PaymentDate;
                 entity.Amount = model.Amount;
                 entity.TransactionReferenceNo = model.TransactionReferenceNo;
-                entity.SupportingDocument = model.SupportingDocument;
-                entity.RegistrationNumber = model.RegistrationNumber;
             }
             else
             {
                 // ➕ INSERT
                 entity = new AffiliationPayment
                 {
-                    CollegeCode = model.CollegeCode,
-                    FacultyCode = model.FacultyCode,
-                    AffiliationTypeId = model.AffiliationTypeId,
-                    PaymentDate = model.PaymentDate,
-                    Amount = model.Amount,
-                    TransactionReferenceNo = model.TransactionReferenceNo,
-                    SupportingDocument = model.SupportingDocument,
-                    RegistrationNumber = model.RegistrationNumber,
+                    CollegeCode = _userContext.CollegeCode,
+                    FacultyCode = _userContext.FacultyId,
+                    AffiliationTypeId = _userContext.TypeOfAffiliation,
                     CreatedDate = DateTime.Now,
                     IsActive = true
                 };
@@ -89,9 +88,77 @@ namespace Medical_Affiliation.Controllers
                 _context.AffiliationPayments.Add(entity);
             }
 
-            await _context.SaveChangesAsync();
+            entity.PaymentDate = model.PaymentDate;
+            entity.Amount = model.Amount;
+            entity.TransactionReferenceNo = model.TransactionReferenceNo;
 
-            return Ok(new { message = "Payment saved successfully" });
+            if (model.File != null && model.File.Length > 0)
+            {
+                if (model.File.Length > 1 * 1024 * 1024)
+                {
+                    TempData["Error"] = "File size must be less than 1MB";
+                    return RedirectToAction("AffiliationPayment");
+                }
+                var allowedExtensions = new[] { ".pdf", ".jpg", ".png" };
+                var ext = Path.GetExtension(model.File.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(ext))
+                {
+                    TempData["Error"] = "Invalid file type";
+                    return RedirectToAction("AffiliationPayment");
+                }
+
+                var folderPath = @"D:\AffiliationPayment";
+
+                // Ensure directory exists
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // Generate unique filename
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(model.File.FileName)}";
+                var fullPath = Path.Combine(folderPath, uniqueFileName);
+
+                // Save file
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await model.File.CopyToAsync(stream);
+                }
+
+                // Save full path in DB
+                entity.SupportingDocument = fullPath;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Payment saved successfully";
+
+            return RedirectToAction("AffiliationPayment");
+        }
+
+        public IActionResult ViewFile(string path)
+        {
+            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
+                return NotFound();
+
+            var fileBytes = System.IO.File.ReadAllBytes(path);
+            var contentType = GetContentType(path);
+
+            // 👇 NO filename → inline preview
+            return File(fileBytes, contentType);
+        }
+
+        private string GetContentType(string path)
+        {
+            var ext = Path.GetExtension(path).ToLower();
+
+            return ext switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
         }
     }
 }
