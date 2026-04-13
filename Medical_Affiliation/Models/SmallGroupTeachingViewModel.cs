@@ -112,8 +112,7 @@ namespace Medical_Affiliation.Models
         public decimal? AuditoriumAreaSqFt { get; set; }
         public decimal? MuseumAreaSqFt { get; set; }
 
-        public bool? ExaminationHallAvailable { get; set; }
-        public bool? AnimalHouseAvailable { get; set; }
+       
 
         public int? WorkshopStaffCount { get; set; }
         public string? WorkshopEquipmentDetails { get; set; }
@@ -124,15 +123,15 @@ namespace Medical_Affiliation.Models
         public string? AnimalTypes { get; set; }
 
         public decimal? CommitteeRoomsAreaSqFt { get; set; }
-        public bool? CommonRoomMenAvailable { get; set; }
-        public bool? CommonRoomWomenAvailable { get; set; }
-
-        public bool? StudentHostelAvailable { get; set; }
-        public bool? StaffQuartersPrincipal { get; set; }
-        public bool? StaffQuartersOtherStaff { get; set; }
-        public bool? StaffQuartersTeachingAncillary { get; set; }
-
-        public bool? RegisteredUnderAnatomyAct { get; set; }
+        public bool ExaminationHallAvailable { get; set; }
+        public bool AnimalHouseAvailable { get; set; }
+        public bool CommonRoomMenAvailable { get; set; }
+        public bool CommonRoomWomenAvailable { get; set; }
+        public bool StudentHostelAvailable { get; set; }
+        public bool StaffQuartersPrincipal { get; set; }
+        public bool StaffQuartersOtherStaff { get; set; }
+        public bool StaffQuartersTeachingAncillary { get; set; }
+        public bool RegisteredUnderAnatomyAct { get; set; }
 
         // ---------------- RELAXED VALIDATION ----------------
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

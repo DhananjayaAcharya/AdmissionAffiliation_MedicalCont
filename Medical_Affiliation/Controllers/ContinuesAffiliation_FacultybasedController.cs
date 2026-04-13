@@ -2620,12 +2620,76 @@ namespace Medical_Affiliation.Controllers
                 // 📘 Teaching Experience
                 if (model.TeachingExperiences != null)
                 {
+                    // ================== ✅ STEP 1: VALIDATION (FIXED) ==================
+
+                    var validRows = model.TeachingExperiences
+                        .Where(t =>
+                            !string.IsNullOrWhiteSpace(t.Designation) &&
+                            (
+                                t.UGFrom != null ||
+                                t.UGTo != null ||
+                                t.PGFrom != null ||
+                                t.PGTo != null ||
+                                (t.TotalExperienceYears != null && t.TotalExperienceYears > 0)
+                            )
+                        )
+                        .ToList();
+
+                    foreach (var t in validRows)
+                    {
+                        var desig = t.Designation.ToLower();
+
+                        if (desig.Contains("assistant") ||
+                            desig.Contains("associate") ||
+                            desig.Contains("professor"))
+                        {
+                            if (t.TotalExperienceYears == null || t.TotalExperienceYears == 0)
+                            {
+                                ModelState.AddModelError("", $"Enter experience for {t.Designation}");
+                            }
+                        }
+                    }
+
+                    var designation = validRows
+                        .Select(t => t.Designation.ToLower())
+                        .ToList();
+
+                    bool hasAssistant = designation.Any(d => d.Contains("assistant"));
+                    bool hasAssociate = designation.Any(d => d.Contains("associate"));
+                    bool hasProfessor = designation.Any(d => d.Contains("professor"));
+
+                    // ✅ Assistant is mandatory ONLY if any teaching data entered
+                    if (validRows.Any() && !hasAssistant)
+                    {
+                        ModelState.AddModelError("", "Assistant Professor details are mandatory.");
+                    }
+
+                    // ❌ Associate without Assistant
+                    if (hasAssociate && !hasAssistant)
+                    {
+                        ModelState.AddModelError("", "Assistant Professor must be entered before Associate Professor.");
+                    }
+
+                    // ❌ Professor without Assistant
+                    if (hasProfessor && !hasAssistant)
+                    {
+                        ModelState.AddModelError("", "Assistant Professor must be entered before Professor.");
+                    }
+                    // ✅ STEP 3: STOP if validation fails
+                    if (!ModelState.IsValid)
+                    {
+                        LoadDropdowns(facultyCode, model.DeanQualification);
+                        return View(model);
+                    }
+
+                    // ✅ STEP 4: Save ONLY filled rows
                     foreach (var t in model.TeachingExperiences)
                     {
+                        // ❗ Skip empty rows (UI stays, DB skips)
                         if (string.IsNullOrWhiteSpace(t.Designation) &&
                             t.UGFrom == null && t.UGTo == null &&
                             t.PGFrom == null && t.PGTo == null &&
-                            t.TotalExperienceYears == null)
+                            (t.TotalExperienceYears == null || t.TotalExperienceYears == 0))
                             continue;
 
                         _context.AffDeanTeachingExperiences.Add(
@@ -2644,7 +2708,6 @@ namespace Medical_Affiliation.Controllers
                             });
                     }
                 }
-
                 // 🏛 Administrative Experience
                 if (model.AdministrativeExperiences != null)
                 {
@@ -2669,6 +2732,11 @@ namespace Medical_Affiliation.Controllers
                             });
                     }
                 }
+                var designations = model.TeachingExperiences
+                                .Where(t => !string.IsNullOrEmpty(t.Designation))
+                                .Select(t => t.Designation.ToLower())
+                                .ToList();
+
 
                 // 💾 Final commit
                 _context.SaveChanges();
@@ -2680,7 +2748,7 @@ namespace Medical_Affiliation.Controllers
             {
                 // TODO: log ex (ILogger)
                 ModelState.AddModelError("", "An error occurred while saving data.");
-
+                LoadDropdowns(facultyCode, model.DeanQualification);
                 ViewBag.Qualifications = new SelectList(
                     _context.MstCourses
                         .Where(c => !string.IsNullOrEmpty(c.CourseName))
@@ -2694,7 +2762,19 @@ namespace Medical_Affiliation.Controllers
                 return View(model);
             }
         }
-
+        private void LoadDropdowns(string facultyCode, string selectedValue = null)
+        {
+            ViewBag.Qualifications = new SelectList(
+                _context.MstCourses
+                    .Where(c => !string.IsNullOrEmpty(c.CourseName)
+                             && c.FacultyCode.ToString().Trim() == facultyCode.Trim())
+                    .OrderBy(c => c.CourseName)
+                    .Select(c => new { c.Id, c.CourseName }),
+                "Id",
+                "CourseName",
+                selectedValue
+            );
+        }
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
@@ -2882,14 +2962,83 @@ namespace Medical_Affiliation.Controllers
                         .Where(a => a.DeanId == existingDean.Id));
 
                 // 📘 Teaching Experience
+                // 📘 Teaching Experience
                 if (model.TeachingExperiences != null)
                 {
+                    // ================== ✅ STEP 1: VALIDATION ==================
+
+                    // ================== ✅ STEP 1: VALIDATION (FIXED) ==================
+
+                    var validRows = model.TeachingExperiences
+                        .Where(t =>
+                            !string.IsNullOrWhiteSpace(t.Designation) &&
+                            (
+                                t.UGFrom != null ||
+                                t.UGTo != null ||
+                                t.PGFrom != null ||
+                                t.PGTo != null ||
+                                (t.TotalExperienceYears != null && t.TotalExperienceYears > 0)
+                            )
+                        )
+                        .ToList();
+
+                    foreach (var t in validRows)
+                    {
+                        var desig = t.Designation.ToLower();
+
+                        if (desig.Contains("assistant") ||
+                            desig.Contains("associate") ||
+                            desig.Contains("professor"))
+                        {
+                            if (t.TotalExperienceYears == null || t.TotalExperienceYears == 0)
+                            {
+                                ModelState.AddModelError("", $"Enter experience for {t.Designation}");
+                            }
+                        }
+                    }
+                    var designations = validRows
+                        .Select(t => t.Designation.ToLower())
+                        .ToList();
+
+                    bool hasAssistant = designations.Any(d => d.Contains("assistant"));
+                    bool hasAssociate = designations.Any(d => d.Contains("associate"));
+                    bool hasProfessor = designations.Any(d => d.Contains("professor"));
+
+                    // ✅ Assistant is mandatory ONLY if any teaching data entered
+                    if (validRows.Any() && !hasAssistant)
+                    {
+                        ModelState.AddModelError("", "Assistant Professor details are mandatory.");
+                    }
+
+                    // ❌ Associate without Assistant
+                    if (hasAssociate && !hasAssistant)
+                    {
+                        ModelState.AddModelError("", "Assistant Professor must be entered before Associate Professor.");
+                    }
+
+                    // ❌ Professor without Assistant
+                    if (hasProfessor && !hasAssistant)
+                    {
+                        ModelState.AddModelError("", "Assistant Professor must be entered before Professor.");
+                    }
+
+                    // ================== ✅ STEP 3: STOP SAVE IF ERROR ==================
+
+                    if (!ModelState.IsValid)
+                    {
+                        LoadQualifications(model.DeanQualification);
+                        return View(model);
+                    }
+
+                    // ================== ✅ STEP 4: SAVE ONLY FILLED ROWS ==================
+
                     foreach (var t in model.TeachingExperiences)
                     {
+                        // ❗ Skip empty rows (UI stays, DB skips)
                         if (string.IsNullOrWhiteSpace(t.Designation) &&
                             t.UGFrom == null && t.UGTo == null &&
                             t.PGFrom == null && t.PGTo == null &&
-                            t.TotalExperienceYears == null)
+                            (t.TotalExperienceYears == null || t.TotalExperienceYears == 0))
                             continue;
 
                         _context.AffPrincipalTeachingExperiences.Add(
@@ -2908,7 +3057,6 @@ namespace Medical_Affiliation.Controllers
                             });
                     }
                 }
-
                 // 🏛 Administrative Experience
                 if (model.AdministrativeExperiences != null)
                 {
@@ -3655,7 +3803,17 @@ namespace Medical_Affiliation.Controllers
             {
                 CollegeCode = collegeCode,
                 FacultyCode = facultyCode,
-                CourseLevel = courseLevel
+                CourseLevel = courseLevel,
+                // ✅ ADD THIS (College Dropdown)
+                Colleges = await _context.AffiliationCollegeMasters
+            .Where(c => c.FacultyCode.ToString() == facultyCode)
+            .OrderBy(c => c.CollegeName)
+            .Select(c => new SelectListItem
+            {
+                Value = c.CollegeCode,
+                Text = c.CollegeName
+            })
+            .ToListAsync()
             };
 
             // 🔽 All departments of faculty
@@ -3700,7 +3858,9 @@ namespace Medical_Affiliation.Controllers
                         UGTo = existing?.Ugto?.ToDateTime(TimeOnly.MinValue),
                         PGFrom = existing?.Pgfrom?.ToDateTime(TimeOnly.MinValue),
                         PGTo = existing?.Pgto?.ToDateTime(TimeOnly.MinValue),
-
+                        // ✅ ADD THESE
+                        UGCollegeCode = existing?.UGCollegeCode,
+                        PGCollegeCode = existing?.PGCollegeCode,
                         TotalExperience = existing?.TotalExperience
                     });
                 }
@@ -3753,6 +3913,9 @@ namespace Medical_Affiliation.Controllers
 
                     if (existing != null)
                     {
+                        // ✅ ADD THIS
+                        existing.UGCollegeCode = row.UGCollegeCode;
+                        existing.PGCollegeCode = row.PGCollegeCode;
                         existing.Ugfrom = hasUG ? DateOnly.FromDateTime(row.UGFrom!.Value) : null;
                         existing.Ugto = hasUG ? DateOnly.FromDateTime(row.UGTo!.Value) : null;
                         existing.Pgfrom = hasPG ? DateOnly.FromDateTime(row.PGFrom!.Value) : null;
@@ -3769,6 +3932,10 @@ namespace Medical_Affiliation.Controllers
                             DepartmentCode = dept.DepartmentCode,
                             DesignationCode = row.DesignationCode,
                             DesignationName = row.DesignationName,
+                            // ✅ ADD THESE
+                            UGCollegeCode = row.UGCollegeCode,
+                            PGCollegeCode = row.PGCollegeCode,
+
                             Ugfrom = hasUG ? DateOnly.FromDateTime(row.UGFrom!.Value) : null,
                             Ugto = hasUG ? DateOnly.FromDateTime(row.UGTo!.Value) : null,
                             Pgfrom = hasPG ? DateOnly.FromDateTime(row.PGFrom!.Value) : null,

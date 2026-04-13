@@ -331,8 +331,8 @@
                         </label>
                         <select asp-for="StaffOther.TeachersUpdatedInEMS" class="form-select">
                             <option value="">-- Select --</option>
-                            <option value="Y">Yes</option>
-                            <option value="N">No</option>
+                            <option value="Y" selected="@(Model.StaffOther.TeachersUpdatedInEMS == "Y")">Yes</option>
+                            <option value="N" selected="@(Model.StaffOther.TeachersUpdatedInEMS == "N")">No</option>
                         </select>
                         <span asp-validation-for="StaffOther.TeachersUpdatedInEMS" class="text-danger"></span>
                     </div>
@@ -340,13 +340,13 @@
                     <!-- c -->
                     <div class="mb-4">
                         <label class="long-label">
-                            c. Department wise Examiner's details (Name, Designation, Seniority, Subject, Mobile No and Email ID) enclose form-16 of all the teachers.
+                            c. Department wise Examiner's details ... enclose form-16 of all the teachers.
                         </label>
                         <label class="form-label mt-2"><b>Is the Document Attached?</b></label>
                         <select asp-for="StaffOther.ExaminerDetailsAttached" class="form-select" id="ExaminerDetailsAttachedDropdown">
                             <option value="">-- Select --</option>
-                            <option value="Y">Yes</option>
-                            <option value="N">No</option>
+                            <option value="Y" selected="@(Model.StaffOther.ExaminerDetailsAttached == "Y")">Yes</option>
+                            <option value="N" selected="@(Model.StaffOther.ExaminerDetailsAttached == "N")">No</option>
                         </select>
                         <span asp-validation-for="StaffOther.ExaminerDetailsAttached" class="text-danger"></span>
 
@@ -358,7 +358,12 @@
                             @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName))
                             {
                                 <div class="file-badge">
-                                    <i class="fas fa-circle-check"></i> File already uploaded: @Model.StaffOther.ExaminerDetailsPdfName
+                                    <i class="fas fa-circle-check"></i>
+                                    File already uploaded: @Model.StaffOther.ExaminerDetailsPdfName
+                                    <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner" })"
+                                       target="_blank" class="btn btn-sm btn-outline-primary ms-3">
+                                        📄 View PDF
+                                    </a>
                                 </div>
                             }
                         </div>
@@ -367,7 +372,7 @@
                     <!-- d -->
                     <div class="mb-4">
                         <label class="long-label">
-                            d. AEBAS details of all the staff (teaching and non-teaching staff) (Enclose last three months attendance report)
+                            d. AEBAS details of all the staff (last three months attendance report)
                         </label>
                         <div class="file-upload-area">
                             <input asp-for="AEBASLastThreeMonthsPdf" type="file" accept="application/pdf" />
@@ -376,7 +381,12 @@
                         @if (!string.IsNullOrEmpty(Model.StaffOther.AEBASLastThreeMonthsPdfName))
                         {
                             <div class="file-badge">
-                                <i class="fas fa-circle-check"></i> File already uploaded: @Model.StaffOther.AEBASLastThreeMonthsPdfName
+                                <i class="fas fa-circle-check"></i>
+                                File already uploaded: @Model.StaffOther.AEBASLastThreeMonthsPdfName
+                                <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "AEBAS3Months" })"
+                                   target="_blank" class="btn btn-sm btn-outline-primary ms-3">
+                                    📄 View PDF
+                                </a>
                             </div>
                         }
                     </div>
@@ -384,7 +394,7 @@
                     <!-- e -->
                     <div class="mb-4">
                         <label class="long-label">
-                            e. AEBAS details of all the staff on the day of inspection before 11-00AM (Enclose copy)
+                            e. AEBAS details on the day of inspection before 11:00 AM
                         </label>
                         <div class="file-upload-area">
                             <input asp-for="AEBASInspectionDayPdf" type="file" accept="application/pdf" />
@@ -393,34 +403,14 @@
                         @if (!string.IsNullOrEmpty(Model.StaffOther.AEBASInspectionDayPdfName))
                         {
                             <div class="file-badge">
-                                <i class="fas fa-circle-check"></i> File already uploaded: @Model.StaffOther.AEBASInspectionDayPdfName
+                                <i class="fas fa-circle-check"></i>
+                                File already uploaded: @Model.StaffOther.AEBASInspectionDayPdfName
+                                <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "AEBASInspection" })"
+                                   target="_blank" class="btn btn-sm btn-outline-primary ms-3">
+                                    📄 View PDF
+                                </a>
                             </div>
                         }
-                    </div>
-
-                    <!-- f -->
-                    <div class="mb-4">
-                        <label class="long-label">f. Whether following registers are maintained</label>
-                        <div class="form-grid">
-                            <div>
-                                <label>i. Service Register</label>
-                                <select asp-for="StaffOther.ServiceRegisterMaintained" class="form-select">
-                                    <option value="">-- Select --</option>
-                                    <option value="Y">Yes</option>
-                                    <option value="N">No</option>
-                                </select>
-                                <span asp-validation-for="StaffOther.ServiceRegisterMaintained" class="text-danger"></span>
-                            </div>
-                            <div>
-                                <label>ii. Acquittance registers</label>
-                                <select asp-for="StaffOther.AcquittanceRegisterMaintained" class="form-select">
-                                    <option value="">-- Select --</option>
-                                    <option value="Y">Yes</option>
-                                    <option value="N">No</option>
-                                </select>
-                                <span asp-validation-for="StaffOther.AcquittanceRegisterMaintained" class="text-danger"></span>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- g -->
@@ -433,7 +423,12 @@
                         @if (!string.IsNullOrEmpty(Model.StaffOther.ProvidentFundPdfName))
                         {
                             <div class="file-badge">
-                                <i class="fas fa-circle-check"></i> File already uploaded: @Model.StaffOther.ProvidentFundPdfName
+                                <i class="fas fa-circle-check"></i>
+                                File already uploaded: @Model.StaffOther.ProvidentFundPdfName
+                                <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "PF" })"
+                                   target="_blank" class="btn btn-sm btn-outline-primary ms-3">
+                                    📄 View PDF
+                                </a>
                             </div>
                         }
                     </div>
@@ -448,7 +443,12 @@
                         @if (!string.IsNullOrEmpty(Model.StaffOther.ESIPdfName))
                         {
                             <div class="file-badge">
-                                <i class="fas fa-circle-check"></i> File already uploaded: @Model.StaffOther.ESIPdfName
+                                <i class="fas fa-circle-check"></i>
+                                File already uploaded: @Model.StaffOther.ESIPdfName
+                                <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "ESI" })"
+                                   target="_blank" class="btn btn-sm btn-outline-primary ms-3">
+                                    📄 View PDF
+                                </a>
                             </div>
                         }
                     </div>
@@ -496,15 +496,15 @@
 
             @if (TempData["Success"] != null)
             {
-                    <text>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Saved Successfully!',
-                        text: '@TempData["Success"]',
-                        confirmButtonColor: '#28a745',
-                        timer: 4000
-                    });
-                    </text>
+                        <text>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Saved Successfully!',
+                            text: '@TempData["Success"]',
+                            confirmButtonColor: '#28a745',
+                            timer: 4000
+                        });
+                        </text>
             }
         </script>
     }

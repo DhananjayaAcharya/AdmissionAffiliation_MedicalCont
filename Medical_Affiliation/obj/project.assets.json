@@ -6574,23 +6574,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\HP\\.nuget\\packages\\": {},
+    "C:\\Users\\hp\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Dhananjay\\New folder\\Medical_Affiliation\\Medical_Affiliation\\Medical_Affiliation.csproj",
+      "projectUniqueName": "D:\\DPChandan\\AdmAffiliation_Git13042026\\AdmissionAffiliation_MedicalCont\\Medical_Affiliation\\Medical_Affiliation.csproj",
       "projectName": "Medical_Affiliation",
-      "projectPath": "D:\\Dhananjay\\New folder\\Medical_Affiliation\\Medical_Affiliation\\Medical_Affiliation.csproj",
-      "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-      "outputPath": "D:\\Dhananjay\\New folder\\Medical_Affiliation\\Medical_Affiliation\\obj\\",
+      "projectPath": "D:\\DPChandan\\AdmAffiliation_Git13042026\\AdmissionAffiliation_MedicalCont\\Medical_Affiliation\\Medical_Affiliation.csproj",
+      "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
+      "outputPath": "D:\\DPChandan\\AdmAffiliation_Git13042026\\AdmissionAffiliation_MedicalCont\\Medical_Affiliation\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -6618,7 +6618,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -6676,7 +6676,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
