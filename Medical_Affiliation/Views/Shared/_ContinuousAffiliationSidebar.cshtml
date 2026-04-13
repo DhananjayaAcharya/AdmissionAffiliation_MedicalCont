@@ -477,9 +477,7 @@
 
 <aside class="ca-sb">
 
-    <div style="text-align: center;">
-        <a asp-action="Dashboard" asp-controller="Collegelogin" style="font-size: .8rem; color: white; text-decoration: none; padding: 5px;">🔙 Back To Dashboard</a>
-    </div>
+    
 
     <!-- Brand -->
     <div class="ca-sb-top">
@@ -570,17 +568,11 @@
 
     <!-- Footer -->
     <div class="ca-sb-footer">
-        <a asp-controller="ContinuousAffiliation" asp-action="ChooseLevel" class="ca-sb-back">
-            &#8592; Change Level
-        </a>
+        <div style="text-align: center;">
+            <a asp-action="Dashboard" asp-controller="Collegelogin" style="font-size: .8rem; color: white; text-decoration: none; padding: 5px;"> Back To Dashboard</a>
+        </div>
 
-        @* <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
-            <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</button>
-        </form> *@
-
-        <form asp-controller="Login" asp-action="logout" method="post" class="m-0">
-            <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</button>
-        </form>
+        
     </div>
 
 </aside>
