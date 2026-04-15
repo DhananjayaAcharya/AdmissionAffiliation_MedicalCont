@@ -10,6 +10,6 @@
         public decimal Amount { get; set; }
         public string TransactionReferenceNo { get; set; }
         public string? SupportingDocument { get; set; }
-        public string? RegistrationNumber { get; set; }
+        public IFormFile File { get; set; }
     }
 }
