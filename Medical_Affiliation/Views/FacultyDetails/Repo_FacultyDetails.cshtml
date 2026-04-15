@@ -539,7 +539,8 @@
             background: var(--surface);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            @*justify-content: space-between;*@
+            justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
         }
@@ -849,14 +850,14 @@
                         <button type="button" id="addRow" class="btn-add">
                             <i class="bi bi-plus-circle"></i> Add Row
                         </button>
-                        <button type="submit" class="btn-official">
+                       @*  <button type="submit" class="btn-official">
                             <i class="bi bi-save2"></i> Save &amp; Proceed
-                        </button>
+                        </button> *@
                     </div>
                 </div>
 
-               @*  <div class="nav-footer">
-                    <a asp-controller="Repo" asp-action="Repo_ManageDesignationIntake" class="btn-official-outline">
+                <div class="nav-footer">
+                    <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="NonTeachingStaffDepartmentwise" class="btn-official-outline">
                         <i class="bi bi-arrow-left"></i> Previous
                     </a>
                     <span style="font-size:.75rem;color:var(--text-muted);">

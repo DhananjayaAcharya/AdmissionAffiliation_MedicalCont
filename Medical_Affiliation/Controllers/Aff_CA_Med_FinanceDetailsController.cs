@@ -326,6 +326,12 @@ namespace Medical_Affiliation.Controllers
             return await GetPdf("AuditedStatement");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ViewDonationPdf()
+        {
+            return await GetPdf("Donation");
+        }
+
         private async Task<IActionResult> GetPdf(string type)
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -345,6 +351,7 @@ namespace Medical_Affiliation.Controllers
                 "GoverningCouncil" => record.GoverningCouncilPdf,
                 "AccountSummary" => record.AccountSummaryPdf,
                 "AuditedStatement" => record.AuditedStatementPdf,
+                "Donation" => record.DonationPdf,
                 _ => null
             };
 
@@ -353,6 +360,7 @@ namespace Medical_Affiliation.Controllers
                 "GoverningCouncil" => record.GoverningCouncilPdfName,
                 "AccountSummary" => record.AccountSummaryPdfName,
                 "AuditedStatement" => record.AuditedStatementPdfName,
+                "Donation" => record.DonationPdfName,  // ✅ ADDED
                 _ => null
             };
 

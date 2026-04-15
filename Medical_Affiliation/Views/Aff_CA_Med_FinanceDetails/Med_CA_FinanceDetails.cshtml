@@ -642,18 +642,29 @@
                     </div>
                 }
 
-                <!-- Footer -->
+                <!-- Footer Navigation -->
                 <div class="form-footer">
                     <div class="nav-controls">
-                        <a asp-controller="" asp-action="" class="btn-prev">← Previous</a>
-                        <a asp-controller="CA_Med_StaffDetails" asp-action="CA_Med_StaffDetails" class="btn-next">
+                        <!-- Previous Button -->
+                        <a asp-controller="CA_Aff_AcademicMatters"
+                           asp-action="AcademicMatters"
+                           class="btn-prev">← Previous</a>
+
+                        <!-- Next Button with Clear Text -->
+                        <a asp-controller="CA_Med_StaffDetails"
+                           asp-action="CA_Med_StaffDetails"
+                           class="btn-next">
                             Next → Staff Particulars
                         </a>
                     </div>
+
+                    <!-- Save Button with Proper Text -->
                     <button type="submit" class="btn-save" id="saveButton">
-                        Save &amp; Continue
+                        Save Account and Fee Details
                     </button>
                 </div>
+
+
             </form>
         </div>
     </div>

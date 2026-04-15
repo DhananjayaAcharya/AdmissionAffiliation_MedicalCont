@@ -3,6 +3,9 @@
     ViewData["Title"] = "Land, Building & Teaching Facilities";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
+@{
+    var courseLevel = Context.Session.GetString("CourseLevel");
+}
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -1520,6 +1523,33 @@
                         ← Previous
                     </button> *@
                     <div class="footer-right">
+
+                        @* 🔹 PREVIOUS BUTTON *@
+                        @if (courseLevel == "UG")
+                        {
+                            <a asp-controller="ContinuesAffiliation_Facultybased"
+                               asp-action="Aff_PrincipalDetails"
+                               class="btn-prev">← Previous</a>
+                        }
+                        else if (courseLevel == "PG")
+                        {
+                            <a asp-controller="AffiliationSS"
+                               asp-action="AssociatedInstitutions"
+                               class="btn-prev">← Previous</a>
+                        }
+                        else if (courseLevel == "SS")
+                        {
+                            <a asp-controller="Aff_CA_SS_CoursesAppliedSS"
+                               asp-action="CA_SS_CoursesApplied"
+                               class="btn-prev">← Previous</a>
+                        }
+
+                        @* 🔹 NEXT BUTTON (SAME FOR ALL) *@
+                        <a asp-controller="Medical_ContinuousAffiliation"
+                           asp-action="Medical_SkillsLaboratory"
+                           class="btn-next">Next →</a>
+
+                           @*Save Button*@
                         <button type="submit" class="btn-save" id="btnSave">&#128190; Save</button>
                         
                     </div>
@@ -1529,6 +1559,13 @@
         </div><!-- /.form-card -->
     </div>
 </div>
+
+
+
+
+
+   
+
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
