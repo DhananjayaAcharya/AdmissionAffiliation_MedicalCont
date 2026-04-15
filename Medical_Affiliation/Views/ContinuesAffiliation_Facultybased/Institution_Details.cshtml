@@ -549,6 +549,22 @@
                 .btn-primary:active {
                     transform: translateY(0);
                 }
+
+
+        .mobile-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mobile-prefix {
+            padding: 8px 10px;
+            background: #eee;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
     </style>
 </head>
 <body>
@@ -614,7 +630,7 @@
                                 </div>
                                 <div>
                                     <label asp-for="NameOfInstitution">Name of Institution <span class="req">*</span></label>
-                                    <input asp-for="NameOfInstitution" maxlength="200" placeholder="Full legal name" />
+                                    <input asp-for="NameOfInstitution" maxlength="200" placeholder="Full legal name" readonly />
                                     <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
                                 </div>
                                 <div>
@@ -637,7 +653,7 @@
                                 </div>
                                 <div>
                                     <label asp-for="PinCode">PIN Code <span class="req">*</span></label>
-                                    <input asp-for="PinCode" pattern="\d{6}" title="6-digit PIN" placeholder="000000" />
+                                    <input asp-for="PinCode"  title="6-digit PIN" placeholder="000000" maxlength="6" />
                                     <span asp-validation-for="PinCode" class="text-danger"></span>
                                 </div>
                             </div>
@@ -655,24 +671,35 @@
                         <div class="section-body">
                             <div class="field-grid col-2">
                                 <div>
-                                    <label asp-for="Taluk">Taluk</label>
-                                    <select asp-for="Taluk" asp-items="Model.TalukList">
+                                    <label asp-for="District">District</label>
+                                    @* <select asp-for="District" asp-items="Model.DistrictList">
                                         <option value="">— Select —</option>
+                                    </select> *@
+                                    <select asp-for="District" asp-items="Model.DistrictList" id="districtDropdown">
+                                        <option value="">— Select District —</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label asp-for="District">District</label>
-                                    <select asp-for="District" asp-items="Model.DistrictList">
+                                    <label asp-for="Taluk">Taluk</label>
+                                    @* <select asp-for="Taluk" asp-items="Model.TalukList">
                                         <option value="">— Select —</option>
+                                    </select> *@
+                                    <select asp-for="Taluk" id="talukDropdown">
+                                        <option value="">— Select Taluk —</option>
                                     </select>
                                 </div>
+                                
                                 <div>
                                     <label asp-for="StdCode">STD Code</label>
                                     <input asp-for="StdCode" pattern="\d{2,4}" placeholder="e.g. 080" />
                                 </div>
                                 <div>
                                     <label asp-for="MobileNumber">Mobile Number</label>
-                                    <input asp-for="MobileNumber" pattern="[6-9]\d{9}" placeholder="10-digit" />
+                                    <div class="mobile-group">
+                                        <span class="mobile-prefix">+91</span>
+                                        <input asp-for="MobileNumber" maxlength="10" oninput="validateMobile(this)" placeholder="Enter 10-digit number" />
+                                    </div>
+                                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
                                 </div>
                                 <div>
                                     <label asp-for="AltLandlineMobile">Alternate / Landline</label>
@@ -688,19 +715,19 @@
                                     <span asp-validation-for="EmailId" class="text-danger"></span>
                                 </div>
                                 <div>
-                                    <label asp-for="AltEmailId">Alternate Email</label>
+                                    <label asp-for="AltEmailId">Alternate Email<span class="req">*</span></label>
                                     <input asp-for="AltEmailId" type="email" />
                                 </div>
                                 <div>
-                                    <label asp-for="Website">Website</label>
+                                    <label asp-for="Website">Website<span class="req">*</span></label>
                                     <input asp-for="Website" type="url" placeholder="https://" />
                                 </div>
                                 <div>
-                                    <label asp-for="College_URL">College URL</label>
+                                    <label asp-for="College_URL">College URL<span class="req">*</span></label>
                                     <input asp-for="College_URL" type="url" placeholder="https://" />
                                 </div>
                                 <div>
-                                    <label asp-for="SurveyNoPidNo">Survey No / PID No</label>
+                                    <label asp-for="SurveyNoPidNo">Survey No / PID No<span class="req">*</span></label>
                                     <input asp-for="SurveyNoPidNo" />
                                 </div>
                             </div>
@@ -718,39 +745,48 @@
                         <div class="section-body">
                             <div class="field-grid col-2">
                                 <div>
-                                    <label asp-for="HeadOfInstitution">Head of Institution</label>
+                                    <label asp-for="HeadOfInstitution">Head of Institution<span class="req">*</span></label>
                                     <input asp-for="HeadOfInstitution" />
                                 </div>
                                 <div>
-                                    <label asp-for="HeadOfInstitution_Mob_NO">Head Mobile No</label>
-                                    <input asp-for="HeadOfInstitution_Mob_NO" pattern="[6-9]\d{9}" />
+                                    <label asp-for="HeadOfInstitution_Mob_NO">Head Mobile No<span class="req">*</span></label>
+                                    <div class="mobile-group">
+                                        <span class="mobile-prefix">+91</span>
+                                        <input asp-for="HeadOfInstitution_Mob_NO" maxlength="10" oninput="validateMobile(this)" />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label asp-for="HeadOfInstitution_Email">Head Email</label>
+                                    <label asp-for="HeadOfInstitution_Email">Head Email<span class="req">*</span></label>
                                     <input asp-for="HeadOfInstitution_Email" type="email" />
                                 </div>
                                 <div>
-                                    <label asp-for="HeadAddress">Head Address</label>
+                                    <label asp-for="HeadAddress">Head Address<span class="req">*</span></label>
                                     <textarea asp-for="HeadAddress" rows="2"></textarea>
                                 </div>
                                 <div>
-                                    <label asp-for="Principal_Name">Principal Name</label>
+                                    <label asp-for="Principal_Name">Principal Name<span class="req">*</span></label>
                                     <input asp-for="Principal_Name" />
                                 </div>
                                 <div>
-                                    <label asp-for="Principal_Mob_No">Principal Mobile</label>
-                                    <input asp-for="Principal_Mob_No" pattern="[6-9]\d{9}" />
+                                    <label asp-for="Principal_Mob_No">Principal Mobile<span class="req">*</span></label>
+                                    <div class="mobile-group">
+                                        <span class="mobile-prefix">+91</span>
+                                        <input asp-for="Principal_Mob_No" maxlength="10" oninput="validateMobile(this)" />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label asp-for="Principal_Email">Principal Email</label>
+                                    <label asp-for="Principal_Email">Principal Email<span class="req">*</span></label>
                                     <input asp-for="Principal_Email" type="email" />
                                 </div>
                                 <div>
-                                    <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile</label>
-                                    <input asp-for="PrincipalMobileNumber" pattern="[6-9]\d{9}" />
+                                    <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile<span class="req">*</span></label>
+                                    <div class="mobile-group">
+                                        <span class="mobile-prefix">+91</span>
+                                        <input asp-for="PrincipalMobileNumber" maxlength="10" oninput="validateMobile(this)" />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label asp-for="PrincipalEmailId">Principal Alt. Email</label>
+                                    <label asp-for="PrincipalEmailId">Principal Alt. Email<span class="req">*</span></label>
                                     <input asp-for="PrincipalEmailId" type="email" />
                                 </div>
                             </div>
@@ -772,33 +808,36 @@
                         <div class="section-body">
                             <div class="field-grid col-2">
                                 <div>
-                                    <label asp-for="NodalOfficer_Name">Nodal Officer Name</label>
+                                    <label asp-for="NodalOfficer_Name">Nodal Officer Name<span class="req">*</span></label>
                                     <input asp-for="NodalOfficer_Name" />
                                 </div>
                                 <div>
-                                    <label asp-for="NodalOfficer_Mob_Number">Nodal Officer Mobile</label>
-                                    <input asp-for="NodalOfficer_Mob_Number" pattern="[6-9]\d{9}" />
+                                    <label asp-for="NodalOfficer_Mob_Number">Nodal Officer Mobile<span class="req">*</span></label>
+                                    <div class="mobile-group">
+                                        <span class="mobile-prefix">+91</span>
+                                        <input asp-for="NodalOfficer_Mob_Number" maxlength="10" oninput="validateMobile(this)" />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label asp-for="NodalOfficer_Email">Nodal Officer Email</label>
+                                    <label asp-for="NodalOfficer_Email">Nodal Officer Email<span class="req">*</span></label>
                                     <input asp-for="NodalOfficer_Email" type="email" />
                                 </div>
                                 <div>
-                                    <label asp-for="RunningCourse">Running Course</label>
+                                    <label asp-for="RunningCourse">Running Course<span class="req">*</span></label>
                                     <select asp-for="RunningCourse" asp-items="Model.CourseList">
                                         <option value="">— Select —</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label asp-for="CourseApplied">Course Applied For</label>
+                                    <label asp-for="CourseApplied">Course Applied For<span class="req">*</span></label>
                                     <input asp-for="CourseApplied" />
                                 </div>
                                 <div>
-                                    <label asp-for="FinancingAuthority">Financing Authority</label>
+                                    <label asp-for="FinancingAuthority">Financing Authority<span class="req">*</span></label>
                                     <input asp-for="FinancingAuthority" />
                                 </div>
                                 <div>
-                                    <label asp-for="MinorityCategory">Minority Category</label>
+                                    <label asp-for="MinorityCategory">Minority Category<span class="req">*</span></label>
                                     <input asp-for="MinorityCategory" placeholder="e.g. Linguistic / Religious" />
                                 </div>
                             </div>
@@ -834,28 +873,31 @@
                         <div class="section-body">
                             <div class="field-grid col-2">
                                 <div>
-                                    <label asp-for="TrustName">Trust Name</label>
+                                    <label asp-for="TrustName">Trust Name<span class="req">*</span></label>
                                     <input asp-for="TrustName" />
                                 </div>
                                 <div>
-                                    <label asp-for="TrustEstablishmentDate">Establishment Date</label>
+                                    <label asp-for="TrustEstablishmentDate">Establishment Date<span class="req">*</span></label>
                                     <input asp-for="TrustEstablishmentDate" type="date" />
                                 </div>
                             </div>
                             <div class="field-grid col-1" style="margin-top:14px;">
                                 <div>
-                                    <label asp-for="TrustAddress">Trust Address</label>
+                                    <label asp-for="TrustAddress">Trust Address<span class="req">*</span></label>
                                     <textarea asp-for="TrustAddress" rows="2"></textarea>
                                 </div>
                             </div>
                             <div class="field-grid col-2" style="margin-top:14px;">
                                 <div>
-                                    <label asp-for="TrustPresidentName">President Name</label>
+                                    <label asp-for="TrustPresidentName">President Name<span class="req">*</span></label>
                                     <input asp-for="TrustPresidentName" />
                                 </div>
                                 <div>
-                                    <label asp-for="TrustPresidentContactNo">President Contact</label>
-                                    <input asp-for="TrustPresidentContactNo" pattern="[6-9]\d{9}" />
+                                    <label asp-for="TrustPresidentContactNo">President Contact<span class="req">*</span></label>
+                                    <div class="mobile-group">
+                                        <span class="mobile-prefix">+91</span>
+                                        <input asp-for="TrustPresidentContactNo" maxlength="10" oninput="validateMobile(this)" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -872,15 +914,18 @@
                         <div class="section-body">
                             <div class="field-grid col-3">
                                 <div>
-                                    <label asp-for="DeanName">Dean Name</label>
+                                    <label asp-for="DeanName">Dean Name<span class="req">*</span></label>
                                     <input asp-for="DeanName" />
                                 </div>
                                 <div>
-                                    <label asp-for="DeanMobileNumber">Dean Mobile</label>
-                                    <input asp-for="DeanMobileNumber" pattern="[6-9]\d{9}" />
+                                    <label asp-for="DeanMobileNumber">Dean Mobile<span class="req">*</span></label>
+                                    <div class="mobile-group">
+                                        <span class="mobile-prefix">+91</span>
+                                        <input asp-for="DeanMobileNumber" maxlength="10" oninput="validateMobile(this)" />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label asp-for="DeanEmailId">Dean Email</label>
+                                    <label asp-for="DeanEmailId">Dean Email<span class="req">*</span></label>
                                     <input asp-for="DeanEmailId" type="email" />
                                 </div>
                             </div>
@@ -941,7 +986,49 @@
                         fileNameDisplay.textContent = "";
                     }
                 });
+
+            $(document).ready(function () {
+
+                $("#districtDropdown").change(function () {
+
+                    var district = $(this).val();
+
+                    $("#talukDropdown").empty();
+                    $("#talukDropdown").append('<option value="">Loading...</option>');
+
+                    if (district !== "") {
+
+                        $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")',
+                            { district: district },
+                            function (data) {
+
+                                $("#talukDropdown").empty();
+                                $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
+
+                                $.each(data, function (i, item) {
+                                    $("#talukDropdown").append('<option value="' + item.value + '">' + item.text + '</option>');
+                                });
+                            });
+
+                    } else {
+                        $("#talukDropdown").empty();
+                        $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
+                    }
+                });
+
+            });
+                    function validateMobile(input) {
+
+                // Remove non-digits
+                input.value = input.value.replace(/\D/g, '');
+
+                // Limit to 10 digits
+                if (input.value.length > 10) {
+                    input.value = input.value.slice(0, 10);
+                }
+            }
         </script>
+
     }
 </body>
 </html>

@@ -2016,7 +2016,7 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(d => d.DistrictName)
                 .Select(d => new SelectListItem
                 {
-                    Value = d.DistrictName,
+                    Value = d.DistrictId,
                     Text = d.DistrictName
                 }).ToList();
 
@@ -2047,7 +2047,19 @@ namespace Medical_Affiliation.Controllers
 
         }
 
+        [HttpGet]
+        public JsonResult GetTaluksByDistrict(string district)
+        {
+            var taluks = _context.TalukMasters
+                .Where(t => t.DistrictId == district)
+                .Select(t => new SelectListItem
+                {
+                    Value = t.TalukName,
+                    Text = t.TalukName
+                }).ToList();
 
+            return Json(taluks);
+        }
         // ─────────────────────────────────────────────────────────────────────────────
         // GET: Institution/Institution_Details
         // ─────────────────────────────────────────────────────────────────────────────
@@ -2069,6 +2081,7 @@ namespace Medical_Affiliation.Controllers
             // 2. Try to load existing record
             var entity = _context.AffInstitutionsDetails.FirstOrDefault(x => x.FacultyCode.Trim() == facultyCode.Trim() &&
                          x.CollegeCode.Trim() == collegeCode.Trim() && x.CourseLevel == courseLevel.Trim());
+            var GetCollegeName = _context.AffiliationCollegeMasters.Where(e => e.CollegeCode == collegeCode).FirstOrDefault();
 
             // 3. Build view model
             InstitutionViewModel vm;
@@ -2081,6 +2094,7 @@ namespace Medical_Affiliation.Controllers
                     FacultyCode = facultyCode,
                     CollegeCode = collegeCode,
                     CourseLevel = courseLevel,
+                    NameOfInstitution = GetCollegeName.CollegeName,
                 };
             }
             else
