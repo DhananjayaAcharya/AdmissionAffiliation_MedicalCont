@@ -1,5 +1,11 @@
 ﻿using Medical_Affiliation.DATA;
+using Medical_Affiliation.Models;
 using Medical_Affiliation.Services;
+using Medical_Affiliation.Services.Faculty;
+using Medical_Affiliation.Services.Handlers;
+using Medical_Affiliation.Services.Handlers.Medical;
+using Medical_Affiliation.Services.Interfaces;
+using Medical_Affiliation.Services.UserContext;
 using Medical_Affiliation.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
@@ -7,6 +13,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +61,30 @@ builder.Services.AddDataProtection()
 // 🔹 HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<LicTadaService>();
+
+builder.Services.AddScoped<IUserContext, SessionUserContext>();
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+//builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();
+//builder.Services.AddScoped<IFacultyHospitalHandler, NursingHospitalHandler>();
+builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+//builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
+//builder.Services.AddScoped<ICALibraryService, CALibraryService>();
+//builder.Services.AddScoped<ICAVehicleService, CAVehicleService>();
+//builder.Services.AddScoped<ICAHospitalAffiliationService, CAHospitalAffiliationService>();
+//builder.Services.AddScoped<ICALandClassEquipmentService, CALandAndEquipmentService>();
+//builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
+//builder.Services.AddScoped<ICAFinanceService, CAFinanceService>();
+//builder.Services.AddScoped<ICAAdminTeachAndHostel, CAAdminTeachAndHostelService>();
+//builder.Services.AddScoped<ICAFacultyDesigNonTeaching, CAFacultyDesigNonTeachingService>();
+builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+builder.Services.AddScoped<IUserContext, SessionUserContext>();
+//builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
+//builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
+//builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
+
+//builder.Services.AddScoped<IUserContext, SessionUserContext>(); // 🔥 ADD THIS
 
 // =============================================
 // 🔥 AUTHENTICATION - DYNAMIC COOKIE PATH (Fixed for Local + Server)

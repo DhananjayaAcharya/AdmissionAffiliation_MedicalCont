@@ -1,8 +1,12 @@
 ﻿@model DeanDetailsViewModel
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Staff Particulars - Principal";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+
+    var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+
 }
 
 
@@ -686,8 +690,10 @@
 
                 <!-- ── Footer ── -->
                 <div class="form-footer">
-                    <a asp-controller="CA_Med_StaffDetails" asp-action="dean_directordetails"
+                    <a asp-controller="ContinuesAffiliation_Facultybased"
+                       asp-action="Dean_DirectorDetails"
                        class="btn-prev">← Previous</a>
+
                     <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
                 </div>
 

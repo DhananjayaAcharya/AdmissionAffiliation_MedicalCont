@@ -779,7 +779,9 @@
     </style>
 </head>
 <body>
-    @if (TempData["LoginError"] != null)
+    @* @if (TempData["LoginError"] != null) *@
+
+    @if (TempData["LoginError"] != null && Context.Request.Method == "POST")
     {
         <div style="color: red; background-color: #ffe6e6; padding: 10px; margin-bottom: 10px; border: 1px solid red;">
             @TempData["LoginError"]
@@ -853,7 +855,8 @@
                                         <div class="ic-val">2026 – 2027</div>
                                     </div>
                                 </div>
-                                <div class="info-card">
+                                
+                              @*   <div class="info-card">
                                     <div class="ic-icon"><i class="bi bi-headset"></i></div>
                                     <div>
                                         <div class="ic-lbl">Helpdesk</div>
@@ -866,7 +869,7 @@
                                         <div class="ic-lbl">Support Hours</div>
                                         <div class="ic-val">Mon – Sat, 9 AM – 6 PM</div>
                                     </div>
-                                </div>
+                                </div> *@
                             </div>
                         </div>
 
@@ -1043,7 +1046,7 @@
             $('#CollegeId').on('change', function () {
                 $('input[name="Username"]').val($(this).find('option:selected').data('code') || '');
             });
-
+            
             /* Password toggle */
             $('#togglePwBtn').on('click', function () {
                 var $i = $('#PasswordField'), pass = $i.attr('type') === 'password';

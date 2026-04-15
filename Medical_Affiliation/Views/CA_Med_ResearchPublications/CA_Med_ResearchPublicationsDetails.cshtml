@@ -3,427 +3,295 @@
 
 @{
     ViewData["Title"] = "Research and Publication";
-    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+}
+@{
     var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Research and Publication</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+<style>
+    :root {
+        --ink: #0f1923;
+        --ink-mid: #2e3d4f;
+        --ink-muted: #6b7a8d;
+        --border: #d4dae3;
+        --bg: #f4f6f9;
+        --surface: #ffffff;
+        --accent: #1a4c8b;
+        --accent-lt: #e8edf7;
+        --danger: #c0392b;
+        --gold: #c9a84c;
+        --radius: 10px;
+        --shadow: 0 2px 16px rgba(15,25,35,.07);
+    }
 
-    <style>
-        :root {
-            --ink: #0f1923;
-            --ink-mid: #2e3d4f;
-            --ink-muted: #6b7a8d;
-            --border: #d4dae3;
-            --bg: #f4f6f9;
-            --surface: #ffffff;
-            --accent: #1a4c8b;
-            --accent-lt: #e8edf7;
-            --gold: #c9a84c;
-            --radius: 10px;
-            --shadow: 0 2px 16px rgba(15,25,35,.07);
-        }
+    .custom-header {
+        background: linear-gradient(135deg, #0f1923, #1a4c8b);
+        padding: 22px 30px;
+        border-bottom: 3px solid var(--gold);
+        /* ✅ Rounded edges */
+        border-radius: 10px;
+        /* ✅ Gap below header */
+        margin-bottom: 25px;
+        /* Optional: subtle shadow for premium feel */
+        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            min-height: 100vh;
-        }
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--bg);
+    }
 
-        /* Page Header - Matching Academic Matters */
-        .page-header {
-            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
-            padding: 28px 40px 24px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            border-bottom: 3px solid var(--gold);
-        }
+    /* PAGE WRAPPER */
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 30px 30px;
+        /* margin-left: 200px; */
+    }
 
-        .page-header .emblem {
-            width: 54px; height: 54px;
-            border: 2px solid var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    /* CARD */
+    .card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-bottom: 25px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
 
-        .page-header .emblem svg {
-            width: 28px; height: 28px; fill: var(--gold);
-        }
+    /* HEADINGS */
+    h5 {
+        font-size: .85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: var(--accent);
+        margin-bottom: 18px;
+    }
 
-        .page-header-text h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.45rem;
-            color: #ffffff;
-            letter-spacing: .02em;
-        }
+    /* INPUTS */
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        font-size: .85rem;
+    }
 
-        .page-header-text p {
-            font-size: .78rem;
-            color: rgba(255,255,255,.55);
-            margin-top: 3px;
-            letter-spacing: .06em;
+    /* TABLE */
+    .table {
+        font-size: .82rem;
+    }
+
+        .table thead th {
+            background: #f0f4fb !important;
+            color: var(--accent);
+            font-size: .72rem;
             text-transform: uppercase;
+            letter-spacing: .05em;
         }
 
-        .form-wrap {
-            max-width: 1280px;
-            margin: 32px auto;
-            padding: 0 24px 60px;
+        .table tbody tr:hover {
+            background: #f8faff;
         }
 
-        .section-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            margin-bottom: 28px;
-            animation: fadeUp .35s ease both;
-        }
+    /* BUTTONS */
+    .btn-success {
+        background: linear-gradient(135deg, #1e7e4e, #27ae60);
+        border: none;
+        font-size: .85rem;
+        padding: 8px 18px;
+    }
 
-        @@keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .btn-primary {
+        background: linear-gradient(135deg, #1a4c8b, #1564c0);
+        border: none;
+    }
 
-        .section-header {
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border);
-            background: #fafbfc;
-        }
+    .btn-info {
+        background: #e8edf7;
+        color: #1a4c8b;
+        border: none;
+    }
 
-        .section-header .icon-wrap {
-            width: 38px; height: 38px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--accent-lt);
-        }
+    /* ALERT */
+    .alert-info {
+        background: #e8edf7;
+        border: none;
+        color: #1a4c8b;
+    }
+</style>
 
-        .section-header h2 {
-            font-size: 1.02rem;
-            font-weight: 600;
-            letter-spacing: .03em;
-            color: var(--ink);
-            margin: 0;
-        }
 
-        .section-body {
-            padding: 1.75rem;
-        }
 
-        .custom-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+<div class="page-wrapper">
 
-        .custom-table th, .custom-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        .custom-table th {
-            background: #f8f9fc;
-            color: var(--ink-mid);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.76rem;
-            letter-spacing: 0.05em;
-        }
-
-        .custom-table tr:hover {
-            background: #f8fbff;
-        }
-
-        .form-control {
-            font-size: 0.875rem;
-            background: #fafbfc;
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 9px 13px;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(26,76,139,.1);
-        }
-
-        .custom-upload-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--accent);
-            color: white;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 0.83rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .custom-upload-btn:hover {
-            background: #1564c0;
-            transform: translateY(-1px);
-        }
-
-        input[type="file"] {
-            display: none !important;
-        }
-
-        .btn {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 10px 26px;
-            letter-spacing: .03em;
-            transition: all .18s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #1a4c8b, #1564c0);
-            color: #fff;
-            box-shadow: 0 3px 14px rgba(26,76,139,.3);
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 5px 20px rgba(26,76,139,.4);
-            transform: translateY(-1px);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #1e7e4e, #27ae60);
-            color: #fff;
-            box-shadow: 0 3px 14px rgba(30,126,78,.3);
-        }
-
-        .btn-success:hover {
-            box-shadow: 0 5px 20px rgba(30,126,78,.4);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--ink-muted);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--ink-mid);
-            color: var(--ink);
-        }
-
-        .check-label {
-            font-weight: 500;
-            cursor: pointer;
-        }
-    </style>
-
-    <link rel="stylesheet" href="~/css/common-form.css" />
-
-</head>
-<body>
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="emblem">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z"/>
-                <path d="M14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z"/>
-            </svg>
-        </div>
-        <div class="page-header-text">
-            <h1>Research and Publication</h1>
-            <p>Postgraduate Courses — Research, Projects & Academic Activities</p>
-        </div>
+    <div class="custom-header">
+        <h4 style="color:white; margin:0; font-family: 'Playfair Display', serif;">
+            Research and Publication
+        </h4>
+        <small style="color:rgba(255,255,255,0.6)">
+            RGUHS · Affiliation Portal
+        </small>
+        <div class="header-badge">Step 9 of 27</div>
     </div>
+    <div class="container">
+        @*  <h3 class="text-center mb-4">4. Research and Publication</h3> *@
 
-    <div class="form-wrap">
-        <form asp-action="CA_Med_ResearchPublicationsDetails" method="post" enctype="multipart/form-data" id="researchForm">
+        @*Code entered to display current course level*@
+
+        @* <div class="alert alert-info">
+            Current Course Level: @level
+        </div> *@
+
+        <!-- ================== MAIN FORM (4.a – 4.c) ================== -->
+        <form asp-action="CA_Med_ResearchPublicationsDetails" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
 
-            <!-- 4.a Number of Publications -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="icon-wrap">
-                        <i class="bi bi-journal-text" style="font-size:1.5rem; color:#1a4c8b;"></i>
-                    </div>
-                    <h2>a. Number of Publications during last 3 years</h2>
-                </div>
-                <div class="section-body">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Number of Publications <span class="text-danger">*</span></label>
-                            <input asp-for="PublicationsNo" type="number" min="0" class="form-control" />
-                            <span asp-validation-for="PublicationsNo" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Upload Publications PDF <span class="text-danger">*</span></label>
-                            <label for="publicationsPdf" class="custom-upload-btn">
-                                <i class="bi bi-upload"></i> Upload PDF
-                            </label>
-                            <input type="file" id="publicationsPdf" name="PublicationsPdf" accept="application/pdf" />
-                            <span asp-validation-for="PublicationsPdf" class="text-danger"></span>
+            <!-- 4.a -->
+            <div class="card">
+                <h5>a. Number of Publication during last 3 years</h5>
 
-                            @if (!string.IsNullOrEmpty(Model.PublicationsPdfName))
-                            {
-                                <a asp-action="ViewPublicationsPdf" target="_blank" class="btn btn-secondary ms-3">
-                                    <i class="bi bi-eye"></i> View PDF
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Number of Publications *</label>
+                        <input asp-for="PublicationsNo" type="number" min="1" class="form-control" />
+                        <span asp-validation-for="PublicationsNo" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Upload Publications PDF *</label>
+                        <input type="file" name="PublicationsPdf" accept="application/pdf" class="form-control" />
+                        <span asp-validation-for="PublicationsPdf" class="text-danger"></span>
+
+                        @if (!string.IsNullOrEmpty(Model.PublicationsPdfName))
+                        {
+                            <div class="mt-2">
+                                <a asp-action="ViewPublicationsPdf" target="_blank" class="btn btn-info btn-sm">
+                                    View Publications
                                 </a>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4.b Research Projects -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="icon-wrap">
-                        <i class="bi bi-lightbulb-fill" style="font-size:1.5rem; color:#1a4c8b;"></i>
-                    </div>
-                    <h2>b. Research Projects</h2>
-                </div>
-                <div class="section-body">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th style="width:10%">No</th>
-                                <th style="width:25%">Category</th>
-                                <th style="width:32.5%">RGUHS Funded</th>
-                                <th style="width:32.5%">External Body Funding</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-center">1</td>
-                                <td class="fw-semibold">Students</td>
-                                <td><input asp-for="StudentsRGUHSFunded" type="number" min="0" class="form-control" /></td>
-                                <td><input asp-for="StudentsExternalBodyFunding" type="number" min="0" class="form-control" /></td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">2</td>
-                                <td class="fw-semibold">Faculty</td>
-                                <td><input asp-for="FacultyRGUHSFunded" type="number" min="0" class="form-control" /></td>
-                                <td><input asp-for="FacultyExternalBodyFunding" type="number" min="0" class="form-control" /></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- Students Projects PDF -->
-                    <div class="mt-4 pt-3 border-top">
-                        <label class="form-label fw-semibold">Upload Students Projects PDF <span class="text-danger">*</span></label>
-                        <label for="studentsProjectsPdf" class="custom-upload-btn">
-                            <i class="bi bi-upload"></i> Upload PDF
-                        </label>
-                        <input type="file" id="studentsProjectsPdf" name="StudentsProjectsPdf" accept="application/pdf" />
-                        <span asp-validation-for="StudentsProjectsPdf" class="text-danger"></span>
-
-                        @if (!string.IsNullOrEmpty(Model.StudentsProjectsPdfName))
-                        {
-                            <a asp-action="ViewStudentsProjectsPdf" target="_blank" class="btn btn-secondary ms-3">
-                                <i class="bi bi-eye"></i> View Students Projects
-                            </a>
-                        }
-                    </div>
-
-                    <!-- Faculty Projects PDF -->
-                    <div class="mt-4">
-                        <label class="form-label fw-semibold">Upload Faculty Projects PDF <span class="text-danger">*</span></label>
-                        <label for="facultyProjectsPdf" class="custom-upload-btn">
-                            <i class="bi bi-upload"></i> Upload PDF
-                        </label>
-                        <input type="file" id="facultyProjectsPdf" name="FacultyProjectsPdf" accept="application/pdf" />
-                        <span asp-validation-for="FacultyProjectsPdf" class="text-danger"></span>
-
-                        @if (!string.IsNullOrEmpty(Model.FacultyProjectsPdfName))
-                        {
-                            <a asp-action="ViewFacultyProjectsPdf" target="_blank" class="btn btn-secondary ms-3">
-                                <i class="bi bi-eye"></i> View Faculty Projects
-                            </a>
+                            </div>
                         }
                     </div>
                 </div>
             </div>
 
-            <!-- 4.c Clinical Trials -->
+            <!-- 4.b -->
+            <div class="card">
+                <h5>b. Research Projects</h5>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width:10%">No</th>
+                            <th style="width:20%">PI</th>
+                            <th style="width:35%">RGUHS Funded</th>
+                            <th style="width:35%">External Body Funding</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Students</td>
+                            <td>
+                                <input asp-for="StudentsRGUHSFunded" type="number" class="form-control" />
+                                <span asp-validation-for="StudentsRGUHSFunded" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <input asp-for="StudentsExternalBodyFunding" type="number" class="form-control" />
+                                <span asp-validation-for="StudentsExternalBodyFunding" class="text-danger"></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>2</td>
+                            <td>Faculty</td>
+                            <td>
+                                <input asp-for="FacultyRGUHSFunded" type="number" class="form-control" />
+                                <span asp-validation-for="FacultyRGUHSFunded" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <input asp-for="FacultyExternalBodyFunding" type="number" class="form-control" />
+                                <span asp-validation-for="FacultyExternalBodyFunding" class="text-danger"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- ✅ Students Projects PDF -->
+                <div class="mt-3">
+                    <label>Upload Students Projects PDF *</label>
+                    <input type="file" name="StudentsProjectsPdf" accept="application/pdf" class="form-control" />
+                    <span asp-validation-for="StudentsProjectsPdf" class="text-danger"></span>
+
+                    @if (!string.IsNullOrEmpty(Model.StudentsProjectsPdfName))
+                    {
+                        <a asp-action="ViewStudentsProjectsPdf" target="_blank"
+                           class="btn btn-info btn-sm mt-2">
+                            View Students projects
+                        </a>
+                    }
+                </div>
+
+                <!-- ✅ Faculty Projects PDF -->
+                <div class="mt-3">
+                    <label>Upload Faculty Projects PDF *</label>
+                    <input type="file" name="FacultyProjectsPdf" accept="application/pdf" class="form-control" />
+                    <span asp-validation-for="FacultyProjectsPdf" class="text-danger"></span>
+
+                    @if (!string.IsNullOrEmpty(Model.FacultyProjectsPdfName))
+                    {
+                        <a asp-action="ViewFacultyProjectsPdf" target="_blank"
+                           class="btn btn-info btn-sm mt-2">
+                            View Faculty Projects
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- 4.c -->
             @if (level != "SS")
             {
-                <div class="section-card">
-                    <div class="section-header">
-                        <div class="icon-wrap">
-                            <i class="bi bi-clipboard-pulse" style="font-size:1.5rem; color:#1a4c8b;"></i>
-                        </div>
-                        <h2>c. Clinical Trials</h2>
-                    </div>
-                    <div class="section-body">
-                        <label class="form-label fw-semibold">Upload Clinical Trials PDF <span class="text-danger">*</span></label>
-                        <label for="clinicalTrialsPdf" class="custom-upload-btn">
-                            <i class="bi bi-upload"></i> Upload PDF
-                        </label>
-                        <input type="file" id="clinicalTrialsPdf" name="ClinicalTrialsPdf" accept="application/pdf" />
-                        <span asp-validation-for="ClinicalTrialsPdf" class="text-danger"></span>
+                <div class="card">
+                    <h5>c. Clinical Trials</h5>
 
-                        @if (!string.IsNullOrEmpty(Model.ClinicalTrialsPdfName))
-                        {
-                            <a asp-action="ViewClinicalTrialsPdf" target="_blank" class="btn btn-secondary ms-3">
-                                <i class="bi bi-eye"></i> View Clinical Trials
-                            </a>
-                        }
-                    </div>
+                    <label>Upload Clinical Trials PDF *</label>
+                    <input type="file" name="ClinicalTrialsPdf" accept="application/pdf" class="form-control" />
+                    <span asp-validation-for="ClinicalTrialsPdf" class="text-danger"></span>
+
+                    @if (!string.IsNullOrEmpty(Model.ClinicalTrialsPdfName))
+                    {
+                        <a asp-action="ViewClinicalTrialsPdf" target="_blank"
+                           class="btn btn-info btn-sm mt-2">
+                            View Clinical Trails
+                        </a>
+                    }
                 </div>
             }
 
-            <!-- Action Buttons -->
-            <div class="d-flex justify-content-between align-items-center mt-5">
-                <a asp-controller="Medical_ContinuousAffiliation" 
-                   asp-action="Medical_DepartmentOfficesAndEducationalUnit" 
-                   class="btn btn-secondary">← Previous</a>
-
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-cloud-arrow-up me-2"></i>Save Research & Publication Details
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-success btn-lg">
+                    Save All Research Details
                 </button>
-
-                <a asp-controller="Aff_CA_MedicalLibrary" 
-                   asp-action="Aff_CA_Medical_LibraryDetails" 
-                   class="btn btn-primary">Next → Library Details</a>
             </div>
         </form>
 
-        <!-- 4.d Other Academic Activities (Department-wise) -->
+        <!-- 4.d Other Academic Activities (No Edit - Only Add + Delete + View) -->
         @if (level != "SS")
         {
-            <div class="section-card mt-5">
-                <div class="section-header">
-                    <div class="icon-wrap">
-                        <i class="bi bi-people-fill" style="font-size:1.5rem; color:#1a4c8b;"></i>
-                    </div>
-                    <h2>4.d Other Academic Activities (Department-wise)</h2>
-                </div>
-                <div class="section-body">
-                    <form asp-action="SaveOtherAcademicActivity" method="post" enctype="multipart/form-data" class="mb-4">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h5>4.d Other Academic Activities (Department-wise)</h5>
+                    <hr />
+
+                    <form asp-action="SaveOtherAcademicActivity" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
-                        <div class="row align-items-end g-3">
+
+                        <div class="row align-items-end mb-4">
                             <div class="col-md-4">
-                                <label class="form-label">Department <span class="text-danger">*</span></label>
-                                <select name="DepartmentCode" class="form-control" required>
+                                <label>Department <span class="text-danger">*</span></label>
+                                <select name="DepartmentCode" class="form-select" required>
                                     <option value="">-- Select Department --</option>
                                     @foreach (var d in Model.Departments)
                                     {
@@ -432,8 +300,8 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Activity <span class="text-danger">*</span></label>
-                                <select name="ActivityId" class="form-control" required>
+                                <label>Activity <span class="text-danger">*</span></label>
+                                <select name="ActivityId" class="form-select" required>
                                     <option value="">-- Select Activity --</option>
                                     @foreach (var a in Model.ActivityMasters)
                                     {
@@ -442,48 +310,44 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Upload PDF <span class="text-danger">*</span></label>
-                                <label for="activityPdf" class="custom-upload-btn w-100 justify-content-center">
-                                    <i class="bi bi-upload"></i> Choose PDF
-                                </label>
-                                <input type="file" id="activityPdf" name="ActivityPdf" accept="application/pdf" style="display:none;" required />
+                                <label>Upload PDF <span class="text-danger">*</span></label>
+                                <input type="file" name="ActivityPdf" accept="application/pdf" class="form-control" required />
                             </div>
-                            <div class="col-md-1">
-                                <button type="submit" class="btn btn-success w-100">Save</button>
+                            <div class="col-md-2 d-flex justify-content-center align-items-end pt-3">
+                                <button type="submit" class="btn btn-success px-4">
+                                    SAVE
+                                </button>
                             </div>
                         </div>
                     </form>
 
-                    <table class="custom-table">
-                        <thead>
+                    <table class="table table-bordered mt-4">
+                        <thead class="table-light">
                             <tr>
                                 <th>Department</th>
                                 <th>Activity</th>
                                 <th>PDF</th>
-                                <th class="text-center">Actions</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if (Model.OtherActivities?.Any() == true)
                             {
-                                foreach (var row in Model.OtherActivities)
+                                @foreach (var row in Model.OtherActivities)
                                 {
                                     <tr>
                                         <td>@row.DepartmentWise</td>
                                         <td>@row.ActivityName</td>
                                         <td>
-                                            <a asp-action="ViewOtherActivityPdf" asp-route-id="@row.Id" 
-                                               class="btn btn-secondary btn-sm" target="_blank">
-                                                <i class="bi bi-eye"></i> View
+                                            <a asp-action="ViewOtherActivityPdf" asp-route-id="@row.Id" class="btn btn-info btn-sm" target="_blank">
+                                                View
                                             </a>
                                         </td>
-                                        <td class="text-center">
-                                            <form asp-action="DeleteOtherAcademicActivity" asp-route-id="@row.Id" 
-                                                  method="post" style="display:inline;">
+                                        <td>
+                                            <form asp-action="DeleteOtherAcademicActivity" asp-route-id="@row.Id" method="post" style="display:inline;">
                                                 @Html.AntiForgeryToken()
-                                                <button type="button" class="btn btn-secondary btn-sm text-danger" 
-                                                        onclick="confirmDelete(this)">
-                                                    <i class="bi bi-trash"></i>
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(this)">
+                                                    Delete
                                                 </button>
                                             </form>
                                         </td>
@@ -493,7 +357,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">No activities added yet</td>
+                                    <td colspan="4" class="text-center">No activities added yet</td>
                                 </tr>
                             }
                         </tbody>
@@ -502,141 +366,167 @@
             </div>
         }
 
-        <!-- 5. Committees -->
-        <div class="section-card mt-5">
-            <div class="section-header">
-                <div class="icon-wrap">
-                    <i class="bi bi-diagram-3" style="font-size:1.5rem; color:#1a4c8b;"></i>
-                </div>
-                <h2>5. Committees</h2>
-            </div>
-            <div class="section-body">
-                @if (Model.Committees?.Any() == true)
-                {
-                    <form asp-action="SaveCommitteeDetails" method="post" enctype="multipart/form-data" id="committeeForm">
-                        @Html.AntiForgeryToken()
+        <!-- ================== 5. COMMITTEES ================== -->
+        <div class="card mt-5">
+            <h5>5. Committees</h5>
 
-                        <table class="custom-table">
-                            <thead>
+            @if (Model.Committees?.Any() == true)
+            {
+                <form asp-action="SaveCommitteeDetails" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Committee Name</th>
+                                <th>Available</th>
+                                <th>Document</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Committees.Count; i++)
+                            {
                                 <tr>
-                                    <th>Committee Name</th>
-                                    <th class="text-center" style="width:120px;">Available</th>
-                                    <th>Document</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (int i = 0; i < Model.Committees.Count; i++)
-                                {
-                                    var committee = Model.Committees[i];
-                                    <tr>
-                                        <input type="hidden" name="Committees[@i].CommitteeId" value="@committee.CommitteeId" />
-                                        <input type="hidden" name="Committees[@i].CommitteeName" value="@committee.CommitteeName" />
-                                        <td class="fw-semibold">@committee.CommitteeName</td>
-                                        <td class="text-center">
-                                            <select name="Committees[@i].IsPresent" class="form-control is-present-select">
-                                                <option value="">-- Select --</option>
-                                                <option value="Y" selected="@(committee.IsPresent == "Y")">Yes</option>
-                                                <option value="N" selected="@(committee.IsPresent == "N")">No</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <div class="file-upload-wrapper" style="display:@(committee.IsPresent == "Y" ? "block" : "none")">
-                                                <label for="committeePdf_@i" class="custom-upload-btn">
-                                                    <i class="bi bi-upload"></i> Upload PDF
-                                                </label>
-                                                <input type="file" id="committeePdf_@i" name="Committees[@i].CommitteePdf" 
-                                                       accept="application/pdf" />
-                                                @if (!string.IsNullOrEmpty(committee.CommitteePdfName))
-                                                {
-                                                    <a asp-action="ViewCommitteePdf" asp-route-committeeId="@committee.CommitteeId" 
-                                                       target="_blank" class="btn btn-secondary mt-2 d-inline-block">
-                                                        <i class="bi bi-eye"></i> View
-                                                    </a>
-                                                }
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                    <input type="hidden" name="Committees[@i].CommitteeId" value="@Model.Committees[i].CommitteeId" />
+                                    <input type="hidden" name="Committees[@i].CommitteeName" value="@Model.Committees[i].CommitteeName" />
 
-                        <div class="text-end mt-4">
+                                    <td>@Model.Committees[i].CommitteeName</td>
+
+                                    <td>
+                                        <select name="Committees[@i].IsPresent" class="form-select is-present-select">
+                                            <option value="">-- Select --</option>
+                                            <option value="Y" selected="@(Model.Committees[i].IsPresent == "Y")">Yes</option>
+                                            <option value="N" selected="@(Model.Committees[i].IsPresent == "N")">No</option>
+                                        </select>
+                                    </td>
+
+                                    <td>
+                                        <div class="file-upload-wrapper" style="display:@(Model.Committees[i].IsPresent == "Y" ? "block" : "none")">
+                                            <input type="file" name="Committees[@i].CommitteePdf" accept="application/pdf" class="form-control" />
+
+                                            @if (!string.IsNullOrEmpty(Model.Committees[i].CommitteePdfName))
+                                            {
+                                                <div class="mt-2">
+                                                    <a asp-action="ViewCommitteePdf"
+                                                       asp-route-committeeId="@Model.Committees[i].CommitteeId"
+                                                       target="_blank"
+                                                       class="btn btn-info btn-sm">
+                                                        View
+                                                    </a>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="text-end mt-4">
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+
+                            <!-- 🔹 PREVIOUS (UPDATED) -->
+                            <a asp-controller="CA_Med_StaffDetails"
+                               asp-action="CA_Med_StaffDetails"
+                               class="btn btn-secondary">← Previous</a>
+
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-cloud-arrow-up me-2"></i>Save Committee Details
                             </button>
+
+                            <a asp-controller="Aff_CA_MedicalLibrary"
+                               asp-action="Aff_CA_Medical_LibraryDetails"
+                               class="btn btn-primary">Next →</a>
+
                         </div>
-                    </form>
-                }
-            </div>
+                    </div>
+                </form>
+
+               
+            }
         </div>
     </div>
+</div>
 
-    @section Scripts {
-        <partial name="_ValidationScriptsPartial" />
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 
-        <script>
-            // Confirm Delete for Other Academic Activities
-            function confirmDelete(button) {
-                const form = button.closest('form');
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'You want to delete this activity?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            }
+    <script>
+        function confirmDelete(button) {
+            const form = button.closest('form');
 
-            // Toggle file upload visibility for Committees
-            document.addEventListener('DOMContentLoaded', function () {
-                document.querySelectorAll('.is-present-select').forEach(select => {
-                    function toggleFileUpload() {
-                        const row = select.closest('tr');
-                        const wrapper = row.querySelector('.file-upload-wrapper');
-                        if (wrapper) {
-                            wrapper.style.display = select.value === 'Y' ? 'block' : 'none';
-                        }
-                    }
-                    toggleFileUpload();
-                    select.addEventListener('change', toggleFileUpload);
-                });
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You want to delete this activity?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
             });
+        }
+    </script>
 
-            // SweetAlert for TempData messages
-            @if (TempData["Error"] != null)
-            {
-                <text>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Save Failed',
-                    text: '@TempData["Error"]',
-                    timer: 10000,
-                    confirmButtonColor: '#d33'
-                });
-                </text>
-            }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.is-present-select').forEach(select => {
+                function toggleFileUpload() {
+                    const row = select.closest('tr');
+                    const wrapper = row.querySelector('.file-upload-wrapper');
+                    if (wrapper) {
+                        wrapper.style.display = select.value === 'Y' ? 'block' : 'none';
+                    }
+                }
+                toggleFileUpload();
+                select.addEventListener('change', toggleFileUpload);
+            });
+        });
+    </script>
 
-            @if (TempData["Success"] != null && Context.Request.Method == "POST")
-            {
-                <text>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '@TempData["Success"]',
-                    confirmButtonColor: '#198754',
-                    timer: 2500,
-                    timerProgressBar: true
-                });
-                </text>
-            }
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Save Failed',
+                text: '@TempData["Error"]',
+                timer: 10000,
+                confirmButtonColor: '#d33'
+            });
         </script>
     }
-</body>
-</html>
+
+    @* @if (TempData["Success"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["Success"]',
+                confirmButtonColor: '#198754',
+                timer: 2500,
+                timerProgressBar: true
+            });
+        </script>
+    } *@
+
+    @* ✅ FIX: Show only if coming after SAVE (not navigation) *@
+    @if (TempData["Success"] != null && Context.Request.Method == "POST")
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["Success"]',
+                confirmButtonColor: '#198754',
+                timer: 2500,
+                timerProgressBar: true
+            });
+        </script>
+    }
+}

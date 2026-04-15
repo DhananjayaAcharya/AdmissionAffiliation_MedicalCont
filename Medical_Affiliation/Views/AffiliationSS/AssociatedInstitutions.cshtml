@@ -410,12 +410,54 @@
                 </div>
             </div>
             <div class="btngroup">
-                <a asp-controller="AffiliationSS" asp-action="CoursesOffered" class="btn btn-ghost me-auto">
+                @* <a asp-controller="AffiliationSS" asp-action="CoursesOffered" class="btn btn-ghost me-auto">
                     ← Previous
-                </a>
-                <a asp-controller="CA_Aff_AcademicMatters" asp-action="AcademicMatters" class="btn btn-primary ms-auto">
+                </a> *@
+
+               @*  <a asp-controller="AffiliationPgCourse" asp-action="PgCourses" class="btn btn-ghost me-auto">
+                    ← Previous
+                </a> *@
+
+                @{
+                    var courseLevel = Context.Session.GetString("CourseLevel");
+                }
+
+                @if (courseLevel == "PG")
+                {
+                    <a asp-controller="AffiliationPgCourse"
+                       asp-action="PgCourses"
+                       class="btn btn-ghost me-auto">
+                        ← Previous
+                    </a>
+                }
+                else if (courseLevel == "SS")
+                {
+                    <a asp-controller="AffiliationSS"
+                       asp-action="CoursesOffered"
+                       class="btn btn-ghost me-auto">
+                        ← Previous
+                    </a>
+                }
+               @*  <a asp-controller="Aff_CA_SS_CoursesAppliedSS" asp-action="CA_SS_CoursesApplied" class="btn btn-primary ms-auto">
                     Next →
-                </a>
+                </a> *@
+
+                @if (courseLevel == "PG")
+                {
+                    <a asp-controller="Medical_ContinuousAffiliation"
+                       asp-action="Medical_LandBuildingdetails"
+                       class="btn btn-primary ms-auto">
+                        Next →
+                    </a>
+                }
+                else if (courseLevel == "SS")
+                {
+                    <a asp-controller="Aff_CA_SS_CoursesAppliedSS"
+                       asp-action="CA_SS_CoursesApplied"
+                       class="btn btn-primary ms-auto">
+                        Next →
+                    </a>
+                }
             </div>
             
         </div>

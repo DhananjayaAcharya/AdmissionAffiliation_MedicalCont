@@ -652,7 +652,10 @@
                 </div>
                 <!-- Navigation -->
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 .5rem;">
-                    <a asp-action="Aff_TrustMemberDetails" asp-controller="ContinuesAffiliation_Facultybased"
+                    @* <a asp-action="Aff_TrustMemberDetails" asp-controller="ContinuesAffiliation_Facultybased"
+                       class="btn btn-ghost">← Previous</a> *@
+
+                    <a asp-action="Aff_PrincipalDetails" asp-controller="ContinuesAffiliation_Facultybased"
                        class="btn btn-ghost">← Previous</a>
                         <div style="padding:20px 24px; border-top:1px solid var(--border); text-align:center;">
                             <small class="text-muted">Maximum file size: 1 MB</small><br>
@@ -660,7 +663,10 @@
                                 <i class="bi bi-cloud-arrow-up me-2"></i>Save
                             </button>
                         </div>
-                    <a asp-action="CoursesOffered" asp-controller="AffiliationPg"
+                    @* <a asp-action="CoursesOffered" asp-controller="AffiliationPg"
+                       class="btn btn-primary">Next →</a> *@
+
+                    <a asp-action="AssociatedInstitutions" asp-controller="AffiliationSS"
                        class="btn btn-primary">Next →</a>
                 </div>
             </form>
