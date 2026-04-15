@@ -13,11 +13,6 @@ public partial class TeachingStaffDepartmentWiseDetail
 
     public string? CourseLevel { get; set; }
 
-    public string? UGCollegeCode { get; set; }
-
-    public string? PGCollegeCode { get; set; }
-
-
     public string? DepartmentCode { get; set; }
 
     public string? DesignationCode { get; set; }
@@ -34,7 +29,7 @@ public partial class TeachingStaffDepartmentWiseDetail
 
     public decimal? TotalExperience { get; set; }
 
-    //public string? UgcollegeCode { get; set; }
+    public string? UgcollegeCode { get; set; }
 
-    //public string? PgcollegeCode { get; set; }
+    public string? PgcollegeCode { get; set; }
 }

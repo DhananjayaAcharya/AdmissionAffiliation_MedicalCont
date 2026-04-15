@@ -989,34 +989,36 @@
 
             $(document).ready(function () {
 
-                $("#districtDropdown").change(function () {
+                        $("#districtDropdown").change(function () {
 
-                    var district = $(this).val();
+                            var district = $(this).val();
 
-                    $("#talukDropdown").empty();
-                    $("#talukDropdown").append('<option value="">Loading...</option>');
+                            $("#talukDropdown").empty();
+                            $("#talukDropdown").append('<option value="">Loading...</option>');
 
-                    if (district !== "") {
+                            if (district !== "") {
 
-                        $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")',
-                            { district: district },
-                            function (data) {
+                                $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")',
+                                    { district: district },
+                                    function (data) {
 
+                                        $("#talukDropdown").empty();
+                                        $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
+
+                                        $.each(data, function (i, item) {
+                                            $("#talukDropdown").append('<option value="' + item.value + '">' + item.text + '</option>');
+                                        });
+                                    });
+
+                            } else {
                                 $("#talukDropdown").empty();
                                 $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
-
-                                $.each(data, function (i, item) {
-                                    $("#talukDropdown").append('<option value="' + item.value + '">' + item.text + '</option>');
-                                });
-                            });
-
-                    } else {
-                        $("#talukDropdown").empty();
-                        $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
-                    }
-                });
+                            }
+                        });
 
             });
+
+
                     function validateMobile(input) {
 
                 // Remove non-digits

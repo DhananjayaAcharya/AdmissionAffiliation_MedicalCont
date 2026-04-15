@@ -4,7 +4,12 @@
 @inject ApplicationDbContext _context   // ✅ ADD
 
 @{
-    var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel") ?? "UG";
+    // var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+
+    var level = ViewContext.RouteData.Values["level"]?.ToString()
+           ?? Context.Request.Query["level"].ToString()
+           ?? HttpContextAccessor.HttpContext.Session.GetString("CourseLevel")
+           ?? "UG";
 
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
 
@@ -565,7 +570,9 @@
             + (isCurrent ? " is-active" : "");
 
             <li>
-                <a asp-controller="@s.Ctrl" asp-action="@s.Act" class="@linkCls">
+                <a asp-controller="@s.Ctrl"
+                   asp-action="@s.Act"
+                   asp-route-level="@level" class="@linkCls">
                     <div class="@dotCls">
                         @if (isDone)
                         {

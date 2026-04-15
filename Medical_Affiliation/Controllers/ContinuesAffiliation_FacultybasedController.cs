@@ -183,8 +183,27 @@ namespace Medical_Affiliation.Controllers
 
             // Build dropdown — int == int comparison, returns Value as string
             vm.TypeOfInstitutionList = await LoadInstitutionTypeList(facultyCode);
-
+            FillDropDownss(vm);
             return View(vm);
+        }
+
+        private void FillDropDownss(MedicalVm vm)
+        {
+            vm.TalukList = _context.TalukMasters
+                .OrderBy(t => t.TalukName)
+                .Select(t => new SelectListItem
+                {
+                    Value = t.TalukName,   // ✅ FIXED
+                    Text = t.TalukName
+                }).ToList();
+
+            vm.DistrictList = _context.DistrictMasters
+                .OrderBy(d => d.DistrictName)
+                .Select(d => new SelectListItem
+                {
+                    Value = d.DistrictName,   // ✅ FIXED
+                    Text = d.DistrictName
+                }).ToList();
         }
 
 
@@ -241,6 +260,7 @@ namespace Medical_Affiliation.Controllers
             if (!ModelState.IsValid)
             {
                 vm.TypeOfInstitutionList = await LoadInstitutionTypeList(facultyCode);
+                FillDropDownss(vm);   // ✅ ADD THIS
                 return View(vm);
             }
 
@@ -354,6 +374,26 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+
+        [HttpGet]
+        public JsonResult GetTaluksByDistrictt(string district)
+        {
+            var districtId = _context.DistrictMasters
+                .Where(d => d.DistrictName == district)
+                .Select(d => d.DistrictId)
+                .FirstOrDefault();
+
+            var taluks = _context.TalukMasters
+                .Where(t => t.DistrictId == districtId)
+                .Select(t => new SelectListItem
+                {
+                    Value = t.TalukName,
+                    Text = t.TalukName
+                })
+                .ToList();
+
+            return Json(taluks);
+        }
         // ── HELPERS ──────────────────────────────────────────────────────────────────
 
 
@@ -2001,6 +2041,7 @@ namespace Medical_Affiliation.Controllers
 
             return View(entity);
         }
+
 
         private void FillDropDowns(InstitutionViewModel vm)
         {
@@ -3873,8 +3914,8 @@ namespace Medical_Affiliation.Controllers
                         PGFrom = existing?.Pgfrom?.ToDateTime(TimeOnly.MinValue),
                         PGTo = existing?.Pgto?.ToDateTime(TimeOnly.MinValue),
                         // ✅ ADD THESE
-                        UGCollegeCode = existing?.UGCollegeCode,
-                        PGCollegeCode = existing?.PGCollegeCode,
+                        UGCollegeCode = existing?.UgcollegeCode,
+                        PGCollegeCode = existing?.PgcollegeCode,
                         TotalExperience = existing?.TotalExperience
                     });
                 }
@@ -3928,8 +3969,8 @@ namespace Medical_Affiliation.Controllers
                     if (existing != null)
                     {
                         // ✅ ADD THIS
-                        existing.UGCollegeCode = row.UGCollegeCode;
-                        existing.PGCollegeCode = row.PGCollegeCode;
+                        existing.UgcollegeCode = row.UGCollegeCode;
+                        existing.PgcollegeCode = row.PGCollegeCode;
                         existing.Ugfrom = hasUG ? DateOnly.FromDateTime(row.UGFrom!.Value) : null;
                         existing.Ugto = hasUG ? DateOnly.FromDateTime(row.UGTo!.Value) : null;
                         existing.Pgfrom = hasPG ? DateOnly.FromDateTime(row.PGFrom!.Value) : null;
@@ -3947,8 +3988,8 @@ namespace Medical_Affiliation.Controllers
                             DesignationCode = row.DesignationCode,
                             DesignationName = row.DesignationName,
                             // ✅ ADD THESE
-                            UGCollegeCode = row.UGCollegeCode,
-                            PGCollegeCode = row.PGCollegeCode,
+                            UgcollegeCode = row.UGCollegeCode,
+                            PgcollegeCode = row.PGCollegeCode,
 
                             Ugfrom = hasUG ? DateOnly.FromDateTime(row.UGFrom!.Value) : null,
                             Ugto = hasUG ? DateOnly.FromDateTime(row.UGTo!.Value) : null,

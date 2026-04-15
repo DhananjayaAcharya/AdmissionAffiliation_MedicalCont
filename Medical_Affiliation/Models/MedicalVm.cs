@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Medical_Affiliation.Models
@@ -7,8 +8,14 @@ namespace Medical_Affiliation.Models
     {
             public int InstitutionId { get; set; }
 
-            // Codes
-            public string FacultyCode { get; set; }
+        // Codes
+
+        [ValidateNever]
+        public List<SelectListItem> TalukList { get; set; } = new();
+
+        [ValidateNever]
+        public List<SelectListItem> DistrictList { get; set; } = new();
+        public string FacultyCode { get; set; }
             public string CollegeCode { get; set; }
 
             // Institution basic details

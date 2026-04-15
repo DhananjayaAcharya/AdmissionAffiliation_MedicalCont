@@ -448,7 +448,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Server=localhost\\MSSQLSERVER01;Database=Admission_Affiliation;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1142,7 +1144,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationPayment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC071BE3BA8F");
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07C603CD42");
 
             entity.ToTable("Affiliation_Payment");
 
@@ -4966,15 +4968,15 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DesignationCode).HasMaxLength(20);
             entity.Property(e => e.DesignationName).HasMaxLength(100);
             entity.Property(e => e.FacultyCode).HasMaxLength(20);
-            entity.Property(e => e.PGCollegeCode)
-                             .HasMaxLength(50)
-                             .HasColumnName("PGCollegeCode");
+            entity.Property(e => e.PgcollegeCode)
+                .HasMaxLength(50)
+                .HasColumnName("PGCollegeCode");
             entity.Property(e => e.Pgfrom).HasColumnName("PGFrom");
             entity.Property(e => e.Pgto).HasColumnName("PGTo");
             entity.Property(e => e.TotalExperience).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.UGCollegeCode)
-                            .HasMaxLength(50)
-                            .HasColumnName("UGCollegeCode");
+            entity.Property(e => e.UgcollegeCode)
+                .HasMaxLength(50)
+                .HasColumnName("UGCollegeCode");
             entity.Property(e => e.Ugfrom).HasColumnName("UGFrom");
             entity.Property(e => e.Ugto).HasColumnName("UGTo");
         });
