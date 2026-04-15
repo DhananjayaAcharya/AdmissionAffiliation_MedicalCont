@@ -145,6 +145,39 @@ namespace Medical_Affiliation.Controllers
         //}
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            // Sign out from every registered auth scheme
+            await HttpContext.SignOutAsync("CollegeAuth");
+            await HttpContext.SignOutAsync("AdminAuth");
+            await HttpContext.SignOutAsync("SectionOfficerAuth");
+            await HttpContext.SignOutAsync("LicInspectionAuth");
+            await HttpContext.SignOutAsync("DirectorAuth");
+            await HttpContext.SignOutAsync("DirectorAuth1");
+            await HttpContext.SignOutAsync("LICSectionAuth");
+            await HttpContext.SignOutAsync("FinanceAuth");
+
+            // Clear session
+            HttpContext.Session.Clear();
+
+            // Clear TempData
+            TempData.Clear();
+
+            // Delete all cookies from the response
+            foreach (var cookie in Request.Cookies.Keys)
+            {
+                Response.Cookies.Delete(cookie, new CookieOptions
+                {
+                    Path = "/",
+                    SameSite = SameSiteMode.Lax
+                });
+            }
+
+            return RedirectToAction("Login", "Login");
+        }
+
+        [HttpPost]
         [AllowAnonymous]
         public IActionResult KeepAlive()
         {
@@ -778,19 +811,19 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            // Sign out the authentication cookie
-            await HttpContext.SignOutAsync("CollegeAuth");
+        //[HttpPost]
+        //public async Task<IActionResult> Logout()
+        //{
+        //    // Sign out the authentication cookie
+        //    await HttpContext.SignOutAsync("CollegeAuth");
 
-            // Clear all session values
-            HttpContext.Session.Clear();
-            TempData.Clear();
+        //    // Clear all session values
+        //    HttpContext.Session.Clear();
+        //    TempData.Clear();
 
-            // Redirect to login page
-            return RedirectToAction("Login");
-        }
+        //    // Redirect to login page
+        //    return RedirectToAction("Login");
+        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]

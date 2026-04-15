@@ -1,5 +1,10 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Services;
+using Medical_Affiliation.Services.Faculty;
+using Medical_Affiliation.Services.Handlers;
+using Medical_Affiliation.Services.Handlers.Medical;
+using Medical_Affiliation.Services.Interfaces;
+using Medical_Affiliation.Services.UserContext;
 using Medical_Affiliation.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
@@ -7,15 +12,27 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 🔹 MVC + Localization
-builder.Services.AddControllersWithViews()
-    .AddViewLocalization()
-    .AddDataAnnotationsLocalization();
+//builder.Services.AddControllersWithViews()
+//    .AddViewLocalization()
+//    .AddDataAnnotationsLocalization();
+
+builder.Services.AddScoped<AutoProgressFilter>();   // ✅ ADD THIS
+
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<AutoProgressFilter>();      // ✅ ADD THIS
+})
+.AddViewLocalization()
+.AddDataAnnotationsLocalization();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -54,6 +71,24 @@ builder.Services.AddDataProtection()
 // 🔹 HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<LicTadaService>();
+
+builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();
+//builder.Services.AddScoped<IFacultyHospitalHandler, NursingHospitalHandler>();
+builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
+builder.Services.AddScoped<ICALibraryService, CALibraryService>();
+builder.Services.AddScoped<ICAVehicleService, CAVehicleService>();
+builder.Services.AddScoped<ICAHospitalAffiliationService, CAHospitalAffiliationService>();
+builder.Services.AddScoped<ICALandClassEquipmentService, CALandAndEquipmentService>();
+builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
+builder.Services.AddScoped<ICAFinanceService, CAFinanceService>();
+builder.Services.AddScoped<ICAAdminTeachAndHostel, CAAdminTeachAndHostelService>();
+builder.Services.AddScoped<ICAFacultyDesigNonTeaching, CAFacultyDesigNonTeachingService>();
+builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+builder.Services.AddScoped<IUserContext, SessionUserContext>();
+builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
 
 // =============================================
 // 🔥 AUTHENTICATION - DYNAMIC COOKIE PATH (Fixed for Local + Server)
@@ -147,6 +182,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Login}/{action=Login}/{id?}");
+    pattern: "{controller=MainDashboard}/{action=Rguhsdashboard}/{id?}");
 
 app.Run();

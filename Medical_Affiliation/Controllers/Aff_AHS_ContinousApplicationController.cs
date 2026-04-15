@@ -1040,12 +1040,11 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var regNo = HttpContext.Session.GetString("RegistrationNo"); // may be null
+            var regNo = HttpContext.Session.GetString("RegistrationNo");
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
 
-            // Create empty ViewModel first
             var vm = new CA_VehicleDetailsViewModel
             {
                 CollegeCode = collegeCode,
@@ -1053,7 +1052,6 @@ namespace Medical_Affiliation.Controllers
                 RegistrationNo = regNo
             };
 
-            // Load all required data (dropdown + existing records)
             await LoadViewData(vm, collegeCode, facultyCode, regNo);
 
             return View(vm);
@@ -1063,53 +1061,64 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CA_VehicleDetails(CA_VehicleDetailsViewModel model)
         {
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var regNo = HttpContext.Session.GetString("RegistrationNo");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
 
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
-                return RedirectToAction("Login", "Account");
+            model.FacultyCode = facultyCode;
+            model.CollegeCode = collegeCode;
 
-            // Trim inputs
-            model.VehicleRegNo = model.VehicleRegNo?.Trim();
+            // ✅ Normalize input
+            string normalizedInput = NormalizeVehicle(model.VehicleRegNo);
 
-            // Run validation
+            // ✅ Duplicate check (NO course level)
+            var exists = _context.CaVehicleDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode)
+                .AsEnumerable()
+                .Any(x => NormalizeVehicle(x.VehicleRegNo) == normalizedInput);
+
+            if (exists)
+            {
+                TempData["DuplicateVehicle"] = model.VehicleRegNo;
+                return RedirectToAction("CA_VehicleDetails");
+            }
+
             if (!ModelState.IsValid)
             {
-                // Repopulate dropdown and existing list
-                await LoadViewData(model, collegeCode, facultyCode, regNo);
+                await LoadViewData(model, collegeCode, facultyCode, model.RegistrationNo);
                 return View(model);
             }
 
-            // Save new vehicle
+            // ✅ Save
             var entity = new CaVehicleDetail
             {
-                CollegeCode = collegeCode,
                 FacultyCode = facultyCode,
-                RegistrationNo = regNo,
+                CollegeCode = collegeCode,
                 VehicleRegNo = model.VehicleRegNo,
                 VehicleForCode = model.VehicleForCode,
                 SeatingCapacity = model.SeatingCapacity,
                 ValidityDate = model.ValidityDate.HasValue
                     ? DateOnly.FromDateTime(model.ValidityDate.Value)
-                    : (DateOnly?)null,
-                RcBookStatus = model.RcBookStatus ?? "N",
-                InsuranceStatus = model.InsuranceStatus ?? "N",
-                DrivingLicenseStatus = model.DrivingLicenseStatus ?? "N"
+                    : null,
+                RcBookStatus = model.RcBookStatus,
+                InsuranceStatus = model.InsuranceStatus,
+                DrivingLicenseStatus = model.DrivingLicenseStatus
             };
 
             _context.CaVehicleDetails.Add(entity);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Vehicle added successfully!";
+            TempData["Success"] = "Vehicle details saved successfully.";
+
             return RedirectToAction("CA_VehicleDetails");
         }
-
         // Helper to reload dropdown + existing list (used on error)
         private async Task LoadViewData(CA_VehicleDetailsViewModel model, string collegeCode, string facultyCode, string? regNo)
         {
             int facultyCodeInt = Convert.ToInt32(facultyCode);
 
+            // Dropdown
             model.VehicleForList = await _context.CaMstVdVehicleFors
                 .Where(v => v.FacultyCode == facultyCodeInt)
                 .Select(v => new SelectListItem
@@ -1119,8 +1128,10 @@ namespace Medical_Affiliation.Controllers
                 })
                 .ToListAsync();
 
+            // ✅ NO course level filter
             var query = _context.CaVehicleDetails
-                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode);
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode);
 
             if (!string.IsNullOrEmpty(regNo))
                 query = query.Where(x => x.RegistrationNo == regNo);
@@ -1149,63 +1160,35 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> CA_UpdateVehicleDetails([FromBody] CA_VehicleDetailsViewModel model)
         {
             if (model == null || model.Id == null || model.Id <= 0)
-                return Json(new { success = false, message = "Invalid request. Vehicle ID is missing." });
+                return Json(new { success = false, message = "Invalid request." });
 
-            // === Server-Side Validation ===
-            var errors = new List<string>();
+            var existing = await _context.CaVehicleDetails
+                .FirstOrDefaultAsync(x => x.Id == model.Id);
 
-            if (string.IsNullOrWhiteSpace(model.VehicleRegNo))
-                errors.Add("Vehicle Registration Number is required.");
-
-            if (string.IsNullOrWhiteSpace(model.VehicleForCode))
-                errors.Add("Please select Vehicle For.");
-
-            if (!model.SeatingCapacity.HasValue || model.SeatingCapacity < 1 || model.SeatingCapacity > 100)
-                errors.Add("Seating capacity must be between 1 and 100.");
-
-            if (!model.ValidityDate.HasValue)
-                errors.Add("FC Validity Date is required.");
-
-            if (string.IsNullOrWhiteSpace(model.RcBookStatus))
-                errors.Add("Please select RC Book status.");
-
-            if (string.IsNullOrWhiteSpace(model.InsuranceStatus))
-                errors.Add("Please select Insurance status.");
-
-            if (string.IsNullOrWhiteSpace(model.DrivingLicenseStatus))
-                errors.Add("Please select Driving Licence status.");
-
-            if (errors.Any())
-            {
-                return Json(new { success = false, message = string.Join("<br>", errors) });
-            }
-
-            var existing = await _context.CaVehicleDetails.FindAsync(model.Id.Value);
             if (existing == null)
-                return Json(new { success = false, message = "Vehicle record not found." });
+                return Json(new { success = false, message = "Vehicle not found." });
 
-            // Update fields
             existing.VehicleRegNo = model.VehicleRegNo?.Trim();
             existing.VehicleForCode = model.VehicleForCode;
             existing.SeatingCapacity = model.SeatingCapacity;
             existing.ValidityDate = model.ValidityDate.HasValue
                 ? DateOnly.FromDateTime(model.ValidityDate.Value)
-                : (DateOnly?)null;
+                : null;
             existing.RcBookStatus = model.RcBookStatus;
             existing.InsuranceStatus = model.InsuranceStatus;
             existing.DrivingLicenseStatus = model.DrivingLicenseStatus;
 
-            // Reliable update
             _context.Entry(existing).State = EntityState.Modified;
-
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, message = "Vehicle details updated successfully!" });
+            return Json(new { success = true });
         }
 
         public async Task<IActionResult> CA_DeleteVehicleDetails(int id)
         {
-            var existing = await _context.CaVehicleDetails.FindAsync(id);
+            var existing = await _context.CaVehicleDetails
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (existing != null)
             {
                 _context.CaVehicleDetails.Remove(existing);
@@ -1215,6 +1198,19 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction("CA_VehicleDetails");
         }
 
+        //code added by ram on 09-04-2026
+
+        private string NormalizeVehicle(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            // Remove spaces + special chars + make uppercase
+            return new string(input
+                .Where(char.IsLetterOrDigit)
+                .ToArray())
+                .ToUpper();
+        }
 
         private async Task<byte[]> ToBytesAsync(IFormFile file)
         {
@@ -1239,7 +1235,14 @@ namespace Medical_Affiliation.Controllers
             await file.CopyToAsync(ms);
             return ms.ToArray();
         }
+
+
     }
+
+
+
+
+
 
 
 }

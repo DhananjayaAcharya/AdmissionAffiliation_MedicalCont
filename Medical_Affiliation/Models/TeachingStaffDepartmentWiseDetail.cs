@@ -28,4 +28,8 @@ public partial class TeachingStaffDepartmentWiseDetail
     public DateOnly? Pgto { get; set; }
 
     public decimal? TotalExperience { get; set; }
+
+    public string? UgcollegeCode { get; set; }
+
+    public string? PgcollegeCode { get; set; }
 }

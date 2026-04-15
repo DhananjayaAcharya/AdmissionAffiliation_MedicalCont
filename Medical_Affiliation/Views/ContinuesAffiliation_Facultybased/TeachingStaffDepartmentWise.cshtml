@@ -1,7 +1,7 @@
 ﻿@model TeachingStaffDepartmentWiseVm
 
 @{
-    ViewData["Title"] = "Teaching Staff — Department Wise Details";
+    ViewData["Title"] = "Teaching Staff — Department Wise";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
@@ -22,8 +22,10 @@
         --success: #1a6b3a;
         --ug-bg: #eaf7ef;
         --ug-text: #1a6b3a;
+        --ug-border: #b8e0c8;
         --pg-bg: #eaf0fb;
         --pg-text: #1a3a6b;
+        --pg-border: #b8cef0;
         --radius: 6px;
     }
 
@@ -47,7 +49,7 @@
     }
 
     .page-container {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
         padding: 0 24px;
     }
@@ -65,7 +67,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+            background-image: repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px);
         }
 
         .page-header::after {
@@ -127,7 +129,7 @@
         border: 1px solid var(--border);
         border-top: none;
         border-radius: 0 0 10px 10px;
-        padding: 32px 36px 40px;
+        padding: 28px 32px 36px;
         box-shadow: 0 4px 20px rgba(15,37,69,0.07);
     }
 
@@ -136,12 +138,16 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 18px;
-        margin-top: 4px;
+        margin-bottom: 14px;
+        margin-top: 20px;
     }
 
+        .section-label:first-child {
+            margin-top: 0;
+        }
+
     .section-label-text {
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         font-weight: 600;
         letter-spacing: 0.14em;
         text-transform: uppercase;
@@ -155,21 +161,22 @@
         background: linear-gradient(90deg, var(--border), transparent);
     }
 
-    /* ── Department Block ── */
+    /* ── Dept block ── */
     .dept-block {
         border: 1px solid var(--border);
         border-radius: var(--radius);
         overflow: hidden;
-        margin-bottom: 28px;
+        margin-bottom: 24px;
     }
 
     .dept-block-header {
-        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        background: linear-gradient(180deg, #f1ede4, #ebe6db);
         border-bottom: 2px solid var(--border);
-        padding: 10px 16px;
+        padding: 9px 14px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        justify-content: space-between;
+        gap: 10px;
     }
 
     .dept-block-title {
@@ -193,146 +200,282 @@
             flex-shrink: 0;
         }
 
-    /* ── Data Table ── */
+    .dept-row-count {
+        font-size: 0.62rem;
+        font-weight: 600;
+        background: rgba(15,37,69,0.08);
+        border-radius: 99px;
+        padding: 2px 10px;
+        color: var(--navy);
+        letter-spacing: 0.05em;
+    }
+
+    /* ── Table ── */
     .data-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.83rem;
+        font-size: 0.8rem;
     }
 
-        .data-table thead {
-            background: linear-gradient(180deg, #f5f2ec, #ede8df);
+    /* Group headers (UG / PG) */
+    .th-group-ug {
+        background: var(--ug-bg) !important;
+        color: var(--ug-text) !important;
+        border-bottom: 2px solid var(--ug-border) !important;
+        font-size: 0.66rem !important;
+        letter-spacing: 0.1em;
+    }
+
+    .th-group-pg {
+        background: var(--pg-bg) !important;
+        color: var(--pg-text) !important;
+        border-bottom: 2px solid var(--pg-border) !important;
+        font-size: 0.66rem !important;
+        letter-spacing: 0.1em;
+    }
+
+    .data-table thead tr.main-row th {
+        padding: 9px 8px;
+        font-size: 0.63rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+        background: linear-gradient(180deg, #f5f2ec, #ede8df);
+        border-bottom: 2px solid var(--border);
+        border-right: 1px solid var(--border);
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+        .data-table thead tr.main-row th:first-child {
+            border-left: 3px solid var(--gold);
         }
 
-            .data-table thead th {
-                padding: 9px 10px;
-                font-size: 0.66rem;
-                font-weight: 700;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                color: var(--navy);
-                border-bottom: 2px solid var(--border);
-                border-right: 1px solid var(--border);
-                text-align: center;
-                white-space: nowrap;
-                vertical-align: middle;
-            }
-
-                .data-table thead th:first-child {
-                    border-left: 3px solid var(--gold);
-                }
-
-                .data-table thead th:last-child {
-                    border-right: none;
-                }
-
-                /* UG / PG group header cells */
-                .data-table thead th.ug-head {
-                    background: var(--ug-bg);
-                    color: var(--ug-text);
-                    font-size: 0.7rem;
-                }
-
-                .data-table thead th.pg-head {
-                    background: var(--pg-bg);
-                    color: var(--pg-text);
-                    font-size: 0.7rem;
-                }
-
-            .data-table thead tr.sub-row th {
-                background: #f8f5ee;
-                font-size: 0.63rem;
-                padding: 6px 10px;
-                color: var(--text-muted);
-            }
-
-                .data-table thead tr.sub-row th.ug-sub {
-                    background: #f0fbf4;
-                    color: var(--ug-text);
-                }
-
-                .data-table thead tr.sub-row th.pg-sub {
-                    background: #f0f6fd;
-                    color: var(--pg-text);
-                }
-
-        .data-table tbody tr {
-            border-bottom: 1px solid #f0ece4;
-            transition: background 0.15s;
+        .data-table thead tr.main-row th:last-child {
+            border-right: none;
         }
 
-            .data-table tbody tr:last-child {
-                border-bottom: none;
-            }
+    .data-table thead tr.sub-row th {
+        padding: 6px 8px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border);
+        border-right: 1px solid rgba(0,0,0,0.06);
+        text-align: center;
+        white-space: nowrap;
+    }
 
-            .data-table tbody tr:nth-child(even) {
-                background: #faf8f4;
-            }
-
-            .data-table tbody tr:hover {
-                background: #f3eed8 !important;
-            }
-
-        .data-table td {
-            padding: 8px 10px;
-            border-right: 1px solid #f0ece4;
-            vertical-align: middle;
-            text-align: center;
+        .data-table thead tr.sub-row th:last-child {
+            border-right: none;
         }
 
-            .data-table td:last-child {
-                border-right: none;
-            }
+    .data-table thead tr.sub-row .ug-sub {
+        background: #f0fbf4;
+        color: var(--ug-text);
+    }
+
+    .data-table thead tr.sub-row .pg-sub {
+        background: #f0f6fd;
+        color: var(--pg-text);
+    }
+
+    .data-table thead tr.sub-row .neutral-sub {
+        background: #f5f2ec;
+        color: var(--text-muted);
+    }
+
+    .data-table tbody tr {
+        border-bottom: 1px solid #f0ece4;
+        transition: background 0.12s;
+    }
+
+        .data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: #faf8f4;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f3eed8 !important;
+        }
+
+    .data-table td {
+        padding: 6px 7px;
+        border-right: 1px solid #f0ece4;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+        .data-table td:last-child {
+            border-right: none;
+        }
+
+    /* UG / PG column tinting */
+    .td-ug {
+        background: rgba(234,247,239,0.35);
+    }
+
+    .td-pg {
+        background: rgba(234,240,251,0.35);
+    }
+
+    .data-table tbody tr:nth-child(even) .td-ug {
+        background: rgba(234,247,239,0.55);
+    }
+
+    .data-table tbody tr:nth-child(even) .td-pg {
+        background: rgba(234,240,251,0.55);
+    }
+
+    .data-table tbody tr:hover .td-ug,
+    .data-table tbody tr:hover .td-pg {
+        background: transparent;
+    }
 
     .td-slno {
-        width: 48px;
+        width: 38px;
         font-family: 'EB Garamond', serif;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         color: var(--navy-mid);
         font-weight: 600;
     }
 
     .td-desig {
         text-align: left;
-        min-width: 160px;
+        min-width: 140px;
+        max-width: 180px;
     }
 
-    /* ── Form Controls ── */
-    .form-control {
+    .td-total {
+        min-width: 90px;
+        background: #f3f0e8 !important;
+    }
+
+    /* ── Form controls ── */
+    .form-control, .form-select {
         width: 100%;
         border: 1px solid #d9d3c8;
         border-radius: 4px;
-        padding: 6px 9px;
-        font-size: 0.82rem;
+        padding: 5px 8px;
+        font-size: 0.78rem;
         font-family: 'DM Sans', sans-serif;
         color: var(--text);
         background: var(--white);
         transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             outline: none;
             border-color: var(--navy-mid);
-            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+            box-shadow: 0 0 0 2px rgba(26,58,107,0.1);
         }
-        /* Readonly designation — no border */
+
+        /* Designation — no border, transparent */
         .form-control.desig-field {
             border: none;
             background: transparent;
             box-shadow: none;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.8rem;
             text-align: left;
-            padding-left: 0;
+            padding-left: 2px;
             cursor: default;
+            color: var(--navy);
         }
-        /* Readonly total exp — highlighted */
-        .form-control.total-exp {
-            background: #f3f0e8;
-            color: var(--navy-mid);
-            font-weight: 700;
-            border-color: #d9d3c8;
-            cursor: default;
-            text-align: center;
+
+    /* College dropdown — compact */
+    select.college-select {
+        font-size: 0.74rem;
+        padding: 5px 24px 5px 7px;
+        border-radius: 4px;
+        min-width: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6358' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 6px center;
+        appearance: none;
+        cursor: pointer;
+    }
+
+        select.college-select.ug-select {
+            border-color: var(--ug-border);
+            background-color: #f6fdf8;
+        }
+
+            select.college-select.ug-select:focus {
+                border-color: var(--ug-text);
+                box-shadow: 0 0 0 2px rgba(26,107,58,0.12);
+            }
+
+        select.college-select.pg-select {
+            border-color: var(--pg-border);
+            background-color: #f4f8fe;
+        }
+
+            select.college-select.pg-select:focus {
+                border-color: var(--pg-text);
+                box-shadow: 0 0 0 2px rgba(26,58,107,0.12);
+            }
+
+    /* Date input — compact */
+    input[type="date"].date-input {
+        font-size: 0.76rem;
+        padding: 5px 7px;
+        min-width: 120px;
+    }
+
+    /* Total experience — read-only highlight */
+    .form-control.total-exp {
+        background: #f3f0e8;
+        color: var(--navy-mid);
+        font-weight: 700;
+        border-color: #d9d3c8;
+        cursor: default;
+        text-align: center;
+        font-size: 0.8rem;
+    }
+
+    /* ── Collapsible dept ── */
+    .dept-toggle-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        padding: 0;
+        transition: color 0.15s;
+    }
+
+        .dept-toggle-btn:hover {
+            color: var(--navy);
+        }
+
+    .dept-toggle-chevron {
+        transition: transform 0.2s;
+        font-size: 0.6rem;
+    }
+
+        .dept-toggle-chevron.open {
+            transform: rotate(90deg);
+        }
+
+    .dept-table-wrap {
+        overflow-x: auto;
+    }
+
+        .dept-table-wrap.collapsed {
+            display: none;
         }
 
     /* ── Footer ── */
@@ -372,7 +515,7 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        background: linear-gradient(135deg, var(--navy), var(--navy-mid));
         border: none;
         color: var(--white);
         font-size: 0.82rem;
@@ -401,28 +544,78 @@
             opacity: 0.9;
             box-shadow: 0 4px 14px rgba(15,37,69,0.3);
         }
+
+    /* Legend */
+    .legend-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+        .legend-dot.ug {
+            background: var(--ug-bg);
+            border: 1px solid var(--ug-border);
+        }
+
+        .legend-dot.pg {
+            background: var(--pg-bg);
+            border: 1px solid var(--pg-border);
+        }
+
+        .legend-dot.exp {
+            background: #f3f0e8;
+            border: 1px solid #d9d3c8;
+        }
 </style>
-<link rel="stylesheet" href="~/css/common-form.css" />
 
 <div class="page-shell">
     <div class="page-container">
 
         <!-- Header -->
-        <div class="page-header head">
-            @* <div class="header-eyebrow">Continuous Affiliation · Faculty Details</div> *@
+        <div class="page-header">
+            <div class="header-eyebrow">Continuous Affiliation · Faculty Details</div>
             <div class="header-title">Teaching Staff — Department Wise</div>
             <div class="header-subtitle">Enter UG and PG teaching experience for each designation in every department</div>
-            @* <div class="header-badge">Faculty Details</div> *@
+            <div class="header-badge">Faculty Details</div>
         </div>
 
         <!-- Form Card -->
         <div class="form-card">
 
+            <!-- Legend -->
+            <div class="legend-row">
+                <div class="legend-item"><div class="legend-dot ug"></div> UG Teaching columns</div>
+                <div class="legend-item"><div class="legend-dot pg"></div> PG Teaching columns</div>
+                <div class="legend-item"><div class="legend-dot exp"></div> Auto-calculated experience</div>
+                <span style="font-size:0.66rem; color:var(--text-muted); margin-left:auto;">Click department header to collapse / expand</span>
+            </div>
+
             <form asp-action="TeachingStaffDepartmentWise" method="post">
 
                 @for (int d = 0; d < Model.Departments.Count; d++)
                 {
-                    <div class="section-label" style="@(d == 0 ? "" : "margin-top:8px;")">
+                    int rowCount = Model.Departments[d].Rows.Count;
+                    string deptId = $"dept-{d}";
+
+                    <div class="section-label" style="@(d == 0 ? "margin-top:0;" : "margin-top:12px;")">
                         <span class="section-label-text">Department @(d + 1)</span>
                         <span class="section-label-line"></span>
                     </div>
@@ -430,25 +623,34 @@
                     <div class="dept-block">
                         <div class="dept-block-header">
                             <span class="dept-block-title">@Model.Departments[d].DepartmentName</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span class="dept-row-count">@rowCount designation@(rowCount == 1 ? "" : "s")</span>
+                                <button type="button" class="dept-toggle-btn" onclick="toggleDept('@deptId', this)">
+                                    <span class="dept-toggle-chevron open">&#9658;</span>
+                                    <span class="toggle-label">Collapse</span>
+                                </button>
+                            </div>
                         </div>
 
                         <input type="hidden" asp-for="Departments[d].DepartmentCode" />
 
-                        <div style="overflow-x:auto;">
+                        <div class="dept-table-wrap" id="@deptId">
                             <table class="data-table">
                                 <thead>
-                                    <tr>
-                                        <th rowspan="2" style="width:48px;">#</th>
-                                        <th rowspan="2" style="text-align:left; padding-left:14px; min-width:160px;">Designation</th>
-                                        <th colspan="2" class="ug-head">UG Teaching</th>
-                                        <th colspan="2" class="pg-head">PG Teaching</th>
-                                        <th rowspan="2" style="width:130px;">Total Exp. (Yrs)</th>
+                                    <tr class="main-row">
+                                        <th rowspan="2" style="width:38px;">#</th>
+                                        <th rowspan="2" style="text-align:left; padding-left:10px; min-width:140px;">Designation</th>
+                                        <th colspan="3" class="th-group-ug">&#127979; UG Teaching</th>
+                                        <th colspan="3" class="th-group-pg">&#127891; PG Teaching</th>
+                                        <th rowspan="2" style="min-width:90px;">Total Exp. (Yrs)</th>
                                     </tr>
                                     <tr class="sub-row">
-                                        <th class="ug-sub">From</th>
-                                        <th class="ug-sub">To</th>
-                                        <th class="pg-sub">From</th>
-                                        <th class="pg-sub">To</th>
+                                        <th class="ug-sub" style="min-width:150px;">College</th>
+                                        <th class="ug-sub" style="min-width:120px;">From</th>
+                                        <th class="ug-sub" style="min-width:120px;">To</th>
+                                        <th class="pg-sub" style="min-width:150px;">College</th>
+                                        <th class="pg-sub" style="min-width:120px;">From</th>
+                                        <th class="pg-sub" style="min-width:120px;">To</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -456,39 +658,68 @@
                                     {
                                         <tr>
                                             <td class="td-slno">@(i + 1)</td>
+
                                             <td class="td-desig">
                                                 <input asp-for="Departments[d].Rows[i].DesignationName"
-                                                       class="form-control desig-field"
-                                                       readonly />
+                                                       class="form-control desig-field" readonly />
                                                 <input asp-for="Departments[d].Rows[i].DesignationCode" type="hidden" />
                                             </td>
-                                            <td style="min-width:130px;">
+
+                                            <!-- UG College -->
+                                            <td class="td-ug">
+                                                <select asp-for="Departments[d].Rows[i].UGCollegeCode"
+                                                        asp-items="Model.Colleges"
+                                                        class="form-select college-select ug-select">
+                                                    <option value="">— Select —</option>
+                                                </select>
+                                            </td>
+
+                                            <!-- UG From -->
+                                            <td class="td-ug">
                                                 <input asp-for="Departments[d].Rows[i].UGFrom"
                                                        type="date" class="form-control date-input" />
                                             </td>
-                                            <td style="min-width:130px;">
+
+                                            <!-- UG To -->
+                                            <td class="td-ug">
                                                 <input asp-for="Departments[d].Rows[i].UGTo"
                                                        type="date" class="form-control date-input" />
                                             </td>
-                                            <td style="min-width:130px;">
+
+                                            <!-- PG College -->
+                                            <td class="td-pg">
+                                                <select asp-for="Departments[d].Rows[i].PGCollegeCode"
+                                                        asp-items="Model.Colleges"
+                                                        class="form-select college-select pg-select">
+                                                    <option value="">— Select —</option>
+                                                </select>
+                                            </td>
+
+                                            <!-- PG From -->
+                                            <td class="td-pg">
                                                 <input asp-for="Departments[d].Rows[i].PGFrom"
                                                        type="date" class="form-control date-input" />
                                             </td>
-                                            <td style="min-width:130px;">
+
+                                            <!-- PG To -->
+                                            <td class="td-pg">
                                                 <input asp-for="Departments[d].Rows[i].PGTo"
                                                        type="date" class="form-control date-input" />
                                             </td>
-                                            <td>
+
+                                            <!-- Total Experience -->
+                                            <td class="td-total">
                                                 <input asp-for="Departments[d].Rows[i].TotalExperience"
-                                                       class="form-control total-exp"
-                                                       readonly />
+                                                       class="form-control total-exp" readonly />
                                             </td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
-                        </div>
+                        </div><!-- /.dept-table-wrap -->
                     </div>
+
+                    <!-- /.dept-block -->
                 }
 
                 <!-- Footer -->
@@ -504,7 +735,62 @@
     </div>
 </div>
 
-<script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Date change
+            document.querySelectorAll(".date-input").forEach(function (input) {
+                input.addEventListener("change", calculateExperience);
+                calculateExperience.call(input);
+            });
+
+            function calculateExperience() {
+                const row = this.closest("tr");
+                if (!row) return;
+
+                const ugFrom = row.querySelector("[name$='UGFrom']")?.value ?? "";
+                const ugTo   = row.querySelector("[name$='UGTo']")?.value ?? "";
+                const pgFrom = row.querySelector("[name$='PGFrom']")?.value ?? "";
+                const pgTo   = row.querySelector("[name$='PGTo']")?.value ?? "";
+
+                function diffYears(a, b) {
+                    if (!a || !b) return 0;
+                    const s = new Date(a);
+                    const e = new Date(b);
+                    if (isNaN(s.getTime()) || isNaN(e.getTime()) || e < s) return 0;
+                    return (e - s) / (1000 * 60 * 60 * 24 * 365.2425);
+                }
+
+                const total = diffYears(ugFrom, ugTo) + diffYears(pgFrom, pgTo);
+
+                const expField = row.querySelector(".total-exp");
+                if (expField) {
+                    expField.value = total.toFixed(2);
+                    expField.style.background = "#d4edda";
+                    setTimeout(() => expField.style.background = "", 500);
+                }
+            }
+
+        });
+
+        // ✅ KEEP OUTSIDE OR INSIDE — BOTH OK
+        function toggleDept(id, btn) {
+            const wrap    = document.getElementById(id);
+            const chevron = btn.querySelector(".dept-toggle-chevron");
+            const label   = btn.querySelector(".toggle-label");
+            const isOpen  = !wrap.classList.contains("collapsed");
+
+            wrap.classList.toggle("collapsed", isOpen);
+            chevron.classList.toggle("open", !isOpen);
+            label.textContent = isOpen ? "Expand" : "Collapse";
+        }
+    </script>
+
+
+
+@* <script>
+    
     document.querySelectorAll(".date-input").forEach(function (input) {
         input.addEventListener("change", calculateExperience);
         calculateExperience.call(input);
@@ -514,20 +800,38 @@
         const row = this.closest("tr");
         if (!row) return;
 
-        const ugFrom = row.querySelector("[id$='UGFrom']").value;
-        const ugTo   = row.querySelector("[id$='UGTo']").value;
-        const pgFrom = row.querySelector("[id$='PGFrom']").value;
-        const pgTo   = row.querySelector("[id$='PGTo']").value;
+        const ugFrom = row.querySelector("[id$='UGFrom']")?.value ?? "";
+        const ugTo   = row.querySelector("[id$='UGTo']")?.value   ?? "";
+        const pgFrom = row.querySelector("[id$='PGFrom']")?.value ?? "";
+        const pgTo   = row.querySelector("[id$='PGTo']")?.value   ?? "";
 
-        function diffYears(startStr, endStr) {
-            if (!startStr || !endStr) return 0;
-            const start = new Date(startStr);
-            const end   = new Date(endStr);
-            if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return 0;
-            return (end - start) / (1000 * 60 * 60 * 24 * 365.2425);
+        function diffYears(a, b) {
+            if (!a || !b) return 0;
+            const s = new Date(a), e = new Date(b);
+            if (isNaN(s) || isNaN(e) || e < s) return 0;
+            return (e - s) / (1000 * 60 * 60 * 24 * 365.2425);
         }
 
         const total = diffYears(ugFrom, ugTo) + diffYears(pgFrom, pgTo);
-        row.querySelector(".total-exp").value = total.toFixed(2);
+        const expField = row.querySelector(".total-exp");
+        if (expField) {
+            expField.value = total.toFixed(2);
+           
+            expField.style.transition = "background 0.15s";
+            expField.style.background = "#d4edda";
+            setTimeout(() => { expField.style.background = "#f3f0e8"; }, 600);
+        }
     }
-</script>
+
+   
+    function toggleDept(id, btn) {
+        const wrap    = document.getElementById(id);
+        const chevron = btn.querySelector(".dept-toggle-chevron");
+        const label   = btn.querySelector(".toggle-label");
+        const isOpen  = !wrap.classList.contains("collapsed");
+
+        wrap.classList.toggle("collapsed", isOpen);
+        chevron.classList.toggle("open", !isOpen);
+        label.textContent = isOpen ? "Expand" : "Collapse";
+    }
+</script> *@

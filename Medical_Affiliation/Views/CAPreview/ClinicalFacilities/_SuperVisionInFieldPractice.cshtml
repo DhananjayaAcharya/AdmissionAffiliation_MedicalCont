@@ -1,0 +1,119 @@
+﻿@model SuperVisionInFieldPracticeAreaDisplayVM
+@* <link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" /> *@
+
+
+ <!-- Body -->
+<div class="general-body">
+
+    @if (Model?.Items != null && Model.Items.Any())
+    {
+        <div class="section-block">
+            <!-- Header -->
+                <div class="section-header-block">
+                    <div class="section-title-text department-badge">
+                        <i class="bi bi-people-fill"></i>
+                        Supervision in Field Practice Area
+                    </div>
+
+                    <p class="section-description">
+                        Details of faculty involved in field practice supervision
+                    </p>
+                </div>
+            <div class="data-table-wrapper">
+                <table class="table data-table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Post</th>
+                            <th>Name</th>
+                            <th>Qualification</th>
+                            <th>University</th>
+                            <th class="text-center">UG Period</th>
+                            <th class="text-center">PG Period</th>
+                            <th>Responsibilities</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="fw-semibold text-primary">
+                                    @item.Post
+                                </td>
+
+                                <td>
+                                    @item.Name
+                                </td>
+
+                                <td>
+                                    @item.Qualification
+                                    <div class="small text-muted">
+                                        @item.YearOfQualification
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @item.University
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.UgFromDate.HasValue || item.UgToDate.HasValue)
+                                    {
+                                        <span>
+                                            @item.UgFromDate?.ToString("dd-MM-yyyy")
+                                            -
+                                            @item.UgToDate?.ToString("dd-MM-yyyy")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">—</span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.PgFromDate.HasValue || item.PgToDate.HasValue)
+                                    {
+                                        <span>
+                                            @item.PgFromDate?.ToString("dd-MM-yyyy")
+                                            -
+                                            @item.PgToDate?.ToString("dd-MM-yyyy")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">—</span>
+                                    }
+                                </td>
+
+                                <td class="responsibility-cell">
+                                    @if (!string.IsNullOrWhiteSpace(item.Responsibilities))
+                                    {
+                                        @item.Responsibilities
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not specified
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p class="mb-0">
+                No supervision details available for this hospital.
+            </p>
+        </div>
+    }
+
+</div>

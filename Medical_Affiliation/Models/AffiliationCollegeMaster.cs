@@ -36,4 +36,6 @@ public partial class AffiliationCollegeMaster
     public string? DistrictId { get; set; }
 
     public string? TalukId { get; set; }
+
+    public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();
 }

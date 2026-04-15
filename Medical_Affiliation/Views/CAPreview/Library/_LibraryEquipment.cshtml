@@ -1,0 +1,66 @@
+﻿@model MedicalLibraryDisplayViewModel
+
+@if (Model.LibraryEquipmentListVM != null && Model.LibraryEquipmentListVM.Items.Any())
+{
+    <div class="general-body">
+        <div class="section-block">
+
+            <!-- Header -->
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-tools"></i>
+                    Medical Library Equipment
+                </div>
+
+                <p class="section-description">
+                    Availability of medical library equipment
+                </p>
+            </div>
+
+            <!-- Equipment Table -->
+            <div class="data-table-wrapper">
+                <table class="table data-table requirements-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Equipment Name</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.LibraryEquipmentListVM.Items)
+                        {
+                            <tr>
+                                <td class="document-name">
+                                    @item.EquipmentName
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.HasEquipment)
+                                    {
+                                        <span class="status-badge-maintained">
+                                            Available
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge-not-maintained">
+                                            Not Available
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No library equipment data available.</p>
+    </div>
+}

@@ -81,10 +81,22 @@ namespace Medical_Affiliation.Controllers
             var masterDict = masterCourses
                 .ToDictionary(x => x.Code);
 
+            //code updated by ram on 09-04-2026
+
             // 3️⃣ Union of course codes
+            //var allCourseCodes = offeredDict.Keys
+            //    .Union(intakeDict.Keys)
+            //    .ToList();
+
             var allCourseCodes = offeredDict.Keys
-                .Union(intakeDict.Keys)
-                .ToList();
+            .Union(intakeDict.Keys)
+            .Where(code =>
+                (offeredDict.ContainsKey(code) && offeredDict[code].CourseLevel == "SS") ||
+                (masterDict.ContainsKey(code) && masterDict[code].CourseLevel == "SS")
+            )
+            .ToList();
+
+
 
             // 4️⃣ Build result
             var result = new List<SScourseVM>(allCourseCodes.Count);
@@ -124,50 +136,129 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+        //[HttpPost]
+        //public async Task<IActionResult> SaveCourses(AffiliationSSViewModel vm)
+        //{
+        //    var collegeCode = _userContext.CollegeCode;
+        //    var facultyCode = _userContext.FacultyId;
+        //    var affType = _userContext.TypeOfAffiliation;
+
+        //    foreach (var course in vm.AllCourses)
+        //    {
+        //        //code updated by ram on 09-04-2026
+
+        //        //if (course.Admitted == null) continue;
+
+        //        // ✅ Skip only completely empty rows
+        //        if (course.Admitted == null &&
+        //            string.IsNullOrWhiteSpace(course.YearOfStarting) &&
+        //            string.IsNullOrWhiteSpace(course.Remarks))
+        //        {
+        //            continue;
+        //        }
+
+
+        //        var existing = await _context.CoursesOffereds.Where(e => e.CollegeCode == collegeCode && e.CourseCode == course.CourseCode && e.FacultyCode == facultyCode.ToString()).FirstOrDefaultAsync();
+        //        if (existing == null)
+        //        {
+        //            var entity = new CoursesOffered()
+        //            {
+        //                CollegeCode = collegeCode,
+        //                FacultyCode = facultyCode.ToString(),
+        //                CourseCode = course.CourseCode,
+        //                CourseLevel = course.CourseLevel,
+        //                CourseName = course.CourseName,
+        //                TypeOfAffiliation = affType,
+        //                YearOfStarting = course.YearOfStarting,
+        //                SanctionedAdmissions = course.Sanctioned,
+        //                AdmittedAdmissions = course.Admitted,
+        //                Remarks = course.Remarks,
+        //            };
+        //            _context.CoursesOffereds.Add(entity);
+        //        }
+        //        else
+        //        {
+        //            existing.AdmittedAdmissions = course.Admitted;
+        //            existing.YearOfStarting = course.YearOfStarting;
+        //            existing.Remarks = course.Remarks;
+        //        }
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    TempData["SScourseOffered"] = "Course Offered saved succesfully";
+        //    //return RedirectToAction(nameof(Index));
+        //    return RedirectToAction("AssociatedInstitutions");
+
+
+        //}
+
         [HttpPost]
         public async Task<IActionResult> SaveCourses(AffiliationSSViewModel vm)
         {
-            var collegeCode = _userContext.CollegeCode;
-            var facultyCode = _userContext.FacultyId;
-            var affType = _userContext.TypeOfAffiliation;
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrEmpty(collegeCode))
+                return RedirectToAction("SessionExpired");
+
+            ModelState.Clear();
 
             foreach (var course in vm.AllCourses)
             {
-                if (course.Admitted == null) continue;
+                var existing = await _context.CoursesOffereds
+                    .FirstOrDefaultAsync(x =>
+                        x.CourseCode == course.CourseCode &&
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode);
 
+                bool isEmpty =
+                    course.Admitted == null &&
+                    string.IsNullOrWhiteSpace(course.YearOfStarting) &&
+                    string.IsNullOrWhiteSpace(course.Remarks);
 
-                var existing = await _context.CoursesOffereds.Where(e => e.CollegeCode == collegeCode && e.CourseCode == course.CourseCode && e.FacultyCode == facultyCode.ToString()).FirstOrDefaultAsync();
-                if (existing == null)
+                // ✅ CASE 1: Row cleared → DELETE from DB
+                if (isEmpty)
                 {
-                    var entity = new CoursesOffered()
+                    if (existing != null)
                     {
-                        CollegeCode = collegeCode,
-                        FacultyCode = facultyCode.ToString(),
-                        CourseCode = course.CourseCode,
-                        CourseLevel = course.CourseLevel,
-                        CourseName = course.CourseName,
-                        TypeOfAffiliation = affType,
-                        YearOfStarting = course.YearOfStarting,
-                        SanctionedAdmissions = course.Sanctioned,
-                        AdmittedAdmissions = course.Admitted,
-                        Remarks = course.Remarks,
-                    };
-                    _context.CoursesOffereds.Add(entity);
+                        _context.CoursesOffereds.Remove(existing);
+                    }
+                    continue;
+                }
+
+                // ✅ CASE 2: UPDATE
+                if (existing != null)
+                {
+                    existing.AdmittedAdmissions = course.Admitted;
+                    existing.SanctionedAdmissions = course.Sanctioned;
+                    existing.YearOfStarting = course.YearOfStarting;
+                    existing.Remarks = course.Remarks;
                 }
                 else
                 {
-                    existing.AdmittedAdmissions = course.Admitted;
-                    existing.YearOfStarting = course.YearOfStarting;
-                    existing.Remarks = course.Remarks;
+                    // ✅ INSERT
+                    var newCourse = new CoursesOffered
+                    {
+                        CourseCode = course.CourseCode,
+                        CourseName = course.CourseName,
+                        CourseLevel = course.CourseLevel,
+                        CollegeCode = collegeCode,
+                        FacultyCode = facultyCode,
+                        AdmittedAdmissions = course.Admitted,
+                        SanctionedAdmissions = course.Sanctioned,
+                        YearOfStarting = course.YearOfStarting,
+                        Remarks = course.Remarks,
+                        CreatedOn = DateTime.Now,
+                        TypeOfAffiliation = vm.TypeOfAffiliation
+                    };
+
+                    _context.CoursesOffereds.Add(newCourse);
                 }
             }
 
             await _context.SaveChangesAsync();
-            TempData["SScourseOffered"] = "Course Offered saved succesfully";
-            //return RedirectToAction(nameof(Index));
+
             return RedirectToAction("AssociatedInstitutions");
-
-
         }
 
 

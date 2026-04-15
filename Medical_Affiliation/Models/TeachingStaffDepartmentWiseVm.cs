@@ -1,11 +1,15 @@
-﻿namespace Medical_Affiliation.Models
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace Medical_Affiliation.Models
 {
     public class TeachingStaffDepartmentWiseVm
     {
         public string? CollegeCode { get; set; }
         public string? FacultyCode { get; set; }
         public string? CourseLevel { get; set; }
+        public List<SelectListItem> Colleges { get; set; }
 
+        public string? UGCollegeCode { get; set; }
         public List<DepartmentTeachingStaffVm> Departments { get; set; } = new();
 
         // 🔹 Non-Teaching Staff – simple list (ADDED HERE ONLY)
@@ -21,7 +25,7 @@
         public List<TeachingStaffDepartmentWiseRow> Rows { get; set; } = new();
 
         // Non-Teaching simple list
-        
+
     }
 
     public class TeachingStaffDepartmentWiseRow
@@ -30,7 +34,8 @@
 
         public string? DesignationCode { get; set; }
         public string? DesignationName { get; set; }
-
+        public string? UGCollegeCode { get; set; }   // ✅ ADD
+        public string? PGCollegeCode { get; set; }   // ✅ ADD
         public DateTime? UGFrom { get; set; }
         public DateTime? UGTo { get; set; }
 

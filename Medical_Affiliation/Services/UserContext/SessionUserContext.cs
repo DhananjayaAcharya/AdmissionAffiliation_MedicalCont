@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.Services.Interfaces;
+using System.Security.Claims;
 
 namespace Medical_Affiliation.Services.UserContext
 {
@@ -11,65 +12,22 @@ namespace Medical_Affiliation.Services.UserContext
             _httpContextAccessor = accessor;
         }
 
-        public string CollegeCode
-        {
-            get
-            {
-                var code = _httpContextAccessor.HttpContext?
-                    .Session.GetString("CollegeCode") ?? "M001";
+        private ClaimsPrincipal User => _httpContextAccessor.HttpContext?.User;
+        public string CollegeCode =>
+            User?.FindFirst("CollegeCode")?.Value
+            ?? throw new UnauthorizedAccessException("CollegeCode missing");
 
-                if (string.IsNullOrEmpty(code))
-                    throw new UnauthorizedAccessException();
+        public string CourseLevel =>
+            User?.FindFirst("CourseLevel")?.Value
+            ?? throw new UnauthorizedAccessException("CourseLevel missing");
 
-                return code;
-            }
-        }
+        public int FacultyId =>
+            int.TryParse(User?.FindFirst("FacultyCode")?.Value, out var f) ? f : throw new UnauthorizedAccessException("FacultyCode missing");
 
-        public string CourseLevel
-        {
-            get
-            {
-                var code = _httpContextAccessor.HttpContext?
-                    .Session.GetString("CourseLevel") ;
 
-                if (string.IsNullOrEmpty(code))
-                    throw new UnauthorizedAccessException();
+        public string SeatSlabId => User?.FindFirst("SeatSlabId")?.Value ?? "S01";
 
-                return code;
-            }
-        }
-
-        public int FacultyId
-        {
-            get
-            {
-                var faculty = _httpContextAccessor.HttpContext?
-                    .Session.GetString("FacultyCode");
-
-                return int.TryParse(faculty, out var f) ? f : 1;
-            }
-        }
-
-        public string SeatSlabId
-        {
-            get
-            {
-                var SeatSlabId = _httpContextAccessor.HttpContext?
-                    .Session.GetString("SeatSlabId");
-
-                return SeatSlabId ?? "S01";
-            }
-        }
-
-        public int TypeOfAffiliation
-        {
-            get
-            {
-                var TypeOfAffiliation = _httpContextAccessor.HttpContext?
-                    .Session.GetString("TypeOfAffiliation");
-                return int.TryParse(TypeOfAffiliation, out var f) ? f: 2;
-            }
-        }
+        public int TypeOfAffiliation =>int.TryParse(User?.FindFirst("TypeOfAffiliation")?.Value, out var t) ? t : 2;
     }
 
 }

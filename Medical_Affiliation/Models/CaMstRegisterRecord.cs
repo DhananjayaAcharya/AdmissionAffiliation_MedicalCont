@@ -14,4 +14,6 @@ public partial class CaMstRegisterRecord
     public string? CourseLevel { get; set; }
 
     public int? AffiliationType { get; set; }
+
+    public virtual ICollection<CaStudentRegisterRecord> CaStudentRegisterRecords { get; set; } = new List<CaStudentRegisterRecord>();
 }

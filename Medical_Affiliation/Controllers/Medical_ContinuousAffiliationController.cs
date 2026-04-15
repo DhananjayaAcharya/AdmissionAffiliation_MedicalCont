@@ -28,6 +28,7 @@ namespace Medical_Affiliation.Controllers
 
 
         // GET: /SmallGroupTeaching/Edit
+        // GET: /SmallGroupTeaching/Edit
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
         public async Task<IActionResult> Medical_LandBuildingdetails()
@@ -188,9 +189,9 @@ namespace Medical_Affiliation.Controllers
                 SeminarHallAreaSqFt = admin?.SeminarHallAreaSqFt,
                 AuditoriumAreaSqFt = admin?.AuditoriumAreaSqFt,
                 MuseumAreaSqFt = admin?.MuseumAreaSqFt,
-
-                ExaminationHallAvailable = admin?.ExaminationHallAvailable,
-                AnimalHouseAvailable = admin?.AnimalHouseAvailable,   // ⭐ FIXED
+                ExaminationHallAvailable = admin?.ExaminationHallAvailable ?? false,
+                AnimalHouseAvailable = admin?.AnimalHouseAvailable ?? false,
+                CommitteeRoomsAreaSqFt = admin?.CommitteeRoomsAreaSqFt,
 
                 WorkshopStaffCount = admin?.WorkshopStaffCount,
                 WorkshopEquipmentDetails = admin?.WorkshopEquipmentDetails,
@@ -200,21 +201,19 @@ namespace Medical_Affiliation.Controllers
                 AnimalHouseStaffCount = admin?.AnimalHouseStaffCount,
                 AnimalTypes = admin?.AnimalTypes,
 
-                CommitteeRoomsAreaSqFt = admin?.CommitteeRoomsAreaSqFt,
-                CommonRoomMenAvailable = admin?.CommonRoomMenAvailable,
-                CommonRoomWomenAvailable = admin?.CommonRoomWomenAvailable,
-
-                StudentHostelAvailable = admin?.StudentHostelAvailable,
-                StaffQuartersPrincipal = admin?.StaffQuartersPrincipal,
-                StaffQuartersOtherStaff = admin?.StaffQuartersOtherStaff,
-                StaffQuartersTeachingAncillary = admin?.StaffQuartersTeachingAncillary,
-
-                RegisteredUnderAnatomyAct = admin?.RegisteredUnderAnatomyAct
+                CommonRoomMenAvailable = admin?.CommonRoomMenAvailable ?? false,
+                CommonRoomWomenAvailable = admin?.CommonRoomWomenAvailable ?? false,
+                StudentHostelAvailable = admin?.StudentHostelAvailable ?? false,
+                StaffQuartersPrincipal = admin?.StaffQuartersPrincipal ?? false,
+                StaffQuartersOtherStaff = admin?.StaffQuartersOtherStaff ?? false,
+                StaffQuartersTeachingAncillary = admin?.StaffQuartersTeachingAncillary ?? false,
+                RegisteredUnderAnatomyAct = admin?.RegisteredUnderAnatomyAct ?? false,
 
             };
 
             return View(vm);
         }
+
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpPost]
@@ -492,6 +491,97 @@ namespace Medical_Affiliation.Controllers
                 return NotFound();
 
             return File(teaching.ApprovedBuildingPlanFile, "application/pdf");
+        }
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Medical_EquipmentMaster()
+        {
+            var facultyId = Convert.ToInt32(FacultyCode);
+
+            var model = new EquipmentMasterViewModel
+            {
+                Departments = await _context.DepartmentMasters
+                    .Where(d => d.FacultyCode == facultyId)
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DepartmentCode,
+                        Text = d.DepartmentName
+                    }).ToListAsync()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Medical_EquipmentMaster(EquipmentMasterViewModel model)
+        {
+            var facultyId = Convert.ToInt32(FacultyCode);
+
+            // 🔁 Reload dropdown (MANDATORY)
+            model.Departments = await _context.DepartmentMasters
+                .Where(d => d.FacultyCode == facultyId)
+                .Select(d => new SelectListItem
+                {
+                    Value = d.DepartmentCode,
+                    Text = d.DepartmentName
+                }).ToListAsync();
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // 🔍 1️⃣ Get Department details (for Subjects)
+            var department = await _context.DepartmentMasters
+                .FirstOrDefaultAsync(d =>
+                    d.DepartmentCode == model.DepartmentCode &&
+                    d.FacultyCode == facultyId);
+
+            if (department == null)
+            {
+                ModelState.AddModelError("", "Invalid Department selected");
+                return View(model);
+            }
+
+            // 🔢 2️⃣ Generate EquipmentID manually (since DB not identity)
+            int nextId = 1;
+
+            if (await _context.MstLaboratoryEquipmentDetails.AnyAsync())
+            {
+                nextId = await _context.MstLaboratoryEquipmentDetails
+                    .MaxAsync(x => x.EquipmentId) + 1;
+            }
+
+            // 🚫 3️⃣ Prevent duplicate (IMPORTANT)
+            bool exists = await _context.MstLaboratoryEquipmentDetails
+                .AnyAsync(x =>
+                    x.CourseCode == model.DepartmentCode &&
+                    x.EquipmentName == model.EquipmentName);
+
+            if (exists)
+            {
+                ModelState.AddModelError("", "Equipment already exists for this department");
+                return View(model);
+            }
+
+            // 💾 4️⃣ Save entity
+            var entity = new MstLaboratoryEquipmentDetail
+            {
+                EquipmentId = nextId,                         // ✅ manual ID
+                EquipmentName = model.EquipmentName,
+                CourseCode = model.DepartmentCode,
+                FacultyId = facultyId,
+                Subjects = department.DepartmentName          // ✅ save department name
+            };
+
+            _context.MstLaboratoryEquipmentDetails.Add(entity);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Equipment added successfully";
+
+            return RedirectToAction(nameof(Medical_EquipmentMaster));
         }
 
 
@@ -916,6 +1006,8 @@ namespace Medical_Affiliation.Controllers
                     }
 
                 }
+                // 🔥 ADD THIS
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 TempData["Success"] = "Equipment availability saved successfully.";

@@ -9,6 +9,8 @@ public partial class TypeOfAffiliation
 
     public string TypeDescription { get; set; } = null!;
 
+    public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();
+
     public virtual ICollection<HospitalDetailsForAffiliation> HospitalDetailsForAffiliations { get; set; } = new List<HospitalDetailsForAffiliation>();
 
     public virtual ICollection<IndoorBedsOccupancy> IndoorBedsOccupancies { get; set; } = new List<IndoorBedsOccupancy>();

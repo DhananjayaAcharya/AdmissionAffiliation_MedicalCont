@@ -85,14 +85,14 @@ body {
         flex-shrink: 0;
     }
 
-    .page-header .emblem i {
-        color: var(--gold);
-        font-size: 24px;
-    }
+        .page-header .emblem i {
+            color: var(--gold);
+            font-size: 24px;
+        }
 
-    .head{
-        display: block;
-    }
+.head {
+    display: block;
+}
 
 .page-header-text h1 {
     font-family: 'Playfair Display', serif;
@@ -114,108 +114,108 @@ body {
     color: var(--white);
 }
 
-    .header-subtitle {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.55);
-    }
-    /* Card */
-    .form-card {
-        background: var(--white);
-        border: 1px solid var(--border);
-        border-top: none;
-        border-radius: 0 0 10px 10px;
-        padding: 32px 36px 36px;
-        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
-    }
+.header-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+}
+/* Card */
+.form-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 32px 36px 36px;
+    box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+}
 
 .form-wrap, .table-wrap, .form-card, .main-box {
     padding: 6rem 24px 60px;
 }
-    /* Section label */
-    .section-label {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
+/* Section label */
+.section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.section-label-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+}
+
+.section-label-text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+/* Table */
+.table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.data-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+    .data-table thead {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
     }
 
-    .section-label-line {
-        flex: 1;
-        height: 1px;
-        background: linear-gradient(90deg, var(--border), transparent);
-    }
-
-    .section-label-text {
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.14em;
+    .data-table th {
+        padding: 11px 12px;
+        font-size: 0.68rem;
         text-transform: uppercase;
-        color: var(--text-muted);
-    }
-    /* Table */
-    .table-wrap {
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
+        color: var(--navy);
     }
 
-    .data-table {
-        width: max-content;
-        min-width: 100%;
-        border-collapse: collapse;
-        font-size: 0.875rem;
+    .data-table td {
+        padding: 8px 10px;
     }
+/* Inputs */
+.form-control {
+    width: 100%;
+    border: 1px solid #d9d3c8;
+    border-radius: 4px;
+    padding: 6px 9px;
+}
+/* Buttons */
+.btn-add {
+    border: 1.5px solid var(--success);
+    color: var(--success);
+}
 
-        .data-table thead {
-            background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
-        }
+.btn-save {
+    background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+    color: white;
+}
 
-        .data-table th {
-            padding: 11px 12px;
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            color: var(--navy);
-        }
+.btn-remove {
+    border: 1.5px solid #e0bcbc;
+    color: var(--danger);
+}
+/* Footer */
+.form-footer {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+}
+/* Empty */
+.empty-notice {
+    text-align: center;
+    padding: 28px;
+    color: var(--text-muted);
+}
 
-        .data-table td {
-            padding: 8px 10px;
-        }
-    /* Inputs */
-    .form-control {
-        width: 100%;
-        border: 1px solid #d9d3c8;
-        border-radius: 4px;
-        padding: 6px 9px;
-    }
-    /* Buttons */
-    .btn-add {
-        border: 1.5px solid var(--success);
-        color: var(--success);
-    }
-
-    .btn-save {
-        background: linear-gradient(135deg, var(--navy), var(--navy-mid));
-        color: white;
-    }
-
-    .btn-remove {
-        border: 1.5px solid #e0bcbc;
-        color: var(--danger);
-    }
-    /* Footer */
-    .form-footer {
-        display: flex;
-        justify-content: space-between;
-        padding-top: 20px;
-    }
-    /* Empty */
-    .empty-notice {
-        text-align: center;
-        padding: 28px;
-        color: var(--text-muted);
-    }
-
-    .page-container {
-        margin: 0;
-        padding: 0;
-    }
+.page-container {
+    margin: 0;
+    padding: 0;
+}

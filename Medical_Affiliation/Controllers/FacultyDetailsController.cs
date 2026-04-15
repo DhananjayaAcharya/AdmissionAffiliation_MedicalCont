@@ -299,7 +299,7 @@ namespace Medical_Affiliation.Controllers
                 _context.SaveChanges();
                 transaction.Commit();
 
-                return RedirectToAction("Repo_ExamResults");
+                return RedirectToAction("Repo_FacultyDetails");
             }
             catch (Exception ex)
             {

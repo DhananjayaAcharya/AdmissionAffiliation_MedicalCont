@@ -208,8 +208,8 @@
 
         .hdr-uni {
             font-family: 'Crimson Pro', Georgia, serif;
-            font-size: clamp(14px, 2.1vh, 24px);
-            font-weight: 700;
+            font-size: clamp(20px, 2.1vh, 24px);
+            font-weight: 600;
             color: var(--white);
             line-height: 1.1;
             letter-spacing: -.01em;
@@ -236,7 +236,7 @@
         }
 
         .hdr-right {
-            display: flex;
+            display: none;
             align-items: center;
             gap: 0.8vw;
             flex-shrink: 0;
@@ -451,14 +451,14 @@
 
         .frm-title {
             font-family: 'Crimson Pro', Georgia, serif;
-            font-size: clamp(17px, 2.6vh, 28px);
+            font-size: clamp(20px, 2.6vh, 28px);
             font-weight: 700;
             color: var(--navy);
             line-height: 1;
         }
 
         .frm-sub {
-            font-size: clamp(9px, 1.05vh, 12px);
+            font-size: clamp(10px, 1.05vh, 12px);
             color: var(--muted);
             margin-top: 3px;
         }
@@ -488,14 +488,14 @@
 
         /* ── Fields ──────────────────────────────────── */
         .fg {
-            margin-bottom: clamp(8px, 1.3vh, 14px);
+            margin: clamp(14px, 1.3vh, 16px);
         }
 
         .fl {
             display: flex;
             align-items: center;
             gap: 5px;
-            font-size: clamp(8px, 0.95vh, 11px);
+            font-size: clamp(12px, 0.95vh, 11px);
             font-weight: 700;
             letter-spacing: .05em;
             text-transform: uppercase;
@@ -526,8 +526,8 @@
             border: 1.5px solid var(--border);
             border-radius: 8px;
             padding: 0 12px;
-            height: clamp(28px, 4.2vh, 40px);
-            font-size: clamp(10px, 1.3vh, 14px);
+            height: clamp(30px, 4.2vh, 40px);
+            font-size: clamp(12px, 1.3vh, 14px);
             color: var(--text);
             width: 100%;
             font-family: inherit;
@@ -853,7 +853,7 @@
                                         <div class="ic-val">2026 – 2027</div>
                                     </div>
                                 </div>
-                                <div class="info-card">
+                                @* <div class="info-card">
                                     <div class="ic-icon"><i class="bi bi-headset"></i></div>
                                     <div>
                                         <div class="ic-lbl">Helpdesk</div>
@@ -866,7 +866,7 @@
                                         <div class="ic-lbl">Support Hours</div>
                                         <div class="ic-val">Mon – Sat, 9 AM – 6 PM</div>
                                     </div>
-                                </div>
+                                </div> *@
                             </div>
                         </div>
 
@@ -948,8 +948,8 @@
                                         <i class="bi bi-arrow-clockwise"></i>
                                     </button>
                                     <div class="cap-field">
-                                        <input asp-for="Captcha" class="form-control"
-                                               placeholder="Type code shown" autocomplete="off" />
+                                        <input asp-for="Captcha" class="form-control captcha-value"
+                                               placeholder="Type code shown" autocomplete="off" maxlength="5" type="number" />
                                     </div>
                                 </div>
                                 <input type="hidden" asp-for="CaptchaCode" />
@@ -1012,7 +1012,9 @@
                         confirmButtonText: 'Try Again',
                         customClass: { popup: 'rounded-3' }
                     });
+                    document.querySelector(".captcha-value").value = "";
                     </text>
+
             }
 
             /* Refresh captcha */

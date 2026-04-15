@@ -10,7 +10,30 @@ namespace Medical_Affiliation.Controllers
     {
         protected string? FacultyCode => User.FindFirst("FacultyCode")?.Value;
         protected string? CollegeCode => User.FindFirst("CollegeCode")?.Value;
-        protected string? CourseLevel => User.FindFirst("CourseLevel")?.Value;
+        //protected string? CourseLevel => User.FindFirst("CourseLevel")?.Value;
+
+        protected string CourseLevel
+        {
+            get
+            {
+                // 1️⃣ URL (highest priority)
+                var level = HttpContext.Request.Query["level"].ToString();
+
+                // 2️⃣ Session fallback
+                if (string.IsNullOrEmpty(level))
+                {
+                    level = HttpContext.Session.GetString("CourseLevel");
+                }
+
+                // 3️⃣ Claims fallback (last)
+                if (string.IsNullOrEmpty(level))
+                {
+                    level = User.FindFirst("CourseLevel")?.Value;
+                }
+
+                return level ?? "UG";
+            }
+        }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {

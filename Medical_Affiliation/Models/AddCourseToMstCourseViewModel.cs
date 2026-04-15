@@ -312,77 +312,223 @@ public class FellowshipAcceptedRejectedListVm
 
 public class InstitutionViewModel
 {
-    // Keys (from Session)
+    // Keys
     public string CollegeCode { get; set; }
     public string FacultyCode { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    [Required(ErrorMessage = "Type of Institution is required")]
     public string TypeOfInstitution { get; set; }
+
+    [Required(ErrorMessage = "Institution Name is required")]
+    [StringLength(200)]
     public string NameOfInstitution { get; set; }
+
+    [Required(ErrorMessage = "Address is required")]
     public string Address { get; set; }
+
     public string VillageTownCity { get; set; }
+
     public string Taluk { get; set; }
     public string District { get; set; }
+
+    [Required(ErrorMessage = "PIN Code is required")]
+    [RegularExpression(@"^5\d{5}$", ErrorMessage = "PIN Code must start with 5 and be 6 digits")]
     public string PinCode { get; set; }
+
+    // ✅ Mobile
+    [Required(ErrorMessage = "Mobile number is required")]
+    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Enter valid 10-digit mobile number")]
     public string MobileNumber { get; set; }
+
+    // ✅ STD
+    [RegularExpression(@"^\d{2,4}$", ErrorMessage = "STD code must be 2–4 digits")]
     public string StdCode { get; set; }
+
     public string Fax { get; set; }
+
+    // ✅ Website
+    [Url(ErrorMessage = "Invalid website URL")]
     public string Website { get; set; }
+
     public string SurveyNoPidNo { get; set; }
+
     public bool MinorityInstitute { get; set; }
     public bool AttachedToMedicalClg { get; set; }
     public bool RuralInstitute { get; set; }
+
+    // ✅ Year
+    [Required(ErrorMessage = "Year is required")]
+    [RegularExpression(@"^\d{4}$", ErrorMessage = "Enter valid year")]
     public string YearOfEstablishment { get; set; }
+
+    // ✅ Email
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress(ErrorMessage = "Invalid email")]
     public string EmailId { get; set; }
+
+    // ✅ Alt Mobile
+    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
     public string AltLandlineMobile { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email")]
     public string AltEmailId { get; set; }
+
     public string HeadOfInstitution { get; set; }
     public string HeadAddress { get; set; }
+
     public string FinancingAuthority { get; set; }
+
+    [Required(ErrorMessage = "Status is required")]
     public string StatusOfCollege { get; set; }
+
     public string CourseApplied { get; set; }
 
-    public string DocumentName { get; set; }
-    public string DocumentContentType { get; set; }
-    // DocumentData will be handled via IFormFile in controller, not in ViewModel
+    public string? DocumentName { get; set; }
+    public string? DocumentContentType { get; set; }
 
+    // ✅ Nodal Officer
     public string NodalOfficer_Name { get; set; }
+
+    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
     public string NodalOfficer_Mob_Number { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email")]
     public string NodalOfficer_Email { get; set; }
 
+    // ✅ Principal
     public string Principal_Name { get; set; }
+
+    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
     public string Principal_Mob_No { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email")]
     public string Principal_Email { get; set; }
 
+    // ✅ Head
+    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
     public string HeadOfInstitution_Mob_NO { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email")]
     public string HeadOfInstitution_Email { get; set; }
 
+    // ✅ URLs
+    [Url(ErrorMessage = "Invalid URL")]
     public string College_URL { get; set; }
 
+    // ✅ Trust
     public string TrustName { get; set; }
     public string TrustAddress { get; set; }
+
     public DateOnly? TrustEstablishmentDate { get; set; }
+
     public string TrustPresidentName { get; set; }
+
+    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
     public string TrustPresidentContactNo { get; set; }
 
+    // ✅ Dean
     public string DeanName { get; set; }
+
+    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
     public string DeanMobileNumber { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email")]
     public string DeanEmailId { get; set; }
 
+    // ✅ Principal Alt
+    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
     public string PrincipalMobileNumber { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email")]
     public string PrincipalEmailId { get; set; }
 
     public string MinorityCategory { get; set; }
     public string RunningCourse { get; set; }
 
-    // Dropdown data
+    // Dropdowns
     public List<SelectListItem> TalukList { get; set; }
     public List<SelectListItem> DistrictList { get; set; }
     public List<SelectListItem> CourseList { get; set; }
     public List<SelectListItem> institutetypelist { get; set; }
     public List<SelectListItem> Institutestatuslist { get; set; }
 
+  
 }
+//public class InstitutionViewModel
+//{
+//    // Keys (from Session)
+//    public string CollegeCode { get; set; }
+//    public string FacultyCode { get; set; }
+
+//    public string? CourseLevel { get; set; }
+//    public string TypeOfInstitution { get; set; }
+//    public string NameOfInstitution { get; set; }
+//    public string Address { get; set; }
+//    public string VillageTownCity { get; set; }
+//    public string Taluk { get; set; }
+//    public string District { get; set; }
+//    public string PinCode { get; set; }
+//    public string MobileNumber { get; set; }
+//    public string StdCode { get; set; }
+//    public string Fax { get; set; }
+//    public string Website { get; set; }
+//    public string SurveyNoPidNo { get; set; }
+//    public bool MinorityInstitute { get; set; }
+//    public bool AttachedToMedicalClg { get; set; }
+//    public bool RuralInstitute { get; set; }
+//    public string YearOfEstablishment { get; set; }
+//    public string EmailId { get; set; }
+//    public string AltLandlineMobile { get; set; }
+//    public string AltEmailId { get; set; }
+//    public string HeadOfInstitution { get; set; }
+//    public string HeadAddress { get; set; }
+//    public string FinancingAuthority { get; set; }
+//    public string StatusOfCollege { get; set; }
+//    public string CourseApplied { get; set; }
+
+//    public string? DocumentName { get; set; }
+//    public string? DocumentContentType { get; set; }
+//    // DocumentData will be handled via IFormFile in controller, not in ViewModel
+
+//    public string NodalOfficer_Name { get; set; }
+//    public string NodalOfficer_Mob_Number { get; set; }
+//    public string NodalOfficer_Email { get; set; }
+
+//    public string Principal_Name { get; set; }
+//    public string Principal_Mob_No { get; set; }
+//    public string Principal_Email { get; set; }
+
+//    public string HeadOfInstitution_Mob_NO { get; set; }
+//    public string HeadOfInstitution_Email { get; set; }
+
+//    public string College_URL { get; set; }
+
+//    public string TrustName { get; set; }
+//    public string TrustAddress { get; set; }
+//    public DateOnly? TrustEstablishmentDate { get; set; }
+//    public string TrustPresidentName { get; set; }
+//    public string TrustPresidentContactNo { get; set; }
+
+//    public string DeanName { get; set; }
+//    public string DeanMobileNumber { get; set; }
+//    public string DeanEmailId { get; set; }
+
+//    public string PrincipalMobileNumber { get; set; }
+//    public string PrincipalEmailId { get; set; }
+
+//    public string MinorityCategory { get; set; }
+//    public string RunningCourse { get; set; }
+
+//    // Dropdown data
+//    public List<SelectListItem> TalukList { get; set; }
+//    public List<SelectListItem> DistrictList { get; set; }
+//    public List<SelectListItem> CourseList { get; set; }
+//    public List<SelectListItem> institutetypelist { get; set; }
+//    public List<SelectListItem> Institutestatuslist { get; set; }
+
+//}
 
 public class AcademicReportViewModel
 {
