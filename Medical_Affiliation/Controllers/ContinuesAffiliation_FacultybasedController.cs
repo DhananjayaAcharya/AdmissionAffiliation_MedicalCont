@@ -559,7 +559,6 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Aff_TrustMemberDetails(Medical_TrustMemberDetailsListVM vm)
         {
-            //var (facultyCode, collegeCode) = GetSessionCodes();
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
@@ -577,12 +576,12 @@ namespace Medical_Affiliation.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            // ── Remove existing rows for this college ────────────────────────────────
+            // ── Remove existing rows ──
             var existing = _context.ContinuationTrustMemberDetails
                 .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode);
             _context.ContinuationTrustMemberDetails.RemoveRange(existing);
 
-            // ── Pre-load all designations in ONE query (avoid N+1) ──────────────────
+            // ── Load designations ──
             var allDesignations = await _context.DesignationMasters
                 .Where(d => d.FacultyCode.ToString() == facultyCode)
                 .ToListAsync();
@@ -592,8 +591,8 @@ namespace Medical_Affiliation.Controllers
                 if (string.IsNullOrWhiteSpace(row.TrustMemberName))
                     continue;
 
-                // ── Parse joining date ───────────────────────────────────────────────
                 DateOnly? joiningDate = null;
+
                 if (!string.IsNullOrWhiteSpace(row.JoiningDateString) &&
                     DateOnly.TryParseExact(
                         row.JoiningDateString,
@@ -605,9 +604,6 @@ namespace Medical_Affiliation.Controllers
                     joiningDate = parsed;
                 }
 
-                // ── Resolve designation name from the pre-loaded list ────────────────
-                // row.DesignationCode holds whatever value the <select> posted.
-                // We match against DesignationCode in the master table.
                 var matchedDesignation = allDesignations
                     .FirstOrDefault(d => d.DesignationCode == row.DesignationCode);
 
@@ -621,17 +617,35 @@ namespace Medical_Affiliation.Controllers
                     Age = row.Age,
                     JoiningDate = joiningDate,
 
-                    // ★ Save both the code (FK) and the resolved name
-                    DesignationId = row.DesignationCode,                      // the posted value
-                    Designation = matchedDesignation?.DesignationName ?? row.DesignationCode  // fallback to code if name not found
+                    DesignationId = row.DesignationCode,
+                    Designation = matchedDesignation?.DesignationName ?? row.DesignationCode
                 };
 
                 _context.ContinuationTrustMemberDetails.Add(entity);
             }
 
             await _context.SaveChangesAsync();
+
             TempData["Success"] = "Trust member details saved successfully.";
-            return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
+
+            // 🔽 REDIRECTION BASED ON SESSION (NO DB REQUIRED)
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            if (courseLevel == "UG")
+            {
+                return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
+            }
+            else if (courseLevel == "PG")
+            {
+                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+            }
+            else if (courseLevel == "SS")
+            {
+                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+            }
+
+            // ❗ REQUIRED to avoid compiler error
+            throw new Exception("Invalid CourseLevel in session");
         }
 
         private async Task<List<SelectListItem>> GetDesignationListAsync(string facultyCode)
@@ -1130,7 +1144,9 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("TeachingStaffDepartmentWise");
+            //return RedirectToAction("TeachingStaffDepartmentWise");
+
+            return RedirectToAction("IncreaseIntake", "ContinuousAffiliationIncreaseintake");
         }
 
 
@@ -2419,7 +2435,22 @@ namespace Medical_Affiliation.Controllers
 
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
+                //return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
+                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+
+                var courseLevel = HttpContext.Session.GetString("CourseLevel");
+                if (courseLevel == "UG")
+                {
+                    return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
+                }
+                else if (courseLevel == "PG")
+                {
+                    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+                }
+                else if (courseLevel == "SS")
+                {
+                    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased_SS");
+                }
             }
 
             // Repopulate on validation error
@@ -2810,9 +2841,7 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Aff_PrincipalDetails(DeanDetailsViewModel model)
         {
-            // 🔐 Fetch from session
             var courseLevel = CourseLevel;
-
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
@@ -2826,7 +2855,6 @@ namespace Medical_Affiliation.Controllers
             model.CollegeCode = collegeCode;
             model.CourseLevel = courseLevel;
 
-            // 🧹 Remove unwanted validation
             ModelState.Remove(nameof(model.UGYears));
             ModelState.Remove("AdministrativeExperiences");
             ModelState.Remove("TeachingExperiences");
@@ -2834,7 +2862,6 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove("AdministrativeExperiences[0].CollegeCode");
             ModelState.Remove("TeachingExperiences[0].FacultyCode");
             ModelState.Remove("TeachingExperiences[0].CollegeCode");
-
 
             if (!ModelState.IsValid)
             {
@@ -2844,11 +2871,11 @@ namespace Medical_Affiliation.Controllers
 
             try
             {
-                // 🔍 Check existing record
                 var existingDean = _context.AffPrincipalDetails
                     .FirstOrDefault(d =>
                         d.FacultyCode == facultyCode &&
-                        d.CollegeCode == collegeCode && d.CourseLevel == courseLevel);
+                        d.CollegeCode == collegeCode &&
+                        d.CourseLevel == courseLevel);
 
                 if (existingDean == null)
                 {
@@ -2862,7 +2889,6 @@ namespace Medical_Affiliation.Controllers
                     _context.AffPrincipalDetails.Add(existingDean);
                 }
 
-                // ✏ Update fields
                 existingDean.DeanOrDirectorName = model.DeanOrDirectorName;
                 existingDean.DeanQualification = model.DeanQualification;
                 existingDean.DeanQualificationDate = model.DeanQualificationDate;
@@ -2870,18 +2896,14 @@ namespace Medical_Affiliation.Controllers
                 existingDean.DeanStateCouncilNumber = model.DeanStateCouncilNumber;
                 existingDean.RecognizedByMci = model.RecognizedByMCI;
 
-                _context.SaveChanges(); // 🔑 Required for DeanId
+                _context.SaveChanges();
 
-                // 🧹 Remove old child records
                 _context.AffPrincipalTeachingExperiences.RemoveRange(
-                    _context.AffPrincipalTeachingExperiences
-                        .Where(t => t.DeanId == existingDean.Id));
+                    _context.AffPrincipalTeachingExperiences.Where(t => t.DeanId == existingDean.Id));
 
                 _context.AffPrincipalAdministrativeExperiences.RemoveRange(
-                    _context.AffPrincipalAdministrativeExperiences
-                        .Where(a => a.DeanId == existingDean.Id));
+                    _context.AffPrincipalAdministrativeExperiences.Where(a => a.DeanId == existingDean.Id));
 
-                // 📘 Teaching Experience
                 if (model.TeachingExperiences != null)
                 {
                     foreach (var t in model.TeachingExperiences)
@@ -2892,24 +2914,22 @@ namespace Medical_Affiliation.Controllers
                             t.TotalExperienceYears == null)
                             continue;
 
-                        _context.AffPrincipalTeachingExperiences.Add(
-                            new AffPrincipalTeachingExperience
-                            {
-                                DeanId = existingDean.Id,
-                                Facultycode = facultyCode,
-                                Collegecode = collegeCode,
-                                CourseLevel = courseLevel,
-                                Designation = t.Designation?.Trim(),
-                                Ugfrom = t.UGFrom,
-                                Ugto = t.UGTo,
-                                Pgfrom = t.PGFrom,
-                                Pgto = t.PGTo,
-                                TotalExperienceYears = t.TotalExperienceYears ?? 0
-                            });
+                        _context.AffPrincipalTeachingExperiences.Add(new AffPrincipalTeachingExperience
+                        {
+                            DeanId = existingDean.Id,
+                            Facultycode = facultyCode,
+                            Collegecode = collegeCode,
+                            CourseLevel = courseLevel,
+                            Designation = t.Designation?.Trim(),
+                            Ugfrom = t.UGFrom,
+                            Ugto = t.UGTo,
+                            Pgfrom = t.PGFrom,
+                            Pgto = t.PGTo,
+                            TotalExperienceYears = t.TotalExperienceYears ?? 0
+                        });
                     }
                 }
 
-                // 🏛 Administrative Experience
                 if (model.AdministrativeExperiences != null)
                 {
                     foreach (var a in model.AdministrativeExperiences)
@@ -2919,27 +2939,39 @@ namespace Medical_Affiliation.Controllers
                             a.TotalExperienceYears == null)
                             continue;
 
-                        _context.AffPrincipalAdministrativeExperiences.Add(
-                            new AffPrincipalAdministrativeExperience
-                            {
-                                DeanId = existingDean.Id,
-                                Facultycode = facultyCode,
-                                Collegecode = collegeCode,
-                                CourseLevel = courseLevel,
-                                PostHeld = a.PostHeld?.Trim(),
-                                FromDate = a.FromDate,
-                                ToDate = a.ToDate,
-                                TotalExperienceYears = a.TotalExperienceYears ?? 0
-                            });
+                        _context.AffPrincipalAdministrativeExperiences.Add(new AffPrincipalAdministrativeExperience
+                        {
+                            DeanId = existingDean.Id,
+                            Facultycode = facultyCode,
+                            Collegecode = collegeCode,
+                            CourseLevel = courseLevel,
+                            PostHeld = a.PostHeld?.Trim(),
+                            FromDate = a.FromDate,
+                            ToDate = a.ToDate,
+                            TotalExperienceYears = a.TotalExperienceYears ?? 0
+                        });
                     }
                 }
 
-                // 💾 Final save
                 _context.SaveChanges();
 
-                TempData["SuccessMessage"] = "Dean / Director details saved successfully.";
-                //return RedirectToAction("Aff_HostelDetails");
-                return RedirectToAction("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation");
+                TempData["SuccessMessage"] = "principal details saved successfully.";
+
+                // 🔥 UPDATED REDIRECT LOGIC
+                if (courseLevel == "UG")
+                {
+                    return RedirectToAction("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation");
+                }
+                else if (courseLevel == "PG")
+                {
+                    return RedirectToAction("PgCourses", "AffiliationPgCourse");
+                }
+                else if (courseLevel == "SS")
+                {
+                    return RedirectToAction("CoursesOffered", "AffiliationSS");
+                }
+
+                throw new Exception("Invalid CourseLevel");
             }
             catch (Exception)
             {
@@ -3884,7 +3916,7 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("MedicalUGBedDistribution");
+            return RedirectToAction("Repo_FacultyDetails", "FacultyDetails");
         }
 
 

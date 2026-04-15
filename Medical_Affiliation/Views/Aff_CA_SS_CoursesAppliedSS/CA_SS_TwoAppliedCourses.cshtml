@@ -609,7 +609,7 @@
         </div>
 
         <!-- Navigation -->
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0;">
+       @*  <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0;">
             <a asp-controller="ContinuesAffiliation_FacultybasedSS" asp-action="Aff_TrustMemberDetails"
                asp-route-courseLevel="@courseLevel"
                class="btn btn-ghost">
@@ -619,6 +619,19 @@
                asp-route-courseLevel="@courseLevel"
                class="btn btn-primary">
                 Next → Dean/Director Details
+            </a>
+        </div> *@
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0;">
+            <a asp-controller="AffiliationSS" asp-action="AssociatedInstitutions"
+               asp-route-courseLevel="@courseLevel"
+               class="btn btn-ghost">
+                ← Previous
+            </a>
+            <a asp-controller="Medical_ContinuousAffiliation" asp-action="Medical_LandBuildingdetails"
+               asp-route-courseLevel="@courseLevel"
+               class="btn btn-primary">
+                Next 
             </a>
         </div>
     </div>

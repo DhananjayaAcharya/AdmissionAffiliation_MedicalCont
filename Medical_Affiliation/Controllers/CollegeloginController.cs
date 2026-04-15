@@ -163,18 +163,18 @@ namespace Admission_Affiliation.Controllers
 
 
 
-        //// ✅ GET: Change Password
+         //✅ GET: Change Password
         //[HttpGet]
-        //[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        //public IActionResult ChangePassword()
-        //{
-        //    if (!IsLoggedIn()) return RedirectToAction("ClgLogin");
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public IActionResult ChangePassword()
+        {
+            if (!IsLoggedIn()) return RedirectToAction("ClgLogin");
 
-        //    return View(new ChangePasswordViewModel
-        //    {
-        //        CollegeCode = HttpContext.Session.GetString("CollegeCode")
-        //    });
-        //}
+            return View(new ChangePasswordViewModel
+            {
+                CollegeCode = HttpContext.Session.GetString("CollegeCode")
+            });
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

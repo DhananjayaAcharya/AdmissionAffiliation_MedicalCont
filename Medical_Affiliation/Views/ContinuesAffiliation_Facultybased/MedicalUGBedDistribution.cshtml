@@ -429,10 +429,33 @@
                         </div>
                     </div>
 
-                    <div style="padding:30px 24px 20px; border-top:1px solid var(--border); text-align:center; margin-top:20px;">
+                    @* <div style="padding:30px 24px 20px; border-top:1px solid var(--border); text-align:center; margin-top:20px;">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-floppy me-2"></i> Save Distribution
                         </button>
+                    </div> *@
+
+                    <div class="form-footer">
+
+                        <!-- 🔹 PREVIOUS -->
+                        <a asp-controller="Aff_AHS_ContinousApplication"
+                           asp-action="CA_VehicleDetails"
+                           class="btn-prev">← Previous</a>
+
+                        <div class="footer-right">
+
+                            <!-- SAVE BUTTON -->
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-floppy me-2"></i> Save Distribution
+                            </button>
+
+                            <!-- 🔹 NEXT -->
+                            <a asp-controller="CA_Aff_AcademicMatters"
+                               asp-action="AcademicMatters"
+                               class="btn-next">Next →</a>
+
+                        </div>
+
                     </div>
                 </form>
             </div>
