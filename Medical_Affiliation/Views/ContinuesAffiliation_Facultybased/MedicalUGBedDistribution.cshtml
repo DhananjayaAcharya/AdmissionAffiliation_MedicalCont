@@ -222,6 +222,36 @@
             box-shadow: 0 5px 20px rgba(26,76,139,.4);
             transform: translateY(-1px);
         }
+
+        .btn-prev {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-next {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+            color: var(--white);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 9px 26px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: opacity 0.15s, box-shadow 0.15s;
+        }
     </style>
 
     <link rel="stylesheet" href="~/css/common-form.css" />
@@ -442,7 +472,7 @@
                            asp-action="CA_VehicleDetails"
                            class="btn-prev">← Previous</a>
 
-                        <div class="footer-right">
+                        @* <div class="footer-right"> *@
 
                             <!-- SAVE BUTTON -->
                             <button type="submit" class="btn btn-primary">
@@ -454,7 +484,7 @@
                                asp-action="AcademicMatters"
                                class="btn-next">Next →</a>
 
-                        </div>
+                        @* </div> *@
 
                     </div>
                 </form>

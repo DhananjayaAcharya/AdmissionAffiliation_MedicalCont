@@ -31,7 +31,7 @@
         padding: 22px 30px;
         border-bottom: 3px solid var(--gold);
         /* ✅ Rounded edges */
-        border-radius: 10px;
+        /* border-radius: 10px; */
         /* ✅ Gap below header */
         margin-bottom: 25px;
         /* Optional: subtle shadow for premium feel */
@@ -46,7 +46,7 @@
     /* PAGE WRAPPER */
     .page-wrapper {
         min-height: 100vh;
-        padding: 30px 30px;
+        /* padding: 30px 30px; */
         /* margin-left: 200px; */
     }
 
@@ -120,9 +120,24 @@
         border: none;
         color: #1a4c8b;
     }
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
 </style>
 
-
+<link rel="stylesheet" href="~/css/common-form.css" />
 
 <div class="page-wrapper">
 
@@ -161,7 +176,7 @@
 
                     <div class="col-md-6">
                         <label>Upload Publications PDF *</label>
-                        <input type="file" name="PublicationsPdf" accept="application/pdf" class="form-control" />
+                        <input type="file" name="PublicationsPdf" class="file-validate" accept="application/pdf" class="form-control" />
                         <span asp-validation-for="PublicationsPdf" class="text-danger"></span>
 
                         @if (!string.IsNullOrEmpty(Model.PublicationsPdfName))
@@ -222,7 +237,7 @@
                 <!-- ✅ Students Projects PDF -->
                 <div class="mt-3">
                     <label>Upload Students Projects PDF *</label>
-                    <input type="file" name="StudentsProjectsPdf" accept="application/pdf" class="form-control" />
+                    <input type="file" name="StudentsProjectsPdf" accept="application/pdf" class="form-control file-validate"/>
                     <span asp-validation-for="StudentsProjectsPdf" class="text-danger"></span>
 
                     @if (!string.IsNullOrEmpty(Model.StudentsProjectsPdfName))
@@ -237,7 +252,7 @@
                 <!-- ✅ Faculty Projects PDF -->
                 <div class="mt-3">
                     <label>Upload Faculty Projects PDF *</label>
-                    <input type="file" name="FacultyProjectsPdf" accept="application/pdf" class="form-control" />
+                    <input type="file" name="FacultyProjectsPdf" accept="application/pdf" class="form-control file-validate" />
                     <span asp-validation-for="FacultyProjectsPdf" class="text-danger"></span>
 
                     @if (!string.IsNullOrEmpty(Model.FacultyProjectsPdfName))
@@ -257,7 +272,7 @@
                     <h5>c. Clinical Trials</h5>
 
                     <label>Upload Clinical Trials PDF *</label>
-                    <input type="file" name="ClinicalTrialsPdf" accept="application/pdf" class="form-control" />
+                    <input type="file" name="ClinicalTrialsPdf" accept="application/pdf" class="form-control file-validate" />
                     <span asp-validation-for="ClinicalTrialsPdf" class="text-danger"></span>
 
                     @if (!string.IsNullOrEmpty(Model.ClinicalTrialsPdfName))
@@ -311,7 +326,7 @@
                             </div>
                             <div class="col-md-3">
                                 <label>Upload PDF <span class="text-danger">*</span></label>
-                                <input type="file" name="ActivityPdf" accept="application/pdf" class="form-control" required />
+                                <input type="file" name="ActivityPdf" accept="application/pdf" class="form-control file-validate" required />
                             </div>
                             <div class="col-md-2 d-flex justify-content-center align-items-end pt-3">
                                 <button type="submit" class="btn btn-success px-4">
@@ -402,7 +417,7 @@
 
                                     <td>
                                         <div class="file-upload-wrapper" style="display:@(Model.Committees[i].IsPresent == "Y" ? "block" : "none")">
-                                            <input type="file" name="Committees[@i].CommitteePdf" accept="application/pdf" class="form-control" />
+                                            <input type="file" name="Committees[@i].CommitteePdf" accept="application/pdf" class="form-control file-validate" />
 
                                             @if (!string.IsNullOrEmpty(Model.Committees[i].CommitteePdfName))
                                             {
@@ -428,7 +443,7 @@
                             <!-- 🔹 PREVIOUS (UPDATED) -->
                             <a asp-controller="CA_Med_StaffDetails"
                                asp-action="CA_Med_StaffDetails"
-                               class="btn btn-secondary">← Previous</a>
+                               class="btn btn-prev">← Previous</a>
 
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-cloud-arrow-up me-2"></i>Save Committee Details
@@ -450,6 +465,8 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function confirmDelete(button) {
@@ -484,6 +501,43 @@
                 }
                 toggleFileUpload();
                 select.addEventListener('change', toggleFileUpload);
+            });
+
+            document.addEventListener("change", function (e) {
+                if (e.target.classList.contains("file-validate")) {
+                    const file = e.target.files[0];
+                    const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+                    if (file) {
+
+                        // ❌ FILE SIZE CHECK
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "File too large",
+                                text: "Maximum allowed size is 2MB"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+
+                        // ❌ FILE TYPE CHECK
+                        const ext = file.name.split('.').pop().toLowerCase();
+
+                        if (ext !== "pdf") {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Invalid file",
+                                text: "Only PDF files are allowed"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+                    }
+                }
+
             });
         });
     </script>

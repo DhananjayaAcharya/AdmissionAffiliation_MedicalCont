@@ -11,15 +11,19 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICAHospitalAffiliationService _hospitalService;
         private readonly ICALandClassEquipmentService _landClassEqService;
         private readonly IUserContext _userContext;
+        private readonly ICAPaymentService _capaymentService;
+        private readonly ICADeclarationService _cADeclarationService;
         private readonly ApplicationDbContext _context;
 
 
-        public CAPreviewService(ICAAcademicService academicService, ICAHospitalAffiliationService hospitalService, ICALandClassEquipmentService landClassEqService, IUserContext userContext, ApplicationDbContext dbContext)
+        public CAPreviewService(ICAAcademicService academicService, ICAHospitalAffiliationService hospitalService, ICALandClassEquipmentService landClassEqService, ICAPaymentService paymentService, ICADeclarationService declarationService, IUserContext userContext, ApplicationDbContext dbContext)
         {
             _academicService = academicService;
             _hospitalService = hospitalService;
             _landClassEqService = landClassEqService;
             _userContext = userContext;
+            _cADeclarationService = declarationService;
+            _capaymentService = paymentService;
             _context = dbContext;
         }
 
@@ -40,6 +44,9 @@ namespace Medical_Affiliation.Services.Faculty
                 CAacademicMattersVM = await _academicService.GetAcademicMattersAsync(),
                 CAHospitalAFfiliationCompVM = await _hospitalService.GetHospitalAffiliationAsync(),
                 PhysicalFacilities = await _landClassEqService.GetLandClassEquipmentService(),
+                PaymentVM = await _capaymentService.GetPaymentDetails(),
+                DeclarationVM = await _cADeclarationService.GetDeclarationDetails()
+
             };
         }
 

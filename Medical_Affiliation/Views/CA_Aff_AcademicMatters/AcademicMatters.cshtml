@@ -323,7 +323,7 @@
                                         <input type="hidden" asp-for="CourseCurriculums[@i].CurriculumName" />
                                         <input type="hidden" asp-for="CourseCurriculums[@i].CurriculumId" />
 
-                                        <input type="file" id="@fileInputId" name="CourseCurriculums[@i].CurriculumPdfFiles" accept=".pdf" />
+                                        <input type="file" class="curriculum-file"  id="@fileInputId" name="CourseCurriculums[@i].CurriculumPdfFiles" accept=".pdf" />
 
                                         <label for="@fileInputId" class="custom-upload-btn">
                                             <i class="bi bi-upload"></i> Upload PDF
@@ -410,6 +410,7 @@
 
     @section Scripts {
         <partial name="_ValidationScriptsPartial" />
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
             $(document).ready(function () {
@@ -490,6 +491,47 @@
                 // Reparse validation after adding custom rules
                 form.removeData('validator').removeData('unobtrusiveValidation');
                 $.validator.unobtrusive.parse(form);
+            });
+        </script>
+
+        <script>
+
+            document.addEventListener("change", function (e) {
+
+                if (e.target.classList.contains("curriculum-file")) {
+
+                    const file = e.target.files[0];
+                    const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+                    if (file) {
+
+                        // ❌ SIZE CHECK
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "File too large",
+                                text: "Maximum allowed size is 2MB"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+
+                        // ❌ TYPE CHECK
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        if (ext !== "pdf") {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Invalid file",
+                                text: "Only PDF files are allowed"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+                    }
+                }
+
             });
         </script>
     }

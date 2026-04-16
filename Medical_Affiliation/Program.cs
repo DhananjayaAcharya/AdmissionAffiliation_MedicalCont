@@ -86,10 +86,9 @@ builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
 builder.Services.AddScoped<ICAFinanceService, CAFinanceService>();
 builder.Services.AddScoped<ICAAdminTeachAndHostel, CAAdminTeachAndHostelService>();
 builder.Services.AddScoped<ICAFacultyDesigNonTeaching, CAFacultyDesigNonTeachingService>();
-builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
-builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
 builder.Services.AddScoped<IUserContext, SessionUserContext>();
-builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
+builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
+builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 
 // =============================================
 // 🔥 AUTHENTICATION - DYNAMIC COOKIE PATH (Fixed for Local + Server)

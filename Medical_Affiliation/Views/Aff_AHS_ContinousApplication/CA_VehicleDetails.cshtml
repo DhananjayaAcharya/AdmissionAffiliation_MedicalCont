@@ -39,13 +39,13 @@
     .page-shell {
         background-color: var(--cream);
         min-height: 100vh;
-        padding: 36px 0 48px;
+        /* padding: 36px 0 48px; */
     }
 
     .page-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 24px;
+        /* padding: 0 24px; */
     }
 
     /* Updated Header Content - Stacked Vertically on Left */
@@ -209,6 +209,8 @@
         border-radius: var(--radius);
         overflow: hidden;
         margin-bottom: 24px;
+        padding-top: 0;
+        padding-bottom: 0;
     }
 
     /* Add New Vehicle Table - Horizontal Scroll Enabled */
@@ -397,17 +399,33 @@
         transition: opacity 0.15s, box-shadow 0.15s;
     }
 
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
         .btn-prev:hover, .btn-next:hover {
             opacity: 0.9;
             box-shadow: 0 4px 14px rgba(15,37,69,0.3);
         }
 </style>
-
+<link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
         <!-- Page Header -->
         <div class="page-header">
-            <div class="header-eyebrow">Continuous Affiliation · Infrastructure</div>
+            @* <div class="header-eyebrow">Continuous Affiliation · Infrastructure</div> *@
 
             <!-- Stacked Title and Subtitle on Left -->
             <div class="header-content">
@@ -568,7 +586,7 @@
 
             <!-- Previous & Next Buttons -->
             <div class="form-footer">
-                <div class="navigation-bar">
+                @* <div class="navigation-bar"> *@
                     <a asp-controller="ContinuationAffiliationClinicalFacilities"
                        asp-action="ClinicalFacilities"
                        class="btn-prev">← Previous</a>
@@ -576,7 +594,7 @@
                     <a asp-controller="ContinuesAffiliation_Facultybased"
                        asp-action="MedicalUGBedDistribution"
                        class="btn-next">Next →</a>
-                </div>
+                @* </div> *@
             </div>
         </div>
     </div>

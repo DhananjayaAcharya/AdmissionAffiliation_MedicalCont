@@ -191,6 +191,20 @@
         padding: 14px;
         margin-bottom: 16px;
     }
+
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
@@ -319,7 +333,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Upload New Possession Proof (PDF)</label>
-                            <input type="file" name="possessionFile" accept="application/pdf" class="form-control" />
+                            <input type="file" name="possessionFile" accept="application/pdf" class="form-control file-validate" />
                             <small class="text-muted">New file will replace the existing document.</small>
                         </div>
                     </div>
@@ -433,10 +447,13 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="d-flex align-items-center gap-3 mt-4">
+                <div class="d-flex align-items-center justify-content-between gap-3 mt-4">
                     <a asp-action="Repo_FacultyDetails" asp-controller="FacultyDetails"
                        class="btn btn-outline-secondary px-4">← Previous</a>
                     <button type="submit" class="btn btn-primary px-4">Save &amp; Proceed →</button>
+                    <a asp-controller="ContinuousAffiliationIncreaseintake"
+                       asp-action="IncreaseIntake"
+                       class="btn-next">Next →</a>
                 </div>
 
                 <div class="form-footer-note mt-3">
@@ -449,4 +466,44 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("change", function (e) {
+            if (e.target.classList.contains("file-validate")) {
+
+                const file = e.target.files[0];
+                const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+                if (file) {
+
+                    // ❌ FILE SIZE CHECK
+                    if (file.size > maxSize) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "File too large",
+                            text: "Maximum allowed size is 2MB"
+                        });
+
+                        e.target.value = "";
+                        return;
+                    }
+
+                    // ❌ FILE TYPE CHECK
+                    const ext = file.name.split('.').pop().toLowerCase();
+
+                    if (ext !== "pdf") {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Invalid file",
+                            text: "Only PDF files are allowed"
+                        });
+
+                        e.target.value = "";
+                        return;
+                    }
+                }
+            }
+
+        });
+    </script>
 }

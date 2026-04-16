@@ -352,8 +352,8 @@
                                        asp-controller="ContinuousAffiliation"
                                        asp-action="SetLevel"
                                        asp-route-level="UG"
-                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
-                                       asp-route-redirectAction="aff_FacultyDetails">
+                                       asp-route-redirectController="FacultyDetails"
+                                       asp-route-redirectAction="Repo_FacultyDetails">
                                         FACULTY DETAILS
                                     </a>
                                 </li>
@@ -382,32 +382,20 @@
                                     </a>
                                 </li>
 
-                                <!-- SS COURSES APPLIED -->
+                                 <!-- AFFILIATION PAYMENT -->
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="ContinuousAffiliation"
-                                       asp-action="SetLevel"
-                                       asp-route-level="UG"
-                                       asp-route-redirectController="Aff_CA_SS_CoursesApplied"
-                                       asp-route-redirectAction="CA_SS_CoursesApplied">
-                                        SS COURSES APPLIED
-                                    </a>
-                                </li>
-
-                                <!-- PAYMENT -->
-                                <li>
-                                    <a class="dropdown-item"
-                                       asp-controller="Payment"
-                                       asp-action="Index">
-                                        PAYMENT DETAILS
+                                       asp-controller="AffiliationPayment"
+                                       asp-action="Payment">
+                                        AFFILIATION PAYMENT DETAILS
                                     </a>
                                 </li>
 
                                 <!-- DECLARATION -->
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="Declaration"
-                                       asp-action="Index">
+                                       asp-controller="AffiliationDeclaration"
+                                       asp-action="Declaration">
                                         DECLARATION
                                     </a>
                                 </li>
@@ -535,8 +523,8 @@
                                        asp-controller="ContinuousAffiliation"
                                        asp-action="SetLevel"
                                        asp-route-level="PG"
-                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
-                                       asp-route-redirectAction="aff_FacultyDetails">
+                                       asp-route-redirectController="FacultyDetails"
+                                       asp-route-redirectAction="Repo_FacultyDetails">
                                         FACULTY DETAILS
                                     </a>
                                 </li>
@@ -565,32 +553,21 @@
                                     </a>
                                 </li>
 
-                                <!-- SS COURSES APPLIED -->
-                                <li>
-                                    <a class="dropdown-item"
-                                       asp-controller="ContinuousAffiliation"
-                                       asp-action="SetLevel"
-                                       asp-route-level="PG"
-                                       asp-route-redirectController="Aff_CA_SS_CoursesApplied"
-                                       asp-route-redirectAction="CA_SS_CoursesApplied">
-                                        SS COURSES APPLIED
-                                    </a>
-                                </li>
 
-                                <!-- PAYMENT -->
+                                <!-- AFFILIATION PAYMENT -->
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="Payment"
-                                       asp-action="Index">
-                                        PAYMENT DETAILS
+                                       asp-controller="AffiliationPayment"
+                                       asp-action="Payment">
+                                        AFFILIATION PAYMENT DETAILS
                                     </a>
                                 </li>
 
                                 <!-- DECLARATION -->
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="Declaration"
-                                       asp-action="Index">
+                                       asp-controller="AffiliationDeclaration"
+                                       asp-action="Declaration">
                                         DECLARATION
                                     </a>
                                 </li>
@@ -719,8 +696,8 @@
                                        asp-controller="ContinuousAffiliation"
                                        asp-action="SetLevel"
                                        asp-route-level="SS"
-                                       asp-route-redirectController="ContinuesAffiliation_Facultybased"
-                                       asp-route-redirectAction="aff_FacultyDetails">
+                                       asp-route-redirectController="FacultyDetails"
+                                       asp-route-redirectAction="Repo_FacultyDetails">
                                         FACULTY DETAILS
                                     </a>
                                 </li>
@@ -755,26 +732,26 @@
                                        asp-controller="ContinuousAffiliation"
                                        asp-action="SetLevel"
                                        asp-route-level="SS"
-                                       asp-route-redirectController="Aff_CA_SS_CoursesApplied"
+                                       asp-route-redirectController="Aff_CA_SS_CoursesAppliedSS"
                                        asp-route-redirectAction="CA_SS_CoursesApplied">
                                         SS COURSES APPLIED
                                     </a>
                                 </li>
 
-                                <!-- PAYMENT -->
+                                <!-- AFFILIATION PAYMENT -->
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="Payment"
-                                       asp-action="Index">
-                                        PAYMENT DETAILS
+                                       asp-controller="AffiliationPayment"
+                                       asp-action="Payment">
+                                        AFFILIATION PAYMENT DETAILS
                                     </a>
                                 </li>
 
                                 <!-- DECLARATION -->
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="Declaration"
-                                       asp-action="Index">
+                                       asp-controller="AffiliationDeclaration"
+                                       asp-action="Declaration">
                                         DECLARATION
                                     </a>
                                 </li>

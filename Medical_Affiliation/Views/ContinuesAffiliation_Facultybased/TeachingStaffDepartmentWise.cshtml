@@ -45,19 +45,19 @@
     .page-shell {
         background-color: var(--cream);
         min-height: 100vh;
-        padding: 36px 0 56px;
+        /* padding: 36px 0 56px; */
     }
 
     .page-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 0 24px;
+        /* padding: 0 24px; */
     }
 
     /* ── Header ── */
     .page-header {
         background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-        border-radius: 10px 10px 0 0;
+        /* border-radius: 10px 10px 0 0; */
         padding: 28px 36px 24px;
         position: relative;
         overflow: hidden;
@@ -389,6 +389,20 @@
             color: var(--navy);
         }
 
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
+
     /* College dropdown — compact */
     select.college-select {
         font-size: 0.74rem;
@@ -585,16 +599,19 @@
             border: 1px solid #d9d3c8;
         }
 </style>
-
+<link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
 
         <!-- Header -->
         <div class="page-header">
-            <div class="header-eyebrow">Continuous Affiliation · Faculty Details</div>
-            <div class="header-title">Teaching Staff — Department Wise</div>
-            <div class="header-subtitle">Enter UG and PG teaching experience for each designation in every department</div>
-            <div class="header-badge">Faculty Details</div>
+            <div class="emblem">
+                <i class="fas fa-book-medical"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Faculty Details</h1>
+                <p>Enter UG and PG teaching experience for each designation in every department</p>
+            </div>
         </div>
 
         <!-- Form Card -->
@@ -728,6 +745,9 @@
                        asp-controller="CA_Aff_MedicalLibrary"
                        class="btn-prev">← Previous</a>
                     <button type="submit" class="btn-save">&#128190; Save &amp; Continue →</button>
+                    <a asp-controller="ContinuesAffiliation_Facultybased"
+                       asp-action="NonTeachingStaffDepartmentwise"
+                       class="btn-next">Next →</a>
                 </div>
 
             </form>

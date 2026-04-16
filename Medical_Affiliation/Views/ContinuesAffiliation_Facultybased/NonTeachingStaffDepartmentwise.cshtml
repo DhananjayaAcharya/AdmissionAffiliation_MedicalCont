@@ -156,6 +156,8 @@
         border-radius: var(--radius);
         overflow: hidden;
         margin-bottom: 20px;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
     }
 
     /* ── Data Table ── */
@@ -163,6 +165,7 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 0.83rem;
+        margin-bottom: 1rem;
     }
 
         .data-table thead {
@@ -317,7 +320,7 @@
         align-items: center;
         gap: 7px;
         background: transparent;
-        border: 1.5px solid var(--success);
+        border: 1.5px solid linear-gradient(135deg, var(--navy), var(--navy-mid));
         color: var(--success);
         font-size: 0.8rem;
         font-weight: 600;
@@ -330,7 +333,7 @@
     }
 
         .btn-add-row:hover {
-            background: var(--success);
+            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
             color: #fff;
         }
 
@@ -408,6 +411,19 @@
         color: var(--text-muted);
         font-size: 0.85rem;
         background: #faf8f4;
+    }
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
     }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
@@ -488,17 +504,21 @@
                             }
                         </tbody>
                     </table>
+                    <button type="button" id="addRow" class="btn-add-row">
+                        <span style="font-size:1.1rem; line-height:1;">+</span> Add Row
+                    </button>
                 </div>
 
                 <!-- Footer -->
                 <div class="form-footer">
-                    <button type="button" id="addRow" class="btn-add-row">
-                        <span style="font-size:1.1rem; line-height:1;">+</span> Add Row
-                    </button>
-                    <div style="display:flex; gap:10px; align-items:center;">
+                    @* <div style="display:flex; gap:10px; align-items:center;"> *@
                         <a asp-action="TeachingStaffDepartmentWise" class="btn-prev">← Previous</a>
                         <button type="submit" class="btn-save">&#128190; Save →</button>
-                    </div>
+                    @* </div> *@
+                    <a asp-controller="ContinuesAffiliation_Facultybased"
+                       asp-action="Aff_HostelDetails"
+                       class="btn-next">Next →</a>
+
                 </div>
 
             </form>

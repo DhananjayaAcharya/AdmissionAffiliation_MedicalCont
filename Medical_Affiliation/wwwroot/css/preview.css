@@ -1,0 +1,736 @@
+﻿.general-section {
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0f7fb 100%);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15);
+    overflow: hidden;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    margin-bottom: 2rem;
+}
+.req-text{
+    width: 85%;
+}
+.general-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    padding: 0.8rem 0.2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.general-header::before,
+.general-header::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.general-header::before {
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+}
+
+.general-header::after {
+    bottom: -30%;
+    left: -5%;
+    width: 200px;
+    height: 200px;
+}
+
+.header-content {
+    position: relative;
+    z-index: 1;
+}
+
+
+.general-title {
+    color: white !important;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0.5rem 0 0;
+}
+
+.section-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #1e40af;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+/*    font-size: 0.75rem;*/
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.department-badge {
+    background: rgba(255, 255, 255, 0.75);
+    color: #1e40af;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+/*    font-size: 0.75rem;*/
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.count-badge {
+    background: white;
+    color: #3b82f6;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #93c5fd;
+}
+
+
+.general-body {
+    padding: 0.2rem 2rem;
+    background: white;
+}
+
+.section-block {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #bfdbfe;
+    position: relative;
+}
+
+    .section-block::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+.section-title-text {
+    color: #1e40af;
+    background: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-description {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.data-table-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.data-table thead {
+    background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+}
+
+.data-table thead th {
+    color: #1e40af;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    padding: 1rem;
+    border: none;
+}
+
+.data-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+    .data-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+.data-table tbody td {
+    padding: 1rem;
+    color: #334155;
+    font-size: 0.9rem;
+}
+
+
+.status-badge-maintained {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge-not-maintained {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #94a3b8;
+    font-style: italic;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px dashed #cbd5e1;
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #cbd5e1;
+}
+
+/* Hospital Type Header Row */
+.hospital-type-row td {
+    background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+    color: #1e3a8a;
+    font-weight: 700;
+    padding: 1rem 1.5rem;
+    border-top: 2px solid #3b82f6;
+}
+
+/* Hospital names */
+.hospital-names {
+    color: #334155;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+/* Document name */
+.document-name {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Empty text */
+.empty-remarks {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Table hover */
+.requirements-table tbody tr:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+    transform: translateX(4px);
+}
+
+
+/* Info grid cards (Small Group Teaching, Area details) */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.info-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.info-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 0.25rem;
+}
+
+.info-value.success {
+    color: #059669;
+}
+
+.info-value.danger {
+    color: #dc2626;
+}
+
+/* Inline status row */
+.status-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #334155;
+}
+
+.status-item i {
+    font-size: 1rem;
+}
+
+.status-item.yes i {
+    color: #10b981;
+}
+
+.status-item.no i {
+    color: #ef4444;
+}
+
+/* Museum list */
+.museum-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.museum-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.museum-name {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.museum-meta {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* Section header block (title + description) */
+.section-header-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* Field labels (left text) */
+.field-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    margin-bottom: 0.15rem;
+    display: block;
+}
+
+/* Field values (right content) */
+.field-value {
+    font-size: 0.95rem;
+    color: #1e293b;
+    line-height: 1.4;
+}
+
+/* Status label */
+.status-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.35rem;
+}
+
+/* Divider spacing */
+.section-divider {
+    margin: 1.5rem 0;
+    border-top: 1px dashed #c7d2fe;
+}
+
+.document-name{
+    width: 50%
+}
+
+.academic-section {
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0f7fb 100%);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15);
+    overflow: hidden;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    margin-bottom: 2rem;
+}
+
+.academic-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    padding: 0.8rem 0.2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+    .academic-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .academic-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -5%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+
+.header-content {
+    position: relative;
+    z-index: 1;
+}
+
+.academic-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.section-badge {
+    background: rgba(255, 255, 255);
+    color: #1e40af !important;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.academic-title {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0.75rem 0 0.5rem 0;
+}
+
+.academic-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.edit-button {
+    background: white;
+    color: #2563eb;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+    .edit-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        color: #1d4ed8;
+    }
+
+.academic-body {
+    padding: 2rem;
+    background: white;
+}
+
+.section-block {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #bfdbfe;
+    position: relative;
+    overflow: hidden;
+}
+
+    .section-block::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+.section-header-block {
+    margin-bottom: 1rem;
+}
+
+.section-title-text {
+    color: #1e40af;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .section-title-text i {
+        color: #3b82f6;
+        font-size: 1rem;
+    }
+
+.section-description {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.count-badge {
+    background: white;
+    color: #3b82f6;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #93c5fd;
+}
+
+.data-table-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e7ff;
+}
+
+.data-table {
+    margin-bottom: 0;
+}
+
+    .data-table thead {
+        background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+    }
+
+        .data-table thead th {
+            color: #1e40af;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+            border: none;
+        }
+
+    .data-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s;
+    }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+    .data-table tbody td {
+        padding: 1rem;
+        color: #334155;
+        font-size: 0.9rem;
+    }
+
+.year-cell {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.success-text {
+    color: #059669;
+    font-weight: 600;
+}
+
+.list-group-custom {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+    .list-group-custom .list-group-item {
+        border: none;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1.25rem;
+        background: white;
+        transition: all 0.2s;
+    }
+
+        .list-group-custom .list-group-item:hover {
+            background: #f8fafc;
+            padding-left: 1.5rem;
+        }
+
+        .list-group-custom .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+.curriculum-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1rem;
+}
+
+.curriculum-details {
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.download-button {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+    .download-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+.status-badge-maintained {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.status-badge-not-maintained {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #94a3b8;
+    font-style: italic;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px dashed #cbd5e1;
+}
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #cbd5e1;
+    }
+
+
+@@media (max-width: 768px) {
+    .academic-header {
+        padding: 1.5rem;
+    }
+
+    .academic-title {
+        font-size: 1.5rem;
+    }
+
+    .academic-body {
+        padding: 1.25rem;
+    }
+
+    .section-block {
+        padding: 1.25rem;
+    }
+    .hospital-type-row td {
+        font-size: 0.9rem;
+    }
+
+    .hospital-names,
+    .document-name {
+        font-size: 0.85rem;
+    }
+    .general-header {
+        padding: 1.25rem;
+    }
+
+    .general-title {
+        font-size: 1.1rem;
+    }
+
+    .general-body {
+        padding: 1.25rem;
+    }
+
+    .section-block {
+        padding: 1.25rem;
+    }
+}

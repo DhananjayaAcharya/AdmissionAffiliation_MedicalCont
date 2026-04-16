@@ -224,6 +224,22 @@
             box-shadow: 0 3px 14px rgba(26,76,139,.3);
         }
 
+        .btn-prev {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
         .btn-primary:hover {
             box-shadow: 0 5px 20px rgba(26,76,139,.4);
             transform: translateY(-1px);
@@ -311,7 +327,7 @@
                     <div class="navigation-bar">
                         
                         <a href="@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")"
-                           class="btn btn-primary">Previous</a>
+                           class="btn-prev btn">Previous</a>
                         <a href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")" 
                            class="btn btn-primary">Next</a>
                     </div>

@@ -524,18 +524,15 @@
     .btn-next {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        background: linear-gradient(135deg, #1a6b3a, #2e8b57);
-        border: none;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
         color: var(--white);
         font-size: 0.82rem;
         font-weight: 600;
-        padding: 9px 22px;
+        padding: 9px 26px;
         border-radius: 4px;
-        cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
-        letter-spacing: 0.04em;
-        transition: opacity 0.15s;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
     }
 
         .btn-next:hover {
@@ -883,7 +880,7 @@
                            class="btn-prev">← Previous</a>
                     }
 
-                    <div class="footer-right">
+                    @* <div class="footer-right"> *@
 
                         <button type="submit" class="btn-save" id="btnSave">
                             <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
@@ -910,7 +907,7 @@
                                class="btn-next">Next →</a>
                         }
 
-                    </div>
+                    @* </div> *@
 
                 </div>
 

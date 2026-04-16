@@ -1,4 +1,5 @@
-﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Course Intake details";
     var courseLevels = ViewBag.CourseLevels as List<string> ?? new List<string>();

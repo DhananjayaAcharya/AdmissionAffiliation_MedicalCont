@@ -42,9 +42,9 @@
 
     /* Both header and form share the same centred max-width */
     .page-wrap {
-        max-width: 680px;
+        /* max-width: 680px; */
         margin: 0 auto;
-        padding: 0 24px;
+        /* padding: 0 24px; */
     }
 
     /* ── Header ── */
@@ -335,15 +335,27 @@
         margin-top: 4px;
     }
 </style>
-
+<link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-wrap">
 
         <!-- Header -->
-        <div class="page-header">
+        @* <div class="page-header">
             <div class="header-eyebrow">Equipment Management · Master Data</div>
             <div class="header-title">Add Equipment</div>
             <div class="header-subtitle">Register a new equipment item to a department</div>
+        </div> *@
+
+        <div class="page-header">
+            <div class="emblem">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+            </div>
+            <div class="page-header-text">
+                <h1>Additional Equipment</h1>
+                <p>Register a new equipment item to a department</p>
+            </div>
         </div>
 
         <!-- Form Card -->
@@ -397,11 +409,28 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="form-footer">
-                    <button type="button" class="btn-save" id="btnSave">
-                        <span class="btn-spinner" id="saveSpinner"></span>
-                        <span id="btnText">&#128190; Save Equipment</span>
-                    </button>
+                <div class="form-footer d-flex justify-content-between">
+
+                    <!-- 🔙 PREVIOUS -->
+                    <a href="@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")"
+                        class="btn btn-secondary">
+                        ← Previous
+                    </a>
+
+                    @* <div> *@
+                        <!-- 💾 SAVE -->
+                        <button type="button" class="btn-save me-2" id="btnSave">
+                            <span class="btn-spinner" id="saveSpinner"></span>
+                            <span id="btnText">&#128190; Save Equipment</span>
+                        </button>
+
+                        <!-- 🔜 NEXT -->
+                        <a href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")"
+                            class="btn btn-success">
+                            Next →
+                        </a>
+                    @* </div> *@
+
                 </div>
             </form>
 

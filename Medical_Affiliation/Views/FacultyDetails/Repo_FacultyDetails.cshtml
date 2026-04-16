@@ -728,9 +728,9 @@
                                     <th>Department</th>
                                     <th>Designation</th>
                                     <th>Recognised PG Guide</th>
-                                    <th>Guide Shift Letter</th>
+                                    <th>PG Guide Ship Letter</th>
                                     <th>Recognised PhD Guide</th>
-                                    <th>Guide Shift Letter</th>
+                                    <th>Ph.D Guide Ship Letter</th>
                                     <th>Litigation Pending</th>
                                     <th>Litigation Doc</th>
                                     <th>Mobile</th>
@@ -762,7 +762,7 @@
                                     </td>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                                            <input type="file" name="[@i].GuideRecognitionDoc" class="fc pg-doc"
+                                            <input type="file" name="[@i].GuideRecognitionDoc" class="fc pg-doc file-validate"
                                                    style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].PGRecognitionDocData != null)
                                             {
@@ -781,7 +781,7 @@
                                     </td>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                                            <input type="file" name="[@i].PhDRecognitionDoc" class="fc phd-doc"
+                                            <input type="file" name="[@i].PhDRecognitionDoc" class="fc phd-doc file-validate"
                                                    style="display:@(Model[i].RecognizedPhDTeacher == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].PhDRecognitionDocData != null)
                                             {
@@ -800,7 +800,7 @@
                                     </td>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                                            <input type="file" name="[@i].LitigationDoc" class="fc litig-doc"
+                                            <input type="file" name="[@i].LitigationDoc" class="fc litig-doc file-validate"
                                                    style="display:@(Model[i].LitigationPending == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].LitigationDocData != null)
                                             {
@@ -866,7 +866,7 @@
                     <button type="submit" class="btn-official">
                         <i class="bi bi-save2"></i> Save &amp; Proceed <i class="bi bi-arrow-right"></i>
                     </button>
-                </div> 
+                </div>
             </form>
 
         </main>
@@ -883,7 +883,7 @@
         Model.First().Designations.Select(d =>
         $"<option value='{System.Net.WebUtility.HtmlEncode(d.Value)}'>{System.Net.WebUtility.HtmlEncode(d.Text)}</option>"));
     }
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const DepartmentOptions  = `@Html.Raw(deptOptions)`;
         const DesignationOptions = `@Html.Raw(desigOptions)`;
@@ -977,7 +977,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="file" name="[${ri}].GuideRecognitionDoc" class="fc pg-doc" style="display:none;min-width:140px;" />
+                        <input type="file" name="[${ri}].GuideRecognitionDoc" class="fc pg-doc file-validate" style="display:none;min-width:140px;" />
                     </td>
                     <td>
                         <select name="[${ri}].RecognizedPhDTeacher" class="fc phd-teacher">
@@ -985,7 +985,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="file" name="[${ri}].PhDRecognitionDoc" class="fc phd-doc" style="display:none;min-width:140px;" />
+                        <input type="file" name="[${ri}].PhDRecognitionDoc" class="fc phd-doc file-validate" style="display:none;min-width:140px;" />
                     </td>
                     <td>
                         <select name="[${ri}].LitigationPending" class="fc litig-teacher">
@@ -993,7 +993,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="file" name="[${ri}].LitigationDoc" class="fc litig-doc" style="display:none;min-width:140px;" />
+        <input type="file" name="[${ri}].LitigationDoc" class="fc litig-doc file-validate" style="display:none;min-width:140px;" />
                     </td>
                     <td><input name="[${ri}].Mobile"  class="fc" placeholder="10-digit" /></td>
                     <td><input name="[${ri}].Email"   class="fc" placeholder="email@domain.com" /></td>
@@ -1025,6 +1025,46 @@
                 rowIndex++;
                 updateSlNo();
             });
+        });
+
+        document.addEventListener("change", function (e) {
+
+            if (e.target.classList.contains("file-validate")) {
+
+                const file = e.target.files[0];
+                const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+                if (file) {
+
+                    // ❌ FILE SIZE CHECK
+                    if (file.size > maxSize) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "File too large",
+                            text: "Maximum allowed size is 2MB"
+                        });
+
+                        e.target.value = "";
+                        return;
+                    }
+
+                    // ❌ OPTIONAL TYPE CHECK (recommended)
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    const allowed = ["pdf", "jpg", "png"];
+
+                    if (!allowed.includes(ext)) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Invalid file",
+                            text: "Only PDF, JPG, PNG files are allowed"
+                        });
+
+                        e.target.value = "";
+                        return;
+                    }
+                }
+            }
+
         });
     </script>
 

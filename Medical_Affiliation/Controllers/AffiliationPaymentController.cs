@@ -19,7 +19,7 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AffiliationPayment()
+        public async Task<IActionResult> Payment()
         {
             var collegeCode = _userContext.CollegeCode;
             int facultyCode = _userContext.FacultyId;
@@ -38,7 +38,9 @@ namespace Medical_Affiliation.Controllers
                     PaymentDate = x.PaymentDate,
                     Amount = x.Amount,
                     TransactionReferenceNo = x.TransactionReferenceNo,
-                    SupportingDocument = x.SupportingDocument,
+                    SupportingDocument = string.IsNullOrEmpty(x.SupportingDocument)
+                                                ? null
+                                                : Path.GetFileName(x.SupportingDocument),
                 })
                 .FirstOrDefaultAsync();
 
@@ -60,6 +62,7 @@ namespace Medical_Affiliation.Controllers
                 return BadRequest("Transaction Reference already exists");
 
             AffiliationPayment entity;
+            string existingFilePath = null;
 
             if (model.Id > 0)
             {
@@ -69,9 +72,8 @@ namespace Medical_Affiliation.Controllers
                 if (entity == null)
                     return NotFound("Payment not found");
 
-                entity.PaymentDate = model.PaymentDate;
-                entity.Amount = model.Amount;
-                entity.TransactionReferenceNo = model.TransactionReferenceNo;
+                // ✅ store existing file path
+                existingFilePath = entity.SupportingDocument;
             }
             else
             {
@@ -88,63 +90,96 @@ namespace Medical_Affiliation.Controllers
                 _context.AffiliationPayments.Add(entity);
             }
 
+            // 🔁 Common fields
             entity.PaymentDate = model.PaymentDate;
             entity.Amount = model.Amount;
             entity.TransactionReferenceNo = model.TransactionReferenceNo;
 
+            // 📁 FILE HANDLING
             if (model.File != null && model.File.Length > 0)
             {
+                // ❌ Size validation
                 if (model.File.Length > 1 * 1024 * 1024)
                 {
                     TempData["Error"] = "File size must be less than 1MB";
-                    return RedirectToAction("AffiliationPayment");
+                    return RedirectToAction("Payment");
                 }
+
+                // ❌ Extension validation
                 var allowedExtensions = new[] { ".pdf", ".jpg", ".png" };
                 var ext = Path.GetExtension(model.File.FileName).ToLower();
 
                 if (!allowedExtensions.Contains(ext))
                 {
                     TempData["Error"] = "Invalid file type";
-                    return RedirectToAction("AffiliationPayment");
+                    return RedirectToAction("Payment");
                 }
 
-                var folderPath = @"D:\AffiliationPayment";
+                // ✅ Folder path
+                var basePath = @"D:\Affiliation_Medical";
+                var folderPath = Path.Combine(basePath, "Payment");
 
-                // Ensure directory exists
                 if (!Directory.Exists(folderPath))
                 {
                     Directory.CreateDirectory(folderPath);
                 }
 
-                // Generate unique filename
+                // 🔥 DELETE OLD FILE (only if exists)
+                if (!string.IsNullOrEmpty(existingFilePath))
+                {
+                    var oldFullPath = Path.Combine(folderPath, existingFilePath);
+
+                    if (System.IO.File.Exists(oldFullPath))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(oldFullPath);
+                        }
+                        catch
+                        {
+                            // log if needed
+                        }
+                    }
+                }
+
+                // ✅ Save new file
                 var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(model.File.FileName)}";
                 var fullPath = Path.Combine(folderPath, uniqueFileName);
 
-                // Save file
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     await model.File.CopyToAsync(stream);
                 }
 
-                // Save full path in DB
-                entity.SupportingDocument = fullPath;
+                entity.SupportingDocument = uniqueFileName;
+            }
+            else if (model.Id > 0)
+            {
+                // ✅ KEEP OLD FILE
+                entity.SupportingDocument = existingFilePath;
             }
 
             await _context.SaveChangesAsync();
+
             TempData["Success"] = "Payment saved successfully";
 
-            return RedirectToAction("AffiliationPayment");
+            return RedirectToAction("Payment");
         }
 
-        public IActionResult ViewFile(string path)
+        public IActionResult ViewFile(string fileName)
         {
-            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
+            if (string.IsNullOrEmpty(fileName))
                 return NotFound();
 
-            var fileBytes = System.IO.File.ReadAllBytes(path);
-            var contentType = GetContentType(path);
+            var folderPath = @"D:\Affiliation_Medical\Payment";
+            var fullPath = Path.Combine(folderPath, fileName);
 
-            // 👇 NO filename → inline preview
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound();
+
+            var fileBytes = System.IO.File.ReadAllBytes(fullPath);
+            var contentType = GetContentType(fullPath);
+
             return File(fileBytes, contentType);
         }
 

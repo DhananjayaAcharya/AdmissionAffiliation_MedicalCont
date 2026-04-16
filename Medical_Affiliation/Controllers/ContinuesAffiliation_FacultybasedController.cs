@@ -193,7 +193,7 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(t => t.TalukName)
                 .Select(t => new SelectListItem
                 {
-                    Value = t.TalukName,   // ✅ FIXED
+                    Value = t.TalukId,   // ✅ FIXED
                     Text = t.TalukName
                 }).ToList();
 
@@ -201,7 +201,7 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(d => d.DistrictName)
                 .Select(d => new SelectListItem
                 {
-                    Value = d.DistrictName,   // ✅ FIXED
+                    Value = d.DistrictId,   // ✅ FIXED
                     Text = d.DistrictName
                 }).ToList();
         }
@@ -379,7 +379,7 @@ namespace Medical_Affiliation.Controllers
         public JsonResult GetTaluksByDistrictt(string district)
         {
             var districtId = _context.DistrictMasters
-                .Where(d => d.DistrictName == district)
+                .Where(d => d.DistrictId == district)
                 .Select(d => d.DistrictId)
                 .FirstOrDefault();
 
@@ -387,7 +387,7 @@ namespace Medical_Affiliation.Controllers
                 .Where(t => t.DistrictId == districtId)
                 .Select(t => new SelectListItem
                 {
-                    Value = t.TalukName,
+                    Value = t.TalukId,
                     Text = t.TalukName
                 })
                 .ToList();
@@ -2112,7 +2112,7 @@ namespace Medical_Affiliation.Controllers
                 .Where(t => t.DistrictId == district)
                 .Select(t => new SelectListItem
                 {
-                    Value = t.TalukName,
+                    Value = t.TalukId,
                     Text = t.TalukName
                 }).ToList();
 
@@ -2492,21 +2492,22 @@ namespace Medical_Affiliation.Controllers
                 await _context.SaveChangesAsync();
 
                 //return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
-                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+                //return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+                return RedirectToAction("Repo_FacultyDetails", "FacultyDetails");
 
-                var courseLevel = HttpContext.Session.GetString("CourseLevel");
-                if (courseLevel == "UG")
-                {
-                    return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
-                }
-                else if (courseLevel == "PG")
-                {
-                    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-                }
-                else if (courseLevel == "SS")
-                {
-                    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased_SS");
-                }
+                //var courseLevel = HttpContext.Session.GetString("CourseLevel");
+                //if (courseLevel == "UG")
+                //{
+                //    return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
+                //}
+                //else if (courseLevel == "PG")
+                //{
+                //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+                //}
+                //else if (courseLevel == "SS")
+                //{
+                //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased_SS");
+                //}
             }
 
             // Repopulate on validation error

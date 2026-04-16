@@ -345,7 +345,7 @@
                                             <td colspan="2">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <label class="fw-semibold mb-0">Upload Document <span class="text-danger">*</span></label>
-                                                    <input type="file" class="form-control form-control-sm pdf-input"
+                                                    <input type="file" class="form-control form-control-sm pdf-input file-validate"
                                                            style="max-width:280px" asp-for="LibraryServices[@i].UploadedPdf"
                                                            accept=".pdf" data-has-file="@(!string.IsNullOrEmpty(row.ExistingFileName))" />
                                                     @if (!string.IsNullOrEmpty(row.ExistingFileName))
@@ -381,7 +381,7 @@
                     </p>
                     <div class="d-flex align-items-center gap-3">
                         <label class="fw-semibold">Upload Document <span class="text-danger">*</span></label>
-                        <input asp-for="UsageReportPdf" type="file" class="form-control form-control-sm"
+                        <input asp-for="UsageReportPdf" type="file" class="form-control form-control-sm file-validate"
                                accept=".pdf" style="max-width:280px"
                                data-has-file="@(!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))" />
                         @if (!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))
@@ -584,7 +584,7 @@
                     </div>
 
                     <div id="specialPdfRow" class="align-items-center gap-3" style="display:none;">
-                        <input type="file" class="form-control" style="max-width:320px"
+                        <input type="file" class="form-control file-validate" style="max-width:320px"
                                asp-for="OtherDetails.SpecialFeaturesPdf" accept=".pdf" />
                         @if (Model.OtherDetails?.HasSpecialFeaturesPdf == true)
                         {
@@ -735,6 +735,47 @@
                 reparseValidation();
             });
 
+        </script>
+
+        <script>
+            document.addEventListener("change", function (e) {
+
+                if (e.target.classList.contains("file-validate")) {
+
+                    const file = e.target.files[0];
+                    const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+                    if (file) {
+
+                        // ❌ FILE SIZE CHECK
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "File too large",
+                                text: "Maximum allowed size is 2MB"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+
+                        // ❌ FILE TYPE CHECK
+                        const ext = file.name.split('.').pop().toLowerCase();
+
+                        if (ext !== "pdf") {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Invalid file",
+                                text: "Only PDF files are allowed"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+                    }
+                }
+
+            });
         </script>
     }
 </body>

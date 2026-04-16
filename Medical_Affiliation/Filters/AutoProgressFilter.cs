@@ -83,7 +83,9 @@ public class AutoProgressFilter : IAsyncActionFilter
     new CAStep { Key="Hostel", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
     //new CAStep { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
 
-    new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" }
+    new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
+    new CAStep { Key="PaymentDetails", Ctrl="AffiliationPayment", Act="Payment" },
+    new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
 };
 
         // 🔥 Find matching step dynamically

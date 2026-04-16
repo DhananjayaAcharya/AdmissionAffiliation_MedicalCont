@@ -951,8 +951,12 @@
                                         <i class="bi bi-arrow-clockwise"></i>
                                     </button>
                                     <div class="cap-field">
-                                        <input asp-for="Captcha" class="form-control captcha-value"
-                                               placeholder="Type code shown" autocomplete="off" maxlength="5" type="number" />
+                                        <input asp-for="Captcha"
+                                           class="form-control captcha-value"
+                                           placeholder="Type code shown"
+                                           autocomplete="off"
+                                           type="number"
+                                           oninput="if (this.value.length > 5) this.value = this.value.slice(0, 5);" />
                                     </div>
                                 </div>
                                 <input type="hidden" asp-for="CaptchaCode" />

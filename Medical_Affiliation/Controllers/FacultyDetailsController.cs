@@ -299,7 +299,8 @@ namespace Medical_Affiliation.Controllers
                 _context.SaveChanges();
                 transaction.Commit();
 
-                return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
+                //return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
+                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
             }
             catch (Exception ex)
             {

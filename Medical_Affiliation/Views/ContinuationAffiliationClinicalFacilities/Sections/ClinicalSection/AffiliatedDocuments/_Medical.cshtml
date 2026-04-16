@@ -53,6 +53,7 @@
                                 <input asp-for="@Model.Documents[i].DocumentFile"
                                        type="file"
                                        class="d-none doc-upload"
+                                       accept=".pdf""
                                        id="docFile_@i" />
 
                                 <button type="button"
@@ -160,12 +161,39 @@
     document.addEventListener("change", function (e) {
         if (e.target.classList.contains("doc-upload")) {
             const input = e.target;
+            const file = input.files[0];
+            const maxSize = 2 * 1024 * 1024;
             const row = input.closest("tr");
             const fileNameSpan =
                 row.querySelector("[id^='file-name-']") ||
                 row.querySelector(".file-name");
 
             if (!fileNameSpan) return;
+
+            if (file && file.size > maxSize) {
+                Swal.fire({
+                    icon: "error",
+                    title: "File too large",
+                    text: "Maximum allowed size is 2MB"
+                });
+
+                input.value = ""; // reset file
+                fileNameSpan.textContent = "";
+                return;
+            }
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext !== "pdf") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid file",
+                    text: "Only PDF files are allowed"
+                });
+
+                input.value = "";
+                fileNameSpan.textContent = "";
+                return;
+            }
 
             if (input.files.length > 0) {
                 fileNameSpan.textContent = input.files[0].name;

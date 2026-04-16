@@ -178,6 +178,19 @@
                 .btn-primary:hover {
                     transform: translateY(-1px);
                 }
+                .btn-next {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+                    color: var(--white);
+                    font-size: 0.82rem;
+                    font-weight: 600;
+                    padding: 9px 26px;
+                    border-radius: 4px;
+                    text-decoration: none;
+                    transition: opacity 0.15s, box-shadow 0.15s;
+                }
     </style>
 
     <link rel="stylesheet" href="~/css/common-form.css" />
@@ -250,10 +263,27 @@
                     </div>
                     <input type="hidden" asp-for="Id" />
 
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary">
-                            Save Payment
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+
+                        <!-- 🔙 PREVIOUS -->
+                        <a href="@Url.Action("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation")"
+                               class="btn btn-prev">
+                            ← Previous
+                        </a>
+
+                        @* <div> *@
+                            <!-- 💾 SAVE -->
+                            <button type="submit" class="btn btn-primary me-2">
+                                Save Payment
+                            </button>
+
+                            <!-- 🔜 NEXT -->
+                            <a href="@Url.Action("Declaration", "AffiliationDeclaration")"
+                                   class="btn btn-next">
+                                Next →
+                            </a>
+                        @* </div> *@
+
                     </div>
 
                 </form>
@@ -284,56 +314,74 @@
     </div>
 
     @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-                var previewUrl = '@Url.Action("ViewFile", new { path = Model?.SupportingDocument })';
+            var previewUrl = '@Url.Action("ViewFile", new { fileName = Model?.SupportingDocument })';
+            var modal = document.getElementById('filePreviewModal');
 
-                var modal = document.getElementById('filePreviewModal');
+            modal.addEventListener('show.bs.modal', function () {
+                document.getElementById('previewFrame').src = previewUrl;
+            });
 
-                modal.addEventListener('show.bs.modal', function () {
-                    document.getElementById('previewFrame').src = previewUrl;
-                });
+            modal.addEventListener('hidden.bs.modal', function () {
+                document.getElementById('previewFrame').src = "";
+            });
 
-                modal.addEventListener('hidden.bs.modal', function () {
-                    document.getElementById('previewFrame').src = "";
-                });
+            // File name display
+            document.getElementById("fileInput").addEventListener("change", function () {
+                const fileNameSpan = document.getElementById("fileName");
 
-                // File name display
-                document.getElementById("fileInput").addEventListener("change", function () {
-                    const fileNameSpan = document.getElementById("fileName");
+                if (this.files.length === 0) {
+                    fileNameSpan.innerText = "";
+                    return;
+                }
 
-                    if (this.files.length === 0) {
+                const file = this.files[0];
+
+                const maxSize = 1 * 1024 * 1024;
+
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "File too large",
+                        text: "File size must be less than 1 MB",
+                        confirmButtonColor: "#d33",
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
+
+                    this.value = "";
+                    if (fileNameSpan) {
                         fileNameSpan.innerText = "";
-                        return;
                     }
+                    return;
+                }
 
-                    const file = this.files[0];
+                fileNameSpan.innerText = file.name;
+            });
+            var successMessage = '@TempData["Success"]';
+            var errorMessage = '@TempData["Error"]';
 
-                    const maxSize = 1 * 1024 * 1024;
-
-                    if (file.size > maxSize) {
-                        alert("File size must be less than 1 MB");
-                        this.value = "";
-                        fileNameSpan.innerText = "";
-                        return;
-                    }
-
-                    fileNameSpan.innerText = file.name;
+            if (successMessage) {
+                Swal.fire({
+                    title: "Success",
+                    text: successMessage,
+                    icon: "success",
+                    timer: 2000,
+                    showConfirmButton: false
                 });
+            }
+
+            if (errorMessage) {
+                Swal.fire({
+                    title: "Error",
+                    text: errorMessage,
+                    icon: "error"
+                });
+            }
         </script>
     }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger">
-            @TempData["Error"]
-        </div>
-    }
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success">
-            @TempData["Success"]
-        </div>
-    }
+    
 
 </body>
 </html>

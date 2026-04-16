@@ -304,7 +304,7 @@
 
                     <div style="margin-top: 20px;">
                         <label>Previous Years Notification Copies (Upload)</label>
-                        <input asp-for="PreviousNotificationFiles" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                        <input asp-for="PreviousNotificationFiles" type="file" accept=".pdf" id="fileInput"/>
                     </div>
                 </div>
             </div>
@@ -450,7 +450,27 @@
     </div>
 
     @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+        <script>
+            document.getElementById("fileInput").addEventListener("change", function () {
+                const file = this.files[0];
+                const maxSize = 2 * 1024 * 1024; // 2MB
+
+                if (file) {
+                    if (file.size > maxSize) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "File too large",
+                            text: "Maximum allowed size is 2MB"
+                        });
+
+                        this.value = ""; // reset
+                    }
+                }
+            });
+        </script>
     }
 </body>
 </html>
