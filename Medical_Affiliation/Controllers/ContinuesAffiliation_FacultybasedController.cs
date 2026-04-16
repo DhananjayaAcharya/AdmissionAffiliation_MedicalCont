@@ -1083,13 +1083,14 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Aff_HostelDetails(
-                                                 AffHostelDetailsCreateVm vm,
-                                                 IFormFile? possessionFile)
+                                                         AffHostelDetailsCreateVm vm,
+                                                         IFormFile? possessionFile)
         {
-            var courseLevel = CourseLevel;
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
@@ -1171,7 +1172,9 @@ namespace Medical_Affiliation.Controllers
                 existingHostel.ReceptionCounter = vm.Hostel.ReceptionCounter;
                 existingHostel.GamesRecreation = vm.Hostel.GamesRecreation;
                 existingHostel.MedicalFacilities = vm.Hostel.MedicalFacilities;
-
+                existingHostel.CreatedOn = existingHostel.CreatedOn == default
+                                           ? DateTime.Now
+                                           : existingHostel.CreatedOn;
                 // File update only if new uploaded
                 if (vm.Hostel.PossessionProofPath != null)
                     existingHostel.PossessionProofPath = vm.Hostel.PossessionProofPath;
@@ -1179,16 +1182,14 @@ namespace Medical_Affiliation.Controllers
             else
             {
                 // ➕ New record
+                vm.Hostel.CreatedOn = DateTime.Now; // ✅ FIX HERE
                 _context.AffHostelDetails.Add(vm.Hostel);
             }
 
             await _context.SaveChangesAsync();
 
-            //return RedirectToAction("TeachingStaffDepartmentWise");
-
-            return RedirectToAction("IncreaseIntake", "ContinuousAffiliationIncreaseintake");
+            return RedirectToAction("TeachingStaffDepartmentWise");
         }
-
 
 
         [HttpGet]

@@ -49,7 +49,14 @@ namespace Medical_Affiliation.Controllers
                 context.Result = new RedirectToActionResult("Login", "Login", null);
                 return;
             }
+            // ✅ FIX STARTS HERE
+            var levelFromUrl = context.HttpContext.Request.Query["level"].ToString();
 
+            if (!string.IsNullOrEmpty(levelFromUrl))
+            {
+                context.HttpContext.Session.SetString("CourseLevel", levelFromUrl);
+            }
+            // ✅ FIX ENDS HERE
             Console.WriteLine($"BaseController: Auth successful - CollegeCode: {CollegeCode}");
             base.OnActionExecuting(context);
         }
