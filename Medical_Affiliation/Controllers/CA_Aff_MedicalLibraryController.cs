@@ -1,10 +1,11 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -158,10 +159,10 @@ namespace Medical_Affiliation.Controllers
                     HasCccameraSystem = otherDetails.HasCccameraSystem,
 
                     SpecialFeaturesQuestion =
-                            otherDetails.SpecialFeaturesAchievementspdf != null ? "Yes" : "No",
+                            otherDetails.SpecialFeaturesAchievementspdfPath != null ? "Yes" : "No",
 
                     HasSpecialFeaturesPdf =
-                            otherDetails.SpecialFeaturesAchievementspdf != null,
+                            otherDetails.SpecialFeaturesAchievementspdfPath != null,
 
 
                     UploadedFileName = otherDetails.UploadedFileName,
@@ -192,10 +193,32 @@ namespace Medical_Affiliation.Controllers
 
             return View("MedicalLibrary", model);
         }
+        private async Task<string?> SaveLibraryFileAsync(IFormFile file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            string basePath = @"D:\Affiliation_Medical\MedicalLibrary";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult MedicalLibrary(CA_Aff_MedicalLibraryViewModel model)
+        public async Task<IActionResult> MedicalLibrary(CA_Aff_MedicalLibraryViewModel model)
         {
             if (model == null)
                 return RedirectToAction(nameof(MedicalLibrary));
@@ -290,7 +313,7 @@ namespace Medical_Affiliation.Controllers
                 x.FacultyCode == facultyCode &&
                 x.CourseLevel == courseLevel &&
                 x.AffiliationType == affiliationType &&
-                x.SpecialFeaturesAchievementspdf != null
+                x.SpecialFeaturesAchievementspdfPath != null
             );
 
             if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes")
@@ -369,10 +392,19 @@ namespace Medical_Affiliation.Controllers
                     // Upload / replace PDF ONLY when user uploads a new one
                     if (row.ServiceId == 6 && row.UploadedPdf != null && row.UploadedPdf.Length > 0)
                     {
-                        using var ms = new MemoryStream();
-                        row.UploadedPdf.CopyTo(ms);
-                        entity.UploadedPdf = ms.ToArray();
-                        entity.UploadedFileName = row.UploadedPdf.FileName;
+                        var path = await SaveLibraryFileAsync(row.UploadedPdf, "LibraryServices");
+
+                        if (path != null)
+                        {
+                            if (!string.IsNullOrEmpty(entity.UploadedPdfPath) &&
+                                System.IO.File.Exists(entity.UploadedPdfPath))
+                            {
+                                System.IO.File.Delete(entity.UploadedPdfPath);
+                            }
+
+                            entity.UploadedPdfPath = path;
+                            entity.UploadedFileName = row.UploadedPdf.FileName;
+                        }
                     }
 
                 }
@@ -396,12 +428,21 @@ namespace Medical_Affiliation.Controllers
                     _context.CaMedicalLibraryUsageReports.Add(usage);
                 }
 
-                if (usage != null && model.UsageReportPdf != null)
+                if (usage != null && model.UsageReportPdf != null && model.UsageReportPdf.Length > 0)
                 {
-                    using var ms = new MemoryStream();
-                    model.UsageReportPdf.CopyTo(ms);
-                    usage.UploadedFileData = ms.ToArray();
-                    usage.UploadedFileName = model.UsageReportPdf.FileName;
+                    var path = await SaveLibraryFileAsync(model.UsageReportPdf, "UsageReports");
+
+                    if (path != null)
+                    {
+                        if (!string.IsNullOrEmpty(usage.UploadedFileDataPath) &&
+                            System.IO.File.Exists(usage.UploadedFileDataPath))
+                        {
+                            System.IO.File.Delete(usage.UploadedFileDataPath);
+                        }
+
+                        usage.UploadedFileDataPath = path;
+                        usage.UploadedFileName = model.UsageReportPdf.FileName;
+                    }
                 }
 
                 // 3. LIBRARY STAFF
@@ -514,16 +555,33 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 // 2️⃣ Special Features PDF
-                if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes" && model.OtherDetails.SpecialFeaturesPdf != null)
+                if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes" &&
+    model.OtherDetails.SpecialFeaturesPdf != null &&
+    model.OtherDetails.SpecialFeaturesPdf.Length > 0)
                 {
-                    using var ms = new MemoryStream();
-                    model.OtherDetails.SpecialFeaturesPdf.CopyTo(ms);
-                    otherEntity.SpecialFeaturesAchievementspdf = ms.ToArray();
-                    otherEntity.UploadedFileName = model.OtherDetails.SpecialFeaturesPdf.FileName;
+                    var path = await SaveLibraryFileAsync(model.OtherDetails.SpecialFeaturesPdf, "SpecialFeatures");
+
+                    if (path != null)
+                    {
+                        if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementspdfPath) &&
+                            System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementspdfPath))
+                        {
+                            System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementspdfPath);
+                        }
+
+                        otherEntity.SpecialFeaturesAchievementspdfPath = path;
+                        otherEntity.UploadedFileName = model.OtherDetails.SpecialFeaturesPdf.FileName;
+                    }
                 }
                 else if (model.OtherDetails?.SpecialFeaturesQuestion == "No")
                 {
-                    otherEntity.SpecialFeaturesAchievementspdf = null;
+                    if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementspdfPath) &&
+                        System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementspdfPath))
+                    {
+                        System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementspdfPath);
+                    }
+
+                    otherEntity.SpecialFeaturesAchievementspdfPath = null;
                     otherEntity.UploadedFileName = null;
                 }
 
@@ -554,31 +612,38 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
-        public IActionResult ViewUsageReportPdf()
+        public async Task<IActionResult> ViewSpecialFeaturesPdf()
         {
-
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
             int facultyCode = HttpContext.Session.GetInt32("FacultyId") ?? 1;
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
-            var record = _context.CaMedicalLibraryUsageReports.FirstOrDefault(x =>
+            var record = await _context.CaMedicalLibraryOtherDetails.FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
                 x.CourseLevel == courseLevel &&
                 x.AffiliationType == affiliationType);
 
-            if (record == null || record.UploadedFileData == null || record.UploadedFileData.Length == 0)
-                return NotFound("Usage Report PDF not found.");
+            if (record == null || string.IsNullOrEmpty(record.SpecialFeaturesAchievementspdfPath))
+                return NotFound("Special Features PDF not found.");
 
-            Response.Headers["Content-Disposition"] =
-                $"inline; filename=\"{record.UploadedFileName ?? "UsageReport.pdf"}\"";
+            if (!System.IO.File.Exists(record.SpecialFeaturesAchievementspdfPath))
+                return NotFound("File not found on server.");
 
-            return File(record.UploadedFileData, "application/pdf");
+            var fileName = record.UploadedFileName ?? Path.GetFileName(record.SpecialFeaturesAchievementspdfPath);
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(record.SpecialFeaturesAchievementspdfPath, out string contentType))
+                contentType = "application/octet-stream";
+
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+            return PhysicalFile(record.SpecialFeaturesAchievementspdfPath, contentType);
         }
         [HttpGet]
-        public IActionResult ViewLibraryServicePdf(int serviceId)
+        public async Task<IActionResult> ViewLibraryServicePdf(int serviceId)
         {
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
@@ -586,24 +651,31 @@ namespace Medical_Affiliation.Controllers
             int facultyCode = HttpContext.Session.GetInt32("FacultyId") ?? 1;
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
-            var record = _context.CaMedicalLibraryServices.FirstOrDefault(x =>
+            var record = await _context.CaMedicalLibraryServices.FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
                 x.AffiliationType == affiliationType &&
                 x.CourseLevel == courseLevel &&
                 x.ServiceId == serviceId);
 
-            if (record == null || record.UploadedPdf == null)
+            if (record == null || string.IsNullOrEmpty(record.UploadedPdfPath))
                 return NotFound("PDF not found.");
 
-            Response.Headers["Content-Disposition"] =
-                $"inline; filename=\"{record.UploadedFileName ?? "Document.pdf"}\"";
+            if (!System.IO.File.Exists(record.UploadedPdfPath))
+                return NotFound("File not found on server.");
 
-            return File(record.UploadedPdf, "application/pdf");
+            var fileName = record.UploadedFileName ?? Path.GetFileName(record.UploadedPdfPath);
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(record.UploadedPdfPath, out string contentType))
+                contentType = "application/octet-stream";
+
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+            return PhysicalFile(record.UploadedPdfPath, contentType);
         }
-
         [HttpGet]
-        public IActionResult ViewSpecialFeaturesPdf()
+        public async Task<IActionResult> ViewUsageReportPdf()
         {
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
@@ -611,19 +683,27 @@ namespace Medical_Affiliation.Controllers
             int facultyCode = HttpContext.Session.GetInt32("FacultyId") ?? 1;
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
-            var record = _context.CaMedicalLibraryOtherDetails.FirstOrDefault(x =>
+            var record = await _context.CaMedicalLibraryUsageReports.FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
                 x.CourseLevel == courseLevel &&
                 x.AffiliationType == affiliationType);
 
-            if (record == null || record.SpecialFeaturesAchievementspdf == null)
-                return NotFound("Special Features PDF not found.");
+            if (record == null || string.IsNullOrEmpty(record.UploadedFileDataPath))
+                return NotFound("Usage Report PDF not found.");
 
-            Response.Headers["Content-Disposition"] =
-                $"inline; filename=\"{record.UploadedFileName ?? "SpecialFeatures.pdf"}\"";
+            if (!System.IO.File.Exists(record.UploadedFileDataPath))
+                return NotFound("File not found on server.");
 
-            return File(record.SpecialFeaturesAchievementspdf, "application/pdf");
+            var fileName = record.UploadedFileName ?? Path.GetFileName(record.UploadedFileDataPath);
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(record.UploadedFileDataPath, out string contentType))
+                contentType = "application/octet-stream";
+
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+            return PhysicalFile(record.UploadedFileDataPath, contentType);
         }
 
     }

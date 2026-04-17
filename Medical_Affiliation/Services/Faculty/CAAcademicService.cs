@@ -47,7 +47,7 @@ namespace Medical_Affiliation.Services.Faculty
                     CurriculumDetails = x.CurriculumDetails,
                     FileName = x.PdfFileName,
                     FileId = x.CourseCurriculumId,
-                    HasPdf = x.CurriculumPdf != null && x.CurriculumPdf.Length > 0,
+                    HasPdf = x.CurriculumPdfPath != null && x.CurriculumPdfPath.Length > 0,
                 })
                 .ToListAsync();
 

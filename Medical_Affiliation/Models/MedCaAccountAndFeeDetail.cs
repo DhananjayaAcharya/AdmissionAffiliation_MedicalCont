@@ -15,7 +15,7 @@ public partial class MedCaAccountAndFeeDetail
 
     public string? RegistrationNo { get; set; }
 
-    public byte[]? GoverningCouncilPdf { get; set; }
+    public string? GoverningCouncilPdfPath { get; set; }
 
     public string? GoverningCouncilPdfName { get; set; }
 
@@ -43,13 +43,13 @@ public partial class MedCaAccountAndFeeDetail
 
     public string AccountBooksMaintained { get; set; } = null!;
 
-    public byte[]? AccountSummaryPdf { get; set; }
+    public string? AccountSummaryPdfPath { get; set; }
 
     public string? AccountSummaryPdfName { get; set; }
 
     public string AccountsAudited { get; set; } = null!;
 
-    public byte[]? AuditedStatementPdf { get; set; }
+    public string? AuditedStatementPdfPath { get; set; }
 
     public string? AuditedStatementPdfName { get; set; }
 
@@ -57,7 +57,7 @@ public partial class MedCaAccountAndFeeDetail
 
     public string? DonationLevied { get; set; }
 
-    public byte[]? DonationPdf { get; set; }
+    public string? DonationPdfPath { get; set; }
 
     public string? DonationPdfName { get; set; }
 }

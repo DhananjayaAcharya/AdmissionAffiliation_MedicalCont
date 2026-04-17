@@ -19,7 +19,7 @@ public partial class CaMedLibCommittee
 
     public string IsPresent { get; set; } = null!;
 
-    public byte[]? CommitteePdf { get; set; }
+    public string? CommitteePdfPath { get; set; }
 
     public string? CommitteePdfName { get; set; }
 

@@ -57,7 +57,7 @@ namespace Medical_Affiliation.Services.Faculty
                     ServiceName = m.ServiceName,
 
                     ExistingFileName = saved?.UploadedFileName,
-                    HasPdf = saved?.UploadedPdf != null,
+                    HasPdf = saved?.UploadedPdfPath != null,
                     LibraryServiceId = saved.LibraryServiceId
 
                 };
@@ -159,8 +159,8 @@ namespace Medical_Affiliation.Services.Faculty
                     HasStableInternet = otherDetails.HasStableInternet,
                     HasCccameraSystem = otherDetails.HasCccameraSystem,
                     UploadedFileName = otherDetails.UploadedFileName,
-                    SpecialFeaturesQuestion = otherDetails.SpecialFeaturesAchievementspdf != null ? "Yes" : "No",
-                    HasSpecialFeaturesPdf = otherDetails.SpecialFeaturesAchievementspdf != null,
+                    SpecialFeaturesQuestion = otherDetails.SpecialFeaturesAchievementspdfPath != null ? "Yes" : "No",
+                    HasSpecialFeaturesPdf = otherDetails.SpecialFeaturesAchievementspdfPath != null,
                     CreatedDate = otherDetails.CreatedDate,
                     HasSpecialFeatures = otherDetails.SpecialFeaturesQuestion == "Yes",
                 };
@@ -203,7 +203,7 @@ namespace Medical_Affiliation.Services.Faculty
                                              CommitteeId = det.CommitteeId,
                                              CommitteeName = cmst.CommitteeName,
                                              IsPresent = det.IsPresent == "Y",
-                                             HasCommitteePdf = det.CommitteePdf != null && det.CommitteePdf.Length > 0,
+                                             HasCommitteePdf = det.CommitteePdfPath != null && det.CommitteePdfPath.Length > 0,
                                              CommitteePdfName = det.CommitteePdfName,
 
                                          }
@@ -323,17 +323,17 @@ namespace Medical_Affiliation.Services.Faculty
                     RguhsFunded = e.Rguhsfunded,
                     ExternalBodyFunding = e.ExternalBodyFunding,
 
-                    HasPublicationsPdf = e.PublicationsPdf != null,
-                    HasProjectsPdf = e.ProjectsPdf != null,
-                    HasClinicalTrialsPdf = e.ClinicalTrialsPdf != null,
+                    HasPublicationsPdf = e.PublicationsPdfPath != null,
+                    HasProjectsPdf = e.ProjectsPdfPath != null,
+                    HasClinicalTrialsPdf = e.ClinicalTrialsPdfPath != null,
 
                     StudentsRguhsFunded = e.StudentsRguhsfunded,
                     StudentsExternalFunding = e.StudentsExternalBodyFunding,
-                    HasStudentsProjectsPdf = e.StudentsProjectsPdf != null,
+                    HasStudentsProjectsPdf = e.StudentsProjectsPdfPath != null,
 
                     FacultyRguhsFunded = e.FacultyRguhsfunded,
                     FacultyExternalFunding = e.FacultyExternalBodyFunding,
-                    HasFacultyProjectsPdf = e.FacultyProjectsPdf != null
+                    HasFacultyProjectsPdf = e.FacultyProjectsPdfPath != null
                 })
                 .FirstOrDefaultAsync();
 

@@ -33,13 +33,15 @@ public partial class AffiliationCourseDetail
 
     public string? SannctionedIntakeEcFc { get; set; }
 
-    public byte[]? Gokorder { get; set; }
+    public string? GokorderPath { get; set; }
 
     public string? YearOfLastAffiliationRguhs { get; set; }
 
     public string? SanctionedIntakeLastAffiliation { get; set; }
 
-    public byte[]? LastAffiliationRguhsfile { get; set; }
+    public string? LastAffiliationRguhsfilePath { get; set; }
+
+    public string? PreviousNotificationFilesPath { get; set; }
 
     public DateOnly? DateOfPreviousLicinspection { get; set; }
 

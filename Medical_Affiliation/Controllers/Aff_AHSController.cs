@@ -1357,299 +1357,317 @@ namespace Medical_Affiliation.Controllers
 
         //------------------------------------------------4th page--------------------------------------------------------
 
-        [HttpGet]
-        public IActionResult AHS_FacultyDetails()
-        {
-            string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            string facultyCode = HttpContext.Session.GetString("FacultyCode");
+     //   [HttpGet]
+     //   public IActionResult AHS_FacultyDetails()
+     //   {
+     //       string collegeCode = HttpContext.Session.GetString("CollegeCode");
+     //       string facultyCode = HttpContext.Session.GetString("FacultyCode");
 
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
-            {
-                TempData["Error"] = "Session expired. Please log in again.";
-                return RedirectToAction("Login", "Account");
-            }
+     //       if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+     //       {
+     //           TempData["Error"] = "Session expired. Please log in again.";
+     //           return RedirectToAction("Login", "Account");
+     //       }
 
-            var subjectsList = _context.MstCourses
-                .Where(c => c.FacultyCode.ToString() == facultyCode)
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CourseCode.ToString(),
-                    Text = c.CourseName ?? ""
-                })
-                .Distinct()
-                .ToList();
+     //       var subjectsList = _context.MstCourses
+     //           .Where(c => c.FacultyCode.ToString() == facultyCode)
+     //           .Select(c => new SelectListItem
+     //           {
+     //               Value = c.CourseCode.ToString(),
+     //               Text = c.CourseName ?? ""
+     //           })
+     //           .Distinct()
+     //           .ToList();
 
-            var designationsList = _context.DesignationMasters
+     //       var designationsList = _context.DesignationMasters
 
-                .Where(e => e.FacultyCode.ToString() == facultyCode)
-                .Select(d => new SelectListItem
-                {
-                    Value = d.DesignationCode,
-                    Text = d.DesignationName ?? ""
-                })
-                .ToList();
+     //           .Where(e => e.FacultyCode.ToString() == facultyCode)
+     //           .Select(d => new SelectListItem
+     //           {
+     //               Value = d.DesignationCode,
+     //               Text = d.DesignationName ?? ""
+     //           })
+     //           .ToList();
 
-            var departmentsList = _context.MstCourses
-                .Where(e => e.FacultyCode.ToString() == facultyCode)
-                .Select(d => new SelectListItem
-                {
-                    Value = d.CourseCode.ToString(),
-                    Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
-                })
-                .ToList();
+     //       var departmentsList = _context.MstCourses
+     //           .Where(e => e.FacultyCode.ToString() == facultyCode)
+     //           .Select(d => new SelectListItem
+     //           {
+     //               Value = d.CourseCode.ToString(),
+     //               Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
+     //           })
+     //           .ToList();
 
-            var facultyDetails = _context.FacultyDetails
-                .Where(f => f.CollegeCode == collegeCode && f.FacultyCode == facultyCode)
-                .ToList();
+     //       var facultyDetails = _context.FacultyDetails
+     //           .Where(f => f.CollegeCode == collegeCode && f.FacultyCode == facultyCode)
+     //           .ToList();
 
-            var ahsFacultyWithCollege = _context.NursingFacultyWithColleges // Change table name as appropriate
-                .Where(f => f.CollegeCode == collegeCode && f.FacultyCode.ToString() == facultyCode)
-                .ToList();
+     //       var ahsFacultyWithCollege = _context.NursingFacultyWithColleges // Change table name as appropriate
+     //           .Where(f => f.CollegeCode == collegeCode && f.FacultyCode.ToString() == facultyCode)
+     //           .ToList();
 
-            List<FacultyDetailsViewModel> vmList = new List<FacultyDetailsViewModel>();
+     //       List<FacultyDetailsViewModel> vmList = new List<FacultyDetailsViewModel>();
 
-            if (!facultyDetails.Any() && !ahsFacultyWithCollege.Any())
-            {
-                TempData["Info"] = "No faculty records found for this faculty.";
-                vmList.Add(new FacultyDetailsViewModel
-                {
-                    Subjects = subjectsList,
-                    Designations = designationsList,
-                    DepartmentDetails = departmentsList
-                });
-                return View(vmList);
-            }
+     //       if (!facultyDetails.Any() && !ahsFacultyWithCollege.Any())
+     //       {
+     //           TempData["Info"] = "No faculty records found for this faculty.";
+     //           vmList.Add(new FacultyDetailsViewModel
+     //           {
+     //               Subjects = subjectsList,
+     //               Designations = designationsList,
+     //               DepartmentDetails = departmentsList
+     //           });
+     //           return View(vmList);
+     //       }
 
-            // Join existing faculty details with college faculty data
-            vmList = (from f1 in facultyDetails
-                      join f2 in ahsFacultyWithCollege
-                          on new { f1.Aadhaar, f1.Pan, f1.Designation }
-                          equals new { Aadhaar = f2.AadhaarNumber, Pan = f2.Pannumber, Designation = f2.Designation }
-                          into gj
-                      from sub in gj.DefaultIfEmpty()
-                      select new FacultyDetailsViewModel
-                      {
-                          FacultyDetailId = f1.Id,
-                          NameOfFaculty = sub?.TeachingFacultyName ?? f1.NameOfFaculty,
-                          Designation = sub?.Designation ?? f1.Designation,
-                          Aadhaar = sub?.AadhaarNumber ?? f1.Aadhaar,
-                          PAN = sub?.Pannumber ?? f1.Pan,
-                          DepartmentDetail = f1.DepartmentDetails,
-                          SelectedDepartment = f1.DepartmentDetails,
-                          Subject = f1.Subject,
-                          RecognizedPGTeacher = f1.RecognizedPgTeacher,
-                          Mobile = f1.Mobile,
-                          Email = f1.Email,
-                          Subjects = subjectsList,
-                          Designations = designationsList,
-                          DepartmentDetails = departmentsList
-                      }).ToList();
+     //       // Join existing faculty details with college faculty data
+     //       vmList = (from f1 in facultyDetails
+     //                 join f2 in ahsFacultyWithCollege
+     //                     on new { f1.Aadhaar, f1.Pan, f1.Designation }
+     //                     equals new { Aadhaar = f2.AadhaarNumber, Pan = f2.Pannumber, Designation = f2.Designation }
+     //                     into gj
+     //                 from sub in gj.DefaultIfEmpty()
+     //                 select new FacultyDetailsViewModel
+     //                 {
+     //                     FacultyDetailId = f1.Id,
+     //                     NameOfFaculty = sub?.TeachingFacultyName ?? f1.NameOfFaculty,
+     //                     Designation = sub?.Designation ?? f1.Designation,
+     //                     Aadhaar = sub?.AadhaarNumber ?? f1.Aadhaar,
+     //                     PAN = sub?.Pannumber ?? f1.Pan,
+     //                     DepartmentDetail = f1.DepartmentDetails,
+     //                     SelectedDepartment = f1.DepartmentDetails,
+     //                     Subject = f1.Subject,
+     //                     RecognizedPGTeacher = f1.RecognizedPgTeacher,
+     //                     Mobile = f1.Mobile,
+     //                     Email = f1.Email,
+     //                     Subjects = subjectsList,
+     //                     Designations = designationsList,
+     //                     DepartmentDetails = departmentsList
+     //                 }).ToList();
 
-            // Add missing faculty from college data
-            var missingFaculty = ahsFacultyWithCollege
-                .Where(f2 => !vmList.Any(v => v.Aadhaar == f2.AadhaarNumber && v.PAN == f2.Pannumber))
-                .Select(f2 => new FacultyDetailsViewModel
-                {
-                    NameOfFaculty = f2.TeachingFacultyName,
-                    Designation = f2.Designation,
-                    Aadhaar = f2.AadhaarNumber,
-                    PAN = f2.Pannumber,
-                    Subjects = subjectsList,
-                    Designations = designationsList,
-                    DepartmentDetails = departmentsList
-                })
-                .ToList();
+     //       // Add missing faculty from college data
+     //       var missingFaculty = ahsFacultyWithCollege
+     //           .Where(f2 => !vmList.Any(v => v.Aadhaar == f2.AadhaarNumber && v.PAN == f2.Pannumber))
+     //           .Select(f2 => new FacultyDetailsViewModel
+     //           {
+     //               NameOfFaculty = f2.TeachingFacultyName,
+     //               Designation = f2.Designation,
+     //               Aadhaar = f2.AadhaarNumber,
+     //               PAN = f2.Pannumber,
+     //               Subjects = subjectsList,
+     //               Designations = designationsList,
+     //               DepartmentDetails = departmentsList
+     //           })
+     //           .ToList();
 
-            vmList.AddRange(missingFaculty);
+     //       vmList.AddRange(missingFaculty);
 
-            if (!vmList.Any())
-            {
-                vmList.Add(new FacultyDetailsViewModel
-                {
-                    Subjects = subjectsList,
-                    Designations = designationsList,
-                    DepartmentDetails = departmentsList
-                });
-            }
+     //       if (!vmList.Any())
+     //       {
+     //           vmList.Add(new FacultyDetailsViewModel
+     //           {
+     //               Subjects = subjectsList,
+     //               Designations = designationsList,
+     //               DepartmentDetails = departmentsList
+     //           });
+     //       }
 
-            return View(vmList);
-        }
+     //       return View(vmList);
+     //   }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AHS_FacultyDetails(IList<FacultyDetailsViewModel> model)
-        {
-            string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            string facultyCode = HttpContext.Session.GetString("FacultyCode");
+     //   private async Task<string?> SaveFacultyFileAsync(IFormFile? file, string folder)
+     //   {
+     //       if (file == null || file.Length == 0)
+     //           return null;
 
-            // ✅ Session validation
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
-            {
-                TempData["Error"] = "Session expired. Please log in again.";
-                return RedirectToAction("Login", "Account");
-            }
+     //       string basePath = @"D:\Affiliation_Medical\FacultyDetails";
+     //       string fullFolder = Path.Combine(basePath, folder);
 
-            // ✅ Empty list validation
-            if (model == null || !model.Any())
-            {
-                TempData["Error"] = "No data to save.";
+     //       if (!Directory.Exists(fullFolder))
+     //           Directory.CreateDirectory(fullFolder);
 
-                // Repopulate dropdown lists before returning to view
-                model = new List<FacultyDetailsViewModel>
-     {
-          new FacultyDetailsViewModel
-          {
-              Subjects = _context.MstCourses
-                  .Where(c => c.FacultyCode.ToString() == facultyCode)
-                  .Select(c => new SelectListItem { Value = c.CourseCode.ToString(), Text = c.CourseName ?? "" })
-                  .Distinct()
-                  .ToList(),
-              Designations = _context.DesignationMasters
-                  .Select(d => new SelectListItem { Value = d.DesignationCode, Text = d.DesignationName ?? "" })
-                  .ToList(),
-              DepartmentDetails = _context.MstCourses
-                  .Where(e => e.FacultyCode.ToString() == facultyCode)
-                  .Select(d => new SelectListItem
-                  {
-                      Value = d.CourseCode.ToString(),
-                      Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
-                  })
-                  .ToList()
-          }
-     };
+     //       string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+     //       string fullPath = Path.Combine(fullFolder, fileName);
 
-                return View(model);
-            }
+     //       using (var stream = new FileStream(fullPath, FileMode.Create))
+     //       {
+     //           await file.CopyToAsync(stream);
+     //       }
 
-            using (var transaction = _context.Database.BeginTransaction())
-            {
-                try
-                {
-                    // Extract all IDs coming from the frontend
-                    var incomingIds = model
-                        .Where(m => m.FacultyDetailId > 0) // only valid existing IDs
-                        .Select(m => m.FacultyDetailId)
-                        .ToHashSet();
+     //       return fullPath;
+     //   }
 
-                    // Get all existing faculty for this college/faculty code
-                    var existingFaculty = _context.FacultyDetails
-                        .Where(f => f.CollegeCode == collegeCode && f.FacultyCode == facultyCode)
-                        .ToList();
+     //   [HttpPost]
+     //   [ValidateAntiForgeryToken]
+     //   public IActionResult AHS_FacultyDetails(IList<FacultyDetailsViewModel> model)
+     //   {
+     //       string collegeCode = HttpContext.Session.GetString("CollegeCode");
+     //       string facultyCode = HttpContext.Session.GetString("FacultyCode");
 
-                    // 🔹 1. DELETE records that are NOT in the incoming model
-                    var toDelete = existingFaculty
-                        .Where(f => !incomingIds.Contains(f.Id))
-                        .ToList();
+     //       // ✅ Session validation
+     //       if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+     //       {
+     //           TempData["Error"] = "Session expired. Please log in again.";
+     //           return RedirectToAction("Login", "Account");
+     //       }
 
-                    if (toDelete.Any())
-                    {
-                        _context.FacultyDetails.RemoveRange(toDelete);
-                    }
+     //       // ✅ Empty list validation
+     //       if (model == null || !model.Any())
+     //       {
+     //           TempData["Error"] = "No data to save.";
 
-                    // 🔹 2. ADD or UPDATE incoming data
-                    foreach (var m in model)
-                    {
-                        string name = m.NameOfFaculty?.Trim() ?? "N/A";
-                        string designation = m.Designation?.Trim() ?? "N/A";
-                        string subject = m.Subject?.Trim() ?? "N/A";
-                        string mobile = string.IsNullOrWhiteSpace(m.Mobile) ? "N/A" : m.Mobile.Trim();
-                        string email = string.IsNullOrWhiteSpace(m.Email) ? "N/A" : m.Email.Trim();
-                        string pan = m.PAN?.Trim() ?? "N/A";
-                        string aadhaar = m.Aadhaar?.Trim() ?? "N/A";
-                        string dept = m.SelectedDepartment?.Trim() ?? "N/A";
-                        string recognizedPG = m.RecognizedPGTeacher?.Trim() ?? "N/A";
+     //           // Repopulate dropdown lists before returning to view
+     //           model = new List<FacultyDetailsViewModel>
+     //{
+     //     new FacultyDetailsViewModel
+     //     {
+     //         Subjects = _context.MstCourses
+     //             .Where(c => c.FacultyCode.ToString() == facultyCode)
+     //             .Select(c => new SelectListItem { Value = c.CourseCode.ToString(), Text = c.CourseName ?? "" })
+     //             .Distinct()
+     //             .ToList(),
+     //         Designations = _context.DesignationMasters
+     //             .Select(d => new SelectListItem { Value = d.DesignationCode, Text = d.DesignationName ?? "" })
+     //             .ToList(),
+     //         DepartmentDetails = _context.MstCourses
+     //             .Where(e => e.FacultyCode.ToString() == facultyCode)
+     //             .Select(d => new SelectListItem
+     //             {
+     //                 Value = d.CourseCode.ToString(),
+     //                 Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
+     //             })
+     //             .ToList()
+     //     }
+     //};
 
-                        byte[] guideRecognitionDocBytes = null;
-                        if (m.GuideRecognitionDoc != null)
-                        {
-                            guideRecognitionDocBytes = ConvertFileToBytes(m.GuideRecognitionDoc);
-                        }
+     //           return View(model);
+     //       }
 
-                        var existing = existingFaculty.FirstOrDefault(f => f.Id == m.FacultyDetailId);
+     //       using (var transaction = _context.Database.BeginTransaction())
+     //       {
+     //           try
+     //           {
+     //               // Extract all IDs coming from the frontend
+     //               var incomingIds = model
+     //                   .Where(m => m.FacultyDetailId > 0) // only valid existing IDs
+     //                   .Select(m => m.FacultyDetailId)
+     //                   .ToHashSet();
 
-                        if (existing != null)
-                        {
-                            // ✅ Update
-                            existing.NameOfFaculty = name;
-                            existing.Designation = designation;
-                            existing.RecognizedPgTeacher = recognizedPG;
-                            existing.Mobile = mobile;
-                            existing.Email = email;
-                            existing.Pan = pan;
-                            existing.Aadhaar = aadhaar;
-                            existing.DepartmentDetails = dept;
-                            existing.Subject = subject;
+     //               // Get all existing faculty for this college/faculty code
+     //               var existingFaculty = _context.FacultyDetails
+     //                   .Where(f => f.CollegeCode == collegeCode && f.FacultyCode == facultyCode)
+     //                   .ToList();
 
-                            if (guideRecognitionDocBytes != null)
-                                existing.GuideRecognitionDoc = guideRecognitionDocBytes;
+     //               // 🔹 1. DELETE records that are NOT in the incoming model
+     //               var toDelete = existingFaculty
+     //                   .Where(f => !incomingIds.Contains(f.Id))
+     //                   .ToList();
 
-                            _context.FacultyDetails.Update(existing);
-                        }
-                        else
-                        {
-                            // ✅ Insert new
-                            var faculty = new FacultyDetail
-                            {
-                                CollegeCode = collegeCode,
-                                FacultyCode = facultyCode,
-                                NameOfFaculty = name,
-                                Subject = subject,
-                                Designation = designation,
-                                RecognizedPgTeacher = recognizedPG,
-                                Mobile = mobile,
-                                Email = email,
-                                Pan = pan,
-                                Aadhaar = aadhaar,
-                                DepartmentDetails = dept,
-                                GuideRecognitionDoc = guideRecognitionDocBytes
-                            };
+     //               if (toDelete.Any())
+     //               {
+     //                   _context.FacultyDetails.RemoveRange(toDelete);
+     //               }
 
-                            _context.FacultyDetails.Add(faculty);
-                        }
-                    }
+     //               // 🔹 2. ADD or UPDATE incoming data
+     //               foreach (var m in model)
+     //               {
+     //                   string name = m.NameOfFaculty?.Trim() ?? "N/A";
+     //                   string designation = m.Designation?.Trim() ?? "N/A";
+     //                   string subject = m.Subject?.Trim() ?? "N/A";
+     //                   string mobile = string.IsNullOrWhiteSpace(m.Mobile) ? "N/A" : m.Mobile.Trim();
+     //                   string email = string.IsNullOrWhiteSpace(m.Email) ? "N/A" : m.Email.Trim();
+     //                   string pan = m.PAN?.Trim() ?? "N/A";
+     //                   string aadhaar = m.Aadhaar?.Trim() ?? "N/A";
+     //                   string dept = m.SelectedDepartment?.Trim() ?? "N/A";
+     //                   string recognizedPG = m.RecognizedPGTeacher?.Trim() ?? "N/A";
 
-                    // 🔹 3. Save all changes once
-                    _context.SaveChanges();
+     //                   var guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs");
 
-                    transaction.Commit();
+     //                   var existing = existingFaculty.FirstOrDefault(f => f.Id == m.FacultyDetailId);
 
-                    //TempData["Success"] = "Faculty records saved successfully!";
-                    return RedirectToAction("AHS_ExamResults");
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
+     //                   if (existing != null)
+     //                   {
+     //                       // ✅ Update
+     //                       existing.NameOfFaculty = name;
+     //                       existing.Designation = designation;
+     //                       existing.RecognizedPgTeacher = recognizedPG;
+     //                       existing.Mobile = mobile;
+     //                       existing.Email = email;
+     //                       existing.Pan = pan;
+     //                       existing.Aadhaar = aadhaar;
+     //                       existing.DepartmentDetails = dept;
+     //                       existing.Subject = subject;
 
-                    // ✅ Log and show detailed error
-                    TempData["Error"] = "Error saving faculty records: " + ex.Message;
+     //                       if (guideRecognitionDocBytes != null)
+     //                           existing.GuideRecognitionDoc = guideRecognitionDocBytes;
 
-                    // ✅ Repopulate dropdowns again so View doesn’t break
-                    foreach (var m in model)
-                    {
-                        m.Subjects = _context.MstCourses
-                            .Where(c => c.FacultyCode.ToString() == facultyCode)
-                            .Select(c => new SelectListItem { Value = c.CourseCode.ToString(), Text = c.CourseName ?? "" })
-                            .Distinct()
-                            .ToList();
+     //                       _context.FacultyDetails.Update(existing);
+     //                   }
+     //                   else
+     //                   {
+     //                       // ✅ Insert new
+     //                       var faculty = new FacultyDetail
+     //                       {
+     //                           CollegeCode = collegeCode,
+     //                           FacultyCode = facultyCode,
+     //                           NameOfFaculty = name,
+     //                           Subject = subject,
+     //                           Designation = designation,
+     //                           RecognizedPgTeacher = recognizedPG,
+     //                           Mobile = mobile,
+     //                           Email = email,
+     //                           Pan = pan,
+     //                           Aadhaar = aadhaar,
+     //                           DepartmentDetails = dept,
+     //                           GuideRecognitionDoc = guideRecognitionDocBytes
+     //                       };
 
-                        m.Designations = _context.DesignationMasters
-                            .Select(d => new SelectListItem { Value = d.DesignationCode, Text = d.DesignationName ?? "" })
-                            .ToList();
+     //                       _context.FacultyDetails.Add(faculty);
+     //                   }
+     //               }
 
-                        m.DepartmentDetails = _context.MstCourses
-                            .Where(e => e.FacultyCode.ToString() == facultyCode)
-                            .Select(d => new SelectListItem
-                            {
-                                Value = d.CourseCode.ToString(),
-                                Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
-                            })
-                            .ToList();
-                    }
+     //               // 🔹 3. Save all changes once
+     //               _context.SaveChanges();
 
-                    return View(model);
-                }
-            }
-        }
+     //               transaction.Commit();
+
+     //               //TempData["Success"] = "Faculty records saved successfully!";
+     //               return RedirectToAction("AHS_ExamResults");
+     //           }
+     //           catch (Exception ex)
+     //           {
+     //               transaction.Rollback();
+
+     //               // ✅ Log and show detailed error
+     //               TempData["Error"] = "Error saving faculty records: " + ex.Message;
+
+     //               // ✅ Repopulate dropdowns again so View doesn’t break
+     //               foreach (var m in model)
+     //               {
+     //                   m.Subjects = _context.MstCourses
+     //                       .Where(c => c.FacultyCode.ToString() == facultyCode)
+     //                       .Select(c => new SelectListItem { Value = c.CourseCode.ToString(), Text = c.CourseName ?? "" })
+     //                       .Distinct()
+     //                       .ToList();
+
+     //                   m.Designations = _context.DesignationMasters
+     //                       .Select(d => new SelectListItem { Value = d.DesignationCode, Text = d.DesignationName ?? "" })
+     //                       .ToList();
+
+     //                   m.DepartmentDetails = _context.MstCourses
+     //                       .Where(e => e.FacultyCode.ToString() == facultyCode)
+     //                       .Select(d => new SelectListItem
+     //                       {
+     //                           Value = d.CourseCode.ToString(),
+     //                           Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
+     //                       })
+     //                       .ToList();
+     //               }
+
+     //               return View(model);
+     //           }
+     //       }
+     //   }
 
         //---------------------------------------------------5th page-------------------------------------------------------------
 

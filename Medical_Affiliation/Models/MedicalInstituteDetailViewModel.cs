@@ -167,9 +167,9 @@ namespace Medical_Affiliation.Models
         public IFormFile? PhDRecognitionDoc { get; set; }
         public IFormFile? LitigationDoc { get; set; }
 
-        public byte[]? PGRecognitionDocData { get; set; }
-        public byte[]? PhDRecognitionDocData { get; set; }
-        public byte[]? LitigationDocData { get; set; }
+        public string? PGRecognitionDocData { get; set; }
+        public string? PhDRecognitionDocData { get; set; }
+        public string? LitigationDocData { get; set; }
 
         public string? IsExaminer { get; set; }   // Yes / No
 

@@ -399,10 +399,30 @@ namespace Medical_Affiliation.Controllers
 
             return View(vmList);
         }
+        private async Task<string?> SaveFacultyFileAsync(IFormFile? file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\FacultyDetails";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult FacultyDetails(IList<FacultyDetailsViewModel> model)
+        public async Task<IActionResult> FacultyDetails(IList<FacultyDetailsViewModel> model)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             string facultyCode = HttpContext.Session.GetString("FacultyCode");
@@ -484,10 +504,11 @@ namespace Medical_Affiliation.Controllers
                         string dept = m.SelectedDepartment?.Trim() ?? "N/A";
                         string recognizedPG = m.RecognizedPGTeacher?.Trim() ?? "N/A";
 
-                        byte[] guideRecognitionDocBytes = null;
-                        if (m.GuideRecognitionDoc != null)
+                        string guidePath = null;
+
+                        if (m.GuideRecognitionDoc != null && m.GuideRecognitionDoc.Length > 0)
                         {
-                            guideRecognitionDocBytes = ConvertFileToBytes(m.GuideRecognitionDoc);
+                            guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs");
                         }
 
                         var existing = existingFaculty.FirstOrDefault(f => f.Id == m.FacultyDetailId);
@@ -505,8 +526,16 @@ namespace Medical_Affiliation.Controllers
                             existing.DepartmentDetails = dept;
                             existing.Subject = subject;
 
-                            if (guideRecognitionDocBytes != null)
-                                existing.GuideRecognitionDoc = guideRecognitionDocBytes;
+                            if (guidePath != null)
+                            {
+                                if (!string.IsNullOrEmpty(existing.GuideRecognitionDocPath) &&
+                                    System.IO.File.Exists(existing.GuideRecognitionDocPath))
+                                {
+                                    System.IO.File.Delete(existing.GuideRecognitionDocPath);
+                                }
+
+                                existing.GuideRecognitionDocPath = guidePath;
+                            }
 
                             _context.FacultyDetails.Update(existing);
                         }
@@ -526,7 +555,7 @@ namespace Medical_Affiliation.Controllers
                                 Pan = pan,
                                 Aadhaar = aadhaar,
                                 DepartmentDetails = dept,
-                                GuideRecognitionDoc = guideRecognitionDocBytes
+                                GuideRecognitionDocPath = guidePath
                             };
 
                             _context.FacultyDetails.Add(faculty);
@@ -543,7 +572,7 @@ namespace Medical_Affiliation.Controllers
                 }
                 catch (Exception ex)
                 {
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
 
                     // ✅ Log and show detailed error
                     TempData["Error"] = "Error saving faculty records: " + ex.Message;

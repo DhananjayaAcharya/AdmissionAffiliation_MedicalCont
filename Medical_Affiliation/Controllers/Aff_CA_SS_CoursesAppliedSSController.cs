@@ -1045,10 +1045,10 @@ namespace Medical_Affiliation.Controllers
                     x.FacultyCode == facultyCode &&
                     x.CourseLevel == level);
 
-            if (record == null || record.DonationPdf == null)
+            if (record == null || record.DonationPdfPath == null)
                 return NotFound();
 
-            return File(record.DonationPdf, "application/pdf", record.DonationPdfName);
+            return File(record.DonationPdfPath, "application/pdf", record.DonationPdfName);
         }
 
 

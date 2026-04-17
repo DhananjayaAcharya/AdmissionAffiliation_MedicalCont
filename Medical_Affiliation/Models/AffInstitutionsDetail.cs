@@ -63,7 +63,7 @@ public partial class AffInstitutionsDetail
 
     public string? DocumentContentType { get; set; }
 
-    public byte[]? DocumentData { get; set; }
+    public string? DocumentDataPath { get; set; }
 
     public string? NodalOfficerName { get; set; }
 

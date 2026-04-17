@@ -19,7 +19,7 @@ public partial class CaMedLibOtherAcademicActivity
 
     public string DepartmentWise { get; set; } = null!;
 
-    public byte[]? ActivityPdf { get; set; }
+    public string? ActivityPdfPath { get; set; }
 
     public string? ActivityPdfName { get; set; }
 

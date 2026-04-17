@@ -93,31 +93,31 @@ public partial class InstitutionBasicDetail
 
     public string? KncCertificateNumber { get; set; }
 
-    public byte[]? GovAutonomousCertFile { get; set; }
+    public string? GovAutonomousCertFilePath { get; set; }
 
-    public byte[]? GovCouncilMembershipFile { get; set; }
+    public string? GovCouncilMembershipFilePath { get; set; }
 
-    public byte[]? GokOrderExistingCoursesFile { get; set; }
+    public string? GokOrderExistingCoursesFilePath { get; set; }
 
-    public byte[]? FirstAffiliationNotifFile { get; set; }
+    public string? FirstAffiliationNotifFilePath { get; set; }
 
-    public byte[]? ContinuationAffiliationFile { get; set; }
+    public string? ContinuationAffiliationFilePath { get; set; }
 
-    public byte[]? KncCertificateFile { get; set; }
+    public string? KncCertificateFilePath { get; set; }
 
-    public byte[]? AmendedDoc { get; set; }
+    public string? AmendedDocPath { get; set; }
 
-    public byte[]? AadhaarFile { get; set; }
+    public string? AadhaarFilePath { get; set; }
 
-    public byte[]? Panfile { get; set; }
+    public string? PanfilePath { get; set; }
 
-    public byte[]? BankStatementFile { get; set; }
+    public string? BankStatementFilePath { get; set; }
 
-    public byte[]? RegistrationCertificateFile { get; set; }
+    public string? RegistrationCertificateFilePath { get; set; }
 
-    public byte[]? RegisteredTrustMemberDetails { get; set; }
+    public string? RegisteredTrustMemberDetailsPath { get; set; }
 
-    public byte[]? AuditStatementFile { get; set; }
+    public string? AuditStatementFilePath { get; set; }
 
     public DateTime CreatedOn { get; set; }
 }

@@ -26,7 +26,27 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+        private async Task<string?> SaveLandFileAsync(IFormFile? file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\LandBuilding";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         // GET: /SmallGroupTeaching/Edit
         // GET: /SmallGroupTeaching/Edit
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
@@ -164,8 +184,8 @@ namespace Medical_Affiliation.Controllers
                 HasPurchasePlanIfNo = teaching?.HasPurchasePlanIfNo,
                 HasBudgetProvisionIfNo = teaching?.HasBudgetProvisionIfNo,
                 HasFutureExpansionSpace = teaching?.HasFutureExpansionSpace,
-                HasLandRecordsFile = teaching?.LandRecordsFile != null,
-                HasApprovedBuildingPlanFile = teaching?.ApprovedBuildingPlanFile != null,
+                HasLandRecordsFile = teaching?.LandRecordsFilePath != null,
+                HasApprovedBuildingPlanFile = teaching?.ApprovedBuildingPlanFilePath != null,
 
 
                 // ====================================================
@@ -298,12 +318,24 @@ namespace Medical_Affiliation.Controllers
                 teaching.HasBudgetProvisionIfNo = model.HasBudgetProvisionIfNo ?? false;
                 teaching.HasFutureExpansionSpace = model.HasFutureExpansionSpace ?? false;
 
-                if (model.LandRecordsDocument != null && model.LandRecordsDocument.Length > 0)
-                {
-                    using var ms = new MemoryStream();
-                    await model.LandRecordsDocument.CopyToAsync(ms);
-                    teaching.LandRecordsFile = ms.ToArray();
-                }
+                
+                    if (model.LandRecordsDocument != null && model.LandRecordsDocument.Length > 0)
+                    {
+                        var path = await SaveLandFileAsync(model.LandRecordsDocument, "LandRecords");
+
+                        if (path != null)
+                        {
+                            // 🔥 Delete old file
+                            if (!string.IsNullOrEmpty(teaching.LandRecordsFilePath) &&
+                                System.IO.File.Exists(teaching.LandRecordsFilePath))
+                            {
+                                System.IO.File.Delete(teaching.LandRecordsFilePath);
+                            }
+
+                            teaching.LandRecordsFilePath = path;
+                        }
+                    }
+                
 
                 // BUILDING
                 teaching.IsBuildingAsPerCouncilNorms = model.IsBuildingAsPerCouncilNorms ?? false;
@@ -316,9 +348,18 @@ namespace Medical_Affiliation.Controllers
 
                 if (model.ApprovedBuildingPlanDocument != null && model.ApprovedBuildingPlanDocument.Length > 0)
                 {
-                    using var ms = new MemoryStream();
-                    await model.ApprovedBuildingPlanDocument.CopyToAsync(ms);
-                    teaching.ApprovedBuildingPlanFile = ms.ToArray();
+                    var path = await SaveLandFileAsync(model.ApprovedBuildingPlanDocument, "BuildingPlans");
+
+                    if (path != null)
+                    {
+                        if (!string.IsNullOrEmpty(teaching.ApprovedBuildingPlanFilePath) &&
+                            System.IO.File.Exists(teaching.ApprovedBuildingPlanFilePath))
+                        {
+                            System.IO.File.Delete(teaching.ApprovedBuildingPlanFilePath);
+                        }
+
+                        teaching.ApprovedBuildingPlanFilePath = path;
+                    }
                 }
 
                 // ========================= LABS =========================
@@ -463,36 +504,31 @@ namespace Medical_Affiliation.Controllers
 
         public async Task<IActionResult> ViewLandRecords()
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-
             var teaching = await _context.SmallGroupTeachings
-                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+                .FirstOrDefaultAsync(x => x.FacultyCode == FacultyCode &&
+                                         x.CollegeCode == CollegeCode &&
+                                         x.CourseLevel == CourseLevel);
 
-            if (teaching?.LandRecordsFile == null)
+            if (string.IsNullOrEmpty(teaching?.LandRecordsFilePath) ||
+                !System.IO.File.Exists(teaching.LandRecordsFilePath))
                 return NotFound();
 
-            return File(teaching.LandRecordsFile, "application/pdf");
+            return PhysicalFile(teaching.LandRecordsFilePath, "application/pdf");
         }
-
 
         public async Task<IActionResult> ViewBuildingPlan()
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-
             var teaching = await _context.SmallGroupTeachings
-                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+                .FirstOrDefaultAsync(x => x.FacultyCode == FacultyCode &&
+                                         x.CollegeCode == CollegeCode &&
+                                         x.CourseLevel == CourseLevel);
 
-            if (teaching?.ApprovedBuildingPlanFile == null)
+            if (string.IsNullOrEmpty(teaching?.ApprovedBuildingPlanFilePath) ||
+                !System.IO.File.Exists(teaching.ApprovedBuildingPlanFilePath))
                 return NotFound();
 
-            return File(teaching.ApprovedBuildingPlanFile, "application/pdf");
+            return PhysicalFile(teaching.ApprovedBuildingPlanFilePath, "application/pdf");
         }
-
 
 
 

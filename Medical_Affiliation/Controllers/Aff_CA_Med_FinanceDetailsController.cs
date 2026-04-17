@@ -113,8 +113,8 @@ namespace Medical_Affiliation.Controllers
             // ✅ 1) Governing Council PDF is REQUIRED if DB doesn't already have it
             bool alreadyHasGoverningCouncilPdf =
                 db != null &&
-                db.GoverningCouncilPdf != null &&
-                db.GoverningCouncilPdf.Length > 0;
+                db.GoverningCouncilPdfPath != null &&
+                db.GoverningCouncilPdfPath.Length > 0;
 
             if (!alreadyHasGoverningCouncilPdf)
             {
@@ -127,8 +127,8 @@ namespace Medical_Affiliation.Controllers
             // ✅ 2) If AccountBooksMaintained = Y then AccountSummaryPdf required (if not already in DB)
             bool alreadyHasAccountSummaryPdf =
                 db != null &&
-                db.AccountSummaryPdf != null &&
-                db.AccountSummaryPdf.Length > 0;
+                db.AccountSummaryPdfPath != null &&
+                db.AccountSummaryPdfPath.Length > 0;
 
             if (model.AccountBooksMaintained == "Y" && !alreadyHasAccountSummaryPdf)
             {
@@ -141,8 +141,8 @@ namespace Medical_Affiliation.Controllers
             // ✅ 3) If AccountsAudited = Y then AuditedStatementPdf required (if not already in DB)
             bool alreadyHasAuditedPdf =
                 db != null &&
-                db.AuditedStatementPdf != null &&
-                db.AuditedStatementPdf.Length > 0;
+                db.AuditedStatementPdfPath != null &&
+                db.AuditedStatementPdfPath.Length > 0;
 
             if (model.AccountsAudited == "Y" && !alreadyHasAuditedPdf)
             {
@@ -155,7 +155,7 @@ namespace Medical_Affiliation.Controllers
             // 4. Donation PDF (Only for PG and only if DonationLevied = Y)
             if (courseLevel?.ToUpper() == "PG")
             {
-                bool hasDonationPdf = db?.DonationPdf != null && db.DonationPdf.Length > 0;
+                bool hasDonationPdf = db?.DonationPdfPath != null && db.DonationPdfPath.Length > 0;
 
                 if (model.DonationLevied == "Y" && !hasDonationPdf)
                 {
@@ -247,38 +247,77 @@ namespace Medical_Affiliation.Controllers
             // Governing Council PDF (save only if new uploaded)
             if (GoverningCouncilPdf != null && GoverningCouncilPdf.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await GoverningCouncilPdf.CopyToAsync(ms);
-                db.GoverningCouncilPdf = ms.ToArray();
-                db.GoverningCouncilPdfName = GoverningCouncilPdf.FileName;
+                var path = await SaveFinanceFileAsync(GoverningCouncilPdf, "GoverningCouncil");
+
+                if (path != null)
+                {
+                    if (!string.IsNullOrEmpty(db.GoverningCouncilPdfPath) &&
+                        System.IO.File.Exists(db.GoverningCouncilPdfPath))
+                    {
+                        System.IO.File.Delete(db.GoverningCouncilPdfPath);
+                    }
+
+                    db.GoverningCouncilPdfPath = path;
+                    db.GoverningCouncilPdfName = GoverningCouncilPdf.FileName;
+                }
             }
 
             // Account Summary PDF
             if (model.AccountBooksMaintained == "N")
             {
-                db.AccountSummaryPdf = null;
+                if (!string.IsNullOrEmpty(db.AccountSummaryPdfPath) &&
+                    System.IO.File.Exists(db.AccountSummaryPdfPath))
+                {
+                    System.IO.File.Delete(db.AccountSummaryPdfPath);
+                }
+
+                db.AccountSummaryPdfPath = null;
                 db.AccountSummaryPdfName = null;
             }
             else if (AccountSummaryPdf != null && AccountSummaryPdf.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await AccountSummaryPdf.CopyToAsync(ms);
-                db.AccountSummaryPdf = ms.ToArray();
-                db.AccountSummaryPdfName = AccountSummaryPdf.FileName;
+                var path = await SaveFinanceFileAsync(AccountSummaryPdf, "AccountSummary");
+
+                if (path != null)
+                {
+                    if (!string.IsNullOrEmpty(db.AccountSummaryPdfPath) &&
+                        System.IO.File.Exists(db.AccountSummaryPdfPath))
+                    {
+                        System.IO.File.Delete(db.AccountSummaryPdfPath);
+                    }
+
+                    db.AccountSummaryPdfPath = path;
+                    db.AccountSummaryPdfName = AccountSummaryPdf.FileName;
+                }
             }
 
             // Audited Statement PDF
             if (model.AccountsAudited == "N")
             {
-                db.AuditedStatementPdf = null;
+                if (!string.IsNullOrEmpty(db.AuditedStatementPdfPath) &&
+                    System.IO.File.Exists(db.AuditedStatementPdfPath))
+                {
+                    System.IO.File.Delete(db.AuditedStatementPdfPath);
+                }
+
+                db.AuditedStatementPdfPath = null;
                 db.AuditedStatementPdfName = null;
             }
             else if (AuditedStatementPdf != null && AuditedStatementPdf.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await AuditedStatementPdf.CopyToAsync(ms);
-                db.AuditedStatementPdf = ms.ToArray();
-                db.AuditedStatementPdfName = AuditedStatementPdf.FileName;
+                var path = await SaveFinanceFileAsync(AuditedStatementPdf, "AuditedStatements");
+
+                if (path != null)
+                {
+                    if (!string.IsNullOrEmpty(db.AuditedStatementPdfPath) &&
+                        System.IO.File.Exists(db.AuditedStatementPdfPath))
+                    {
+                        System.IO.File.Delete(db.AuditedStatementPdfPath);
+                    }
+
+                    db.AuditedStatementPdfPath = path;
+                    db.AuditedStatementPdfName = AuditedStatementPdf.FileName;
+                }
             }
 
             // Donation PDF (PG only)
@@ -286,18 +325,32 @@ namespace Medical_Affiliation.Controllers
             {
                 if (model.DonationLevied == "N")
                 {
-                    db.DonationPdf = null;
+                    if (!string.IsNullOrEmpty(db.DonationPdfPath) &&
+                        System.IO.File.Exists(db.DonationPdfPath))
+                    {
+                        System.IO.File.Delete(db.DonationPdfPath);
+                    }
+
+                    db.DonationPdfPath = null;
                     db.DonationPdfName = null;
                 }
                 else if (DonationPdf != null && DonationPdf.Length > 0)
                 {
-                    using var ms = new MemoryStream();
-                    await DonationPdf.CopyToAsync(ms);
-                    db.DonationPdf = ms.ToArray();
-                    db.DonationPdfName = DonationPdf.FileName;
+                    var path = await SaveFinanceFileAsync(DonationPdf, "DonationDocs");
+
+                    if (path != null)
+                    {
+                        if (!string.IsNullOrEmpty(db.DonationPdfPath) &&
+                            System.IO.File.Exists(db.DonationPdfPath))
+                        {
+                            System.IO.File.Delete(db.DonationPdfPath);
+                        }
+
+                        db.DonationPdfPath = path;
+                        db.DonationPdfName = DonationPdf.FileName;
+                    }
                 }
             }
-
             await _context.SaveChangesAsync();
             ContinuousAffiliationController.MarkDone(HttpContext, "FinancialDetails");
 
@@ -333,18 +386,19 @@ namespace Medical_Affiliation.Controllers
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             var record = await _context.MedCaAccountAndFeeDetails
-                        .FirstOrDefaultAsync(x =>
-                            x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            x.CourseLevel == courseLevel);
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel);
 
             if (record == null) return NotFound();
 
-            byte[]? file = type switch
+            // 🔥 Get file path
+            string? filePath = type switch
             {
-                "GoverningCouncil" => record.GoverningCouncilPdf,
-                "AccountSummary" => record.AccountSummaryPdf,
-                "AuditedStatement" => record.AuditedStatementPdf,
+                "GoverningCouncil" => record.GoverningCouncilPdfPath,
+                "AccountSummary" => record.AccountSummaryPdfPath,
+                "AuditedStatement" => record.AuditedStatementPdfPath,
                 _ => null
             };
 
@@ -356,10 +410,45 @@ namespace Medical_Affiliation.Controllers
                 _ => null
             };
 
-            if (file == null || string.IsNullOrEmpty(name)) return NotFound();
+            // 🔴 Validation
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                return NotFound("File not found");
 
-            Response.Headers["Content-Disposition"] = $"inline; filename=\"{name}\"";
-            return File(file, "application/pdf");
+            var fileName = string.IsNullOrEmpty(name) ? Path.GetFileName(filePath) : name;
+
+            // 🔥 Detect content type dynamically
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(filePath, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // 👀 Inline preview
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+            return PhysicalFile(filePath, contentType);
         }
+        private async Task<string?> SaveFinanceFileAsync(IFormFile file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            string basePath = @"D:\Affiliation_Medical\FinanceDetails";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
+
     }
 }

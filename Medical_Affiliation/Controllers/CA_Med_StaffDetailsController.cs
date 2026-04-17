@@ -13,7 +13,27 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
+        private async Task<string?> SaveStaffFileAsync(IFormFile? file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\StaffDetails";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         // ✅ GET
         [HttpGet]
         public async Task<IActionResult> CA_Med_StaffDetails()
@@ -130,13 +150,13 @@ namespace Medical_Affiliation.Controllers
 
             bool mainHasAllFiles =
                 mainEntity != null &&
-                mainEntity.AebaslastThreeMonthsPdf != null &&
-                mainEntity.AebasinspectionDayPdf != null &&
-                mainEntity.ProvidentFundPdf != null &&
-                mainEntity.Esipdf != null &&
+                mainEntity.AebaslastThreeMonthsPdfPath != null &&
+                mainEntity.AebasinspectionDayPdfPath != null &&
+                mainEntity.ProvidentFundPdfPath != null &&
+                mainEntity.EsipdfPath != null &&
                 (
                     mainEntity.ExaminerDetailsAttached != "Y" ||
-                    mainEntity.ExaminerDetailsPdf != null
+                    mainEntity.ExaminerDetailsPdfPath != null
                 );
 
             // =====================================================
@@ -161,20 +181,43 @@ namespace Medical_Affiliation.Controllers
             tempEntity.ServiceRegisterMaintained = staffOther.ServiceRegisterMaintained;
             tempEntity.AcquittanceRegisterMaintained = staffOther.AcquittanceRegisterMaintained;
 
-            async Task SaveTemp(IFormFile? f, Action<byte[]> setB, Action<string> setN)
+            async Task SaveTemp(IFormFile? f, Action<string> setPath, Action<string> setName, string folder)
             {
                 if (f == null || f.Length == 0) return;
-                using var ms = new MemoryStream();
-                await f.CopyToAsync(ms);
-                setB(ms.ToArray());
-                setN(f.FileName);
+
+                var path = await SaveStaffFileAsync(f, folder);
+
+                if (path != null)
+                {
+                    setPath(path);
+                    setName(f.FileName);
+                }
             }
 
-            await SaveTemp(ExaminerDetailsPdf, b => tempEntity.ExaminerDetailsPdf = b, n => tempEntity.ExaminerDetailsPdfName = n);
-            await SaveTemp(AEBASLastThreeMonthsPdf, b => tempEntity.AebaslastThreeMonthsPdf = b, n => tempEntity.AebaslastThreeMonthsPdfName = n);
-            await SaveTemp(AEBASInspectionDayPdf, b => tempEntity.AebasinspectionDayPdf = b, n => tempEntity.AebasinspectionDayPdfName = n);
-            await SaveTemp(ProvidentFundPdf, b => tempEntity.ProvidentFundPdf = b, n => tempEntity.ProvidentFundPdfName = n);
-            await SaveTemp(ESIPdf, b => tempEntity.Esipdf = b, n => tempEntity.EsipdfName = n);
+            await SaveTemp(ExaminerDetailsPdf,
+    p => tempEntity.ExaminerDetailsPdfPath = p,
+    n => tempEntity.ExaminerDetailsPdfName = n,
+    "ExaminerDocs");
+
+            await SaveTemp(AEBASLastThreeMonthsPdf,
+                p => tempEntity.AebaslastThreeMonthsPdfPath = p,
+                n => tempEntity.AebaslastThreeMonthsPdfName = n,
+                "AEBAS3Months");
+
+            await SaveTemp(AEBASInspectionDayPdf,
+                p => tempEntity.AebasinspectionDayPdfPath = p,
+                n => tempEntity.AebasinspectionDayPdfName = n,
+                "AEBASInspection");
+
+            await SaveTemp(ProvidentFundPdf,
+                p => tempEntity.ProvidentFundPdfPath = p,
+                n => tempEntity.ProvidentFundPdfName = n,
+                "PFDocs");
+
+            await SaveTemp(ESIPdf,
+                p => tempEntity.EsipdfPath = p,
+                n => tempEntity.EsipdfName = n,
+                "ESIDocs");
 
             await _context.SaveChangesAsync();
 
@@ -185,11 +228,11 @@ namespace Medical_Affiliation.Controllers
             {
                 bool examinerRequired = tempEntity.ExaminerDetailsAttached == "Y";
 
-                bool hasExaminer = !examinerRequired || tempEntity.ExaminerDetailsPdf != null;
-                bool hasAEBAS3 = tempEntity.AebaslastThreeMonthsPdf != null;
-                bool hasAEBASDay = tempEntity.AebasinspectionDayPdf != null;
-                bool hasPF = tempEntity.ProvidentFundPdf != null;
-                bool hasESI = tempEntity.Esipdf != null;
+                bool hasExaminer = !examinerRequired || tempEntity.ExaminerDetailsPdfPath != null;
+                bool hasAEBAS3 = tempEntity.AebaslastThreeMonthsPdfPath != null;
+                bool hasAEBASDay = tempEntity.AebasinspectionDayPdfPath != null;
+                bool hasPF = tempEntity.ProvidentFundPdfPath != null;
+                bool hasESI = tempEntity.EsipdfPath != null;
 
                 if (!(hasExaminer && hasAEBAS3 && hasAEBASDay && hasPF && hasESI))
                 {
@@ -218,33 +261,33 @@ namespace Medical_Affiliation.Controllers
             mainEntity.ServiceRegisterMaintained = tempEntity.ServiceRegisterMaintained;
             mainEntity.AcquittanceRegisterMaintained = tempEntity.AcquittanceRegisterMaintained;
 
-            if (tempEntity.ExaminerDetailsPdf != null)
+            if (tempEntity.ExaminerDetailsPdfPath != null)
             {
-                mainEntity.ExaminerDetailsPdf = tempEntity.ExaminerDetailsPdf;
+                mainEntity.ExaminerDetailsPdfPath = tempEntity.ExaminerDetailsPdfPath;
                 mainEntity.ExaminerDetailsPdfName = tempEntity.ExaminerDetailsPdfName;
             }
 
-            if (tempEntity.AebaslastThreeMonthsPdf != null)
+            if (tempEntity.AebaslastThreeMonthsPdfPath != null)
             {
-                mainEntity.AebaslastThreeMonthsPdf = tempEntity.AebaslastThreeMonthsPdf;
+                mainEntity.AebaslastThreeMonthsPdfPath = tempEntity.AebaslastThreeMonthsPdfPath;
                 mainEntity.AebaslastThreeMonthsPdfName = tempEntity.AebaslastThreeMonthsPdfName;
             }
 
-            if (tempEntity.AebasinspectionDayPdf != null)
+            if (tempEntity.AebasinspectionDayPdfPath != null)
             {
-                mainEntity.AebasinspectionDayPdf = tempEntity.AebasinspectionDayPdf;
+                mainEntity.AebasinspectionDayPdfPath = tempEntity.AebasinspectionDayPdfPath;
                 mainEntity.AebasinspectionDayPdfName = tempEntity.AebasinspectionDayPdfName;
             }
 
-            if (tempEntity.ProvidentFundPdf != null)
+            if (tempEntity.ProvidentFundPdfPath != null)
             {
-                mainEntity.ProvidentFundPdf = tempEntity.ProvidentFundPdf;
+                mainEntity.ProvidentFundPdfPath = tempEntity.ProvidentFundPdfPath;
                 mainEntity.ProvidentFundPdfName = tempEntity.ProvidentFundPdfName;
             }
 
-            if (tempEntity.Esipdf != null)
+            if (tempEntity.EsipdfPath != null)
             {
-                mainEntity.Esipdf = tempEntity.Esipdf;
+                mainEntity.EsipdfPath = tempEntity.EsipdfPath;
                 mainEntity.EsipdfName = tempEntity.EsipdfName;
             }
 
@@ -348,7 +391,8 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         // ✅ View PDF files (Main first, else Temp during partial stage)
 
-        public async Task<IActionResult> ViewStaffOtherPdf(string type)
+        [HttpGet]
+        public async Task<IActionResult> ViewStaffOtherPdf(string type, string mode = "view")
         {
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -357,49 +401,53 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(courseLevel))
                 return NotFound();
 
-            // ✅ 1) Try MAIN table first
-            var mainEntity = await _context.CaMedStaffParticularsOthers
-                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel);
-
-            byte[]? fileBytes = null;
+            string? filePath = null;
             string? fileName = null;
+
+            // ✅ 1) MAIN TABLE FIRST
+            var mainEntity = await _context.CaMedStaffParticularsOthers
+                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode &&
+                                          x.FacultyCode == facultyCode &&
+                                          x.CourseLevel == courseLevel);
 
             if (mainEntity != null)
             {
                 switch (type)
                 {
                     case "Examiner":
-                        fileBytes = mainEntity.ExaminerDetailsPdf;
+                        filePath = mainEntity.ExaminerDetailsPdfPath;
                         fileName = mainEntity.ExaminerDetailsPdfName;
                         break;
 
                     case "AEBAS3Months":
-                        fileBytes = mainEntity.AebaslastThreeMonthsPdf;
+                        filePath = mainEntity.AebaslastThreeMonthsPdfPath;
                         fileName = mainEntity.AebaslastThreeMonthsPdfName;
                         break;
 
                     case "AEBASInspection":
-                        fileBytes = mainEntity.AebasinspectionDayPdf;
+                        filePath = mainEntity.AebasinspectionDayPdfPath;
                         fileName = mainEntity.AebasinspectionDayPdfName;
                         break;
 
                     case "PF":
-                        fileBytes = mainEntity.ProvidentFundPdf;
+                        filePath = mainEntity.ProvidentFundPdfPath;
                         fileName = mainEntity.ProvidentFundPdfName;
                         break;
 
                     case "ESI":
-                        fileBytes = mainEntity.Esipdf;
+                        filePath = mainEntity.EsipdfPath;
                         fileName = mainEntity.EsipdfName;
                         break;
                 }
             }
 
-            // ✅ 2) If not found in MAIN, try TEMP table (partial upload stage)
-            if (fileBytes == null || fileBytes.Length == 0 || string.IsNullOrEmpty(fileName))
+            // ✅ 2) IF NOT FOUND → TEMP TABLE
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
             {
                 var tempEntity = await _context.CaMedStaffParticularsOtherTemps
-                    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel);
+                    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode &&
+                                              x.FacultyCode == facultyCode &&
+                                              x.CourseLevel == courseLevel);
 
                 if (tempEntity == null)
                     return NotFound();
@@ -407,27 +455,27 @@ namespace Medical_Affiliation.Controllers
                 switch (type)
                 {
                     case "Examiner":
-                        fileBytes = tempEntity.ExaminerDetailsPdf;
+                        filePath = tempEntity.ExaminerDetailsPdfPath;
                         fileName = tempEntity.ExaminerDetailsPdfName;
                         break;
 
                     case "AEBAS3Months":
-                        fileBytes = tempEntity.AebaslastThreeMonthsPdf;
+                        filePath = tempEntity.AebaslastThreeMonthsPdfPath;
                         fileName = tempEntity.AebaslastThreeMonthsPdfName;
                         break;
 
                     case "AEBASInspection":
-                        fileBytes = tempEntity.AebasinspectionDayPdf;
+                        filePath = tempEntity.AebasinspectionDayPdfPath;
                         fileName = tempEntity.AebasinspectionDayPdfName;
                         break;
 
                     case "PF":
-                        fileBytes = tempEntity.ProvidentFundPdf;
+                        filePath = tempEntity.ProvidentFundPdfPath;
                         fileName = tempEntity.ProvidentFundPdfName;
                         break;
 
                     case "ESI":
-                        fileBytes = tempEntity.Esipdf;
+                        filePath = tempEntity.EsipdfPath;
                         fileName = tempEntity.EsipdfName;
                         break;
 
@@ -436,13 +484,30 @@ namespace Medical_Affiliation.Controllers
                 }
             }
 
-            // ✅ Still missing?
-            if (fileBytes == null || fileBytes.Length == 0 || string.IsNullOrEmpty(fileName))
-                return NotFound();
+            // ✅ FINAL VALIDATION
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                return NotFound("File not found");
 
-            // ✅ Return the PDF inline
-            Response.Headers.Add("Content-Disposition", $"inline; filename=\"{fileName}\"");
-            return File(fileBytes, "application/pdf");
+            var finalName = string.IsNullOrEmpty(fileName)
+                ? Path.GetFileName(filePath)
+                : fileName;
+
+            // 🔥 Detect content type
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(filePath, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // 📥 DOWNLOAD
+            if (mode == "download")
+            {
+                return PhysicalFile(filePath, contentType, finalName);
+            }
+
+            // 👀 PREVIEW
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{finalName}\"";
+            return PhysicalFile(filePath, contentType);
         }
 
     }

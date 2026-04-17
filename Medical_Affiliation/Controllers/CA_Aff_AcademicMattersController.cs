@@ -147,8 +147,8 @@ namespace Medical_Affiliation.Controllers
                     CurriculumName = m.CurriculumName,
                     CurriculumDetails = saved?.CurriculumDetails,
                     HasPdf = saved != null
-                             && saved.CurriculumPdf != null
-                             && saved.CurriculumPdf.Length > 0
+                             && saved.CurriculumPdfPath != null
+                             && saved.CurriculumPdfPath.Length > 0
 
                 };
             }).ToList();
@@ -229,10 +229,29 @@ namespace Medical_Affiliation.Controllers
 
             return View("AcademicMatters", model);
         }
+        private async Task<string?> SaveCurriculumFileAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\AcademicCurriculum";
+
+            if (!Directory.Exists(basePath))
+                Directory.CreateDirectory(basePath);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(basePath, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AcademicMatters(CA_Aff_AcademicMattersViewModel model)
+        public async Task<IActionResult> AcademicMatters(CA_Aff_AcademicMattersViewModel model)
         {
 
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
@@ -261,7 +280,7 @@ namespace Medical_Affiliation.Controllers
                     : Math.Round((decimal)row.NumberOfStudentsPassed * 100 / total, 2);
             }
 
-            using var transaction = _context.Database.BeginTransaction();
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 // Academic rows: remove and re-add to keep simple
@@ -333,25 +352,31 @@ namespace Medical_Affiliation.Controllers
                         {
                             var file = row.CurriculumPdfFiles.First();
 
-                            using var ms = new MemoryStream();
-                            file.CopyTo(ms);
+                            if (file != null && file.Length > 0)
+                            {
+                                var filePath = await SaveCurriculumFileAsync(file);
 
-                            existing.CurriculumPdf = ms.ToArray();
-                            existing.PdfFileName = file.FileName;
+                                if (filePath != null)
+                                {
+                                    // 🔥 Delete old file
+                                    if (!string.IsNullOrEmpty(existing.CurriculumPdfPath) &&
+                                        System.IO.File.Exists(existing.CurriculumPdfPath))
+                                    {
+                                        System.IO.File.Delete(existing.CurriculumPdfPath);
+                                    }
+
+                                    existing.CurriculumPdfPath = filePath;
+                                    existing.PdfFileName = file.FileName;
+                                }
+                            }
                         }
 
 
 
 
                     }
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
-
-
-
-
-
-
 
                 // Examination schemes: robust binding handling
                 // The view renders ExaminationSchemess (master rows) and posts those values.
@@ -429,15 +454,15 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
 
-                _context.SaveChanges();
-                transaction.Commit();
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
                 TempData["Success"] = "Academic matters saved successfully.";
                 return RedirectToAction(nameof(AcademicMatters));
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 ModelState.AddModelError("", "An unexpected error occurred: " + ex.Message);
                 LoadAcademicMattersMasters(model);
                 return View("AcademicMatters", model);
@@ -551,13 +576,13 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefault(x => x.CurriculumId == curriculumId);
             }
 
-            if (record == null || record.CurriculumPdf == null || record.CurriculumPdf.Length == 0)
+            if (record == null || record.CurriculumPdfPath == null || record.CurriculumPdfPath.Length == 0)
                 return NotFound("PDF not found in database.");
 
             Response.Headers["Content-Disposition"] =
                 $"inline; filename=\"{record.PdfFileName ?? "Curriculum.pdf"}\"";
 
-            return File(record.CurriculumPdf, "application/pdf");
+            return PhysicalFile(record.CurriculumPdfPath, "application/pdf");
         }
 
 

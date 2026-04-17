@@ -72,9 +72,9 @@ namespace Medical_Affiliation.Services.Faculty
                     Email = f.Email,
                     DepartmentDetails = f.DepartmentDetails,
 
-                    HasGuideRecognitionDoc = f.GuideRecognitionDoc != null,
-                    HasPhDRecognitionDoc = f.PhDrecognitionDoc != null,
-                    HasLitigationDoc = f.LitigationDoc != null
+                    HasGuideRecognitionDoc = f.GuideRecognitionDocPath != null,
+                    HasPhDRecognitionDoc = f.PhDrecognitionDocPath != null,
+                    HasLitigationDoc = f.LitigationDocPath != null
                 }
             ).ToListAsync();
 

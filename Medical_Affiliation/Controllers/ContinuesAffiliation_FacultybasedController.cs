@@ -4,6 +4,7 @@ using Medical_Affiliation.Services.UserContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
@@ -46,7 +47,25 @@ namespace Medical_Affiliation.Controllers
 
             return View(model);
         }
+        public async Task<IActionResult> PreviousNotification()
+        {
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
 
+            var entity = await _context.AffiliationCourseDetails
+                .FirstOrDefaultAsync(x =>
+                    x.Facultycode == facultyCode &&
+                    x.Collegecode == collegeCode &&
+                    x.CourseId == "MBBS");
+
+            if (string.IsNullOrEmpty(entity?.PreviousNotificationFilesPath) ||
+                !System.IO.File.Exists(entity.PreviousNotificationFilesPath))
+                return NotFound("File not found");
+
+            var fileName = Path.GetFileName(entity.PreviousNotificationFilesPath);
+
+            return PhysicalFile(entity.PreviousNotificationFilesPath, "application/pdf", fileName);
+        }
         public async Task<IActionResult> ViewGOKOrder()
         {
             var facultyCode = FacultyCode;
@@ -58,13 +77,14 @@ namespace Medical_Affiliation.Controllers
                     x.Collegecode == collegeCode &&
                     x.CourseId == "MBBS");
 
-            if (entity?.Gokorder == null)
+            if (string.IsNullOrEmpty(entity?.GokorderPath) ||
+                !System.IO.File.Exists(entity.GokorderPath))
                 return NotFound("File not found");
 
-            return File(entity.Gokorder, "application/pdf");
-        }
+            var fileName = Path.GetFileName(entity.GokorderPath);
 
-        // ✅ VIEW LAST AFFILIATION PDF
+            return PhysicalFile(entity.GokorderPath, "application/pdf", fileName);
+        }
         public async Task<IActionResult> ViewLastAffiliation()
         {
             var facultyCode = FacultyCode;
@@ -76,12 +96,14 @@ namespace Medical_Affiliation.Controllers
                     x.Collegecode == collegeCode &&
                     x.CourseId == "MBBS");
 
-            if (entity?.LastAffiliationRguhsfile == null)
+            if (string.IsNullOrEmpty(entity?.LastAffiliationRguhsfilePath) ||
+                !System.IO.File.Exists(entity.LastAffiliationRguhsfilePath))
                 return NotFound("File not found");
 
-            return File(entity.LastAffiliationRguhsfile, "application/pdf");
-        }
+            var fileName = Path.GetFileName(entity.LastAffiliationRguhsfilePath);
 
+            return PhysicalFile(entity.LastAffiliationRguhsfilePath, "application/pdf", fileName);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult OnAffiliationTypeChanged(SidebarViewModel model)
@@ -99,6 +121,28 @@ namespace Medical_Affiliation.Controllers
         }
         //csharp Medical_Affiliation\Controllers\MedicalContinuesAffiliationController.cs
         // GET: /Institution/Create
+
+        private async Task<(string path, string name, string type)> SaveFileAsync(IFormFile file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return (null, null, null);
+
+            string basePath = @"D:\Affiliation_Medical\TrustDocuments";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return (fullPath, file.FileName, file.ContentType);
+        }
 
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
@@ -331,20 +375,111 @@ namespace Medical_Affiliation.Controllers
             entity.KncCertificateNumber = vm.KncCertificateNumber;
 
             // ★ AssignFileIfProvided skips null/empty uploads — existing DB bytes are untouched
-            await AssignFileIfProvided(GovAutonomousCertFile, b => entity.GovAutonomousCertFile = b);
-            await AssignFileIfProvided(GovCouncilMembershipFile, b => entity.GovCouncilMembershipFile = b);
-            await AssignFileIfProvided(GokOrderExistingCoursesFile, b => entity.GokOrderExistingCoursesFile = b);
-            await AssignFileIfProvided(FirstAffiliationNotifFile, b => entity.FirstAffiliationNotifFile = b);
-            await AssignFileIfProvided(ContinuationAffiliationFile, b => entity.ContinuationAffiliationFile = b);
-            await AssignFileIfProvided(KncCertificateFile, b => entity.KncCertificateFile = b);
-            await AssignFileIfProvided(AmendedDoc, b => entity.AmendedDoc = b);
-            await AssignFileIfProvided(AadhaarFile, b => entity.AadhaarFile = b);
-            await AssignFileIfProvided(PANFile, b => entity.Panfile = b);
-            await AssignFileIfProvided(BankStatementFile, b => entity.BankStatementFile = b);
-            await AssignFileIfProvided(RegistrationCertificateFile, b => entity.RegistrationCertificateFile = b);
-            await AssignFileIfProvided(RegisteredTrustMemberDetails, b => entity.RegisteredTrustMemberDetails = b);
-            await AssignFileIfProvided(AuditStatementFile, b => entity.AuditStatementFile = b);
+            //await AssignFileIfProvided(GovAutonomousCertFile, b => entity.GovAutonomousCertFile = b);
+            //await AssignFileIfProvided(GovCouncilMembershipFile, b => entity.GovCouncilMembershipFile = b);
+            //await AssignFileIfProvided(GokOrderExistingCoursesFile, b => entity.GokOrderExistingCoursesFile = b);
+            //await AssignFileIfProvided(FirstAffiliationNotifFile, b => entity.FirstAffiliationNotifFile = b);
+            //await AssignFileIfProvided(ContinuationAffiliationFile, b => entity.ContinuationAffiliationFile = b);
+            //await AssignFileIfProvided(KncCertificateFile, b => entity.KncCertificateFile = b);
+            //await AssignFileIfProvided(AmendedDoc, b => entity.AmendedDoc = b);
+            //await AssignFileIfProvided(AadhaarFile, b => entity.AadhaarFile = b);
+            //await AssignFileIfProvided(PANFile, b => entity.Panfile = b);
+            //await AssignFileIfProvided(BankStatementFile, b => entity.BankStatementFile = b);
+            //await AssignFileIfProvided(RegistrationCertificateFile, b => entity.RegistrationCertificateFile = b);
+            //await AssignFileIfProvided(RegisteredTrustMemberDetails, b => entity.RegisteredTrustMemberDetails = b);
+            //await AssignFileIfProvided(AuditStatementFile, b => entity.AuditStatementFile = b);
+            // 🔥 FILE STORAGE USING GUID
 
+            var govAuto = await SaveFileAsync(GovAutonomousCertFile, "GovAutonomous");
+            if (govAuto.path != null)
+            {
+                entity.GovAutonomousCertFilePath = govAuto.path;
+                
+            }
+
+            var council = await SaveFileAsync(GovCouncilMembershipFile, "Council");
+            if (council.path != null)
+            {
+                entity.GovCouncilMembershipFilePath = council.path;
+                
+            }
+
+            var gok = await SaveFileAsync(GokOrderExistingCoursesFile, "GOK");
+            if (gok.path != null)
+            {
+                entity.GokOrderExistingCoursesFilePath = gok.path;
+               
+            }
+
+            var first = await SaveFileAsync(FirstAffiliationNotifFile, "FirstAffiliation");
+            if (first.path != null)
+            {
+                entity.FirstAffiliationNotifFilePath = first.path;
+                
+            }
+
+            var cont = await SaveFileAsync(ContinuationAffiliationFile, "Continuation");
+            if (cont.path != null)
+            {
+                entity.ContinuationAffiliationFilePath = cont.path;
+                
+            }
+
+            var knc = await SaveFileAsync(KncCertificateFile, "KNC");
+            if (knc.path != null)
+            {
+                entity.KncCertificateFilePath = knc.path;
+                
+            }
+
+            var amend = await SaveFileAsync(AmendedDoc, "Amendments");
+            if (amend.path != null)
+            {
+                entity.AmendedDocPath = amend.path;
+                
+            }
+
+            var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar");
+            if (aadhaar.path != null)
+            {
+                entity.AadhaarFilePath = aadhaar.path;
+                
+            }
+
+            var pan = await SaveFileAsync(PANFile, "PAN");
+            if (pan.path != null)
+            {
+                entity.PanfilePath = pan.path;
+                
+            }
+
+            var bank = await SaveFileAsync(BankStatementFile, "Bank");
+            if (bank.path != null)
+            {
+                entity.BankStatementFilePath = bank.path;
+                
+            }
+
+            var reg = await SaveFileAsync(RegistrationCertificateFile, "Registration");
+            if (reg.path != null)
+            {
+                entity.RegistrationCertificateFilePath = reg.path;
+               
+            }
+
+            var trust = await SaveFileAsync(RegisteredTrustMemberDetails, "TrustMembers");
+            if (trust.path != null)
+            {
+                entity.RegisteredTrustMemberDetailsPath = trust.path;
+                
+            }
+
+            var audit = await SaveFileAsync(AuditStatementFile, "Audit");
+            if (audit.path != null)
+            {
+                entity.AuditStatementFilePath = audit.path;
+                
+            }
             try
             {
                 await _context.SaveChangesAsync();
@@ -397,84 +532,90 @@ namespace Medical_Affiliation.Controllers
         // ── HELPERS ──────────────────────────────────────────────────────────────────
 
 
-        private async Task<IActionResult> ServeFile(int id, Func<InstitutionBasicDetail, byte[]?> selector, string fileName)
+        private async Task<IActionResult> ServeFileFromPath(
+     int id,
+     Func<InstitutionBasicDetail, string?> pathSelector)
         {
-            var entity = await _context.InstitutionBasicDetails.AsNoTracking()
-                                       .FirstOrDefaultAsync(x => x.InstitutionId == id);
+            var entity = await _context.InstitutionBasicDetails
+                .FirstOrDefaultAsync(x => x.InstitutionId == id);
 
-            if (entity == null) return NotFound("Record not found.");
+            if (entity == null)
+                return NotFound("Record not found");
 
-            var bytes = selector(entity);
-            if (bytes == null || bytes.Length == 0)
-                return NotFound("No file has been uploaded for this field yet.");
+            var path = pathSelector(entity);
 
-            // Detect PDF vs image (simple magic-byte check)
-            string mime = "application/octet-stream";
-            if (bytes.Length >= 4)
+            if (string.IsNullOrWhiteSpace(path))
+                return NotFound("File path not found");
+
+            if (!System.IO.File.Exists(path))
+                return NotFound("File not found on server");
+
+            // 🔹 Get file name from path
+            var fileName = Path.GetFileName(path);
+
+            // 🔹 Detect content type automatically
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(path, out string contentType))
             {
-                if (bytes[0] == 0x25 && bytes[1] == 0x50) mime = "application/pdf";          // %PDF
-                else if (bytes[0] == 0xFF && bytes[1] == 0xD8) mime = "image/jpeg";          // JPEG
-                else if (bytes[0] == 0x89 && bytes[1] == 0x50) mime = "image/png";           // PNG
+                contentType = "application/octet-stream";
             }
 
-            // Open inline in browser (not force-download)
-            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
-            return File(bytes, mime);
+            return PhysicalFile(path, contentType, fileName);
         }
+
 
         // ── Individual download endpoints ────────────────────────────────────────────
         [HttpGet]
         public Task<IActionResult> DownloadGovAutonomousCert(int id)
-            => ServeFile(id, e => e.GovAutonomousCertFile, "GovAutonomousCert.pdf");
+    => ServeFileFromPath(id, e => e.GovAutonomousCertFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadGovCouncilMembership(int id)
-            => ServeFile(id, e => e.GovCouncilMembershipFile, "GovCouncilMembership.pdf");
+            => ServeFileFromPath(id, e => e.GovCouncilMembershipFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadGokOrderExistingCourses(int id)
-            => ServeFile(id, e => e.GokOrderExistingCoursesFile, "GokOrderExistingCourses.pdf");
+            => ServeFileFromPath(id, e => e.GokOrderExistingCoursesFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadFirstAffiliationNotif(int id)
-            => ServeFile(id, e => e.FirstAffiliationNotifFile, "FirstAffiliationNotif.pdf");
+            => ServeFileFromPath(id, e => e.FirstAffiliationNotifFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadContinuationAffiliation(int id)
-            => ServeFile(id, e => e.ContinuationAffiliationFile, "ContinuationAffiliation.pdf");
+            => ServeFileFromPath(id, e => e.ContinuationAffiliationFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadKncCertificate(int id)
-            => ServeFile(id, e => e.KncCertificateFile, "KncCertificate.pdf");
+            => ServeFileFromPath(id, e => e.KncCertificateFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAmendedDoc(int id)
-            => ServeFile(id, e => e.AmendedDoc, "AmendedDoc.pdf");
+            => ServeFileFromPath(id, e => e.AmendedDocPath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAadhaarFile(int id)
-            => ServeFile(id, e => e.AadhaarFile, "Aadhaar.pdf");
+            => ServeFileFromPath(id, e => e.AadhaarFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadPANFile(int id)
-            => ServeFile(id, e => e.Panfile, "PAN.pdf");
+            => ServeFileFromPath(id, e => e.PanfilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadBankStatement(int id)
-            => ServeFile(id, e => e.BankStatementFile, "BankStatement.pdf");
+            => ServeFileFromPath(id, e => e.BankStatementFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadRegistrationCertificate(int id)
-            => ServeFile(id, e => e.RegistrationCertificateFile, "RegistrationCertificate.pdf");
+            => ServeFileFromPath(id, e => e.RegistrationCertificateFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadRegisteredTrustMemberDetails(int id)
-            => ServeFile(id, e => e.RegisteredTrustMemberDetails, "RegisteredTrustMemberDetails.pdf");
+            => ServeFileFromPath(id, e => e.RegisteredTrustMemberDetailsPath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAuditStatement(int id)
-            => ServeFile(id, e => e.AuditStatementFile, "AuditStatement.pdf");
-
+            => ServeFileFromPath(id, e => e.AuditStatementFilePath);
         private async Task<List<SelectListItem>> LoadInstitutionTypeList(string facultyCode)
         {
             // Trim and parse safely
@@ -1763,12 +1904,12 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Aff_GovInstituteDetails(InstitutionDetailsViewModel vm)
         {
-            // Remove server-side controlled properties from ModelState
+            // Remove server-side controlled properties
             ModelState.Remove(nameof(vm.CollegeCode));
             ModelState.Remove(nameof(vm.FacultyCode));
             ModelState.Remove(nameof(vm.DocumentFile));
 
-            // Enforce codes from session
+            // Session values
             vm.CollegeCode = HttpContext.Session.GetString("CollegeCode");
             vm.FacultyCode = HttpContext.Session.GetString("FacultyCode");
 
@@ -1778,7 +1919,6 @@ namespace Medical_Affiliation.Controllers
                 return View(vm);
             }
 
-            // YearOfEstablishment is now a string; require a non-empty value
             if (string.IsNullOrWhiteSpace(vm.YearOfEstablishment))
             {
                 ModelState.AddModelError(nameof(vm.YearOfEstablishment), "Year of Establishment is required.");
@@ -1786,37 +1926,42 @@ namespace Medical_Affiliation.Controllers
             }
 
             if (!ModelState.IsValid)
-            {
                 return View(vm);
-            }
 
-            // Fetch existing record (if any)
             var existingInstitution = await _context.AffInstitutionsDetails
                 .FirstOrDefaultAsync(x => x.CollegeCode == vm.CollegeCode &&
-                                          x.FacultyCode == vm.FacultyCode);
+                                         x.FacultyCode == vm.FacultyCode);
 
-            // Handle document upload
-            byte[] docBytes = null;
+            // 🔥 FILE STORAGE (UPDATED)
+            string filePath = null;
             string docName = null;
             string docContentType = null;
 
             if (vm.DocumentFile != null && vm.DocumentFile.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await vm.DocumentFile.CopyToAsync(ms);
-                docBytes = ms.ToArray();
+                string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(vm.DocumentFile.FileName);
+                string fullPath = Path.Combine(basePath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await vm.DocumentFile.CopyToAsync(stream);
+                }
+
+                filePath = fullPath;
                 docName = vm.DocumentFile.FileName;
                 docContentType = vm.DocumentFile.ContentType;
             }
 
-            // Use the string provided by the user (trim). If you want to normalize to yyyy, do additional parsing here.
             var yearOfEstablishment = vm.YearOfEstablishment?.Trim();
 
             if (existingInstitution != null)
             {
                 // UPDATE
-                existingInstitution.CollegeCode = vm.CollegeCode;
-                existingInstitution.FacultyCode = vm.FacultyCode;
                 existingInstitution.TypeOfInstitution = vm.TypeOfInstitution;
                 existingInstitution.NameOfInstitution = vm.NameOfInstitution;
                 existingInstitution.Address = vm.Address;
@@ -1842,17 +1987,22 @@ namespace Medical_Affiliation.Controllers
                 existingInstitution.StatusOfCollege = vm.StatusOfCollege;
                 existingInstitution.CourseApplied = vm.CourseApplied;
 
-                // Only overwrite document fields if a new file was uploaded
-                if (docBytes != null)
+                if (filePath != null)
                 {
+                    // 🔥 Delete old file
+                    if (!string.IsNullOrEmpty(existingInstitution.DocumentDataPath) &&
+                        System.IO.File.Exists(existingInstitution.DocumentDataPath))
+                    {
+                        System.IO.File.Delete(existingInstitution.DocumentDataPath);
+                    }
+
+                    existingInstitution.DocumentDataPath = filePath;
                     existingInstitution.DocumentName = docName;
                     existingInstitution.DocumentContentType = docContentType;
-                    existingInstitution.DocumentData = docBytes;
                 }
 
                 await _context.SaveChangesAsync();
-                var id = existingInstitution.InstitutionId;
-                return RedirectToAction(nameof(AffCourseDetails), new { id });
+                return RedirectToAction(nameof(AffCourseDetails), new { id = existingInstitution.InstitutionId });
             }
             else
             {
@@ -1885,20 +2035,17 @@ namespace Medical_Affiliation.Controllers
                     FinancingAuthority = vm.FinancingAuthority,
                     StatusOfCollege = vm.StatusOfCollege,
                     CourseApplied = vm.CourseApplied,
+                    DocumentDataPath = filePath,
                     DocumentName = docName,
-                    DocumentContentType = docContentType,
-                    DocumentData = docBytes
+                    DocumentContentType = docContentType
                 };
 
                 _context.AffInstitutionsDetails.Add(entity);
                 await _context.SaveChangesAsync();
 
-                // Use newly created Id
-                var newId = entity.InstitutionId;
-                return RedirectToAction(nameof(AffCourseDetails), new { id = newId });
+                return RedirectToAction(nameof(AffCourseDetails), new { id = entity.InstitutionId });
             }
         }
-
         [HttpGet]
         public async Task<IActionResult> AffCourseDetails()
         {
@@ -2101,6 +2248,24 @@ namespace Medical_Affiliation.Controllers
 
             return Json(taluks);
         }
+
+        public IActionResult ViewDocument(string id)
+        {
+            var doc = _context.AffInstitutionsDetails
+                .FirstOrDefault(x => x.CollegeCode == id);
+
+            if (doc == null || string.IsNullOrEmpty(doc.DocumentDataPath))
+                return NotFound();
+
+            // 🔹 Check file exists in physical path
+            if (!System.IO.File.Exists(doc.DocumentDataPath))
+                return NotFound();
+
+            var contentType = doc.DocumentContentType ?? "application/octet-stream";
+
+            // 🔹 Open file from disk
+            return PhysicalFile(doc.DocumentDataPath, contentType, doc.DocumentName);
+        }
         // ─────────────────────────────────────────────────────────────────────────────
         // GET: Institution/Institution_Details
         // ─────────────────────────────────────────────────────────────────────────────
@@ -2112,7 +2277,7 @@ namespace Medical_Affiliation.Controllers
             var courseLevel = CourseLevel;
             var facultyCode = User.FindFirst("FacultyCode")?.Value;
             var collegeCode = User.FindFirst("CollegeCode")?.Value;
-
+           
             if (string.IsNullOrWhiteSpace(courseLevel))
                 return RedirectToAction("Dashboard", "Collegelogin");
 
@@ -2216,16 +2381,32 @@ namespace Medical_Affiliation.Controllers
             //    Only overwrite the stored document when a new file is actually submitted.
             if (documentFile != null && documentFile.Length > 0)
             {
-                using var ms = new MemoryStream();
-                documentFile.CopyTo(ms);
-                byte[] fileBytes = ms.ToArray();
+                // 🔹 Base folder path
+                string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
 
-                if (fileBytes.Length > 0)
+                // 🔹 Ensure directory exists
+                if (!Directory.Exists(basePath))
                 {
-                    entity.DocumentData = fileBytes;
-                    entity.DocumentName = Path.GetFileName(documentFile.FileName); // strip path for safety
-                    entity.DocumentContentType = documentFile.ContentType;
+                    Directory.CreateDirectory(basePath);
                 }
+
+                // 🔹 Generate GUID file name
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(documentFile.FileName);
+
+                // Example: 3f8c2a9d-7b1e-4c8a-9d3f-abc123.pdf
+
+                string fullPath = Path.Combine(basePath, fileName);
+
+                // 🔹 Save file
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    documentFile.CopyTo(stream);
+                }
+
+                // 🔹 Save details in DB
+                entity.DocumentDataPath = fullPath;
+                entity.DocumentName = fileName;
+                entity.DocumentContentType = documentFile.ContentType;
             }
             // If no new file was uploaded, leave entity.DocumentData / DocumentName / DocumentContentType unchanged.
 
@@ -2359,7 +2540,27 @@ namespace Medical_Affiliation.Controllers
             e.RunningCourse = vm.RunningCourse;
         }
 
+        private async Task<string?> SaveCourseFileAsync(IFormFile? file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\CourseDetails";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         // GET: Load existing data
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         public async Task<IActionResult> Details_Of_MBBS()
@@ -2398,8 +2599,9 @@ namespace Medical_Affiliation.Controllers
                 DateOfPreviousLICInspection = entity?.DateOfPreviousLicinspection,
                 ActionTakenOnDeficiencies = entity?.ActionTakenOnDeficiencies ?? "",
 
-                HasGOKOrder = entity?.Gokorder != null && entity.Gokorder.Length > 0,
-                HasLastAffiliationFile = entity?.LastAffiliationRguhsfile != null && entity.LastAffiliationRguhsfile.Length > 0
+                HasGOKOrder = entity?.GokorderPath != null && entity.GokorderPath.Length > 0,
+                HasLastAffiliationFile = entity?.LastAffiliationRguhsfilePath != null && entity.LastAffiliationRguhsfilePath.Length > 0,
+                HasPreviousNotificationFile = entity?.PreviousNotificationFilesPath != null && entity.PreviousNotificationFilesPath.Length > 0
             };
 
             return View(model);
@@ -2452,20 +2654,59 @@ namespace Medical_Affiliation.Controllers
                 entity.ActionTakenOnDeficiencies = model.ActionTakenOnDeficiencies;
 
                 // File: GOK Order (EC & FC)
+                // 🔥 File: GOK Order (EC & FC)
                 if (model.GOKorder != null && model.GOKorder.Length > 0)
                 {
-                    using var ms = new MemoryStream();
-                    await model.GOKorder.CopyToAsync(ms);
-                    entity.Gokorder = ms.ToArray();
+                    var gokPath = await SaveCourseFileAsync(model.GOKorder, "GOKOrders");
+
+                    if (gokPath != null)
+                    {
+                        // 🔹 Delete old file
+                        if (!string.IsNullOrEmpty(entity.GokorderPath) &&
+                            System.IO.File.Exists(entity.GokorderPath))
+                        {
+                            System.IO.File.Delete(entity.GokorderPath);
+                        }
+
+                        entity.GokorderPath = gokPath;
+                    }
                 }
 
-                // File: Last Affiliation by RGUHS
+                // 🔥 File: Last Affiliation by RGUHS
                 if (model.LastAffiliationRGUHSFile != null && model.LastAffiliationRGUHSFile.Length > 0)
                 {
-                    using var ms = new MemoryStream();
-                    await model.LastAffiliationRGUHSFile.CopyToAsync(ms);
-                    entity.LastAffiliationRguhsfile = ms.ToArray();
+                    var rguhsPath = await SaveCourseFileAsync(model.LastAffiliationRGUHSFile, "RGUHS");
+
+                    if (rguhsPath != null)
+                    {
+                        if (!string.IsNullOrEmpty(entity.LastAffiliationRguhsfilePath) &&
+                            System.IO.File.Exists(entity.LastAffiliationRguhsfilePath))
+                        {
+                            System.IO.File.Delete(entity.LastAffiliationRguhsfilePath);
+                        }
+
+                        entity.LastAffiliationRguhsfilePath = rguhsPath;
+                    }
                 }
+
+
+                if (model.PreviousNotificationFiles != null && model.PreviousNotificationFiles.Length > 0)
+                {
+                    var notificationPath = await SaveCourseFileAsync(model.PreviousNotificationFiles, "PreviousNotification");
+
+                    if (notificationPath != null)
+                    {
+                        if (!string.IsNullOrEmpty(entity.PreviousNotificationFilesPath) &&
+                            System.IO.File.Exists(entity.PreviousNotificationFilesPath))
+                        {
+                            System.IO.File.Delete(entity.PreviousNotificationFilesPath);
+                        }
+
+                        entity.PreviousNotificationFilesPath = notificationPath;
+                    }
+                }
+
+
 
                 if (existingEntity == null)
                 {
@@ -3544,9 +3785,9 @@ namespace Medical_Affiliation.Controllers
                           DepartmentDetails = departmentsList,
                           RecognizedPhDTeacher = f1.RecognizedPhDteacher,
                           LitigationPending = f1.LitigationPending,
-                          PhDRecognitionDocData = f1.PhDrecognitionDoc,
-                          LitigationDocData = f1.LitigationDoc,
-                          PGRecognitionDocData = f1.GuideRecognitionDoc,
+                          PhDRecognitionDocData = f1.PhDrecognitionDocPath,
+                          LitigationDocData = f1.LitigationDocPath,
+                          PGRecognitionDocData = f1.GuideRecognitionDocPath,
                           IsExaminer = f1.IsExaminer,
                           ExaminerFor = f1.ExaminerFor,
                           ExaminerForList = !string.IsNullOrEmpty(f1.ExaminerFor)
@@ -3586,10 +3827,30 @@ namespace Medical_Affiliation.Controllers
 
             return View(vmList);
         }
+        private async Task<string?> SaveFacultyFileAsync(IFormFile? file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\FacultyDetails";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult aff_FacultyDetails(IList<FacultyDetailsViewModel> model)
+        public async Task<IActionResult> aff_FacultyDetails(IList<FacultyDetailsViewModel> model)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             string facultyCode = HttpContext.Session.GetString("FacultyCode");
@@ -3633,7 +3894,7 @@ namespace Medical_Affiliation.Controllers
                 return View(model);
             }
 
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
@@ -3673,19 +3934,18 @@ namespace Medical_Affiliation.Controllers
                         string recognizedPhD = m.RecognizedPhDTeacher?.Trim() ?? "N/A";
                         string litigation = m.LitigationPending?.Trim() ?? "N/A";
 
-                        byte[] guideDocBytes = null;
-                        byte[] phdDocBytes = null;
-                        byte[] litigDocBytes = null;
+                        string guidePath = null;
+                        string phdPath = null;
+                        string litigPath = null;
 
-                        if (m.GuideRecognitionDoc != null)
-                            guideDocBytes = ConvertFileToBytes(m.GuideRecognitionDoc);
+                        if (m.GuideRecognitionDoc != null && m.GuideRecognitionDoc.Length > 0)
+                            guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs");
 
-                        if (m.PhDRecognitionDoc != null)
-                            phdDocBytes = ConvertFileToBytes(m.PhDRecognitionDoc);
+                        if (m.PhDRecognitionDoc != null && m.PhDRecognitionDoc.Length > 0)
+                            phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs");
 
-                        if (m.LitigationDoc != null)
-                            litigDocBytes = ConvertFileToBytes(m.LitigationDoc);
-
+                        if (m.LitigationDoc != null && m.LitigationDoc.Length > 0)
+                            litigPath = await SaveFacultyFileAsync(m.LitigationDoc, "LitigationDocs");
 
                         var existing = existingFaculty.FirstOrDefault(f => f.Id == m.FacultyDetailId);
 
@@ -3705,14 +3965,35 @@ namespace Medical_Affiliation.Controllers
                             existing.LitigationPending = litigation;
 
                             // Only replace files if new uploads exist
-                            if (guideDocBytes != null)
-                                existing.GuideRecognitionDoc = guideDocBytes;
+                            if (guidePath != null)
+                            {
+                                if (!string.IsNullOrEmpty(existing.GuideRecognitionDocPath) &&
+                                    System.IO.File.Exists(existing.GuideRecognitionDocPath))
+                                {
+                                    System.IO.File.Delete(existing.GuideRecognitionDocPath);
+                                }
+                                existing.GuideRecognitionDocPath = guidePath;
+                            }
 
-                            if (phdDocBytes != null)
-                                existing.PhDrecognitionDoc = phdDocBytes;
+                            if (phdPath != null)
+                            {
+                                if (!string.IsNullOrEmpty(existing.PhDrecognitionDocPath) &&
+                                    System.IO.File.Exists(existing.PhDrecognitionDocPath))
+                                {
+                                    System.IO.File.Delete(existing.PhDrecognitionDocPath);
+                                }
+                                existing.PhDrecognitionDocPath = phdPath;
+                            }
 
-                            if (litigDocBytes != null)
-                                existing.LitigationDoc = litigDocBytes;
+                            if (litigPath != null)
+                            {
+                                if (!string.IsNullOrEmpty(existing.LitigationDocPath) &&
+                                    System.IO.File.Exists(existing.LitigationDocPath))
+                                {
+                                    System.IO.File.Delete(existing.LitigationDocPath);
+                                }
+                                existing.LitigationDocPath = litigPath;
+                            }
 
                             existing.IsExaminer = m.IsExaminer;
                             existing.ExaminerFor = m.ExaminerForList != null
@@ -3743,9 +4024,9 @@ namespace Medical_Affiliation.Controllers
                                 Pan = pan,
                                 Aadhaar = aadhaar,
                                 DepartmentDetails = dept,
-                                GuideRecognitionDoc = guideDocBytes,
-                                PhDrecognitionDoc = phdDocBytes,
-                                LitigationDoc = litigDocBytes,
+                                GuideRecognitionDocPath = guidePath,
+                                PhDrecognitionDocPath = phdPath,
+                                LitigationDocPath = litigPath,
                                 IsExaminer = m.IsExaminer,
                                 ExaminerFor = m.ExaminerForList != null
                                             ? string.Join(",", m.ExaminerForList)
@@ -3758,16 +4039,16 @@ namespace Medical_Affiliation.Controllers
                     }
 
                     // 🔹 3. Save all changes once
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
 
-                    transaction.Commit();
+                    await transaction.CommitAsync();
 
                     //TempData["Success"] = "Faculty records saved successfully.";
                     return RedirectToAction("TeachingFacultyDetails");
                 }
                 catch (Exception ex)
                 {
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
 
                     // ✅ Log and show detailed error
                     TempData["Error"] = "Error saving faculty records: " + ex.Message;
@@ -3807,42 +4088,43 @@ namespace Medical_Affiliation.Controllers
             if (faculty == null)
                 return NotFound();
 
-            byte[] fileBytes = null;
-            string fileName = $"{type}_document.pdf";
+            string filePath = null;
 
             switch (type.ToLower())
             {
                 case "pg":
-                    fileBytes = faculty.GuideRecognitionDoc;
+                    filePath = faculty.GuideRecognitionDocPath;
                     break;
 
                 case "phd":
-                    fileBytes = faculty.PhDrecognitionDoc;
+                    filePath = faculty.PhDrecognitionDocPath;
                     break;
 
                 case "litig":
-                    fileBytes = faculty.LitigationDoc;
+                    filePath = faculty.LitigationDocPath;
                     break;
 
                 default:
                     return BadRequest("Invalid document type.");
             }
 
-            if (fileBytes == null)
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
                 return NotFound("Document not uploaded.");
 
-            if (mode == "download")
+            var fileName = Path.GetFileName(filePath);
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(filePath, out string contentType))
             {
-                // 📥 FORCE DOWNLOAD
-                return File(fileBytes, "application/octet-stream", fileName);
+                contentType = "application/octet-stream";
             }
 
-            // 👀 VIEW IN BROWSER
-            return File(fileBytes, "application/pdf");
+            if (mode == "download")
+                return PhysicalFile(filePath, contentType, fileName);
+
+            return PhysicalFile(filePath, contentType);
         }
 
-
-        //code added by DP 06022026
 
 
         [HttpGet]

@@ -97,7 +97,7 @@ namespace Medical_Affiliation.Services.Faculty
                     TotalBeds = d.TotalBeds ?? 0,
                     DocumentName = d.DocumentName,
                     DocumentId = d.DocumentId,
-                    DocumentExists = d.DocumentFile != null
+                    DocumentExists = d.DocumentFilePth != null
                 })
                 .ToListAsync();
 

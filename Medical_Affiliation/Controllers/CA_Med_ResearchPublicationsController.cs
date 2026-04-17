@@ -14,7 +14,7 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
-
+      
         [HttpGet]
         public async Task<IActionResult> CA_Med_ResearchPublicationsDetails(string level)
         {
@@ -284,37 +284,73 @@ namespace Medical_Affiliation.Controllers
             // ✅ Upload Publications PDF
             if (PublicationsPdf != null && PublicationsPdf.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await PublicationsPdf.CopyToAsync(ms);
-                entity.PublicationsPdf = ms.ToArray();
-                entity.PublicationsPdfName = PublicationsPdf.FileName;
+                var path = await SaveResearchFileAsync(PublicationsPdf, "Publications");
+
+                if (path != null)
+                {
+                    if (!string.IsNullOrEmpty(entity.PublicationsPdfPath) &&
+                        System.IO.File.Exists(entity.PublicationsPdfPath))
+                    {
+                        System.IO.File.Delete(entity.PublicationsPdfPath);
+                    }
+
+                    entity.PublicationsPdfPath = path;
+                    entity.PublicationsPdfName = PublicationsPdf.FileName;
+                }
             }
 
             // ✅ Upload Students Projects PDF
             if (StudentsProjectsPdf != null && StudentsProjectsPdf.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await StudentsProjectsPdf.CopyToAsync(ms);
-                entity.StudentsProjectsPdf = ms.ToArray();
-                entity.StudentsProjectsPdfName = StudentsProjectsPdf.FileName;
+                var path = await SaveResearchFileAsync(StudentsProjectsPdf, "StudentProjects");
+
+                if (path != null)
+                {
+                    if (!string.IsNullOrEmpty(entity.StudentsProjectsPdfPath) &&
+                        System.IO.File.Exists(entity.StudentsProjectsPdfPath))
+                    {
+                        System.IO.File.Delete(entity.StudentsProjectsPdfPath);
+                    }
+
+                    entity.StudentsProjectsPdfPath = path;
+                    entity.StudentsProjectsPdfName = StudentsProjectsPdf.FileName;
+                }
             }
 
             // ✅ Upload Faculty Projects PDF
             if (FacultyProjectsPdf != null && FacultyProjectsPdf.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await FacultyProjectsPdf.CopyToAsync(ms);
-                entity.FacultyProjectsPdf = ms.ToArray();
-                entity.FacultyProjectsPdfName = FacultyProjectsPdf.FileName;
+                var path = await SaveResearchFileAsync(FacultyProjectsPdf, "FacultyProjects");
+
+                if (path != null)
+                {
+                    if (!string.IsNullOrEmpty(entity.FacultyProjectsPdfPath) &&
+                        System.IO.File.Exists(entity.FacultyProjectsPdfPath))
+                    {
+                        System.IO.File.Delete(entity.FacultyProjectsPdfPath);
+                    }
+
+                    entity.FacultyProjectsPdfPath = path;
+                    entity.FacultyProjectsPdfName = FacultyProjectsPdf.FileName;
+                }
             }
 
             // ✅ Upload Clinical Trials PDF
             if (ClinicalTrialsPdf != null && ClinicalTrialsPdf.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await ClinicalTrialsPdf.CopyToAsync(ms);
-                entity.ClinicalTrialsPdf = ms.ToArray();
-                entity.ClinicalTrialsPdfName = ClinicalTrialsPdf.FileName;
+                var path = await SaveResearchFileAsync(ClinicalTrialsPdf, "ClinicalTrials");
+
+                if (path != null)
+                {
+                    if (!string.IsNullOrEmpty(entity.ClinicalTrialsPdfPath) &&
+                        System.IO.File.Exists(entity.ClinicalTrialsPdfPath))
+                    {
+                        System.IO.File.Delete(entity.ClinicalTrialsPdfPath);
+                    }
+
+                    entity.ClinicalTrialsPdfPath = path;
+                    entity.ClinicalTrialsPdfName = ClinicalTrialsPdf.FileName;
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -326,7 +362,27 @@ namespace Medical_Affiliation.Controllers
 
 
 
+        private async Task<string?> SaveResearchFileAsync(IFormFile file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\ResearchPublications";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
 
         // View PDF methods remain the same — just change entity name to singular
         [HttpGet]
@@ -342,14 +398,10 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewClinicalTrialsPdf() => await GetPdf("ClinicalTrials");
 
-        private async Task<IActionResult> GetPdf(string type)
+        private async Task<IActionResult> GetPdf(string type, string mode = "view")
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-
-            //var record = await _context.CaMedResearchPublicationsDetails
-            //    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode);
-
             var level = HttpContext.Session.GetString("CourseLevel");
 
             var record = await _context.CaMedResearchPublicationsDetails
@@ -358,16 +410,15 @@ namespace Medical_Affiliation.Controllers
                     x.FacultyCode == facultyCode &&
                     x.CourseLevel == level);
 
-
-
             if (record == null) return NotFound();
 
-            byte[]? file = type switch
+            // 🔥 Get file path instead of byte[]
+            string? filePath = type switch
             {
-                "Publications" => record.PublicationsPdf,
-                "StudentsProjects" => record.StudentsProjectsPdf,
-                "FacultyProjects" => record.FacultyProjectsPdf,
-                "ClinicalTrials" => record.ClinicalTrialsPdf,
+                "Publications" => record.PublicationsPdfPath,
+                "StudentsProjects" => record.StudentsProjectsPdfPath,
+                "FacultyProjects" => record.FacultyProjectsPdfPath,
+                "ClinicalTrials" => record.ClinicalTrialsPdfPath,
                 _ => null
             };
 
@@ -380,13 +431,31 @@ namespace Medical_Affiliation.Controllers
                 _ => null
             };
 
-            if (file == null || file.Length == 0 || string.IsNullOrEmpty(name))
-                return NotFound();
+            // 🔴 Validation
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                return NotFound("File not found");
 
-            Response.Headers["Content-Disposition"] = $"inline; filename=\"{name}\"";
-            return File(file, "application/pdf");
+            var fileName = string.IsNullOrEmpty(name)
+                ? Path.GetFileName(filePath)
+                : name;
+
+            // 🔥 Detect content type dynamically
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(filePath, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // 📥 DOWNLOAD MODE
+            if (mode == "download")
+            {
+                return PhysicalFile(filePath, contentType, fileName);
+            }
+
+            // 👀 PREVIEW MODE
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+            return PhysicalFile(filePath, contentType);
         }
-
 
         //
 
@@ -478,7 +547,7 @@ namespace Medical_Affiliation.Controllers
                 return View("CA_Med_ResearchPublicationsDetails", fullVm);
             }
 
-            // 🔴 DUPLICATE CHECK (Department + Activity)
+            // 🔴 DUPLICATE CHECK
             bool alreadyExists = await _context.CaMedLibOtherAcademicActivities.AnyAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
@@ -510,13 +579,24 @@ namespace Medical_Affiliation.Controllers
                 ActivityId = model.ActivityId
             };
 
-            // File upload
+            // 🔥 FILE PATH STORAGE
             if (model.ActivityPdf != null && model.ActivityPdf.Length > 0)
             {
-                using var ms = new MemoryStream();
-                await model.ActivityPdf.CopyToAsync(ms);
-                dbEntity.ActivityPdf = ms.ToArray();
-                dbEntity.ActivityPdfName = model.ActivityPdf.FileName;
+                string basePath = @"D:\Affiliation_Medical\OtherAcademicActivities";
+
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ActivityPdf.FileName);
+                string fullPath = Path.Combine(basePath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await model.ActivityPdf.CopyToAsync(stream);
+                }
+
+                dbEntity.ActivityPdfPath = fullPath;                 // ✅ PATH
+                dbEntity.ActivityPdfName = model.ActivityPdf.FileName; // ✅ NAME
             }
 
             _context.CaMedLibOtherAcademicActivities.Add(dbEntity);
@@ -529,8 +609,6 @@ namespace Medical_Affiliation.Controllers
 
 
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveCommitteeDetails(CA_Med_Lib_CommitteePostVM model)
@@ -539,23 +617,21 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var level = HttpContext.Session.GetString("CourseLevel");
 
-
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
 
-            // 🔴 RULE 1: All rows must be Yes or No
+            // 🔴 RULE 1
             bool hasUnselectedRows = model.Committees.Any(c => string.IsNullOrEmpty(c.IsPresent));
             if (hasUnselectedRows)
             {
-                TempData["Error"] =
-                    "Please select Yes or No for ALL committees before saving.";
+                TempData["Error"] = "Please select Yes or No for ALL committees before saving.";
 
                 var vm = await LoadFullViewModel();
                 vm.Committees = model.Committees;
                 return View("CA_Med_ResearchPublicationsDetails", vm);
             }
 
-            // 🔴 RULE 2: If YES → document MUST exist
+            // 🔴 RULE 2
             foreach (var item in model.Committees)
             {
                 if (item.IsPresent == "Y")
@@ -568,8 +644,7 @@ namespace Medical_Affiliation.Controllers
 
                     bool hasExistingFile =
                         existingRecord != null &&
-                        existingRecord.CommitteePdf != null &&
-                        !string.IsNullOrEmpty(existingRecord.CommitteePdfName);
+                        !string.IsNullOrEmpty(existingRecord.CommitteePdfPath);
 
                     bool hasNewFile =
                         item.CommitteePdf != null &&
@@ -578,8 +653,7 @@ namespace Medical_Affiliation.Controllers
                     if (!hasExistingFile && !hasNewFile)
                     {
                         TempData["Error"] =
-                            "You have selected YES for a committee but did not upload the document. " +
-                            "Please upload the document. If you do not have the document, select NO for that committee.";
+                            "You selected YES but did not upload document. Upload or select NO.";
 
                         var vm = await LoadFullViewModel();
                         vm.Committees = model.Committees;
@@ -588,7 +662,7 @@ namespace Medical_Affiliation.Controllers
                 }
             }
 
-            // 🔹 SAVE LOGIC (UNCHANGED)
+            // 🔹 SAVE LOGIC
             foreach (var item in model.Committees)
             {
                 var db = await _context.CaMedLibCommittees
@@ -604,30 +678,52 @@ namespace Medical_Affiliation.Controllers
                         CollegeCode = collegeCode!,
                         FacultyCode = facultyCode!,
                         CommitteeId = item.CommitteeId,
-                        CourseLevel = level   // ✅ ADD THIS
+                        CourseLevel = level
                     };
                     _context.CaMedLibCommittees.Add(db);
                 }
 
-
                 db.IsPresent = item.IsPresent;
-                db.CourseLevel = level;   // ✅ Keep updated always
-
+                db.CourseLevel = level;
 
                 if (item.IsPresent == "Y")
                 {
                     if (item.CommitteePdf != null && item.CommitteePdf.Length > 0)
                     {
-                        using var ms = new MemoryStream();
-                        await item.CommitteePdf.CopyToAsync(ms);
-                        db.CommitteePdf = ms.ToArray();
+                        string basePath = @"D:\Affiliation_Medical\CommitteeDocs";
+
+                        if (!Directory.Exists(basePath))
+                            Directory.CreateDirectory(basePath);
+
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(item.CommitteePdf.FileName);
+                        string fullPath = Path.Combine(basePath, fileName);
+
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await item.CommitteePdf.CopyToAsync(stream);
+                        }
+
+                        // 🔥 Delete old file
+                        if (!string.IsNullOrEmpty(db.CommitteePdfPath) &&
+                            System.IO.File.Exists(db.CommitteePdfPath))
+                        {
+                            System.IO.File.Delete(db.CommitteePdfPath);
+                        }
+
+                        db.CommitteePdfPath = fullPath;
                         db.CommitteePdfName = item.CommitteePdf.FileName;
                     }
-                    // else → keep existing file
                 }
                 else if (item.IsPresent == "N")
                 {
-                    db.CommitteePdf = null;
+                    // 🔥 Delete existing file if user selects NO
+                    if (!string.IsNullOrEmpty(db.CommitteePdfPath) &&
+                        System.IO.File.Exists(db.CommitteePdfPath))
+                    {
+                        System.IO.File.Delete(db.CommitteePdfPath);
+                    }
+
+                    db.CommitteePdfPath = null;
                     db.CommitteePdfName = null;
                 }
             }
@@ -639,22 +735,41 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-
-
         // View PDF methods (keep your existing ones + add for Other Activity)
-        [HttpGet]
         public async Task<IActionResult> ViewOtherActivityPdf(int id)
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             var record = await _context.CaMedLibOtherAcademicActivities
-                .FirstOrDefaultAsync(x => x.Id == id && x.CollegeCode == collegeCode && x.FacultyCode == facultyCode);
+                .FirstOrDefaultAsync(x => x.Id == id &&
+                                         x.CollegeCode == collegeCode &&
+                                         x.FacultyCode == facultyCode);
 
-            if (record == null || record.ActivityPdf == null) return NotFound();
+            if (record == null ||
+                string.IsNullOrEmpty(record.ActivityPdfPath))
+                return NotFound("Record not found");
 
-            Response.Headers.Add("Content-Disposition", $"inline; filename={record.ActivityPdfName}");
-            return File(record.ActivityPdf, "application/pdf");
+            // 🔥 CHECK FILE EXISTS (IMPORTANT)
+            if (!System.IO.File.Exists(record.ActivityPdfPath))
+            {
+                return NotFound("File not found on server. Please re-upload.");
+            }
+
+            var fileName = string.IsNullOrEmpty(record.ActivityPdfName)
+                ? Path.GetFileName(record.ActivityPdfPath)
+                : record.ActivityPdfName;
+
+            // 🔥 Detect content type
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(record.ActivityPdfPath, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+            return PhysicalFile(record.ActivityPdfPath, contentType);
         }
 
         [HttpGet]
@@ -664,7 +779,7 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
-                return NotFound();
+                return NotFound("Session expired");
 
             var record = await _context.CaMedLibCommittees
                 .FirstOrDefaultAsync(x =>
@@ -672,15 +787,29 @@ namespace Medical_Affiliation.Controllers
                     x.FacultyCode == facultyCode &&
                     x.CommitteeId == committeeId);
 
-            if (record == null || record.CommitteePdf == null)
-                return NotFound();
+            if (record == null || string.IsNullOrEmpty(record.CommitteePdfPath))
+                return NotFound("Record not found");
 
-            Response.Headers["Content-Disposition"] =
-                $"inline; filename=\"{record.CommitteePdfName}\"";
+            // 🔥 IMPORTANT FIX
+            if (!System.IO.File.Exists(record.CommitteePdfPath))
+                return NotFound("File not found on server. Please re-upload.");
 
-            return File(record.CommitteePdf, "application/pdf");
+            var fileName = string.IsNullOrEmpty(record.CommitteePdfName)
+                ? Path.GetFileName(record.CommitteePdfPath)
+                : record.CommitteePdfName;
+
+            // 🔥 Dynamic content type
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(record.CommitteePdfPath, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // 👀 Inline preview
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+            return PhysicalFile(record.CommitteePdfPath, contentType);
         }
-
 
         // Helper to reload full model (used in Edit and validation errors)
 

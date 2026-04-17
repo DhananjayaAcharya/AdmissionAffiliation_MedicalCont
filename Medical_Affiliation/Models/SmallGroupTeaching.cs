@@ -67,9 +67,9 @@ public partial class SmallGroupTeaching
 
     public string? ApprovedBuildingPlanPath { get; set; }
 
-    public byte[]? LandRecordsFile { get; set; }
+    public string? LandRecordsFilePath { get; set; }
 
-    public byte[]? ApprovedBuildingPlanFile { get; set; }
+    public string? ApprovedBuildingPlanFilePath { get; set; }
 
     public string? CourseLevel { get; set; }
 }

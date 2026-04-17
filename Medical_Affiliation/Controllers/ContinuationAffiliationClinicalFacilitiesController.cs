@@ -21,7 +21,27 @@ namespace Medical_Affiliation.Controllers
             _userContext = userContext;
             _context = context;
         }
+        private async Task<string?> SaveHospitalFileAsync(IFormFile? file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\HospitalDetails";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         public async Task<IActionResult> ClinicalFacilities()
         {
             var model = await _hospitalService.GetHospitalDetailsAsync(
@@ -211,7 +231,25 @@ namespace Medical_Affiliation.Controllers
             await file.CopyToAsync(ms);
             return ms.ToArray();
         }
+        private async Task<string?> SaveAffiliatedHospitalFileAsync(IFormFile? file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\AffiliatedHospitalDocs";
+            if (!Directory.Exists(basePath))
+                Directory.CreateDirectory(basePath);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(basePath, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveAffiliatedHospitalDocuments(AffiliatedHospitalDocumentsPostVM model)
@@ -226,7 +264,6 @@ namespace Medical_Affiliation.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    // Return structured JSON for AJAX
                     var errors = ModelState
                         .Where(ms => ms.Value.Errors.Count > 0)
                         .Select(ms => new
@@ -239,24 +276,33 @@ namespace Medical_Affiliation.Controllers
                     return BadRequest(new { errors });
                 }
 
-                // 1️⃣ Get all existing docs for this hospital
+                // 1️⃣ Existing records
                 var existingDocs = await _context.AffiliatedHospitalDocuments
                     .Where(d => d.CollegeCode == collegeCode && d.CourseLevel == courseLevel)
                     .ToListAsync();
 
-                // 2️⃣ Extract submitted document IDs
+                // 2️⃣ Submitted IDs
                 var submittedDocIds = model.Documents
                     .Where(d => d.DocumentId.HasValue)
                     .Select(d => d.DocumentId!.Value)
                     .ToList();
 
-                // 3️⃣ DELETE: DB docs NOT in submitted list
+                // 3️⃣ DELETE missing records + FILES 🔥
                 var toDelete = existingDocs
                     .Where(db => !submittedDocIds.Contains(db.DocumentId))
                     .ToList();
 
                 if (toDelete.Any())
                 {
+                    foreach (var item in toDelete)
+                    {
+                        if (!string.IsNullOrEmpty(item.DocumentFilePth) &&
+                            System.IO.File.Exists(item.DocumentFilePth))
+                        {
+                            System.IO.File.Delete(item.DocumentFilePth);
+                        }
+                    }
+
                     _context.AffiliatedHospitalDocuments.RemoveRange(toDelete);
                 }
 
@@ -273,18 +319,31 @@ namespace Medical_Affiliation.Controllers
                         existing.HospitalName = doc.HospitalName;
                         existing.TotalBeds = doc.TotalBeds;
 
-                        if (doc.DocumentFile != null)
+                        if (doc.DocumentFile != null && doc.DocumentFile.Length > 0)
                         {
-                            existing.DocumentFile =
-                                await ConvertToBytesAsync(doc.DocumentFile);
-                            existing.DocumentName = doc.DocumentFile.FileName;
+                            var filePath = await SaveAffiliatedHospitalFileAsync(doc.DocumentFile);
+
+                            if (filePath != null)
+                            {
+                                // 🔹 Delete old file
+                                if (!string.IsNullOrEmpty(existing.DocumentFilePth) &&
+                                    System.IO.File.Exists(existing.DocumentFilePth))
+                                {
+                                    System.IO.File.Delete(existing.DocumentFilePth);
+                                }
+
+                                existing.DocumentFilePth = filePath;
+                                existing.DocumentName = doc.DocumentFile.FileName;
+                            }
                         }
                     }
                     else
                     {
                         // ADD
-                        if (doc.DocumentFile == null)
+                        if (doc.DocumentFile == null || doc.DocumentFile.Length == 0)
                             continue;
+
+                        var filePath = await SaveAffiliatedHospitalFileAsync(doc.DocumentFile);
 
                         _context.AffiliatedHospitalDocuments.Add(
                             new AffiliatedHospitalDocument
@@ -295,9 +354,7 @@ namespace Medical_Affiliation.Controllers
                                 HospitalName = doc.HospitalName,
                                 TotalBeds = doc.TotalBeds,
                                 DocumentName = doc.DocumentFile.FileName,
-
-                                DocumentFile =
-                                    await ConvertToBytesAsync(doc.DocumentFile),
+                                DocumentFilePth = filePath, // ✅ FIXED
                                 CreatedDate = DateTime.UtcNow
                             });
                     }
@@ -316,7 +373,6 @@ namespace Medical_Affiliation.Controllers
                 return Unauthorized();
             }
         }
-
 
         private void ValidateAffiliatedHospitalDocuments(AffiliatedHospitalDocumentsPostVM model)
         {
@@ -337,7 +393,35 @@ namespace Medical_Affiliation.Controllers
                 //    ModelState.AddModelError($"Documents[{i}].CertificateNumber", "Certificate Number is required.");
             }
         }
+        public async Task<IActionResult> ViewHospitalDocument(int documentId, string mode = "view")
+        {
+            var doc = await _context.AffiliatedHospitalDocuments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.DocumentId == documentId);
 
+            if (doc == null ||
+                string.IsNullOrEmpty(doc.DocumentFilePth) ||
+                !System.IO.File.Exists(doc.DocumentFilePth))
+                return NotFound("File not found");
+
+            var fileName = Path.GetFileName(doc.DocumentFilePth);
+
+            // 🔥 Detect content type dynamically
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(doc.DocumentFilePth, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // 📥 Download mode
+            if (mode == "download")
+            {
+                return PhysicalFile(doc.DocumentFilePth, contentType, fileName);
+            }
+
+            // 👀 Preview mode (inline)
+            return PhysicalFile(doc.DocumentFilePth, contentType);
+        }
         private void ValidateClinicalHospitalDetails(ClinicalHospitalDetailsPostVM vm)
         {
             if (vm.Form == null)

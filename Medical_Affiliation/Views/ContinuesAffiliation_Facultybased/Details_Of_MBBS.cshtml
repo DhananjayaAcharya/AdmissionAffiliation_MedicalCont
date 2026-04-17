@@ -304,7 +304,20 @@
 
                     <div style="margin-top: 20px;">
                         <label>Previous Years Notification Copies (Upload)</label>
-                        <input asp-for="PreviousNotificationFiles" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                        <input asp-for="PreviousNotificationFiles" type="file" accept=".pdf" />
+                        @if (Model.HasPreviousNotificationFile)
+                        {
+                            <span class="file-badge">
+                                <i class="fas fa-circle-check"></i> File uploaded
+                            </span>
+
+                            <!-- ✅ VIEW BUTTON -->
+                            <a asp-action="PreviousNotification"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary">
+                                View Previous Notification
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
@@ -356,7 +369,7 @@
                         <div>
                             <label>GOK Order (Supporting Document)</label>
                             <div class="file-upload-wrapper">
-                               <input asp-for="GOKorder" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                               <input asp-for="GOKorder" type="file" accept=".pdf" />
                                @if (Model.HasGOKOrder)
                                {
                                    <span class="file-badge">
@@ -395,7 +408,7 @@
                         <div>
                             <label>Supporting Document (RGUHS Notification)</label>
                             <div class="file-upload-wrapper">
-                                <input asp-for="LastAffiliationRGUHSFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input asp-for="LastAffiliationRGUHSFile" type="file" accept=".pdf" />
                                 @if (Model.HasLastAffiliationFile)
                                 {
                                     <span class="file-badge">

@@ -29,11 +29,11 @@ public partial class FacultyDetail
 
     public string? DepartmentDetails { get; set; }
 
-    public byte[]? GuideRecognitionDoc { get; set; }
+    public string? GuideRecognitionDocPath { get; set; }
 
-    public byte[]? PhDrecognitionDoc { get; set; }
+    public string? PhDrecognitionDocPath { get; set; }
 
-    public byte[]? LitigationDoc { get; set; }
+    public string? LitigationDocPath { get; set; }
 
     public string? RemoveRemarks { get; set; }
 

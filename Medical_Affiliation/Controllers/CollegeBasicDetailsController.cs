@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Globalization;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -19,7 +20,27 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
+        private async Task<string?> SaveFileAsync(IFormFile? file, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+            string fullFolder = Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         private (string? FacultyCode, string? CollegeCode) GetSessionCodes()
         {
             return (
@@ -128,7 +149,7 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueCountLimit = 100000)]
-        public IActionResult Institution_Details(InstitutionViewModel vm, IFormFile? documentFile)
+        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile)
         {
             // 1. Re-apply session codes (never trust hidden fields for security)
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
@@ -186,14 +207,12 @@ namespace Medical_Affiliation.Controllers
             //    Only overwrite the stored document when a new file is actually submitted.
             if (documentFile != null && documentFile.Length > 0)
             {
-                using var ms = new MemoryStream();
-                documentFile.CopyTo(ms);
-                byte[] fileBytes = ms.ToArray();
+                var path = await SaveFileAsync(documentFile, "InstitutionDocs");
 
-                if (fileBytes.Length > 0)
+                if (path != null)
                 {
-                    entity.DocumentData = fileBytes;
-                    entity.DocumentName = Path.GetFileName(documentFile.FileName); // strip path for safety
+                    entity.DocumentDataPath = path;
+                    entity.DocumentName = documentFile.FileName;
                     entity.DocumentContentType = documentFile.ContentType;
                 }
             }
@@ -359,7 +378,7 @@ namespace Medical_Affiliation.Controllers
 
 
         [HttpGet]
-    public async Task<IActionResult> Aff_InstituteDetails()
+        public async Task<IActionResult> Aff_InstituteDetails()
         {
             var (facultyCode, collegeCode) = GetSessionCodes();
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
@@ -562,19 +581,44 @@ namespace Medical_Affiliation.Controllers
             entity.KncCertificateNumber = vm.KncCertificateNumber;
 
             // ★ AssignFileIfProvided skips null/empty uploads — existing DB bytes are untouched
-            await AssignFileIfProvided(GovAutonomousCertFile, b => entity.GovAutonomousCertFile = b);
-            await AssignFileIfProvided(GovCouncilMembershipFile, b => entity.GovCouncilMembershipFile = b);
-            await AssignFileIfProvided(GokOrderExistingCoursesFile, b => entity.GokOrderExistingCoursesFile = b);
-            await AssignFileIfProvided(FirstAffiliationNotifFile, b => entity.FirstAffiliationNotifFile = b);
-            await AssignFileIfProvided(ContinuationAffiliationFile, b => entity.ContinuationAffiliationFile = b);
-            await AssignFileIfProvided(KncCertificateFile, b => entity.KncCertificateFile = b);
-            await AssignFileIfProvided(AmendedDoc, b => entity.AmendedDoc = b);
-            await AssignFileIfProvided(AadhaarFile, b => entity.AadhaarFile = b);
-            await AssignFileIfProvided(PANFile, b => entity.Panfile = b);
-            await AssignFileIfProvided(BankStatementFile, b => entity.BankStatementFile = b);
-            await AssignFileIfProvided(RegistrationCertificateFile, b => entity.RegistrationCertificateFile = b);
-            await AssignFileIfProvided(RegisteredTrustMemberDetails, b => entity.RegisteredTrustMemberDetails = b);
-            await AssignFileIfProvided(AuditStatementFile, b => entity.AuditStatementFile = b);
+            var govAuto = await SaveFileAsync(GovAutonomousCertFile, "GovAutonomous");
+            if (govAuto != null) entity.GovAutonomousCertFilePath = govAuto;
+
+            var council = await SaveFileAsync(GovCouncilMembershipFile, "Council");
+            if (council != null) entity.GovCouncilMembershipFilePath = council;
+
+            var gok = await SaveFileAsync(GokOrderExistingCoursesFile, "GOK");
+            if (gok != null) entity.GokOrderExistingCoursesFilePath = gok;
+
+            var first = await SaveFileAsync(FirstAffiliationNotifFile, "FirstAffiliation");
+            if (first != null) entity.FirstAffiliationNotifFilePath = first;
+
+            var cont = await SaveFileAsync(ContinuationAffiliationFile, "Continuation");
+            if (cont != null) entity.ContinuationAffiliationFilePath = cont;
+
+            var knc = await SaveFileAsync(KncCertificateFile, "KNC");
+            if (knc != null) entity.KncCertificateFilePath = knc;
+
+            var amend = await SaveFileAsync(AmendedDoc, "Amendments");
+            if (amend != null) entity.AmendedDocPath = amend;
+
+            var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar");
+            if (aadhaar != null) entity.AadhaarFilePath = aadhaar;
+
+            var pan = await SaveFileAsync(PANFile, "PAN");
+            if (pan != null) entity.PanfilePath = pan;
+
+            var bank = await SaveFileAsync(BankStatementFile, "Bank");
+            if (bank != null) entity.BankStatementFilePath = bank;
+
+            var reg = await SaveFileAsync(RegistrationCertificateFile, "Registration");
+            if (reg != null) entity.RegistrationCertificateFilePath = reg;
+
+            var trust = await SaveFileAsync(RegisteredTrustMemberDetails, "TrustMembers");
+            if (trust != null) entity.RegisteredTrustMemberDetailsPath = trust;
+
+            var audit = await SaveFileAsync(AuditStatementFile, "Audit");
+            if (audit != null) entity.AuditStatementFilePath = audit;
 
             try
             {
@@ -607,83 +651,82 @@ namespace Medical_Affiliation.Controllers
         // ── HELPERS ──────────────────────────────────────────────────────────────────
 
 
-        private async Task<IActionResult> ServeFile(int id, Func<InstitutionBasicDetail, byte[]?> selector, string fileName)
+        private async Task<IActionResult> ServeFileFromPath(int id, Func<InstitutionBasicDetail, string?> selector)
         {
-            var entity = await _context.InstitutionBasicDetails.AsNoTracking()
-                                       .FirstOrDefaultAsync(x => x.InstitutionId == id);
+            var entity = await _context.InstitutionBasicDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.InstitutionId == id);
 
-            if (entity == null) return NotFound("Record not found.");
+            if (entity == null)
+                return NotFound("Record not found.");
 
-            var bytes = selector(entity);
-            if (bytes == null || bytes.Length == 0)
-                return NotFound("No file has been uploaded for this field yet.");
+            var path = selector(entity);
 
-            // Detect PDF vs image (simple magic-byte check)
-            string mime = "application/octet-stream";
-            if (bytes.Length >= 4)
+            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
+                return NotFound("File not found.");
+
+            var fileName = Path.GetFileName(path);
+
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(path, out string contentType))
             {
-                if (bytes[0] == 0x25 && bytes[1] == 0x50) mime = "application/pdf";          // %PDF
-                else if (bytes[0] == 0xFF && bytes[1] == 0xD8) mime = "image/jpeg";          // JPEG
-                else if (bytes[0] == 0x89 && bytes[1] == 0x50) mime = "image/png";           // PNG
+                contentType = "application/octet-stream";
             }
 
-            // Open inline in browser (not force-download)
-            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
-            return File(bytes, mime);
+            return PhysicalFile(path, contentType, fileName);
         }
-
         // ── Individual download endpoints ────────────────────────────────────────────
         [HttpGet]
         public Task<IActionResult> DownloadGovAutonomousCert(int id)
-            => ServeFile(id, e => e.GovAutonomousCertFile, "GovAutonomousCert.pdf");
+            => ServeFileFromPath(id, e => e.GovAutonomousCertFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadGovCouncilMembership(int id)
-            => ServeFile(id, e => e.GovCouncilMembershipFile, "GovCouncilMembership.pdf");
+            => ServeFileFromPath(id, e => e.GovCouncilMembershipFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadGokOrderExistingCourses(int id)
-            => ServeFile(id, e => e.GokOrderExistingCoursesFile, "GokOrderExistingCourses.pdf");
+            => ServeFileFromPath(id, e => e.GokOrderExistingCoursesFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadFirstAffiliationNotif(int id)
-            => ServeFile(id, e => e.FirstAffiliationNotifFile, "FirstAffiliationNotif.pdf");
+            => ServeFileFromPath(id, e => e.FirstAffiliationNotifFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadContinuationAffiliation(int id)
-            => ServeFile(id, e => e.ContinuationAffiliationFile, "ContinuationAffiliation.pdf");
+            => ServeFileFromPath(id, e => e.ContinuationAffiliationFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadKncCertificate(int id)
-            => ServeFile(id, e => e.KncCertificateFile, "KncCertificate.pdf");
+            => ServeFileFromPath(id, e => e.KncCertificateFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAmendedDoc(int id)
-            => ServeFile(id, e => e.AmendedDoc, "AmendedDoc.pdf");
+            => ServeFileFromPath(id, e => e.AmendedDocPath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAadhaarFile(int id)
-            => ServeFile(id, e => e.AadhaarFile, "Aadhaar.pdf");
+            => ServeFileFromPath(id, e => e.AadhaarFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadPANFile(int id)
-            => ServeFile(id, e => e.Panfile, "PAN.pdf");
+            => ServeFileFromPath(id, e => e.PanfilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadBankStatement(int id)
-            => ServeFile(id, e => e.BankStatementFile, "BankStatement.pdf");
+            => ServeFileFromPath(id, e => e.BankStatementFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadRegistrationCertificate(int id)
-            => ServeFile(id, e => e.RegistrationCertificateFile, "RegistrationCertificate.pdf");
+            => ServeFileFromPath(id, e => e.RegistrationCertificateFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadRegisteredTrustMemberDetails(int id)
-            => ServeFile(id, e => e.RegisteredTrustMemberDetails, "RegisteredTrustMemberDetails.pdf");
+            => ServeFileFromPath(id, e => e.RegisteredTrustMemberDetailsPath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAuditStatement(int id)
-            => ServeFile(id, e => e.AuditStatementFile, "AuditStatement.pdf");
+            => ServeFileFromPath(id, e => e.AuditStatementFilePath);
 
         private async Task<List<SelectListItem>> LoadInstitutionTypeList(string facultyCode)
         {

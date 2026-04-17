@@ -493,6 +493,8 @@ namespace Medical_Affiliation.Models
         // For viewing already uploaded files (byte arrays from DB)
         public bool HasGOKOrder { get; set; }
         public bool HasLastAffiliationFile { get; set; }
+
+        public bool HasPreviousNotificationFile { get; set; }
     }
     public class DeanDetailsViewModel
     {

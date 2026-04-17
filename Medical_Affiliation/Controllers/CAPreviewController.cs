@@ -32,17 +32,17 @@ namespace Medical_Affiliation.Controllers
                 .Where(x => x.CourseCurriculumId == id)
                 .Select(x => new
                 {
-                    x.CurriculumPdf,
+                    x.CurriculumPdfPath,
                     x.PdfFileName
                 })
                 .FirstOrDefaultAsync();
 
-            if (file == null || file.CurriculumPdf == null)
+            if (file == null || file.CurriculumPdfPath == null)
                 return NotFound();
 
-            return File(file.CurriculumPdf, "application/pdf");
+            return PhysicalFile(file.CurriculumPdfPath, "application/pdf");
         }
-        public async Task<IActionResult> PreviewHospitalDocument(int id)
+        public async Task<IActionResult> PreviewHospitalDocument(int id, string mode = "view")
         {
             var file = await _context.AffiliatedHospitalDocuments
                 .AsNoTracking()
@@ -50,14 +50,32 @@ namespace Medical_Affiliation.Controllers
                 .Select(x => new
                 {
                     x.DocumentName,
-                    x.DocumentFile
+                    x.DocumentFilePth
                 })
                 .FirstOrDefaultAsync();
 
-            if (file == null || file.DocumentFile == null)
-                return NotFound();
+            if (file == null ||
+                string.IsNullOrEmpty(file.DocumentFilePth) ||
+                !System.IO.File.Exists(file.DocumentFilePth))
+                return NotFound("File not found");
 
-            return File(file.DocumentFile, "application/pdf");
+            var fileName = Path.GetFileName(file.DocumentFilePth);
+
+            // 🔥 Detect content type dynamically
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(file.DocumentFilePth, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // 📥 Download mode
+            if (mode == "download")
+            {
+                return PhysicalFile(file.DocumentFilePth, contentType, fileName);
+            }
+
+            // 👀 Preview mode (inline)
+            return PhysicalFile(file.DocumentFilePth, contentType);
         }
         public async Task<IActionResult> ViewServiceFile(int id)
         {
@@ -67,14 +85,14 @@ namespace Medical_Affiliation.Controllers
                 .Select(x => new
                 {
                     x.UploadedFileName,
-                    x.UploadedPdf
+                    x.UploadedPdfPath
                 })
                 .FirstOrDefaultAsync();
 
-            if (file == null || file.UploadedPdf == null)
+            if (file == null || file.UploadedPdfPath == null)
                 return NotFound();
 
-            return File(file.UploadedPdf, "application/pdf");
+            return PhysicalFile(file.UploadedPdfPath, "application/pdf");
         }
         public async Task<IActionResult> ViewSpecialFeaturesPdf(int id)
         {
@@ -84,14 +102,14 @@ namespace Medical_Affiliation.Controllers
                 .Select(x => new
                 {
                     x.UploadedFileName,
-                    x.SpecialFeaturesAchievementspdf
+                    x.SpecialFeaturesAchievementspdfPath
                 })
                 .FirstOrDefaultAsync();
 
-            if (file == null || file.SpecialFeaturesAchievementspdf == null)
+            if (file == null || file.SpecialFeaturesAchievementspdfPath == null)
                 return NotFound();
 
-            return File(file.SpecialFeaturesAchievementspdf, "application/pdf");
+            return File(file.SpecialFeaturesAchievementspdfPath, "application/pdf");
         }
 
         public async Task<IActionResult> ViewGoverningCouncilPdf(int id)
@@ -101,14 +119,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.Id == id)
                 .Select(e => new
                 {
-                    e.GoverningCouncilPdf,
+                    e.GoverningCouncilPdfPath,
                     e.GoverningCouncilPdfName
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.GoverningCouncilPdf == null) return NotFound();
+            if (gov == null || gov.GoverningCouncilPdfPath == null) return NotFound();
 
-            return File(gov.GoverningCouncilPdf, "application/pdf");
+            return File(gov.GoverningCouncilPdfPath, "application/pdf");
 
         }
 
@@ -119,14 +137,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.Id == id)
                 .Select(e => new
                 {
-                    e.AccountSummaryPdf,
+                    e.AccountSummaryPdfPath,
                     e.AccountSummaryPdfName
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.AccountSummaryPdf == null) return NotFound();
+            if (gov == null || gov.AccountSummaryPdfPath == null) return NotFound();
 
-            return File(gov.AccountSummaryPdf, "application/pdf");
+            return File(gov.AccountSummaryPdfPath, "application/pdf");
 
         }
 
@@ -137,14 +155,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.Id == id)
                 .Select(e => new
                 {
-                    e.AuditedStatementPdf,
+                    e.AuditedStatementPdfPath,
                     e.AuditedStatementPdfName
                 })
                 .FirstOrDefaultAsync();
+                
+            if (gov == null || gov.AuditedStatementPdfPath == null) return NotFound();
 
-            if (gov == null || gov.AuditedStatementPdf == null) return NotFound();
-
-            return File(gov.AuditedStatementPdf, "application/pdf");
+            return File(gov.AuditedStatementPdfPath, "application/pdf");
 
         }
         public async Task<IActionResult> ViewExaminerDetailsPdf(int id)
@@ -154,14 +172,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.Id == id)
                 .Select(e => new
                 {
-                    e.ExaminerDetailsPdf,
+                    e.ExaminerDetailsPdfPath,
                     e.ExaminerDetailsPdfName
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.ExaminerDetailsPdf == null) return NotFound();
+            if (gov == null || gov.ExaminerDetailsPdfPath == null) return NotFound();
 
-            return File(gov.ExaminerDetailsPdf, "application/pdf");
+            return File(gov.ExaminerDetailsPdfPath, "application/pdf");
 
         }
         public async Task<IActionResult> ViewAebasLastThreeMonthsPdf(int id)
@@ -171,14 +189,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.Id == id)
                 .Select(e => new
                 {
-                    e.AebaslastThreeMonthsPdf,
+                    e.AebaslastThreeMonthsPdfPath,
                     e.AebaslastThreeMonthsPdfName
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.AebaslastThreeMonthsPdf == null) return NotFound();
+            if (gov == null || gov.AebaslastThreeMonthsPdfPath == null) return NotFound();
 
-            return File(gov.AebaslastThreeMonthsPdf, "application/pdf");
+            return File(gov.AebaslastThreeMonthsPdfPath, "application/pdf");
 
         }
         public async Task<IActionResult> ViewAebasInspectionDayPdf(int id)
@@ -188,14 +206,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.Id == id)
                 .Select(e => new
                 {
-                    e.AebasinspectionDayPdf,
+                    e.AebasinspectionDayPdfPath,
                     e.AebasinspectionDayPdfName
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.AebasinspectionDayPdf == null) return NotFound();
+            if (gov == null || gov.AebasinspectionDayPdfPath == null) return NotFound();
 
-            return File(gov.AebasinspectionDayPdf, "application/pdf");
+            return File(gov.AebasinspectionDayPdfPath, "application/pdf");
 
         }
         public async Task<IActionResult> ViewProvidentFundPdf(int id)
@@ -205,14 +223,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.Id == id)
                 .Select(e => new
                 {
-                    e.ProvidentFundPdf,
+                    e.ProvidentFundPdfPath,
                     e.ProvidentFundPdfName
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.ProvidentFundPdf == null) return NotFound();
+            if (gov == null || gov.ProvidentFundPdfPath == null) return NotFound();
 
-            return File(gov.ProvidentFundPdf, "application/pdf");
+            return File(gov.ProvidentFundPdfPath, "application/pdf");
 
         }
         public async Task<IActionResult> ViewEsipdf(int id)
@@ -222,14 +240,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.Id == id)
                 .Select(e => new
                 {
-                    e.Esipdf,
+                    e.EsipdfPath,
                     e.EsipdfName
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.Esipdf == null) return NotFound();
+            if (gov == null || gov.EsipdfPath == null) return NotFound();
 
-            return File(gov.Esipdf, "application/pdf");
+            return File(gov.EsipdfPath, "application/pdf");
 
         }
 

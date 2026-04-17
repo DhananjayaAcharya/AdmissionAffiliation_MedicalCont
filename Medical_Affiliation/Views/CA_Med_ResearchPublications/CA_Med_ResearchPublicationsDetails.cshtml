@@ -48,18 +48,21 @@
             border-bottom: 3px solid var(--gold);
         }
 
-        .page-header .emblem {
-            width: 54px; height: 54px;
-            border: 2px solid var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+            .page-header .emblem {
+                width: 54px;
+                height: 54px;
+                border: 2px solid var(--gold);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
 
-        .page-header .emblem svg {
-            width: 28px; height: 28px; fill: var(--gold);
-        }
+                .page-header .emblem svg {
+                    width: 28px;
+                    height: 28px;
+                    fill: var(--gold);
+                }
 
         .page-header-text h1 {
             font-family: 'Playfair Display', serif;
@@ -93,8 +96,15 @@
         }
 
         @@keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .section-header {
@@ -106,22 +116,23 @@
             background: #fafbfc;
         }
 
-        .section-header .icon-wrap {
-            width: 38px; height: 38px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--accent-lt);
-        }
+            .section-header .icon-wrap {
+                width: 38px;
+                height: 38px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--accent-lt);
+            }
 
-        .section-header h2 {
-            font-size: 1.02rem;
-            font-weight: 600;
-            letter-spacing: .03em;
-            color: var(--ink);
-            margin: 0;
-        }
+            .section-header h2 {
+                font-size: 1.02rem;
+                font-weight: 600;
+                letter-spacing: .03em;
+                color: var(--ink);
+                margin: 0;
+            }
 
         .section-body {
             padding: 1.75rem;
@@ -132,24 +143,24 @@
             border-collapse: collapse;
         }
 
-        .custom-table th, .custom-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
+            .custom-table th, .custom-table td {
+                padding: 12px 16px;
+                border-bottom: 1px solid var(--border);
+                vertical-align: middle;
+            }
 
-        .custom-table th {
-            background: #f8f9fc;
-            color: var(--ink-mid);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.76rem;
-            letter-spacing: 0.05em;
-        }
+            .custom-table th {
+                background: #f8f9fc;
+                color: var(--ink-mid);
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.76rem;
+                letter-spacing: 0.05em;
+            }
 
-        .custom-table tr:hover {
-            background: #f8fbff;
-        }
+            .custom-table tr:hover {
+                background: #f8fbff;
+            }
 
         .form-control {
             font-size: 0.875rem;
@@ -159,11 +170,11 @@
             padding: 9px 13px;
         }
 
-        .form-control:focus {
-            border-color: var(--accent);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(26,76,139,.1);
-        }
+            .form-control:focus {
+                border-color: var(--accent);
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+            }
 
         .custom-upload-btn {
             display: inline-flex;
@@ -179,10 +190,10 @@
             transition: all 0.2s;
         }
 
-        .custom-upload-btn:hover {
-            background: #1564c0;
-            transform: translateY(-1px);
-        }
+            .custom-upload-btn:hover {
+                background: #1564c0;
+                transform: translateY(-1px);
+            }
 
         input[type="file"] {
             display: none !important;
@@ -204,10 +215,10 @@
             box-shadow: 0 3px 14px rgba(26,76,139,.3);
         }
 
-        .btn-primary:hover {
-            box-shadow: 0 5px 20px rgba(26,76,139,.4);
-            transform: translateY(-1px);
-        }
+            .btn-primary:hover {
+                box-shadow: 0 5px 20px rgba(26,76,139,.4);
+                transform: translateY(-1px);
+            }
 
         .btn-success {
             background: linear-gradient(135deg, #1e7e4e, #27ae60);
@@ -215,10 +226,10 @@
             box-shadow: 0 3px 14px rgba(30,126,78,.3);
         }
 
-        .btn-success:hover {
-            box-shadow: 0 5px 20px rgba(30,126,78,.4);
-            transform: translateY(-1px);
-        }
+            .btn-success:hover {
+                box-shadow: 0 5px 20px rgba(30,126,78,.4);
+                transform: translateY(-1px);
+            }
 
         .btn-secondary {
             background: transparent;
@@ -226,15 +237,39 @@
             color: var(--ink-muted);
         }
 
-        .btn-secondary:hover {
-            border-color: var(--ink-mid);
-            color: var(--ink);
-        }
+            .btn-secondary:hover {
+                border-color: var(--ink-mid);
+                color: var(--ink);
+            }
 
         .check-label {
             font-weight: 500;
             cursor: pointer;
         }
+
+        /* File name display */
+        .file-name-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 10px;
+            font-size: 0.82rem;
+            color: var(--ink-mid);
+            background: #eef2f8;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 10px;
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+            .file-name-display i {
+                color: var(--accent);
+                flex-shrink: 0;
+            }
     </style>
 
     <link rel="stylesheet" href="~/css/common-form.css" />
@@ -245,8 +280,8 @@
     <div class="page-header">
         <div class="emblem">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z"/>
-                <path d="M14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z"/>
+                <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" />
+                <path d="M14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z" />
             </svg>
         </div>
         <div class="page-header-text">
@@ -277,10 +312,14 @@
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Upload Publications PDF <span class="text-danger">*</span></label>
                             <label for="publicationsPdf" class="custom-upload-btn">
-                                <i class="bi bi-upload"></i> Upload PDF
+                                <i class="bi bi-upload"></i> Choose File
                             </label>
-                            <input type="file" id="publicationsPdf" name="PublicationsPdf" accept="application/pdf" />
-                            <span asp-validation-for="PublicationsPdf" class="text-danger"></span>
+                            <input type="file" id="publicationsPdf" name="PublicationsPdf" accept="application/pdf" onchange="handleFileChange(this, 'publicationsPdfName')" />
+                            <span class="file-name-display" id="publicationsPdfName" style="display:none;">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                                <span class="name-text"></span>
+                            </span>
+                            <span asp-validation-for="PublicationsPdf" class="text-danger d-block mt-1"></span>
 
                             @if (!string.IsNullOrEmpty(Model.PublicationsPdfName))
                             {
@@ -331,10 +370,14 @@
                     <div class="mt-4 pt-3 border-top">
                         <label class="form-label fw-semibold">Upload Students Projects PDF <span class="text-danger">*</span></label>
                         <label for="studentsProjectsPdf" class="custom-upload-btn">
-                            <i class="bi bi-upload"></i> Upload PDF
+                            <i class="bi bi-upload"></i> Choose File
                         </label>
-                        <input type="file" id="studentsProjectsPdf" name="StudentsProjectsPdf" accept="application/pdf" />
-                        <span asp-validation-for="StudentsProjectsPdf" class="text-danger"></span>
+                        <input type="file" id="studentsProjectsPdf" name="StudentsProjectsPdf" accept="application/pdf" onchange="handleFileChange(this, 'studentsProjectsPdfName')" />
+                        <span class="file-name-display" id="studentsProjectsPdfName" style="display:none;">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            <span class="name-text"></span>
+                        </span>
+                        <span asp-validation-for="StudentsProjectsPdf" class="text-danger d-block mt-1"></span>
 
                         @if (!string.IsNullOrEmpty(Model.StudentsProjectsPdfName))
                         {
@@ -348,10 +391,14 @@
                     <div class="mt-4">
                         <label class="form-label fw-semibold">Upload Faculty Projects PDF <span class="text-danger">*</span></label>
                         <label for="facultyProjectsPdf" class="custom-upload-btn">
-                            <i class="bi bi-upload"></i> Upload PDF
+                            <i class="bi bi-upload"></i> Choose File
                         </label>
-                        <input type="file" id="facultyProjectsPdf" name="FacultyProjectsPdf" accept="application/pdf" />
-                        <span asp-validation-for="FacultyProjectsPdf" class="text-danger"></span>
+                        <input type="file" id="facultyProjectsPdf" name="FacultyProjectsPdf" accept="application/pdf" onchange="handleFileChange(this, 'facultyProjectsPdfName')" />
+                        <span class="file-name-display" id="facultyProjectsPdfName" style="display:none;">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            <span class="name-text"></span>
+                        </span>
+                        <span asp-validation-for="FacultyProjectsPdf" class="text-danger d-block mt-1"></span>
 
                         @if (!string.IsNullOrEmpty(Model.FacultyProjectsPdfName))
                         {
@@ -376,10 +423,14 @@
                     <div class="section-body">
                         <label class="form-label fw-semibold">Upload Clinical Trials PDF <span class="text-danger">*</span></label>
                         <label for="clinicalTrialsPdf" class="custom-upload-btn">
-                            <i class="bi bi-upload"></i> Upload PDF
+                            <i class="bi bi-upload"></i> Choose File
                         </label>
-                        <input type="file" id="clinicalTrialsPdf" name="ClinicalTrialsPdf" accept="application/pdf" />
-                        <span asp-validation-for="ClinicalTrialsPdf" class="text-danger"></span>
+                        <input type="file" id="clinicalTrialsPdf" name="ClinicalTrialsPdf" accept="application/pdf" onchange="handleFileChange(this, 'clinicalTrialsPdfName')" />
+                        <span class="file-name-display" id="clinicalTrialsPdfName" style="display:none;">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            <span class="name-text"></span>
+                        </span>
+                        <span asp-validation-for="ClinicalTrialsPdf" class="text-danger d-block mt-1"></span>
 
                         @if (!string.IsNullOrEmpty(Model.ClinicalTrialsPdfName))
                         {
@@ -393,16 +444,16 @@
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-between align-items-center mt-5">
-                <a asp-controller="Medical_ContinuousAffiliation" 
-                   asp-action="Medical_DepartmentOfficesAndEducationalUnit" 
+                <a asp-controller="Medical_ContinuousAffiliation"
+                   asp-action="Medical_DepartmentOfficesAndEducationalUnit"
                    class="btn btn-secondary">← Previous</a>
 
                 <button type="submit" class="btn btn-success">
                     <i class="bi bi-cloud-arrow-up me-2"></i>Save Research & Publication Details
                 </button>
 
-                <a asp-controller="Aff_CA_MedicalLibrary" 
-                   asp-action="Aff_CA_Medical_LibraryDetails" 
+                <a asp-controller="Aff_CA_MedicalLibrary"
+                   asp-action="Aff_CA_Medical_LibraryDetails"
                    class="btn btn-primary">Next → Library Details</a>
             </div>
         </form>
@@ -444,9 +495,13 @@
                             <div class="col-md-3">
                                 <label class="form-label">Upload PDF <span class="text-danger">*</span></label>
                                 <label for="activityPdf" class="custom-upload-btn w-100 justify-content-center">
-                                    <i class="bi bi-upload"></i> Choose PDF
+                                    <i class="bi bi-upload"></i> Choose File
                                 </label>
-                                <input type="file" id="activityPdf" name="ActivityPdf" accept="application/pdf" style="display:none;" required />
+                                <input type="file" id="activityPdf" name="ActivityPdf" accept="application/pdf" style="display:none;" required onchange="handleFileChange(this, 'activityPdfName')" />
+                                <span class="file-name-display" id="activityPdfName" style="display:none;">
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                    <span class="name-text"></span>
+                                </span>
                             </div>
                             <div class="col-md-1">
                                 <button type="submit" class="btn btn-success w-100">Save</button>
@@ -472,16 +527,16 @@
                                         <td>@row.DepartmentWise</td>
                                         <td>@row.ActivityName</td>
                                         <td>
-                                            <a asp-action="ViewOtherActivityPdf" asp-route-id="@row.Id" 
+                                            <a asp-action="ViewOtherActivityPdf" asp-route-id="@row.Id"
                                                class="btn btn-secondary btn-sm" target="_blank">
                                                 <i class="bi bi-eye"></i> View
                                             </a>
                                         </td>
                                         <td class="text-center">
-                                            <form asp-action="DeleteOtherAcademicActivity" asp-route-id="@row.Id" 
+                                            <form asp-action="DeleteOtherAcademicActivity" asp-route-id="@row.Id"
                                                   method="post" style="display:inline;">
                                                 @Html.AntiForgeryToken()
-                                                <button type="button" class="btn btn-secondary btn-sm text-danger" 
+                                                <button type="button" class="btn btn-secondary btn-sm text-danger"
                                                         onclick="confirmDelete(this)">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
@@ -542,13 +597,18 @@
                                         <td>
                                             <div class="file-upload-wrapper" style="display:@(committee.IsPresent == "Y" ? "block" : "none")">
                                                 <label for="committeePdf_@i" class="custom-upload-btn">
-                                                    <i class="bi bi-upload"></i> Upload PDF
+                                                    <i class="bi bi-upload"></i> Choose File
                                                 </label>
-                                                <input type="file" id="committeePdf_@i" name="Committees[@i].CommitteePdf" 
-                                                       accept="application/pdf" />
+                                                <input type="file" id="committeePdf_@i" name="Committees[@i].CommitteePdf"
+                                                       accept="application/pdf"
+                                                       onchange="handleFileChange(this, 'committeePdfName_@i')" />
+                                                <span class="file-name-display" id="committeePdfName_@i" style="display:none;">
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                    <span class="name-text"></span>
+                                                </span>
                                                 @if (!string.IsNullOrEmpty(committee.CommitteePdfName))
                                                 {
-                                                    <a asp-action="ViewCommitteePdf" asp-route-committeeId="@committee.CommitteeId" 
+                                                    <a asp-action="ViewCommitteePdf" asp-route-committeeId="@committee.CommitteeId"
                                                        target="_blank" class="btn btn-secondary mt-2 d-inline-block">
                                                         <i class="bi bi-eye"></i> View
                                                     </a>
@@ -575,6 +635,49 @@
         <partial name="_ValidationScriptsPartial" />
 
         <script>
+            // File validation: PDF only, max 2MB, show filename
+            function handleFileChange(input, displayId) {
+                const file = input.files[0];
+                const display = document.getElementById(displayId);
+
+                if (!file) {
+                    if (display) display.style.display = 'none';
+                    return;
+                }
+
+                // PDF type check
+                if (file.type !== 'application/pdf') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid File Type',
+                        text: 'Only PDF files are allowed.',
+                        confirmButtonColor: '#d33'
+                    });
+                    input.value = '';
+                    if (display) display.style.display = 'none';
+                    return;
+                }
+
+                // 2MB size check
+                if (file.size > 2 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'File Too Large',
+                        text: 'File size must not exceed 2MB.',
+                        confirmButtonColor: '#d33'
+                    });
+                    input.value = '';
+                    if (display) display.style.display = 'none';
+                    return;
+                }
+
+                // Show filename
+                if (display) {
+                    display.querySelector('.name-text').textContent = file.name;
+                    display.style.display = 'inline-flex';
+                }
+            }
+
             // Confirm Delete for Other Academic Activities
             function confirmDelete(button) {
                 const form = button.closest('form');
@@ -612,29 +715,29 @@
             // SweetAlert for TempData messages
             @if (TempData["Error"] != null)
             {
-                <text>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Save Failed',
-                    text: '@TempData["Error"]',
-                    timer: 10000,
-                    confirmButtonColor: '#d33'
-                });
-                </text>
+                    <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Save Failed',
+                        text: '@TempData["Error"]',
+                        timer: 10000,
+                        confirmButtonColor: '#d33'
+                    });
+                    </text>
             }
 
             @if (TempData["Success"] != null && Context.Request.Method == "POST")
             {
-                <text>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '@TempData["Success"]',
-                    confirmButtonColor: '#198754',
-                    timer: 2500,
-                    timerProgressBar: true
-                });
-                </text>
+                    <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: '@TempData["Success"]',
+                        confirmButtonColor: '#198754',
+                        timer: 2500,
+                        timerProgressBar: true
+                    });
+                    </text>
             }
         </script>
     }

@@ -145,7 +145,7 @@ namespace Medical_Affiliation.Services.Faculty
                     DateOfRecognition = x.Dateofrecognition,
                     YearOfObtainingEcAndFc = x.YearofObtainingEcandFc.HasValue ? x.YearofObtainingEcandFc.Value.Year.ToString() : null,
                     SanctionedIntakeEcFc = x.SannctionedIntakeEcFc,
-                    HasGokOrder = x.Gokorder != null
+                    HasGokOrder = x.GokorderPath != null
                 })
                 .FirstOrDefaultAsync();
 

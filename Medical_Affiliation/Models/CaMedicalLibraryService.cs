@@ -19,7 +19,7 @@ public partial class CaMedicalLibraryService
 
     public string? UploadedFileName { get; set; }
 
-    public byte[]? UploadedPdf { get; set; }
+    public string? UploadedPdfPath { get; set; }
 
     public DateTime? CreatedDate { get; set; }
 

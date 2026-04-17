@@ -1,5 +1,6 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +59,7 @@ namespace Medical_Affiliation.Controllers
         // ──────────────────────────────────────────────────────────
         //  GET
         // ──────────────────────────────────────────────────────────
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
         public IActionResult Repo_FacultyDetails()
         {
@@ -127,9 +129,9 @@ namespace Medical_Affiliation.Controllers
                           DepartmentDetails = departmentsList,
                           RecognizedPhDTeacher = f1.RecognizedPhDteacher,
                           LitigationPending = f1.LitigationPending,
-                          PhDRecognitionDocData = f1.PhDrecognitionDoc,
-                          LitigationDocData = f1.LitigationDoc,
-                          PGRecognitionDocData = f1.GuideRecognitionDoc,
+                          PhDRecognitionDocData = f1.PhDrecognitionDocPath,
+                          LitigationDocData = f1.LitigationDocPath,
+                          PGRecognitionDocData = f1.GuideRecognitionDocPath,
                           IsExaminer = f1.IsExaminer,
                           ExaminerFor = f1.ExaminerFor,
                           ExaminerForList = !string.IsNullOrEmpty(f1.ExaminerFor)
@@ -179,12 +181,34 @@ namespace Medical_Affiliation.Controllers
             return View(vmList);
         }
 
+        private async Task<string?> SaveFacultyFileAsync(IFormFile? file, string subFolder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            string basePath = @"D:\Affiliation_Medical\FacultyDetails";
+            string fullFolder = Path.Combine(basePath, subFolder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
+
         // ──────────────────────────────────────────────────────────
         //  POST
         // ──────────────────────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Repo_FacultyDetails(IList<FacultyDetailsViewModel> model)
+        public async Task<IActionResult> Repo_FacultyDetails(IList<FacultyDetailsViewModel> model)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             string facultyCode = HttpContext.Session.GetString("FacultyCode");
@@ -234,10 +258,9 @@ namespace Medical_Affiliation.Controllers
                     string recognizedPhD = m.RecognizedPhDTeacher?.Trim() ?? "";
                     string litigation = m.LitigationPending?.Trim() ?? "";
 
-                    byte[] guideDocBytes = m.GuideRecognitionDoc != null ? ConvertFileToBytes(m.GuideRecognitionDoc) : null;
-                    byte[] phdDocBytes = m.PhDRecognitionDoc != null ? ConvertFileToBytes(m.PhDRecognitionDoc) : null;
-                    byte[] litigDocBytes = m.LitigationDoc != null ? ConvertFileToBytes(m.LitigationDoc) : null;
-
+                    var guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs");
+                    var phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs");
+                    var litigPath = await SaveFacultyFileAsync(m.LitigationDoc, "LitigationDocs");
                     string examinerFor = m.ExaminerForList != null && m.ExaminerForList.Any()
                                             ? string.Join(",", m.ExaminerForList)
                                             : null;
@@ -261,9 +284,9 @@ namespace Medical_Affiliation.Controllers
                         existing.IsRemoved = false;
                         existing.RemoveRemarks = null;
 
-                        if (guideDocBytes != null) existing.GuideRecognitionDoc = guideDocBytes;
-                        if (phdDocBytes != null) existing.PhDrecognitionDoc = phdDocBytes;
-                        if (litigDocBytes != null) existing.LitigationDoc = litigDocBytes;
+                        if (guidePath != null) existing.GuideRecognitionDocPath = guidePath;
+                        if (phdPath != null) existing.PhDrecognitionDocPath = phdPath;
+                        if (litigPath != null) existing.LitigationDocPath = litigPath;
 
                         _context.FacultyDetails.Update(existing);
                     }
@@ -283,9 +306,9 @@ namespace Medical_Affiliation.Controllers
                             Pan = pan,
                             Aadhaar = aadhaar,
                             DepartmentDetails = dept,
-                            GuideRecognitionDoc = guideDocBytes,
-                            PhDrecognitionDoc = phdDocBytes,
-                            LitigationDoc = litigDocBytes,
+                            GuideRecognitionDocPath = guidePath,
+                            PhDrecognitionDocPath = phdPath,
+                            LitigationDocPath = litigPath,
                             IsExaminer = m.IsExaminer,
                             ExaminerFor = examinerFor,
                             IsRemoved = false,
@@ -333,40 +356,48 @@ namespace Medical_Affiliation.Controllers
             if (faculty == null)
                 return NotFound();
 
-            byte[] fileBytes = null;
-            string fileName = $"{type}_document.pdf";
+            string filePath = null;
 
             switch (type.ToLower())
             {
                 case "pg":
-                    fileBytes = faculty.GuideRecognitionDoc;
+                    filePath = faculty.GuideRecognitionDocPath;
                     break;
 
                 case "phd":
-                    fileBytes = faculty.PhDrecognitionDoc;
+                    filePath = faculty.PhDrecognitionDocPath;
                     break;
 
                 case "litig":
-                    fileBytes = faculty.LitigationDoc;
+                    filePath = faculty.LitigationDocPath;
                     break;
 
                 default:
                     return BadRequest("Invalid document type.");
             }
 
-            if (fileBytes == null)
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
                 return NotFound("Document not uploaded.");
+
+            // 🔹 Get file name
+            var fileName = Path.GetFileName(filePath);
+
+            // 🔹 Detect content type
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(filePath, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
 
             if (mode == "download")
             {
                 // 📥 FORCE DOWNLOAD
-                return File(fileBytes, "application/octet-stream", fileName);
+                return PhysicalFile(filePath, contentType, fileName);
             }
 
             // 👀 VIEW IN BROWSER
-            return File(fileBytes, "application/pdf");
+            return PhysicalFile(filePath, contentType);
         }
-
         private byte[] ConvertFileToBytes(IFormFile formFile)
         {
             using (var ms = new MemoryStream())

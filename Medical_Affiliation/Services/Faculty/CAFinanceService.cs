@@ -57,9 +57,9 @@ namespace Medical_Affiliation.Services.Faculty
                 TotalFee = AccAndFeeDetail.TotalFee,
                 AccountBooksMaintained = AccAndFeeDetail.AccountBooksMaintained,
                 AccountSummaryPdfName = AccAndFeeDetail.AccountSummaryPdfName,
-                HasAuditedStatementPdf = AccAndFeeDetail.AuditedStatementPdf.Length > 0,
-                HasAccountSummaryPdf = AccAndFeeDetail.AccountSummaryPdf.Length > 0,
-                HasGoverningCouncilPdf = AccAndFeeDetail.GoverningCouncilPdf.Length > 0,
+                HasAuditedStatementPdf = AccAndFeeDetail.AuditedStatementPdfPath.Length > 0,
+                HasAccountSummaryPdf = AccAndFeeDetail.AccountSummaryPdfPath.Length > 0,
+                HasGoverningCouncilPdf = AccAndFeeDetail.GoverningCouncilPdfPath.Length > 0,
             };
 
             return model;
@@ -103,13 +103,13 @@ namespace Medical_Affiliation.Services.Faculty
                                      TeachersUpdatedInEms = other.TeachersUpdatedInEms == "Y",
                                      ExaminerDetailsAttached = other.ExaminerDetailsAttached == "Y",
                                      ExaminerDetailsPdfName = other.ExaminerDetailsPdfName,
-                                     HasExaminerDetailsPdf = other.ExaminerDetailsPdf.Length > 0,
-                                     HasAebasInspectionDayPdf = other.AebasinspectionDayPdf.Length > 0,
-                                     HasAebasLastThreeMonthsPdf = other.AebaslastThreeMonthsPdf.Length > 0,
+                                     HasExaminerDetailsPdf = other.ExaminerDetailsPdfPath.Length > 0,
+                                     HasAebasInspectionDayPdf = other.AebasinspectionDayPdfPath.Length > 0,
+                                     HasAebasLastThreeMonthsPdf = other.AebaslastThreeMonthsPdfPath.Length > 0,
                                      ServiceRegisterMaintained = other.ServiceRegisterMaintained == "Y",
                                      ProvidentFundPdfName = other.ProvidentFundPdfName,
-                                     HasProvidentFundPdf = other.ProvidentFundPdf.Length > 0,
-                                     HasEsipdf = other.Esipdf.Length > 0,
+                                     HasProvidentFundPdf = other.ProvidentFundPdfPath.Length > 0,
+                                     HasEsipdf = other.EsipdfPath.Length > 0,
                                      AcquittanceRegisterMaintained = other.AcquittanceRegisterMaintained == "Y",
 
 

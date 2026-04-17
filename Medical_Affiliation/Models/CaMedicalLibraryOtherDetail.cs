@@ -25,7 +25,7 @@ public partial class CaMedicalLibraryOtherDetail
 
     public string? UploadedFileName { get; set; }
 
-    public byte[]? SpecialFeaturesAchievementspdf { get; set; }
+    public string? SpecialFeaturesAchievementspdfPath { get; set; }
 
     public DateTime? CreatedDate { get; set; }
 

@@ -1,164 +1,164 @@
-﻿using Medical_Affiliation.DATA;
-using Medical_Affiliation.Models;
-using Medical_Affiliation.Services.Interfaces;
-using Medical_Affiliation.Services.UserContext;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿//using Medical_Affiliation.DATA;
+//using Medical_Affiliation.Models;
+//using Medical_Affiliation.Services.Interfaces;
+//using Medical_Affiliation.Services.UserContext;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.EntityFrameworkCore;
 
-namespace Medical_Affiliation.Controllers
-{
-    public class AffiliationPaymentController : Controller
-    {
-        public readonly ApplicationDbContext _context;
-        public readonly IUserContext _userContext;
+//namespace Medical_Affiliation.Controllers
+//{
+//    public class AffiliationPaymentController : Controller
+//    {
+//        public readonly ApplicationDbContext _context;
+//        public readonly IUserContext _userContext;
 
-        public AffiliationPaymentController(ApplicationDbContext context, IUserContext userContext)
-        {
-            _context = context;
-            _userContext = userContext;
-        }
+//        public AffiliationPaymentController(ApplicationDbContext context, IUserContext userContext)
+//        {
+//            _context = context;
+//            _userContext = userContext;
+//        }
 
-        [HttpGet]
-        public async Task<IActionResult> AffiliationPayment()
-        {
-            var collegeCode = _userContext.CollegeCode;
-            int facultyCode = _userContext.FacultyId;
-            var affiliationTypeId = _userContext.TypeOfAffiliation;
-            var data = await _context.AffiliationPayments
-                .Where(x => x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            x.AffiliationTypeId == affiliationTypeId &&
-                            x.IsActive)
-                .Select(x => new AffiliationPaymentViewModel
-                {
-                    Id = x.Id,
-                    CollegeCode = x.CollegeCode,
-                    FacultyCode = x.FacultyCode,
-                    AffiliationTypeId = x.AffiliationTypeId,
-                    PaymentDate = x.PaymentDate,
-                    Amount = x.Amount,
-                    TransactionReferenceNo = x.TransactionReferenceNo,
-                    SupportingDocument = x.SupportingDocument,
-                })
-                .FirstOrDefaultAsync();
+//        [HttpGet]
+//        public async Task<IActionResult> AffiliationPayment()
+//        {
+//            var collegeCode = _userContext.CollegeCode;
+//            int facultyCode = _userContext.FacultyId;
+//            var affiliationTypeId = _userContext.TypeOfAffiliation;
+//            var data = await _context.AffiliationPayments
+//                .Where(x => x.CollegeCode == collegeCode &&
+//                            x.FacultyCode == facultyCode &&
+//                            x.AffiliationTypeId == affiliationTypeId &&
+//                            x.IsActive)
+//                .Select(x => new AffiliationPaymentViewModel
+//                {
+//                    Id = x.Id,
+//                    CollegeCode = x.CollegeCode,
+//                    FacultyCode = x.FacultyCode,
+//                    AffiliationTypeId = x.AffiliationTypeId,
+//                    PaymentDate = x.PaymentDate,
+//                    Amount = x.Amount,
+//                    TransactionReferenceNo = x.TransactionReferenceNo,
+//                    SupportingDocument = x.SupportingDocument,
+//                })
+//                .FirstOrDefaultAsync();
 
-            return View(data ?? new AffiliationPaymentViewModel());
-        }
+//            return View(data ?? new AffiliationPaymentViewModel());
+//        }
 
-        [HttpPost]
-        public async Task<IActionResult> SavePayment(AffiliationPaymentViewModel model)
-        {
-            if (model == null)
-                return BadRequest("Invalid data");
+//        [HttpPost]
+//        public async Task<IActionResult> SavePayment(AffiliationPaymentViewModel model)
+//        {
+//            if (model == null)
+//                return BadRequest("Invalid data");
 
-            // 🔍 Check duplicate transaction
-            var duplicate = await _context.AffiliationPayments
-                .FirstOrDefaultAsync(x => x.TransactionReferenceNo == model.TransactionReferenceNo
-                                         && x.Id != model.Id);
+//            // 🔍 Check duplicate transaction
+//            var duplicate = await _context.AffiliationPayments
+//                .FirstOrDefaultAsync(x => x.TransactionReferenceNo == model.TransactionReferenceNo
+//                                         && x.Id != model.Id);
 
-            if (duplicate != null)
-                return BadRequest("Transaction Reference already exists");
+//            if (duplicate != null)
+//                return BadRequest("Transaction Reference already exists");
 
-            AffiliationPayment entity;
+//            AffiliationPayment entity;
 
-            if (model.Id > 0)
-            {
-                // 🔁 UPDATE
-                entity = await _context.AffiliationPayments.FindAsync(model.Id);
+//            if (model.Id > 0)
+//            {
+//                // 🔁 UPDATE
+//                entity = await _context.AffiliationPayments.FindAsync(model.Id);
 
-                if (entity == null)
-                    return NotFound("Payment not found");
+//                if (entity == null)
+//                    return NotFound("Payment not found");
 
-                entity.PaymentDate = model.PaymentDate;
-                entity.Amount = model.Amount;
-                entity.TransactionReferenceNo = model.TransactionReferenceNo;
-            }
-            else
-            {
-                // ➕ INSERT
-                entity = new AffiliationPayment
-                {
-                    CollegeCode = _userContext.CollegeCode,
-                    FacultyCode = _userContext.FacultyId,
-                    AffiliationTypeId = _userContext.TypeOfAffiliation,
-                    CreatedDate = DateTime.Now,
-                    IsActive = true
-                };
+//                entity.PaymentDate = model.PaymentDate;
+//                entity.Amount = model.Amount;
+//                entity.TransactionReferenceNo = model.TransactionReferenceNo;
+//            }
+//            else
+//            {
+//                // ➕ INSERT
+//                entity = new AffiliationPayment
+//                {
+//                    CollegeCode = _userContext.CollegeCode,
+//                    FacultyCode = _userContext.FacultyId,
+//                    AffiliationTypeId = _userContext.TypeOfAffiliation,
+//                    CreatedDate = DateTime.Now,
+//                    IsActive = true
+//                };
 
-                _context.AffiliationPayments.Add(entity);
-            }
+//                _context.AffiliationPayments.Add(entity);
+//            }
 
-            entity.PaymentDate = model.PaymentDate;
-            entity.Amount = model.Amount;
-            entity.TransactionReferenceNo = model.TransactionReferenceNo;
+//            entity.PaymentDate = model.PaymentDate;
+//            entity.Amount = model.Amount;
+//            entity.TransactionReferenceNo = model.TransactionReferenceNo;
 
-            if (model.File != null && model.File.Length > 0)
-            {
-                if (model.File.Length > 1 * 1024 * 1024)
-                {
-                    TempData["Error"] = "File size must be less than 1MB";
-                    return RedirectToAction("AffiliationPayment");
-                }
-                var allowedExtensions = new[] { ".pdf", ".jpg", ".png" };
-                var ext = Path.GetExtension(model.File.FileName).ToLower();
+//            if (model.File != null && model.File.Length > 0)
+//            {
+//                if (model.File.Length > 1 * 1024 * 1024)
+//                {
+//                    TempData["Error"] = "File size must be less than 1MB";
+//                    return RedirectToAction("AffiliationPayment");
+//                }
+//                var allowedExtensions = new[] { ".pdf", ".jpg", ".png" };
+//                var ext = Path.GetExtension(model.File.FileName).ToLower();
 
-                if (!allowedExtensions.Contains(ext))
-                {
-                    TempData["Error"] = "Invalid file type";
-                    return RedirectToAction("AffiliationPayment");
-                }
+//                if (!allowedExtensions.Contains(ext))
+//                {
+//                    TempData["Error"] = "Invalid file type";
+//                    return RedirectToAction("AffiliationPayment");
+//                }
 
-                var folderPath = @"D:\AffiliationPayment";
+//                var folderPath = @"D:\AffiliationPayment";
 
-                // Ensure directory exists
-                if (!Directory.Exists(folderPath))
-                {
-                    Directory.CreateDirectory(folderPath);
-                }
+//                // Ensure directory exists
+//                if (!Directory.Exists(folderPath))
+//                {
+//                    Directory.CreateDirectory(folderPath);
+//                }
 
-                // Generate unique filename
-                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(model.File.FileName)}";
-                var fullPath = Path.Combine(folderPath, uniqueFileName);
+//                // Generate unique filename
+//                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(model.File.FileName)}";
+//                var fullPath = Path.Combine(folderPath, uniqueFileName);
 
-                // Save file
-                using (var stream = new FileStream(fullPath, FileMode.Create))
-                {
-                    await model.File.CopyToAsync(stream);
-                }
+//                // Save file
+//                using (var stream = new FileStream(fullPath, FileMode.Create))
+//                {
+//                    await model.File.CopyToAsync(stream);
+//                }
 
-                // Save full path in DB
-                entity.SupportingDocument = fullPath;
-            }
+//                // Save full path in DB
+//                entity.SupportingDocument = fullPath;
+//            }
 
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Payment saved successfully";
+//            await _context.SaveChangesAsync();
+//            TempData["Success"] = "Payment saved successfully";
 
-            return RedirectToAction("AffiliationPayment");
-        }
+//            return RedirectToAction("AffiliationPayment");
+//        }
 
-        public IActionResult ViewFile(string path)
-        {
-            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
-                return NotFound();
+//        public IActionResult ViewFile(string path)
+//        {
+//            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
+//                return NotFound();
 
-            var fileBytes = System.IO.File.ReadAllBytes(path);
-            var contentType = GetContentType(path);
+//            var fileBytes = System.IO.File.ReadAllBytes(path);
+//            var contentType = GetContentType(path);
 
-            // 👇 NO filename → inline preview
-            return File(fileBytes, contentType);
-        }
+//            // 👇 NO filename → inline preview
+//            return File(fileBytes, contentType);
+//        }
 
-        private string GetContentType(string path)
-        {
-            var ext = Path.GetExtension(path).ToLower();
+//        private string GetContentType(string path)
+//        {
+//            var ext = Path.GetExtension(path).ToLower();
 
-            return ext switch
-            {
-                ".pdf" => "application/pdf",
-                ".jpg" or ".jpeg" => "image/jpeg",
-                ".png" => "image/png",
-                _ => "application/octet-stream"
-            };
-        }
-    }
-}
+//            return ext switch
+//            {
+//                ".pdf" => "application/pdf",
+//                ".jpg" or ".jpeg" => "image/jpeg",
+//                ".png" => "image/png",
+//                _ => "application/octet-stream"
+//            };
+//        }
+//    }
+//}

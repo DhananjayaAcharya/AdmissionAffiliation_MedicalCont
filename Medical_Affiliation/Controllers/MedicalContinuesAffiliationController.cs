@@ -155,11 +155,10 @@ namespace Medical_Affiliation.Controllers
         //csharp Medical_Affiliation\Controllers\MedicalContinuesAffiliationController.cs
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [RequestSizeLimit(104857600)]  // 100MB
+        [RequestSizeLimit(104857600)]
         [RequestFormLimits(ValueCountLimit = 100000, ValueLengthLimit = int.MaxValue)]
         public async Task<IActionResult> Medical_InstituteDetails(MedicalVm vm)
         {
-            // Get session again
             var collegeName = User.FindFirst("CollegeName")?.Value
                               ?? HttpContext.Session.GetString("CollegeName");
 
@@ -172,43 +171,24 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Enforce session values
             vm.FacultyCode = facultyCode;
             vm.CollegeCode = collegeCode;
             vm.NameOfInstitution = collegeName ?? string.Empty;
 
-            // Remove non-binding properties
             ModelState.Remove(nameof(vm.TypeOfInstitutionList));
             ModelState.Remove(nameof(vm.FacultyCode));
             ModelState.Remove(nameof(vm.CollegeCode));
-            ModelState.Remove(nameof(vm.NameOfInstitution)); // readonly
+            ModelState.Remove(nameof(vm.NameOfInstitution));
 
             if (!ModelState.IsValid)
             {
-                if (int.TryParse(facultyCode, out var facultyId))
-                {
-                    vm.TypeOfInstitutionList = await _context.MstInstitutionTypes
-                        .Where(e => e.FacultyId == facultyId)
-                        .OrderBy(t => t.InstitutionType)
-                        .Select(t => new SelectListItem
-                        {
-                            Value = t.InstitutionTypeId.ToString(),
-                            Text = t.InstitutionType
-                        })
-                        .ToListAsync();
-                }
-                else
-                {
-                    vm.TypeOfInstitutionList = await _context.MstInstitutionTypes
-                        .Where(e => e.FacultyId.ToString() == facultyCode)
-                        .OrderBy(t => t.InstitutionType)
-                        .Select(t => new SelectListItem
-                        {
-                            Value = t.InstitutionTypeId.ToString(),
-                            Text = t.InstitutionType
-                        })
-                        .ToListAsync();
-                }
+                vm.TypeOfInstitutionList = await _context.MstInstitutionTypes
+                    .OrderBy(t => t.InstitutionType)
+                    .Select(t => new SelectListItem
+                    {
+                        Value = t.InstitutionTypeId.ToString(),
+                        Text = t.InstitutionType
+                    }).ToListAsync();
 
                 return View(vm);
             }
@@ -230,130 +210,75 @@ namespace Medical_Affiliation.Controllers
                     };
                     _context.InstitutionBasicDetails.Add(existingInstitution);
                     await _context.SaveChangesAsync();
-                    vm.InstitutionId = existingInstitution.InstitutionId;
                 }
 
-                // Files
-                var govAutonomousBytes = await ToBytesAsync(vm.GovAutonomousCertFile);
-                var govCouncilBytes = await ToBytesAsync(vm.GovCouncilMembershipFile);
-                var gokOrderBytes = await ToBytesAsync(vm.GokOrderExistingCoursesFile);
-                var firstAffiliationBytes = await ToBytesAsync(vm.FirstAffiliationNotifFile);
-                var continuationBytes = await ToBytesAsync(vm.ContinuationAffiliationFile);
-                var kncBytes = await ToBytesAsync(vm.KncCertificateFile);
-                var amendedBytes = await ToBytesAsync(vm.AmendedDoc);
-                var aadhaarBytes = await ToBytesAsync(vm.AadhaarFile);
-                var panBytes = await ToBytesAsync(vm.PANFile);
-                var bankBytes = await ToBytesAsync(vm.BankStatementFile);
-                var registrationBytes = await ToBytesAsync(vm.RegistrationCertificateFile);
-                var trustMembersBytes = await ToBytesAsync(vm.RegisteredTrustMemberDetails);
-                var auditBytes = await ToBytesAsync(vm.AuditStatementFile);
+                // 🔥 COMMON FILE SAVE FUNCTION
+                async Task<string> SaveFile(IFormFile file, string folder)
+                {
+                    if (file == null || file.Length == 0)
+                        return null;
 
-                // Map scalar fields - ensure we use TypeOfInstitution
-                existingInstitution.TypeOfInstitution = vm.TypeOfInstitution;
-                existingInstitution.NameOfInstitution = vm.NameOfInstitution;
-                existingInstitution.AddressOfInstitution = vm.AddressOfInstitution;
-                existingInstitution.VillageTownCity = vm.VillageTownCity;
-                existingInstitution.Taluk = vm.Taluk;
-                existingInstitution.District = vm.District;
-                existingInstitution.PinCode = vm.PinCode;
-                existingInstitution.MobileNumber = vm.MobileNumber;
-                existingInstitution.StdCode = vm.StdCode;
-                existingInstitution.Fax = vm.Fax;
-                existingInstitution.Website = vm.Website;
-                existingInstitution.EmailId = vm.EmailId;
-                existingInstitution.AltLandlineOrMobile = vm.AltLandlineOrMobile;
-                existingInstitution.AltEmailId = vm.AltEmailId;
-                existingInstitution.AcademicYearStarted = vm.AcademicYearStarted;
-                existingInstitution.IsRuralInstitution = vm.IsRuralInstitution;
-                existingInstitution.IsMinorityInstitution = vm.IsMinorityInstitution;
-                existingInstitution.TrustName = vm.TrustName;
-                existingInstitution.PresidentName = vm.PresidentName;
-                existingInstitution.AadhaarNumber = vm.AadhaarNumber;
-                existingInstitution.Pannumber = vm.PANNumber;
-                existingInstitution.RegistrationNumber = vm.RegistrationNumber;
-                existingInstitution.RegistrationDate = vm.RegistrationDate;
-                existingInstitution.Amendments = vm.Amendments;
-                existingInstitution.ExistingTrustName = vm.ExistingTrustName;
-                existingInstitution.GokobtainedTrustName = vm.GOKObtainedTrustName;
-                existingInstitution.ChangesInTrustName = vm.ChangesInTrustName;
-                existingInstitution.OtherNursingCollegeInCity = vm.OtherNursingCollegeInCity;
-                existingInstitution.CategoryOfOrganisation = vm.CategoryOfOrganisation;
-                existingInstitution.ContactPersonName = vm.ContactPersonName;
-                existingInstitution.ContactPersonRelation = vm.ContactPersonRelation;
-                existingInstitution.ContactPersonMobile = vm.ContactPersonMobile;
-                existingInstitution.OtherPhysiotherapyCollegeInCity = vm.OtherPhysiotherapyCollegeInCity;
-                existingInstitution.CoursesAppliedText = vm.CoursesAppliedText;
-                existingInstitution.HeadOfInstitutionName = vm.HeadOfInstitutionName;
-                existingInstitution.HeadOfInstitutionAddress = vm.HeadOfInstitutionAddress;
-                existingInstitution.FinancingAuthorityName = vm.FinancingAuthorityName;
-                existingInstitution.CollegeStatus = vm.CollegeStatus;
-                existingInstitution.GovAutonomousCertNumber = vm.GovAutonomousCertNumber;
-                existingInstitution.KncCertificateNumber = vm.KncCertificateNumber;
+                    string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+                    string fullFolder = Path.Combine(basePath, folder);
 
-                // Map document byte[] to correct columns (adjust names to your entity)
-                if (govAutonomousBytes != null) existingInstitution.GovAutonomousCertFile = govAutonomousBytes;
-                if (govCouncilBytes != null) existingInstitution.GovCouncilMembershipFile = govCouncilBytes;
-                if (gokOrderBytes != null) existingInstitution.GokOrderExistingCoursesFile = gokOrderBytes;
-                if (firstAffiliationBytes != null) existingInstitution.FirstAffiliationNotifFile = firstAffiliationBytes;
-                if (continuationBytes != null) existingInstitution.ContinuationAffiliationFile = continuationBytes;
-                if (kncBytes != null) existingInstitution.KncCertificateFile = kncBytes;
-                if (amendedBytes != null) existingInstitution.AmendedDoc = amendedBytes;
-                if (aadhaarBytes != null) existingInstitution.AadhaarFile = aadhaarBytes;
-                if (panBytes != null) existingInstitution.Panfile = panBytes;
-                if (bankBytes != null) existingInstitution.BankStatementFile = bankBytes;
-                if (registrationBytes != null) existingInstitution.RegistrationCertificateFile = registrationBytes;
-                if (trustMembersBytes != null) existingInstitution.RegistrationCertificateFile = trustMembersBytes;
-                if (auditBytes != null) existingInstitution.AuditStatementFile = auditBytes;
+                    if (!Directory.Exists(fullFolder))
+                        Directory.CreateDirectory(fullFolder);
 
-                existingInstitution.CreatedOn = DateTime.Now;
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string fullPath = Path.Combine(fullFolder, fileName);
 
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    return fullPath;
+                }
+
+                // 🔥 SAVE FILES (REPLACED byte[])
+                var govAutoPath = await SaveFile(vm.GovAutonomousCertFile, "GovAutonomous");
+                var councilPath = await SaveFile(vm.GovCouncilMembershipFile, "Council");
+                var gokPath = await SaveFile(vm.GokOrderExistingCoursesFile, "GOK");
+                var firstPath = await SaveFile(vm.FirstAffiliationNotifFile, "FirstAffiliation");
+                var contPath = await SaveFile(vm.ContinuationAffiliationFile, "Continuation");
+                var kncPath = await SaveFile(vm.KncCertificateFile, "KNC");
+                var amendPath = await SaveFile(vm.AmendedDoc, "Amendments");
+                var aadhaarPath = await SaveFile(vm.AadhaarFile, "Aadhaar");
+                var panPath = await SaveFile(vm.PANFile, "PAN");
+                var bankPath = await SaveFile(vm.BankStatementFile, "Bank");
+                var regPath = await SaveFile(vm.RegistrationCertificateFile, "Registration");
+                var trustPath = await SaveFile(vm.RegisteredTrustMemberDetails, "TrustMembers");
+                var auditPath = await SaveFile(vm.AuditStatementFile, "Audit");
+
+                // 🔥 MAP FILE PATHS
+                if (govAutoPath != null) existingInstitution.GovAutonomousCertFilePath = govAutoPath;
+                if (councilPath != null) existingInstitution.GovCouncilMembershipFilePath = councilPath;
+                if (gokPath != null) existingInstitution.GokOrderExistingCoursesFilePath = gokPath;
+                if (firstPath != null) existingInstitution.FirstAffiliationNotifFilePath = firstPath;
+                if (contPath != null) existingInstitution.ContinuationAffiliationFilePath = contPath;
+                if (kncPath != null) existingInstitution.KncCertificateFilePath = kncPath;
+                if (amendPath != null) existingInstitution.AmendedDocPath = amendPath;
+                if (aadhaarPath != null) existingInstitution.AadhaarFilePath = aadhaarPath;
+                if (panPath != null) existingInstitution.PanfilePath = panPath;
+                if (bankPath != null) existingInstitution.BankStatementFilePath = bankPath;
+                if (regPath != null) existingInstitution.RegistrationCertificateFilePath = regPath;
+                if (trustPath != null) existingInstitution.RegisteredTrustMemberDetailsPath = trustPath;
+                if (auditPath != null) existingInstitution.AuditStatementFilePath = auditPath;
+
+                // 🔥 SAVE
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 TempData["Success"] = "Institution details saved successfully!";
                 return RedirectToAction(nameof(Medical_InstituteDetails));
             }
-            catch (DbUpdateException ex)
-            {
-                await transaction.RollbackAsync();
-                TempData["Error"] = $"Database error: {ex.Message}";
-                Console.WriteLine($"InstitutionBasicDetails save error: {ex}");
-            }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                TempData["Error"] = $"Save failed: {ex.Message}";
-                Console.WriteLine($"InstitutionBasicDetails save error: {ex}");
+                TempData["Error"] = $"Error: {ex.Message}";
+                return View(vm);
             }
-
-            if (int.TryParse(facultyCode, out var fid))
-            {
-                vm.TypeOfInstitutionList = await _context.MstInstitutionTypes
-                    .Where(e => e.FacultyId == fid)
-                    .OrderBy(t => t.InstitutionType)
-                    .Select(t => new SelectListItem
-                    {
-                        Value = t.InstitutionTypeId.ToString(),
-                        Text = t.InstitutionType
-                    })
-                    .ToListAsync();
-            }
-            else
-            {
-                vm.TypeOfInstitutionList = await _context.MstInstitutionTypes
-                    .Where(e => e.FacultyId.ToString() == facultyCode)
-                    .OrderBy(t => t.InstitutionType)
-                    .Select(t => new SelectListItem
-                    {
-                        Value = t.InstitutionTypeId.ToString(),
-                        Text = t.InstitutionType
-                    })
-                    .ToListAsync();
-            }
-
-            return View(vm);
         }
-
 
         // ✅ REQUIRED HELPER METHOD - Convert IFormFile to byte[]
         private async Task<byte[]?> ToBytesAsync(IFormFile? file)

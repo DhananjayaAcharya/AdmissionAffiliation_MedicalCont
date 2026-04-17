@@ -17,8 +17,6 @@ public partial class CaCourseCurriculum
 
     public string? CurriculumDetails { get; set; }
 
-    public byte[]? CurriculumPdf { get; set; }
-
     public string? PdfFileName { get; set; }
 
     public DateTime? CreatedOn { get; set; }
