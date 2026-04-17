@@ -3,304 +3,276 @@
 
 @{
     ViewData["Title"] = "Research and Publication";
-    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
-}
-@{
-    var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
 }
 
-<style>
-    :root {
-        --ink: #0f1923;
-        --ink-mid: #2e3d4f;
-        --ink-muted: #6b7a8d;
-        --border: #d4dae3;
-        --bg: #f4f6f9;
-        --surface: #ffffff;
-        --accent: #1a4c8b;
-        --accent-lt: #e8edf7;
-        --danger: #c0392b;
-        --gold: #c9a84c;
-        --radius: 10px;
-        --shadow: 0 2px 16px rgba(15,25,35,.07);
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Research and Publication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    .custom-header {
-        background: linear-gradient(135deg, #0f1923, #1a4c8b);
-        padding: 22px 30px;
-        border-bottom: 3px solid var(--gold);
-        /* ✅ Rounded edges */
-        /* border-radius: 10px; */
-        /* ✅ Gap below header */
-        margin-bottom: 25px;
-        /* Optional: subtle shadow for premium feel */
-        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-    }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            min-height: 100vh;
-        }
-
-        /* Page Header - Matching Academic Matters */
-        .page-header {
-            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
-            padding: 28px 40px 24px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            border-bottom: 3px solid var(--gold);
-        }
-
-            .page-header .emblem {
-                width: 54px;
-                height: 54px;
-                border: 2px solid var(--gold);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+    <style>
+            :root {
+                --ink: #0f1923;
+                --ink-mid: #2e3d4f;
+                --ink-muted: #6b7a8d;
+                --border: #d4dae3;
+                --bg: #f4f6f9;
+                --surface: #ffffff;
+                --accent: #1a4c8b;
+                --accent-lt: #e8edf7;
+                --gold: #c9a84c;
+                --radius: 10px;
+                --shadow: 0 2px 16px rgba(15,25,35,.07);
             }
 
-                .page-header .emblem svg {
-                    width: 28px;
-                    height: 28px;
-                    fill: var(--gold);
+            body {
+                font-family: 'DM Sans', sans-serif;
+                background: var(--bg);
+                color: var(--ink);
+                min-height: 100vh;
+            }
+
+            /* Page Header - Matching Academic Matters */
+            .page-header {
+                background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+                padding: 28px 40px 24px;
+                display: flex;
+                align-items: center;
+                gap: 18px;
+                border-bottom: 3px solid var(--gold);
+            }
+
+                .page-header .emblem {
+                    width: 54px;
+                    height: 54px;
+                    border: 2px solid var(--gold);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
 
-        .page-header-text h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.45rem;
-            color: #ffffff;
-            letter-spacing: .02em;
-        }
+                    .page-header .emblem svg {
+                        width: 28px;
+                        height: 28px;
+                        fill: var(--gold);
+                    }
 
-        .page-header-text p {
-            font-size: .78rem;
-            color: rgba(255,255,255,.55);
-            margin-top: 3px;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-        }
-
-        .form-wrap {
-            max-width: 1280px;
-            margin: 32px auto;
-            padding: 0 24px 60px;
-        }
-
-        .section-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            margin-bottom: 28px;
-            animation: fadeUp .35s ease both;
-        }
-
-        @@keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
+            .page-header-text h1 {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.45rem;
+                color: #ffffff;
+                letter-spacing: .02em;
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .page-header-text p {
+                font-size: .78rem;
+                color: rgba(255,255,255,.55);
+                margin-top: 3px;
+                letter-spacing: .06em;
+                text-transform: uppercase;
             }
-        }
 
-        .section-header {
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border);
-            background: #fafbfc;
-        }
+            .form-wrap {
+                max-width: 1280px;
+                margin: 32px auto;
+                padding: 0 24px 60px;
+            }
 
-            .section-header .icon-wrap {
-                width: 38px;
-                height: 38px;
-                border-radius: 8px;
+            .section-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                overflow: hidden;
+                margin-bottom: 28px;
+                animation: fadeUp .35s ease both;
+            }
+
+            @@keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .section-header {
+                padding: 16px 24px;
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                background: var(--accent-lt);
-            }
-
-            .section-header h2 {
-                font-size: 1.02rem;
-                font-weight: 600;
-                letter-spacing: .03em;
-                color: var(--ink);
-                margin: 0;
-            }
-
-        .section-body {
-            padding: 1.75rem;
-        }
-
-        .custom-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-            .custom-table th, .custom-table td {
-                padding: 12px 16px;
+                gap: 12px;
                 border-bottom: 1px solid var(--border);
+                background: #fafbfc;
+            }
+
+                .section-header .icon-wrap {
+                    width: 38px;
+                    height: 38px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--accent-lt);
+                }
+
+                .section-header h2 {
+                    font-size: 1.02rem;
+                    font-weight: 600;
+                    letter-spacing: .03em;
+                    color: var(--ink);
+                    margin: 0;
+                }
+
+            .section-body {
+                padding: 1.75rem;
+            }
+
+            .custom-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+                .custom-table th, .custom-table td {
+                    padding: 12px 16px;
+                    border-bottom: 1px solid var(--border);
+                    vertical-align: middle;
+                }
+
+                .custom-table th {
+                    background: #f8f9fc;
+                    color: var(--ink-mid);
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    font-size: 0.76rem;
+                    letter-spacing: 0.05em;
+                }
+
+                .custom-table tr:hover {
+                    background: #f8fbff;
+                }
+
+            .form-control {
+                font-size: 0.875rem;
+                background: #fafbfc;
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 9px 13px;
+            }
+
+                .form-control:focus {
+                    border-color: var(--accent);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+                }
+
+            .custom-upload-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: var(--accent);
+                color: white;
+                padding: 10px 18px;
+                border-radius: 8px;
+                font-size: 0.83rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+                .custom-upload-btn:hover {
+                    background: #1564c0;
+                    transform: translateY(-1px);
+                }
+
+            input[type="file"] {
+                display: none !important;
+            }
+
+            .btn {
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.85rem;
+                font-weight: 600;
+                border-radius: 8px;
+                padding: 10px 26px;
+                letter-spacing: .03em;
+                transition: all .18s;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #1a4c8b, #1564c0);
+                color: #fff;
+                box-shadow: 0 3px 14px rgba(26,76,139,.3);
+            }
+
+                .btn-primary:hover {
+                    box-shadow: 0 5px 20px rgba(26,76,139,.4);
+                    transform: translateY(-1px);
+                }
+
+            .btn-success {
+                background: linear-gradient(135deg, #1e7e4e, #27ae60);
+                color: #fff;
+                box-shadow: 0 3px 14px rgba(30,126,78,.3);
+            }
+
+                .btn-success:hover {
+                    box-shadow: 0 5px 20px rgba(30,126,78,.4);
+                    transform: translateY(-1px);
+                }
+
+            .btn-secondary {
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--ink-muted);
+            }
+
+                .btn-secondary:hover {
+                    border-color: var(--ink-mid);
+                    color: var(--ink);
+                }
+
+            .check-label {
+                font-weight: 500;
+                cursor: pointer;
+            }
+
+            /* File name display */
+            .file-name-display {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                margin-left: 10px;
+                font-size: 0.82rem;
+                color: var(--ink-mid);
+                background: #eef2f8;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 5px 10px;
+                max-width: 260px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 vertical-align: middle;
             }
 
-            .custom-table th {
-                background: #f8f9fc;
-                color: var(--ink-mid);
-                font-weight: 600;
-                text-transform: uppercase;
-                font-size: 0.76rem;
-                letter-spacing: 0.05em;
-            }
-
-            .table tbody tr:hover {
-                background: #f8faff;
-            }
-
-        .form-control {
-            font-size: 0.875rem;
-            background: #fafbfc;
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 9px 13px;
-        }
-
-            .form-control:focus {
-                border-color: var(--accent);
-                background: #fff;
-                box-shadow: 0 0 0 3px rgba(26,76,139,.1);
-            }
-
-        .custom-upload-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--accent);
-            color: white;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 0.83rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-            .custom-upload-btn:hover {
-                background: #1564c0;
-                transform: translateY(-1px);
-            }
-
-        input[type="file"] {
-            display: none !important;
-        }
-
-        .btn {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 10px 26px;
-            letter-spacing: .03em;
-            transition: all .18s;
-        }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #1a4c8b, #1564c0);
-        border: none;
-    }
-
-            .btn-primary:hover {
-                box-shadow: 0 5px 20px rgba(26,76,139,.4);
-                transform: translateY(-1px);
-            }
-
-        .btn-success {
-            background: linear-gradient(135deg, #1e7e4e, #27ae60);
-            color: #fff;
-            box-shadow: 0 3px 14px rgba(30,126,78,.3);
-        }
-
-            .btn-success:hover {
-                box-shadow: 0 5px 20px rgba(30,126,78,.4);
-                transform: translateY(-1px);
-            }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--ink-muted);
-        }
-
-            .btn-secondary:hover {
-                border-color: var(--ink-mid);
-                color: var(--ink);
-            }
-
-        .check-label {
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        /* File name display */
-        .file-name-display {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-left: 10px;
-            font-size: 0.82rem;
-            color: var(--ink-mid);
-            background: #eef2f8;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 5px 10px;
-            max-width: 260px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-
-            .file-name-display i {
-                color: var(--accent);
-                flex-shrink: 0;
-            }
+                .file-name-display i {
+                    color: var(--accent);
+                    flex-shrink: 0;
+                }
     </style>
-    /* ALERT */
-    .alert-info {
-        background: #e8edf7;
-        border: none;
-        color: #1a4c8b;
-    }
-    .btn-prev {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
-        font-size: 0.82rem;
-        font-weight: 500;
-        padding: 8px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.15s, color 0.15s, border-color 0.15s;
-        font-family: 'DM Sans', sans-serif;
-    }
-</style>
 
-<link rel="stylesheet" href="~/css/common-form.css" />
+    <link rel="stylesheet" href="~/css/common-form.css" />
 
 </head>
 <body>
@@ -317,28 +289,16 @@
             <p>Postgraduate Courses — Research, Projects & Academic Activities</p>
         </div>
     </div>
-    <div class="container">
-        @*  <h3 class="text-center mb-4">4. Research and Publication</h3> *@
 
-        @*Code entered to display current course level*@
-
-        @* <div class="alert alert-info">
-            Current Course Level: @level
-        </div> *@
-
-        <!-- ================== MAIN FORM (4.a – 4.c) ================== -->
-        <form asp-action="CA_Med_ResearchPublicationsDetails" method="post" enctype="multipart/form-data">
+    <div class="form-wrap">
+        <form asp-action="CA_Med_ResearchPublicationsDetails" method="post" enctype="multipart/form-data" id="researchForm">
             @Html.AntiForgeryToken()
 
-            <!-- 4.a -->
-            <div class="card">
-                <h5>a. Number of Publication during last 3 years</h5>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <label>Number of Publications *</label>
-                        <input asp-for="PublicationsNo" type="number" min="1" class="form-control" />
-                        <span asp-validation-for="PublicationsNo" class="text-danger"></span>
+            <!-- 4.a Number of Publications -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="icon-wrap">
+                        <i class="bi bi-journal-text" style="font-size:1.5rem; color:#1a4c8b;"></i>
                     </div>
                     <h2>a. Number of Publications during last 3 years</h2>
                 </div>
@@ -361,60 +321,50 @@
                             </span>
                             <span asp-validation-for="PublicationsPdf" class="text-danger d-block mt-1"></span>
 
-                        @if (!string.IsNullOrEmpty(Model.PublicationsPdfName))
-                        {
-                            <div class="mt-2">
-                                <a asp-action="ViewPublicationsPdf" target="_blank" class="btn btn-info btn-sm">
-                                    View Publications
+                            @if (!string.IsNullOrEmpty(Model.PublicationsPdfName))
+                            {
+                                <a asp-action="ViewPublicationsPdf" target="_blank" class="btn btn-secondary ms-3">
+                                    <i class="bi bi-eye"></i> View PDF
                                 </a>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 4.b -->
-            <div class="card">
-                <h5>b. Research Projects</h5>
-
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th style="width:10%">No</th>
-                            <th style="width:20%">PI</th>
-                            <th style="width:35%">RGUHS Funded</th>
-                            <th style="width:35%">External Body Funding</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Students</td>
-                            <td>
-                                <input asp-for="StudentsRGUHSFunded" type="number" class="form-control" />
-                                <span asp-validation-for="StudentsRGUHSFunded" class="text-danger"></span>
-                            </td>
-                            <td>
-                                <input asp-for="StudentsExternalBodyFunding" type="number" class="form-control" />
-                                <span asp-validation-for="StudentsExternalBodyFunding" class="text-danger"></span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>2</td>
-                            <td>Faculty</td>
-                            <td>
-                                <input asp-for="FacultyRGUHSFunded" type="number" class="form-control" />
-                                <span asp-validation-for="FacultyRGUHSFunded" class="text-danger"></span>
-                            </td>
-                            <td>
-                                <input asp-for="FacultyExternalBodyFunding" type="number" class="form-control" />
-                                <span asp-validation-for="FacultyExternalBodyFunding" class="text-danger"></span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- 4.b Research Projects -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="icon-wrap">
+                        <i class="bi bi-lightbulb-fill" style="font-size:1.5rem; color:#1a4c8b;"></i>
+                    </div>
+                    <h2>b. Research Projects</h2>
+                </div>
+                <div class="section-body">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th style="width:10%">No</th>
+                                <th style="width:25%">Category</th>
+                                <th style="width:32.5%">RGUHS Funded</th>
+                                <th style="width:32.5%">External Body Funding</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">1</td>
+                                <td class="fw-semibold">Students</td>
+                                <td><input asp-for="StudentsRGUHSFunded" type="number" min="0" class="form-control" /></td>
+                                <td><input asp-for="StudentsExternalBodyFunding" type="number" min="0" class="form-control" /></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">2</td>
+                                <td class="fw-semibold">Faculty</td>
+                                <td><input asp-for="FacultyRGUHSFunded" type="number" min="0" class="form-control" /></td>
+                                <td><input asp-for="FacultyExternalBodyFunding" type="number" min="0" class="form-control" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     <!-- Students Projects PDF -->
                     <div class="mt-4 pt-3 border-top">
@@ -429,14 +379,13 @@
                         </span>
                         <span asp-validation-for="StudentsProjectsPdf" class="text-danger d-block mt-1"></span>
 
-                    @if (!string.IsNullOrEmpty(Model.StudentsProjectsPdfName))
-                    {
-                        <a asp-action="ViewStudentsProjectsPdf" target="_blank"
-                           class="btn btn-info btn-sm mt-2">
-                            View Students projects
-                        </a>
-                    }
-                </div>
+                        @if (!string.IsNullOrEmpty(Model.StudentsProjectsPdfName))
+                        {
+                            <a asp-action="ViewStudentsProjectsPdf" target="_blank" class="btn btn-secondary ms-3">
+                                <i class="bi bi-eye"></i> View Students Projects
+                            </a>
+                        }
+                    </div>
 
                     <!-- Faculty Projects PDF -->
                     <div class="mt-4">
@@ -451,17 +400,17 @@
                         </span>
                         <span asp-validation-for="FacultyProjectsPdf" class="text-danger d-block mt-1"></span>
 
-                    @if (!string.IsNullOrEmpty(Model.FacultyProjectsPdfName))
-                    {
-                        <a asp-action="ViewFacultyProjectsPdf" target="_blank"
-                           class="btn btn-info btn-sm mt-2">
-                            View Faculty Projects
-                        </a>
-                    }
+                        @if (!string.IsNullOrEmpty(Model.FacultyProjectsPdfName))
+                        {
+                            <a asp-action="ViewFacultyProjectsPdf" target="_blank" class="btn btn-secondary ms-3">
+                                <i class="bi bi-eye"></i> View Faculty Projects
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
 
-            <!-- 4.c -->
+            <!-- 4.c Clinical Trials -->
             @if (level != "SS")
             {
                 <div class="section-card">
@@ -483,38 +432,49 @@
                         </span>
                         <span asp-validation-for="ClinicalTrialsPdf" class="text-danger d-block mt-1"></span>
 
-                    @if (!string.IsNullOrEmpty(Model.ClinicalTrialsPdfName))
-                    {
-                        <a asp-action="ViewClinicalTrialsPdf" target="_blank"
-                           class="btn btn-info btn-sm mt-2">
-                            View Clinical Trails
-                        </a>
-                    }
+                        @if (!string.IsNullOrEmpty(Model.ClinicalTrialsPdfName))
+                        {
+                            <a asp-action="ViewClinicalTrialsPdf" target="_blank" class="btn btn-secondary ms-3">
+                                <i class="bi bi-eye"></i> View Clinical Trials
+                            </a>
+                        }
+                    </div>
                 </div>
             }
 
-            <div class="text-end mt-4">
-                <button type="submit" class="btn btn-success btn-lg">
-                    Save All Research Details
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between align-items-center mt-5">
+                <a asp-controller="Medical_ContinuousAffiliation"
+                   asp-action="Medical_DepartmentOfficesAndEducationalUnit"
+                   class="btn btn-secondary">← Previous</a>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-cloud-arrow-up me-2"></i>Save Research & Publication Details
                 </button>
+
+                <a asp-controller="Aff_CA_MedicalLibrary"
+                   asp-action="Aff_CA_Medical_LibraryDetails"
+                   class="btn btn-primary">Next → Library Details</a>
             </div>
         </form>
 
-        <!-- 4.d Other Academic Activities (No Edit - Only Add + Delete + View) -->
+        <!-- 4.d Other Academic Activities (Department-wise) -->
         @if (level != "SS")
         {
-            <div class="card mt-5">
-                <div class="card-body">
-                    <h5>4.d Other Academic Activities (Department-wise)</h5>
-                    <hr />
-
-                    <form asp-action="SaveOtherAcademicActivity" method="post" enctype="multipart/form-data">
+            <div class="section-card mt-5">
+                <div class="section-header">
+                    <div class="icon-wrap">
+                        <i class="bi bi-people-fill" style="font-size:1.5rem; color:#1a4c8b;"></i>
+                    </div>
+                    <h2>4.d Other Academic Activities (Department-wise)</h2>
+                </div>
+                <div class="section-body">
+                    <form asp-action="SaveOtherAcademicActivity" method="post" enctype="multipart/form-data" class="mb-4">
                         @Html.AntiForgeryToken()
-
-                        <div class="row align-items-end mb-4">
+                        <div class="row align-items-end g-3">
                             <div class="col-md-4">
-                                <label>Department <span class="text-danger">*</span></label>
-                                <select name="DepartmentCode" class="form-select" required>
+                                <label class="form-label">Department <span class="text-danger">*</span></label>
+                                <select name="DepartmentCode" class="form-control" required>
                                     <option value="">-- Select Department --</option>
                                     @foreach (var d in Model.Departments)
                                     {
@@ -523,8 +483,8 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label>Activity <span class="text-danger">*</span></label>
-                                <select name="ActivityId" class="form-select" required>
+                                <label class="form-label">Activity <span class="text-danger">*</span></label>
+                                <select name="ActivityId" class="form-control" required>
                                     <option value="">-- Select Activity --</option>
                                     @foreach (var a in Model.ActivityMasters)
                                     {
@@ -543,10 +503,8 @@
                                     <span class="name-text"></span>
                                 </span>
                             </div>
-                            <div class="col-md-2 d-flex justify-content-center align-items-end pt-3">
-                                <button type="submit" class="btn btn-success px-4">
-                                    SAVE
-                                </button>
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-success w-100">Save</button>
                             </div>
                         </div>
                     </form>
@@ -570,7 +528,7 @@
                                         <td>@row.ActivityName</td>
                                         <td>
                                             <a asp-action="ViewOtherActivityPdf" asp-route-id="@row.Id"
-                                               class="btn btn-secondary btn-sm" target="_blank">
+                                                   class="btn btn-secondary btn-sm" target="_blank">
                                                 <i class="bi bi-eye"></i> View
                                             </a>
                                         </td>
@@ -599,248 +557,189 @@
             </div>
         }
 
-        <!-- ================== 5. COMMITTEES ================== -->
-        <div class="card mt-5">
-            <h5>5. Committees</h5>
+        <!-- 5. Committees -->
+        <div class="section-card mt-5">
+            <div class="section-header">
+                <div class="icon-wrap">
+                    <i class="bi bi-diagram-3" style="font-size:1.5rem; color:#1a4c8b;"></i>
+                </div>
+                <h2>5. Committees</h2>
+            </div>
+            <div class="section-body">
+                @if (Model.Committees?.Any() == true)
+                {
+                    <form asp-action="SaveCommitteeDetails" method="post" enctype="multipart/form-data" id="committeeForm">
+                        @Html.AntiForgeryToken()
 
-            @if (Model.Committees?.Any() == true)
-            {
-                <form asp-action="SaveCommitteeDetails" method="post" enctype="multipart/form-data">
-                    @Html.AntiForgeryToken()
-
-                    <table class="table table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Committee Name</th>
-                                <th>Available</th>
-                                <th>Document</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (int i = 0; i < Model.Committees.Count; i++)
-                            {
+                        <table class="custom-table">
+                            <thead>
                                 <tr>
-                                    <input type="hidden" name="Committees[@i].CommitteeId" value="@Model.Committees[i].CommitteeId" />
-                                    <input type="hidden" name="Committees[@i].CommitteeName" value="@Model.Committees[i].CommitteeName" />
-
-                                    <td>@Model.Committees[i].CommitteeName</td>
-
-                                    <td>
-                                        <select name="Committees[@i].IsPresent" class="form-select is-present-select">
-                                            <option value="">-- Select --</option>
-                                            <option value="Y" selected="@(Model.Committees[i].IsPresent == "Y")">Yes</option>
-                                            <option value="N" selected="@(Model.Committees[i].IsPresent == "N")">No</option>
-                                        </select>
-                                    </td>
-
-                                    <td>
-                                        <div class="file-upload-wrapper" style="display:@(Model.Committees[i].IsPresent == "Y" ? "block" : "none")">
-                                            <input type="file" name="Committees[@i].CommitteePdf" accept="application/pdf" class="form-control file-validate" />
-
-                                            @if (!string.IsNullOrEmpty(Model.Committees[i].CommitteePdfName))
-                                            {
-                                                <div class="mt-2">
-                                                    <a asp-action="ViewCommitteePdf"
-                                                       asp-route-committeeId="@Model.Committees[i].CommitteeId"
-                                                       target="_blank"
-                                                       class="btn btn-info btn-sm">
-                                                        View
-                                                    </a>
-                                                </div>
-                                            }
-                                        </div>
-                                    </td>
+                                    <th>Committee Name</th>
+                                    <th class="text-center" style="width:120px;">Available</th>
+                                    <th>Document</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Committees.Count; i++)
+                                {
+                                    var committee = Model.Committees[i];
+                                    <tr>
+                                        <input type="hidden" name="Committees[@i].CommitteeId" value="@committee.CommitteeId" />
+                                        <input type="hidden" name="Committees[@i].CommitteeName" value="@committee.CommitteeName" />
+                                        <td class="fw-semibold">@committee.CommitteeName</td>
+                                        <td class="text-center">
+                                            <select name="Committees[@i].IsPresent" class="form-control is-present-select">
+                                                <option value="">-- Select --</option>
+                                                <option value="Y" selected="@(committee.IsPresent == "Y")">Yes</option>
+                                                <option value="N" selected="@(committee.IsPresent == "N")">No</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <div class="file-upload-wrapper" style="display:@(committee.IsPresent == "Y" ? "block" : "none")">
+                                                <label for="committeePdf_@i" class="custom-upload-btn">
+                                                    <i class="bi bi-upload"></i> Choose File
+                                                </label>
+                                                <input type="file" id="committeePdf_@i" name="Committees[@i].CommitteePdf"
+                                                       accept="application/pdf"
+                                                       onchange="handleFileChange(this, 'committeePdfName_@i')" />
+                                                <span class="file-name-display" id="committeePdfName_@i" style="display:none;">
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                    <span class="name-text"></span>
+                                                </span>
+                                                @if (!string.IsNullOrEmpty(committee.CommitteePdfName))
+                                                {
+                                                    <a asp-action="ViewCommitteePdf" asp-route-committeeId="@committee.CommitteeId"
+                                                           target="_blank" class="btn btn-secondary mt-2 d-inline-block">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
 
-                    <div class="text-end mt-4">
-                        <div class="d-flex justify-content-between align-items-center mt-5">
-
-                            <!-- 🔹 PREVIOUS (UPDATED) -->
-                            <a asp-controller="CA_Med_StaffDetails"
-                               asp-action="CA_Med_StaffDetails"
-                               class="btn btn-prev">← Previous</a>
-
+                        <div class="text-end mt-4">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-cloud-arrow-up me-2"></i>Save Committee Details
                             </button>
-
-                            <a asp-controller="Aff_CA_MedicalLibrary"
-                               asp-action="Aff_CA_Medical_LibraryDetails"
-                               class="btn btn-primary">Next →</a>
-
                         </div>
-                    </div>
-                </form>
-
-               
-            }
+                    </form>
+                }
+            </div>
         </div>
     </div>
-</div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
 
         <script>
-            // File validation: PDF only, max 2MB, show filename
-            function handleFileChange(input, displayId) {
-                const file = input.files[0];
-                const display = document.getElementById(displayId);
+                // File validation: PDF only, max 2MB, show filename
+                function handleFileChange(input, displayId) {
+                    const file = input.files[0];
+                    const display = document.getElementById(displayId);
 
-                if (!file) {
-                    if (display) display.style.display = 'none';
-                    return;
-                }
-
-                // PDF type check
-                if (file.type !== 'application/pdf') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Invalid File Type',
-                        text: 'Only PDF files are allowed.',
-                        confirmButtonColor: '#d33'
-                    });
-                    input.value = '';
-                    if (display) display.style.display = 'none';
-                    return;
-                }
-
-                // 2MB size check
-                if (file.size > 2 * 1024 * 1024) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'File Too Large',
-                        text: 'File size must not exceed 2MB.',
-                        confirmButtonColor: '#d33'
-                    });
-                    input.value = '';
-                    if (display) display.style.display = 'none';
-                    return;
-                }
-
-                // Show filename
-                if (display) {
-                    display.querySelector('.name-text').textContent = file.name;
-                    display.style.display = 'inline-flex';
-                }
-            }
-
-            // Confirm Delete for Other Academic Activities
-            function confirmDelete(button) {
-                const form = button.closest('form');
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'You want to delete this activity?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
+                    if (!file) {
+                        if (display) display.style.display = 'none';
+                        return;
                     }
+
+                    // PDF type check
+                    if (file.type !== 'application/pdf') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid File Type',
+                            text: 'Only PDF files are allowed.',
+                            confirmButtonColor: '#d33'
+                        });
+                        input.value = '';
+                        if (display) display.style.display = 'none';
+                        return;
+                    }
+
+                    // 2MB size check
+                    if (file.size > 2 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'File Too Large',
+                            text: 'File size must not exceed 2MB.',
+                            confirmButtonColor: '#d33'
+                        });
+                        input.value = '';
+                        if (display) display.style.display = 'none';
+                        return;
+                    }
+
+                    // Show filename
+                    if (display) {
+                        display.querySelector('.name-text').textContent = file.name;
+                        display.style.display = 'inline-flex';
+                    }
+                }
+
+                // Confirm Delete for Other Academic Activities
+                function confirmDelete(button) {
+                    const form = button.closest('form');
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'You want to delete this activity?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'No, cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                }
+
+                // Toggle file upload visibility for Committees
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.querySelectorAll('.is-present-select').forEach(select => {
+                        function toggleFileUpload() {
+                            const row = select.closest('tr');
+                            const wrapper = row.querySelector('.file-upload-wrapper');
+                            if (wrapper) {
+                                wrapper.style.display = select.value === 'Y' ? 'block' : 'none';
+                            }
+                        }
+                        toggleFileUpload();
+                        select.addEventListener('change', toggleFileUpload);
+                    });
                 });
-            }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.is-present-select').forEach(select => {
-                function toggleFileUpload() {
-                    const row = select.closest('tr');
-                    const wrapper = row.querySelector('.file-upload-wrapper');
-                    if (wrapper) {
-                        wrapper.style.display = select.value === 'Y' ? 'block' : 'none';
-                    }
-                }
-                toggleFileUpload();
-                select.addEventListener('change', toggleFileUpload);
-            });
-
-            document.addEventListener("change", function (e) {
-                if (e.target.classList.contains("file-validate")) {
-                    const file = e.target.files[0];
-                    const maxSize = 2 * 1024 * 1024; // ✅ 2MB
-
-                    if (file) {
-
-                        // ❌ FILE SIZE CHECK
-                        if (file.size > maxSize) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "File too large",
-                                text: "Maximum allowed size is 2MB"
-                            });
-
-                            e.target.value = "";
-                            return;
-                        }
-
-                        // ❌ FILE TYPE CHECK
-                        const ext = file.name.split('.').pop().toLowerCase();
-
-                        if (ext !== "pdf") {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Invalid file",
-                                text: "Only PDF files are allowed"
-                            });
-
-                            e.target.value = "";
-                            return;
-                        }
-                    }
+                // SweetAlert for TempData messages
+                @if (TempData["Error"] != null)
+                {
+                            <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Save Failed',
+                                    text: '@TempData["Error"]',
+                                    timer: 10000,
+                                    confirmButtonColor: '#d33'
+                                });
+                            </text>
                 }
 
-            });
-        });
-    </script>
-
-    @if (TempData["Error"] != null)
-    {
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Save Failed',
-                text: '@TempData["Error"]',
-                timer: 10000,
-                confirmButtonColor: '#d33'
-            });
+                @if (TempData["Success"] != null && Context.Request.Method == "POST")
+                {
+                            <text>
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: '@TempData["Success"]',
+                                    confirmButtonColor: '#198754',
+                                    timer: 2500,
+                                    timerProgressBar: true
+                                });
+                            </text>
+                }
         </script>
     }
-
-    @* @if (TempData["Success"] != null)
-    {
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: '@TempData["Success"]',
-                confirmButtonColor: '#198754',
-                timer: 2500,
-                timerProgressBar: true
-            });
-        </script>
-    } *@
-
-    @* ✅ FIX: Show only if coming after SAVE (not navigation) *@
-    @if (TempData["Success"] != null && Context.Request.Method == "POST")
-    {
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: '@TempData["Success"]',
-                confirmButtonColor: '#198754',
-                timer: 2500,
-                timerProgressBar: true
-            });
-        </script>
-    }
-}
+</body>
+</html>

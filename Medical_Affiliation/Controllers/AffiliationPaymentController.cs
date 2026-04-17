@@ -1,22 +1,22 @@
-﻿//using Medical_Affiliation.DATA;
-//using Medical_Affiliation.Models;
-//using Medical_Affiliation.Services.Interfaces;
-//using Medical_Affiliation.Services.UserContext;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
+﻿using Medical_Affiliation.DATA;
+using Medical_Affiliation.Models;
+using Medical_Affiliation.Services.Interfaces;
+using Medical_Affiliation.Services.UserContext;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-//namespace Medical_Affiliation.Controllers
-//{
-//    public class AffiliationPaymentController : Controller
-//    {
-//        public readonly ApplicationDbContext _context;
-//        public readonly IUserContext _userContext;
+namespace Medical_Affiliation.Controllers
+{
+    public class AffiliationPaymentController : Controller
+    {
+        public readonly ApplicationDbContext _context;
+        public readonly IUserContext _userContext;
 
-//        public AffiliationPaymentController(ApplicationDbContext context, IUserContext userContext)
-//        {
-//            _context = context;
-//            _userContext = userContext;
-//        }
+        public AffiliationPaymentController(ApplicationDbContext context, IUserContext userContext)
+        {
+            _context = context;
+            _userContext = userContext;
+        }
 
         [HttpGet]
         public async Task<IActionResult> Payment()
@@ -44,33 +44,33 @@
                 })
                 .FirstOrDefaultAsync();
 
-//            return View(data ?? new AffiliationPaymentViewModel());
-//        }
+            return View(data ?? new AffiliationPaymentViewModel());
+        }
 
-//        [HttpPost]
-//        public async Task<IActionResult> SavePayment(AffiliationPaymentViewModel model)
-//        {
-//            if (model == null)
-//                return BadRequest("Invalid data");
+        [HttpPost]
+        public async Task<IActionResult> SavePayment(AffiliationPaymentViewModel model)
+        {
+            if (model == null)
+                return BadRequest("Invalid data");
 
-//            // 🔍 Check duplicate transaction
-//            var duplicate = await _context.AffiliationPayments
-//                .FirstOrDefaultAsync(x => x.TransactionReferenceNo == model.TransactionReferenceNo
-//                                         && x.Id != model.Id);
+            // 🔍 Check duplicate transaction
+            var duplicate = await _context.AffiliationPayments
+                .FirstOrDefaultAsync(x => x.TransactionReferenceNo == model.TransactionReferenceNo
+                                         && x.Id != model.Id);
 
-//            if (duplicate != null)
-//                return BadRequest("Transaction Reference already exists");
+            if (duplicate != null)
+                return BadRequest("Transaction Reference already exists");
 
             AffiliationPayment entity;
             string existingFilePath = null;
 
-//            if (model.Id > 0)
-//            {
-//                // 🔁 UPDATE
-//                entity = await _context.AffiliationPayments.FindAsync(model.Id);
+            if (model.Id > 0)
+            {
+                // 🔁 UPDATE
+                entity = await _context.AffiliationPayments.FindAsync(model.Id);
 
-//                if (entity == null)
-//                    return NotFound("Payment not found");
+                if (entity == null)
+                    return NotFound("Payment not found");
 
                 // ✅ store existing file path
                 existingFilePath = entity.SupportingDocument;
@@ -87,8 +87,8 @@
                     IsActive = true
                 };
 
-//                _context.AffiliationPayments.Add(entity);
-//            }
+                _context.AffiliationPayments.Add(entity);
+            }
 
             // 🔁 Common fields
             entity.PaymentDate = model.PaymentDate;
@@ -183,17 +183,17 @@
             return File(fileBytes, contentType);
         }
 
-//        private string GetContentType(string path)
-//        {
-//            var ext = Path.GetExtension(path).ToLower();
+        private string GetContentType(string path)
+        {
+            var ext = Path.GetExtension(path).ToLower();
 
-//            return ext switch
-//            {
-//                ".pdf" => "application/pdf",
-//                ".jpg" or ".jpeg" => "image/jpeg",
-//                ".png" => "image/png",
-//                _ => "application/octet-stream"
-//            };
-//        }
-//    }
-//}
+            return ext switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
+        }
+    }
+}
