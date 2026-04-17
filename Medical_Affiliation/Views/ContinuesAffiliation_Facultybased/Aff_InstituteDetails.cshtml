@@ -610,6 +610,20 @@
             .btn-primary:active {
                 transform: translateY(0);
             }
+
+            .btn-next {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+                color: var(--white);
+                font-size: 0.82rem;
+                font-weight: 600;
+                padding: 9px 26px;
+                border-radius: 4px;
+                text-decoration: none;
+                transition: opacity 0.15s, box-shadow 0.15s;
+            }
     </style>
 </head>
 <body>
@@ -1259,6 +1273,9 @@
                     <i class="fas fa-floppy-disk"></i> Save &amp; Proceed
                     <i class="fas fa-arrow-right"></i>
                 </button>
+                <a asp-controller="ContinuesAffiliation_Facultybased"
+                   asp-action="Aff_TrustMemberDetails"
+                    class="btn btn-next">Next →</a>
             </div>
             <p class="form-footer-note">All fields are validated as per RGUHS affiliation norms.</p>
 
@@ -1266,6 +1283,7 @@
     </div>
 
     @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         @{
             await Html.RenderPartialAsync("_ValidationScriptsPartial");
         }
@@ -1308,6 +1326,40 @@
                 }
 
             });
+        </script>
+        <script>
+            //below new code added by ram on 16/04/2026 for file size validation
+
+            document.querySelectorAll('input[type="file"]').forEach(function (input) {
+
+                input.addEventListener("change", function () {
+
+                    if (this.files.length > 0) {
+
+                        const file = this.files[0];
+                        const maxSize = 2 * 1024 * 1024; // 2 MB
+
+                        if (file.size > maxSize) {
+
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'File too large',
+                                text: 'File size should not exceed 2 MB.',
+                                timer: 7000,
+                                timerProgressBar: true,
+                                showConfirmButton: true,
+                                confirmButtonText: 'OK'
+                            });
+
+                            this.value = ""; // clear file
+                            return;
+                        }
+                    }
+                });
+
+            });
+
+            //new code of ram ends here
         </script>
     }
 </body>

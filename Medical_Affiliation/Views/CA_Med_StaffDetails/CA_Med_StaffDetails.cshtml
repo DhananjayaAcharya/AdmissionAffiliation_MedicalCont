@@ -4,495 +4,533 @@
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Staff Details</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --light-blue: #2a6ab8; /* Lighter blue for Save buttons */
+        --light-blue-hover: #1f5a9e;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 6px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+    }
+
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        /* padding: 36px 0 48px; */
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        /* padding: 0 24px; */
+    }
+
+    /* Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        /* border-radius: 10px 10px 0 0; */
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px);
         }
 
-        :root {
-            --ink: #0f1923;
-            --ink-mid: #2e3d4f;
-            --ink-muted: #6b7a8d;
-            --border: #d4dae3;
-            --bg: #f4f6f9;
-            --surface: #ffffff;
-            --accent: #1a4c8b;
-            --accent-lt: #e8edf7;
-            --danger: #c0392b;
-            --gold: #c9a84c;
-            --radius: 12px;
-            --shadow: 0 4px 20px rgba(15,25,35,.08);
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            min-height: 100vh;
-        }
-
-        .page-header {
-            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
-            padding: 28px 40px 24px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            border-bottom: 3px solid var(--gold);
-        }
-
-            .page-header .emblem {
-                width: 54px;
-                height: 54px;
-                border: 2px solid var(--gold);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-                .page-header .emblem i {
-                    color: var(--gold);
-                    font-size: 24px;
-                }
-
-        .page-header-text h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            color: #fff;
-        }
-
-        .page-header-text p {
-            font-size: 0.78rem;
-            color: rgba(255,255,255,0.65);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-wrap {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 24px 60px;
-        }
-
-        .section-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            margin-bottom: 28px;
-        }
-
-        .section-header {
-            background: #f0f4fa;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-            .section-header .letter {
-                width: 34px;
-                height: 34px;
-                background: var(--accent);
-                color: white;
-                font-weight: 700;
-                font-size: 1.15rem;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .section-header h2 {
-                font-size: 1.05rem;
-                font-weight: 600;
-                color: var(--accent);
-                text-transform: uppercase;
-                letter-spacing: 0.04em;
-            }
-
-        .section-body {
-            padding: 28px 32px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--ink-mid);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-
-        input[type="text"], input[type="number"], textarea, select, input[type="file"] {
-            width: 100%;
-            padding: 11px 14px;
-            font-size: 0.95rem;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            background: #fff;
-        }
-
-            input:focus, textarea:focus, select:focus {
-                border-color: var(--accent);
-                box-shadow: 0 0 0 3px rgba(26,76,139,0.12);
-            }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        th, td {
-            border: 1px solid var(--border);
-            padding: 14px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f0f4fa;
-            font-weight: 600;
-            color: var(--accent);
-        }
-
-        .divider {
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
             height: 2px;
-            background: var(--border);
-            margin: 25px 0;
+            background: linear-gradient(90deg, transparent, #b8882a, transparent);
         }
 
-        .long-label {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            font-weight: 600;
-            color: var(--ink-mid);
-            margin-bottom: 10px;
+    .header-eyebrow, .header-subtitle {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #d4a84b;
+        margin-bottom: 6px;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: white;
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: #d4a84b;
+        text-transform: uppercase;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 1rem 36px 36px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 1rem 0 18px 0;
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    .section-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 28px;
+    }
+
+    .section-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 12px 16px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+    }
+
+    .section-block-body {
+        padding: 28px;
+    }
+
+    /* Improved spacing and dividers between items */
+    .form-item {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .form-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
         }
 
-        .file-upload-area {
-            padding: 12px 14px;
-            border: 1.5px dashed var(--border);
-            border-radius: 8px;
-            background: #fafbfc;
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.83rem;
+    }
+
+        .data-table thead th {
+            padding: 10px 12px;
+            background: linear-gradient(180deg, #f5f2ec 0%, #ede8df 100%);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--navy);
+            border-bottom: 2px solid var(--border);
         }
 
-        .file-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #eafaf1;
-            color: #1e7e4e;
-            border: 1px solid #a9dfbf;
-            border-radius: 30px;
-            padding: 6px 14px;
-            font-size: 0.82rem;
-            margin-top: 8px;
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0ece4;
         }
 
-        .form-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 30px;
-            border-top: 1px solid var(--border);
-            margin-top: 20px;
+    .form-control, .form-select {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 8px 11px;
+        font-size: 0.82rem;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
         }
 
-        .btn {
-            font-weight: 600;
-            padding: 13px 32px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.25s;
+    .file-upload-area {
+        border: 1.5px dashed #d9d3c8;
+        border-radius: 6px;
+        padding: 14px;
+        background: #faf8f4;
+        margin: 8px 0 12px 0;
+    }
+
+    .view-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #1e7e4e;
+        color: white;
+        border: none;
+        padding: 7px 16px;
+        border-radius: 4px;
+        font-size: 0.78rem;
+        text-decoration: none;
+        margin-top: 6px;
+    }
+
+        .view-btn:hover {
+            background: #146c3a;
         }
 
-        .btn-ghost {
-            background: transparent;
-            border: 2px solid var(--border);
-            color: var(--ink-mid);
+    /* Updated Button Colors */
+    .btn-save {
+        background: linear-gradient(135deg, var(--light-blue), #2a6ab8);
+        color: white;
+        border: none;
+        padding: 10px 28px;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .btn-save:hover {
+            background: linear-gradient(135deg, var(--light-blue-hover), #1f5a9e);
+            transform: translateY(-1px);
         }
 
-            .btn-ghost:hover {
-                border-color: var(--accent);
-                color: var(--accent);
-            }
+    .btn-prev {
+        background: #f0f2f7;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 10px 24px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
 
-        .btn-primary, .btn-success {
-            background: linear-gradient(135deg, #1a4c8b, #1564c0);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(26,76,139,0.3);
+        .btn-prev:hover {
+            background: #e6e9f0;
+            color: var(--navy-mid);
+            border-color: var(--navy-mid);
         }
 
-            .btn-primary:hover, .btn-success:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(26,76,139,0.4);
-            }
-    </style>
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+    }
 
-    <link rel="stylesheet" href="~/css/common-form.css" />
-</head>
-<body>
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="emblem">
-            <i class="fas fa-users"></i>
-        </div>
-        <div class="page-header-text">
-            <h1>Staff Details</h1>
-            <p>RGUHS · Continuation Affiliation Portal</p>
-        </div>
-    </div>
+    .long-label {
+        font-weight: 600;
+        line-height: 1.45;
+        margin-bottom: 10px;
+    }
 
-    <div class="form-wrap">
-        <div class="section-card">
-            <div class="section-header">
-                <div class="letter">1</div>
-                <h2>Staff Particulars - Pay Scale</h2>
+    .text-danger {
+        font-size: 0.68rem;
+        color: var(--danger);
+        margin-top: 4px;
+    }
+</style>
+<link rel="stylesheet" href="~/css/common-form.css" />
+<div class="page-shell">
+    <div class="page-container">
+
+        @* <div class="page-header">
+            <div class="header-eyebrow">Continuous Affiliation · Staff Particulars</div>
+            <div class="header-title">Staff Details</div>
+            <div class="header-subtitle">Pay Scale and Other Staff Particulars</div>
+            <div class="header-badge">Staff Particulars</div>
+        </div> *@
+
+        <div class="page-header">
+            <div class="emblem">
+                <i class="fas fa-book-medical"></i>
             </div>
-            <div class="section-body">
-                <form asp-action="SavePayScale" method="post">
-                    <input type="hidden" asp-for="CourseLevel" />
-                    @Html.AntiForgeryToken()
+            <div class="page-header-text">
+                <h1>Staff Particulars</h1>
+                <p>Pay Scale and Other Staff Particulars</p>
+            </div>
+        </div>
 
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Designation</th>
-                                <th>Pay Scale (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (int i = 0; i < Model.StaffPayScaleList.Count; i++)
-                            {
+        <div class="form-card">
+
+            <!-- Pay Scale Section -->
+            <div class="section-label">
+                <span class="section-label-text">1 — Staff Pay Scale</span>
+                <span class="section-label-line"></span>
+            </div>
+            <div class="section-block">
+                <div class="section-block-header">Pay Scale Details</div>
+                <div class="section-block-body">
+                    <form asp-action="SavePayScale" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="CourseLevel" />
+
+                        <table class="data-table">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        @Model.StaffPayScaleList[i].Designation
+                                    <th>Designation</th>
+                                    <th>Pay Scale (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.StaffPayScaleList.Count; i++)
+                                {
+                                    <tr>
+                                        <td>@Model.StaffPayScaleList[i].Designation</td>
+                                        <td>
+                                            <input asp-for="StaffPayScaleList[@i].PayScale" type="number" min="0" step="0.01" class="form-control" />
+                                            <span asp-validation-for="StaffPayScaleList[@i].PayScale" class="text-danger"></span>
+                                        </td>
                                         <input type="hidden" asp-for="StaffPayScaleList[@i].DesignationSlNo" />
                                         <input type="hidden" asp-for="StaffPayScaleList[@i].Designation" />
-                                    </td>
-                                    <td>
-                                        <input asp-for="StaffPayScaleList[@i].PayScale"
-                                               type="number"
-                                               class="form-control"
-                                               min="0"
-                                               step="0.01"
-                                               placeholder="Enter Pay Scale" />
-                                        <span asp-validation-for="StaffPayScaleList[@i].PayScale" class="text-danger"></span>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
 
-                    <div class="text-end mt-4">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save Staff Pay Scale
-                        </button>
-                    </div>
-                </form>
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn-save">Save Staff Pay Scale</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- Staff Particulars (Other) -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="letter">2</div>
-                <h2>Staff Particulars (Other)</h2>
+            <!-- Staff Particulars (Other) -->
+            <div class="section-label">
+                <span class="section-label-text">2 — Staff Particulars (Other)</span>
+                <span class="section-label-line"></span>
             </div>
-            <div class="section-body">
-                <form asp-action="SaveStaffOther" method="post" enctype="multipart/form-data">
-                    @Html.AntiForgeryToken()
+            <div class="section-block">
+                <div class="section-block-body">
 
-                    <!-- b -->
-                    <div class="mb-4">
-                        <label class="long-label">
-                            b. Whether all teachers working in the college are updated in the online teacher's database and EMS - Examiners List
-                        </label>
-                        <select asp-for="StaffOther.TeachersUpdatedInEMS" class="form-select">
-                            <option value="">-- Select --</option>
-                            <option value="Y" selected="@(Model.StaffOther.TeachersUpdatedInEMS == "Y")">Yes</option>
-                            <option value="N" selected="@(Model.StaffOther.TeachersUpdatedInEMS == "N")">No</option>
-                        </select>
-                        <span asp-validation-for="StaffOther.TeachersUpdatedInEMS" class="text-danger"></span>
-                    </div>
+                    <form asp-action="SaveStaffOther" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
 
-                    <!-- c -->
-                    <div class="mb-4">
-                        <label class="long-label">
-                            c. Department wise Examiner's details ... enclose form-16 of all the teachers.
-                        </label>
-                        <label class="form-label mt-2"><b>Is the Document Attached?</b></label>
-                        <select asp-for="StaffOther.ExaminerDetailsAttached" class="form-select" id="ExaminerDetailsAttachedDropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Y" selected="@(Model.StaffOther.ExaminerDetailsAttached == "Y")">Yes</option>
-                            <option value="N" selected="@(Model.StaffOther.ExaminerDetailsAttached == "N")">No</option>
-                        </select>
-                        <span asp-validation-for="StaffOther.ExaminerDetailsAttached" class="text-danger"></span>
+                        <!-- b -->
+                        <div class="form-item">
+                            <label class="long-label">
+                                b. Whether all teachers working in the college are updated in the online teacher's database and EMS - Examiners List
+                            </label>
+                            <select asp-for="StaffOther.TeachersUpdatedInEMS" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="Y" selected="@(Model.StaffOther.TeachersUpdatedInEMS == "Y")">Yes</option>
+                                <option value="N" selected="@(Model.StaffOther.TeachersUpdatedInEMS == "N")">No</option>
+                            </select>
+                            <span asp-validation-for="StaffOther.TeachersUpdatedInEMS" class="text-danger"></span>
+                        </div>
 
-                        <div class="file-section mt-3" id="ExaminerFileDiv" style="display: none;">
-                            <div class="file-upload-area">
-                                <input asp-for="ExaminerDetailsPdf" type="file" accept="application/pdf" />
-                            </div>
-                            <span asp-validation-for="ExaminerDetailsPdf" class="text-danger"></span>
-                            @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName))
-                            {
-                                <div class="file-badge">
-                                    <i class="fas fa-circle-check"></i>
-                                    File already uploaded: @Model.StaffOther.ExaminerDetailsPdfName
-                                    <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner" })"
-                                       target="_blank" class="btn btn-sm btn-outline-primary ms-3">
-                                        📄 View PDF
-                                    </a>
+                        <!-- c -->
+                        <div class="form-item">
+                            <label class="long-label">
+                                c. Department wise Examiner's details ... (Enclose form-16 of all the teachers)
+                            </label>
+                            <label><b>Is the Document Attached?</b></label>
+                            <select asp-for="StaffOther.ExaminerDetailsAttached" class="form-select" id="ExaminerDetailsAttachedDropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Y" selected="@(Model.StaffOther.ExaminerDetailsAttached == "Y")">Yes</option>
+                                <option value="N" selected="@(Model.StaffOther.ExaminerDetailsAttached == "N")">No</option>
+                            </select>
+                            <span asp-validation-for="StaffOther.ExaminerDetailsAttached" class="text-danger"></span>
+
+                            <div id="ExaminerFileDiv" style="display: @(Model.StaffOther.ExaminerDetailsAttached == "Y" ? "block" : "none"); margin-top: 16px;">
+                                <div class="file-upload-area">
+                                    <input asp-for="ExaminerDetailsPdf" type="file" class="file-validate" accept="application/pdf" />
                                 </div>
+                                <span asp-validation-for="ExaminerDetailsPdf" class="text-danger"></span>
+
+                                @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName))
+                                {
+                                    <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner" })"
+                                       target="_blank" class="view-btn">
+                                        <i class="fas fa-eye"></i> View Examiner Details Document
+                                    </a>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- d -->
+                        <div class="form-item">
+                            <label class="long-label">d. AEBAS details of all the staff (Enclose last three months attendance report)</label>
+                            <div class="file-upload-area">
+                                <input asp-for="AEBASLastThreeMonthsPdf" type="file" class="file-validate" accept="application/pdf" />
+                            </div>
+                            <span asp-validation-for="AEBASLastThreeMonthsPdf" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(Model.StaffOther.AEBASLastThreeMonthsPdfName))
+                            {
+                                <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "AEBAS3Months" })"
+                                   target="_blank" class="view-btn">
+                                    <i class="fas fa-eye"></i> View AEBAS Last Three Months Document
+                                </a>
                             }
                         </div>
-                    </div>
 
-                    <!-- d -->
-                    <div class="mb-4">
-                        <label class="long-label">
-                            d. AEBAS details of all the staff (last three months attendance report)
-                        </label>
-                        <div class="file-upload-area">
-                            <input asp-for="AEBASLastThreeMonthsPdf" type="file" accept="application/pdf" />
-                        </div>
-                        <span asp-validation-for="AEBASLastThreeMonthsPdf" class="text-danger"></span>
-                        @if (!string.IsNullOrEmpty(Model.StaffOther.AEBASLastThreeMonthsPdfName))
-                        {
-                            <div class="file-badge">
-                                <i class="fas fa-circle-check"></i>
-                                File already uploaded: @Model.StaffOther.AEBASLastThreeMonthsPdfName
-                                <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "AEBAS3Months" })"
-                                   target="_blank" class="btn btn-sm btn-outline-primary ms-3">
-                                    📄 View PDF
-                                </a>
+                        <!-- e -->
+                        <div class="form-item">
+                            <label class="long-label">e. AEBAS details of all the staff on the day of inspection (Enclose copy)</label>
+                            <div class="file-upload-area">
+                                <input asp-for="AEBASInspectionDayPdf" type="file" class="file-validate" accept="application/pdf" />
                             </div>
-                        }
-                    </div>
-
-                    <!-- e -->
-                    <div class="mb-4">
-                        <label class="long-label">
-                            e. AEBAS details on the day of inspection before 11:00 AM
-                        </label>
-                        <div class="file-upload-area">
-                            <input asp-for="AEBASInspectionDayPdf" type="file" accept="application/pdf" />
-                        </div>
-                        <span asp-validation-for="AEBASInspectionDayPdf" class="text-danger"></span>
-                        @if (!string.IsNullOrEmpty(Model.StaffOther.AEBASInspectionDayPdfName))
-                        {
-                            <div class="file-badge">
-                                <i class="fas fa-circle-check"></i>
-                                File already uploaded: @Model.StaffOther.AEBASInspectionDayPdfName
+                            <span asp-validation-for="AEBASInspectionDayPdf" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(Model.StaffOther.AEBASInspectionDayPdfName))
+                            {
                                 <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "AEBASInspection" })"
-                                   target="_blank" class="btn btn-sm btn-outline-primary ms-3">
-                                    📄 View PDF
+                                   target="_blank" class="view-btn">
+                                    <i class="fas fa-eye"></i> View AEBAS Inspection Document
                                 </a>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- g -->
-                    <div class="mb-4">
-                        <label class="long-label">g. Provident fund benefit provided (Give details)</label>
-                        <div class="file-upload-area">
-                            <input asp-for="ProvidentFundPdf" type="file" accept="application/pdf" />
+                            }
                         </div>
-                        <span asp-validation-for="ProvidentFundPdf" class="text-danger"></span>
-                        @if (!string.IsNullOrEmpty(Model.StaffOther.ProvidentFundPdfName))
-                        {
-                            <div class="file-badge">
-                                <i class="fas fa-circle-check"></i>
-                                File already uploaded: @Model.StaffOther.ProvidentFundPdfName
+
+                        <!-- f -->
+                        <div class="form-item">
+                            <label class="long-label">f. Whether following registers are maintained</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div>
+                                    <label>i. Service Register</label>
+                                    <select asp-for="StaffOther.ServiceRegisterMaintained" class="form-select">
+                                        <option value="">-- Select --</option>
+                                        <option value="Y" selected="@(Model.StaffOther.ServiceRegisterMaintained == "Y")">Yes</option>
+                                        <option value="N" selected="@(Model.StaffOther.ServiceRegisterMaintained == "N")">No</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>ii. Acquittance registers</label>
+                                    <select asp-for="StaffOther.AcquittanceRegisterMaintained" class="form-select">
+                                        <option value="">-- Select --</option>
+                                        <option value="Y" selected="@(Model.StaffOther.AcquittanceRegisterMaintained == "Y")">Yes</option>
+                                        <option value="N" selected="@(Model.StaffOther.AcquittanceRegisterMaintained == "N")">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- g -->
+                        <div class="form-item">
+                            <label class="long-label">g. Provident fund benefit provided (Give details)</label>
+                            <div class="file-upload-area">
+                                <input asp-for="ProvidentFundPdf" type="file"  class="file-validate" accept="application/pdf" />
+                            </div>
+                            <span asp-validation-for="ProvidentFundPdf" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(Model.StaffOther.ProvidentFundPdfName))
+                            {
                                 <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "PF" })"
-                                   target="_blank" class="btn btn-sm btn-outline-primary ms-3">
-                                    📄 View PDF
+                                   target="_blank" class="view-btn">
+                                    <i class="fas fa-eye"></i> View Provident Fund Document
                                 </a>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- h -->
-                    <div class="mb-4">
-                        <label class="long-label">h. Whether ESI benefits are provided (Give Details)</label>
-                        <div class="file-upload-area">
-                            <input asp-for="ESIPdf" type="file" accept="application/pdf" />
+                            }
                         </div>
-                        <span asp-validation-for="ESIPdf" class="text-danger"></span>
-                        @if (!string.IsNullOrEmpty(Model.StaffOther.ESIPdfName))
-                        {
-                            <div class="file-badge">
-                                <i class="fas fa-circle-check"></i>
-                                File already uploaded: @Model.StaffOther.ESIPdfName
-                                <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "ESI" })"
-                                   target="_blank" class="btn btn-sm btn-outline-primary ms-3">
-                                    📄 View PDF
-                                </a>
+
+                        <!-- h -->
+                        <div class="form-item">
+                            <label class="long-label">h. Whether ESI benefits are provided (Give Details)</label>
+                            <div class="file-upload-area">
+                                <input asp-for="ESIPdf" type="file" class="file-validate" accept="application/pdf" />
                             </div>
-                        }
-                    </div>
+                            <span asp-validation-for="ESIPdf" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(Model.StaffOther.ESIPdfName))
+                            {
+                                <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "ESI" })"
+                                   target="_blank" class="view-btn">
+                                    <i class="fas fa-eye"></i> View ESI Document
+                                </a>
+                            }
+                        </div>
 
-                    <div class="text-end mt-4">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save Staff Particulars (Other)
-                        </button>
-                    </div>
-                </form>
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn-save">Save Staff Particulars (Other)</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- Navigation -->
-        <div class="form-footer">
-            <a asp-controller="Aff_CA_Med_FinanceDetails" asp-action="Med_CA_AccountAndFeeDetails" class="btn btn-ghost">
-                ← Previous (Finance Details)
-            </a>
-            <a asp-controller="CA_Aff_AcademicMatters" asp-action="AcademicMatters" class="btn btn-primary">
-                Next
-                <i class="fas fa-arrow-right"></i>
-            </a>
+            <!-- Navigation -->
+            <div class="navigation-buttons">
+                <a asp-controller="Aff_CA_Med_FinanceDetails"
+                   asp-action="Med_CA_AccountAndFeeDetails"
+                   class="btn-prev">← Previous</a>
+                <a asp-controller="CA_Med_ResearchPublications"
+                   asp-action="CA_Med_ResearchPublicationsDetails"
+                   class="btn-save">Next →</a>
+            </div>
+
+           
+
         </div>
     </div>
+</div>
 
-    @section Scripts {
-        <partial name="_ValidationScriptsPartial" />
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ddl = document.getElementById("ExaminerDetailsAttachedDropdown");
+            const fileDiv = document.getElementById("ExaminerFileDiv");
 
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-        <script>
-            // Examiner file toggle
-            function toggleExaminerFileDiv() {
-                const ddl = document.getElementById("ExaminerDetailsAttachedDropdown");
-                const div = document.getElementById("ExaminerFileDiv");
-                if (ddl && div) {
-                    div.style.display = ddl.value === "Y" ? "block" : "none";
+            function toggleFileDiv() {
+                if (ddl && fileDiv) {
+                    fileDiv.style.display = ddl.value === "Y" ? "block" : "none";
                 }
             }
 
-            document.addEventListener("DOMContentLoaded", function () {
-                toggleExaminerFileDiv();
-                document.getElementById("ExaminerDetailsAttachedDropdown")?.addEventListener("change", toggleExaminerFileDiv);
-            });
+            if (ddl) {
+                ddl.addEventListener("change", toggleFileDiv);
+                toggleFileDiv();
+            }
 
             @if (TempData["Success"] != null)
             {
@@ -502,11 +540,49 @@
                             title: 'Saved Successfully!',
                             text: '@TempData["Success"]',
                             confirmButtonColor: '#28a745',
-                            timer: 4000
+                            timer: 4000,
+                            timerProgressBar: true
                         });
                         </text>
             }
-        </script>
-    }
-</body>
-</html>
+
+            document.addEventListener("change", function (e) {
+
+                if (e.target.classList.contains("file-validate")) {
+
+                    const file = e.target.files[0];
+                    const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+                    if (file) {
+
+                        // ❌ SIZE CHECK
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "File too large",
+                                text: "Maximum allowed size is 2MB"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+
+                        // ❌ TYPE CHECK
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        if (ext !== "pdf") {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Invalid file",
+                                text: "Only PDF files are allowed"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+                    }
+                }
+
+            });
+        });
+    </script>
+}

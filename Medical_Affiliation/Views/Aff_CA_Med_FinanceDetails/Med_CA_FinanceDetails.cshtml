@@ -417,6 +417,19 @@
             display: none;
         }
     }
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
@@ -448,7 +461,7 @@
                     </div>
                     <div class="field-group">
                         <label class="form-label-text">Upload Council List (PDF)</label>
-                        <input type="file" name="GoverningCouncilPdf" accept="application/pdf" class="form-control" id="GoverningCouncilPdfInput" />
+                        <input type="file" name="GoverningCouncilPdf" accept="application/pdf" class="form-control pdf-file" id="GoverningCouncilPdfInput" />
                         <span asp-validation-for="GoverningCouncilPdf" class="text-danger"></span>
                         @if (!string.IsNullOrEmpty(Model.GoverningCouncilPdfName))
                         {
@@ -560,7 +573,7 @@
                     <div id="AccountBooksPdfDiv" class="pdf-upload-area"
                          style="display: @(Model.AccountBooksMaintained == "Y" ? "block" : "none");">
                         <label class="form-label-text">Account Summary PDF (required when YES) <span style="color:var(--danger)">*</span></label>
-                        <input type="file" name="AccountSummaryPdf" accept="application/pdf" class="form-control" id="AccountSummaryPdfInput" />
+                        <input type="file" name="AccountSummaryPdf" accept="application/pdf" class="form-control pdf-file" id="AccountSummaryPdfInput" />
                         <span asp-validation-for="AccountSummaryPdf" class="text-danger"></span>
                         @if (!string.IsNullOrEmpty(Model.AccountSummaryPdfName))
                         {
@@ -593,7 +606,7 @@
                     <div id="AuditedPdfDiv" class="pdf-upload-area"
                          style="display: @(Model.AccountsAudited == "Y" ? "block" : "none");">
                         <label class="form-label-text">Audited Statement PDF (required when YES) <span style="color:var(--danger)">*</span></label>
-                        <input type="file" name="AuditedStatementPdf" accept="application/pdf" class="form-control" id="AuditedStatementPdfInput" />
+                        <input type="file" name="AuditedStatementPdf" accept="application/pdf" class="form-control pdf-file" id="AuditedStatementPdfInput" />
                         <span asp-validation-for="AuditedStatementPdf" class="text-danger"></span>
                         @if (!string.IsNullOrEmpty(Model.AuditedStatementPdfName))
                         {
@@ -630,7 +643,7 @@
                         <div id="DonationPdfDiv" class="pdf-upload-area"
                              style="display: @(Model.DonationLevied == "Y" ? "block" : "none");">
                             <label class="form-label-text">Upload Supporting Document (PDF) <span style="color:var(--danger)">*</span></label>
-                            <input type="file" name="DonationPdf" accept="application/pdf" class="form-control" />
+                            <input type="file" name="DonationPdf" accept="application/pdf" class="form-control pdf-file" />
                             <span asp-validation-for="DonationPdf" class="text-danger"></span>
                             @if (!string.IsNullOrEmpty(Model.DonationPdfName))
                             {
@@ -642,18 +655,31 @@
                     </div>
                 }
 
-                <!-- Footer -->
+                <!-- Footer Navigation -->
                 <div class="form-footer">
-                    <div class="nav-controls">
-                        <a asp-controller="" asp-action="" class="btn-prev">← Previous</a>
-                        <a asp-controller="CA_Med_StaffDetails" asp-action="CA_Med_StaffDetails" class="btn-next">
-                            Next → Staff Particulars
-                        </a>
-                    </div>
+                    @* <div class="nav-controls"> *@
+                        <!-- Previous Button -->
+                    <a asp-controller="CA_Aff_AcademicMatters"
+                        asp-action="AcademicMatters"
+                        class="btn-prev">← Previous</a>
+
+                    <!-- Save Button with Proper Text -->
                     <button type="submit" class="btn-save" id="saveButton">
-                        Save &amp; Continue
+                        Save Account and Fee Details
                     </button>
+
+                    <!-- Next Button with Clear Text -->
+                    <a asp-controller="CA_Med_StaffDetails"
+                        asp-action="CA_Med_StaffDetails"
+                        class="btn-next">
+                        Next →
+                    </a>
+
+                    @* </div> *@
+
                 </div>
+
+
             </form>
         </div>
     </div>
@@ -698,6 +724,44 @@
                 });
                 </text>
         }
+    });
+
+    document.addEventListener("change", function (e) {
+
+        if (e.target.classList.contains("pdf-file")) {
+
+            const file = e.target.files[0];
+            const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+            if (file) {
+
+                // ❌ FILE SIZE CHECK
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "File too large",
+                        text: "Maximum allowed size is 2MB"
+                    });
+
+                    e.target.value = "";
+                    return;
+                }
+
+                // ❌ FILE TYPE CHECK
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (ext !== "pdf") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Invalid file",
+                        text: "Only PDF files are allowed"
+                    });
+
+                    e.target.value = "";
+                    return;
+                }
+            }
+        }
+
     });
 </script>
 

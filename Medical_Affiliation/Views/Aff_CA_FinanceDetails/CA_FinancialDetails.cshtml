@@ -160,6 +160,19 @@
         background: linear-gradient(90deg, #6366f1, #312e81, #6366f1);
         margin: 20px 0;
     }
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
@@ -392,7 +405,7 @@
 
         <div class="text-end mt-5 mb-5">
             <a asp-controller="" asp-action=""
-               class="btn btn-primary btn-lg shadow">
+               class="btn btn-next btn-lg shadow">
                 Next (Link Not added Yet)
             </a>
         </div>  

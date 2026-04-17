@@ -18,29 +18,31 @@
 //            _userContext = userContext;
 //        }
 
-//        [HttpGet]
-//        public async Task<IActionResult> AffiliationPayment()
-//        {
-//            var collegeCode = _userContext.CollegeCode;
-//            int facultyCode = _userContext.FacultyId;
-//            var affiliationTypeId = _userContext.TypeOfAffiliation;
-//            var data = await _context.AffiliationPayments
-//                .Where(x => x.CollegeCode == collegeCode &&
-//                            x.FacultyCode == facultyCode &&
-//                            x.AffiliationTypeId == affiliationTypeId &&
-//                            x.IsActive)
-//                .Select(x => new AffiliationPaymentViewModel
-//                {
-//                    Id = x.Id,
-//                    CollegeCode = x.CollegeCode,
-//                    FacultyCode = x.FacultyCode,
-//                    AffiliationTypeId = x.AffiliationTypeId,
-//                    PaymentDate = x.PaymentDate,
-//                    Amount = x.Amount,
-//                    TransactionReferenceNo = x.TransactionReferenceNo,
-//                    SupportingDocument = x.SupportingDocument,
-//                })
-//                .FirstOrDefaultAsync();
+        [HttpGet]
+        public async Task<IActionResult> Payment()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            int facultyCode = _userContext.FacultyId;
+            var affiliationTypeId = _userContext.TypeOfAffiliation;
+            var data = await _context.AffiliationPayments
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            x.AffiliationTypeId == affiliationTypeId &&
+                            x.IsActive)
+                .Select(x => new AffiliationPaymentViewModel
+                {
+                    Id = x.Id,
+                    CollegeCode = x.CollegeCode,
+                    FacultyCode = x.FacultyCode,
+                    AffiliationTypeId = x.AffiliationTypeId,
+                    PaymentDate = x.PaymentDate,
+                    Amount = x.Amount,
+                    TransactionReferenceNo = x.TransactionReferenceNo,
+                    SupportingDocument = string.IsNullOrEmpty(x.SupportingDocument)
+                                                ? null
+                                                : Path.GetFileName(x.SupportingDocument),
+                })
+                .FirstOrDefaultAsync();
 
 //            return View(data ?? new AffiliationPaymentViewModel());
 //        }
@@ -59,7 +61,8 @@
 //            if (duplicate != null)
 //                return BadRequest("Transaction Reference already exists");
 
-//            AffiliationPayment entity;
+            AffiliationPayment entity;
+            string existingFilePath = null;
 
 //            if (model.Id > 0)
 //            {
@@ -69,84 +72,116 @@
 //                if (entity == null)
 //                    return NotFound("Payment not found");
 
-//                entity.PaymentDate = model.PaymentDate;
-//                entity.Amount = model.Amount;
-//                entity.TransactionReferenceNo = model.TransactionReferenceNo;
-//            }
-//            else
-//            {
-//                // ➕ INSERT
-//                entity = new AffiliationPayment
-//                {
-//                    CollegeCode = _userContext.CollegeCode,
-//                    FacultyCode = _userContext.FacultyId,
-//                    AffiliationTypeId = _userContext.TypeOfAffiliation,
-//                    CreatedDate = DateTime.Now,
-//                    IsActive = true
-//                };
+                // ✅ store existing file path
+                existingFilePath = entity.SupportingDocument;
+            }
+            else
+            {
+                // ➕ INSERT
+                entity = new AffiliationPayment
+                {
+                    CollegeCode = _userContext.CollegeCode,
+                    FacultyCode = _userContext.FacultyId,
+                    AffiliationTypeId = _userContext.TypeOfAffiliation,
+                    CreatedDate = DateTime.Now,
+                    IsActive = true
+                };
 
 //                _context.AffiliationPayments.Add(entity);
 //            }
 
-//            entity.PaymentDate = model.PaymentDate;
-//            entity.Amount = model.Amount;
-//            entity.TransactionReferenceNo = model.TransactionReferenceNo;
+            // 🔁 Common fields
+            entity.PaymentDate = model.PaymentDate;
+            entity.Amount = model.Amount;
+            entity.TransactionReferenceNo = model.TransactionReferenceNo;
 
-//            if (model.File != null && model.File.Length > 0)
-//            {
-//                if (model.File.Length > 1 * 1024 * 1024)
-//                {
-//                    TempData["Error"] = "File size must be less than 1MB";
-//                    return RedirectToAction("AffiliationPayment");
-//                }
-//                var allowedExtensions = new[] { ".pdf", ".jpg", ".png" };
-//                var ext = Path.GetExtension(model.File.FileName).ToLower();
+            // 📁 FILE HANDLING
+            if (model.File != null && model.File.Length > 0)
+            {
+                // ❌ Size validation
+                if (model.File.Length > 1 * 1024 * 1024)
+                {
+                    TempData["Error"] = "File size must be less than 1MB";
+                    return RedirectToAction("Payment");
+                }
 
-//                if (!allowedExtensions.Contains(ext))
-//                {
-//                    TempData["Error"] = "Invalid file type";
-//                    return RedirectToAction("AffiliationPayment");
-//                }
+                // ❌ Extension validation
+                var allowedExtensions = new[] { ".pdf", ".jpg", ".png" };
+                var ext = Path.GetExtension(model.File.FileName).ToLower();
 
-//                var folderPath = @"D:\AffiliationPayment";
+                if (!allowedExtensions.Contains(ext))
+                {
+                    TempData["Error"] = "Invalid file type";
+                    return RedirectToAction("Payment");
+                }
 
-//                // Ensure directory exists
-//                if (!Directory.Exists(folderPath))
-//                {
-//                    Directory.CreateDirectory(folderPath);
-//                }
+                // ✅ Folder path
+                var basePath = @"D:\Affiliation_Medical";
+                var folderPath = Path.Combine(basePath, "Payment");
 
-//                // Generate unique filename
-//                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(model.File.FileName)}";
-//                var fullPath = Path.Combine(folderPath, uniqueFileName);
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
 
-//                // Save file
-//                using (var stream = new FileStream(fullPath, FileMode.Create))
-//                {
-//                    await model.File.CopyToAsync(stream);
-//                }
+                // 🔥 DELETE OLD FILE (only if exists)
+                if (!string.IsNullOrEmpty(existingFilePath))
+                {
+                    var oldFullPath = Path.Combine(folderPath, existingFilePath);
 
-//                // Save full path in DB
-//                entity.SupportingDocument = fullPath;
-//            }
+                    if (System.IO.File.Exists(oldFullPath))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(oldFullPath);
+                        }
+                        catch
+                        {
+                            // log if needed
+                        }
+                    }
+                }
 
-//            await _context.SaveChangesAsync();
-//            TempData["Success"] = "Payment saved successfully";
+                // ✅ Save new file
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(model.File.FileName)}";
+                var fullPath = Path.Combine(folderPath, uniqueFileName);
 
-//            return RedirectToAction("AffiliationPayment");
-//        }
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await model.File.CopyToAsync(stream);
+                }
 
-//        public IActionResult ViewFile(string path)
-//        {
-//            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
-//                return NotFound();
+                entity.SupportingDocument = uniqueFileName;
+            }
+            else if (model.Id > 0)
+            {
+                // ✅ KEEP OLD FILE
+                entity.SupportingDocument = existingFilePath;
+            }
 
-//            var fileBytes = System.IO.File.ReadAllBytes(path);
-//            var contentType = GetContentType(path);
+            await _context.SaveChangesAsync();
 
-//            // 👇 NO filename → inline preview
-//            return File(fileBytes, contentType);
-//        }
+            TempData["Success"] = "Payment saved successfully";
+
+            return RedirectToAction("Payment");
+        }
+
+        public IActionResult ViewFile(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return NotFound();
+
+            var folderPath = @"D:\Affiliation_Medical\Payment";
+            var fullPath = Path.Combine(folderPath, fileName);
+
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound();
+
+            var fileBytes = System.IO.File.ReadAllBytes(fullPath);
+            var contentType = GetContentType(fullPath);
+
+            return File(fileBytes, contentType);
+        }
 
 //        private string GetContentType(string path)
 //        {

@@ -62,6 +62,13 @@ public class AutoProgressFilter : IAsyncActionFilter
     new CAStep { Key="Vehicle", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
     new CAStep { Key="BedDistribution", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
 
+    new CAStep { Key="PgCourses", Ctrl="AffiliationPgCourse", Act="PgCourses" },
+    new CAStep { Key="PgAssociatedInstitutions", Ctrl="AffiliationSS", Act="AssociatedInstitutions" },
+
+    new CAStep { Key="SsCoursesOffered", Ctrl="AffiliationSS", Act="CoursesOffered" },
+    new CAStep { Key="SsAssociatedInstitutions", Ctrl="AffiliationSS", Act="AssociatedInstitutions" },
+    new CAStep { Key="SsCoursesApplied", Ctrl="Aff_CA_SS_CoursesAppliedSS", Act="CA_SS_CoursesApplied" },
+
     new CAStep { Key="AcademicMatters", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
     new CAStep { Key="Finance", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
     new CAStep { Key="StaffDetails", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
@@ -76,7 +83,9 @@ public class AutoProgressFilter : IAsyncActionFilter
     new CAStep { Key="Hostel", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
     //new CAStep { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
 
-    new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" }
+    new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
+    new CAStep { Key="PaymentDetails", Ctrl="AffiliationPayment", Act="Payment" },
+    new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
 };
 
         // 🔥 Find matching step dynamically

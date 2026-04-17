@@ -131,6 +131,10 @@ body {
 .form-wrap, .table-wrap, .form-card, .main-box {
     padding: 6rem 24px 60px;
 }
+
+.form-card{
+    padding: 6rem 24px 2rem;
+}
 /* Section label */
 .section-label {
     display: flex;
@@ -218,4 +222,34 @@ body {
 .page-container {
     margin: 0;
     padding: 0;
+}
+
+.btn-next {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: var(--white);
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 9px 26px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: opacity 0.15s, box-shadow 0.15s;
+}
+
+.btn-prev {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    font-family: 'DM Sans', sans-serif;
 }

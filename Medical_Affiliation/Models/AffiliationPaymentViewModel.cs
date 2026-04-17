@@ -10,6 +10,13 @@
         public decimal Amount { get; set; }
         public string TransactionReferenceNo { get; set; }
         public string? SupportingDocument { get; set; }
-        public IFormFile File { get; set; }
+        public IFormFile? File { get; set; }
+
+        public string PaymentDateDisplay => PaymentDate != default ? PaymentDate.ToString("dd MMM yyyy") : "—";
+
+        public string AmountDisplay =>
+            Amount > 0 ? $"₹ {Amount:N2}" : "—";
+        public bool HasDocument =>
+    !string.IsNullOrEmpty(SupportingDocument);
     }
 }

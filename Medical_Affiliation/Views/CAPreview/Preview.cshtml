@@ -553,6 +553,18 @@
                 </div>
             }
 
+
+            @if (Model.AdminTeachAndHostelVM != null && Model.PaymentVM != null)
+            {
+                <div class="section-separator"></div>
+            }
+            @if(Model.PaymentVM != null)
+            {
+                <div id="payment-group">
+                    @await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)
+                </div>
+            }
+
             <!-- Section Separator -->
             @* @if (Model.FinanceVm != null && Model.AdminTeachAndHostelVM != null )
             {
@@ -567,7 +579,18 @@
             
         </div>
 
+        <div class="d-flex justify-content-start align-items-center">
+
+            <!-- 🔙 PREVIOUS -->
+            <a href="@Url.Action("Payment", "AffiliationPayment")"
+                   class="btn btn-secondary">
+                ← Previous
+            </a>
+
+        </div>
     </div>
+
+    
 </div>
 
 <script>

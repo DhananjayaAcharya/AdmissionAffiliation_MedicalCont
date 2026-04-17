@@ -62,6 +62,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AffiliationCourseDetail> AffiliationCourseDetails { get; set; }
 
+    public virtual DbSet<AffiliationFinalDeclaration> AffiliationFinalDeclarations { get; set; }
+
     public virtual DbSet<AffiliationLicinpsection> AffiliationLicinpsections { get; set; }
 
     public virtual DbSet<AffiliationOtherCoursesPermittedByNmc> AffiliationOtherCoursesPermittedByNmcs { get; set; }
@@ -430,7 +432,7 @@ public partial class ApplicationDbContext : DbContext
 
 //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=DESKTOP-A7R4K32;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
+//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1058,6 +1060,35 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.YearOfLastAffiliationRguhs)
                 .HasMaxLength(100)
                 .HasColumnName("YearOfLastAffiliationRGUHS");
+        });
+
+        modelBuilder.Entity<AffiliationFinalDeclaration>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07A62EBB9C");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.AffiliationTypeId }, "UX_AffFinalDeclarations").IsUnique();
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.PrincipalName).HasMaxLength(150);
+            entity.Property(e => e.SubmittedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.AffiliationFinalDeclarations)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffFinalDecl_Type");
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.AffiliationFinalDeclarations)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffFinalDecl_College");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.AffiliationFinalDeclarations)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffFinalDecl_Faculty");
         });
 
         modelBuilder.Entity<AffiliationLicinpsection>(entity =>
@@ -2076,7 +2107,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaProgress>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CA_Progr__3214EC073CF8B152");
+            entity.HasKey(e => e.Id).HasName("PK__CA_Progr__3214EC07761E6F65");
 
             entity.ToTable("CA_Progress");
 

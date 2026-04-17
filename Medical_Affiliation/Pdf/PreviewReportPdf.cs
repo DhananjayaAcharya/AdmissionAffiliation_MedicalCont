@@ -182,6 +182,8 @@ public class PreviewReportPdf : IDocument
                 //--- PRINCIPAL DETAILS ---
                 AddPrincipalSection(col);
 
+                AddPaymentSection(col);
+
 
                 //--SMALL GROUP--- NURSING ONLY
                 //AddSmallGroupTeachingSection(col);
@@ -2546,6 +2548,43 @@ public class PreviewReportPdf : IDocument
                     isFirstRow = false;
                 }
             }
+        });
+    }
+
+    private void AddPaymentSection(ColumnDescriptor col)
+    {
+        var payment = _model?.PaymentVM;
+
+        if (payment == null || payment.Id <= 0)
+            return;
+
+        // ===== MAIN HEADING =====
+        col.Item().PaddingTop(25)
+            .AlignCenter()
+            .Text("Payment Details")
+            .FontSize(14)
+            .Bold();
+
+        // ===== TABLE =====
+        col.Item().PaddingTop(10).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3); // Label
+                columns.RelativeColumn(4); // Value
+            });
+
+            AddTextRow(table, "Amount Paid", payment.Amount);
+            AddTextRow(table,
+                "Payment Date",
+                payment.PaymentDate != default
+                    ? payment.PaymentDate.ToString("dd MMM yyyy")
+                    : "—");
+            AddTextRow(table, "Transaction Reference", payment.TransactionReferenceNo ?? "—");
+
+            AddTextRow(table,
+                "Supporting Document",
+                payment.HasDocument ? "Available" : "—");
         });
     }
 

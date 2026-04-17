@@ -24,6 +24,8 @@ namespace Medical_Affiliation.Models
 
         public AdminTeachAndHostelDisplayVM AdminTeachAndHostelVM { get; set; }
         public FacultyDesigNonTeachDisplayVM FacultyDesigNonTeachDisplayVM { get; set; }
+        public AffiliationPaymentViewModel PaymentVM { get; set; }
+        public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
         //public
 
     }

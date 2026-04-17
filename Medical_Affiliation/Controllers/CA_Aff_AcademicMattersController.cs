@@ -194,23 +194,21 @@ namespace Medical_Affiliation.Controllers
                     .ToList();
 
             model.StudentRegisterRecords = registerMasters
-                .Select(m =>
-                {
-                    var saved = savedRegisters
-                        .FirstOrDefault(s => s.RegisterRecordId == m.RegisterRecordId);
+                     .Select(m =>
+                     {
+                         var saved = savedRegisters
+                             .FirstOrDefault(s => s.RegisterRecordId == m.RegisterRecordId);
 
-                    return new StudentRegisterRecordViewModel
-                    {
-                        RegisterRecordId = m.RegisterRecordId,
+                         return new StudentRegisterRecordViewModel
+                         {
+                             RegisterRecordId = m.RegisterRecordId,
+                             RegisterName = m.RegisterName,
 
-                        IsMaintained = saved.IsMaintained,
-                        RegisterName = m.RegisterName,
-
-
-
-                    };
-                })
-                .ToList();
+                             // ✅ FIX
+                             IsMaintained = saved?.IsMaintained
+                         };
+                     })
+                     .ToList();
 
 
             // ViewBag Masters

@@ -693,10 +693,30 @@
                 </div>
 
                 <!-- ── Footer ── -->
-                <div class="form-footer">
+                @* <div class="form-footer">
                     <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="Details_Of_MBBS"
                        class="btn-prev">← Previous</a>
                     <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
+                </div> *@
+
+                <div class="form-footer">
+
+                    @if (Context.Session.GetString("CourseLevel") == "UG")
+                    {
+                        <a asp-controller="ContinuesAffiliation_Facultybased"
+                           asp-action="Details_Of_MBBS"
+                           class="btn-prev">← Previous</a>
+                    }
+                    else if (Context.Session.GetString("CourseLevel") == "PG"
+                    || Context.Session.GetString("CourseLevel") == "SS")
+                    {
+                        <a asp-controller="ContinuesAffiliation_Facultybased"
+                           asp-action="Aff_TrustMemberDetails"
+                           class="btn-prev">← Previous</a>
+                    }
+
+                    <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
+
                 </div>
 
             </form>

@@ -475,6 +475,20 @@
             padding: 0 12px 40px;
         }
     }
+
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
 </style>
 
 <!-- PAGE HEADER -->
@@ -739,7 +753,7 @@
                                 <i class="fas fa-file-pdf"></i> MEU Members List
                                 <span style="font-size:.68rem;color:var(--danger);font-weight:400;text-transform:none;margin-left:4px;">PDF upload mandatory</span>
                             </label>
-                            <input type="file" class="meu-field" asp-for="MeuMembersListFile" accept=".pdf" />
+                            <input type="file" class="meu-field file-validate" asp-for="MeuMembersListFile" accept=".pdf" />
                             <input type="hidden" asp-for="HasMeuMembersListFile" />
                             @Html.ValidationMessageFor(m => m.MeuMembersListFile, "", new { @class = "text-danger small" })
 
@@ -768,10 +782,10 @@
         <!-- ═══════════════════════════════════════════════════
              FOOTER ACTIONS
         ════════════════════════════════════════════════════ -->
-        <div class="dm-form-footer d-flex justify-content-end gap-2">
+        <div class="dm-form-footer d-flex justify-content-between gap-2">
 
             <button type="button" class="btn-dm btn-dm-ghost"
-                    onclick="window.location.href='@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")'">
+                    onclick="window.location.href='@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")'">
                 <i class="fas fa-arrow-left"></i> Previous
             </button>
 
@@ -779,8 +793,8 @@
                 <i class="fas fa-floppy-disk"></i> Save
             </button>
 
-            <button type="button" class="btn-dm btn-dm-success"
-                    onclick="window.location.href='@Url.Action("CA_Med_ResearchPublicationsDetails", "CA_Med_ResearchPublications")'">
+           <button type="button" class="btn btn-next" 
+                    onclick="window.location.href='@Url.Action("Payment", "AffiliationPayment")'">
                 Next <i class="fas fa-arrow-right"></i>
             </button>
 
@@ -793,9 +807,9 @@
 
 @section Scripts {
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     @if (TempData["SaveSuccess"] != null)
     {
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
         <script>
             setTimeout(function () {
                 Swal.fire({
@@ -857,6 +871,44 @@
             if (meuNo)  meuNo.addEventListener('change', handleMeuToggle);
 
             handleMeuToggle();
+            document.addEventListener("change", function (e) {
+
+                if (e.target.classList.contains("file-validate")) {
+
+                    const file = e.target.files[0];
+                    const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+                    if (file) {
+
+                        // ❌ FILE SIZE CHECK
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "File too large",
+                                text: "Maximum allowed size is 2MB"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+
+                        // ❌ FILE TYPE CHECK
+                        const ext = file.name.split('.').pop().toLowerCase();
+
+                        if (ext !== "pdf") {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Invalid file",
+                                text: "Only PDF files are allowed"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+                    }
+                }
+
+            });
         });
     </script>
 }

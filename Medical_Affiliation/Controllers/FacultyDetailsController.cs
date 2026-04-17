@@ -322,13 +322,17 @@ namespace Medical_Affiliation.Controllers
                 _context.SaveChanges();
                 transaction.Commit();
 
-                return RedirectToAction("Repo_FacultyDetails");
+                //return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
+                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
                 TempData["Error"] = "Error saving faculty records: " + ex.Message;
                 return RedirectToAction(nameof(Repo_FacultyDetails));
+
+                //return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
+
             }
         }
 

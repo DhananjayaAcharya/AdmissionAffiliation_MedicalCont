@@ -103,10 +103,18 @@ namespace Medical_Affiliation.Models
         public int SlNo { get; set; }          // optional, DB identity
         public string FacultyCode { get; set; }
         public string CollegeCode { get; set; }
+
+        [Required(ErrorMessage = "Member name is required")]
+        [RegularExpression(@"^[a-zA-Z\s.]+$", ErrorMessage = "Name can only contain letters, spaces and dots")]
         public string TrustMemberName { get; set; }
         //public string? Designation { get; set; }      // optional display field
         public string Qualification { get; set; }
+
+        [Required(ErrorMessage = "Mobile number is required")]
+        [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Enter valid 10-digit mobile number starting with 6-9")]
         public string MobileNumber { get; set; }
+
+        [Range(18, 100, ErrorMessage = "Age must be between 18 and 100")]
         public int? Age { get; set; }
 
         // HTML date input binding (yyyy-MM-dd)

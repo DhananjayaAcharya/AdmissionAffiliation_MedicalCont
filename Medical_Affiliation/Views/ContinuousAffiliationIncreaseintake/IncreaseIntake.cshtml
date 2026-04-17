@@ -164,15 +164,44 @@
     .btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
     .spin { animation: sp .7s linear infinite; }
     @@keyframes sp { to { transform: rotate(360deg); } }
+
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
 </style>
 
 @* ── PAGE HEADER ── *@
 <div class="ph">
     <div class="phi">
         @* <div class="ph-tag">Continuous Affiliation</div> *@
-        <h4>Intake Increase Application</h4>
+        <h4> Increase Intake</h4>
         <div class="ph-meta">
-            <span><span class="dot"></span>College:&nbsp;<strong>@Model.CollegeName</strong></span>
+            @* <span><span class="dot"></span>College:&nbsp;<strong>@Model.CollegeName</strong></span> *@
 @*             <span><span class="dot"></span>College Code:&nbsp;<strong>@Model.CollegeCode</strong></span>
             <span><span class="dot"></span>Faculty Code:&nbsp;<strong>@Model.FacultyCode</strong></span> *@
         </div>
@@ -250,7 +279,7 @@
 </div>
 
             <div class="cf">
-                <a href="@Url.Action("Dashboard", "CollegeLogin")" class="btn bo">
+                <a href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")" class="btn bo">
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
                     Back
                 </a>
@@ -330,7 +359,21 @@
                 }
             </div>
         </div>
+        <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
 
+                <!-- 🔙 PREVIOUS -->
+                <a href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")"
+                   class="btn btn-prev">
+                    ← Previous
+                </a>
+
+                <!-- 🔜 NEXT -->
+                <a href="@Url.Action("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation")"
+                   class="btn btn-next">
+                    Next →
+                </a>
+
+            </div>
     </div>
 </form>
 
@@ -406,7 +449,7 @@
                                     <label class="fl">
                                         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                                         <span class="fn">Choose file</span>
-                                        <input type="file" name="@(p).AY2025_NmcDocument" accept=".pdf,.jpg,.jpeg,.png" />
+                                        <input type="file" name="@(p).AY2025_NmcDocument" class="file-validate" accept=".pdf" />
                                     </label>
                                 </td>
                                 @* 2026-27 *@
@@ -425,6 +468,7 @@
                     }
                 </tbody>
             </table>
+            
         </div>
     }
 }
@@ -473,5 +517,45 @@
     document.getElementById('sBtn')?.addEventListener('click', function () {
         this.innerHTML = '<svg class="spin" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg> Saving…';
         this.disabled = true;
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener("change", function (e) {
+        if (e.target.classList.contains("file-validate")) {
+
+            const file = e.target.files[0];
+            const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+            if (file) {
+
+                // ❌ FILE SIZE CHECK
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "File too large",
+                        text: "Maximum allowed size is 2MB"
+                    });
+
+                    e.target.value = "";
+                    return;
+                }
+
+                // ❌ FILE TYPE CHECK
+                const ext = file.name.split('.').pop().toLowerCase();
+
+                if (ext !== "pdf") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Invalid file",
+                        text: "Only PDF files are allowed"
+                    });
+
+                    e.target.value = "";
+                    return;
+                }
+            }
+        }
+
     });
 </script>

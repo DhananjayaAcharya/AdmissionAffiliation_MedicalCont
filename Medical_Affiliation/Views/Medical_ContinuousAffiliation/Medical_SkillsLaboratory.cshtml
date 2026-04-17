@@ -4,6 +4,9 @@
     ViewData["Title"] = "Skills Laboratory";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
+@{
+    var courseLevel = Context.Session.GetString("CourseLevel");
+}
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -521,18 +524,15 @@
     .btn-next {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        background: linear-gradient(135deg, #1a6b3a, #2e8b57);
-        border: none;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
         color: var(--white);
         font-size: 0.82rem;
         font-weight: 600;
-        padding: 9px 22px;
+        padding: 9px 26px;
         border-radius: 4px;
-        cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
-        letter-spacing: 0.04em;
-        transition: opacity 0.15s;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
     }
 
         .btn-next:hover {
@@ -839,7 +839,7 @@
                 </div>
 
                 <!-- ── Footer ── -->
-                <div class="form-footer">
+               @*  <div class="form-footer">
                     <button type="button" class="btn-prev"
                             onclick="window.location.href='@Url.Action("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation")'">
                         ← Previous
@@ -854,6 +854,61 @@
                             Next →
                         </button>
                     </div>
+                </div> *@
+
+                
+
+                <div class="form-footer">
+
+                    @* 🔹 PREVIOUS BUTTON *@
+                    @if (courseLevel == "UG")
+                    {
+                        <a asp-controller="Medical_ContinuousAffiliation"
+                           asp-action="Medical_LandBuildingdetails"
+                           class="btn-prev">← Previous</a>
+                    }
+                    else if (courseLevel == "PG")
+                    {
+                        <a asp-controller="Medical_ContinuousAffiliation"
+                           asp-action="Medical_LandBuildingdetails"
+                           class="btn-prev">← Previous</a>
+                    }
+                    else if (courseLevel == "SS")
+                    {
+                        <a asp-controller="Medical_ContinuousAffiliation"
+                           asp-action="Medical_LandBuildingdetails"
+                           class="btn-prev">← Previous</a>
+                    }
+
+                    @* <div class="footer-right"> *@
+
+                        <button type="submit" class="btn-save" id="btnSave">
+                            <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
+                            &#128190; Save &amp; Continue
+                        </button>
+
+                        @* 🔹 NEXT BUTTON *@
+                        @if (courseLevel == "UG")
+                        {
+                            <a asp-controller="Medical_ContinuousAffiliation"
+                               asp-action="Medical_EquimentDetails"
+                               class="btn-next">Next →</a>
+                        }
+                        else if (courseLevel == "PG")
+                        {
+                            <a asp-controller="Medical_ContinuousAffiliation"
+                               asp-action="Medical_EquimentDetails"
+                               class="btn-next">Next →</a>
+                        }
+                        else if (courseLevel == "SS")
+                        {
+                            <a asp-controller="Medical_ContinuousAffiliation"
+                               asp-action="Medical_EquimentDetails"
+                               class="btn-next">Next →</a>
+                        }
+
+                    @* </div> *@
+
                 </div>
 
             </form>

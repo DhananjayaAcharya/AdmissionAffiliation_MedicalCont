@@ -779,7 +779,9 @@
     </style>
 </head>
 <body>
-    @if (TempData["LoginError"] != null)
+    @* @if (TempData["LoginError"] != null) *@
+
+    @if (TempData["LoginError"] != null && Context.Request.Method == "POST")
     {
         <div style="color: red; background-color: #ffe6e6; padding: 10px; margin-bottom: 10px; border: 1px solid red;">
             @TempData["LoginError"]
@@ -853,6 +855,7 @@
                                         <div class="ic-val">2026 – 2027</div>
                                     </div>
                                 </div>
+                                
                                 @* <div class="info-card">
                                     <div class="ic-icon"><i class="bi bi-headset"></i></div>
                                     <div>
@@ -948,8 +951,12 @@
                                         <i class="bi bi-arrow-clockwise"></i>
                                     </button>
                                     <div class="cap-field">
-                                        <input asp-for="Captcha" class="form-control captcha-value"
-                                               placeholder="Type code shown" autocomplete="off" maxlength="5" type="number" />
+                                        <input asp-for="Captcha"
+                                           class="form-control captcha-value"
+                                           placeholder="Type code shown"
+                                           autocomplete="off"
+                                           type="number"
+                                           oninput="if (this.value.length > 5) this.value = this.value.slice(0, 5);" />
                                     </div>
                                 </div>
                                 <input type="hidden" asp-for="CaptchaCode" />
@@ -1045,7 +1052,7 @@
             $('#CollegeId').on('change', function () {
                 $('input[name="Username"]').val($(this).find('option:selected').data('code') || '');
             });
-
+            
             /* Password toggle */
             $('#togglePwBtn').on('click', function () {
                 var $i = $('#PasswordField'), pass = $i.attr('type') === 'password';

@@ -3,6 +3,9 @@
     ViewData["Title"] = "Land, Building & Teaching Facilities";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
+@{
+    var courseLevel = Context.Session.GetString("CourseLevel");
+}
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -704,7 +707,7 @@
 
                             <div class="field-group">
                                 <label class="form-label-text">Upload Land Records</label>
-                                <input type="file" class="form-control" asp-for="LandRecordsDocument" />
+                                <input type="file" class="form-control file-validate" asp-for="LandRecordsDocument" />
                                 @if (Model != null && Model.HasLandRecordsFile)
                                 {
                                     <a asp-action="ViewLandRecords" target="_blank" class="btn-view-pdf">
@@ -795,7 +798,7 @@
 
                             <div class="field-group" style="grid-column: span 3;">
                                 <label class="form-label-text">Upload Approved Building Plan</label>
-                                <input type="file" class="form-control" asp-for="ApprovedBuildingPlanDocument" />
+                                <input type="file" class="form-control file-validate" asp-for="ApprovedBuildingPlanDocument" />
                                 @if (Model != null && Model.HasApprovedBuildingPlanFile)
                                 {
                                     <a asp-action="ViewBuildingPlan" target="_blank" class="btn-view-pdf">
@@ -1519,16 +1522,49 @@
                             onclick="window.location.href='@Url.Action("Nursing_Institute_Details", "Medical_ContinuousAffiliation")'">
                         ← Previous
                     </button> *@
-                    <div class="footer-right">
+
+                        @* 🔹 PREVIOUS BUTTON *@
+                        @if (courseLevel == "UG")
+                        {
+                            <a asp-controller="ContinuesAffiliation_Facultybased"
+                               asp-action="Aff_PrincipalDetails"
+                               class="btn-prev">← Previous</a>
+                        }
+                        else if (courseLevel == "PG")
+                        {
+                            <a asp-controller="AffiliationSS"
+                               asp-action="AssociatedInstitutions"
+                               class="btn-prev">← Previous</a>
+                        }
+                        else if (courseLevel == "SS")
+                        {
+                            <a asp-controller="Aff_CA_SS_CoursesAppliedSS"
+                               asp-action="CA_SS_CoursesApplied"
+                               class="btn-prev">← Previous</a>
+                        }
+
                         <button type="submit" class="btn-save" id="btnSave">&#128190; Save</button>
+
+                        @* 🔹 NEXT BUTTON (SAME FOR ALL) *@
+                        <a asp-controller="Medical_ContinuousAffiliation"
+                           asp-action="Medical_SkillsLaboratory"
+                           class="btn-next">Next →</a>
+
+                           @*Save Button*@
                         
-                    </div>
                 </div>
 
             </form>
         </div><!-- /.form-card -->
     </div>
 </div>
+
+
+
+
+
+   
+
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
@@ -1653,6 +1689,47 @@
             /* ── Initial calc ── */
             recalcTeaching();
             recalcMuseum();
+        });
+    </script>
+
+    <script>
+        document.addEventListener("change", function (e) {
+
+            if (e.target.classList.contains("file-validate")) {
+
+                const file = e.target.files[0];
+                const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+
+                if (file) {
+
+                    // ❌ FILE SIZE CHECK
+                    if (file.size > maxSize) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "File too large",
+                            text: "Maximum allowed size is 2MB"
+                        });
+
+                        e.target.value = "";
+                        return;
+                    }
+
+                    // ❌ FILE TYPE CHECK
+                    const ext = file.name.split('.').pop().toLowerCase();
+
+                    if (ext !== "pdf") {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Invalid file",
+                            text: "Only PDF files are allowed"
+                        });
+
+                        e.target.value = "";
+                        return;
+                    }
+                }
+            }
+
         });
     </script>
 }

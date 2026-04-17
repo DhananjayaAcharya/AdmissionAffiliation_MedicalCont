@@ -1,5 +1,4 @@
 ﻿@model Medical_Affiliation.Models.CA_VehicleDetailsViewModel
-
 @{
     ViewBag.Title = "Vehicle Registration & Documents";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
@@ -36,20 +35,69 @@
         min-height: 100vh;
     }
 
-    /* ── Page Shell ── */
+    /* Page Shell & Container */
     .page-shell {
         background-color: var(--cream);
         min-height: 100vh;
-        padding: 36px 0 48px;
+        /* padding: 36px 0 48px; */
     }
 
     .page-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 24px;
+        /* padding: 0 24px; */
     }
 
-    /* ── Header Banner ── */
+    /* Updated Header Content - Stacked Vertically on Left */
+    .header-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 75%; /* Prevents overlapping with badge on smaller screens */
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+    }
+
+    .header-subtitle {
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.75);
+        font-weight: 300;
+        line-height: 1.4;
+    }
+
+    /* Ensure eyebrow stays above */
+    .header-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 10px;
+    }
+
+    /* Badge positioning */
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+    /* Header */
     .page-header {
         background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
         border-radius: 10px 10px 0 0;
@@ -61,10 +109,7 @@
         .page-header::before {
             content: '';
             position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
+            inset: 0;
             background-image: repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px);
         }
 
@@ -78,6 +123,11 @@
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
 
+   
+
+    
+
+    
     .header-eyebrow {
         font-family: 'DM Sans', sans-serif;
         font-size: 0.68rem;
@@ -117,12 +167,11 @@
         padding: 5px 14px;
         font-size: 0.72rem;
         font-weight: 500;
-        letter-spacing: 0.08em;
         color: var(--gold-light);
         text-transform: uppercase;
     }
 
-    /* ── Form Card ── */
+    /* Form Card */
     .form-card {
         background: var(--white);
         border: 1px solid var(--border);
@@ -132,7 +181,6 @@
         box-shadow: 0 4px 20px rgba(15,37,69,0.07);
     }
 
-    /* ── Section Label ── */
     .section-label {
         display: flex;
         align-items: center;
@@ -155,14 +203,25 @@
         white-space: nowrap;
     }
 
-    /* ── Table Wrapper ── */
+    /* Table Wrapper with Scrollbar */
     .table-wrap {
         border: 1px solid var(--border);
         border-radius: var(--radius);
         overflow: hidden;
         margin-bottom: 24px;
+        padding-top: 0;
+        padding-bottom: 0;
     }
 
+    /* Add New Vehicle Table - Horizontal Scroll Enabled */
+    .add-new-table {
+        width: 100%;
+        min-width: 1100px; /* Ensures horizontal scroll */
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+    /* Existing Table */
     .data-table {
         width: 100%;
         border-collapse: collapse;
@@ -181,8 +240,8 @@
                 text-transform: uppercase;
                 color: var(--navy);
                 border-bottom: 2px solid var(--border);
-                white-space: nowrap;
                 text-align: left;
+                white-space: nowrap;
             }
 
                 .data-table thead th:first-child {
@@ -237,6 +296,8 @@
             border-color: var(--navy-mid);
             box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
         }
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
 
     select.form-select {
         cursor: pointer;
@@ -247,14 +308,16 @@
         padding-right: 30px;
     }
 
-    .text-danger {
-        display: block;
-        font-size: 0.7rem;
-        color: var(--danger);
-        margin-top: 3px;
+    select.form-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
     }
 
-    /* ── Buttons ── */
+    /* Buttons */
     .btn-save {
         display: inline-flex;
         align-items: center;
@@ -268,8 +331,6 @@
         border-radius: 4px;
         cursor: pointer;
         transition: opacity 0.15s, box-shadow 0.15s;
-        font-family: 'DM Sans', sans-serif;
-        letter-spacing: 0.04em;
     }
 
         .btn-save:hover {
@@ -277,31 +338,26 @@
             box-shadow: 0 4px 14px rgba(15,37,69,0.3);
         }
 
-    .btn-warning {
-        background: #f39c12;
-        color: white;
-        border: none;
+    .btn-warning, .btn-danger, .btn-success {
         padding: 6px 14px;
         border-radius: 4px;
         font-size: 0.8rem;
+        border: none;
+    }
+
+    .btn-warning {
+        background: #f39c12;
+        color: white;
     }
 
     .btn-danger {
         background: var(--danger);
         color: white;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 4px;
-        font-size: 0.8rem;
     }
 
     .btn-success {
         background: var(--success);
         color: white;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 4px;
-        font-size: 0.8rem;
     }
 
     /* Search Box */
@@ -314,56 +370,83 @@
         font-size: 0.85rem;
     }
 
-    /* Pagination */
-    #pagination {
-        margin-top: 20px;
-        text-align: center;
+    /* Navigation Buttons */
+    .form-footer {
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
     }
 
-        #pagination button {
-            padding: 6px 12px;
-            margin: 0 3px;
-            border: 1px solid var(--border);
-            background: white;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.15s;
+    .navigation-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .btn-prev, .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+        .btn-prev:hover, .btn-next:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
         }
-
-            #pagination button:hover,
-            #pagination button.active {
-                background: var(--navy);
-                color: white;
-                border-color: var(--navy);
-            }
 </style>
-
+<link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
-
         <!-- Page Header -->
         <div class="page-header">
-            <div class="header-eyebrow">Continuous Affiliation · Infrastructure</div>
-            <div class="header-title">Vehicle Registration & Documents</div>
-            <div class="header-subtitle">Enter and manage vehicle details for transport and compliance</div>
+            @* <div class="header-eyebrow">Continuous Affiliation · Infrastructure</div> *@
+
+            <!-- Stacked Title and Subtitle on Left -->
+            <div class="header-content">
+                <div class="header-title">Vehicle Registration & Documents</div>
+                <div class="header-subtitle">Enter and manage vehicle details for transport and compliance</div>
+            </div>
+
             <div class="header-badge">Step 10 of 21</div>
         </div>
 
         <!-- Form Card -->
         <div class="form-card">
-
             <!-- Add New Vehicle Section -->
             <div class="section-label">
                 <span class="section-label-text">Add New Vehicle</span>
                 <span class="section-label-line"></span>
             </div>
-
-            <div class="table-wrap">
+            <div class="table-wrap" style="overflow-x: auto;">
                 <form asp-action="CA_VehicleDetails" method="post">
                     @Html.AntiForgeryToken()
-
-                    <table class="data-table" style="min-width:1100px;">
+                    <table class="data-table add-new-table">
                         <thead>
                             <tr>
                                 <th>Sl</th>
@@ -380,19 +463,14 @@
                         <tbody>
                             <tr>
                                 <td><span class="row-index">@((Model.ExistingList?.Count ?? 0) + 1)</span></td>
-
                                 <td><input asp-for="VehicleRegNo" class="form-control track" /></td>
-
                                 <td>
                                     <select asp-for="VehicleForCode" asp-items="Model.VehicleForList" class="form-select track">
                                         <option value="">— Select —</option>
                                     </select>
                                 </td>
-
                                 <td><input asp-for="SeatingCapacity" type="number" class="form-control track" min="1" /></td>
-
                                 <td><input asp-for="ValidityDate" type="date" class="form-control track" /></td>
-
                                 <td>
                                     <select asp-for="RcBookStatus" class="form-select track">
                                         <option value="">— Select —</option>
@@ -400,7 +478,6 @@
                                         <option value="N">Not Available</option>
                                     </select>
                                 </td>
-
                                 <td>
                                     <select asp-for="InsuranceStatus" class="form-select track">
                                         <option value="">— Select —</option>
@@ -408,7 +485,6 @@
                                         <option value="N">Not Available</option>
                                     </select>
                                 </td>
-
                                 <td>
                                     <select asp-for="DrivingLicenseStatus" class="form-select track">
                                         <option value="">— Select —</option>
@@ -416,7 +492,6 @@
                                         <option value="N">Not Available</option>
                                     </select>
                                 </td>
-
                                 <td style="text-align:center;">
                                     <button type="submit" class="btn-save">Save</button>
                                 </td>
@@ -431,11 +506,9 @@
                 <span class="section-label-text">Existing Vehicle Records</span>
                 <span class="section-label-line"></span>
             </div>
-
             <div style="margin-bottom:12px;">
                 <input type="text" id="searchBox" placeholder="Search by vehicle registration number..." />
             </div>
-
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -456,15 +529,12 @@
                         {
                             var item = Model.ExistingList[i];
                             var vehicleForName = Model.VehicleForList.FirstOrDefault(v => v.Value == item.VehicleForCode)?.Text ?? "-";
-
                             <tr id="row-@item.Id">
                                 <td><span class="row-index">@(i + 1)</span></td>
-
                                 <td>
                                     <span class="view-mode search-text">@item.VehicleRegNo</span>
                                     <input id="editRegNo-@item.Id" class="form-control edit-mode d-none" value="@item.VehicleRegNo" />
                                 </td>
-
                                 <td>
                                     <span class="view-mode">@vehicleForName</span>
                                     <select id="editVehicleFor-@item.Id" class="form-select edit-mode d-none">
@@ -474,17 +544,14 @@
                                         }
                                     </select>
                                 </td>
-
                                 <td>
                                     <span class="view-mode">@item.SeatingCapacity</span>
                                     <input id="editSeat-@item.Id" type="number" class="form-control edit-mode d-none" value="@item.SeatingCapacity" />
                                 </td>
-
                                 <td>
                                     <span class="view-mode">@item.ValidityDate?.ToString("yyyy-MM-dd")</span>
                                     <input id="editValidity-@item.Id" type="date" class="form-control edit-mode d-none" value="@item.ValidityDate?.ToString("yyyy-MM-dd")" />
                                 </td>
-
                                 <td>
                                     <span class="view-mode">@(item.RcBookStatus == "A" ? "Available" : "Not Available")</span>
                                     <select id="editRc-@item.Id" class="form-select edit-mode d-none">
@@ -492,7 +559,6 @@
                                         <option value="N" selected="@(item.RcBookStatus != "A")">Not Available</option>
                                     </select>
                                 </td>
-
                                 <td>
                                     <span class="view-mode">@(item.InsuranceStatus == "A" ? "Available" : "Not Available")</span>
                                     <select id="editIns-@item.Id" class="form-select edit-mode d-none">
@@ -500,7 +566,6 @@
                                         <option value="N" selected="@(item.InsuranceStatus != "A")">Not Available</option>
                                     </select>
                                 </td>
-
                                 <td>
                                     <span class="view-mode">@(item.DrivingLicenseStatus == "A" ? "Available" : "Not Available")</span>
                                     <select id="editDl-@item.Id" class="form-select edit-mode d-none">
@@ -508,7 +573,6 @@
                                         <option value="N" selected="@(item.DrivingLicenseStatus != "A")">Not Available</option>
                                     </select>
                                 </td>
-
                                 <td style="text-align:center;">
                                     <button class="btn-warning btn-sm" onclick="editRow(@item.Id)">Edit</button>
                                     <button id="saveBtn-@item.Id" class="btn-success btn-sm edit-mode d-none" onclick="saveEdit(@item.Id)">Save</button>
@@ -520,8 +584,18 @@
                 </table>
             </div>
 
-            <div id="pagination"></div>
+            <!-- Previous & Next Buttons -->
+            <div class="form-footer">
+                @* <div class="navigation-bar"> *@
+                    <a asp-controller="ContinuationAffiliationClinicalFacilities"
+                       asp-action="ClinicalFacilities"
+                       class="btn-prev">← Previous</a>
 
+                    <a asp-controller="ContinuesAffiliation_Facultybased"
+                       asp-action="MedicalUGBedDistribution"
+                       class="btn-next">Next →</a>
+                @* </div> *@
+            </div>
         </div>
     </div>
 </div>
@@ -529,7 +603,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         // Clear validation errors on input
         document.querySelectorAll('.track').forEach(el => {
@@ -537,13 +610,13 @@
             el.addEventListener('change', () => el.classList.remove('is-invalid'));
         });
 
-        // Edit Row
+        // ====================== EDIT ROW ======================
         function editRow(id) {
             document.querySelectorAll(`#row-${id} .view-mode`).forEach(el => el.classList.add("d-none"));
             document.querySelectorAll(`#row-${id} .edit-mode`).forEach(el => el.classList.remove("d-none"));
         }
 
-        // Save Edit
+        // ====================== SAVE EDIT ======================
         function saveEdit(id) {
             const token = document.querySelector("input[name='__RequestVerificationToken']").value;
 
@@ -569,16 +642,26 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire({ icon: 'success', title: 'Updated!', timer: 1500, showConfirmButton: false })
-                        .then(() => location.reload());
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Failed to update' });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to update'
+                    });
                 }
             })
-            .catch(() => Swal.fire('Error', 'Failed to save changes.', 'error'));
+            .catch(() => {
+                Swal.fire('Error', 'Failed to save changes.', 'error');
+            });
         }
 
-        // Delete
+        // ====================== CONFIRM DELETE ======================
         function confirmDelete(id) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -595,7 +678,7 @@
             });
         }
 
-        // Search
+        // ====================== SEARCH FUNCTIONALITY ======================
         function normalize(t) {
             return (t || "").toLowerCase().replace(/[^a-z0-9]/g, '');
         }
@@ -606,39 +689,6 @@
                 let txt = row.querySelector(".search-text")?.innerText || "";
                 row.style.display = normalize(txt).includes(val) ? "" : "none";
             });
-        });
-
-        // Pagination
-        let rowsPerPage = 10;
-
-        function showPage(page) {
-            let rows = Array.from(document.querySelectorAll("#tableBody tr"));
-            let start = (page - 1) * rowsPerPage;
-            let end = start + rowsPerPage;
-
-            rows.forEach((row, i) => {
-                row.style.display = (i >= start && i < end) ? "" : "none";
-            });
-        }
-
-        function setupPagination() {
-            let rows = document.querySelectorAll("#tableBody tr").length;
-            let pageCount = Math.ceil(rows / rowsPerPage);
-            let pagination = document.getElementById("pagination");
-            pagination.innerHTML = "";
-
-            for (let i = 1; i <= pageCount; i++) {
-                let btn = document.createElement("button");
-                btn.textContent = i;
-                btn.onclick = () => showPage(i);
-                if (i === 1) btn.classList.add("active");
-                pagination.appendChild(btn);
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            setupPagination();
-            showPage(1);
         });
     </script>
 

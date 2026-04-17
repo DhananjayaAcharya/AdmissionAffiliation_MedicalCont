@@ -161,6 +161,7 @@
         border-radius: var(--radius);
         overflow: hidden;
         margin-bottom: 20px;
+        padding-bottom: 20px !important;
     }
 
     .data-table {
@@ -293,11 +294,11 @@
         align-items: center;
         gap: 7px;
         background: transparent;
-        border: 1.5px solid var(--success);
+        border: 1.5px solid linear-gradient(135deg, var(--navy), var(--navy-mid));
         color: var(--success);
         font-size: 0.8rem;
         font-weight: 600;
-        padding: 7px 18px;
+        padding: 2px 6px;
         border-radius: 4px;
         cursor: pointer;
         transition: background 0.15s, color 0.15s;
@@ -306,7 +307,7 @@
     }
 
         .btn-add:hover {
-            background: var(--success);
+            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
             color: #fff;
         }
 
@@ -402,6 +403,7 @@
         /* Optional: nice scrollbar styling */
         scrollbar-width: thin;
         scrollbar-color: var(--gold) #e6e0d1;
+        margin-bottom: 20px !important;
     }
 
         .table-scroll-wrapper::-webkit-scrollbar {
@@ -431,31 +433,35 @@
             z-index: 10;
             background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
         }
+
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
+
+
+
 <div class="page-shell">
     <div class="page-container">
-
         <!-- Header -->
-            @* <div class="header-eyebrow">Affiliation Module · College Registration</div> *@
-        @* <div class="page-header">
-            <div class="header-title">Trust Member Details</div>
-            <div class="header-subtitle">Enter details of all governing trust members associated with this institution</div>
-            <div class="header-badge">Step 2 of 5</div>
-        </div> *@
         <div class="page-header">
-            <div class="emblem">
-                <i class="fas fa-hospital"></i>
-            </div>
-            <div class="page-header-text">
-                <h1>Trust Member Details</h1>
-                @* <p>RGUHS · Affiliation Portal </p> *@
-            </div>
+            <h1 class="header-title">Trust Member Details</h1>
+            <p class="header-subtitle">Enter details of all governing trust members associated with this institution</p>
         </div>
 
         <!-- Form Card -->
         <div class="form-card">
-
             @using (Html.BeginForm("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
@@ -463,7 +469,7 @@
                 @Html.HiddenFor(m => m.CollegeCode)
 
                 <div class="section-label">
-                    <span class="section-label-text">Member Records</span>
+                    <span class="section-label-text">Trust Members</span>
                     <span class="section-label-line"></span>
                 </div>
 
@@ -472,22 +478,23 @@
                         <table class="data-table" id="tblTrust">
                             <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th style="width:50px;">#</th>
                                     <th>Trust Member Name</th>
                                     <th>Designation</th>
                                     <th>Qualification</th>
                                     <th>Mobile Number</th>
                                     <th>Age</th>
                                     <th>Joining Date</th>
-                                    <th style="width:60px; text-align:center;">Action</th>
+                                    <th style="width:70px; text-align:center;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if (Model.Rows.Count == 0)
                                 {
-                                    <tr>
+                                    <tr id="emptyRow">
                                         <td colspan="8" class="empty-notice">
-                                            No records added. Click <strong>+ Add Row</strong> to begin.
+                                            No trust members added yet.<br>
+                                            Click <strong>+ Add New Member</strong> to begin.
                                         </td>
                                     </tr>
                                 }
@@ -495,73 +502,95 @@
                                 {
                                     <tr>
                                         <td><span class="row-index">@(i + 1)</span></td>
-
                                         @Html.HiddenFor(m => m.Rows[i].SlNo)
                                         @Html.HiddenFor(m => m.Rows[i].FacultyCode)
                                         @Html.HiddenFor(m => m.Rows[i].CollegeCode)
 
-                                        <td style="min-width:170px;">
-                                            @Html.TextBoxFor(m => m.Rows[i].TrustMemberName,
-                                            new { @class = "form-control", placeholder = "Full name" })
-                                    <span asp-validation-for="Rows[i].TrustMemberName" class="text-danger"></span>
-                                </td>
+                                        <td>
+                                            @Html.TextBoxFor(m => m.Rows[i].TrustMemberName, 
+                                                new { 
+                                                    @class = "form-control", 
+                                                    placeholder = "Full Name",
+                                                    maxlength = "100"
+                                                })
+                                            @Html.ValidationMessageFor(m => m.Rows[i].TrustMemberName, "", new { @class = "field-validation-error" })
+                                        </td>
 
-                                <td style="min-width:160px;">
-                                    @Html.DropDownListFor(m => m.Rows[i].DesignationCode,
-                                                                    Model.DesignationList,
-                                                                    "— Select —",
-                                                                    new { @class = "form-control" })
-                                </td>
+                                        <td>
+                                            @Html.DropDownListFor(m => m.Rows[i].DesignationCode,
+                                                Model.DesignationList,
+                                                "— Select Designation —",
+                                                new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(m => m.Rows[i].DesignationCode, "", new { @class = "field-validation-error" })
+                                        </td>
 
-                                <td style="min-width:140px;">
-                                    @Html.TextBoxFor(m => m.Rows[i].Qualification,
-                                                                    new { @class = "form-control", placeholder = "e.g. M.B.B.S" })
-                                </td>
+                                        <td>
+                                            @Html.TextBoxFor(m => m.Rows[i].Qualification, 
+                                                new { 
+                                                    @class = "form-control", 
+                                                    placeholder = "e.g. MBBS, MD, PhD",
+                                                    maxlength = "80"
+                                                })
+                                            @Html.ValidationMessageFor(m => m.Rows[i].Qualification, "", new { @class = "field-validation-error" })
+                                        </td>
 
-                                <td style="min-width:130px;">
-                                    @Html.TextBoxFor(m => m.Rows[i].MobileNumber,
-                                                                    new { @class = "form-control", placeholder = "10-digit number" })
-                                </td>
+                                        <td>
+                                            @Html.TextBoxFor(m => m.Rows[i].MobileNumber, 
+                                                new { 
+                                                    @class = "form-control", 
+                                                    placeholder = "9876543210",
+                                                    maxlength = "10"
+                                                })
+                                            @Html.ValidationMessageFor(m => m.Rows[i].MobileNumber, "", new { @class = "field-validation-error" })
+                                        </td>
 
-                                <td style="width:80px;">
-                                    @Html.TextBoxFor(m => m.Rows[i].Age,
-                                                                    new { @class = "form-control", type = "number", min = "0", placeholder = "Age" })
-                                </td>
+                                        <td>
+                                            @Html.TextBoxFor(m => m.Rows[i].Age, 
+                                                new { 
+                                                    @class = "form-control", 
+                                                    type = "number", 
+                                                    min = "18", 
+                                                    max = "100",
+                                                    placeholder = "Age"
+                                                })
+                                            @Html.ValidationMessageFor(m => m.Rows[i].Age, "", new { @class = "field-validation-error" })
+                                        </td>
 
-                                <td style="min-width:145px;">
-                                    @Html.TextBoxFor(m => m.Rows[i].JoiningDateString,
-                                                                    new { @class = "form-control", type = "date" })
-                                    <span asp-validation-for="Rows[i].JoiningDateString" class="text-danger"></span>
-                                </td>
+                                        <td>
+                                            @Html.TextBoxFor(m => m.Rows[i].JoiningDateString, 
+                                                new { 
+                                                    @class = "form-control", 
+                                                    type = "date"
+                                                })
+                                            @Html.ValidationMessageFor(m => m.Rows[i].JoiningDateString, "", new { @class = "field-validation-error" })
+                                        </td>
 
-                                <td style="text-align:center;">
-                                    <button type="button" class="btn-remove btn-remove-row" title="Remove row">&#8722;</button>
-                                </td>
-                            </tr>
-                                                    }
-                        </tbody>
+                                        <td style="text-align:center;">
+                                            <button type="button" class="btn-remove btn-remove-row" title="Remove">−</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
                         </table>
                     </div>
-                </div>
-
-            <div class="form-footer">
-                <button type="button" id="btnAddRow" class="btn-add">
-                    <span class="btn-add-icon">+</span> Add Row
-                </button>
-
-                <div class="nav-controls">
-                    <a asp-action="Aff_InstituteDetails"
-                       asp-controller="ContinuesAffiliation_Facultybased"
-                       class="btn-prev">
-                        ← Previous
-                    </a>
-                    <button type="submit" class="btn-save">
-                        Submit
+                    <button type="button" id="btnAddRow" class="btn-add">
+                        <span style="font-size:1.25rem; margin-right:6px;">+</span> Add New Member
                     </button>
                 </div>
-            </div>
-                        }
 
+                <div class="form-footer">
+                        <a asp-action="Aff_InstituteDetails" 
+                           asp-controller="ContinuesAffiliation_Facultybased" 
+                           class="btn-prev">← Previous</a>
+
+                        <button type="submit" class="btn-save">Save & Continue</button>
+                        <a asp-controller="Medical_ContinuousAffiliation"
+                               asp-action="Medical_SkillsLaboratory"
+                               class="btn-next">Next →</a>
+                    @* <div class="nav-controls"> *@
+                    @* </div> *@
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -573,71 +602,84 @@
 
     <script>
         $(function () {
-            function refreshIndices() {
-                $("#tblTrust tbody tr:not(:has(td[colspan]))").each(function (i, tr) {
-                    $(tr).find("td:first .row-index").text(i + 1);
+            let rowIndex = @Model.Rows.Count;
+
+            function refreshRowNumbers() {
+                $("#tblTrust tbody tr:not(#emptyRow)").each(function (i) {
+                    $(this).find(".row-index").text(i + 1);
                 });
             }
 
-            $("#btnAddRow").click(function () {
-                // Remove empty-state row if present
-                $("#tblTrust tbody tr td[colspan]").closest("tr").remove();
+            // Add New Row
+            $("#btnAddRow").on("click", function () {
+                $("#emptyRow").remove();
 
-                var index = $("#tblTrust tbody tr").length;
-
-                var desigOptions = `<option value="">— Select —</option>`;
+                var desigOptions = `<option value="">— Select Designation —</option>`;
                 @foreach (var item in Model.DesignationList)
                 {
-                        <text>desigOptions += `<option value="@item.Value">@item.Text</option>`;</text>
+                    <text>desigOptions += `<option value="@item.Value">@item.Text</option>`;</text>
                 }
 
-                var rowHtml = `
+                var newRow = `
                 <tr>
+                    <td><span class="row-index">${rowIndex + 1}</span></td>
                     <td>
-                        <span class="row-index">${index + 1}</span>
-                        <input type="hidden" name="Rows[${index}].SlNo" value="0" />
-                        <input type="hidden" name="Rows[${index}].FacultyCode" value="@Model.FacultyCode" />
-                        <input type="hidden" name="Rows[${index}].CollegeCode" value="@Model.CollegeCode" />
+                        <input type="hidden" name="Rows[${rowIndex}].SlNo" value="0" />
+                        <input type="hidden" name="Rows[${rowIndex}].FacultyCode" value="@Model.FacultyCode" />
+                        <input type="hidden" name="Rows[${rowIndex}].CollegeCode" value="@Model.CollegeCode" />
+                        <input class="form-control" name="Rows[${rowIndex}].TrustMemberName" 
+                               placeholder="Full Name" maxlength="100" />
                     </td>
-                    <td style="min-width:170px;">
-                        <input class="form-control" name="Rows[${index}].TrustMemberName" placeholder="Full name" />
-                    </td>
-                    <td style="min-width:160px;">
-                        <select class="form-control" name="Rows[${index}].DesignationCode">
+                    <td>
+                        <select class="form-control" name="Rows[${rowIndex}].DesignationCode">
                             ${desigOptions}
                         </select>
                     </td>
-                    <td style="min-width:140px;">
-                        <input class="form-control" name="Rows[${index}].Qualification" placeholder="e.g. M.B.B.S" />
+                    <td>
+                        <input class="form-control" name="Rows[${rowIndex}].Qualification" 
+                               placeholder="e.g. MBBS, MD, PhD" maxlength="80" />
                     </td>
-                    <td style="min-width:130px;">
-                        <input class="form-control" name="Rows[${index}].MobileNumber" placeholder="10-digit number" />
+                    <td>
+                        <input class="form-control" name="Rows[${rowIndex}].MobileNumber" 
+                               placeholder="9876543210" maxlength="10" 
+                               onkeypress="return event.charCode >= 48 && event.charCode <= 57"/>
                     </td>
-                    <td style="width:80px;">
-                        <input class="form-control" name="Rows[${index}].Age" type="number" min="0" placeholder="Age" />
+                    <td>
+                        <input class="form-control" name="Rows[${rowIndex}].Age" type="number" 
+                               min="18" max="100" placeholder="Age" />
                     </td>
-                    <td style="min-width:145px;">
-                        <input class="form-control" name="Rows[${index}].JoiningDateString" type="date" />
+                    <td>
+                        <input class="form-control" name="Rows[${rowIndex}].JoiningDateString" type="date" />
                     </td>
                     <td style="text-align:center;">
-                        <button type="button" class="btn-remove btn-remove-row" title="Remove row">&#8722;</button>
+                        <button type="button" class="btn-remove btn-remove-row" title="Remove">−</button>
                     </td>
                 </tr>`;
 
-                $("#tblTrust tbody").append(rowHtml);
+                $("#tblTrust tbody").append(newRow);
+                rowIndex++;
             });
 
+            // Remove Row
             $("#tblTrust").on("click", ".btn-remove-row", function () {
-                $(this).closest("tr").remove();
+                if (confirm("Are you sure you want to remove this member?")) {
+                    $(this).closest("tr").remove();
 
-                if ($("#tblTrust tbody tr").length === 0) {
-                    $("#tblTrust tbody").html(
-                        `<tr><td colspan="8" class="empty-notice">No records added. Click <strong>+ Add Row</strong> to begin.</td></tr>`
-                    );
-                } else {
-                    refreshIndices();
+                    if ($("#tblTrust tbody tr").length === 0) {
+                        $("#tblTrust tbody").html(`
+                            <tr id="emptyRow">
+                                <td colspan="8" class="empty-notice">
+                                    No trust members added yet.<br>
+                                    Click <strong>+ Add New Member</strong> to begin.
+                                </td>
+                            </tr>`);
+                    } else {
+                        refreshRowNumbers();
+                    }
                 }
             });
+
+            // Only numbers in Mobile field (already handled in HTML)
         });
     </script>
 }

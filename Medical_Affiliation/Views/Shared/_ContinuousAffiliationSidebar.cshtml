@@ -4,12 +4,12 @@
 @inject ApplicationDbContext _context   // ✅ ADD
 
 @{
-    // var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+     var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
 
-    var level = ViewContext.RouteData.Values["level"]?.ToString()
-           ?? Context.Request.Query["level"].ToString()
-           ?? HttpContextAccessor.HttpContext.Session.GetString("CourseLevel")
-           ?? "UG";
+    // var level = ViewContext.RouteData.Values["level"]?.ToString()
+    //        ?? Context.Request.Query["level"].ToString()
+    //        ?? HttpContextAccessor.HttpContext.Session.GetString("CourseLevel")
+    //        ?? "UG";
 
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
 
@@ -43,7 +43,7 @@
         new { Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
         new { Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
         new { Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
-        new { Key="EquipmentMaster", Label="Add Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
+        new { Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
         new { Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
         new { Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
         new { Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
@@ -74,7 +74,8 @@
         // ================= FINAL =================
         new { Key="DepartmentUnits", Label="Department / Units", Group="Final Submission", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
 
-        new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="AffiliationPayment" },
+        new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
+        new { Key="Declaration", Label="Declaration", Group="Final Submission", Ctrl="AffiliationDeclaration", Act="Declaration" },
 
         new { Key="PreviewMode", Label="Preview", Group="Final Submission", Ctrl="CAPreview", Act="Preview" },
     };
