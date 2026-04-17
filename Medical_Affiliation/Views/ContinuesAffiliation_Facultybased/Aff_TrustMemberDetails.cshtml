@@ -162,6 +162,7 @@
         overflow: hidden;
         margin-bottom: 20px;
         padding-bottom: 20px !important;
+        padding-top: 2rem !important;
     }
 
     .data-table {
@@ -456,8 +457,13 @@
     <div class="page-container">
         <!-- Header -->
         <div class="page-header">
-            <h1 class="header-title">Trust Member Details</h1>
-            <p class="header-subtitle">Enter details of all governing trust members associated with this institution</p>
+            <div class="emblem">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="page-header-text">
+                <h1 class="header-title">Trust Member Details</h1>
+                <p>Enter details of all governing trust members associated with this institution</p>
+            </div>
         </div>
 
         <!-- Form Card -->
@@ -584,8 +590,8 @@
                            class="btn-prev">← Previous</a>
 
                         <button type="submit" class="btn-save">Save & Continue</button>
-                        <a asp-controller="Medical_ContinuousAffiliation"
-                               asp-action="Medical_SkillsLaboratory"
+                        <a asp-controller="ContinuesAffiliation_Facultybased"
+                           asp-action="Dean_DirectorDetails"
                                class="btn-next">Next →</a>
                     @* <div class="nav-controls"> *@
                     @* </div> *@

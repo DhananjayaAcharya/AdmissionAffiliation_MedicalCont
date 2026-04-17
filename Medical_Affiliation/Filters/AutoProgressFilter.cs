@@ -2,6 +2,8 @@
 using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Text.RegularExpressions;
 
 public class AutoProgressFilter : IAsyncActionFilter
 {
@@ -76,6 +78,7 @@ public class AutoProgressFilter : IAsyncActionFilter
     new CAStep { Key="Research", Ctrl="CA_Med_ResearchPublications", Act="CA_Med_ResearchPublicationsDetails" },
     new CAStep { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
     new CAStep { Key="LibraryServices", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
+    new CAStep { Key = "PgAssociatedInstitutions", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
     new CAStep { Key="TeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
     new CAStep { Key="NonTeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
@@ -90,10 +93,15 @@ public class AutoProgressFilter : IAsyncActionFilter
 
         // 🔥 Find matching step dynamically
         var step = allSteps.FirstOrDefault(s =>
-                        string.Equals(s.Ctrl, ctrl, StringComparison.OrdinalIgnoreCase) &&
-                        (string.Equals(s.Act, act, StringComparison.OrdinalIgnoreCase)
-                         || act.Contains("Save"))
-                    );
+            string.Equals(s.Ctrl, ctrl, StringComparison.OrdinalIgnoreCase) &&
+            (
+                string.Equals(s.Act, act, StringComparison.OrdinalIgnoreCase)
+                || act.Contains(s.Act, StringComparison.OrdinalIgnoreCase)
+                || act.Contains("AssociatedInstitution", StringComparison.OrdinalIgnoreCase) // ✅ ADD THIS
+                || act.Contains("Save", StringComparison.OrdinalIgnoreCase)
+                || act.Contains("Add", StringComparison.OrdinalIgnoreCase) // ✅ IMPORTANT
+            )
+        );
 
         if (step == null)
             return;

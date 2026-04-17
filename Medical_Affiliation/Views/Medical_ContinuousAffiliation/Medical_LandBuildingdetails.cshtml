@@ -707,7 +707,7 @@
 
                             <div class="field-group">
                                 <label class="form-label-text">Upload Land Records</label>
-                                <input type="file" class="form-control file-validate" asp-for="LandRecordsDocument" />
+                                <input type="file" class="form-control file-validate" accept=".pdf" asp-for="LandRecordsDocument" />
                                 @if (Model != null && Model.HasLandRecordsFile)
                                 {
                                     <a asp-action="ViewLandRecords" target="_blank" class="btn-view-pdf">

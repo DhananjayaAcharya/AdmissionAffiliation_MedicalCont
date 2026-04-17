@@ -1329,7 +1329,7 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("TeachingStaffDepartmentWise");
+            return RedirectToAction("IncreaseIntake", "ContinuousAffiliationIncreaseintake");
         }
 
 
@@ -4422,7 +4422,7 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Repo_FacultyDetails", "FacultyDetails");
+            return RedirectToAction("Aff_HostelDetails");
         }
 
 

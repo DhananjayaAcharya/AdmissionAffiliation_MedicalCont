@@ -35,7 +35,7 @@
         // 👇 CONDITIONAL STEP
         // MBBS only for UG
         // we will add below dynamically
-         new { Key="FacultyDetails", Label="Faculty Details", Group="Basic Details", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
+         // new { Key="FacultyDetails", Label="Faculty Details", Group="Basic Details", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
         new { Key="DeanDetails", Label="Dean / Director Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
         new { Key="PrincipalDetails", Label="Principal Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
 
@@ -62,7 +62,7 @@
         // ================= STUDENT & STAFF =================
         new { Key="TeachingStaff", Label="Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
         new { Key="NonTeachingStaff", Label="Non-Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
-        // new { Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
+        new { Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
 
 
         // ================= STUDENT AMENITIES =================
@@ -87,7 +87,7 @@
         {
             Key = "MBBSDetails",
             Label = "MBBS Details",
-            Group = "Basic Details",
+            Group = "Human Resources",
             Ctrl = "ContinuesAffiliation_Facultybased",
             Act = "Details_Of_MBBS"
         });

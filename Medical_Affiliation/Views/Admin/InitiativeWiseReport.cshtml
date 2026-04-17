@@ -316,7 +316,7 @@
 
             if (facultyCode) {
                 $.getJSON('@Url.Action("GetCollegesByFacultyBasedOnFaculty", "Admin")', { facultyCode: facultyCode }, function (data) {
-                    debugger;
+                    // debugger;
                     var $collegeDropdown = $('#CollegeCode').empty();
 
                     if (data.length > 0) {

@@ -544,7 +544,7 @@
                     return;
                 }
 
-                fetch('@Url.Action("AddAssociatedInstitution", "AffiliationSS")', {
+            fetch('@Url.Action("AssociatedInstitutions", "AffiliationSS")', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

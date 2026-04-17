@@ -444,17 +444,17 @@
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-between align-items-center mt-5">
-                <a asp-controller="Medical_ContinuousAffiliation"
+                @* <a asp-controller="Medical_ContinuousAffiliation"
                    asp-action="Medical_DepartmentOfficesAndEducationalUnit"
-                   class="btn btn-secondary">← Previous</a>
+                   class="btn btn-secondary">← Previous</a> *@
 
                 <button type="submit" class="btn btn-success">
                     <i class="bi bi-cloud-arrow-up me-2"></i>Save Research & Publication Details
                 </button>
 
-                <a asp-controller="Aff_CA_MedicalLibrary"
+                @* <a asp-controller="Aff_CA_MedicalLibrary"
                    asp-action="Aff_CA_Medical_LibraryDetails"
-                   class="btn btn-primary">Next → Library Details</a>
+                   class="btn btn-primary">Next → Library Details</a> *@
             </div>
         </form>
 
@@ -629,10 +629,25 @@
                 }
             </div>
         </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-5">
+            <a asp-controller="Medical_ContinuousAffiliation"
+               asp-action="Medical_DepartmentOfficesAndEducationalUnit"
+               class="btn btn-secondary">← Previous</a>
+
+            @* <button type="submit" class="btn btn-success">
+                <i class="bi bi-cloud-arrow-up me-2"></i>Save Research & Publication Details
+            </button> *@
+
+            <a asp-controller="Aff_CA_MedicalLibrary"
+               asp-action="Aff_CA_Medical_LibraryDetails"
+               class="btn btn-primary">Next → Library Details</a>
+        </div>
     </div>
 
     @section Scripts {
         <partial name="_ValidationScriptsPartial" />
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
                 // File validation: PDF only, max 2MB, show filename

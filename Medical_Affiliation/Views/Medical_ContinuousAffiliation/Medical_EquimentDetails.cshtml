@@ -566,15 +566,15 @@
                         <button type="button" class="btn-prev"
                                 onclick="window.location.href='@Url.Action("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation")'">
                             ← Previous
-                        </button>
+                        </button> *@
                         <div class="footer-right">
                             <button type="submit" class="btn-save">&#128190; Save</button>
-                            <button type="button" class="btn-next"
+                            @* <button type="button" class="btn-next"
                                     onclick="window.location.href='@Url.Action("Medical_SkillsLabEquipment", "Medical_ContinuousAffiliation")'">
                                 Next →
-                            </button>
+                            </button> *@
                         </div>
-                    </div> *@
+                    @* </div> *@
 
                 </form>
             }
@@ -595,7 +595,7 @@
 
             @* <div class="footer-right"> *@
 
-                <button type="submit" class="btn-save">&#128190; Save</button>
+                @* <button type="submit" class="btn-save">&#128190; Save</button> *@
 
                 <!-- 🔹 NEXT -->
                 <a asp-controller="ContinuationAffiliationClinicalFacilities"

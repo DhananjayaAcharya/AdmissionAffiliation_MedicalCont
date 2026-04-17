@@ -383,7 +383,7 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAssociatedInstitution([FromBody] SSAssociatedInstitutionPostVM model)
+        public async Task<IActionResult> AssociatedInstitutions([FromBody] SSAssociatedInstitutionPostVM model)
         {
             if (string.IsNullOrWhiteSpace(model.CourseLevel) ||
                 string.IsNullOrWhiteSpace(model.AssociatedFacultyCode) ||

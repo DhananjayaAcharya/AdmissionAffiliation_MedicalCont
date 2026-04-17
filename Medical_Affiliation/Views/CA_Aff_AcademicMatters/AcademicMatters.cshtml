@@ -328,6 +328,7 @@
                                         <label for="@fileInputId" class="custom-upload-btn">
                                             <i class="bi bi-upload"></i> Upload PDF
                                         </label>
+                                        <span class="file-name ms-2 text-muted" id="fileName_@i">No file chosen</span>
 
                                         @if (item.HasPdf == true)
                                         {
@@ -532,6 +533,51 @@
                     }
                 }
 
+                if (e.target.classList.contains("curriculum-file")) {
+
+                    const file = e.target.files[0];
+                    const inputId = e.target.id;
+                    const index = inputId.split('_')[1];
+
+                    const fileNameSpan = document.getElementById("fileName_" + index);
+
+                    if (file) {
+                        fileNameSpan.textContent = file.name;
+                    } else {
+                        fileNameSpan.textContent = "No file chosen";
+                    }
+
+                    // ✅ existing validation (keep your code)
+                    const maxSize = 2 * 1024 * 1024;
+
+                    if (file) {
+
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "File too large",
+                                text: "Maximum allowed size is 2MB"
+                            });
+
+                            e.target.value = "";
+                            fileNameSpan.textContent = "No file chosen";
+                            return;
+                        }
+
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        if (ext !== "pdf") {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Invalid file",
+                                text: "Only PDF files are allowed"
+                            });
+
+                            e.target.value = "";
+                            fileNameSpan.textContent = "No file chosen";
+                            return;
+                        }
+                    }
+                }
             });
         </script>
     }
