@@ -17,9 +17,9 @@ public partial class AffiliatedHospitalDocument
 
     public string? DocumentName { get; set; }
 
-    public string? DocumentFilePth { get; set; }
-
     public DateTime CreatedDate { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? DocumentFilePth { get; set; }
 }

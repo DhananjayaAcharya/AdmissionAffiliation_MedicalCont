@@ -17,9 +17,9 @@ public partial class CaMedicalLibraryUsageReport
 
     public string? UploadedFileName { get; set; }
 
-    public string? UploadedFileDataPath { get; set; }
-
     public DateTime? CreatedDate { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? UploadedFileDataPath { get; set; }
 }

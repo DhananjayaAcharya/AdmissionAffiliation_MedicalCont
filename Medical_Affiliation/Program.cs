@@ -1,5 +1,4 @@
 ﻿using Medical_Affiliation.DATA;
-using Medical_Affiliation.Models;
 using Medical_Affiliation.Services;
 using Medical_Affiliation.Services.Faculty;
 using Medical_Affiliation.Services.Handlers;

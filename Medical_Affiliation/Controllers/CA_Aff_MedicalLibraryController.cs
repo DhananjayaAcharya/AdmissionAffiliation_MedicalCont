@@ -159,10 +159,10 @@ namespace Medical_Affiliation.Controllers
                     HasCccameraSystem = otherDetails.HasCccameraSystem,
 
                     SpecialFeaturesQuestion =
-                            otherDetails.SpecialFeaturesAchievementspdfPath != null ? "Yes" : "No",
+                            otherDetails.SpecialFeaturesAchievementsPdfPath != null ? "Yes" : "No",
 
                     HasSpecialFeaturesPdf =
-                            otherDetails.SpecialFeaturesAchievementspdfPath != null,
+                            otherDetails.SpecialFeaturesAchievementsPdfPath != null,
 
 
                     UploadedFileName = otherDetails.UploadedFileName,
@@ -313,7 +313,7 @@ namespace Medical_Affiliation.Controllers
                 x.FacultyCode == facultyCode &&
                 x.CourseLevel == courseLevel &&
                 x.AffiliationType == affiliationType &&
-                x.SpecialFeaturesAchievementspdfPath != null
+                x.SpecialFeaturesAchievementsPdfPath != null
             );
 
             if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes")
@@ -563,25 +563,25 @@ namespace Medical_Affiliation.Controllers
 
                     if (path != null)
                     {
-                        if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementspdfPath) &&
-                            System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementspdfPath))
+                        if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementsPdfPath) &&
+                            System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementsPdfPath))
                         {
-                            System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementspdfPath);
+                            System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementsPdfPath);
                         }
 
-                        otherEntity.SpecialFeaturesAchievementspdfPath = path;
+                        otherEntity.SpecialFeaturesAchievementsPdfPath = path;
                         otherEntity.UploadedFileName = model.OtherDetails.SpecialFeaturesPdf.FileName;
                     }
                 }
                 else if (model.OtherDetails?.SpecialFeaturesQuestion == "No")
                 {
-                    if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementspdfPath) &&
-                        System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementspdfPath))
+                    if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementsPdfPath) &&
+                        System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementsPdfPath))
                     {
-                        System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementspdfPath);
+                        System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementsPdfPath);
                     }
 
-                    otherEntity.SpecialFeaturesAchievementspdfPath = null;
+                    otherEntity.SpecialFeaturesAchievementsPdfPath = null;
                     otherEntity.UploadedFileName = null;
                 }
 
@@ -626,21 +626,21 @@ namespace Medical_Affiliation.Controllers
                 x.CourseLevel == courseLevel &&
                 x.AffiliationType == affiliationType);
 
-            if (record == null || string.IsNullOrEmpty(record.SpecialFeaturesAchievementspdfPath))
+            if (record == null || string.IsNullOrEmpty(record.SpecialFeaturesAchievementsPdfPath))
                 return NotFound("Special Features PDF not found.");
 
-            if (!System.IO.File.Exists(record.SpecialFeaturesAchievementspdfPath))
+            if (!System.IO.File.Exists(record.SpecialFeaturesAchievementsPdfPath))
                 return NotFound("File not found on server.");
 
-            var fileName = record.UploadedFileName ?? Path.GetFileName(record.SpecialFeaturesAchievementspdfPath);
+            var fileName = record.UploadedFileName ?? Path.GetFileName(record.SpecialFeaturesAchievementsPdfPath);
 
             var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
-            if (!provider.TryGetContentType(record.SpecialFeaturesAchievementspdfPath, out string contentType))
+            if (!provider.TryGetContentType(record.SpecialFeaturesAchievementsPdfPath, out string contentType))
                 contentType = "application/octet-stream";
 
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
 
-            return PhysicalFile(record.SpecialFeaturesAchievementspdfPath, contentType);
+            return PhysicalFile(record.SpecialFeaturesAchievementsPdfPath, contentType);
         }
         [HttpGet]
         public async Task<IActionResult> ViewLibraryServicePdf(int serviceId)

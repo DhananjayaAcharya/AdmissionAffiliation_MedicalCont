@@ -2265,7 +2265,36 @@ namespace Medical_Affiliation.Controllers
 
             return Json(taluks);
         }
+        public JsonResult GetCoursesByCollege()
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
+            if (string.IsNullOrEmpty(collegeCode) ||
+                string.IsNullOrEmpty(facultyCode) ||
+                string.IsNullOrEmpty(courseLevel))
+            {
+                return Json(new { success = false, message = "Session expired. Please login again." });
+            }
+
+            var data = (from intake in _context.CollegeCourseIntakeDetails
+                        join course in _context.MstCourses
+                        on intake.CourseCode equals course.CourseCode.ToString()
+                        where intake.CollegeCode == collegeCode
+                              && intake.FacultyCode.ToString() == facultyCode
+                              && course.CourseLevel == courseLevel
+                        orderby intake.CourseCode
+                        select new
+                        {
+                            intake.CourseName,
+                            intake.CourseCode,
+                            intake.ExistingIntake,
+                            intake.PresentIntake
+                        }).ToList();
+
+            return Json(new { success = true, data = data });
+        }
         public IActionResult ViewDocument(string id)
         {
             var doc = _context.AffInstitutionsDetails
@@ -2363,9 +2392,8 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.institutetypelist));
             ModelState.Remove(nameof(vm.Institutestatuslist));
             ModelState.Remove(nameof(vm.DocumentName));
-            ModelState.Remove(nameof(vm.DocumentContentType));  // ← fixes silent validation failure
-                                                                // Uncomment the line below if DocumentData is a property on your VM:
-                                                                // ModelState.Remove(nameof(vm.DocumentData));
+            ModelState.Remove(nameof(vm.DocumentContentType));
+            ModelState.Remove(nameof(vm.CourseApplied));
 
             // 3. Return view with errors if validation fails
             if (!ModelState.IsValid)

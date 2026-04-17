@@ -80,8 +80,6 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AhsExpectedIntakeMaster> AhsExpectedIntakeMasters { get; set; }
 
-    public virtual DbSet<ApplicationProgress> ApplicationProgresses { get; set; }
-
     public virtual DbSet<AssociatedInstitution> AssociatedInstitutions { get; set; }
 
     public virtual DbSet<BasicDetail> BasicDetails { get; set; }
@@ -432,7 +430,7 @@ public partial class ApplicationDbContext : DbContext
 
 //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+//        => optionsBuilder.UseSqlServer("Server= DESKTOP-HSD6G32;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -716,7 +714,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DeanName).HasMaxLength(150);
             entity.Property(e => e.District).HasMaxLength(500);
             entity.Property(e => e.DocumentContentType).HasMaxLength(500);
-            entity.Property(e => e.DocumentDataPath).HasMaxLength(1000);
+            entity.Property(e => e.DocumentDataPath).HasMaxLength(500);
             entity.Property(e => e.DocumentName).HasMaxLength(500);
             entity.Property(e => e.EmailId).HasMaxLength(500);
             entity.Property(e => e.FacultyCode).HasMaxLength(500);
@@ -1049,9 +1047,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.GokorderPath).HasMaxLength(500);
             entity.Property(e => e.IntakeDuring202526).HasMaxLength(250);
             entity.Property(e => e.IntakeSlab).HasMaxLength(200);
-            entity.Property(e => e.LastAffiliationRguhsfilePath)
-                .HasMaxLength(500)
-                .HasColumnName("LastAffiliationRGUHSFilePath");
+            entity.Property(e => e.LastAffiliationRguhsfilePath).HasMaxLength(500);
             entity.Property(e => e.PreviousNotificationFilesPath).HasMaxLength(500);
             entity.Property(e => e.SanctionedIntakeLastAffiliation).HasMaxLength(250);
             entity.Property(e => e.SanctionedIntakePermission).HasMaxLength(250);
@@ -1143,7 +1139,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationPayment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07B1095F63");
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC071BE3BA8F");
 
             entity.ToTable("Affiliation_Payment");
 
@@ -1330,30 +1326,6 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("MEDCOLExpectedIntake");
             entity.Property(e => e.MedcolmaxSeats).HasColumnName("MEDCOLMaxSeats");
-        });
-
-        modelBuilder.Entity<ApplicationProgress>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Applicat__3214EC071DC2D25E");
-
-            entity.ToTable("ApplicationProgress");
-
-            entity.HasIndex(e => new { e.CollegeCode, e.TypeOfAffiliation, e.CourseLevel }, "IX_ApplicationProgress_Main");
-
-            entity.HasIndex(e => new { e.CollegeCode, e.TypeOfAffiliation, e.CourseLevel, e.StepKey }, "UQ_ApplicationProgress").IsUnique();
-
-            entity.Property(e => e.CollegeCode)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.CourseLevel)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.StepKey)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.UpdatedOn)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
         });
 
         modelBuilder.Entity<AssociatedInstitution>(entity =>
@@ -1786,32 +1758,26 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.AebasinspectionDayPdfName)
                 .HasMaxLength(255)
                 .HasColumnName("AEBASInspectionDayPdfName");
-            entity.Property(e => e.AebasinspectionDayPdfPath)
-                .HasMaxLength(505)
-                .HasColumnName("AEBASInspectionDayPdfPath");
+            entity.Property(e => e.AebasinspectionDayPdfPath).HasMaxLength(500);
             entity.Property(e => e.AebaslastThreeMonthsPdfName)
                 .HasMaxLength(255)
                 .HasColumnName("AEBASLastThreeMonthsPdfName");
-            entity.Property(e => e.AebaslastThreeMonthsPdfPath)
-                .HasMaxLength(505)
-                .HasColumnName("AEBASLastThreeMonthsPdfPath");
+            entity.Property(e => e.AebaslastThreeMonthsPdfPath).HasMaxLength(500);
             entity.Property(e => e.CollegeCode).HasMaxLength(25);
             entity.Property(e => e.CourseLevel).HasMaxLength(10);
             entity.Property(e => e.EsipdfName)
                 .HasMaxLength(255)
                 .HasColumnName("ESIPdfName");
-            entity.Property(e => e.EsipdfPath)
-                .HasMaxLength(505)
-                .HasColumnName("ESIPdfPath");
+            entity.Property(e => e.EsipdfPath).HasMaxLength(500);
             entity.Property(e => e.ExaminerDetailsAttached)
                 .HasMaxLength(1)
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.ExaminerDetailsPdfName).HasMaxLength(255);
-            entity.Property(e => e.ExaminerDetailsPdfPath).HasMaxLength(505);
+            entity.Property(e => e.ExaminerDetailsPdfPath).HasMaxLength(500);
             entity.Property(e => e.FacultyCode).HasMaxLength(25);
             entity.Property(e => e.ProvidentFundPdfName).HasMaxLength(255);
-            entity.Property(e => e.ProvidentFundPdfPath).HasMaxLength(505);
+            entity.Property(e => e.ProvidentFundPdfPath).HasMaxLength(500);
             entity.Property(e => e.RegistrationNo).HasMaxLength(50);
             entity.Property(e => e.ServiceRegisterMaintained)
                 .HasMaxLength(1)
@@ -1824,7 +1790,7 @@ public partial class ApplicationDbContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("TeachersUpdatedInEMS");
             entity.Property(e => e.TeachersUpdatedPdfName).HasMaxLength(255);
-            entity.Property(e => e.TeachersUpdatedPdfPath).HasMaxLength(505);
+            entity.Property(e => e.TeachersUpdatedPdfPath).HasMaxLength(500);
         });
 
         modelBuilder.Entity<CaMedStaffParticularsOtherTemp>(entity =>
@@ -1890,7 +1856,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.HasDigitalValuationCentre).HasMaxLength(3);
             entity.Property(e => e.HasStableInternet).HasMaxLength(3);
             entity.Property(e => e.RegistrationNo).HasMaxLength(50);
-            entity.Property(e => e.SpecialFeaturesAchievementspdfPath).HasMaxLength(500);
+            entity.Property(e => e.SpecialFeaturesAchievementsPdfPath).HasMaxLength(500);
             entity.Property(e => e.SpecialFeaturesQuestion)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -1910,6 +1876,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.IsAvailable).HasMaxLength(3);
             entity.Property(e => e.RegistrationNo).HasMaxLength(15);
+            entity.Property(e => e.UploadedFileDataPath).HasMaxLength(500);
             entity.Property(e => e.UploadedFileName).HasMaxLength(255);
             entity.Property(e => e.UploadedPdfPath).HasMaxLength(500);
         });
@@ -2542,16 +2509,14 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(150);
             entity.Property(e => e.ExaminerFor).HasMaxLength(150);
             entity.Property(e => e.FacultyCode).HasMaxLength(50);
-            entity.Property(e => e.GuideRecognitionDocPath).HasMaxLength(1000);
+            entity.Property(e => e.GuideRecognitionDocPath).HasMaxLength(500);
             entity.Property(e => e.IsExaminer).HasMaxLength(150);
-            entity.Property(e => e.LitigationDocPath).HasMaxLength(1000);
+            entity.Property(e => e.LitigationDocPath).HasMaxLength(500);
             entity.Property(e => e.LitigationPending).HasMaxLength(150);
             entity.Property(e => e.Mobile).HasMaxLength(15);
             entity.Property(e => e.NameOfFaculty).HasMaxLength(200);
             entity.Property(e => e.Pan).HasMaxLength(20);
-            entity.Property(e => e.PhDrecognitionDocPath)
-                .HasMaxLength(1000)
-                .HasColumnName("PhDRecognitionDocPath");
+            entity.Property(e => e.PhDrecognitionDocPath).HasMaxLength(500);
             entity.Property(e => e.RecognizedPgTeacher).HasMaxLength(50);
             entity.Property(e => e.RecognizedPhDteacher)
                 .HasMaxLength(150)
@@ -2918,22 +2883,22 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.InstitutionId).HasFillFactor(80);
 
-            entity.Property(e => e.AadhaarFilePath).HasMaxLength(1000);
+            entity.Property(e => e.AadhaarFilePath).HasMaxLength(500);
             entity.Property(e => e.AadhaarNumber).HasMaxLength(20);
             entity.Property(e => e.AcademicYearStarted).HasMaxLength(20);
             entity.Property(e => e.AddressOfInstitution).HasMaxLength(300);
             entity.Property(e => e.AltEmailId).HasMaxLength(150);
             entity.Property(e => e.AltLandlineOrMobile).HasMaxLength(20);
-            entity.Property(e => e.AmendedDocPath).HasMaxLength(1000);
-            entity.Property(e => e.AuditStatementFilePath).HasMaxLength(1000);
-            entity.Property(e => e.BankStatementFilePath).HasMaxLength(1000);
+            entity.Property(e => e.AmendedDocPath).HasMaxLength(500);
+            entity.Property(e => e.AuditStatementFilePath).HasMaxLength(500);
+            entity.Property(e => e.BankStatementFilePath).HasMaxLength(500);
             entity.Property(e => e.CategoryOfOrganisation).HasMaxLength(100);
             entity.Property(e => e.CollegeCode).HasMaxLength(10);
             entity.Property(e => e.CollegeStatus).HasMaxLength(100);
             entity.Property(e => e.ContactPersonMobile).HasMaxLength(20);
             entity.Property(e => e.ContactPersonName).HasMaxLength(200);
             entity.Property(e => e.ContactPersonRelation).HasMaxLength(200);
-            entity.Property(e => e.ContinuationAffiliationFilePath).HasMaxLength(1000);
+            entity.Property(e => e.ContinuationAffiliationFilePath).HasMaxLength(500);
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -2943,30 +2908,28 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode).HasMaxLength(20);
             entity.Property(e => e.Fax).HasMaxLength(20);
             entity.Property(e => e.FinancingAuthorityName).HasMaxLength(200);
-            entity.Property(e => e.FirstAffiliationNotifFilePath).HasMaxLength(1000);
-            entity.Property(e => e.GokOrderExistingCoursesFilePath).HasMaxLength(1000);
+            entity.Property(e => e.FirstAffiliationNotifFilePath).HasMaxLength(500);
+            entity.Property(e => e.GokOrderExistingCoursesFilePath).HasMaxLength(500);
             entity.Property(e => e.GokobtainedTrustName)
                 .HasMaxLength(200)
                 .HasColumnName("GOKObtainedTrustName");
-            entity.Property(e => e.GovAutonomousCertFilePath).HasMaxLength(1000);
+            entity.Property(e => e.GovAutonomousCertFilePath).HasMaxLength(500);
             entity.Property(e => e.GovAutonomousCertNumber).HasMaxLength(100);
-            entity.Property(e => e.GovCouncilMembershipFilePath).HasMaxLength(1000);
+            entity.Property(e => e.GovCouncilMembershipFilePath).HasMaxLength(500);
             entity.Property(e => e.HeadOfInstitutionAddress).HasMaxLength(300);
             entity.Property(e => e.HeadOfInstitutionName).HasMaxLength(150);
-            entity.Property(e => e.KncCertificateFilePath).HasMaxLength(1000);
+            entity.Property(e => e.KncCertificateFilePath).HasMaxLength(500);
             entity.Property(e => e.KncCertificateNumber).HasMaxLength(100);
             entity.Property(e => e.MobileNumber).HasMaxLength(20);
             entity.Property(e => e.NameOfInstitution).HasMaxLength(200);
-            entity.Property(e => e.PanfilePath)
-                .HasMaxLength(1000)
-                .HasColumnName("PANFilePath");
+            entity.Property(e => e.PanfilePath).HasMaxLength(500);
             entity.Property(e => e.Pannumber)
                 .HasMaxLength(20)
                 .HasColumnName("PANNumber");
             entity.Property(e => e.PinCode).HasMaxLength(10);
             entity.Property(e => e.PresidentName).HasMaxLength(100);
-            entity.Property(e => e.RegisteredTrustMemberDetailsPath).HasMaxLength(1000);
-            entity.Property(e => e.RegistrationCertificateFilePath).HasMaxLength(1000);
+            entity.Property(e => e.RegisteredTrustMemberDetailsPath).HasMaxLength(500);
+            entity.Property(e => e.RegistrationCertificateFilePath).HasMaxLength(500);
             entity.Property(e => e.RegistrationNumber).HasMaxLength(50);
             entity.Property(e => e.StdCode).HasMaxLength(10);
             entity.Property(e => e.Taluk).HasMaxLength(100);
@@ -4509,7 +4472,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__SmallGro__3214EC07193B4222");
 
-            entity.Property(e => e.ApprovedBuildingPlanFilePath).HasMaxLength(100);
+            entity.Property(e => e.ApprovedBuildingPlanFilePath).HasMaxLength(500);
             entity.Property(e => e.ApprovedBuildingPlanPath).HasMaxLength(500);
             entity.Property(e => e.AreaDeficiencySqm).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.AvailableAreaSqm).HasColumnType("decimal(10, 2)");

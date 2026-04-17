@@ -19,11 +19,13 @@ public partial class CaMedicalLibraryService
 
     public string? UploadedFileName { get; set; }
 
-    public string? UploadedPdfPath { get; set; }
-
     public DateTime? CreatedDate { get; set; }
 
     public string? RegistrationNo { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? UploadedPdfPath { get; set; }
+
+    public string? UploadedFileDataPath { get; set; }
 }
