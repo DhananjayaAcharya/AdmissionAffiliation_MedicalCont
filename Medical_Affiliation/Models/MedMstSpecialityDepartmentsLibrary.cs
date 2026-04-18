@@ -12,6 +12,4 @@ public partial class MedMstSpecialityDepartmentsLibrary
     public string SpecialityDepartments { get; set; } = null!;
 
     public string DepartmentId { get; set; } = null!;
-
-    public virtual ICollection<MedicalCentralLibrarySpeciality> MedicalCentralLibrarySpecialities { get; set; } = new List<MedicalCentralLibrarySpeciality>();
 }

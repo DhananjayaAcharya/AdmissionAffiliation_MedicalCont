@@ -12,7 +12,7 @@ namespace Medical_Affiliation.Controllers
         protected string? CollegeCode => User.FindFirst("CollegeCode")?.Value;
         //protected string? CourseLevel => User.FindFirst("CourseLevel")?.Value;
         //protected string FolderPath { get; } = @"E:\AffiliationPayment";
-        protected string BasePath { get; } = @"E:\Affiliation_Medical";
+        protected string BasePath { get; } = @"D:\Affiliation_Medical";
 
         protected string CourseLevel
         {

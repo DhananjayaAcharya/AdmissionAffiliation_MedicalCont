@@ -35,6 +35,8 @@ public partial class CaMedStaffParticularsOtherTemp
 
     public string? CourseLevel { get; set; }
 
+    public string? TeachersUpdatedPdfPath { get; set; }
+
     public string? ExaminerDetailsPdfPath { get; set; }
 
     public string? AebaslastThreeMonthsPdfPath { get; set; }
@@ -44,6 +46,4 @@ public partial class CaMedStaffParticularsOtherTemp
     public string? ProvidentFundPdfPath { get; set; }
 
     public string? EsipdfPath { get; set; }
-
-    public string? TeachersUpdatedPdfPath { get; set; }
 }

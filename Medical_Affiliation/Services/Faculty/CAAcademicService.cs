@@ -25,7 +25,7 @@ namespace Medical_Affiliation.Services.Faculty
                 .Where(x => x.FacultyId == facultyId && x.CollegeCode == collegeCode)
                 .Select(x => new AcademicPerformanceViewModel
                 {
-                    YearName = x.YearOfStudy != null ? x.YearOfStudy.YearName : null,
+                    //YearName = x.YearOfStudy != null ? x.YearOfStudy.YearName : null,
                     RegularStudents = x.RegularStudents,
                     RepeaterStudents = x.RepeaterStudents,
                     NumberOfStudentsPassed = x.NumberOfStudentsPassed,

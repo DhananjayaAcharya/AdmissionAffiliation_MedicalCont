@@ -205,7 +205,7 @@ namespace Medical_Affiliation.Controllers
                              RegisterName = m.RegisterName,
 
                              // ✅ FIX
-                             IsMaintained = saved?.IsMaintained
+                             //IsMaintained = saved?.IsMaintained
                          };
                      })
                      .ToList();
@@ -444,7 +444,7 @@ namespace Medical_Affiliation.Controllers
                             CourseLevel = courseLevel,
                             AffiliationType = model.AffiliationType ?? 0,
                             RegisterRecordId = rec.RegisterRecordId ?? 0,
-                            IsMaintained = rec.IsMaintained,
+                            //IsMaintained = rec.IsMaintained,
 
 
                             CreatedOn = DateTime.Now
