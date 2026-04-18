@@ -27,7 +27,7 @@ public partial class AffHostelDetail
 
     public string TotalMaleRooms { get; set; } = null!;
 
-    public byte[]? PossessionProofPath { get; set; }
+    public string? PossessionProofPath { get; set; }
 
     public DateTime CreatedOn { get; set; }
 

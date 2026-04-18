@@ -254,6 +254,8 @@ namespace Medical_Affiliation.Models
         public IEnumerable<SelectListItem> HostelTypes { get; set; } = new List<SelectListItem>();
 
         public string? CourseLevel {  get; set; }
+
+        //public string? OwnOrRented { get; set; }
     }
 
     public class HostelFacilityRowVm

@@ -232,21 +232,28 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
+            // 🔥 USE BASE CONTROLLER PATH
             string basePath = Path.Combine(BasePath, "AcademicCurriculum");
 
+            // 🔹 Ensure directory exists
             if (!Directory.Exists(basePath))
                 Directory.CreateDirectory(basePath);
 
+            // 🔹 Generate GUID file name
             string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+
+            // 🔥 FULL PATH (NOW CORRECT)
             string fullPath = Path.Combine(basePath, fileName);
 
+            // 🔹 Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            return fullPath;
+            return fullPath; // ✅ D:\Affiliation_Medical\AcademicCurriculum\GUID.pdf
         }
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcademicMatters(CA_Aff_AcademicMattersViewModel model)

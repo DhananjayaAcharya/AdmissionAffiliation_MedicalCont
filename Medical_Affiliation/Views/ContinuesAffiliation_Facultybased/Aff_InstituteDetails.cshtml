@@ -989,11 +989,11 @@
                         <div>
                             <label><i class="fas fa-file-shield"></i>Gov Autonomous Certificate</label>
                             <div class="file-row">
-                                <input id="GovAutonomousCertFile" name="GovAutonomousCertFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="GovAutonomousCertFile" name="GovAutonomousCertFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadGovAutonomousCert"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1010,11 +1010,11 @@
                         <div>
                             <label><i class="fas fa-users-gear"></i>Gov Council Membership</label>
                             <div class="file-row">
-                                <input id="GovCouncilMembershipFile" name="GovCouncilMembershipFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="GovCouncilMembershipFile" name="GovCouncilMembershipFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadGovCouncilMembership"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1031,11 +1031,11 @@
                         <div>
                             <label><i class="fas fa-file-lines"></i>GOK Order — Existing Courses</label>
                             <div class="file-row">
-                                <input id="GokOrderExistingCoursesFile" name="GokOrderExistingCoursesFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="GokOrderExistingCoursesFile" name="GokOrderExistingCoursesFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadGokOrderExistingCourses"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1052,11 +1052,11 @@
                         <div>
                             <label><i class="fas fa-file-signature"></i>First Affiliation Notification</label>
                             <div class="file-row">
-                                <input id="FirstAffiliationNotifFile" name="FirstAffiliationNotifFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="FirstAffiliationNotifFile" name="FirstAffiliationNotifFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadFirstAffiliationNotif"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1073,11 +1073,11 @@
                         <div>
                             <label><i class="fas fa-rotate"></i>Continuation Affiliation</label>
                             <div class="file-row">
-                                <input id="ContinuationAffiliationFile" name="ContinuationAffiliationFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="ContinuationAffiliationFile" name="ContinuationAffiliationFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadContinuationAffiliation"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1094,11 +1094,11 @@
                         <div>
                             <label><i class="fas fa-medal"></i>KNC Certificate</label>
                             <div class="file-row">
-                                <input id="KncCertificateFile" name="KncCertificateFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="KncCertificateFile" name="KncCertificateFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadKncCertificate"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1115,11 +1115,11 @@
                         <div>
                             <label><i class="fas fa-file-pen"></i>Amended Document</label>
                             <div class="file-row">
-                                <input id="AmendedDoc" name="AmendedDoc" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="AmendedDoc" name="AmendedDoc" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadAmendedDoc"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1136,11 +1136,11 @@
                         <div>
                             <label><i class="fas fa-id-card-clip"></i>Aadhaar File</label>
                             <div class="file-row">
-                                <input id="AadhaarFile" name="AadhaarFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="AadhaarFile" name="AadhaarFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadAadhaarFile"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1157,11 +1157,11 @@
                         <div>
                             <label><i class="fas fa-credit-card"></i>PAN File</label>
                             <div class="file-row">
-                                <input id="PANFile" name="PANFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="PANFile" name="PANFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadPANFile"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1178,11 +1178,11 @@
                         <div>
                             <label><i class="fas fa-file-invoice-dollar"></i>Bank Statement</label>
                             <div class="file-row">
-                                <input id="BankStatementFile" name="BankStatementFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="BankStatementFile" name="BankStatementFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadBankStatement"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1199,11 +1199,11 @@
                         <div>
                             <label><i class="fas fa-file-circle-check"></i>Registration Certificate</label>
                             <div class="file-row">
-                                <input id="RegistrationCertificateFile" name="RegistrationCertificateFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="RegistrationCertificateFile" name="RegistrationCertificateFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadRegistrationCertificate"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1220,11 +1220,11 @@
                         <div>
                             <label><i class="fas fa-people-group"></i>Registered Trust Member Details</label>
                             <div class="file-row">
-                                <input id="RegisteredTrustMemberDetails" name="RegisteredTrustMemberDetails" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="RegisteredTrustMemberDetails" name="RegisteredTrustMemberDetails" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadRegisteredTrustMemberDetails"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View
@@ -1241,11 +1241,11 @@
                         <div>
                             <label><i class="fas fa-chart-line"></i>Audit Statement</label>
                             <div class="file-row">
-                                <input id="AuditStatementFile" name="AuditStatementFile" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                                <input id="AuditStatementFile" name="AuditStatementFile" type="file" accept=".pdf" />
                                 @if (Model.InstitutionId > 0)
                                 {
                                     <a asp-action="DownloadAuditStatement"
-                                       asp-controller="CollegeBasicDetails"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
                                        asp-route-id="@Model.InstitutionId"
                                        class="btn-view" target="_blank">
                                         <i class="fas fa-eye"></i> View

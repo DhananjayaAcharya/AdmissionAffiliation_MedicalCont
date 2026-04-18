@@ -440,7 +440,7 @@ public partial class ApplicationDbContext : DbContext
 
 //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server= DESKTOP-HSD6G32;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
+//        => optionsBuilder.UseSqlServer("Server=DESKTOP-G9AH0T4\\MSSQLSERVER02;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -642,6 +642,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.HostelFacilityDetails).HasMaxLength(1000);
             entity.Property(e => e.HostelType).HasMaxLength(50);
             entity.Property(e => e.OwnOrRented).HasMaxLength(50);
+            entity.Property(e => e.PossessionProofPath).HasMaxLength(500);
             entity.Property(e => e.SpacePerStudent).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TotalFemaleRooms).HasMaxLength(200);
             entity.Property(e => e.TotalFemaleStudents).HasMaxLength(200);
@@ -1172,7 +1173,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.NmcsupportingDocument).HasColumnName("NMCsupportingDocument");
+            entity.Property(e => e.NmcsupportingDocumentPath)
+                .HasMaxLength(500)
+                .HasColumnName("NMCsupportingDocumentPath");
             entity.Property(e => e.PermissionByNmc).HasColumnName("PermissionByNMC");
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
@@ -1287,7 +1290,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysdatetime())");
-            entity.Property(e => e.DocumentofGok).HasColumnName("DocumentofGOK");
+            entity.Property(e => e.DocumentofGokpath)
+                .HasMaxLength(500)
+                .HasColumnName("DocumentofGOKPath");
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -1321,7 +1326,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.RguhssupportingDocument).HasColumnName("RGUHSsupportingDocument");
+            entity.Property(e => e.RguhssupportingDocumentPath)
+                .HasMaxLength(500)
+                .HasColumnName("RGUHSsupportingDocumentPath");
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -3841,6 +3848,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.MeuCoordinatorEmail).HasMaxLength(150);
             entity.Property(e => e.MeuCoordinatorName).HasMaxLength(200);
             entity.Property(e => e.MeuCoordinatorPhone).HasMaxLength(50);
+            entity.Property(e => e.MeuMembersListFilePath).HasMaxLength(500);
         });
 
         modelBuilder.Entity<MedicalInstituteDetail>(entity =>

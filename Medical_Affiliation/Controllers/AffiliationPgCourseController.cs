@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace Medical_Affiliation.Controllers
 {
 
-    //[Authorize(AuthenticationSchemes = "CollegeAuth", Roles = "College")]
+    [Authorize(AuthenticationSchemes = "CollegeAuth", Roles = "College")]
     public class AffiliationPgCourseController : BaseController
     {
         private readonly ApplicationDbContext _context;
@@ -212,7 +213,7 @@ namespace Medical_Affiliation.Controllers
                     CoursePrefix = gok != null ? gok.CoursePrefix : cm.CoursePrefix,
                     CollegeIntake = gok != null ? gok.PresentIntake : ci.PresentIntake,
                     RguhsIntake = gok != null ? gok.PresentIntake : ci.ExistingIntake,
-                    HasGOKDocument = gok != null && gok.DocumentofGok != null && gok.DocumentofGok.Length > 0,
+                    HasGOKDocument = gok != null && gok.DocumentofGokpath != null && gok.DocumentofGokpath.Length > 0,
                     AcademicYear = gok != null ? gok.AcademicYear : null,
                     DateofGOK = gok != null ? gok.Gokdate : null,
 
@@ -251,7 +252,7 @@ namespace Medical_Affiliation.Controllers
                     CourseLevel = mst.CourseLevel,
                     CoursePrefix = mst.CoursePrefix,
                     RguhsIntake = rguhsCourses != null ? rguhsCourses.RguhsIntake : ci.ExistingIntake,
-                    HasRguhsDocument = rguhsCourses != null && rguhsCourses.RguhssupportingDocument != null && rguhsCourses.RguhssupportingDocument.Length > 0,
+                    HasRguhsDocument = rguhsCourses != null && rguhsCourses.RguhssupportingDocumentPath != null && rguhsCourses.RguhssupportingDocumentPath.Length > 0,
                 };
 
             var result = await pgCourseswithRguhs.ToListAsync();
@@ -277,7 +278,7 @@ namespace Medical_Affiliation.Controllers
                     CourseCode = mst.CourseCode.ToString(),
                     CourseName = mst.CourseName,
                     PermissionByNMC = ot != null && ot.PermissionByNmc == 1,
-                    HasNMCdocument = ot.NmcsupportingDocument != null && ot.NmcsupportingDocument.Length > 0,
+                    HasNMCdocument = ot.NmcsupportingDocumentPath != null && ot.NmcsupportingDocumentPath.Length > 0,
                     AdmissionsPerYear = ot.NumberOfAdmissionsPerYear ?? 0,
                     FacultyCode = ot != null ? ot.FacultyCode : mst.FacultyCode.ToString()
                 }
@@ -361,17 +362,18 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SavePgCoursesForGOK(AffiliationPgCourseViewModel model)
         {
-
             var collegeCode = _userContext.CollegeCode;
 
             foreach (var course in model.PgCoursesGOK)
             {
                 if (string.IsNullOrWhiteSpace(course.CourseCode) || string.IsNullOrWhiteSpace(course.AcademicYear))
-                {
                     continue;
-                }
 
-                var existingCourse = await _context.AffiliationPgSsCourseDetailsForGoks.Where(e => e.CollegeCode == course.CollegeCode && e.CourseCode == course.CourseCode).FirstOrDefaultAsync();
+                var existingCourse = await _context.AffiliationPgSsCourseDetailsForGoks
+                    .FirstOrDefaultAsync(e => e.CollegeCode == course.CollegeCode && e.CourseCode == course.CourseCode);
+
+                var path = await SavePgFileAsync(course.GOKDocumentFile, "GOK");
+
                 if (existingCourse == null)
                 {
                     var entity = new AffiliationPgSsCourseDetailsForGok
@@ -387,15 +389,8 @@ namespace Medical_Affiliation.Controllers
                         Gokdate = course.DateofGOK,
                         FacultyCode = _userContext.FacultyId.ToString(),
                         AcademicYear = course.AcademicYear,
-
+                        DocumentofGokpath = path
                     };
-
-                    if (course.GOKDocumentFile != null && course.GOKDocumentFile.Length > 0)
-                    {
-                        using var ms = new MemoryStream();
-                        await course.GOKDocumentFile.CopyToAsync(ms);
-                        entity.DocumentofGok = ms.ToArray();
-                    }
 
                     _context.AffiliationPgSsCourseDetailsForGoks.Add(entity);
                 }
@@ -404,11 +399,15 @@ namespace Medical_Affiliation.Controllers
                     existingCourse.SanctionedIntake = course.RguhsIntake;
                     existingCourse.AcademicYear = course.AcademicYear;
 
-                    if (course.GOKDocumentFile != null && course.GOKDocumentFile.Length > 0)
+                    if (path != null)
                     {
-                        using var ms = new MemoryStream();
-                        await course.GOKDocumentFile.CopyToAsync(ms);
-                        existingCourse.DocumentofGok = ms.ToArray();
+                        if (!string.IsNullOrEmpty(existingCourse.DocumentofGokpath) &&
+                            System.IO.File.Exists(existingCourse.DocumentofGokpath))
+                        {
+                            System.IO.File.Delete(existingCourse.DocumentofGokpath);
+                        }
+
+                        existingCourse.DocumentofGokpath = path;
                     }
                 }
             }
@@ -417,18 +416,20 @@ namespace Medical_Affiliation.Controllers
             TempData["GokSavemsg"] = "Details saved successfully";
             return RedirectToAction(nameof(PgCourses));
         }
-
         public async Task<IActionResult> ViewGokDocument(string courseCode, string collegecode)
         {
             var course = await _context.AffiliationPgSsCourseDetailsForGoks
                 .FirstOrDefaultAsync(e => e.CollegeCode == collegecode && e.CourseCode == courseCode);
 
-            if (course == null || course.DocumentofGok == null)
+            if (course == null ||
+                string.IsNullOrEmpty(course.DocumentofGokpath) ||
+                !System.IO.File.Exists(course.DocumentofGokpath))
                 return NotFound();
 
-            return File(course.DocumentofGok, "application/pdf");
-        }
+            Response.Headers["Content-Disposition"] = "inline";
 
+            return PhysicalFile(course.DocumentofGokpath, "application/pdf");
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -441,24 +442,19 @@ namespace Medical_Affiliation.Controllers
             foreach (var course in model.PgCoursesRguhs)
             {
                 if (string.IsNullOrWhiteSpace(course.CourseCode))
-                {
                     continue;
-                }
+
                 if (course.RGUHSDocumentFile == null || course.RGUHSDocumentFile.Length == 0)
                     continue;
 
-                const long maxSize = 1 * 1024 * 1024; // 1 MB
+                var existing = await _context.AffiliationPgSsCourseDetailsRguhs
+                    .FirstOrDefaultAsync(e => e.CourseCode == course.CourseCode && e.CollegeCode == collegecode);
 
-                if (course.RGUHSDocumentFile != null &&
-                    course.RGUHSDocumentFile.Length > maxSize)
-                {
-                    ModelState.AddModelError("", "RGUHS document must be 1 MB or less.");
-                    return RedirectToAction(nameof(PgCourses));
-                }
+                var path = await SavePgFileAsync(course.RGUHSDocumentFile, "RGUHS");
 
-                var existing = await _context.AffiliationPgSsCourseDetailsRguhs.Where(e => e.CourseCode == course.CourseCode && e.CollegeCode == collegecode).FirstOrDefaultAsync();
                 if (existing == null)
                 {
+                    // ✅ INSERT
                     var entity = new AffiliationPgSsCourseDetailsRguh
                     {
                         CollegeCode = collegecode,
@@ -468,27 +464,31 @@ namespace Medical_Affiliation.Controllers
                         CourseLevel = course.CourseLevel,
                         CourseName = course.CourseName,
                         RguhsIntake = course.RguhsIntake,
+                        RguhssupportingDocumentPath = path // ✅ save first time
                     };
 
-                    if (course.RGUHSDocumentFile != null && course.RGUHSDocumentFile.Length > 0)
-                    {
-                        using var ms = new MemoryStream();
-                        await course.RGUHSDocumentFile.CopyToAsync(ms);
-                        entity.RguhssupportingDocument = ms.ToArray();
-                    }
                     _context.AffiliationPgSsCourseDetailsRguhs.Add(entity);
                 }
                 else
                 {
+                    // ✅ UPDATE
                     existing.RguhsIntake = course.RguhsIntake;
-                    if (course.RGUHSDocumentFile != null && course.RGUHSDocumentFile.Length > 0)
+
+                    if (path != null)
                     {
-                        using var ms = new MemoryStream();
-                        await course.RGUHSDocumentFile.CopyToAsync(ms);
-                        existing.RguhssupportingDocument = ms.ToArray();
+                        // 🔥 DELETE OLD FILE
+                        if (!string.IsNullOrEmpty(existing.RguhssupportingDocumentPath) &&
+                            System.IO.File.Exists(existing.RguhssupportingDocumentPath))
+                        {
+                            System.IO.File.Delete(existing.RguhssupportingDocumentPath);
+                        }
+
+                        // ✅ UPDATE NEW FILE
+                        existing.RguhssupportingDocumentPath = path;
                     }
                 }
             }
+
             await _context.SaveChangesAsync();
             TempData["Rguhs"] = "RGUHS Intake details saved successfully";
             return RedirectToAction(nameof(PgCourses));
@@ -497,13 +497,18 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> ViewRguhsDocument(string courseCode)
         {
             var collegecode = _userContext.CollegeCode;
+
             var course = await _context.AffiliationPgSsCourseDetailsRguhs
                 .FirstOrDefaultAsync(e => e.CollegeCode == collegecode && e.CourseCode == courseCode);
 
-            if (course == null || course.RguhssupportingDocument == null)
-                return NotFound();
+            if (course == null ||
+                string.IsNullOrEmpty(course.RguhssupportingDocumentPath) ||
+                !System.IO.File.Exists(course.RguhssupportingDocumentPath))
+                return NotFound("File not found");
 
-            return File(course.RguhssupportingDocument, "application/pdf");
+            Response.Headers["Content-Disposition"] = "inline";
+
+            return PhysicalFile(course.RguhssupportingDocumentPath, "application/pdf");
         }
 
         [HttpPost]
@@ -516,50 +521,57 @@ namespace Medical_Affiliation.Controllers
 
             foreach (var course in model.OtherCoursesPermittedByNMC)
             {
-                var existingOtherDeptCourse = await _context.AffiliationOtherCoursesPermittedByNmcs.Where(e => e.CollegeCode == collegecode && e.CourseCode == course.CourseCode).FirstOrDefaultAsync();
+                var existingOtherDeptCourse = await _context.AffiliationOtherCoursesPermittedByNmcs
+                    .FirstOrDefaultAsync(e => e.CollegeCode == collegecode && e.CourseCode == course.CourseCode);
+
+                var path = await SavePgFileAsync(course.NMCdocumentFile, "NMC");
+
                 if (existingOtherDeptCourse == null)
                 {
+                    // ✅ INSERT
                     if (course.NMCdocumentFile == null || course.NMCdocumentFile.Length == 0)
                         continue;
 
                     const long maxSize = 1 * 1024 * 1024; // 1 MB
 
-                    if (course.NMCdocumentFile != null &&
-                        course.NMCdocumentFile.Length > maxSize)
+                    if (course.NMCdocumentFile.Length > maxSize)
                     {
-                        ModelState.AddModelError("", "RGUHS document must be 1 MB or less.");
+                        ModelState.AddModelError("", "NMC document must be 1 MB or less.");
                         return RedirectToAction(nameof(PgCourses));
                     }
+
                     var entity = new AffiliationOtherCoursesPermittedByNmc
                     {
                         CollegeCode = collegecode,
                         CourseCode = course.CourseCode,
                         TypeOfAffiliation = afftype.ToString(),
-                        FacultyCode = course.FacultyCode,
+                        FacultyCode = facultyCode.ToString(),
                         CourseLevel = course.CourseLevel,
                         CourseName = course.CourseName,
                         PermissionByNmc = course.PermissionByNMC ? 1 : 0,
                         NumberOfAdmissionsPerYear = course.AdmissionsPerYear,
-
+                        NmcsupportingDocumentPath = path // ✅ first time save
                     };
-                    if (course.NMCdocumentFile != null && course.NMCdocumentFile.Length > 0)
-                    {
-                        using var ms = new MemoryStream();
-                        await course.NMCdocumentFile.CopyToAsync(ms);
-                        entity.NmcsupportingDocument = ms.ToArray();
-                    }
-                    _context.AffiliationOtherCoursesPermittedByNmcs.Add(entity);
 
+                    _context.AffiliationOtherCoursesPermittedByNmcs.Add(entity);
                 }
                 else
                 {
+                    // ✅ UPDATE
                     existingOtherDeptCourse.PermissionByNmc = course.PermissionByNMC ? 1 : 0;
                     existingOtherDeptCourse.NumberOfAdmissionsPerYear = course.AdmissionsPerYear;
-                    if (course.NMCdocumentFile != null && course.NMCdocumentFile.Length > 0)
+
+                    if (path != null)
                     {
-                        using var ms = new MemoryStream();
-                        await course.NMCdocumentFile.CopyToAsync(ms);
-                        existingOtherDeptCourse.NmcsupportingDocument = ms.ToArray();
+                        // 🔥 DELETE OLD FILE
+                        if (!string.IsNullOrEmpty(existingOtherDeptCourse.NmcsupportingDocumentPath) &&
+                            System.IO.File.Exists(existingOtherDeptCourse.NmcsupportingDocumentPath))
+                        {
+                            System.IO.File.Delete(existingOtherDeptCourse.NmcsupportingDocumentPath);
+                        }
+
+                        // ✅ UPDATE NEW FILE
+                        existingOtherDeptCourse.NmcsupportingDocumentPath = path;
                     }
                 }
             }
@@ -568,17 +580,21 @@ namespace Medical_Affiliation.Controllers
             TempData["others"] = "Other Department Admission details saved successfully";
             return RedirectToAction(nameof(PgCourses));
         }
-
         public async Task<IActionResult> ViewNMCDocument(string courseCode)
         {
             var collegecode = _userContext.CollegeCode;
+
             var course = await _context.AffiliationOtherCoursesPermittedByNmcs
                 .FirstOrDefaultAsync(e => e.CollegeCode == collegecode && e.CourseCode == courseCode);
 
-            if (course == null || course.NmcsupportingDocument == null)
-                return NotFound();
+            if (course == null ||
+                string.IsNullOrEmpty(course.NmcsupportingDocumentPath) ||
+                !System.IO.File.Exists(course.NmcsupportingDocumentPath))
+                return NotFound("File not found");
 
-            return File(course.NmcsupportingDocument, "application/pdf");
+            Response.Headers["Content-Disposition"] = "inline";
+
+            return PhysicalFile(course.NmcsupportingDocumentPath, "application/pdf");
         }
 
         [HttpPost]
@@ -613,6 +629,27 @@ namespace Medical_Affiliation.Controllers
             await _context.SaveChangesAsync();
             TempData["Lic"] = "Lic Details saved successfully";
             return RedirectToAction(nameof(PgCourses));
+        }
+
+        private async Task<string?> SavePgFileAsync(IFormFile file, string subFolder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            string basePath = Path.Combine(BasePath, "PgCourseDetails", subFolder);
+
+            if (!Directory.Exists(basePath))
+                Directory.CreateDirectory(basePath);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(basePath, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
         }
 
     }

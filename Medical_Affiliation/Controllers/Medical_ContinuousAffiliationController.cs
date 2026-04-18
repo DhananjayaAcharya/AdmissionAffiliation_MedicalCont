@@ -796,13 +796,38 @@ namespace Medical_Affiliation.Controllers
                 MeuCoordinatorEmail = entity.MeuCoordinatorEmail,
                 MeuCoordinatorDesignationDepartment = entity.MeuCoordinatorDesignationDepartment,
                 MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear,
-                HasMeuMembersListFile = entity.MeuMembersListFile != null
+                HasMeuMembersListFile = entity.MeuMembersListFilePath != null
             };
 
             return View(vm);
         }
 
+        private async Task<string?> SaveMeuFileAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
 
+            // 🔥 Ensure correct base path
+            string basePath = Path.Combine(BasePath, "MEUFiles");
+
+            // 🔥 Create folder if not exists
+            if (!Directory.Exists(basePath))
+                Directory.CreateDirectory(basePath);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(basePath, fileName);
+
+            // 🔥 SAVE FILE PROPERLY
+            using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // 🔍 DEBUG (IMPORTANT)
+            Console.WriteLine("Saved File Path: " + fullPath);
+
+            return fullPath;
+        }
 
 
         [HttpPost]
@@ -822,8 +847,17 @@ namespace Medical_Affiliation.Controllers
                     x.CollegeCode == collegeCode &&
                     x.CourseLevel == courseLevel);
 
+            // 🔥 FILE PATH VARIABLE (IMPORTANT)
+            string? filePath = null;
+
+            if (vm.MeuMembersListFile != null && vm.MeuMembersListFile.Length > 0)
+            {
+                filePath = await SaveMeuFileAsync(vm.MeuMembersListFile);
+            }
+
             if (entity == null)
             {
+                // ✅ INSERT
                 entity = new MedicalDepartmentOfficesMeu
                 {
                     FacultyCode = facultyCode,
@@ -831,9 +865,17 @@ namespace Medical_Affiliation.Controllers
                     CourseLevel = courseLevel,
                     CreatedOn = DateTime.UtcNow
                 };
+
+                // 🔥 SAVE FILE FIRST TIME
+                if (filePath != null)
+                {
+                    entity.MeuMembersListFilePath = filePath;
+                }
+
                 _context.MedicalDepartmentOfficesMeus.Add(entity);
             }
 
+            // 🔥 COMMON FIELD MAPPING
             entity.HasHodRoomWithOfficeAndRecords = vm.HasHodRoomWithOfficeAndRecords ?? false;
             entity.HasRoomsForFacultyAndResidents = vm.HasRoomsForFacultyAndResidents ?? false;
             entity.FacultyRoomsHaveCommunicationComputerInternet = vm.FacultyRoomsHaveCommunicationComputerInternet ?? false;
@@ -862,11 +904,18 @@ namespace Medical_Affiliation.Controllers
                 entity.MeuCoordinatorDesignationDepartment = vm.MeuCoordinatorDesignationDepartment;
                 entity.MeuActivitiesLastAcademicYear = vm.MeuActivitiesLastAcademicYear;
 
-                if (vm.MeuMembersListFile != null && vm.MeuMembersListFile.Length > 0)
+                // 🔥 UPDATE FILE
+                if (filePath != null)
                 {
-                    using var ms = new MemoryStream();
-                    await vm.MeuMembersListFile.CopyToAsync(ms);
-                    entity.MeuMembersListFile = ms.ToArray();
+                    // 🔥 DELETE OLD FILE
+                    if (!string.IsNullOrEmpty(entity.MeuMembersListFilePath) &&
+                        System.IO.File.Exists(entity.MeuMembersListFilePath))
+                    {
+                        System.IO.File.Delete(entity.MeuMembersListFilePath);
+                    }
+
+                    // ✅ SAVE NEW PATH
+                    entity.MeuMembersListFilePath = filePath;
                 }
             }
 
@@ -880,14 +929,25 @@ namespace Medical_Affiliation.Controllers
 
         public async Task<IActionResult> ViewMeuMembersList()
         {
-            var entity = await _context.MedicalDepartmentOfficesMeus.FirstOrDefaultAsync();
-            if (entity == null || entity.MeuMembersListFile == null)
-                return NotFound();
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
-            var contentType = "application/pdf"; // or detect if you store type
+            var entity = await _context.MedicalDepartmentOfficesMeus
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel);
+
+            if (entity == null ||
+                string.IsNullOrEmpty(entity.MeuMembersListFilePath) ||
+                !System.IO.File.Exists(entity.MeuMembersListFilePath))
+                return NotFound("File not found");
+
+            // 🔥 INLINE VIEW
             Response.Headers["Content-Disposition"] = "inline";
 
-            return File(entity.MeuMembersListFile, contentType);
+            return PhysicalFile(entity.MeuMembersListFilePath, "application/pdf");
         }
 
 

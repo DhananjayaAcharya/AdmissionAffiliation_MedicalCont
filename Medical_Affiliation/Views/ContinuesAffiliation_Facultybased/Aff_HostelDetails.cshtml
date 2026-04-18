@@ -404,8 +404,8 @@
                                 <label class="form-label">Whether own or rented</label>
                                 <select asp-for="Hostel.OwnOrRented" class="form-select">
                                     <option value="">Select</option>
-                                    <option value="Own">Own</option>
-                                    <option value="Rented">Rented</option>
+                                    <option value="Own" selected="@(Model.Hostel?.OwnOrRented == "Own")">Own</option>
+                                    <option value="Rented" selected="@(Model.Hostel?.OwnOrRented == "Rented")">Rented</option>
                                 </select>
                             </div>
 

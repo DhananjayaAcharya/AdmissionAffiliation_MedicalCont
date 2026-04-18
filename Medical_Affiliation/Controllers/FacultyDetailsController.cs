@@ -284,9 +284,41 @@ namespace Medical_Affiliation.Controllers
                         existing.IsRemoved = false;
                         existing.RemoveRemarks = null;
 
-                        if (guidePath != null) existing.GuideRecognitionDocPath = guidePath;
-                        if (phdPath != null) existing.PhDrecognitionDocPath = phdPath;
-                        if (litigPath != null) existing.LitigationDocPath = litigPath;
+                        // 🔥 GUIDE DOC
+                        if (guidePath != null)
+                        {
+                            if (!string.IsNullOrEmpty(existing.GuideRecognitionDocPath) &&
+                                System.IO.File.Exists(existing.GuideRecognitionDocPath))
+                            {
+                                System.IO.File.Delete(existing.GuideRecognitionDocPath);
+                            }
+
+                            existing.GuideRecognitionDocPath = guidePath;
+                        }
+
+                        // 🔥 PHD DOC
+                        if (phdPath != null)
+                        {
+                            if (!string.IsNullOrEmpty(existing.PhDrecognitionDocPath) &&
+                                System.IO.File.Exists(existing.PhDrecognitionDocPath))
+                            {
+                                System.IO.File.Delete(existing.PhDrecognitionDocPath);
+                            }
+
+                            existing.PhDrecognitionDocPath = phdPath;
+                        }
+
+                        // 🔥 LITIGATION DOC
+                        if (litigPath != null)
+                        {
+                            if (!string.IsNullOrEmpty(existing.LitigationDocPath) &&
+                                System.IO.File.Exists(existing.LitigationDocPath))
+                            {
+                                System.IO.File.Delete(existing.LitigationDocPath);
+                            }
+
+                            existing.LitigationDocPath = litigPath;
+                        }
 
                         _context.FacultyDetails.Update(existing);
                     }

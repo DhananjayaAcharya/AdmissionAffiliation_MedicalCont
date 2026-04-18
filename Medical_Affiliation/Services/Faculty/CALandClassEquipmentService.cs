@@ -83,7 +83,7 @@ namespace Medical_Affiliation.Services.Faculty
                 MeuCoordinatorDesignationDepartment = entity.MeuCoordinatorDesignationDepartment ?? "",
                 MeuMembersListDescription = entity.MeuMembersListDescription ?? "",
                 MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear ?? "",
-                HasMeuMembersListFile = entity.MeuMembersListFile != null && entity.MeuMembersListFile.Length > 0
+                HasMeuMembersListFile = !string.IsNullOrEmpty(entity.MeuMembersListFilePath) && System.IO.File.Exists(entity.MeuMembersListFilePath)
             };
 
             return vm;
