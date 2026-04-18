@@ -8,7 +8,7 @@ using System.Globalization;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class MedicalContinuesAffiliationController : Controller
+    public class MedicalContinuesAffiliationController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -218,7 +218,7 @@ namespace Medical_Affiliation.Controllers
                     if (file == null || file.Length == 0)
                         return null;
 
-                    string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+                    string basePath = Path.Combine(BasePath, "InstitutionDetails");
                     string fullFolder = Path.Combine(basePath, folder);
 
                     if (!Directory.Exists(fullFolder))

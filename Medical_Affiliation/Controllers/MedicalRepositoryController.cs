@@ -7,7 +7,7 @@ using static Medical_Affiliation.Models.MedicalViewModels;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class MedicalRepositoryController : Controller
+    public class MedicalRepositoryController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -404,7 +404,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\FacultyDetails";
+            string basePath = Path.Combine(BasePath, "FacultyDetails");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))

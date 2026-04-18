@@ -38,7 +38,7 @@ namespace Medical_Affiliation.Services.Faculty
             // ===================== 1. LIBRARY SERVICES =====================
             var savedServices = _context.CaMedicalLibraryServices
                 .AsNoTracking()
-                .Where(x => x.CollegeCode == "M404" &&
+                .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
                             x.AffiliationType == affiliationType)
                 .ToList();
@@ -65,7 +65,7 @@ namespace Medical_Affiliation.Services.Faculty
 
             // ===================== 2. USAGE REPORT =====================
             var usage = _context.CaMedicalLibraryUsageReports
-                .FirstOrDefault(x => x.CollegeCode == "M404" &&
+                .FirstOrDefault(x => x.CollegeCode == collegeCode &&
                                      x.FacultyCode == facultyCode &&
                                      x.AffiliationType == affiliationType);
 
@@ -77,7 +77,7 @@ namespace Medical_Affiliation.Services.Faculty
 
             // ===================== 3. LIBRARY STAFF =====================
             var savedStaff = _context.CaMedicalLibraryStaffs
-                .Where(x => x.CollegeCode == "M404" &&
+                .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
                             x.AffiliationType == affiliationType)
                 .ToList();
@@ -103,7 +103,7 @@ namespace Medical_Affiliation.Services.Faculty
             var savedDepartmentList = (from cmdl in _context.CaMedicalDepartmentLibraries
                                        join deptMaster in _context.DepartmentMasters
                                        on cmdl.DepartmentCode equals deptMaster.DepartmentCode
-                                       where cmdl.CollegeCode == "M404" &&
+                                       where cmdl.CollegeCode == collegeCode &&
                                            cmdl.FacultyCode == facultyCode &&
                                            cmdl.AffiliationType == affiliationType
                                        select new { cmdl, deptMaster })
@@ -145,7 +145,7 @@ namespace Medical_Affiliation.Services.Faculty
 
             // ===================== 5. OTHER DETAILS =====================
             var otherDetails = _context.CaMedicalLibraryOtherDetails
-                .FirstOrDefault(x => x.CollegeCode == "M404" &&
+                .FirstOrDefault(x => x.CollegeCode == collegeCode &&
                                      x.FacultyCode == facultyCode &&
                                      x.AffiliationType == affiliationType);
 

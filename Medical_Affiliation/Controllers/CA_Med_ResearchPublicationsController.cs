@@ -6,7 +6,7 @@ using System.IO; // For MemoryStream
 
 namespace Medical_Affiliation.Controllers
 {
-    public class CA_Med_ResearchPublicationsController : Controller
+    public class CA_Med_ResearchPublicationsController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -367,7 +367,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\ResearchPublications";
+            string basePath = Path.Combine(BasePath, "ResearchPublications");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))
@@ -582,7 +582,7 @@ namespace Medical_Affiliation.Controllers
             // 🔥 FILE PATH STORAGE
             if (model.ActivityPdf != null && model.ActivityPdf.Length > 0)
             {
-                string basePath = @"D:\Affiliation_Medical\OtherAcademicActivities";
+                string basePath = Path.Combine(BasePath, "OtherAcademicActivities");
 
                 if (!Directory.Exists(basePath))
                     Directory.CreateDirectory(basePath);
@@ -690,7 +690,7 @@ namespace Medical_Affiliation.Controllers
                 {
                     if (item.CommitteePdf != null && item.CommitteePdf.Length > 0)
                     {
-                        string basePath = @"D:\Affiliation_Medical\CommitteeDocs";
+                        string basePath = Path.Combine(BasePath, "CommitteeDocs");
 
                         if (!Directory.Exists(basePath))
                             Directory.CreateDirectory(basePath);

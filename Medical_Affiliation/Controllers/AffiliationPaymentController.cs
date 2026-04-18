@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class AffiliationPaymentController : Controller
+    public class AffiliationPaymentController : BaseController
     {
         public readonly ApplicationDbContext _context;
         public readonly IUserContext _userContext;
@@ -116,8 +116,8 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 // ✅ Folder path
-                var basePath = @"D:\Affiliation_Medical";
-                var folderPath = Path.Combine(basePath, "Payment");
+                var basePath = Path.Combine(BasePath, "Payment");
+                var folderPath = basePath;
 
                 if (!Directory.Exists(folderPath))
                 {
@@ -171,7 +171,7 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrEmpty(fileName))
                 return NotFound();
 
-            var folderPath = @"D:\Affiliation_Medical\Payment";
+            var folderPath = Path.Combine(BasePath, "Payment");
             var fullPath = Path.Combine(folderPath, fileName);
 
             if (!System.IO.File.Exists(fullPath))

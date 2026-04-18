@@ -127,7 +127,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return (null, null, null);
 
-            string basePath = @"D:\Affiliation_Medical\TrustDocuments";
+            string basePath = Path.Combine(BasePath, "TrustDocuments"); ;
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))
@@ -1956,7 +1956,8 @@ namespace Medical_Affiliation.Controllers
 
             if (vm.DocumentFile != null && vm.DocumentFile.Length > 0)
             {
-                string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+                //string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+                string basePath = Path.Combine(BasePath, "InstitutionDetails");
 
                 if (!Directory.Exists(basePath))
                     Directory.CreateDirectory(basePath);
@@ -2427,7 +2428,7 @@ namespace Medical_Affiliation.Controllers
             if (documentFile != null && documentFile.Length > 0)
             {
                 // 🔹 Base folder path
-                string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+                string basePath = Path.Combine(BasePath, "InstitutionDetails");
 
                 // 🔹 Ensure directory exists
                 if (!Directory.Exists(basePath))
@@ -2590,7 +2591,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\CourseDetails";
+            string basePath = Path.Combine(BasePath, "CourseDetails");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))
@@ -3894,7 +3895,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\FacultyDetails";
+            string basePath = Path.Combine(BasePath, "FacultyDetails");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))
