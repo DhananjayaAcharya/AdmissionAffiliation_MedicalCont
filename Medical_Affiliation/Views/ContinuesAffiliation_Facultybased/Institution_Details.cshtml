@@ -13,722 +13,721 @@
     <title>Institution Details</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <style>
-            *, *::before, *::after {
-                box-sizing: border-box;
-                margin: 0;
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --ink: #0f1923;
+            --ink-mid: #2e3d4f;
+            --ink-muted: #6b7a8d;
+            --border: #d4dae3;
+            --bg: #f4f6f9;
+            --surface: #ffffff;
+            --accent: #1a4c8b;
+            --accent-lt: #e8edf7;
+            --danger: #c0392b;
+            --gold: #c9a84c;
+            --radius: 10px;
+            --shadow: 0 2px 16px rgba(15,25,35,.07);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+            padding: 1rem 2rem .6rem;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            z-index: 5;
+            gap: 18px;
+            border-bottom: 3px solid var(--gold);
+        }
+
+            .page-header .emblem {
+                width: 54px;
+                height: 54px;
+                border: 2px solid var(--gold);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+                .page-header .emblem svg {
+                    width: 28px;
+                    height: 28px;
+                    fill: var(--gold);
+                }
+
+        .page-header-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #fff;
+            letter-spacing: .05em;
+        }
+
+        .page-header-text p {
+            font-size: .6rem;
+            color: rgba(255,255,255,.55);
+            margin-top: 1px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        /* ─── MAIN LAYOUT ─── */
+        .form-wrap {
+            max-width: 1240px;
+            margin: 32px auto;
+            padding: 6rem 24px 60px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @@media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─── SECTION CARDS ─── */
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+            animation: fadeUp .35s ease both;
+        }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-card:nth-child(1) {
+            animation-delay: .04s;
+        }
+
+        .section-card:nth-child(2) {
+            animation-delay: .08s;
+        }
+
+        .section-card:nth-child(3) {
+            animation-delay: .12s;
+        }
+
+        .section-card:nth-child(4) {
+            animation-delay: .16s;
+        }
+
+        .section-card:nth-child(5) {
+            animation-delay: .20s;
+        }
+
+        .section-card:nth-child(6) {
+            animation-delay: .24s;
+        }
+
+        .section-header {
+            padding: 13px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .section-header .icon-wrap {
+                width: 30px;
+                height: 30px;
+                border-radius: 7px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+                .section-header .icon-wrap svg {
+                    width: 15px;
+                    height: 15px;
+                }
+
+            .section-header h2 {
+                font-size: .82rem;
+                font-weight: 600;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+            }
+
+        .sh-blue .icon-wrap {
+            background: #e8edf7;
+        }
+
+            .sh-blue .icon-wrap svg {
+                fill: #1a4c8b;
+            }
+
+        .sh-blue h2 {
+            color: #1a4c8b;
+        }
+
+        .sh-slate .icon-wrap {
+            background: #eef0f3;
+        }
+
+            .sh-slate .icon-wrap svg {
+                fill: #3d5166;
+            }
+
+        .sh-slate h2 {
+            color: #3d5166;
+        }
+
+        .sh-teal .icon-wrap {
+            background: #e3f4f4;
+        }
+
+            .sh-teal .icon-wrap svg {
+                fill: #1a7f7a;
+            }
+
+        .sh-teal h2 {
+            color: #1a7f7a;
+        }
+
+        .sh-green .icon-wrap {
+            background: #e7f6ee;
+        }
+
+            .sh-green .icon-wrap svg {
+                fill: #1e7e4e;
+            }
+
+        .sh-green h2 {
+            color: #1e7e4e;
+        }
+
+        .sh-amber .icon-wrap {
+            background: #fdf3e0;
+        }
+
+            .sh-amber .icon-wrap svg {
+                fill: #a0660a;
+            }
+
+        .sh-amber h2 {
+            color: #a0660a;
+        }
+
+        .sh-dark .icon-wrap {
+            background: #eaebee;
+        }
+
+            .sh-dark .icon-wrap svg {
+                fill: #2d3748;
+            }
+
+        .sh-dark h2 {
+            color: #2d3748;
+        }
+
+        .section-body {
+            padding: 20px;
+        }
+
+        /* ─── FORM FIELDS ─── */
+        .field-grid {
+            display: grid;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .col-1 {
+            grid-template-columns: 1fr;
+        }
+
+        .col-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .col-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        @@media (max-width: 600px) {
+            .col-2, .col-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--ink-mid);
+            margin-bottom: 5px;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+
+            label .req {
+                color: var(--danger);
+                margin-left: 2px;
+            }
+
+        input[type="text"], input[type="number"], input[type="email"],
+        input[type="url"], input[type="date"], input[type="file"],
+        select, textarea {
+            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .85rem;
+            color: var(--ink);
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 8px 12px;
+            transition: border-color .18s, box-shadow .18s, background .18s;
+            outline: none;
+        }
+
+            input:focus, select:focus, textarea:focus {
+                border-color: var(--accent);
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+            }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a8d' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        input[readonly] {
+            color: var(--ink-muted);
+            cursor: not-allowed;
+            background: #f0f2f5;
+        }
+
+        .field-hint {
+            font-size: .7rem;
+            color: var(--ink-muted);
+            margin-top: 4px;
+        }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: .7rem;
+            margin-top: 3px;
+            display: block;
+        }
+
+        .check-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-top: 4px;
+        }
+
+        .check-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .82rem;
+            font-weight: 500;
+            color: var(--ink-mid);
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+            .check-label input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+                accent-color: var(--accent);
+                border-radius: 4px;
                 padding: 0;
             }
 
-            :root {
-                --ink: #0f1923;
-                --ink-mid: #2e3d4f;
-                --ink-muted: #6b7a8d;
-                --border: #d4dae3;
-                --bg: #f4f6f9;
-                --surface: #ffffff;
-                --accent: #1a4c8b;
-                --accent-lt: #e8edf7;
-                --danger: #c0392b;
-                --gold: #c9a84c;
-                --radius: 10px;
-                --shadow: 0 2px 16px rgba(15,25,35,.07);
-            }
-
-            body {
-                font-family: 'DM Sans', sans-serif;
-                background: var(--bg);
-                color: var(--ink);
-                min-height: 100vh;
-            }
-
-            /* ─── TOP HEADER BAND ─────────────────────────────── */
-            .page-header {
-                background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
-                padding: 1rem 2rem .6rem;
-                display: flex;
-                align-items: center;
-                position: fixed;
-                width: 100%;
-                z-index: 5;
-                gap: 18px;
-                border-bottom: 3px solid var(--gold);
-            }
-
-                .page-header .emblem {
-                    width: 54px;
-                    height: 54px;
-                    border: 2px solid var(--gold);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
-                }
-
-                    .page-header .emblem svg {
-                        width: 28px;
-                        height: 28px;
-                        fill: var(--gold);
-                    }
-
-            .page-header-text h1 {
-                font-family: 'Playfair Display', serif;
-                font-size: 1.3rem;
-                color: #ffffff;
-                letter-spacing: .05em;
-            }
-
-            .page-header-text p {
-                font-size: .6rem;
-                color: rgba(255,255,255,.55);
-                margin-top: 1px;
-                letter-spacing: .06em;
-                text-transform: uppercase;
-            }
-
-            /* ─── MAIN LAYOUT ─────────────────────────────────── */
-            .form-wrap {
-                max-width: 1240px;
-                margin: 32px auto;
-                padding: 6rem 24px 60px;
-            }
-
-            .grid-2 {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-            }
-
-            @@media (max-width: 900px) {
-                .grid-2 {
-                    grid-template-columns: 1fr;
-                }
-            }
-
-            /* ─── SECTION CARDS ───────────────────────────────── */
-            .section-card {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                box-shadow: var(--shadow);
-                overflow: hidden;
-                margin-bottom: 20px;
-                animation: fadeUp .35s ease both;
-            }
-
-            @@keyframes fadeUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(12px);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .section-card:nth-child(1) {
-                animation-delay: .04s;
-            }
-
-            .section-card:nth-child(2) {
-                animation-delay: .08s;
-            }
-
-            .section-card:nth-child(3) {
-                animation-delay: .12s;
-            }
-
-            .section-card:nth-child(4) {
-                animation-delay: .16s;
-            }
-
-            .section-card:nth-child(5) {
-                animation-delay: .20s;
-            }
-
-            .section-card:nth-child(6) {
-                animation-delay: .24s;
-            }
-
-            .section-header {
-                padding: 13px 20px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                border-bottom: 1px solid var(--border);
-            }
-
-                .section-header .icon-wrap {
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 7px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                    .section-header .icon-wrap svg {
-                        width: 15px;
-                        height: 15px;
-                    }
-
-                .section-header h2 {
-                    font-size: .82rem;
-                    font-weight: 600;
-                    letter-spacing: .04em;
-                    text-transform: uppercase;
-                }
-
-            /* colour themes per section */
-            .sh-blue .icon-wrap {
-                background: #e8edf7;
-            }
-
-                .sh-blue .icon-wrap svg {
-                    fill: #1a4c8b;
-                }
-
-            .sh-blue h2 {
-                color: #1a4c8b;
-            }
-
-            .sh-slate .icon-wrap {
-                background: #eef0f3;
-            }
-
-                .sh-slate .icon-wrap svg {
-                    fill: #3d5166;
-                }
-
-            .sh-slate h2 {
-                color: #3d5166;
-            }
-
-            .sh-teal .icon-wrap {
-                background: #e3f4f4;
-            }
-
-                .sh-teal .icon-wrap svg {
-                    fill: #1a7f7a;
-                }
-
-            .sh-teal h2 {
-                color: #1a7f7a;
-            }
-
-            .sh-green .icon-wrap {
-                background: #e7f6ee;
-            }
-
-                .sh-green .icon-wrap svg {
-                    fill: #1e7e4e;
-                }
-
-            .sh-green h2 {
-                color: #1e7e4e;
-            }
-
-            .sh-amber .icon-wrap {
-                background: #fdf3e0;
-            }
-
-                .sh-amber .icon-wrap svg {
-                    fill: #a0660a;
-                }
-
-            .sh-amber h2 {
-                color: #a0660a;
-            }
-
-            .sh-dark .icon-wrap {
-                background: #eaebee;
-            }
-
-                .sh-dark .icon-wrap svg {
-                    fill: #2d3748;
-                }
-
-            .sh-dark h2 {
-                color: #2d3748;
-            }
-
-            .section-body {
-                padding: 20px;
-            }
-
-            /* ─── FORM FIELDS ─────────────────────────────────── */
-            .field-grid {
-                display: grid;
-                gap: 14px;
-                width: 100%;
-            }
-
-            .col-1 {
-                grid-template-columns: 1fr;
-            }
-
-            .col-2 {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .col-3 {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-
-            @@media (max-width: 600px) {
-                .col-2, .col-3 {
-                    grid-template-columns: 1fr;
-                }
-            }
-
-            label {
-                display: block;
-                font-size: .72rem;
-                font-weight: 600;
-                color: var(--ink-mid);
-                margin-bottom: 5px;
-                letter-spacing: .03em;
-                text-transform: uppercase;
-            }
-
-                label .req {
-                    color: var(--danger);
-                    margin-left: 2px;
-                }
-
-            input[type="text"],
-            input[type="number"],
-            input[type="email"],
-            input[type="url"],
-            input[type="date"],
-            input[type="file"],
-            select,
-            textarea {
-                width: 100%;
-                font-family: 'DM Sans', sans-serif;
-                font-size: .85rem;
-                color: var(--ink);
-                background: #fafbfc;
-                border: 1px solid var(--border);
-                border-radius: 7px;
-                padding: 8px 12px;
-                transition: border-color .18s, box-shadow .18s, background .18s;
-                outline: none;
-            }
-
-                input:focus, select:focus, textarea:focus {
-                    border-color: var(--accent);
-                    background: #fff;
-                    box-shadow: 0 0 0 3px rgba(26,76,139,.1);
-                }
-
-            select {
-                appearance: none;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a8d' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
-                background-repeat: no-repeat;
-                background-position: right 12px center;
-                padding-right: 32px;
-            }
-
-            textarea {
-                resize: vertical;
-            }
-
-            input[readonly] {
-                color: var(--ink-muted);
-                cursor: not-allowed;
-                background: #f0f2f5;
-            }
-
-            .field-hint {
-                font-size: .7rem;
-                color: var(--ink-muted);
-                margin-top: 4px;
-            }
-
-            .text-danger {
-                color: var(--danger);
-                font-size: .7rem;
-                margin-top: 3px;
-                display: block;
-            }
-
-            /* checkbox row */
-            .check-group {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-                padding-top: 4px;
-            }
-
-            .check-label {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                font-size: .82rem;
-                font-weight: 500;
-                color: var(--ink-mid);
-                cursor: pointer;
-                text-transform: none;
-                letter-spacing: 0;
-            }
-
-                .check-label input[type="checkbox"] {
-                    width: 16px;
-                    height: 16px;
-                    cursor: pointer;
-                    accent-color: var(--accent);
-                    border-radius: 4px;
-                    padding: 0;
-                }
-
-            /* file upload */
-            .file-drop {
-                border: 2px dashed var(--border);
-                border-radius: 9px;
-                padding: 22px 16px;
-                text-align: center;
-                cursor: pointer;
-                transition: border-color .2s, background .2s;
-                background: #fafbfd;
-            }
-
-                .file-drop:hover {
-                    border-color: var(--accent);
-                    background: var(--accent-lt);
-                }
-
-                .file-drop input[type="file"] {
-                    position: absolute;
-                    inset: 0;
-                    opacity: 0;
-                    cursor: pointer;
-                    border: none;
-                    padding: 0;
-                    border-radius: 0;
-                }
-
-            .file-drop-inner {
-                position: relative;
-            }
-
-            .file-drop-icon svg {
-                width: 28px;
-                height: 28px;
-                fill: var(--ink-muted);
-                margin-bottom: 8px;
-            }
-
-            .file-drop p {
-                font-size: .8rem;
-                color: var(--ink-muted);
-                margin: 0;
-            }
-
-            .file-drop strong {
-                color: var(--accent);
-            }
-
-            /* ─── OPTIONAL BADGE ──────────────────────────────── */
-            .optional-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                font-size: .68rem;
-                font-weight: 600;
-                letter-spacing: .05em;
-                text-transform: uppercase;
-                color: #a0660a;
-                background: #fdf3e0;
-                border: 1px solid #f5d89a;
-                border-radius: 20px;
-                padding: 2px 10px;
-                margin-left: 8px;
-                vertical-align: middle;
-            }
-
-            /* ─── FOOTER ACTIONS ──────────────────────────────── */
-            .form-footer {
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                gap: 12px;
-                padding: 20px 0 0;
-                border-top: 1px solid var(--border);
-                margin-top: 8px;
-            }
-
-            .btn {
-                font-family: 'DM Sans', sans-serif;
-                font-size: .83rem;
-                font-weight: 600;
-                border-radius: 8px;
-                padding: 9px 24px;
-                cursor: pointer;
-                letter-spacing: .03em;
-                border: none;
-                transition: all .18s;
-            }
-
-            .btn-ghost {
-                background: transparent;
-                border: 1px solid var(--border);
-                color: var(--ink-muted);
-                text-decoration: none;
-                display: inline-flex;
-                align-items: center;
-            }
-
-                .btn-ghost:hover {
-                    border-color: var(--ink-muted);
-                    color: var(--ink);
-                }
-
-            .btn-primary {
-                background: linear-gradient(135deg, #1a4c8b, #1564c0);
-                color: #fff;
-                box-shadow: 0 3px 14px rgba(26,76,139,.3);
-            }
-
-                .btn-primary:hover {
-                    box-shadow: 0 5px 20px rgba(26,76,139,.4);
-                    transform: translateY(-1px);
-                }
-
-                .btn-primary:active {
-                    transform: translateY(0);
-                }
-
-            .mobile-group {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-
-            .mobile-prefix {
-                padding: 8px 10px;
-                background: #eee;
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                font-size: 0.85rem;
-            }
-
-            .course-toggle {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                cursor: pointer;
-                font-size: .85rem;
-                font-weight: 600;
-                color: var(--accent);
+        .file-drop {
+            border: 2px dashed var(--border);
+            border-radius: 9px;
+            padding: 22px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+            background: #fafbfd;
+        }
+
+            .file-drop:hover {
+                border-color: var(--accent);
                 background: var(--accent-lt);
-                padding: 8px 14px;
-                border-radius: 6px;
-                border: 1px solid #cfd8e6;
             }
 
-            .course-section {
-                margin-top: 12px;
-                display: none;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                background: var(--surface);
-            }
-
-            .course-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: .8rem;
-            }
-
-                .course-table th, .course-table td {
-                    padding: 8px;
-                    border: 1px solid var(--border);
-                }
-
-            /* ─── TRUST SECTION TRANSITION ────────────────────── */
-            #trustManagementSection {
-                transition: opacity .25s ease, transform .25s ease;
-            }
-
-                #trustManagementSection.trust-hidden {
-                    display: none !important;
-                }
-
-            /* ══════════════════════════════════════════════════════
-                               VALIDATION HIGHLIGHT STYLES
-                            ══════════════════════════════════════════════════════ */
-
-            /* Red border + background on invalid field wrappers */
-            .field-error input:not([type="checkbox"]),
-            .field-error select,
-            .field-error textarea {
-                border-color: #e53e3e !important;
-                background: #fff5f5 !important;
-                box-shadow: 0 0 0 3px rgba(229,62,62,.15) !important;
-                animation: shakeField .35s ease;
-            }
-
-            /* Shake animation */
-            @@keyframes shakeField {
-                0%, 100% {
-                    transform: translateX(0);
-                }
-
-                20% {
-                    transform: translateX(-5px);
-                }
-
-                40% {
-                    transform: translateX(5px);
-                }
-
-                60% {
-                    transform: translateX(-4px);
-                }
-
-                80% {
-                    transform: translateX(4px);
-                }
-            }
-
-            /* Inline error message below field */
-            .field-error-msg {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                font-size: .7rem;
-                color: #e53e3e;
-                font-weight: 600;
-                margin-top: 5px;
-                animation: fadeUp .2s ease;
-            }
-
-                .field-error-msg::before {
-                    content: "⚠";
-                    font-size: .75rem;
-                }
-
-            /* Section card red left-border accent when it has errors */
-            .section-card.has-error {
-                border-left: 3px solid #e53e3e;
-            }
-
-            /* ─── TOAST NOTIFICATION ──────────────────────────── */
-            #validationToast {
-                position: fixed;
-                top: 80px;
-                right: 24px;
-                background: #e53e3e;
-                color: #fff;
-                padding: 14px 20px 14px 16px;
-                border-radius: 10px;
-                font-size: .83rem;
-                font-weight: 600;
-                box-shadow: 0 6px 28px rgba(0,0,0,.22);
-                z-index: 9999;
-                display: none;
-                align-items: flex-start;
-                gap: 10px;
-                max-width: 340px;
-                border-left: 4px solid #9b1c1c;
-            }
-
-                #validationToast.show {
-                    display: flex;
-                    animation: toastSlideIn .3s ease;
-                }
-
-            @@keyframes toastSlideIn {
-                from {
-                    opacity: 0;
-                    transform: translateX(30px);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-
-            .toast-icon {
-                font-size: 1.1rem;
-                flex-shrink: 0;
-                margin-top: 1px;
-            }
-
-            .toast-body {
-                display: flex;
-                flex-direction: column;
-                gap: 3px;
-            }
-
-            .toast-title {
-                font-size: .8rem;
-                opacity: .85;
-                font-weight: 400;
-            }
-
-            .toast-close {
-                margin-left: auto;
-                background: none;
+            .file-drop input[type="file"] {
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                cursor: pointer;
                 border: none;
-                color: #fff;
-                font-size: 1rem;
-                cursor: pointer;
-                opacity: .7;
-                flex-shrink: 0;
-                line-height: 1;
-                padding: 0 0 0 6px;
+                padding: 0;
+                border-radius: 0;
             }
 
-                .toast-close:hover {
-                    opacity: 1;
-                }
+        .file-drop-inner {
+            position: relative;
+        }
 
-            /* ─── PROGRESS PILL (missing count badge) ─────────── */
-            #missingBadge {
-                display: none;
-                position: fixed;
-                bottom: 28px;
-                right: 28px;
-                background: #e53e3e;
-                color: #fff;
-                font-size: .78rem;
-                font-weight: 700;
-                padding: 8px 16px;
-                border-radius: 30px;
-                box-shadow: 0 4px 18px rgba(0,0,0,.2);
-                z-index: 9998;
-                cursor: pointer;
-                transition: transform .15s;
+        .file-drop-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--ink-muted);
+            margin-bottom: 8px;
+        }
+
+        .file-drop p {
+            font-size: .8rem;
+            color: var(--ink-muted);
+            margin: 0;
+        }
+
+        .file-drop strong {
+            color: var(--accent);
+        }
+
+        .optional-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .68rem;
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: #a0660a;
+            background: #fdf3e0;
+            border: 1px solid #f5d89a;
+            border-radius: 20px;
+            padding: 2px 10px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* ─── FOOTER ACTIONS ─── */
+        .form-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 0 0;
+            border-top: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: .83rem;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 9px 24px;
+            cursor: pointer;
+            letter-spacing: .03em;
+            border: none;
+            transition: all .18s;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--ink-muted);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+            .btn-ghost:hover {
+                border-color: var(--ink-muted);
+                color: var(--ink);
             }
 
-                #missingBadge:hover {
-                    transform: scale(1.05);
-                }
+        .btn-primary {
+            background: linear-gradient(135deg, #1a4c8b, #1564c0);
+            color: #fff;
+            box-shadow: 0 3px 14px rgba(26,76,139,.3);
+        }
 
-                #missingBadge.show {
-                    display: block;
-                    animation: fadeUp .3s ease;
-                }
+            .btn-primary:hover {
+                box-shadow: 0 5px 20px rgba(26,76,139,.4);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:active {
+                transform: translateY(0);
+            }
+
+        .mobile-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mobile-prefix {
+            padding: 8px 10px;
+            background: #eee;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .course-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-lt);
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #cfd8e6;
+        }
+
+        .course-section {
+            margin-top: 12px;
+            display: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+        }
+
+        .course-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .8rem;
+        }
+
+            .course-table th, .course-table td {
+                padding: 8px;
+                border: 1px solid var(--border);
+            }
+
+        #trustManagementSection {
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+            #trustManagementSection.trust-hidden {
+                display: none !important;
+            }
+
+        /* ══════════════════════════════════════════════
+                   VALIDATION STYLES
+                ══════════════════════════════════════════════ */
+
+        /* Invalid field */
+        .field-invalid input:not([type="checkbox"]),
+        .field-invalid select,
+        .field-invalid textarea {
+            border-color: #e53e3e !important;
+            background: #fff5f5 !important;
+            box-shadow: 0 0 0 3px rgba(229,62,62,.18) !important;
+            animation: shakeField .38s ease;
+        }
+
+        /* Shake */
+        @@keyframes shakeField {
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-6px);
+            }
+
+            40% {
+                transform: translateX(6px);
+            }
+
+            60% {
+                transform: translateX(-4px);
+            }
+
+            80% {
+                transform: translateX(4px);
+            }
+        }
+
+        /* Inline error message */
+        .field-err-msg {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .7rem;
+            font-weight: 600;
+            color: #e53e3e;
+            margin-top: 5px;
+            animation: fadeUp .2s ease;
+        }
+
+            .field-err-msg::before {
+                content: "⚠";
+                font-size: .75rem;
+            }
+
+        /* Section card red left-accent when errors present */
+        .section-card.has-error {
+            border-left: 3px solid #e53e3e;
+        }
+
+        /* Focus ring — bright blue when scrolled-to */
+        .focus-target input:not([type="checkbox"]),
+        .focus-target select,
+        .focus-target textarea {
+            border-color: #e53e3e !important;
+            box-shadow: 0 0 0 4px rgba(229,62,62,.25) !important;
+            background: #fff5f5 !important;
+        }
+
+        /* ─── TOAST ─── */
+        #validationToast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: #e53e3e;
+            color: #fff;
+            padding: 14px 20px 14px 16px;
+            border-radius: 10px;
+            font-size: .83rem;
+            font-weight: 600;
+            box-shadow: 0 6px 28px rgba(0,0,0,.22);
+            z-index: 9999;
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            max-width: 340px;
+            border-left: 4px solid #9b1c1c;
+        }
+
+            #validationToast.show {
+                display: flex;
+                animation: toastSlideIn .3s ease;
+            }
+
+        @@keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .toast-body {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .toast-title {
+            font-size: .8rem;
+            opacity: .85;
+            font-weight: 400;
+        }
+
+        .toast-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            opacity: .7;
+            flex-shrink: 0;
+            line-height: 1;
+            padding: 0 0 0 6px;
+        }
+
+            .toast-close:hover {
+                opacity: 1;
+            }
+
+        /* ─── FLOATING MISSING BADGE ─── */
+        #missingBadge {
+            display: none;
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: #e53e3e;
+            color: #fff;
+            font-size: .78rem;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 30px;
+            box-shadow: 0 4px 18px rgba(0,0,0,.2);
+            z-index: 9998;
+            cursor: pointer;
+            transition: transform .15s;
+        }
+
+            #missingBadge:hover {
+                transform: scale(1.05);
+            }
+
+            #missingBadge.show {
+                display: block;
+                animation: fadeUp .3s ease;
+            }
     </style>
 </head>
 <body>
 
-    <!-- ─── TOAST ──────────────────────────────────────────── -->
+    <!-- ─── TOAST ─── -->
     <div id="validationToast">
         <span class="toast-icon">⚠</span>
         <div class="toast-body">
             <span id="toastMsg">Please fill in all required fields.</span>
             <span class="toast-title" id="toastSub"></span>
         </div>
-        <button class="toast-close" onclick="$('#validationToast').removeClass('show')">✕</button>
+        <button class="toast-close" onclick="document.getElementById('validationToast').classList.remove('show')">✕</button>
     </div>
 
-    <!-- ─── FLOATING MISSING BADGE ────────────────────────── -->
+    <!-- ─── FLOATING BADGE ─── -->
     <div id="missingBadge" onclick="scrollToFirstError()"></div>
 
     <!-- PAGE HEADER -->
@@ -745,7 +744,7 @@
     <div class="form-wrap">
         <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:16px;font-size:.83rem;"></div>
 
-        <form asp-action="Institution_Details" method="post" enctype="multipart/form-data">
+        <form asp-action="Institution_Details" method="post" enctype="multipart/form-data" id="institutionForm" novalidate>
             @Html.AntiForgeryToken()
 
             <div class="grid-2">
@@ -754,7 +753,7 @@
                 <div>
 
                     <!-- 1. Basic Information -->
-                    <div class="section-card">
+                    <div class="section-card" id="card-basic">
                         <div class="section-header sh-blue">
                             <div class="icon-wrap">
                                 <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm-7 3a3 3 0 110 6 3 3 0 010-6zm6 13H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V20z" /></svg>
@@ -763,33 +762,33 @@
                         </div>
                         <div class="section-body">
                             <div class="field-grid col-2">
-                                <div>
+                                <div class="field-wrap" data-required data-label="Type of Institution">
                                     <label asp-for="TypeOfInstitution">Type of Institution <span class="req">*</span></label>
                                     <select asp-for="TypeOfInstitution" asp-items="Model.institutetypelist" id="typeOfInstitutionDropdown">
                                         <option value="">— Select —</option>
                                     </select>
                                     <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Status of College">
                                     <label asp-for="StatusOfCollege">Status of College <span class="req">*</span></label>
                                     <select asp-for="StatusOfCollege" asp-items="Model.Institutestatuslist">
                                         <option value="">— Select —</option>
                                     </select>
                                     <span asp-validation-for="StatusOfCollege" class="text-danger"></span>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Name of Institution">
                                     <label asp-for="NameOfInstitution">Name of Institution <span class="req">*</span></label>
                                     <input asp-for="NameOfInstitution" maxlength="200" placeholder="Full legal name" readonly />
                                     <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Year of Establishment">
                                     <label asp-for="YearOfEstablishment">Year of Establishment <span class="req">*</span></label>
                                     <input asp-for="YearOfEstablishment" type="number" min="1900" max="2100" placeholder="e.g. 1995" />
                                     <span asp-validation-for="YearOfEstablishment" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="field-grid col-1" style="margin-top:14px;">
-                                <div>
+                                <div class="field-wrap" data-required data-label="Address">
                                     <label asp-for="Address">Address <span class="req">*</span></label>
                                     <textarea asp-for="Address" rows="3" placeholder="Street / Area / Locality"></textarea>
                                     <span asp-validation-for="Address" class="text-danger"></span>
@@ -800,7 +799,7 @@
                                     <label asp-for="VillageTownCity">Village / Town / City</label>
                                     <input asp-for="VillageTownCity" maxlength="100" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="PIN Code">
                                     <label asp-for="PinCode">PIN Code <span class="req">*</span></label>
                                     <input asp-for="PinCode" title="6-digit PIN" placeholder="000000" maxlength="6" />
                                     <span asp-validation-for="PinCode" class="text-danger"></span>
@@ -810,7 +809,7 @@
                     </div>
 
                     <!-- 2. Location & Contact -->
-                    <div class="section-card">
+                    <div class="section-card" id="card-location">
                         <div class="section-header sh-slate">
                             <div class="icon-wrap">
                                 <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
@@ -827,9 +826,6 @@
                                 </div>
                                 <div>
                                     <label asp-for="Taluk">Taluk</label>
-                                    @* <select asp-for="Taluk" asp-items="Model.TalukList">
-                                        <option value="">— Select —</option>
-                                    </select> *@
                                     <select asp-for="Taluk" id="talukDropdown" asp-items="Model.TalukList">
                                         <option value="">— Select Taluk —</option>
                                     </select>
@@ -854,24 +850,24 @@
                                     <label asp-for="Fax">Fax Number</label>
                                     <input asp-for="Fax" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Email ID">
                                     <label asp-for="EmailId">Email ID <span class="req">*</span></label>
                                     <input asp-for="EmailId" type="email" />
                                     <span asp-validation-for="EmailId" class="text-danger"></span>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Alternate Email">
                                     <label asp-for="AltEmailId">Alternate Email <span class="req">*</span></label>
                                     <input asp-for="AltEmailId" type="email" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Website">
                                     <label asp-for="Website">Website <span class="req">*</span></label>
                                     <input asp-for="Website" type="url" placeholder="https://" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="College URL">
                                     <label asp-for="College_URL">College URL <span class="req">*</span></label>
                                     <input asp-for="College_URL" type="url" placeholder="https://" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Survey No / PID No">
                                     <label asp-for="SurveyNoPidNo">Survey No / PID No <span class="req">*</span></label>
                                     <input asp-for="SurveyNoPidNo" />
                                 </div>
@@ -880,7 +876,7 @@
                     </div>
 
                     <!-- 3. Head & Principal -->
-                    <div class="section-card">
+                    <div class="section-card" id="card-head">
                         <div class="section-header sh-teal">
                             <div class="icon-wrap">
                                 <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
@@ -889,48 +885,48 @@
                         </div>
                         <div class="section-body">
                             <div class="field-grid col-2">
-                                <div>
+                                <div class="field-wrap" data-required data-label="Head of Institution">
                                     <label asp-for="HeadOfInstitution">Head of Institution <span class="req">*</span></label>
                                     <input asp-for="HeadOfInstitution" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Head Mobile No">
                                     <label asp-for="HeadOfInstitution_Mob_NO">Head Mobile No <span class="req">*</span></label>
                                     <div class="mobile-group">
                                         <span class="mobile-prefix">+91</span>
                                         <input asp-for="HeadOfInstitution_Mob_NO" maxlength="10" oninput="validateMobile(this)" />
                                     </div>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Head Email">
                                     <label asp-for="HeadOfInstitution_Email">Head Email <span class="req">*</span></label>
                                     <input asp-for="HeadOfInstitution_Email" type="email" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Head Address">
                                     <label asp-for="HeadAddress">Head Address <span class="req">*</span></label>
                                     <textarea asp-for="HeadAddress" rows="2"></textarea>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Principal Name">
                                     <label asp-for="Principal_Name">Principal Name <span class="req">*</span></label>
                                     <input asp-for="Principal_Name" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Principal Mobile">
                                     <label asp-for="Principal_Mob_No">Principal Mobile <span class="req">*</span></label>
                                     <div class="mobile-group">
                                         <span class="mobile-prefix">+91</span>
                                         <input asp-for="Principal_Mob_No" maxlength="10" oninput="validateMobile(this)" />
                                     </div>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Principal Email">
                                     <label asp-for="Principal_Email">Principal Email <span class="req">*</span></label>
                                     <input asp-for="Principal_Email" type="email" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Principal Alt. Mobile">
                                     <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile <span class="req">*</span></label>
                                     <div class="mobile-group">
                                         <span class="mobile-prefix">+91</span>
                                         <input asp-for="PrincipalMobileNumber" maxlength="10" oninput="validateMobile(this)" />
                                     </div>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Principal Alt. Email">
                                     <label asp-for="PrincipalEmailId">Principal Alt. Email <span class="req">*</span></label>
                                     <input asp-for="PrincipalEmailId" type="email" />
                                 </div>
@@ -943,7 +939,7 @@
                 <div>
 
                     <!-- 4. Nodal Officer & Academic -->
-                    <div class="section-card">
+                    <div class="section-card" id="card-nodal">
                         <div class="section-header sh-green">
                             <div class="icon-wrap">
                                 <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 14.93V17a1 1 0 01-2 0v-.07A8.001 8.001 0 014.07 11H4a1 1 0 010-2h.07A8.001 8.001 0 0111 3.07V3a1 1 0 012 0v.07A8.001 8.001 0 0119.93 9H20a1 1 0 010 2h-.07A8.001 8.001 0 0113 16.93zM13 12a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
@@ -952,29 +948,28 @@
                         </div>
                         <div class="section-body">
                             <div class="field-grid col-2">
-                                <div>
+                                <div class="field-wrap" data-required data-label="Nodal Officer Name">
                                     <label asp-for="NodalOfficer_Name">Nodal Officer Name <span class="req">*</span></label>
                                     <input asp-for="NodalOfficer_Name" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Nodal Officer Mobile">
                                     <label asp-for="NodalOfficer_Mob_Number">Nodal Officer Mobile <span class="req">*</span></label>
                                     <div class="mobile-group">
                                         <span class="mobile-prefix">+91</span>
                                         <input asp-for="NodalOfficer_Mob_Number" maxlength="10" oninput="validateMobile(this)" />
                                     </div>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Nodal Officer Email">
                                     <label asp-for="NodalOfficer_Email">Nodal Officer Email <span class="req">*</span></label>
                                     <input asp-for="NodalOfficer_Email" type="email" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Running Course">
                                     <label asp-for="RunningCourse">Running Course <span class="req">*</span></label>
                                     <select asp-for="RunningCourse" asp-items="Model.CourseList">
                                         <option value="">— Select —</option>
                                     </select>
                                 </div>
                                 <div style="grid-column: span 2;">
-                                    <!-- COURSES VIEW TOGGLE -->
                                     <div style="margin-top:10px;">
                                         <div id="courseToggleBtn" class="course-toggle">
                                             <span id="courseIcon">➕</span>
@@ -983,16 +978,15 @@
                                         <div id="courseSection" class="course-section"></div>
                                     </div>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Financing Authority">
                                     <label asp-for="FinancingAuthority">Financing Authority <span class="req">*</span></label>
                                     <input asp-for="FinancingAuthority" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Minority Category">
                                     <label asp-for="MinorityCategory">Minority Category <span class="req">*</span></label>
                                     <input asp-for="MinorityCategory" placeholder="e.g. Linguistic / Religious" />
                                 </div>
                             </div>
-                            <!-- Checkboxes -->
                             <div style="margin-top:16px; background:#f8f9fc; border:1px solid var(--border); border-radius:8px; padding:14px;">
                                 <p style="font-size:.72rem;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Flags</p>
                                 <div style="display:flex;gap:28px;flex-wrap:wrap;">
@@ -1019,38 +1013,35 @@
                             <div class="icon-wrap">
                                 <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l6 2.67V11c0 3.72-2.55 7.2-6 8.18C8.55 18.2 6 14.72 6 11V7.67L12 5z" /></svg>
                             </div>
-                            <h2>
-                                Trust / Management Details
-                                <span class="optional-badge">Optional for Govt.</span>
-                            </h2>
+                            <h2>Trust / Management Details <span class="optional-badge">Optional for Govt.</span></h2>
                         </div>
                         <div class="section-body">
                             <div class="field-grid col-2">
-                                <div>
+                                <div class="field-wrap trust-field" data-required data-label="Trust Name">
                                     <label asp-for="TrustName">Trust Name <span class="req" id="trustReq1">*</span></label>
                                     <input asp-for="TrustName" />
                                     <span asp-validation-for="TrustName" class="text-danger"></span>
                                 </div>
-                                <div>
+                                <div class="field-wrap trust-field" data-required data-label="Establishment Date">
                                     <label asp-for="TrustEstablishmentDate">Establishment Date <span class="req" id="trustReq2">*</span></label>
                                     <input asp-for="TrustEstablishmentDate" type="date" />
                                     <span asp-validation-for="TrustEstablishmentDate" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="field-grid col-1" style="margin-top:14px;">
-                                <div>
+                                <div class="field-wrap trust-field" data-required data-label="Trust Address">
                                     <label asp-for="TrustAddress">Trust Address <span class="req" id="trustReq3">*</span></label>
                                     <textarea asp-for="TrustAddress" rows="2"></textarea>
                                     <span asp-validation-for="TrustAddress" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="field-grid col-2" style="margin-top:14px;">
-                                <div>
+                                <div class="field-wrap trust-field" data-required data-label="President Name">
                                     <label asp-for="TrustPresidentName">President Name <span class="req" id="trustReq4">*</span></label>
                                     <input asp-for="TrustPresidentName" />
                                     <span asp-validation-for="TrustPresidentName" class="text-danger"></span>
                                 </div>
-                                <div>
+                                <div class="field-wrap trust-field" data-required data-label="President Contact">
                                     <label asp-for="TrustPresidentContactNo">President Contact <span class="req" id="trustReq5">*</span></label>
                                     <div class="mobile-group">
                                         <span class="mobile-prefix">+91</span>
@@ -1063,7 +1054,7 @@
                     </div>
 
                     <!-- 6. Dean & Document Upload -->
-                    <div class="section-card">
+                    <div class="section-card" id="card-dean">
                         <div class="section-header sh-dark">
                             <div class="icon-wrap">
                                 <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" /></svg>
@@ -1072,39 +1063,30 @@
                         </div>
                         <div class="section-body">
                             <div class="field-grid col-3">
-                                <div>
+                                <div class="field-wrap" data-required data-label="Dean Name">
                                     <label asp-for="DeanName">Dean Name <span class="req">*</span></label>
                                     <input asp-for="DeanName" />
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Dean Mobile">
                                     <label asp-for="DeanMobileNumber">Dean Mobile <span class="req">*</span></label>
                                     <div class="mobile-group">
                                         <span class="mobile-prefix">+91</span>
                                         <input asp-for="DeanMobileNumber" maxlength="10" oninput="validateMobile(this)" />
                                     </div>
                                 </div>
-                                <div>
+                                <div class="field-wrap" data-required data-label="Dean Email">
                                     <label asp-for="DeanEmailId">Dean Email <span class="req">*</span></label>
                                     <input asp-for="DeanEmailId" type="email" />
                                 </div>
                             </div>
 
-                            <!-- Drop zone -->
                             <div style="margin-top:16px;">
                                 <label>Upload Supporting Document</label>
-
-                                <!-- Upload Box -->
                                 <div class="file-drop">
                                     <div class="file-drop-inner">
                                         <input type="file" id="documentFile" name="documentFile" accept=".pdf,.jpg,.jpeg,.png" />
-
                                         <div class="file-drop-icon">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
-                                            </svg>
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
-                                            </svg>
+                                            <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" /></svg>
                                         </div>
                                         <p><strong>Click to upload</strong> or drag &amp; drop</p>
                                         <p style="margin-top:4px;">PDF, JPG, PNG — max 2 MB</p>
@@ -1116,20 +1098,7 @@
                                 {
                                     <div style="margin-top:10px;">
                                         <a href="@Url.Action("ViewDocument", "ContinuesAffiliation_Facultybased", new { id = Model.CollegeCode })"
-                                               target="_blank"
-                                               class="btn btn-ghost">
-                                            📄 View Uploaded Document
-                                        </a>
-                                    </div>
-                                }
-
-                                <!-- ✅ View Document Button -->
-                                @if (!string.IsNullOrEmpty(Model.DocumentName))
-                                {
-                                    <div style="margin-top:10px;">
-                                        <a href="@Url.Action("ViewDocument", "ContinuesAffiliation_Facultybased", new { id = Model.CollegeCode })"
-                                           target="_blank"
-                                           class="btn btn-ghost">
+                                           target="_blank" class="btn btn-ghost">
                                             📄 View Uploaded Document
                                         </a>
                                     </div>
@@ -1153,98 +1122,159 @@
     @section Scripts {
         <partial name="_ValidationScriptsPartial" />
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
         <script>
-            const fileInput = document.getElementById("documentFile");
-            const fileNameDisplay = document.getElementById("fileName");
-
-            //old code commented by ram on 16/04/2026
-
-            // fileInput.addEventListener("change", function () {
-            //     if (this.files.length > 0) {
-            //         fileNameDisplay.textContent = "Selected: " + this.files[0].name;
-            //     } else {
-            //         fileNameDisplay.textContent = "";
-            //     }
-            // });
-
-            //below new code added by ram on 16/04/2026 for file size validation
-
-            fileInput.addEventListener("change", function () {
-
-            if (this.files.length > 0) {
-
-            const file = this.files[0];
-            const maxSize = 2 * 1024 * 1024; // 2 MB
-
-            if (file.size > maxSize) {
-
-            Swal.fire({
-            icon: 'warning',
-            title: 'File too large',
-            text: 'File size should not exceed 2 MB.',
-            timer: 7000,
-            timerProgressBar: true,
-            showConfirmButton: true,
-            confirmButtonText: 'OK'
-            });
-
-            this.value = ""; // clear file
-            fileNameDisplay.textContent = "";
-            return;
-            }
-
-            fileNameDisplay.textContent = "Selected: " + file.name;
-            } else {
-            fileNameDisplay.textContent = "";
-            }
-            });
-
-            //new code of ram ends here
-
             $(document).ready(function () {
 
-            $("#districtDropdown").change(function () {
+                /* ══════════════════════════════════════════════
+                   FILE UPLOAD VALIDATION
+                ══════════════════════════════════════════════ */
+                const fileInput = document.getElementById("documentFile");
+                const fileNameDisplay = document.getElementById("fileName");
 
-            var district = $(this).val();
+                if (fileInput) {
+                    fileInput.addEventListener("change", function () {
+                        if (this.files.length > 0) {
+                            const file = this.files[0];
+                            const maxSize = 2 * 1024 * 1024;
 
-            $("#talukDropdown").empty();
-            $("#talukDropdown").append('<option value="">Loading...</option>');
+                            if (file.size > maxSize) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'File too large',
+                                    text: 'File size should not exceed 2 MB.'
+                                });
+                                this.value = "";
+                                fileNameDisplay.textContent = "";
+                                return;
+                            }
 
-            if (district !== "") {
+                            fileNameDisplay.textContent = "Selected: " + file.name;
+                        } else {
+                            fileNameDisplay.textContent = "";
+                        }
+                    });
+                }
 
-            $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")',
-            { district: district },
-            function (data) {
+                /* ══════════════════════════════════════════════
+                   DISTRICT → TALUK AJAX
+                ══════════════════════════════════════════════ */
+                $("#districtDropdown").change(function () {
+                    var district = $(this).val();
 
-            $("#talukDropdown").empty();
-            $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
+                    $("#talukDropdown").html('<option>Loading...</option>');
 
-            $.each(data, function (i, item) {
-            $("#talukDropdown").append('<option value="' + item.value + '">' + item.text + '</option>');
+                    if (district) {
+                        $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")',
+                            { district: district },
+                            function (data) {
+
+                                let html = '<option value="">— Select Taluk —</option>';
+                                $.each(data, function (i, item) {
+                                    html += `<option value="${item.value}">${item.text}</option>`;
+                                });
+
+                                $("#talukDropdown").html(html);
+                            });
+                    } else {
+                        $("#talukDropdown").html('<option value="">— Select Taluk —</option>');
+                    }
+                });
+
+                /* ══════════════════════════════════════════════
+                   COURSE TOGGLE + LOAD
+                ══════════════════════════════════════════════ */
+                const courseToggleBtn = document.getElementById('courseToggleBtn');
+                const courseSection = document.getElementById('courseSection');
+                const courseIcon = document.getElementById('courseIcon');
+
+                let courseLoaded = false;
+
+                if (courseToggleBtn && courseSection) {
+                    courseToggleBtn.addEventListener('click', function () {
+
+                        let isVisible = courseSection.style.display === 'block';
+
+                        if (!isVisible) {
+                            courseSection.style.display = 'block';
+                            courseIcon.textContent = '➖';
+
+                            if (!courseLoaded) {
+                                loadCourses();
+                                courseLoaded = true;
+                            }
+
+                        } else {
+                            courseSection.style.display = 'none';
+                            courseIcon.textContent = '➕';
+                        }
+                    });
+                }
+
+                function loadCourses() {
+
+                    $('#courseSection').html('<p style="padding:10px;">Loading...</p>');
+
+                    $.ajax({
+                        url: '@Url.Action("GetCoursesByCollege", "ContinuesAffiliation_Facultybased")',
+                        type: 'GET',
+                        success: function (res) {
+
+                            if (!res.success) {
+                                $('#courseSection').html(`<p style="color:red;">${res.message}</p>`);
+                                return;
+                            }
+
+                            if (res.data.length === 0) {
+                                $('#courseSection').html('<p>No courses found</p>');
+                                return;
+                            }
+
+                            let html = `
+                                <table class="course-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Course Code</th>
+                                            <th>Course Name</th>
+                                            <th>Existing Intake</th>
+                                            <th>Present Intake</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+
+                            $.each(res.data, function (i, item) {
+                                html += `
+                                    <tr>
+                                        <td>${item.courseCode}</td>
+                                        <td>${item.courseName}</td>
+                                        <td>${item.existingIntake}</td>
+                                        <td>${item.presentIntake}</td>
+                                    </tr>
+                                `;
+                            });
+
+                            html += '</tbody></table>';
+
+                            $('#courseSection').html(html);
+                        },
+                        error: function () {
+                            $('#courseSection').html('<p style="color:red;">Error loading data</p>');
+                        }
+                    });
+                }
+
             });
-            });
 
-            } else {
-            $("#talukDropdown").empty();
-            $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
-            }
-            });
-
-            });
-
-
+            /* ══════════════════════════════════════════════
+               MOBILE VALIDATOR (GLOBAL)
+            ══════════════════════════════════════════════ */
             function validateMobile(input) {
-
-            // Remove non-digits
-            input.value = input.value.replace(/\D/g, '');
-
-            // Limit to 10 digits
-            if (input.value.length > 10) {
-            input.value = input.value.slice(0, 10);
+                input.value = input.value.replace(/\D/g, '').slice(0, 10);
             }
-            }
+
         </script>
-
+    }
     }
 </body>
 </html>

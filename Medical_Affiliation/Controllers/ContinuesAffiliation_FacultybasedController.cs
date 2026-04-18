@@ -127,7 +127,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return (null, null, null);
 
-            string basePath = @"D:\Affiliation_Medical\TrustDocuments";
+            string basePath = Path.Combine(BasePath, "TrustDocuments"); ;
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))
@@ -1956,7 +1956,8 @@ namespace Medical_Affiliation.Controllers
 
             if (vm.DocumentFile != null && vm.DocumentFile.Length > 0)
             {
-                string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+                //string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+                string basePath = Path.Combine(BasePath, "InstitutionDetails");
 
                 if (!Directory.Exists(basePath))
                     Directory.CreateDirectory(basePath);
@@ -2265,7 +2266,36 @@ namespace Medical_Affiliation.Controllers
 
             return Json(taluks);
         }
+        public JsonResult GetCoursesByCollege()
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
+            if (string.IsNullOrEmpty(collegeCode) ||
+                string.IsNullOrEmpty(facultyCode) ||
+                string.IsNullOrEmpty(courseLevel))
+            {
+                return Json(new { success = false, message = "Session expired. Please login again." });
+            }
+
+            var data = (from intake in _context.CollegeCourseIntakeDetails
+                        join course in _context.MstCourses
+                        on intake.CourseCode equals course.CourseCode.ToString()
+                        where intake.CollegeCode == collegeCode
+                              && intake.FacultyCode.ToString() == facultyCode
+                              && course.CourseLevel == courseLevel
+                        orderby intake.CourseCode
+                        select new
+                        {
+                            intake.CourseName,
+                            intake.CourseCode,
+                            intake.ExistingIntake,
+                            intake.PresentIntake
+                        }).ToList();
+
+            return Json(new { success = true, data = data });
+        }
         public IActionResult ViewDocument(string id)
         {
             var doc = _context.AffInstitutionsDetails
@@ -2363,9 +2393,8 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.institutetypelist));
             ModelState.Remove(nameof(vm.Institutestatuslist));
             ModelState.Remove(nameof(vm.DocumentName));
-            ModelState.Remove(nameof(vm.DocumentContentType));  // ← fixes silent validation failure
-                                                                // Uncomment the line below if DocumentData is a property on your VM:
-                                                                // ModelState.Remove(nameof(vm.DocumentData));
+            ModelState.Remove(nameof(vm.DocumentContentType));
+            ModelState.Remove(nameof(vm.CourseApplied));
 
             // 3. Return view with errors if validation fails
             if (!ModelState.IsValid)
@@ -2399,7 +2428,7 @@ namespace Medical_Affiliation.Controllers
             if (documentFile != null && documentFile.Length > 0)
             {
                 // 🔹 Base folder path
-                string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
+                string basePath = Path.Combine(BasePath, "InstitutionDetails");
 
                 // 🔹 Ensure directory exists
                 if (!Directory.Exists(basePath))
@@ -2562,7 +2591,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\CourseDetails";
+            string basePath = Path.Combine(BasePath, "CourseDetails");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))
@@ -3866,7 +3895,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\FacultyDetails";
+            string basePath = Path.Combine(BasePath, "FacultyDetails");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))

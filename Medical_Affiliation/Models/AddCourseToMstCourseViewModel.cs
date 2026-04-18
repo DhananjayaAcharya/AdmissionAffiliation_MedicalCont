@@ -383,7 +383,7 @@ public class InstitutionViewModel
     [Required(ErrorMessage = "Status is required")]
     public string StatusOfCollege { get; set; }
 
-    public string CourseApplied { get; set; }
+    public string? CourseApplied { get; set; }
 
     public string? DocumentName { get; set; }
     public string? DocumentContentType { get; set; }

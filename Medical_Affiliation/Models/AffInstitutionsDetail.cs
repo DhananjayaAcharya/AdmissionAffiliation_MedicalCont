@@ -57,13 +57,11 @@ public partial class AffInstitutionsDetail
 
     public string StatusOfCollege { get; set; } = null!;
 
-    public string CourseApplied { get; set; } = null!;
+    public string? CourseApplied { get; set; }
 
     public string? DocumentName { get; set; }
 
     public string? DocumentContentType { get; set; }
-
-    public string? DocumentDataPath { get; set; }
 
     public string? NodalOfficerName { get; set; }
 
@@ -108,4 +106,6 @@ public partial class AffInstitutionsDetail
     public string? RunningCourse { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? DocumentDataPath { get; set; }
 }

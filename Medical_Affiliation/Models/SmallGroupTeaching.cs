@@ -67,9 +67,9 @@ public partial class SmallGroupTeaching
 
     public string? ApprovedBuildingPlanPath { get; set; }
 
+    public string? CourseLevel { get; set; }
+
     public string? LandRecordsFilePath { get; set; }
 
     public string? ApprovedBuildingPlanFilePath { get; set; }
-
-    public string? CourseLevel { get; set; }
 }

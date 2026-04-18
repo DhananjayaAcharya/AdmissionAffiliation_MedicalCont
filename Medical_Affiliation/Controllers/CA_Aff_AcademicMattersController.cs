@@ -232,7 +232,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\AcademicCurriculum";
+            string basePath = Path.Combine("AcademicCurriculum");
 
             if (!Directory.Exists(basePath))
                 Directory.CreateDirectory(basePath);

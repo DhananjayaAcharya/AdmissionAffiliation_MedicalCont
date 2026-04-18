@@ -102,14 +102,14 @@ namespace Medical_Affiliation.Controllers
                 .Select(x => new
                 {
                     x.UploadedFileName,
-                    x.SpecialFeaturesAchievementspdfPath
+                    x.SpecialFeaturesAchievementsPdfPath
                 })
                 .FirstOrDefaultAsync();
 
-            if (file == null || file.SpecialFeaturesAchievementspdfPath == null)
+            if (file == null || file.SpecialFeaturesAchievementsPdfPath == null)
                 return NotFound();
 
-            return File(file.SpecialFeaturesAchievementspdfPath, "application/pdf");
+            return File(file.SpecialFeaturesAchievementsPdfPath, "application/pdf");
         }
 
         public async Task<IActionResult> ViewGoverningCouncilPdf(int id)

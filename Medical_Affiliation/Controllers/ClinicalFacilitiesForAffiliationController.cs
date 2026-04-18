@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class ClinicalFacilitiesForAffiliationController : Controller
+    public class ClinicalFacilitiesForAffiliationController : BaseController
     {
         private readonly ApplicationDbContext _context;
         public ClinicalFacilitiesForAffiliationController(ApplicationDbContext context)
@@ -632,7 +632,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\AffiliatedHospitalDocs";
+            string basePath = Path.Combine(BasePath, "AffiliatedHospitalDocs");
 
             if (!Directory.Exists(basePath))
                 Directory.CreateDirectory(basePath);

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class Aff_CA_Med_FinanceDetailsController : Controller
+    public class Aff_CA_Med_FinanceDetailsController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -433,7 +433,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\FinanceDetails";
+            string basePath = Path.Combine(BasePath, "FinanceDetails");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))

@@ -186,7 +186,7 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = @"D:\Affiliation_Medical\FacultyDetails";
+            string basePath = Path.Combine(BasePath, "FacultyDetails");
             string fullFolder = Path.Combine(basePath, subFolder);
 
             if (!Directory.Exists(fullFolder))
