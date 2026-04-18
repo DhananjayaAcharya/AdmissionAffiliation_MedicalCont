@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Medical_Affiliation.Controllers
 {
     [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
-    public class ContinuationAffiliationClinicalFacilitiesController : Controller
+    public class ContinuationAffiliationClinicalFacilitiesController : BaseController
     {
         private readonly IHospitalService _hospitalService;
         private readonly IUserContext _userContext;

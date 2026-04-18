@@ -728,9 +728,9 @@
                                     <th>Department</th>
                                     <th>Designation</th>
                                     <th>Recognised PG Guide</th>
-                                    <th>PG Guide Ship Letter</th>
+                                    <th>PG GuideShip Letter</th>
                                     <th>Recognised PhD Guide</th>
-                                    <th>Ph.D Guide Ship Letter</th>
+                                    <th>Ph.D GuideShip Letter</th>
                                     <th>Litigation Pending</th>
                                     <th>Litigation Doc</th>
                                     <th>Mobile</th>
@@ -860,12 +860,17 @@
                     <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="NonTeachingStaffDepartmentwise" class="btn-official-outline">
                         <i class="bi bi-arrow-left"></i> Previous
                     </a>
-                    <span style="font-size:.75rem;color:var(--text-muted);">
-                        <i class="bi bi-info-circle"></i> Guide Ship Letter required only if PG/PhD Guide is Yes.
-                    </span>
-                    <button type="submit" class="btn-official">
-                        <i class="bi bi-save2"></i> Save &amp; Proceed <i class="bi bi-arrow-right"></i>
-                    </button>
+                    <div style="display: flex; flex-direction: column;">
+                        <button type="submit" class="btn-official">
+                            <i class="bi bi-save2"></i> Save &amp; Proceed <i class="bi bi-arrow-right"></i>
+                        </button>
+                        <span style="font-size:.75rem;color:var(--text-muted);">
+                            <i class="bi bi-info-circle"></i> Guide Ship Letter required only if PG/PhD Guide is Yes.
+                        </span>
+                    </div>
+                    <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="Aff_HostelDetails" class="btn-official-outline">
+                        <i class="bi bi-arrow-right"></i> Next
+                    </a>
                 </div>
             </form>
 

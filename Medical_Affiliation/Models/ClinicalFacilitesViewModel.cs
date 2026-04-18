@@ -355,6 +355,7 @@ namespace Medical_Affiliation.Models
         public int HospitalDetailsId { get; set; }
         public int FacultyCode { get; set; }
 
+        [ValidateNever]
         public string CourseLevel { get; set; }
         public int AffiliationTypeId { get; set; }
 

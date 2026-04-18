@@ -695,9 +695,23 @@
                        class="btn-prev">← Previous</a>
 
                     <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
-                    <a asp-controller="ContinuesAffiliation_Facultybased"
-                       asp-action="Aff_PrincipalDetails"
-                       class="btn-next"> Next</a>
+                    @if(level.ToLower() == "pg")
+                    {
+                        <a asp-controller="AffiliationPgCourse"
+                           asp-action="PgCourses"
+                        class="btn-next"> Next</a>
+                    }else if(level.ToLower() == "ss")
+                    {
+                        <a asp-controller="AffiliationSS"
+                           asp-action="CoursesOffered"
+                        class="btn-next"> Next</a>
+                    }
+                    else
+                    {   
+                        <a asp-controller="Medical_ContinuousAffiliation"
+                           asp-action="Medical_LandBuildingdetails"
+                           class="btn-next"> Next</a>
+                    }
                 </div>
 
             </form>
