@@ -151,7 +151,7 @@
 
         .header-inner {
             width: 100%;
-            padding: 18px 40px;
+            padding: 8px 40px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -643,6 +643,7 @@
             display: flex;
             gap: 8px;
             overflow-x: auto;
+            padding-top: 6px;
             padding-bottom: 6px;
             margin-bottom: 20px;
             scrollbar-width: none;
@@ -1355,6 +1356,8 @@
             background: var(--navy);
             border-top: 2px solid var(--gold);
             width: 100%;
+            position: fixed;
+            bottom: 0;
         }
 
         .footer-grid {
@@ -1450,6 +1453,7 @@
             .footer-bar p {
                 font-size: 10.5px;
                 color: rgba(255,255,255,.26);
+                margin-bottom: 0;
             }
 
             .footer-bar a {
@@ -1467,6 +1471,10 @@
             .university-logo {
                 height: 92px;
             }
+
+                .hidden-college {
+                    display: block;
+                }
         }
 
         @@media (max-width: 1199px) {
@@ -1803,12 +1811,16 @@
                 font-size: 16px;
             }
         }
+
+        .hidden-college {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
     <!-- ════ UTILITY BAR ════ -->
-    <div class="util-bar">
+    @* <div class="util-bar">
         <div class="util-inner">
             <div class="util-links">
                 <a href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-globe2"></i><span>www.rguhs.ac.in</span></a>
@@ -1822,7 +1834,7 @@
                 <select class="lang-sel"><option>English</option><option>ಕನ್ನಡ</option></select>
             </div>
         </div>
-    </div>
+    </div> *@
 
     <!-- ════ HEADER ════ -->
     <header class="site-header">
@@ -1838,72 +1850,12 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a asp-controller="Login" asp-action="Login" class="btn-portal">
-                    <i class="bi bi-box-arrow-in-right"></i> Login Portal
+                <a asp-controller="Login" asp-action="Login" class="btn-portal" target="_blank">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
                 </a>
-                <div class="portal-note">
-                    <div class="pulse-dot"></div>
-                    Admission &amp; Affiliation Management System
-                </div>
             </div>
         </div>
     </header>
-
-    <!-- ════ PRIMARY NAV ════ -->
-    <nav class="primary-nav">
-        <div class="nav-inner">
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-                <i class="bi bi-list"></i>
-            </button>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="@Url.Action("Rguhsdashboard")" class="active"><i class="bi bi-house-door-fill"></i>Home</a></li>
-                <li><a asp-controller="Login" asp-action="Login" target="_blank"><i class="bi bi-person-fill-add"></i>College Login</a></li>
-                <li><a asp-controller="Admin" asp-action="UniversityLogin" target="_blank"><i class="bi bi-building-check"></i>University Login</a></li>
-                <li><a asp-controller="LICInspection" asp-action="Auth" target="_blank"><i class="bi bi-bell-fill"></i>RGUHS Assignment</a></li>
-                <li><a asp-controller="MainDashboard" asp-action="Rguhsdashboard" target="_blank"><i class="bi bi-journal-check"></i>Notifications</a></li>
-                <li><a href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-info-circle"></i>About RGUHS</a></li>
-            </ul>
-            <div class="nav-search">
-                <i class="bi bi-search ns-icon"></i>
-                <input type="text" placeholder="Search portal…" />
-            </div>
-        </div>
-    </nav>
-
-    <!-- ════ TICKER ════ -->
-    <div class="ticker-bar">
-        <div class="ticker-label"><div class="blink-dot"></div>LIVE UPDATES</div>
-        <div class="ticker-track">
-            <div class="ticker-inner">
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">Calendar of Events for Academic Year 2025–26 Released</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">NEET UG Counselling 2025 – Online Admission Statement Submission Open</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">Eligibility Certificate Mandatory for Foreign / NRI Candidates 2025–26</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">RGUHS Karnataka AYUSH UG Cutoff 2025 Released – Round-wise</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">B.Sc / M.Sc / Ph.D Admissions 2026 – Applications Open</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">Calendar of Events for Academic Year 2025–26 Released</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">NEET UG Counselling 2025 – Online Admission Statement Submission Open</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">Eligibility Certificate Mandatory for Foreign / NRI Candidates 2025–26</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">RGUHS Karnataka AYUSH UG Cutoff 2025 Released – Round-wise</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="#">B.Sc / M.Sc / Ph.D Admissions 2026 – Applications Open</a></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- ════ HERO STAT STRIP ════ -->
-    <div class="hero-strip">
-        <div class="hero-inner">
-            <div class="hero-text">
-                <h2>Admission &amp; Affiliation Management System</h2>
-                <p>Centralised portal for all RGUHS affiliated colleges, streams &amp; academic administration — Academic Year 2026–27</p>
-            </div>
-            <div class="stat-pills">
-                <div class="stat-pill"><div class="stat-num">@Model.TotalColleges</div><div class="stat-lbl">Colleges</div></div>
-                <div class="stat-pill"><div class="stat-num">@Model.TotalFaculties</div><div class="stat-lbl">Streams</div></div>
-                <div class="stat-pill"><div class="stat-num">@Model.TotalTowns</div><div class="stat-lbl">Towns</div></div>
-                <div class="stat-pill"><div class="stat-num">100+</div><div class="stat-lbl">Programmes</div></div>
-            </div>
-        </div>
-    </div>
 
     <!-- ════ BODY LAYOUT ════ -->
     <div class="body-layout" id="bodyLayout">
@@ -1912,28 +1864,9 @@
         <div class="main-pane">
 
             <div class="sec-head">
-                <h3>Streams &amp; Affiliated Colleges</h3>
+                <h3>Medical Affiliated Colleges</h3>
                 <div class="sec-line"></div>
                 <span class="sec-chip"><i class="bi bi-calendar3"></i> 2026–27</span>
-            </div>
-
-            <!-- Faculty Chips -->
-            <div class="faculty-scroll">
-                @{
-                    bool allActive = Model.ActiveFaculty == "ALL";
-                    string allUrl = Url.Action("Rguhsdashboard", new { faculty = "ALL", search = Model.SearchTerm });
-                }
-                <a class="fac-chip @(allActive ? "active" : "")" href="@allUrl">
-                    <span class="chip-icon">🏛️</span>All Streams<span class="chip-cnt">@Model.TotalColleges</span>
-                </a>
-                @foreach (var fac in Model.Faculties)
-                {
-                    bool isActive = Model.ActiveFaculty == fac.FacultyId;
-                    string facUrl = Url.Action("Rguhsdashboard", new { faculty = fac.FacultyId, search = Model.SearchTerm });
-                    <a class="fac-chip @(isActive ? "active" : "")" href="@facUrl">
-                        <span class="chip-icon">@fac.Icon</span>@fac.FacultyName<span class="chip-cnt">@fac.CollegeCount</span>
-                    </a>
-                }
             </div>
 
             <!-- Search Form -->
@@ -1951,9 +1884,6 @@
                         <i class="bi bi-x-circle"></i> Clear
                     </a>
                 }
-                <div class="res-badge">
-                    <strong>@Model.Colleges.Count</strong> college@(Model.Colleges.Count != 1 ? "s" : "") found
-                </div>
             </form>
 
             <!-- College Cards -->
@@ -1975,93 +1905,54 @@
                 }
                 else
                 {
-                    @foreach (var c in Model.Colleges)
+                    @foreach (var c in Model.Colleges.Select((value, index) => new { value, index }))
                     {
-                        var safeName = c.CollegeName.Replace("'", "\\'").Replace("\"", "&quot;");
-                        var safeFac = (c.FacultyIcon + " " + c.FacultyName).Replace("'", "\\'");
-                        var safeTown = c.CollegeTown.Replace("'", "\\'");
+                        var item = c.value;
+                        var index = c.index;
 
-                        <div class="c-card"
-                             onclick="openCollegeModal('@c.CollegeCode','@safeName','@safeTown','@safeFac')"
+                        var safeName = item.CollegeName.Replace("'", "\\'").Replace("\"", "&quot;");
+                        var safeFac = (item.FacultyIcon + " " + item.FacultyName).Replace("'", "\\'");
+                        var safeTown = item.CollegeTown.Replace("'", "\\'");
+
+                        <div class="c-card college-item @(index >= 5 ? "hidden-college" : "")"
+                             onclick="openCollegeModal('@item.CollegeCode','@safeName','@safeTown','@safeFac')"
                              title="Click to view courses">
+
                             <div class="c-top">
-                                <span class="c-code" style="display:none;">@c.CollegeCode</span>
+                                <span class="c-code" style="display:none;">@item.CollegeCode</span>
                                 <span class="c-dot" title="Affiliated &amp; Active"></span>
                             </div>
-                            <div class="c-name">@c.CollegeName</div>
+
+                            <div class="c-name">@item.CollegeName</div>
+
                             <div class="c-foot">
                                 <span class="c-town">
-                                    <i class="bi bi-geo-alt-fill" style="color:var(--royal);font-size:10.5px"></i>@c.CollegeTown
+                                    <i class="bi bi-geo-alt-fill" style="color:var(--royal);font-size:10.5px"></i>@item.CollegeTown
                                 </span>
-                                <span class="c-fac">@c.FacultyIcon @c.FacultyName</span>
+                                <span class="c-fac">@item.FacultyIcon @item.FacultyName</span>
                             </div>
+
                             <div class="c-view-label">
                                 <i class="bi bi-arrow-up-right-circle-fill"></i> View Courses
                             </div>
                         </div>
                     }
                 }
+                @if (Model.Colleges.Count > 5)
+                {
+                    <div style="text-align:center; margin-top:20px;">
+                        <button id="showMoreBtn"
+                                onclick="showAllColleges()"
+                                style="padding:8px 16px; border:none; background-color:var(--royal); color:white; border-radius:6px; cursor:pointer;">
+                            Show All Colleges
+                        </button>
+                    </div>
+                }
             </div>
 
         </div><!-- /main-pane -->
         <!-- SIDEBAR -->
         <aside class="side-pane">
-
-            <div class="widget">
-                <div class="w-head"><i class="bi bi-bell-fill"></i><h4>Updates &amp; Notifications</h4></div>
-                <ul class="upd-list">
-                    <li class="upd-item">
-                        <span class="u-tag tag-new">NEW</span>
-                        <a href="https://sscptumkur.org/wp-content/uploads/2025/12/Calender-of-Events-RGUHS-2025-26.pdf" target="_blank">Calendar of Events for Academic Year 2025–26 Released</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> March 2025</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-imp">IMPORTANT</span>
-                        <a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">NEET UG Counselling 2025 – Online Admission Statement Submission</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> Registration Open</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-imp">CIRCULAR</span>
-                        <a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank">Eligibility Certificate Mandatory for Foreign / NRI Candidates 2025–26</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> Dec 2025</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-info">INFO</span>
-                        <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank">RGUHS AYUSH UG Cutoff 2025 Released – Round-wise</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> 25 Nov 2025</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-new">NEW</span>
-                        <a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">B.Sc / M.Sc / Ph.D Admissions 2026 – Applications Open</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> 2026 Session</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-imp">DIRECTIVE</span>
-                        <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank">Colleges must return original documents &amp; refund fees for withdrawing students</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> University Order</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-info">RESULTS</span>
-                        <a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank">Examination Results Portal – Check UG / PG Results Online</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> Updated Regularly</div>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="widget">
-                <div class="w-head"><i class="bi bi-grid-3x3-gap-fill"></i><h4>Quick Links</h4></div>
-                <div class="qlink-grid">
-                    <a class="qlink" href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank"><i class="bi bi-clipboard-check"></i>Admissions</a>
-                    <a class="qlink" href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank"><i class="bi bi-mortarboard"></i>Eligibility</a>
-                    <a class="qlink" href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank"><i class="bi bi-bar-chart"></i>Results</a>
-                    <a class="qlink" href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank"><i class="bi bi-bell"></i>Circulars</a>
-                    <a class="qlink" href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-bank2"></i>RGUHS Site</a>
-                    <a class="qlink" href="mailto:registrar@rguhs.ac.in"><i class="bi bi-envelope-at"></i>Email Reg.</a>
-                    <a class="qlink" href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-folder2-open"></i>Affiliation</a>
-                    <a class="qlink" href="https://www.rguhsaca.karnataka.gov.in/GuideRegistrationApplication/Home/Contact" target="_blank"><i class="bi bi-life-preserver"></i>Help Desk</a>
-                </div>
-            </div>
-
             <div class="widget">
                 <div class="w-head"><i class="bi bi-telephone-fill"></i><h4>Helpline &amp; Contact</h4></div>
                 <div class="hl-body">
@@ -2089,48 +1980,7 @@
     </div><!-- /body-layout -->
     <!-- ════ FOOTER ════ -->
     <footer class="site-footer">
-        <div class="footer-grid">
-            <div>
-                <div class="foot-brand">
-                    <div class="foot-logo">RG</div>
-                    <div class="foot-name">Rajiv Gandhi University of Health Sciences<span>Karnataka, India — Estd. 1996</span></div>
-                </div>
-                <p class="foot-desc">RGUHS is the apex body for health sciences education in Karnataka, overseeing affiliated medical, dental, nursing, pharmacy and allied health colleges. Recognised by UGC, NMC &amp; ACU. NAAC Accredited.</p>
-            </div>
-            <div class="foot-col">
-                <h5>Admissions</h5>
-                <ul>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">MBBS / BDS</a></li>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">B.Sc Nursing</a></li>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">B.Pharm / D.Pharm</a></li>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">MD / MS / MDS</a></li>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">Ph.D Programmes</a></li>
-                    <li><a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank">Eligibility Certificate</a></li>
-                </ul>
-            </div>
-            <div class="foot-col">
-                <h5>Services</h5>
-                <ul>
-                    <li><a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank">Examination Results</a></li>
-                    <li><a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank">Notifications &amp; Circulars</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Affiliation Process</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Anti-Ragging Cell</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Grievance Portal</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">IT Help Desk</a></li>
-                </ul>
-            </div>
-            <div class="foot-col">
-                <h5>Important</h5>
-                <ul>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">About RGUHS</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Vice Chancellor</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Registrar's Office</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">RTI Information</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Tender Notices</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Annual Report</a></li>
-                </ul>
-            </div>
-        </div>
+ 
         <div class="footer-bar">
             <p>© 2025 Rajiv Gandhi University of Health Sciences, Karnataka. All rights reserved. | <a href="https://www.rguhs.ac.in" target="_blank">www.rguhs.ac.in</a></p>
             <p>Designed &amp; Maintained by RGUHS IT Cell &nbsp;·&nbsp; <a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Accessibility</a></p>
@@ -2350,6 +2200,15 @@
                     '<div class="msp-lbl">' + label + '</div>' +
                 '</div>' +
                 '</div>';
+        }
+    </script>
+    <script id="o9w9nq">
+        function showAllColleges() {
+        document.querySelectorAll('.hidden-college').forEach(el => {
+        el.style.display = 'block';
+        });
+
+        document.getElementById('showMoreBtn').style.display = 'none';
         }
     </script>
 

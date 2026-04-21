@@ -83,11 +83,11 @@
     // ✅ Add MBBS ONLY for UG
     if (level == "UG")
     {
-        allSteps.Insert(3, new
+        allSteps.Insert(5, new
         {
             Key = "MBBSDetails",
             Label = "MBBS Details",
-            Group = "Human Resources",
+            Group = "MBBS Details",
             Ctrl = "ContinuesAffiliation_Facultybased",
             Act = "Details_Of_MBBS"
         });
@@ -509,7 +509,8 @@
 
     <!-- Brand -->
     <div class="ca-sb-top">
-        <div class="ca-sb-title">Continuous Affiliation</div>
+        @* <div class="ca-sb-title">Continuous Affiliation</div> *@
+        <div class="ca-sb-title">College Details</div>
         <div class="ca-sb-subtitle">Faculty-Based Module</div>
     </div>
 
