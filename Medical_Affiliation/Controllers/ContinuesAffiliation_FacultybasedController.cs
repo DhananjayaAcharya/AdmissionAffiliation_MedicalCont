@@ -2340,11 +2340,11 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             if (string.IsNullOrEmpty(collegeCode) ||
-                string.IsNullOrEmpty(facultyCode) ||
-                string.IsNullOrEmpty(courseLevel))
+                string.IsNullOrEmpty(facultyCode)) 
+                //string.IsNullOrEmpty(courseLevel))
             {
                 return Json(new { success = false, message = "Session expired. Please login again." });
             }
@@ -2354,7 +2354,7 @@ namespace Medical_Affiliation.Controllers
                         on intake.CourseCode equals course.CourseCode.ToString()
                         where intake.CollegeCode == collegeCode
                               && intake.FacultyCode.ToString() == facultyCode
-                              && course.CourseLevel == courseLevel
+                              //&& course.CourseLevel == courseLevel
                         orderby intake.CourseCode
                         select new
                         {
@@ -2389,6 +2389,22 @@ namespace Medical_Affiliation.Controllers
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
 
             return PhysicalFile(doc.DocumentDataPath, contentType);
+        }
+
+
+
+        [HttpGet]
+        public IActionResult GetInstitutionOrgCategory(int institutionTypeId)
+        {
+            var record = _context.MstInstitutionTypes
+                .Where(x => x.InstitutionTypeId == institutionTypeId)
+                .Select(x => new { x.OrganizationCategory })
+                .FirstOrDefault();
+
+            if (record == null)
+                return Json(new { success = false, orgCategory = (string?)null });
+
+            return Json(new { success = true, orgCategory = record.OrganizationCategory });
         }
         // ─────────────────────────────────────────────────────────────────────────────
         // GET: Institution/Institution_Details

@@ -418,15 +418,13 @@ public class InstitutionViewModel
     public string College_URL { get; set; }
 
     // ✅ Trust
-    public string TrustName { get; set; }
-    public string TrustAddress { get; set; }
+    public string? TrustName { get; set; }
+    public string? TrustAddress { get; set; }
 
     public DateOnly? TrustEstablishmentDate { get; set; }
 
-    public string TrustPresidentName { get; set; }
-
-    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
-    public string TrustPresidentContactNo { get; set; }
+    public string? TrustPresidentName { get; set; }
+    public string? TrustPresidentContactNo { get; set; }
 
     // ✅ Dean
     public string DeanName { get; set; }

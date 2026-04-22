@@ -56,13 +56,12 @@ namespace Medical_Affiliation.Controllers
 
             // ── 1. Load all faculties ─────────────────────────────────────
             var facultyEntities = await _context.Faculties
-                .Where(f => f.FacultyId == 1)
+                //.Where(f => f.FacultyId == 1)
                 .OrderBy(f => f.FacultyId)
                 .ToListAsync();
 
-            // ── 2. Load ALL colleges (needed for counts & "All" tab) ──────
             var allColleges = await _context.AffiliationCollegeMasters
-                .Where(e=>e.FacultyCode=="1")
+                //.Where(e=>e.FacultyCode=="1")
                 .ToListAsync();
 
             // ── 3. Build faculty list with per-faculty college counts ─────
