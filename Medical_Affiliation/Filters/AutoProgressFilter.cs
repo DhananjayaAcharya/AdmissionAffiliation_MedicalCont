@@ -87,20 +87,13 @@ public class AutoProgressFilter : IAsyncActionFilter
     //new CAStep { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
 
     new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
-    new CAStep { Key="PaymentDetails", Ctrl="AffiliationPayment", Act="Payment" },
-    new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
+    //new CAStep { Key="PaymentDetails", Ctrl="AffiliationPayment", Act="Payment" },
+    //new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
 };
 
         // 🔥 Find matching step dynamically
         var step = allSteps.FirstOrDefault(s =>
-            string.Equals(s.Ctrl, ctrl, StringComparison.OrdinalIgnoreCase) &&
-            (
-                string.Equals(s.Act, act, StringComparison.OrdinalIgnoreCase)
-                || act.Contains(s.Act, StringComparison.OrdinalIgnoreCase)
-                || act.Contains("AssociatedInstitution", StringComparison.OrdinalIgnoreCase) // ✅ ADD THIS
-                || act.Contains("Save", StringComparison.OrdinalIgnoreCase)
-                || act.Contains("Add", StringComparison.OrdinalIgnoreCase) // ✅ IMPORTANT
-            )
+            string.Equals(s.Ctrl, ctrl, StringComparison.OrdinalIgnoreCase)
         );
 
         if (step == null)

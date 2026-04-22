@@ -2544,7 +2544,7 @@ namespace Medical_Affiliation.Controllers
             {
                 _context.SaveChanges();
                 // After saving Institution Details:
-                ContinuousAffiliationController.MarkDone(HttpContext, "BasicDetails");
+                ContinuousAffiliationController.MarkDone(HttpContext, "Institution");
             }
             catch (DbUpdateException ex)
             {

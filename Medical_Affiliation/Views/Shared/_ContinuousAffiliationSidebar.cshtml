@@ -25,65 +25,65 @@
 
     // ── Step definition ───────────────────────────────────────────────────
     // Flat list — Physical Facilities sub-items are shown as individual steps
-    var allSteps = new List<dynamic>
+    var allSteps = new List<StepItem>
     {
         // ================= BASIC DETAILS =================
-        new { Key="Institution", Label="Institution Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Institution_Details" },
-        new { Key="TrustDetails", Label="Trust Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="aff_institutedetails" },
-        new { Key="TrustMemberDetails", Label="Trust Member Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
+        new StepItem{ Key="Institution", Label="Institution Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Institution_Details" },
+        new StepItem{ Key="TrustDetails", Label="Trust Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="aff_institutedetails" },
+        new StepItem{ Key="TrustMemberDetails", Label="Trust Member Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
 
         // 👇 CONDITIONAL STEP
         // MBBS only for UG
         // we will add below dynamically
          // new { Key="FacultyDetails", Label="Faculty Details", Group="Basic Details", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
-        new { Key="DeanDetails", Label="Dean / Director Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
-        new { Key="PrincipalDetails", Label="Principal Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
+        new StepItem{ Key="DeanDetails", Label="Dean / Director Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
+        new StepItem{ Key="PrincipalDetails", Label="Principal Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
 
         // ================= PHYSICAL INFRASTRUCTURE =================
-        new { Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
-        new { Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
-        new { Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
-        new { Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
-        new { Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
-        new { Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
-        new { Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
+        new StepItem{ Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
+        new StepItem{ Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
+        new StepItem{ Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
+        new StepItem{ Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
+        new StepItem{ Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
+        new StepItem{ Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
+        new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
+        new StepItem{ Key="DepartmentUnits", Label="Department / Units", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
+         new StepItem{ Key="Hostel", Label="Hostel Details", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
 
 
         // ================= ACADEMIC & ADMIN =================v v  v 
-        new { Key="AcademicMatters", Label="Academic Matters", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
-        new { Key="Finance", Label="Financial Details", Group="Academic & Admin", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
-        new { Key="StaffDetails", Label="Staff Details", Group="Academic & Admin", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
+        new StepItem{ Key="AcademicMatters", Label="Academic Matters", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
+        new StepItem{ Key="Finance", Label="Financial Details", Group="Academic & Admin", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
+        new StepItem{ Key="StaffDetails", Label="Staff Particular Details", Group="Academic & Admin", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
 
         // ================= RESEARCH & LIBRARY =================
-        new { Key="Research", Label="Research & Publications", Group="Research & Library", Ctrl="CA_Med_ResearchPublications", Act="CA_Med_ResearchPublicationsDetails" },
-        new { Key="Library", Label="Library Details", Group="Research & Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
-        new { Key="LibraryServices", Label="Library Services", Group="Research & Library", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
+        new StepItem{ Key="Research", Label="Research & Publications", Group="Research & Library", Ctrl="CA_Med_ResearchPublications", Act="CA_Med_ResearchPublicationsDetails" },
+        new StepItem{ Key="Library", Label="Library Details", Group="Research & Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
+        new StepItem{ Key="LibraryServices", Label="Library Services", Group="Research & Library", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
 
         // ================= STUDENT & STAFF =================
-        new { Key="TeachingStaff", Label="Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
-        new { Key="NonTeachingStaff", Label="Non-Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
-        new { Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
+        new StepItem{ Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
+        new StepItem{ Key="TeachingStaff", Label="Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
+        new StepItem{ Key="NonTeachingStaff", Label="Non-Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
 
         // ================= STUDENT AMENITIES =================
-        new { Key="Hostel", Label="Hostel Details", Group="Student Amenities", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
+        // new StepItem{ Key="Hostel", Label="Hostel Details", Group="Student Amenities", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
 
         // ================= STUDENT AMENITIES =================
-        new { Key="IntakeDetails", Label="Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
+        new StepItem{ Key="IntakeDetails", Label="Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
 
-        // ================= FINAL =================
-        new { Key="DepartmentUnits", Label="Department / Units", Group="Final Submission", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
 
-        new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
-        new { Key="Declaration", Label="Declaration", Group="Final Submission", Ctrl="AffiliationDeclaration", Act="Declaration" },
+        // new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
+        // new { Key="Declaration", Label="Declaration", Group="Final Submission", Ctrl="AffiliationDeclaration", Act="Declaration" },
 
-        new { Key="PreviewMode", Label="Preview", Group="Final Submission", Ctrl="CAPreview", Act="Preview" },
+        new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
 
     // ✅ Add MBBS ONLY for UG
     if (level == "UG")
     {
-        allSteps.Insert(5, new
+        allSteps.Insert(5, new StepItem
         {
             Key = "MBBSDetails",
             Label = "MBBS Details",
@@ -96,7 +96,7 @@
     // ✅ Add PG-specific steps
     if (level == "PG")
     {
-        var pgSteps = new[]
+        var pgSteps = new List<StepItem>
         {
             // new
             // {
@@ -106,7 +106,7 @@
             //     Ctrl = "AffiliationPgCourse",
             //     Act = "PgCourses"
             // },
-            new
+            new StepItem
             {
                 Key = "PgCourses",
                 Label = "PG Course Details",
@@ -114,7 +114,7 @@
                 Ctrl = "AffiliationPgCourse",
                 Act = "PgCourses"
             },
-            new
+            new StepItem
             {
                 Key = "PgAssociatedInstitutions",
                 Label = "Associated Institutions",
@@ -135,7 +135,7 @@
         allSteps.InsertRange(lastBasicIndex + 1, pgSteps);
     }
 
-    void InsertAfterBasicDetails(dynamic[] newSteps)
+    void InsertAfterBasicDetails(List<StepItem> newSteps)
     {
         var lastBasicIndex = allSteps
             .Select((step, index) => new { step, index })
@@ -150,14 +150,14 @@
     // ✅ SS Specific - Added your new tab "SS Courses Applied"
     if (level == "SS")
     {
-        var ssSteps = new[]
+        var ssSteps = new List<StepItem>
         {
-            new { Key = "SsCoursesOffered",        Label = "Courses Offered",                  Group = "SS Details", Ctrl = "AffiliationSS", Act = "CoursesOffered" },
+            new StepItem{ Key = "SsCoursesOffered",        Label = "Courses Offered",                  Group = "SS Details", Ctrl = "AffiliationSS", Act = "CoursesOffered" },
             // new { Key = "SsCourseDetails",         Label = "Super Specialty Course Details",   Group = "SS Details", Ctrl = "AffiliationSS", Act = "SsCourses" },
-            new { Key = "SsAssociatedInstitutions", Label = "Associated Institutions",         Group = "SS Details", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
+            new StepItem{ Key = "SsAssociatedInstitutions", Label = "Associated Institutions",         Group = "SS Details", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
             // ✅ NEW TAB YOU REQUESTED
-            new { Key = "SsCoursesApplied",        Label = "SS Courses Applied",               Group = "SS Details",
+            new StepItem{ Key = "SsCoursesApplied",        Label = "SS Courses Applied",               Group = "SS Details",
                   Ctrl = "Aff_CA_SS_CoursesAppliedSS",
                   Act = "CA_SS_CoursesApplied" }
         };
@@ -181,6 +181,13 @@
 
     // Track which group label we last printed (for group headers)
     string lastGroup = "";
+
+
+    var groupedSteps = allSteps
+            .GroupBy(s => s.Group)
+            .ToList();
+
+
 }
 <link rel="stylesheet" href="~/css/common-form.css" />
 
@@ -503,6 +510,64 @@
             color: #fff;
         }
 
+
+    .accordion-container {
+        width: 100%;
+    }
+
+    .accordion-item {
+        /* border-bottom: 1px solid #eee; */
+
+        background: linear-gradient(180deg, #0f2545 0%, #162e55 100%);
+    }
+
+    .accordion-header {
+        font-size: 1rem;
+        font-weight: 700;
+        /* letter-spacing: 0.18em; */
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.22);
+        padding: 12px 18px 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* .accordion-header::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,0.07);
+    } */
+        .accordion-header:hover {
+            color: rgba(255,255,255,0.45);
+        }
+
+    .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+        padding-left: 10px;
+    }
+
+    /* .step-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 16px;
+        text-decoration: none;
+        color: #333;
+    }
+
+        .step-item.active {
+            background: #e6f0ff;
+            font-weight: bold;
+        } */
+
+    .tick {
+        color: green;
+    }
+
 </style>
 
 <aside class="ca-sb">
@@ -536,66 +601,53 @@
     </div>
 
     <!-- Step list (flat) -->
-    <ul class="ca-sb-nav">
-        @{
-            int stepNum = 0;
-            lastGroup = "";
-        }
-
-        @foreach (var s in allSteps)
+    <div class="accordion-container">
+        @foreach (var group in groupedSteps)
         {
-            stepNum++;
-            bool isDone = doneSteps.Contains(s.Key);
-            bool isCurrent = string.Equals(currentCtrl, s.Ctrl, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(currentAct, s.Act, StringComparison.OrdinalIgnoreCase);
-            bool isSub = !string.IsNullOrEmpty(s.Group);
+            var groupId = group.Key.Replace(" ", "");
 
-            // Print group header when group changes
-            if (!string.IsNullOrEmpty(s.Group) && s.Group != lastGroup)
-            {
-                lastGroup = s.Group;
-                <li>
-                    <div class="ca-sb-group-label">@s.Group</div>
-                </li>
-            }
-            else if (string.IsNullOrEmpty(s.Group))
-            {
-                lastGroup = "";
-            }
+            <div class="accordion-item">
+                <!-- Accordion Header -->
+                <div class="accordion-header" onclick="toggleAccordion('@groupId')">
+                    <span>@group.Key</span>
+                </div>
 
-            string dotCls = isCurrent ? "ca-dot ca-dot-current"
-            : isDone ? "ca-dot ca-dot-done"
-            : "ca-dot ca-dot-pending";
-
-            string linkCls = "ca-sb-link"
-            + (isSub ? " is-sub" : "")
-            + (isCurrent ? " is-active" : "");
-
-            <li>
-                <a asp-controller="@s.Ctrl"
-                   asp-action="@s.Act"
-                   asp-route-level="@level" class="@linkCls">
-                    <div class="@dotCls">
-                        @if (isDone)
-                        {
-                            <text>&#10003;</text>
-                        }
-                        else
-                        {
-
-                            @stepNum
-                        }
-                    </div>
-                    <span style="flex:1; line-height:1.3;">@s.Label</span>
-                    @if (isDone && !isCurrent)
+                <!-- Accordion Content -->
+                <div class="accordion-content" id="content-@groupId">
+                    @foreach (var step in group)
                     {
-                        <span class="ca-sb-check">&#10003;</span>
+                        var isActive = currentCtrl == step.Ctrl && currentAct == step.Act;
+                        var isDone = doneSteps.Contains(step.Key);
+
+                        string dotCls = isActive ? "ca-dot ca-dot-current"
+                            : isDone ? "ca-dot ca-dot-done"
+                            : "ca-dot ca-dot-pending";
+
+                        string linkCls = "ca-sb-link"
+                            + (isActive ? " is-active" : "");
+
+                        <a href="@Url.Action(step.Act, step.Ctrl)" class="@linkCls">
+
+                            <div class="@dotCls">
+                                @if (isDone)
+                                {
+                                    <text>&#10003;</text>
+                                }
+                            </div>
+
+                            <span style="flex:1;">@step.Label</span>
+
+                            @if (isDone && !isActive)
+                            {
+                                <span class="ca-sb-check">&#10003;</span>
+                            }
+                        </a>
                     }
-                </a>
-            </li>
+                </div>
+            </div>
         }
-    </ul>
-  
+    </div>
+
 
     <!-- Footer -->
     <div class="ca-sb-footer">
@@ -605,3 +657,35 @@
     </div>
 
 </aside>
+
+<script>
+    function toggleAccordion(groupId) {
+        const allContents = document.querySelectorAll(".accordion-content");
+        const current = document.getElementById("content-" + groupId);
+
+        allContents.forEach(content => {
+            if (content !== current) {
+                content.style.maxHeight = null;
+            }
+        });
+
+        // Toggle current
+        if (current.style.maxHeight) {
+            current.style.maxHeight = null;
+        } else {
+            current.style.maxHeight = current.scrollHeight + "px";
+        }
+    }
+
+    // Auto-open active group
+    window.onload = function () {
+        const activeItem = document.querySelector(".step-item.active");
+        if (activeItem) {
+            const content = activeItem.closest(".accordion-content");
+
+            if (content) {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        }
+    };
+</script>
