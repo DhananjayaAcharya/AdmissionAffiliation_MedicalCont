@@ -649,14 +649,18 @@
                             </div>
                         </div>
 
-                        <input type="hidden" asp-for="Departments[d].DepartmentCode" />
+                       
 
                         <div class="dept-table-wrap" id="@deptId">
                             <table class="data-table">
                                 <thead>
                                     <tr class="main-row">
-                                        <th rowspan="2" style="width:38px;">#</th>
-                                        <th rowspan="2" style="text-align:left; padding-left:10px; min-width:140px;">Designation</th>
+                                        <th rowspan="2">#</th>
+                                        <th rowspan="2">Name of Faculty</th>
+                                        <th rowspan="2">Department</th>
+                                        <th rowspan="2">Designation</th>
+                                       
+                                      @*   <th rowspan="2" style="text-align:left; padding-left:10px; min-width:140px;">Designation</th> *@
                                         <th colspan="3" class="th-group-ug">&#127979; UG Teaching</th>
                                         <th colspan="3" class="th-group-pg">&#127891; PG Teaching</th>
                                         <th rowspan="2" style="min-width:90px;">Total Exp. (Yrs)</th>
@@ -676,12 +680,29 @@
                                         <tr>
                                             <td class="td-slno">@(i + 1)</td>
 
-                                            <td class="td-desig">
+                                           @*  <td class="td-desig">
                                                 <input asp-for="Departments[d].Rows[i].DesignationName"
                                                        class="form-control desig-field" readonly />
                                                 <input asp-for="Departments[d].Rows[i].DesignationCode" type="hidden" />
+                                            </td> *@
+
+                                            <td>
+                                                <input asp-for="Departments[d].Rows[i].NameOfFaculty"
+                                                       class="form-control" readonly />
                                             </td>
 
+                                            <td>
+                                                <input asp-for="Departments[d].Rows[i].DepartmentName"
+                                                       class="form-control" readonly />
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Departments[d].Rows[i].DesignationName"
+                                                       class="form-control desig-field" readonly />
+                                            </td>
+                                            <!-- ✅ ADD HIDDEN FIELDS HERE -->
+                                            <input asp-for="Departments[d].Rows[i].DepartmentCode" type="hidden" />
+                                            <input asp-for="Departments[d].Rows[i].DesignationCode" type="hidden" />
                                             <!-- UG College -->
                                             <td class="td-ug">
                                                 <select asp-for="Departments[d].Rows[i].UGCollegeCode"

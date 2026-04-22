@@ -318,24 +318,24 @@ namespace Medical_Affiliation.Controllers
                 teaching.HasBudgetProvisionIfNo = model.HasBudgetProvisionIfNo ?? false;
                 teaching.HasFutureExpansionSpace = model.HasFutureExpansionSpace ?? false;
 
-                
-                    if (model.LandRecordsDocument != null && model.LandRecordsDocument.Length > 0)
+
+                if (model.LandRecordsDocument != null && model.LandRecordsDocument.Length > 0)
+                {
+                    var path = await SaveLandFileAsync(model.LandRecordsDocument, "LandRecords");
+
+                    if (path != null)
                     {
-                        var path = await SaveLandFileAsync(model.LandRecordsDocument, "LandRecords");
-
-                        if (path != null)
+                        // 🔥 Delete old file
+                        if (!string.IsNullOrEmpty(teaching.LandRecordsFilePath) &&
+                            System.IO.File.Exists(teaching.LandRecordsFilePath))
                         {
-                            // 🔥 Delete old file
-                            if (!string.IsNullOrEmpty(teaching.LandRecordsFilePath) &&
-                                System.IO.File.Exists(teaching.LandRecordsFilePath))
-                            {
-                                System.IO.File.Delete(teaching.LandRecordsFilePath);
-                            }
-
-                            teaching.LandRecordsFilePath = path;
+                            System.IO.File.Delete(teaching.LandRecordsFilePath);
                         }
+
+                        teaching.LandRecordsFilePath = path;
                     }
-                
+                }
+
 
                 // BUILDING
                 teaching.IsBuildingAsPerCouncilNorms = model.IsBuildingAsPerCouncilNorms ?? false;

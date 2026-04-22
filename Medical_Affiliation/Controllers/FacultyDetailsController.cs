@@ -44,12 +44,48 @@ namespace Medical_Affiliation.Controllers
                 })
                 .ToList();
 
-            var departments = _context.MstCourses
-                .Where(e => e.FacultyCode.ToString() == facultyCode)
-                .Select(d => new SelectListItem
+            //var departments = _context.MstCourses
+            //    .Where(e => e.FacultyCode.ToString() == facultyCode)
+            //    .Select(d => new SelectListItem
+            //    {
+            //        Value = d.CourseCode.ToString(),
+            //        Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
+            //    })
+            //    .ToList();
+
+            //var departments = _context.MstCourses
+            //    .Where(e => e.FacultyCode.ToString() == facultyCode)
+            //    .Select(d => new SelectListItem
+            //    {
+            //        Value = d.CourseCode.ToString(),   // or SubjectCode if available
+            //        Text = d.SubjectName ?? ""
+            //    })
+            //    .Where(x => !string.IsNullOrEmpty(x.Text)) // optional: remove empty subjects
+            //    .Distinct()
+            //    .ToList();
+                var data = _context.MstCourses
+                            .Where(e => e.FacultyCode.ToString() == facultyCode && e.SubjectName != null)
+                            .AsEnumerable()
+                            .GroupBy(d => new { d.SubjectName, d.CourseLevel })
+                            .ToList();
+
+            // Create groups
+            var groupUG = new SelectListGroup { Name = "UG" };
+            var groupPG = new SelectListGroup { Name = "PG" };
+            var groupSS = new SelectListGroup { Name = "SS" };
+
+            var departments = data
+                .OrderBy(g => g.Key.CourseLevel == "UG" ? 1 :
+                              g.Key.CourseLevel == "PG" ? 2 :
+                              g.Key.CourseLevel == "SS" ? 3 : 4)
+                .ThenBy(g => g.Key.SubjectName)
+                .Select(g => new SelectListItem
                 {
-                    Value = d.CourseCode.ToString(),
-                    Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
+                    Value = g.First().CourseCode.ToString(),
+                    Text = g.Key.SubjectName,
+                    Group = g.Key.CourseLevel == "UG" ? groupUG :
+                            g.Key.CourseLevel == "PG" ? groupPG :
+                            g.Key.CourseLevel == "SS" ? groupSS : null
                 })
                 .ToList();
 

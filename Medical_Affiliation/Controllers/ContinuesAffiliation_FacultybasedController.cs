@@ -405,7 +405,7 @@ namespace Medical_Affiliation.Controllers
                 DeleteOldFile(entity.GovAutonomousCertFilePath);
 
                 entity.GovAutonomousCertFilePath = govAuto.path;
-                
+
             }
 
             var council = await SaveFileAsync(GovCouncilMembershipFile, "Council");
@@ -413,7 +413,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.GovCouncilMembershipFilePath);
                 entity.GovCouncilMembershipFilePath = council.path;
-                
+
             }
 
             var gok = await SaveFileAsync(GokOrderExistingCoursesFile, "GOK");
@@ -421,7 +421,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.GokOrderExistingCoursesFilePath);
                 entity.GokOrderExistingCoursesFilePath = gok.path;
-               
+
             }
 
             var first = await SaveFileAsync(FirstAffiliationNotifFile, "FirstAffiliation");
@@ -429,7 +429,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.FirstAffiliationNotifFilePath);
                 entity.FirstAffiliationNotifFilePath = first.path;
-                
+
             }
 
             var cont = await SaveFileAsync(ContinuationAffiliationFile, "Continuation");
@@ -437,7 +437,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.ContinuationAffiliationFilePath);
                 entity.ContinuationAffiliationFilePath = cont.path;
-                
+
             }
 
             var knc = await SaveFileAsync(KncCertificateFile, "KNC");
@@ -445,7 +445,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.KncCertificateFilePath);
                 entity.KncCertificateFilePath = knc.path;
-                
+
             }
 
             var amend = await SaveFileAsync(AmendedDoc, "Amendments");
@@ -453,7 +453,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.AmendedDocPath);
                 entity.AmendedDocPath = amend.path;
-                
+
             }
 
             var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar");
@@ -461,7 +461,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.AadhaarFilePath);
                 entity.AadhaarFilePath = aadhaar.path;
-                
+
             }
 
             var pan = await SaveFileAsync(PANFile, "PAN");
@@ -469,7 +469,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.PanfilePath);
                 entity.PanfilePath = pan.path;
-                
+
             }
 
             var bank = await SaveFileAsync(BankStatementFile, "Bank");
@@ -477,7 +477,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.BankStatementFilePath);
                 entity.BankStatementFilePath = bank.path;
-                
+
             }
 
             var reg = await SaveFileAsync(RegistrationCertificateFile, "Registration");
@@ -485,7 +485,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.RegistrationCertificateFilePath);
                 entity.RegistrationCertificateFilePath = reg.path;
-               
+
             }
 
             var trust = await SaveFileAsync(RegisteredTrustMemberDetails, "TrustMembers");
@@ -493,7 +493,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.RegisteredTrustMemberDetailsPath);
                 entity.RegisteredTrustMemberDetailsPath = trust.path;
-                
+
             }
 
             var audit = await SaveFileAsync(AuditStatementFile, "Audit");
@@ -501,7 +501,7 @@ namespace Medical_Affiliation.Controllers
             {
                 DeleteOldFile(entity.AuditStatementFilePath);
                 entity.AuditStatementFilePath = audit.path;
-                
+
             }
             try
             {
@@ -2401,7 +2401,7 @@ namespace Medical_Affiliation.Controllers
             var courseLevel = CourseLevel;
             var facultyCode = User.FindFirst("FacultyCode")?.Value;
             var collegeCode = User.FindFirst("CollegeCode")?.Value;
-           
+
             if (string.IsNullOrWhiteSpace(courseLevel))
                 return RedirectToAction("Dashboard", "Collegelogin");
 
@@ -4270,6 +4270,87 @@ namespace Medical_Affiliation.Controllers
 
 
 
+        //[HttpGet]
+        //public async Task<IActionResult> TeachingStaffDepartmentWise()
+        //{
+        //    var collegeCode = HttpContext.Session.GetString("CollegeCode");
+        //    var facultyCode = HttpContext.Session.GetString("FacultyCode");
+        //    var courseLevel = CourseLevel;
+
+        //    int.TryParse(facultyCode, out int facultyCodeInt);
+
+        //    var vm = new TeachingStaffDepartmentWiseVm
+        //    {
+        //        CollegeCode = collegeCode,
+        //        FacultyCode = facultyCode,
+        //        CourseLevel = courseLevel,
+        //        // ✅ ADD THIS (College Dropdown)
+        //        Colleges = await _context.AffiliationCollegeMasters
+        //    .Where(c => c.FacultyCode.ToString() == facultyCode)
+        //    .OrderBy(c => c.CollegeName)
+        //    .Select(c => new SelectListItem
+        //    {
+        //        Value = c.CollegeCode,
+        //        Text = c.CollegeName
+        //    })
+        //    .ToListAsync()
+        //    };
+
+        //    // 🔽 All departments of faculty
+        //    var departments = await _context.DepartmentMasters
+        //        .Where(d => d.FacultyCode.ToString() == facultyCode)
+        //        .OrderBy(d => d.DepartmentName)
+        //        .ToListAsync();
+
+        //    // 🔽 All designations of faculty
+        //    var designations = await _context.DesignationMasters
+        //        .Where(d => d.FacultyCode == facultyCodeInt)
+        //        .OrderBy(d => d.DesignationOrder)
+        //        .ToListAsync();
+
+        //    // 🔽 Existing saved data
+        //    var saved = await _context.TeachingStaffDepartmentWiseDetails
+        //        .Where(x => x.CollegeCode == collegeCode &&
+        //                    x.FacultyCode == facultyCode &&
+        //                    x.CourseLevel == courseLevel)
+        //        .ToListAsync();
+
+        //    foreach (var dept in departments)
+        //    {
+        //        var deptVm = new DepartmentTeachingStaffVm
+        //        {
+        //            DepartmentCode = dept.DepartmentCode,
+        //            DepartmentName = dept.DepartmentName
+        //        };
+
+        //        foreach (var des in designations)
+        //        {
+        //            var existing = saved.FirstOrDefault(x =>
+        //                x.DepartmentCode == dept.DepartmentCode &&
+        //                x.DesignationCode == des.DesignationCode);
+
+        //            deptVm.Rows.Add(new TeachingStaffDepartmentWiseRow
+        //            {
+        //                Id = existing?.Id ?? 0,
+        //                DesignationCode = des.DesignationCode,
+        //                DesignationName = des.DesignationName,
+        //                UGFrom = existing?.Ugfrom?.ToDateTime(TimeOnly.MinValue),
+        //                UGTo = existing?.Ugto?.ToDateTime(TimeOnly.MinValue),
+        //                PGFrom = existing?.Pgfrom?.ToDateTime(TimeOnly.MinValue),
+        //                PGTo = existing?.Pgto?.ToDateTime(TimeOnly.MinValue),
+        //                // ✅ ADD THESE
+        //                UGCollegeCode = existing?.UgcollegeCode,
+        //                PGCollegeCode = existing?.PgcollegeCode,
+        //                TotalExperience = existing?.TotalExperience
+        //            });
+        //        }
+
+        //        vm.Departments.Add(deptVm);
+        //    }
+
+        //    return View(vm);
+        //}
+
         [HttpGet]
         public async Task<IActionResult> TeachingStaffDepartmentWise()
         {
@@ -4284,29 +4365,36 @@ namespace Medical_Affiliation.Controllers
                 CollegeCode = collegeCode,
                 FacultyCode = facultyCode,
                 CourseLevel = courseLevel,
-                // ✅ ADD THIS (College Dropdown)
+
                 Colleges = await _context.AffiliationCollegeMasters
-            .Where(c => c.FacultyCode.ToString() == facultyCode)
-            .OrderBy(c => c.CollegeName)
-            .Select(c => new SelectListItem
-            {
-                Value = c.CollegeCode,
-                Text = c.CollegeName
-            })
-            .ToListAsync()
+                    .Where(c => c.FacultyCode.ToString() == facultyCode)
+                    .OrderBy(c => c.CollegeName)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CollegeCode,
+                        Text = c.CollegeName
+                    })
+                    .ToListAsync()
             };
 
-            // 🔽 All departments of faculty
-            var departments = await _context.DepartmentMasters
-                .Where(d => d.FacultyCode.ToString() == facultyCode)
-                .OrderBy(d => d.DepartmentName)
-                .ToListAsync();
-
-            // 🔽 All designations of faculty
-            var designations = await _context.DesignationMasters
-                .Where(d => d.FacultyCode == facultyCodeInt)
-                .OrderBy(d => d.DesignationOrder)
-                .ToListAsync();
+            // ✅ NEW: Get faculty list (MAIN SOURCE)
+            var facultyList = await (
+                    from f in _context.FacultyDetails
+                    join c in _context.MstCourses
+                        on f.DepartmentDetails equals c.CourseCode.ToString()
+                    join des in _context.DesignationMasters
+                        on f.Designation equals des.DesignationCode
+                    where f.CollegeCode == collegeCode
+                          && f.FacultyCode == facultyCode
+                    select new
+                    {
+                        f.NameOfFaculty,
+                        f.DepartmentDetails,
+                        f.Designation,
+                        DepartmentName = c.SubjectName,   // ✅ FIXED
+                        DesignationName = des.DesignationName
+                    }
+                ).ToListAsync();
 
             // 🔽 Existing saved data
             var saved = await _context.TeachingStaffDepartmentWiseDetails
@@ -4315,30 +4403,45 @@ namespace Medical_Affiliation.Controllers
                             x.CourseLevel == courseLevel)
                 .ToListAsync();
 
-            foreach (var dept in departments)
+            // ✅ GROUP BY DEPARTMENT (important for your UI)
+            var grouped = facultyList.GroupBy(f => new
+            {
+                f.DepartmentDetails,
+                f.DepartmentName
+            });
+
+            foreach (var deptGroup in grouped)
             {
                 var deptVm = new DepartmentTeachingStaffVm
                 {
-                    DepartmentCode = dept.DepartmentCode,
-                    DepartmentName = dept.DepartmentName
+                    DepartmentCode = deptGroup.Key.DepartmentDetails,
+                    DepartmentName = deptGroup.Key.DepartmentName
                 };
 
-                foreach (var des in designations)
+                foreach (var fac in deptGroup)
                 {
                     var existing = saved.FirstOrDefault(x =>
-                        x.DepartmentCode == dept.DepartmentCode &&
-                        x.DesignationCode == des.DesignationCode);
+                        x.DepartmentCode == fac.DepartmentDetails &&
+                        x.DesignationCode == fac.Designation);
 
                     deptVm.Rows.Add(new TeachingStaffDepartmentWiseRow
                     {
                         Id = existing?.Id ?? 0,
-                        DesignationCode = des.DesignationCode,
-                        DesignationName = des.DesignationName,
+
+                        // ✅ NEW
+                        NameOfFaculty = fac.NameOfFaculty,
+
+                        DepartmentCode = fac.DepartmentDetails,
+                        DepartmentName = fac.DepartmentName,
+
+                        DesignationCode = fac.Designation,
+                        DesignationName = fac.DesignationName,
+
                         UGFrom = existing?.Ugfrom?.ToDateTime(TimeOnly.MinValue),
                         UGTo = existing?.Ugto?.ToDateTime(TimeOnly.MinValue),
                         PGFrom = existing?.Pgfrom?.ToDateTime(TimeOnly.MinValue),
                         PGTo = existing?.Pgto?.ToDateTime(TimeOnly.MinValue),
-                        // ✅ ADD THESE
+
                         UGCollegeCode = existing?.UgcollegeCode,
                         PGCollegeCode = existing?.PgcollegeCode,
                         TotalExperience = existing?.TotalExperience
@@ -4350,8 +4453,6 @@ namespace Medical_Affiliation.Controllers
 
             return View(vm);
         }
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -4388,8 +4489,10 @@ namespace Medical_Affiliation.Controllers
                             x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
                             x.CourseLevel == courseLevel &&
-                            x.DepartmentCode == dept.DepartmentCode &&
-                            x.DesignationCode == row.DesignationCode);
+                            x.DepartmentCode == row.DepartmentCode &&
+                            x.DesignationCode == row.DesignationCode &&
+                            x.NameOfFaculty == row.NameOfFaculty   // ✅ ADD THIS
+                            );
 
                     if (existing != null)
                     {
@@ -4406,12 +4509,13 @@ namespace Medical_Affiliation.Controllers
                     {
                         _context.TeachingStaffDepartmentWiseDetails.Add(new TeachingStaffDepartmentWiseDetail
                         {
+                            NameOfFaculty = row.NameOfFaculty,
                             CollegeCode = collegeCode,
                             FacultyCode = facultyCode,
                             CourseLevel = courseLevel,
-                            DepartmentCode = dept.DepartmentCode,
+                            DepartmentCode = row.DepartmentCode,
                             DesignationCode = row.DesignationCode,
-                            DesignationName = row.DesignationName,
+                            // DesignationName = row.DesignationName,
                             // ✅ ADD THESE
                             UgcollegeCode = row.UGCollegeCode,
                             PgcollegeCode = row.PGCollegeCode,

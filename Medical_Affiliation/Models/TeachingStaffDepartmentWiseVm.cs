@@ -34,6 +34,10 @@ namespace Medical_Affiliation.Models
 
         public string? DesignationCode { get; set; }
         public string? DesignationName { get; set; }
+
+        public string? NameOfFaculty { get; set; }
+        public string? DepartmentCode { get; set; }   // ✅ ADD (for saving)
+        public string? DepartmentName { get; set; }   // UI only
         public string? UGCollegeCode { get; set; }   // ✅ ADD
         public string? PGCollegeCode { get; set; }   // ✅ ADD
         public DateTime? UGFrom { get; set; }
