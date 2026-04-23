@@ -573,6 +573,28 @@
         color: green;
     }
 
+    .tab-header.active-tab {
+        color: #d4a84b;
+        font-weight: 700;
+    }
+
+    .tab-header.active-tab .toggle-icon {
+        transform: rotate(180deg);   /* ▼ becomes ▲ */
+        color: #d4a84b;
+    }
+
+    .toggle-icon {
+        margin-left: auto;              /* push to right */
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.4);
+        transition: transform 0.3s ease;
+    }
+
+    .accordion-header:hover .toggle-icon {
+        transform: rotate(180deg);
+        color: #fff;
+    }
+
 </style>
 
 <aside class="ca-sb">
@@ -617,6 +639,7 @@
                      data-tab="@groupId"
                      onclick="toggleAccordion('@groupId')">
                     <span>@group.Key</span>
+                    <i class="bi bi-chevron-down toggle-icon"></i>
                 </div>
 
                 <!-- Accordion Content -->
@@ -668,21 +691,29 @@
 </aside>
 
 <script>
+    
     function toggleAccordion(groupId) {
 
-        // ✅ Save active tab
-        sessionStorage.setItem("activeTab", groupId);
+        const currentContent = document.querySelector(`[data-tab-content="${groupId}"]`);
+        const currentHeader = document.querySelector(`[data-tab="${groupId}"]`);
+
+        const isOpen = currentHeader.classList.contains("active-tab");
 
         const allContents = document.querySelectorAll(".tab-content");
         const allHeaders = document.querySelectorAll(".tab-header");
 
-        // Close all tabs
+        // Close all
         allContents.forEach(c => c.style.maxHeight = null);
         allHeaders.forEach(h => h.classList.remove("active-tab"));
 
-        // Open selected tab
-        const currentContent = document.querySelector(`[data-tab-content="${groupId}"]`);
-        const currentHeader = document.querySelector(`[data-tab="${groupId}"]`);
+        // If it was already open → close only
+        if (isOpen) {
+            sessionStorage.removeItem("activeTab");
+            return;
+        }
+
+        // Otherwise open it
+        sessionStorage.setItem("activeTab", groupId);
 
         if (currentContent) {
             currentContent.style.maxHeight = currentContent.scrollHeight + "px";
