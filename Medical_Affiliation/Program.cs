@@ -98,7 +98,7 @@ builder.Services.AddAuthentication("CollegeAuth")
     .AddCookie("CollegeAuth", options =>
     {
         options.Cookie.Name = "College.Cookie";
-        options.LoginPath = "/Login/Login";
+        options.LoginPath = "/MainDashboard/MultiLogin";
         options.LogoutPath = "/CollegeLogin/Logout";
         options.AccessDeniedPath = "/Login/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);

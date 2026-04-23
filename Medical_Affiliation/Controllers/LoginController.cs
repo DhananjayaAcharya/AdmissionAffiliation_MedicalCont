@@ -236,7 +236,7 @@ namespace Medical_Affiliation.Controllers
             {
                 SetCaptcha(model);
                 TempData["LoginError"] = "Incorrect password.";
-                return View(model);
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
             //if (model.Captcha != TempData["CaptchaCode"]?.ToString())
@@ -260,16 +260,16 @@ namespace Medical_Affiliation.Controllers
             var userIP = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
 
-            var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.CollegeName ?? ""),
-        new Claim(ClaimTypes.Role, "College"),
-        new Claim("CollegeCode", user.CollegeCode ?? ""),
-        new Claim("FacultyCode", user.FacultyCode ?? ""),
-        new Claim("CourseLevel", courseLevel ?? ""),
-        new Claim("UserIP", userIP ?? ""),
-        new Claim("UserAgent", userAgent ?? "")
-    };
+                    var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.CollegeName ?? ""),
+                new Claim(ClaimTypes.Role, "College"),
+                new Claim("CollegeCode", user.CollegeCode ?? ""),
+                new Claim("FacultyCode", user.FacultyCode ?? ""),
+                new Claim("CourseLevel", courseLevel ?? ""),
+                new Claim("UserIP", userIP ?? ""),
+                new Claim("UserAgent", userAgent ?? "")
+            };
 
             var identity = new ClaimsIdentity(claims, "CollegeAuth");
             var principal = new ClaimsPrincipal(identity);
