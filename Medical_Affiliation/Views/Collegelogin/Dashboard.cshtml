@@ -1028,31 +1028,11 @@
             <div class="hero">
                 <div class="hero-inner">
                     <div class="text-center">
-                        <div class="hero-eyebrow">
-                            <i class="bi bi-building"></i>
-                            Institutional Dashboard
-                        </div>
                         <h1 class="hero-name">@collegeName</h1>
                         <p class="hero-desc">
                             Manage course intake submissions, update institutional details,
                             and track your application progress from a single unified portal.
                         </p>
-                    </div>
-                    <div class="hero-right">
-                        <div class="live-badge">
-                            <div class="live-dot"></div>
-                            Session Active
-                        </div>
-                        <div>
-                            <div class="step-label-small">Completion Progress</div>
-                            <div class="step-tracker">
-                                @for (int s = 1; s <= 5; s++)
-                                {
-                                    <div class="step-dot @(s <= currentStep ? "active" : "")"></div>
-                                }
-                                <span class="step-caption">Step @currentStep / 5</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
