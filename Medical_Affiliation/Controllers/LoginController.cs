@@ -58,7 +58,9 @@ namespace Medical_Affiliation.Controllers
             // Pass extra data to ViewBag
             ViewBag.Faculties = faculties;
             ViewBag.AffilitaionType = 2;
-            TempData["CaptchaCode"] = model.CaptchaCode;
+            //TempData["CaptchaCode"] = model.CaptchaCode;
+
+            HttpContext.Session.SetString("CaptchaCode", model.CaptchaCode);
 
             return View(model);
         }
@@ -67,6 +69,8 @@ namespace Medical_Affiliation.Controllers
         public JsonResult GenerateCaptcha()
         {
             string newCaptcha = GenerateCaptchaCode(); // this calls your private method
+
+            HttpContext.Session.SetString("CaptchaCode", newCaptcha); //code added by DP on 22-04-2026
             return Json(new { newCaptcha });
         }
 
@@ -174,7 +178,8 @@ namespace Medical_Affiliation.Controllers
                 });
             }
 
-            return RedirectToAction("Login", "Login");
+            // return RedirectToAction("Login", "Login");
+            return RedirectToAction("MultiLogin", "MainDashboard");
         }
 
         [HttpPost]
@@ -234,7 +239,10 @@ namespace Medical_Affiliation.Controllers
                 return View(model);
             }
 
-            if (model.Captcha != TempData["CaptchaCode"]?.ToString())
+            //if (model.Captcha != TempData["CaptchaCode"]?.ToString())
+            var sessionCaptcha = HttpContext.Session.GetString("CaptchaCode");
+
+            if (model.Captcha != sessionCaptcha)
             {
                 SetCaptcha(model);
                 TempData["LoginError"] = "Invalid captcha.";
@@ -300,7 +308,8 @@ namespace Medical_Affiliation.Controllers
         private void SetCaptcha(AdmissionLoginViewModel model)
         {
             model.CaptchaCode = GenerateCaptchaCode();
-            TempData["CaptchaCode"] = model.CaptchaCode;
+            //TempData["CaptchaCode"] = model.CaptchaCode;
+            HttpContext.Session.SetString("CaptchaCode", model.CaptchaCode); // ✅ FIX
         }
         [HttpGet]
         public JsonResult GetCollegesByFaculty(string facultyId)

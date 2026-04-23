@@ -158,12 +158,15 @@ namespace Admission_Affiliation.Controllers
 
             // Redirect back to login page
             return RedirectToAction("Login", "Login");
+
+           // return RedirectToAction("MultiLogin", "MainDashboard");
+
         }
 
 
 
 
-         //✅ GET: Change Password
+        //✅ GET: Change Password
         //[HttpGet]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult ChangePassword()

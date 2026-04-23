@@ -1,0 +1,1731 @@
+﻿@model AdmissionLoginViewModel
+@{
+    ViewData["Title"] = "RGUHS – Secure Portal Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --navy: #07122a;
+            --navy2: #0d1f45;
+            --navy3: #122d62;
+            --gold: #b8841e;
+            --gold2: #d4a240;
+            --gold3: #f0c96a;
+            --blue: #1a56c4;
+            --blue2: #2d6ee8;
+            --blue3: #e8f0fe;
+            --teal: #0d7a6b;
+            --teal2: #12a892;
+            --teal3: #e0f5f2;
+            --red: #dc2626;
+            --red2: #fef2f2;
+            --white: #ffffff;
+           /*  --off: #f8faff; */
+            --surface: #f1f4fb;
+            --border: #dde3f0;
+            --text: #0f1b35;
+            --sub: #3a4a68;
+            --muted: #7a87a8;
+            --card-shadow: 0 0 0 1px rgba(13,31,69,0.06),0 24px 64px rgba(13,31,69,0.14),0 6px 16px rgba(13,31,69,0.08);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Plus Jakarta Sans',sans-serif;
+           /*  background: var(--off); */
+            overflow: hidden
+        }
+
+        /* ════════════════════════════════
+           PAGE SHELL
+        ════════════════════════════════ */
+        .page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          /*   background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.8)), url('/images/Bg.jpg'); */
+            background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.8)), url('/images/Medaff.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+        }
+
+        /* ── Top identity bar ── */
+        .topbar {
+            flex-shrink: 0;
+            height: 38px;
+            background: var(--navy);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            overflow: hidden;
+            white-space: nowrap
+        }
+
+        .tb-l {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.6)
+        }
+
+        .gok-badge {
+            background: var(--gold);
+            color: var(--navy);
+            font-size: 8.5px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 3px
+        }
+
+        .tb-sep {
+            width: 1px;
+            height: 11px;
+            background: rgba(255,255,255,0.15)
+        }
+
+        .tb-r {
+            font-size: 10px;
+            color: rgba(255,255,255,0.35);
+            display: flex;
+            align-items: center;
+            gap: 5px
+        }
+
+            .tb-r i {
+                color: var(--gold2);
+                font-size: 11px
+            }
+
+        /* ── Header ── */
+        .hdr {
+            flex-shrink: 0;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 28px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 1px 4px rgba(13,31,69,0.06)
+        }
+
+        .hdr-logo {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+            flex-shrink: 0
+        }
+
+        .hdr-txt {
+            flex: 1;
+            min-width: 0
+        }
+
+        .hdr-uni {
+            font-family: 'Playfair Display',Georgia,serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.15;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .hdr-sub {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            font-weight: 600
+        }
+
+        .hdr-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--navy);
+            color: rgba(255,255,255,.88);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all .2s;
+            flex-shrink: 0;
+            font-family: 'Plus Jakarta Sans',inherit
+        }
+
+            .hdr-home:hover {
+                background: var(--navy2);
+                color: var(--white);
+                transform: translateY(-1px)
+            }
+
+        /* ── Main ── */
+        .main {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 24px;
+            overflow: hidden;
+           /*  background: var(--off) */
+        }
+
+        /* ════════════════════════════════
+           CARD  — split layout
+        ════════════════════════════════ */
+        .card {
+            width: min(98vw,1400px);
+            height: 100%;
+            max-height: 720px;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: var(--white);
+            animation: cardIn .5s cubic-bezier(.22,1,.36,1) both;
+        }
+        @@keyframes cardIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(18px) scale(.98)
+        }
+
+        to {
+            opacity: 1;
+            transform: none
+        }
+
+        }
+
+        /* ════════════════════════════════
+           LEFT — form side
+        ════════════════════════════════ */
+        .form-side {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            /* 🔥 STRONG visible gradient */
+            background: linear-gradient(180deg, #ffffff 0%, #eef3ff 100%);
+            overflow: hidden;
+            /* visible separation */
+            border-right: 1px solid rgba(0,0,0,0.08);
+            /* soft elevation */
+            box-shadow: inset -10px 0 30px rgba(0,0,0,0.03);
+        }
+
+            .form-side::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                /* 🔥 stronger glow so you SEE it */
+                background: radial-gradient(circle at 10% 10%, rgba(26,86,196,0.12), transparent 40%), radial-gradient(circle at 90% 90%, rgba(13,122,107,0.10), transparent 40%);
+                pointer-events: none;
+            }
+
+            /* .form-side::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #1a56c4, #0d7a6b);
+            } */
+
+        /* ── FORM HEADER LOGO (NEW) ── */
+        .form-header-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 16px 14px;
+            background: linear-gradient(135deg, #f8fbff, #eaf2ff);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+            .form-header-logo img {
+                height: 70px;
+                filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));
+                border-radius: 50%;
+                background: transparent;
+            }
+
+        /* tab bar */
+        .tab-bar {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr 1px 1fr;
+            background: var(--off);
+            border-bottom: 1.5px solid var(--border);
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .tdivl {
+            background: var(--border);
+            margin: 8px 0
+        }
+
+        .tb {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 11px 6px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans',sans-serif;
+            transition: all .2s;
+            position: relative
+        }
+
+            .tb::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2.5px;
+                background: transparent;
+                border-radius: 2px 2px 0 0;
+                transition: background .2s
+            }
+
+            .tb i {
+                font-size: 17px;
+                transition: all .2s
+            }
+
+            .tb .tn {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: .3px;
+                white-space: nowrap
+            }
+
+            .tb .ts {
+                font-size: 8px;
+                font-weight: 400;
+                opacity: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: all .2s
+            }
+
+            .tb:hover {
+                color: var(--sub)
+            }
+            /* active states */
+            .tb.tg.on {
+                color: var(--gold);
+                background: rgba(184,132,30,0.05)
+            }
+
+                .tb.tg.on::after {
+                    background: var(--gold)
+                }
+
+                .tb.tg.on i {
+                    filter: drop-shadow(0 0 5px rgba(184,132,30,0.5))
+                }
+
+            .tb.tb2.on {
+                color: var(--blue);
+                background: rgba(26,86,196,0.05)
+            }
+
+                .tb.tb2.on::after {
+                    background: var(--blue2)
+                }
+
+                .tb.tb2.on i {
+                    filter: drop-shadow(0 0 5px rgba(45,110,232,0.5))
+                }
+
+            .tb.tt.on {
+                color: var(--teal);
+                background: rgba(13,122,107,0.05)
+            }
+
+                .tb.tt.on::after {
+                    background: var(--teal2)
+                }
+
+                .tb.tt.on i {
+                    filter: drop-shadow(0 0 5px rgba(18,168,146,0.5))
+                }
+
+            .tb.on .ts {
+                opacity: 1;
+                max-height: 18px
+            }
+
+        /* panels */
+        .panels {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden
+        }
+
+            .panels::-webkit-scrollbar {
+                width: 4px
+            }
+
+            .panels::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 4px
+            }
+
+        .pn {
+            display: none;
+            padding: 20px 24px 18px;
+            animation: pnIn .28s ease both
+        }
+
+            .pn.on {
+                display: block
+            }
+        @@keyframes pnIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(8px)
+        }
+
+        to {
+            opacity: 1;
+            transform: none
+        }
+
+        }
+
+        /* panel head */
+        .ph {
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--surface)
+        }
+
+        .ph-eye {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 5px;
+            font-weight: 700
+        }
+
+            .ph-eye::before {
+                content: '';
+                display: inline-block;
+                width: 14px;
+                height: 2px;
+                border-radius: 2px
+            }
+
+        .eg {
+            color: var(--gold)
+        }
+
+            .eg::before {
+                background: var(--gold)
+            }
+
+        .eb {
+            color: var(--blue)
+        }
+
+            .eb::before {
+                background: var(--blue2)
+            }
+
+        .et {
+            color: var(--teal)
+        }
+
+            .et::before {
+                background: var(--teal2)
+            }
+
+        .ph h2 {
+            font-family: 'Playfair Display',Georgia,serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.15;
+            margin-bottom: 2px
+        }
+
+        .ph-sub {
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+        /* badge */
+        .yb {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 12px
+        }
+
+        .yg {
+            background: rgba(184,132,30,0.08);
+            border: 1px solid rgba(184,132,30,0.2);
+            color: var(--gold)
+        }
+
+        .yb2 {
+            background: var(--blue3);
+            border: 1px solid rgba(26,86,196,0.18);
+            color: var(--blue)
+        }
+
+        .yt {
+            background: var(--teal3);
+            border: 1px solid rgba(13,122,107,0.2);
+            color: var(--teal)
+        }
+
+        /* fields */
+        .fg {
+            margin-bottom: 10px
+        }
+
+        .fl {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-bottom: 4px
+        }
+
+        .req-g {
+            color: var(--gold)
+        }
+
+        .req-b {
+            color: var(--blue)
+        }
+
+        .req-t {
+            color: var(--teal)
+        }
+
+        .iw {
+            position: relative
+        }
+
+            .iw .ic {
+                position: absolute;
+                left: 11px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 13px;
+                color: var(--muted);
+                pointer-events: none;
+                transition: color .15s
+            }
+
+        .fc, .fs {
+            width: 100%;
+            padding: 9px 11px 9px 34px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: 12.5px;
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans',sans-serif;
+            outline: none;
+            transition: all .18s;
+            appearance: none
+        }
+
+        .fs {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5' viewBox='0 0 9 5'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%237a87a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 28px;
+            cursor: pointer
+        }
+
+        .fc::placeholder {
+            color: var(--muted);
+            opacity: .65
+        }
+        /* focus per tab */
+        .fg.focus-g .iw:focus-within .ic {
+            color: var(--gold)
+        }
+
+        .fg.focus-g .fc:focus, .fg.focus-g .fs:focus {
+            border-color: var(--gold);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(184,132,30,0.1)
+        }
+
+        .fg.focus-b .iw:focus-within .ic {
+            color: var(--blue2)
+        }
+
+        .fg.focus-b .fc:focus, .fg.focus-b .fs:focus {
+            border-color: var(--blue2);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(26,86,196,0.1)
+        }
+
+        .fg.focus-t .iw:focus-within .ic {
+            color: var(--teal2)
+        }
+
+        .fg.focus-t .fc:focus, .fg.focus-t .fs:focus {
+            border-color: var(--teal2);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(13,122,107,0.1)
+        }
+
+        /* pw wrap */
+        .pw {
+            position: relative
+        }
+
+            .pw .fc {
+                padding-right: 34px
+            }
+
+        .pw-eye {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 13px;
+            padding: 3px;
+            transition: color .15s
+        }
+
+            .pw-eye:hover {
+                color: var(--navy)
+            }
+
+        /* captcha */
+        .cap-row {
+            display: grid;
+            grid-template-columns: auto 32px 1fr;
+            gap: 7px;
+            align-items: center
+        }
+
+        .cap-box {
+            background: var(--navy);
+            border: 1.5px solid rgba(184,132,30,0.35);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'Courier New',monospace;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 8px;
+            color: var(--gold3);
+            user-select: none;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        .cap-ref {
+            width: 32px;
+            height: 36px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            color: var(--sub);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all .25s
+        }
+
+            .cap-ref:hover {
+                background: var(--navy);
+                color: var(--gold3);
+                border-color: var(--navy);
+                transform: rotate(180deg)
+            }
+
+        /* LIC role pills */
+        .role-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px
+        }
+
+        .role-btn {
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans',sans-serif;
+            color: var(--sub);
+            transition: all .18s
+        }
+
+            .role-btn:hover {
+                border-color: var(--teal2);
+                color: var(--teal);
+                background: var(--teal3)
+            }
+
+            .role-btn.on {
+                background: var(--teal);
+                color: var(--white);
+                border-color: var(--teal)
+            }
+
+        /* LIC sub-tabs */
+        .lic-tabs {
+            display: flex;
+            gap: 0;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            padding: 3px;
+            margin-bottom: 12px
+        }
+
+        .lt-btn {
+            flex: 1;
+            padding: 7px;
+            border: none;
+            background: transparent;
+            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--muted);
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all .18s
+        }
+
+            .lt-btn.on {
+                background: var(--white);
+                color: var(--teal);
+                box-shadow: 0 1px 5px rgba(0,0,0,0.09)
+            }
+
+        .lic-pn {
+            display: none
+        }
+
+            .lic-pn.on {
+                display: block
+            }
+
+        /* buttons */
+        .btn-row {
+            display: flex;
+            gap: 7px;
+            margin-top: 12px
+        }
+
+        .btn-s {
+            flex: 1;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all .22s;
+            position: relative;
+            overflow: hidden
+        }
+
+            .btn-s::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg,rgba(255,255,255,0.15),transparent 55%)
+            }
+
+        .bn-g {
+            background: linear-gradient(135deg,var(--gold2),var(--gold));
+            color: var(--navy);
+            box-shadow: 0 3px 12px rgba(184,132,30,0.3)
+        }
+
+            .bn-g:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 18px rgba(184,132,30,0.42);
+                filter: brightness(1.05)
+            }
+
+        .bn-b {
+            background: linear-gradient(135deg,var(--blue2),var(--blue));
+            color: var(--white);
+            box-shadow: 0 3px 12px rgba(26,86,196,0.3)
+        }
+
+            .bn-b:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 18px rgba(26,86,196,0.42);
+                filter: brightness(1.05)
+            }
+
+        .bn-t {
+            background: linear-gradient(135deg,var(--teal2),var(--teal));
+            color: var(--white);
+            box-shadow: 0 3px 12px rgba(13,122,107,0.3)
+        }
+
+            .bn-t:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 18px rgba(13,122,107,0.42);
+                filter: brightness(1.05)
+            }
+
+        .btn-s:active {
+            transform: translateY(0)
+        }
+
+        .btn-r {
+            height: 40px;
+            padding: 0 14px;
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--sub);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all .18s
+        }
+
+            .btn-r:hover {
+                border-color: var(--navy3);
+                color: var(--navy);
+                background: var(--surface)
+            }
+
+        .ferr {
+            font-size: 10px;
+            color: var(--red);
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            gap: 3px
+        }
+
+        .err-box {
+            background: var(--red2);
+            border: 1px solid #fca5a5;
+            color: var(--red);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        /* footer */
+        .form-foot {
+            flex-shrink: 0;
+            padding: 10px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--white)
+        }
+
+        .ff-sec {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--muted)
+        }
+
+            .ff-sec i {
+                color: #16a34a
+            }
+
+        .ff-copy {
+            font-size: 10px;
+            color: var(--muted)
+        }
+
+        /* ════════════════════════════════
+           RIGHT — visual panel
+        ════════════════════════════════ */
+        .visual-side {
+          /*   background: linear-gradient(145deg,#e8f4f8 0%,#dceeff 40%,#e4f5f0 100%); */
+         /*    background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.95)), url('/images/Bg.jpg'); */
+            background: url('/images/Bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+            /* soft bg shapes */
+            .visual-side::before {
+                content: '';
+                position: absolute;
+                width: 420px;
+                height: 420px;
+                border-radius: 50%;
+                background: radial-gradient(circle,rgba(26,86,196,0.08),transparent 65%);
+                top: -80px;
+                right: -80px
+            }
+
+            .visual-side::after {
+                content: '';
+                position: absolute;
+                width: 300px;
+                height: 300px;
+                border-radius: 50%;
+                background: radial-gradient(circle,rgba(13,122,107,0.07),transparent 65%);
+                bottom: -60px;
+                left: -40px
+            }
+
+        .vis-tagline {
+            font-family: 'Playfair Display',Georgia,serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy);
+            text-align: center;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 2;
+            line-height: 1.3
+        }
+
+            .vis-tagline span {
+                color: var(--blue)
+            }
+
+        .vis-sub {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 2
+        }
+
+        /* ── Orbital diagram ── */
+        .orbital {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            z-index: 2;
+            flex-shrink: 0
+        }
+        /* Center pulse */
+        .orb-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,var(--blue2),var(--blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 28px rgba(26,86,196,0.35);
+            z-index: 10
+        }
+
+            .orb-center img {
+                width: 44px;
+                height: 44px;
+                object-fit: contain;
+                border-radius: 50%
+            }
+
+        .orb-center-icon {
+            font-size: 32px;
+            color: var(--white)
+        }
+        /* pulse rings */
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            border-radius: 50%;
+            border: 1.5px solid rgba(26,86,196,0.15);
+            animation: pulse-expand 3s ease-out infinite
+        }
+
+        .pr1 {
+            width: 90px;
+            height: 90px;
+            animation-delay: 0s
+        }
+
+        .pr2 {
+            width: 130px;
+            height: 130px;
+            animation-delay: .8s
+        }
+
+        .pr3 {
+            width: 175px;
+            height: 175px;
+            animation-delay: 1.6s
+        }
+        @@keyframes pulse-expand {
+            0%
+
+        {
+            opacity: .7;
+            transform: translate(-50%,-50%) scale(.9)
+        }
+
+        100% {
+            opacity: 0;
+            transform: translate(-50%,-50%) scale(1.1)
+        }
+
+        }
+
+        /* orbit rings */
+        .orbit-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            border: 1.5px dashed rgba(26,86,196,0.15);
+            transform: translate(-50%,-50%)
+        }
+
+        .or1 {
+            width: 130px;
+            height: 130px;
+            animation: spin 18s linear infinite
+        }
+
+        .or2 {
+            width: 200px;
+            height: 200px;
+            animation: spin 28s linear infinite reverse
+        }
+
+        .or3 {
+            width: 260px;
+            height: 260px;
+            animation: spin 38s linear infinite
+        }
+        @@keyframes spin {
+            from
+
+        {
+            transform: translate(-50%,-50%) rotate(0deg)
+        }
+
+        to {
+            transform: translate(-50%,-50%) rotate(360deg)
+        }
+
+        }
+
+        /* icon nodes */
+        .onode {
+            position: absolute;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--white);
+            box-shadow: 0 4px 16px rgba(13,31,69,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transform: translate(-50%,-50%);
+            transition: transform .2s
+        }
+
+            .onode:hover {
+                transform: translate(-50%,-50%) scale(1.15)
+            }
+        /* positions on orbits — computed via JS, but we set static for CSS-only */
+        /* orbit 1 (r=65px from center=130px) */
+        .n1 {
+            top: calc(50% - 65px);
+            left: 50%;
+            color: #e63946
+        }
+        /* cross/medical */
+        .n2 {
+            top: 50%;
+            left: calc(50% + 65px);
+            color: #1a56c4
+        }
+        /* hospital */
+        /* orbit 2 (r=100px) */
+        .n3 {
+            top: calc(50% - 100px);
+            left: 50%;
+            color: #0d7a6b
+        }
+        /* stethoscope */
+        .n4 {
+            top: 50%;
+            left: calc(50% + 100px);
+            color: #7c4dde
+        }
+        /* microscope */
+        .n5 {
+            top: calc(50% + 100px);
+            left: 50%;
+            color: #d4a240
+        }
+        /* certificate */
+        .n6 {
+            top: 50%;
+            left: calc(50% - 100px);
+            color: #e63946
+        }
+        /* pill */
+        /* orbit 3 (r=130px) */
+        .n7 {
+            top: calc(50% - 130px);
+            left: calc(50% + 65px);
+            color: #1a56c4
+        }
+
+        .n8 {
+            top: calc(50% + 80px);
+            left: calc(50% + 110px);
+            color: #0d7a6b
+        }
+
+        .n9 {
+            top: calc(50% + 100px);
+            left: calc(50% - 80px);
+            color: #7c4dde
+        }
+
+        /* rotate nodes with orbit so they appear at right spot and counter-rotate icons */
+        .or1 .onode {
+            animation: counter-spin 18s linear infinite
+        }
+
+        .or2 .onode {
+            animation: counter-spin 28s linear infinite reverse
+        }
+
+        .or3 .onode {
+            animation: counter-spin 38s linear infinite
+        }
+        @@keyframes counter-spin {
+            from
+
+        {
+            transform: translate(-50%,-50%) rotate(0deg)
+        }
+
+        to {
+            transform: translate(-50%,-50%) rotate(-360deg)
+        }
+
+        }
+
+        /* feature pills below */
+        .vis-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 24px;
+            position: relative;
+            z-index: 2
+        }
+
+        .vpill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.75);
+            border: 1px solid rgba(26,86,196,0.12);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--sub);
+            backdrop-filter: blur(6px)
+        }
+
+            .vpill i {
+                font-size: 12px
+            }
+
+            .vpill.vg i {
+                color: var(--gold)
+            }
+
+            .vpill.vb i {
+                color: var(--blue)
+            }
+
+            .vpill.vt i {
+                color: var(--teal)
+            }
+
+        /* ── FOOTER ── */
+        .foot {
+            flex-shrink: 0;
+            height: 28px;
+            background: var(--white);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            gap: 10px
+        }
+
+            .foot a {
+                color: var(--blue);
+                text-decoration: none;
+                font-weight: 500
+            }
+
+                .foot a:hover {
+                    text-decoration: underline
+                }
+
+        .fsep {
+            margin: 0 4px;
+            opacity: .35
+        }
+
+        @@media(max - width:780px) {
+            .card
+
+        {
+            grid-template-columns: 1fr
+        }
+
+        .visual-side {
+            display: none
+        }
+
+        .topbar {
+            display: none
+        }
+
+        }</style>
+</head>
+<body>
+    <div class="page">
+
+        <!-- TOP BAR -->
+       @*  <div class="topbar">
+             <div class="tb-l">
+                <span class="gok-badge">GoK</span>
+                <span>Government of Karnataka</span>
+                <span class="tb-sep"></span>
+                <span>Department of Health &amp; Family Welfare</span>
+                <span class="tb-sep"></span>
+                <span>Rajiv Gandhi University of Health Sciences</span>
+            </div>
+            <div class="tb-r"><i class="bi bi-shield-fill-check"></i><span>Secure &amp; Certified Portal</span></div> 
+        </div> *@
+
+        <!-- HEADER -->
+         <div class="hdr">
+          @*   <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" /> *@
+            <div class="hdr-txt">
+                <div class="hdr-uni">Rajiv Gandhi University of Health Sciences, Karnataka</div>
+                <div class="hdr-sub">Admission &amp; Affiliation Management Portal · Bengaluru</div>
+            </div>
+            <a asp-controller="MainDashboard" asp-action="Rguhsdashboard" class="hdr-home">
+                <i class="bi bi-house-door-fill"></i> Home
+            </a>
+        </div> 
+
+        <!-- MAIN -->
+        <div class="main">
+            <div class="card">
+
+                <!-- ══ LEFT: FORM SIDE ══ -->
+                <div class="form-side">
+
+                    <!-- 🔻 ADD LOGO HERE -->
+                    <div class="form-header-logo">
+                        <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
+                    </div>
+
+                    <!-- Tab bar -->
+                    <div class="tab-bar">
+                        <button class="tb tg on" id="tb-c" onclick="go('c')">
+                            <i class="bi bi-building"></i>
+                            <span class="tn">College</span>
+                            <span class="ts">Affiliated</span>
+                        </button>
+                        <div class="tdivl"></div>
+                        <button class="tb tb2" id="tb-u" onclick="go('u')">
+                            <i class="bi bi-building-check"></i>
+                            <span class="tn">University</span>
+                            <span class="ts">Admin</span>
+                        </button>
+                        <div class="tdivl"></div>
+                        <button class="tb tt" id="tb-l" onclick="go('l')">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                            <span class="tn">LIC / RGUHS</span>
+                            <span class="ts">Inspection</span>
+                        </button>
+                    </div>
+
+                    <!-- Panels -->
+                    <div class="panels">
+
+                        <!-- ── COLLEGE ── -->
+                        <div class="pn on" id="pn-c">
+                            <div class="ph">
+                                <div class="ph-eye eg"><i class="bi bi-building"></i> College Portal</div>
+                                <h2>College Sign In</h2>
+                                <div class="ph-sub">Select your faculty &amp; college, then enter credentials</div>
+                            </div>
+                            <div class="yb yg"><i class="bi bi-calendar3"></i> Academic Year &nbsp;<strong>2026 – 2027</strong></div>
+
+                            @if (TempData["LoginError"] != null && Context.Request.Method == "POST")
+                            {
+                                <div class="err-box"><i class="bi bi-exclamation-circle-fill"></i> @TempData["LoginError"]</div>
+                            }
+
+                            <form asp-action="Login" asp-controller="Login" method="post" novalidate autocomplete="off">
+                                @Html.AntiForgeryToken()
+
+                                <div class="fg focus-g">
+                                    <label class="fl">Faculty <span class="req-g">*</span></label>
+                                    <div class="iw">
+                                        <i class="ic bi bi-mortarboard-fill"></i>
+                                        @Html.DropDownListFor(m => m.FacultyId, Model.Faculties, "— Select Faculty —", new { @class = "fs", id = "FacultyId" })
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.FacultyId, "", new { @class = "ferr" })
+                                </div>
+
+                                <div class="fg focus-g">
+                                    <label class="fl">College <span class="req-g">*</span></label>
+                                    <div class="iw">
+                                        <i class="ic bi bi-building-fill"></i>
+                                        @Html.DropDownListFor(m => m.CollegeId, Model.Colleges, "— Select College —", new { @class = "fs", id = "CollegeId" })
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.CollegeId, "", new { @class = "ferr" })
+                                </div>
+
+                                <input type="hidden" asp-for="Username" id="CollegeUsername" />
+
+                                <div class="fg focus-g">
+                                    <label class="fl">Password <span class="req-g">*</span></label>
+                                    <div class="iw pw">
+                                        <i class="ic bi bi-key-fill"></i>
+                                        <input asp-for="Password" type="password" class="fc" id="pw-c" placeholder="Enter your password" autocomplete="current-password" />
+                                        <button type="button" class="pw-eye" onclick="togglePw('pw-c',this)"><i class="bi bi-eye"></i></button>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "ferr" })
+                                </div>
+
+                                <div class="fg focus-g">
+                                    <label class="fl">Verification Code <span class="req-g">*</span></label>
+                                    <div class="cap-row">
+                                        <div class="cap-box" id="cap-c">@Model.CaptchaCode</div>
+                                        <button type="button" class="cap-ref" id="cap-c-ref" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+                                        <div class="iw">
+                                            <i class="ic bi bi-shield-check"></i>
+                                            <input asp-for="Captcha" class="fc captcha-val" placeholder="Type code" autocomplete="off" maxlength="5" />
+                                        </div>
+                                    </div>
+                                    <input type="hidden" asp-for="CaptchaCode" id="CaptchaCodeHidden" />
+                                    @Html.ValidationMessageFor(m => m.Captcha, "", new { @class = "ferr" })
+                                </div>
+
+                                <div class="btn-row">
+                                    <button type="submit" class="btn-s bn-g"><i class="bi bi-box-arrow-in-right"></i> Sign In</button>
+                                    <button type="reset" class="btn-r"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- ── UNIVERSITY ── -->
+                        <div class="pn" id="pn-u">
+                            <div class="ph">
+                                <div class="ph-eye eb"><i class="bi bi-building-check"></i> University Portal</div>
+                                <h2>University Sign In</h2>
+                                <div class="ph-sub">Administrative access for university officials</div>
+                            </div>
+                            <div class="yb yb2"><i class="bi bi-person-badge"></i> Authorised Personnel Only</div>
+
+                            <form asp-action="AdminLogin" asp-controller="Admin" method="post" novalidate autocomplete="off" id="univForm">
+                                @Html.AntiForgeryToken()
+
+                                <div class="fg focus-b">
+                                    <label class="fl">User ID / Username <span class="req-b">*</span></label>
+                                    <div class="iw">
+                                        <i class="ic bi bi-person-badge-fill"></i>
+                                        <input name="UserName" type="text" class="fc" id="univ-user" placeholder="Enter user ID or username" autocomplete="username" />
+                                    </div>
+                                </div>
+
+                                <div class="fg focus-b">
+                                    <label class="fl">Password <span class="req-b">*</span></label>
+                                    <div class="iw pw">
+                                        <i class="ic bi bi-key-fill"></i>
+                                        <input name="Password" type="password" class="fc" id="pw-u" placeholder="Enter your password" autocomplete="current-password" />
+                                        <button type="button" class="pw-eye" onclick="togglePw('pw-u',this)"><i class="bi bi-eye"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="btn-row">
+                                    <button type="submit" class="btn-s bn-b"><i class="bi bi-building-check"></i> Access Portal</button>
+                                    <button type="reset" class="btn-r"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- ── LIC ── -->
+                        <div class="pn" id="pn-l">
+                            <div class="ph">
+                                <div class="ph-eye et"><i class="bi bi-clipboard2-pulse"></i> LIC Inspection</div>
+                                <h2>RGUHS Assignment</h2>
+                                <div class="ph-sub">Inspection &amp; assignment portal for authorised members</div>
+                            </div>
+
+                            <div class="lic-tabs">
+                                <button type="button" class="lt-btn" id="lt-signup" onclick="licTab('signup')"><i class="bi bi-person-plus"></i> Create Account</button>
+                                <button type="button" class="lt-btn on" id="lt-login" onclick="licTab('login')"><i class="bi bi-box-arrow-in-right"></i> Login</button>
+                            </div>
+
+                            <!-- LIC Signup -->
+                            <div class="lic-pn" id="lic-signup">
+                                <form asp-action="Signup" asp-controller="LICInspection" method="post" novalidate autocomplete="off">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="TypeofMember" id="selectedRole" />
+                                    <div style="font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--sub);margin-bottom:7px">Select Designation</div>
+                                    <div class="role-grid" id="roleGrid">
+                                        @if (ViewBag.MemberTypes != null)
+                                        {
+                                            foreach (var type in (List<string>)ViewBag.MemberTypes)
+                                            {
+                                                <button type="button" class="role-btn" data-role="@type">@type</button>
+                                            }
+                                        }
+                                    </div>
+                                    <div class="fg focus-t">
+                                        <label class="fl">Name <span class="req-t">*</span></label>
+                                        <div class="iw">
+                                            <i class="ic bi bi-person-lines-fill"></i>
+                                            <select name="Name" id="nameDropdown" class="fs" required><option value="">— Select Name —</option></select>
+                                        </div>
+                                    </div>
+                                    <div class="fg focus-t">
+                                        <label class="fl">Email <span class="req-t">*</span></label>
+                                        <div class="iw">
+                                            <i class="ic bi bi-envelope-fill"></i>
+                                            <input name="Email" type="email" class="fc" placeholder="your@email.com" required />
+                                        </div>
+                                    </div>
+                                    <div class="fg focus-t">
+                                        <label class="fl">Phone Number <span class="req-t">*</span></label>
+                                        <div class="iw">
+                                            <i class="ic bi bi-phone-fill"></i>
+                                            <input name="PhoneNumber" class="fc" placeholder="10-digit mobile number" required />
+                                        </div>
+                                    </div>
+                                    <div class="fg focus-t">
+                                        <label class="fl">Password <span class="req-t">*</span></label>
+                                        <div class="iw pw">
+                                            <i class="ic bi bi-key-fill"></i>
+                                            <input name="Password" type="password" class="fc" id="pw-ls" placeholder="Create password" required />
+                                            <button type="button" class="pw-eye" onclick="togglePw('pw-ls',this)"><i class="bi bi-eye"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="fg focus-t">
+                                        <label class="fl">Confirm Password <span class="req-t">*</span></label>
+                                        <div class="iw">
+                                            <i class="ic bi bi-key-fill"></i>
+                                            <input name="ConfirmPassword" type="password" class="fc" placeholder="Repeat password" required />
+                                        </div>
+                                    </div>
+                                    <div class="btn-row"><button type="submit" class="btn-s bn-t"><i class="bi bi-person-check-fill"></i> Create Account</button></div>
+                                </form>
+                            </div>
+
+                            <!-- LIC Login -->
+                            <div class="lic-pn on" id="lic-login">
+                                <form asp-action="Login" asp-controller="LICInspection" method="post" novalidate autocomplete="off">
+                                    @Html.AntiForgeryToken()
+                                    <div class="fg focus-t">
+                                        <label class="fl">Phone Number <span class="req-t">*</span></label>
+                                        <div class="iw">
+                                            <i class="ic bi bi-phone-fill"></i>
+                                            <input name="PhoneNumber" class="fc" placeholder="Registered phone number" required />
+                                        </div>
+                                    </div>
+                                    <div class="fg focus-t">
+                                        <label class="fl">Password <span class="req-t">*</span></label>
+                                        <div class="iw pw">
+                                            <i class="ic bi bi-key-fill"></i>
+                                            <input name="Password" type="password" class="fc" id="pw-ll" placeholder="Enter your password" required />
+                                            <button type="button" class="pw-eye" onclick="togglePw('pw-ll',this)"><i class="bi bi-eye"></i></button>
+                                        </div>
+                                    </div>
+                                    <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--sub);cursor:pointer;margin-bottom:4px">
+                                        <input type="checkbox" name="RememberMe" style="accent-color:var(--teal);width:13px;height:13px" /> Remember me for 14 days
+                                    </label>
+                                    <div class="btn-row">
+                                        <button type="submit" class="btn-s bn-t"><i class="bi bi-box-arrow-in-right"></i> Login to Portal</button>
+                                        <button type="reset" class="btn-r"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div><!-- /panels -->
+
+                    <div class="form-foot">
+                        <div class="ff-sec"><i class="bi bi-shield-fill-check"></i> 256-bit TLS Encrypted &nbsp;·&nbsp; GIGW Compliant</div>
+                        <div class="ff-copy">&copy; @DateTime.Now.Year RGUHS Karnataka</div>
+                    </div>
+                </div><!-- /form-side -->
+                <!-- ══ RIGHT: VISUAL SIDE ══ -->
+                <div class="visual-side">
+                    <div class="vis-tagline">Empowering <span>Medical Education</span><br>Across Karnataka</div>
+                    <div class="vis-sub">Secure portal for affiliated colleges, university &amp; inspection authorities</div>
+
+                    <!-- Orbital diagram -->
+                    <div class="orbital">
+                        <!-- Orbit rings (rotate) -->
+                        <div class="orbit-ring or1">
+                            <div class="onode n1"><i class="bi bi-heart-pulse-fill"></i></div>
+                            <div class="onode n2"><i class="bi bi-hospital-fill"></i></div>
+                        </div>
+                        <div class="orbit-ring or2">
+                            <div class="onode n3"><i class="bi bi-activity"></i></div>
+                            <div class="onode n4"><i class="bi bi-clipboard2-pulse-fill"></i></div>
+                            <div class="onode n5"><i class="bi bi-award-fill"></i></div>
+                            <div class="onode n6"><i class="bi bi-capsule-pill"></i></div>
+                        </div>
+                        <div class="orbit-ring or3">
+                            <div class="onode n7"><i class="bi bi-mortarboard-fill"></i></div>
+                            <div class="onode n8"><i class="bi bi-building-fill"></i></div>
+                            <div class="onode n9"><i class="bi bi-file-earmark-medical-fill"></i></div>
+                        </div>
+                        <!-- Pulse rings -->
+                        <div class="pulse-ring pr1"></div>
+                        <div class="pulse-ring pr2"></div>
+                        <div class="pulse-ring pr3"></div>
+                        <!-- Center -->
+                        <div class="orb-center">
+                            <i class="orb-center-icon bi bi-plus-circle-fill"></i>
+                        </div>
+                    </div>
+
+                    <!-- Feature pills -->
+                    <div class="vis-pills">
+                        <div class="vpill vg"><i class="bi bi-buildings-fill"></i> 300+ Colleges</div>
+                        <div class="vpill vb"><i class="bi bi-mortarboard-fill"></i> 10 Faculties</div>
+                        <div class="vpill vt"><i class="bi bi-shield-fill-check"></i> Secure Access</div>
+                        <div class="vpill vb"><i class="bi bi-calendar3-event-fill"></i> 2026 – 2027</div>
+                    </div>
+                </div><!-- /visual-side -->
+
+            </div><!-- /card -->
+        </div><!-- /main -->
+        <!-- FOOTER -->
+       @*  <footer class="foot">
+            <span>&copy; @DateTime.Now.Year &nbsp;Rajiv Gandhi University of Health Sciences, Karnataka — All rights reserved.</span>
+            <span>
+                <a href="#">Help &amp; Support</a><span class="fsep">&bull;</span>
+                <a href="#">Privacy Policy</a><span class="fsep">&bull;</span>
+                <a href="#">Terms of Use</a>
+            </span>
+        </footer> *@
+
+    </div><!-- /page -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        /* ── TAB SWITCHING ── */
+        const TABS={c:{tab:'tb-c',panel:'pn-c'},u:{tab:'tb-u',panel:'pn-u'},l:{tab:'tb-l',panel:'pn-l'}};
+        function go(k){
+          Object.values(TABS).forEach(v=>{
+            document.getElementById(v.tab).classList.remove('on');
+            document.getElementById(v.panel).classList.remove('on');
+          });
+          document.getElementById(TABS[k].tab).classList.add('on');
+          const p=document.getElementById(TABS[k].panel);
+          p.classList.add('on');p.style.animation='none';
+          requestAnimationFrame(()=>p.style.animation='');
+        }
+        /* ── LIC SUB-TABS ── */
+        function licTab(n){
+          ['signup','login'].forEach(x=>{
+            document.getElementById('lt-'+x).classList.remove('on');
+            document.getElementById('lic-'+x).classList.remove('on');
+          });
+          document.getElementById('lt-'+n).classList.add('on');
+          document.getElementById('lic-'+n).classList.add('on');
+        }
+        /* ── PASSWORD TOGGLE ── */
+        function togglePw(id,btn){
+          const el=document.getElementById(id),ic=btn.querySelector('i');
+          el.type=el.type==='password'?'text':'password';
+          ic.className=el.type==='password'?'bi bi-eye':'bi bi-eye-slash';
+        }
+
+        $(function(){
+          /* Captcha refresh */
+          $('#cap-c-ref').on('click',function(){
+            var $b=$(this);$b.css('transform','rotate(180deg)');
+            $.get('@Url.Action("GenerateCaptcha", "Login")',function(d){
+              $('#cap-c').text(d.newCaptcha);
+              $('#CaptchaCodeHidden').val(d.newCaptcha);
+              setTimeout(()=>$b.css('transform',''),350);
+            });
+          });
+
+          /* Faculty → College cascade */
+          $('#FacultyId').on('change',function(){
+            var id=$(this).val(),$c=$('#CollegeId');
+            $c.empty().append('<option value="">— Select College —</option>');
+            if(id){
+              $.get('@Url.Action("GetCollegesByFaculty", "Login")',{facultyId:id},function(data){
+                $.each(data,function(i,c){$c.append($('<option>',{value:c.value,text:c.text,'data-code':c.code}));});
+              });
+            }
+          });
+          /* Auto-set username */
+          $('#CollegeId').on('change',function(){
+            $('#CollegeUsername').val($(this).find('option:selected').data('code')||'');
+          });
+
+          /* College login error */
+          @if (TempData["LoginError"] != null)
+        {
+                <text>
+                Swal.fire({icon:'error',title:'Login Failed',text:'@Html.Raw(TempData["LoginError"])',confirmButtonColor:'#1a56c4',confirmButtonText:'Try Again'});
+                document.querySelector('.captcha-val')&&(document.querySelector('.captcha-val').value='');
+                </text>
+          }
+
+          /* University model errors */
+          @{
+                var allErrs = string.Join(" ", ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+          }
+          @if (!ViewData.ModelState.IsValid && Context.Request.Method == "POST" && !string.IsNullOrEmpty(allErrs))
+        {
+                <text>
+                go('u');
+                Swal.fire({icon:'error',title:'Login Failed',html:'@Html.Raw(allErrs.Replace("\r\n", "<br>"))',confirmButtonColor:'#1a56c4'});
+                </text>
+          }
+
+          /* University client-side validation */
+          $('#univForm').on('submit',function(e){
+            if(!$.trim($('#univ-user').val())||!$.trim($('#pw-u').val())){
+              e.preventDefault();
+              Swal.fire({icon:'warning',title:'Required Fields',text:'Please enter both Username and Password.',confirmButtonColor:'#1a56c4'});
+            }
+          });
+
+          /* LIC role cascade */
+          $(document).on('click','.role-btn',function(){
+            $('.role-btn').removeClass('on');$(this).addClass('on');
+            var role=$(this).data('role');$('#selectedRole').val(role);
+            fetch('/LICInspection/GetNamesByRole?role='+encodeURIComponent(role))
+              .then(r=>r.json()).then(data=>{
+                var $d=$('#nameDropdown');
+                $d.html('<option value="">— Select Name —</option>');
+                if(data&&data.length)data.forEach(n=>$d.append($('<option>',{value:n,text:n})));
+                else $d.append('<option value="">No names found</option>');
+              }).catch(e=>console.error(e));
+          });
+
+          /* Signup success */
+          @if (TempData["SuccessMessage"] != null)
+        {
+                <text>
+                go('l');licTab('login');
+                Swal.fire({icon:'success',title:'Account Created',text:'@TempData["SuccessMessage"]',confirmButtonColor:'#0d7a6b'});
+                </text>
+          }
+        });
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

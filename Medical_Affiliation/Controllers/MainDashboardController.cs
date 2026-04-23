@@ -1,5 +1,6 @@
 ﻿using Medical_Affiliation.DATA;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Controllers
@@ -152,6 +153,29 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
 
             return Json(courses);
+        }
+
+        // Controllers/LoginController.cs
+        public IActionResult MultiLogin()
+        {
+            var captcha = new Random().Next(10000, 99999).ToString();
+
+            HttpContext.Session.SetString("CaptchaCode", captcha); // ✅ ADD THIS
+
+            var model = new AdmissionLoginViewModel
+            {
+                Faculties = _context.Faculties
+                    .Select(f => new SelectListItem
+                    {
+                        Value = f.FacultyId.ToString(),
+                        Text = f.FacultyName
+                    }).ToList(),
+
+                Colleges = new List<SelectListItem>(),
+                CaptchaCode = captcha
+            };
+
+            return View(model);
         }
     }
 }
