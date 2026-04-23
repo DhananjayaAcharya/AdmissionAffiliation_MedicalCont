@@ -57,7 +57,7 @@ public partial class AffInstitutionsDetail
 
     public string StatusOfCollege { get; set; } = null!;
 
-    public string CourseApplied { get; set; } = null!;
+    public string? CourseApplied { get; set; } = null!;
 
     public string? DocumentName { get; set; }
 
