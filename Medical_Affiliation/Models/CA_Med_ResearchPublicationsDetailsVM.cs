@@ -73,6 +73,7 @@ namespace Medical_Affiliation.Models
 
         // ================= 5 =================
         public List<CA_Med_Lib_CommitteeVM> Committees { get; set; } = new();
+        public Dictionary<string, CaMedResearchPublicationsDetail> CourseData { get; set; }
 
     }
 }
