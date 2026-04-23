@@ -2,9 +2,10 @@
 @using Medical_Affiliation.DATA
 @inject IHttpContextAccessor HttpContextAccessor
 @inject ApplicationDbContext _context   // ✅ ADD
+@using System.Text.Json;
 
 @{
-     var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+     // var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
 
     // var level = ViewContext.RouteData.Values["level"]?.ToString()
     //        ?? Context.Request.Query["level"].ToString()
@@ -13,12 +14,22 @@
 
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
 
+    var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
+
+    var levels = string.IsNullOrEmpty(raw)
+    ? new List<string>()
+    : JsonSerializer.Deserialize<List<string>>(raw)
+        .Select(l => l.Trim().ToUpper())
+        .Distinct()
+        .ToList();
+
+
     var doneSteps = _context.CaProgresses
-     .Where(x => x.CollegeCode == collegeCode &&
-                 x.CourseLevel == level &&
-                 x.IsCompleted == true)
-     .Select(x => x.StepKey)
-     .ToList();
+    .Where(x => x.CollegeCode == collegeCode &&
+                levels.Contains(x.CourseLevel.Trim().ToUpper()) &&
+                x.IsCompleted == true)
+    .Select(x => x.StepKey)
+    .ToList();
 
     var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAct = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
@@ -48,7 +59,9 @@
         new StepItem{ Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
         new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
         new StepItem{ Key="DepartmentUnits", Label="Department / Units", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
-         new StepItem{ Key="Hostel", Label="Hostel Details", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
+        new StepItem{ Key="Hostel", Label="Hostel Details", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
+        new StepItem{ Key = "AssociatedInstitutions", Label = "Associated Institutions",   Group = "Physical Infrastructure", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
+
 
 
         // ================= ACADEMIC & ADMIN =================v v  v 
@@ -72,6 +85,7 @@
 
         // ================= STUDENT AMENITIES =================
         new StepItem{ Key="IntakeDetails", Label="Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
+        new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered" },
 
 
         // new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
@@ -81,20 +95,20 @@
     };
 
     // ✅ Add MBBS ONLY for UG
-    if (level == "UG")
+    if (levels.Contains("UG"))
     {
-        allSteps.Insert(5, new StepItem
+        allSteps.Insert(1, new StepItem
         {
             Key = "MBBSDetails",
-            Label = "MBBS Details",
-            Group = "MBBS Details",
+            Label = "UG Course Details",
+            Group = "Intake Details",
             Ctrl = "ContinuesAffiliation_Facultybased",
             Act = "Details_Of_MBBS"
         });
     }
 
     // ✅ Add PG-specific steps
-    if (level == "PG")
+    if (levels.Contains("PG"))
     {
         var pgSteps = new List<StepItem>
         {
@@ -110,18 +124,10 @@
             {
                 Key = "PgCourses",
                 Label = "PG Course Details",
-                Group = "PG Details",
+                Group = "Intake Details",
                 Ctrl = "AffiliationPgCourse",
                 Act = "PgCourses"
             },
-            new StepItem
-            {
-                Key = "PgAssociatedInstitutions",
-                Label = "Associated Institutions",
-                Group = "PG Details",
-                Ctrl = "AffiliationSS",
-                Act = "AssociatedInstitutions"
-            }
         };
 
         // 👉 Find last index of "Basic Details"
@@ -148,16 +154,15 @@
     }
 
     // ✅ SS Specific - Added your new tab "SS Courses Applied"
-    if (level == "SS")
+    if (levels.Contains("SS"))
     {
         var ssSteps = new List<StepItem>
         {
-            new StepItem{ Key = "SsCoursesOffered",        Label = "Courses Offered",                  Group = "SS Details", Ctrl = "AffiliationSS", Act = "CoursesOffered" },
             // new { Key = "SsCourseDetails",         Label = "Super Specialty Course Details",   Group = "SS Details", Ctrl = "AffiliationSS", Act = "SsCourses" },
-            new StepItem{ Key = "SsAssociatedInstitutions", Label = "Associated Institutions",         Group = "SS Details", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
+            // new StepItem{ Key = "SsAssociatedInstitutions", Label = "Associated Institutions",         Group = "SS Details", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
             // ✅ NEW TAB YOU REQUESTED
-            new StepItem{ Key = "SsCoursesApplied",        Label = "SS Courses Applied",               Group = "SS Details",
+            new StepItem{ Key = "SsCoursesApplied",        Label = "SS Course Details",               Group = "Intake Details",
                   Ctrl = "Aff_CA_SS_CoursesAppliedSS",
                   Act = "CA_SS_CoursesApplied" }
         };
@@ -580,12 +585,12 @@
     </div>
 
     <!-- Level pill -->
-    <div class="ca-sb-level-row">
+    @* <div class="ca-sb-level-row">
         <span class="ca-sb-level-pill">
             <i class="bi bi-mortarboard-fill"></i>
             @level Programme
         </span>
-    </div>
+    </div> *@
 
     
     <!-- Progress bar (UG and PG and SS) -->

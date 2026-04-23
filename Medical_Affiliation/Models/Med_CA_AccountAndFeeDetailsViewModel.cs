@@ -117,4 +117,8 @@ namespace Medical_Affiliation.Models
             return ValidationResult.Success;
         }
     }
+    public class Med_CA_AccountAndFeeDetailsPageVM
+    {
+        public List<Med_CA_AccountAndFeeDetailsViewModel> Sections { get; set; } = new();
+    }
 }

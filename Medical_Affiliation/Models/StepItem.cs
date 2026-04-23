@@ -5,4 +5,5 @@
     public string Group { get; set; }
     public string Ctrl { get; set; }
     public string Act { get; set; }
+
 }

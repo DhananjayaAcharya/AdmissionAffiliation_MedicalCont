@@ -32,6 +32,7 @@ public partial class CaAcademicPerformance
     public DateTime? CreatedOn { get; set; }
 
     public string? CourseLevel { get; set; }
+    public string? Subject { get; set; }
 
     public virtual CaMstYearOfStudy? YearOfStudy { get; set; }
 }

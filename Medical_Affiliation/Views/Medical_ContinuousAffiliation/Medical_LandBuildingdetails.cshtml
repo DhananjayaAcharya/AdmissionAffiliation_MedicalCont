@@ -1524,7 +1524,7 @@
                     </button> *@
 
                         @* 🔹 PREVIOUS BUTTON *@
-                        @if (courseLevel == "UG")
+                        @* @if (courseLevel == "UG")
                         {
                             <a asp-controller="ContinuesAffiliation_Facultybased"
                                asp-action="Aff_PrincipalDetails"
@@ -1537,11 +1537,11 @@
                                class="btn-prev">← Previous</a>
                         }
                         else if (courseLevel == "SS")
-                        {
-                            <a asp-controller="Aff_CA_SS_CoursesAppliedSS"
-                               asp-action="CA_SS_CoursesApplied"
+                        { *@
+                    <a asp-controller="AffiliationSS"
+                       asp-action="CoursesOffered"
                                class="btn-prev">← Previous</a>
-                        }
+                        @* } *@
 
                         <button type="submit" class="btn-save" id="btnSave">&#128190; Save</button>
 

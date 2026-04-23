@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Text.Json;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -833,23 +834,24 @@ namespace Medical_Affiliation.Controllers
             TempData["Success"] = "Trust member details saved successfully.";
 
             // 🔽 REDIRECTION BASED ON SESSION (NO DB REQUIRED)
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
-            if (courseLevel == "UG")
-            {
-                return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
-            }
-            else if (courseLevel == "PG")
-            {
-                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-            }
-            else if (courseLevel == "SS")
-            {
-                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-            }
+            //if (courseLevel == "UG")
+            //{
+            //    return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
+            //}
+            //else if (courseLevel == "PG")
+            //{
+            //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+            //}
+            //else if (courseLevel == "SS")
+            //{
+            //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+            //}
 
             // ❗ REQUIRED to avoid compiler error
-            throw new Exception("Invalid CourseLevel in session");
+            //throw new Exception("Invalid CourseLevel in session");
+            return RedirectToAction("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased");
         }
 
         private async Task<List<SelectListItem>> GetDesignationListAsync(string facultyCode)
@@ -2433,6 +2435,19 @@ namespace Medical_Affiliation.Controllers
             }
 
             FillDropDowns(vm);
+
+            var existingLevels = (from intake in _context.CollegeCourseIntakeDetails
+                                  join course in _context.MstCourses
+                                  on intake.CourseCode equals course.CourseCode.ToString()
+                                  where intake.CollegeCode == collegeCode
+                                  select course.CourseLevel)
+                      .Distinct()
+                      .ToList();
+
+            HttpContext.Session.SetString(
+                "ExistingCourseLevels",
+                JsonSerializer.Serialize(existingLevels)
+            );
             return View(vm);
         }
 
@@ -2843,7 +2858,7 @@ namespace Medical_Affiliation.Controllers
 
                 //return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
                 //return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-                return RedirectToAction("Repo_FacultyDetails", "FacultyDetails");
+                return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
 
                 //var courseLevel = HttpContext.Session.GetString("CourseLevel");
                 //if (courseLevel == "UG")
@@ -3511,22 +3526,23 @@ namespace Medical_Affiliation.Controllers
                 _context.SaveChanges();
 
                 TempData["SuccessMessage"] = "principal details saved successfully.";
+                return RedirectToAction("Details_Of_MBBS");
 
                 // 🔥 UPDATED REDIRECT LOGIC
-                if (courseLevel == "UG")
-                {
-                    return RedirectToAction("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation");
-                }
-                else if (courseLevel == "PG")
-                {
-                    return RedirectToAction("PgCourses", "AffiliationPgCourse");
-                }
-                else if (courseLevel == "SS")
-                {
-                    return RedirectToAction("CoursesOffered", "AffiliationSS");
-                }
+                //if (courseLevel == "UG")
+                //{
+                //    return RedirectToAction("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation");
+                //}
+                //else if (courseLevel == "PG")
+                //{
+                //    return RedirectToAction("PgCourses", "AffiliationPgCourse");
+                //}
+                //else if (courseLevel == "SS")
+                //{
+                //    return RedirectToAction("CoursesOffered", "AffiliationSS");
+                //}
 
-                throw new Exception("Invalid CourseLevel");
+                //throw new Exception("Invalid CourseLevel");
             }
             catch (Exception)
             {

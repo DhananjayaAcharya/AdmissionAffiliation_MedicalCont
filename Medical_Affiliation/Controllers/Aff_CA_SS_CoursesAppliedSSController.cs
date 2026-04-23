@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class Aff_CA_SS_CoursesAppliedSSController : Controller
+    public class Aff_CA_SS_CoursesAppliedSSController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -24,11 +24,13 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var levels = HttpContext.Session.GetString("ExistingCourseLevels");
+            bool isSS = levels.Contains("SS");
 
             if (string.IsNullOrEmpty(collegeCode))
                 return RedirectToAction("Login", "Account");
 
-            if (string.IsNullOrEmpty(courseLevel))
+            if (!isSS)
             {
                 TempData["Error"] = "Session expired. Please select the course level from the menu again.";
                 return RedirectToAction("Index", "Home");
@@ -81,7 +83,7 @@ namespace Medical_Affiliation.Controllers
                     into gj
                 from c in gj.Where(x => x.CollegeCode == collegeCode).DefaultIfEmpty()
                 where m.FacultyCode == 1
-                      && m.CourseLevel == courseLevel
+                      && m.CourseLevel == "SS"
                       && m.CoursePrefix == "D.M."
                 select new SSCourseRow
                 {
@@ -103,7 +105,7 @@ namespace Medical_Affiliation.Controllers
                     into gj
                 from c in gj.Where(x => x.CollegeCode == collegeCode).DefaultIfEmpty()
                 where m.FacultyCode == 1
-                      && m.CourseLevel == courseLevel
+                      && m.CourseLevel == "SS"
                       && m.CoursePrefix.Replace(".", "").Replace(" ", "").ToUpper() == "MCH"
                 select new SSCourseRow
                 {
@@ -117,7 +119,7 @@ namespace Medical_Affiliation.Controllers
             // 3.a LOP
             // =====================================================
             var savedLop = await _context.CaSsLopsavedDates
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
                 .ToListAsync();
 
             vm.LopList.Clear();
@@ -142,7 +144,7 @@ namespace Medical_Affiliation.Controllers
             // 3.b.i Particulars
             // =====================================================
             var savedPerm = await _context.CaSsPermissions
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
                 .ToListAsync();
 
             vm.PermissionList.Clear();
@@ -176,7 +178,7 @@ namespace Medical_Affiliation.Controllers
             // 3.b.ii Affiliation
             // =====================================================
             var savedAff = await _context.CaSsAffiliationGrantedYears
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
                 .ToListAsync();
 
             vm.AffiliationList.Clear();
@@ -201,7 +203,7 @@ namespace Medical_Affiliation.Controllers
             // 3.b.iii LIC
             // =====================================================
             var savedLIC = await _context.CaSsLicpreviousInspections
-               .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == courseLevel)
+               .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
                 .ToListAsync();
 
             vm.LICInspections.Clear();
@@ -224,13 +226,13 @@ namespace Medical_Affiliation.Controllers
             // 3.b.iv Other Courses
             // =====================================================
             var mstCourses = await _context.MstCourses
-                .Where(x => x.FacultyCode == 1 && x.CourseLevel == courseLevel)
+                .Where(x => x.FacultyCode == 1 && x.CourseLevel == "SS")
                 .ToListAsync();
 
             var allCourseNames = mstCourses.Select(x => x.CourseName).Distinct().ToList();
 
             var savedOther = await _context.CaSsOtherCoursesConducteds
-                .Where(x => x.CollegeCode == collegeCode && x.CourseLevel == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CourseLevel == "SS")
                 .ToListAsync();
 
             var savedCourseNames = savedOther.Select(x => x.CourseName).ToList();
@@ -723,7 +725,7 @@ namespace Medical_Affiliation.Controllers
                                     .FirstOrDefaultAsync(x =>
                                         x.CollegeCode == collegeCode &&
                                         x.CourseCode == row.CourseCode &&
-                                        x.CoursesApplied == courseLevel);
+                                        x.CoursesApplied == "SS");
 
                 if (entity == null)
                 {
@@ -779,7 +781,7 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefaultAsync(x =>
                         x.CollegeCode == collegeCode &&
                         x.CourseName == row.CourseName &&
-                        x.CourseLevel == courseLevel); // ✅ ADD CourseLevel condition
+                        x.CourseLevel == "SS"); // ✅ ADD CourseLevel condition
 
                 byte[] fileData = null;
                 using (var ms = new MemoryStream())
@@ -834,7 +836,7 @@ namespace Medical_Affiliation.Controllers
                 from c in gj.Where(x => x.CollegeCode == collegeCode).DefaultIfEmpty()
 
                 where m.FacultyCode == 1
-                      && m.CourseLevel == courseLevel
+                      && m.CourseLevel == "SS"
                       && m.CoursePrefix == "D.M."
 
                 select new SSCourseRow
@@ -857,7 +859,7 @@ namespace Medical_Affiliation.Controllers
                 from c in gj.Where(x => x.CollegeCode == collegeCode).DefaultIfEmpty()
 
                 where m.FacultyCode == 1
-                      && m.CourseLevel == courseLevel
+                      && m.CourseLevel == "SS"
                       && m.CoursePrefix
                             .Trim()
                             .Replace(".", "")
@@ -877,7 +879,7 @@ namespace Medical_Affiliation.Controllers
             vm.LopList.Clear();
 
             var savedLop = await _context.CaSsLopsavedDates
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
                 .ToListAsync();
 
             foreach (var c in courseList)
@@ -898,7 +900,7 @@ namespace Medical_Affiliation.Controllers
             vm.PermissionList.Clear();
 
             var savedPerm = await _context.CaSsPermissions
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
                 .ToListAsync();
 
             foreach (var c in courseList)
@@ -920,7 +922,7 @@ namespace Medical_Affiliation.Controllers
             vm.AffiliationList.Clear();
 
             var savedAff = await _context.CaSsAffiliationGrantedYears
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
                 .ToListAsync();
 
             foreach (var course in courseList)
@@ -943,7 +945,7 @@ namespace Medical_Affiliation.Controllers
             vm.LICInspections.Clear();
 
             var savedLIC = await _context.CaSsLicpreviousInspections
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
                 .ToListAsync();
 
             foreach (var c in courseList)
@@ -964,13 +966,13 @@ namespace Medical_Affiliation.Controllers
             vm.OtherCourses.Clear();
 
             var mstCourses = await _context.MstCourses
-                .Where(x => x.FacultyCode == 1 && x.CourseLevel == courseLevel)
+                .Where(x => x.FacultyCode == 1 && x.CourseLevel == "SS")
                 .ToListAsync();
 
             var allCourseNames = mstCourses.Select(x => x.CourseName).Distinct().ToList();
 
             var savedOther = await _context.CaSsOtherCoursesConducteds
-                .Where(x => x.CollegeCode == collegeCode && x.CourseLevel == courseLevel)
+                .Where(x => x.CollegeCode == collegeCode && x.CourseLevel == "SS")
                 .ToListAsync();
 
             var savedCourseNames = savedOther.Select(x => x.CourseName).ToList();

@@ -203,6 +203,16 @@
         white-space: nowrap;
     }
 
+    #tableBody td .form-control,
+    #tableBody td .form-select {
+        min-width: 130px;
+        width: 130px;
+    }
+
+    /* Keep action buttons visible */
+    #tableBody td:last-child {
+        min-width: 180px;
+    }
     /* Table Wrapper with Scrollbar */
     .table-wrap {
         border: 1px solid var(--border);
@@ -509,8 +519,8 @@
             <div style="margin-bottom:12px;">
                 <input type="text" id="searchBox" placeholder="Search by vehicle registration number..." />
             </div>
-            <div class="table-wrap">
-                <table class="data-table">
+            <div class="table-wrap" style="overflow-x:auto; white-space:nowrap;">
+                <table class="data-table" style="min-width:1400px;">
                     <thead>
                         <tr>
                             <th>Sl</th>

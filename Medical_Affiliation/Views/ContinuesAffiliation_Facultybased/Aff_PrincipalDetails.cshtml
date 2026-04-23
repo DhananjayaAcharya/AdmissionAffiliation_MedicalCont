@@ -1,11 +1,21 @@
 ﻿@model DeanDetailsViewModel
 @inject IHttpContextAccessor HttpContextAccessor
+@using System.Text.Json;
 
 @{
     ViewData["Title"] = "Staff Particulars - Principal";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 
-    var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+    // var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+    var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
+
+    var levels = string.IsNullOrEmpty(raw)
+    ? new List<string>()
+    : JsonSerializer.Deserialize<List<string>>(raw)
+        .Select(l => l.Trim().ToUpper())
+        .Distinct()
+        .ToList();
+
 
 }
 
@@ -695,7 +705,7 @@
                        class="btn-prev">← Previous</a>
 
                     <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
-                    @if(level.ToLower() == "pg")
+                    @* @if(level.ToLower() == "pg")
                     {
                         <a asp-controller="AffiliationPgCourse"
                            asp-action="PgCourses"
@@ -707,11 +717,11 @@
                         class="btn-next"> Next</a>
                     }
                     else
-                    {   
+                    {    *@
                         <a asp-controller="Medical_ContinuousAffiliation"
                            asp-action="Medical_LandBuildingdetails"
                            class="btn-next"> Next</a>
-                    }
+                    @* } *@
                 </div>
 
             </form>
