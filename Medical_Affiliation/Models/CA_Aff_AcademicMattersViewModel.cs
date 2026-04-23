@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Medical_Affiliation.Models
@@ -27,6 +28,14 @@ namespace Medical_Affiliation.Models
         public List<ExaminationSchemeRowViewModel> ExaminationSchemess { get; set; }
     = new();
         public List<StudentRegisterRecordViewModel> StudentRegisterRecords { get; set; } = new List<StudentRegisterRecordViewModel>();
+    }
+
+    public class CA_Aff_PgSsAcademicMattersViewModel : CA_Aff_AcademicMattersViewModel {
+        public string SubjectName { get; set; }
+        public string SubjectCode { get; set; }
+
+        public List<AcademicPerformancePgSsViewModel> AcademicRows { get; set; }
+    = new List<AcademicPerformancePgSsViewModel>();
     }
 
     public class CourseCurriculumDisplayViewModel
@@ -88,6 +97,11 @@ namespace Medical_Affiliation.Models
         public int? DistinctionCount { get; set; }
 
         public string? Remarks { get; set; }
+    }
+
+    public class AcademicPerformancePgSsViewModel : AcademicPerformanceViewModel
+    {
+        public List<SelectListItem> SubjectData {  get; set; }
     }
 
 

@@ -258,7 +258,7 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("AssociatedInstitutions");
+            return RedirectToAction("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation");
         }
 
 

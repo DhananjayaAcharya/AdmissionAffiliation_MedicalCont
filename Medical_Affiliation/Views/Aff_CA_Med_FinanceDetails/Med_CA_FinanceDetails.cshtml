@@ -1,4 +1,5 @@
-﻿@model Medical_Affiliation.Models.Med_CA_AccountAndFeeDetailsViewModel
+﻿@model Medical_Affiliation.Models.Med_CA_AccountAndFeeDetailsPageVM
+
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Account and Fee Details";
@@ -6,6 +7,7 @@
 
     var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
     var courseLevel = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+
     bool isPG = !string.IsNullOrEmpty(courseLevel) && courseLevel.Trim().ToUpper() == "PG";
 }
 
@@ -203,8 +205,8 @@
         margin-bottom: 5px;
     }
 
-    .form-control,
-    .form-select {
+    .form-card .form-control,
+    .form-card .form-select {
         width: 100%;
         border: 1px solid #d9d3c8;
         border-radius: 4px;
@@ -430,6 +432,76 @@
         text-decoration: none;
         transition: opacity 0.15s, box-shadow 0.15s;
     }
+
+    .accordion-item {
+        border: none !important;
+        background: transparent;
+    }
+
+    .accordion-button {
+        background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+        color: whitesmoke;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        /* color: var(--navy); */
+        box-shadow: none;
+    }
+
+        .accordion-button:not(.collapsed) {
+            background: background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+            color: whitesmoke;
+        }
+
+    .accordion-body {
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        background: var(--white);
+        padding: 24px 20px;
+    }
+    .course-badge {
+        background: var(--navy);
+        color: white;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        margin-right: 8px;
+        letter-spacing: 0.08em;
+    }
+
+    .copy-box {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f3f0e8;
+        border: 1px solid var(--border);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        cursor: pointer;
+    }
+
+    .accordion-collapse {
+        transition: all 0.3s ease;
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+        color: white;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 6px 6px 0 0;
+    }
+
+    .section-body {
+        border: 1px solid var(--border);
+        border-top: none;
+        padding: 24px 20px;
+        background: white;
+        border-radius: 0 0 6px 6px;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
@@ -445,326 +517,363 @@
         <!-- Form Card -->
         <div class="form-card">
             <form asp-action="Med_CA_AccountAndFeeDetails" method="post" enctype="multipart/form-data">
-                <input type="hidden" asp-for="CourseLevel" />
-                @Html.AntiForgeryToken()
+                @* <div class="accordion" id="courseAccordion"> *@
+                <div class="course-sections">
 
-                <div class="section-label">
-                    <span class="section-label-text">Financial &amp; Fee Records</span>
-                    <span class="section-label-line"></span>
-                </div>
-
-                <!-- a. Governing Council PDF -->
-                <div class="section-block">
-                    <div class="section-block-title">a. College Governing Council Members</div>
-                    <div class="section-block-instruction">
-                        Enclose the list (Private colleges to mention details of TWO university officers included in the council)
-                    </div>
-                    <div class="field-group">
-                        <label class="form-label-text">Upload Council List (PDF)</label>
-                        <input type="file" name="GoverningCouncilPdf" accept="application/pdf" class="form-control pdf-file" id="GoverningCouncilPdfInput" />
-                        <span asp-validation-for="GoverningCouncilPdf" class="text-danger"></span>
-                        @if (!string.IsNullOrEmpty(Model.GoverningCouncilPdfName))
-                        {
-                            <a asp-action="ViewGoverningCouncilPdf" target="_blank" class="btn-view-pdf">
-                                &#128196; View — @Model.GoverningCouncilPdfName
-                            </a>
-                        }
-                    </div>
-                </div>
-
-                <!-- b. Authority Details -->
-                <div class="section-block">
-                    <div class="section-block-title">b. Authority / Body Managing College Funds</div>
-                    <div class="section-block-instruction">
-                        Name &amp; complete postal address of the Competent Authority with telephone numbers, fax numbers and e-mail address
-                    </div>
-                    <div class="field-row cols-2">
-                        <div class="field-group">
-                            <label class="form-label-text">Name &amp; Address <span style="color:var(--danger)">*</span></label>
-                            <textarea asp-for="AuthorityNameAddress" class="form-control" rows="3" placeholder="Full name and postal address..." required></textarea>
-                            <span asp-validation-for="AuthorityNameAddress" class="text-danger"></span>
-                        </div>
-                        <div class="field-group">
-                            <label class="form-label-text">Contact Details <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="AuthorityContact" class="form-control" placeholder="Telephone / Fax / E-mail" required />
-                            <span asp-validation-for="AuthorityContact" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- c. Budget & Deposit -->
-                <div class="section-block">
-                    <div class="section-block-title">c. Budget and Deposit of the College</div>
-                    <div class="section-block-instruction">
-                        Submit copies certified by CA
-                    </div>
-                    <div class="field-row cols-3">
-                        <div class="field-group">
-                            <label class="form-label-text">Recurrent (Annual) <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="RecurrentAnnual" type="number" step="0.01" class="form-control fee-input" placeholder="0.00" required />
-                            <span asp-validation-for="RecurrentAnnual" class="text-danger"></span>
-                        </div>
-                        <div class="field-group">
-                            <label class="form-label-text">Non-Recurring (Annual) <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="NonRecurrentAnnual" type="number" step="0.01" class="form-control fee-input" placeholder="0.00" required />
-                            <span asp-validation-for="NonRecurrentAnnual" class="text-danger"></span>
-                        </div>
-                        <div class="field-group">
-                            <label class="form-label-text">Deposits <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="Deposits" type="number" step="0.01" class="form-control fee-input" placeholder="0.00" required />
-                            <span asp-validation-for="Deposits" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- d. Fees Collected -->
-                <div class="section-block">
-                    <div class="section-block-title">d. Fees Collected During the Previous Financial Year (Per Student)</div>
-                    <div class="field-row cols-5">
-                        <div class="field-group">
-                            <label class="form-label-text">Tuition <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="TuitionFee" type="number" step="0.01" class="form-control fee-input tuition-fee" placeholder="0.00" required />
-                            <span asp-validation-for="TuitionFee" class="text-danger"></span>
-                        </div>
-                        <div class="field-group">
-                            <label class="form-label-text">Sports <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="SportsFee" type="number" step="0.01" class="form-control fee-input sports-fee" placeholder="0.00" required />
-                            <span asp-validation-for="SportsFee" class="text-danger"></span>
-                        </div>
-                        <div class="field-group">
-                            <label class="form-label-text">Union <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="UnionFee" type="number" step="0.01" class="form-control fee-input union-fee" placeholder="0.00" required />
-                            <span asp-validation-for="UnionFee" class="text-danger"></span>
-                        </div>
-                        <div class="field-group">
-                            <label class="form-label-text">Library <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="LibraryFee" type="number" step="0.01" class="form-control fee-input library-fee" placeholder="0.00" required />
-                            <span asp-validation-for="LibraryFee" class="text-danger"></span>
-                        </div>
-                        <div class="field-group">
-                            <label class="form-label-text">Other <span style="color:var(--danger)">*</span></label>
-                            <input asp-for="OtherFee" type="number" step="0.01" class="form-control fee-input other-fee" placeholder="0.00" required />
-                            <span asp-validation-for="OtherFee" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="total-fee-wrap">
-                        <div class="total-fee-label">Total Fee (Auto-calculated)</div>
-                        <input id="TotalFeeDisplay" type="number" step="0.01" class="form-control" readonly />
-                        <input type="hidden" id="TotalFeeHidden" name="TotalFee" asp-for="TotalFee" />
-                    </div>
-                </div>
-
-                <!-- e. Account Books -->
-                <div class="section-block">
-                    <div class="section-block-title">e. Account Books Maintained?</div>
-                    <div class="section-block-instruction">
-                        Whether account books of the college showing financial transactions have been maintained.
-                        (Give CA certified copy of summary of the annual account for the last three financial years)
-                    </div>
-                    <div class="field-group" style="max-width:260px;">
-                        <label class="form-label-text">Select <span style="color:var(--danger)">*</span></label>
-                        <select asp-for="AccountBooksMaintained" class="form-control form-select" id="AccountBooksMaintained">
-                            <option value="">— Select —</option>
-                            <option value="Y" selected="@(Model.AccountBooksMaintained == "Y")">YES</option>
-                            <option value="N" selected="@(Model.AccountBooksMaintained == "N")">NO</option>
-                        </select>
-                        <span asp-validation-for="AccountBooksMaintained" class="text-danger"></span>
-                    </div>
-                    <div id="AccountBooksPdfDiv" class="pdf-upload-area"
-                         style="display: @(Model.AccountBooksMaintained == "Y" ? "block" : "none");">
-                        <label class="form-label-text">Account Summary PDF (required when YES) <span style="color:var(--danger)">*</span></label>
-                        <input type="file" name="AccountSummaryPdf" accept="application/pdf" class="form-control pdf-file" id="AccountSummaryPdfInput" />
-                        <span asp-validation-for="AccountSummaryPdf" class="text-danger"></span>
-                        @if (!string.IsNullOrEmpty(Model.AccountSummaryPdfName))
-                        {
-                            <a asp-controller="Aff_CA_Med_FinanceDetails"
-                               asp-action="ViewAccountSummaryPdf"
-                               target="_blank"
-                               class="btn-view-pdf">
-                                📄 View — @Model.AccountSummaryPdfName
-                            </a>
-                        }
-                        <span class="text-danger" id="AccountSummaryPdfError"></span>
-                    </div>
-                </div>
-
-                <!-- f. Accounts Audited -->
-                <div class="section-block">
-                    <div class="section-block-title">f. Accounts Duly Audited?</div>
-                    <div class="section-block-instruction">
-                        Whether accounts of the college have been duly audited. Provide CA certified copy of the audited statement.
-                    </div>
-                    <div class="field-group" style="max-width:260px;">
-                        <label class="form-label-text">Select <span style="color:var(--danger)">*</span></label>
-                        <select asp-for="AccountsAudited" class="form-control form-select" id="AccountsAudited">
-                            <option value="">— Select —</option>
-                            <option value="Y" selected="@(Model.AccountsAudited == "Y")">YES</option>
-                            <option value="N" selected="@(Model.AccountsAudited == "N")">NO</option>
-                        </select>
-                        <span asp-validation-for="AccountsAudited" class="text-danger"></span>
-                    </div>
-                    <div id="AuditedPdfDiv" class="pdf-upload-area"
-                         style="display: @(Model.AccountsAudited == "Y" ? "block" : "none");">
-                        <label class="form-label-text">Audited Statement PDF (required when YES) <span style="color:var(--danger)">*</span></label>
-                        <input type="file" name="AuditedStatementPdf" accept="application/pdf" class="form-control pdf-file" id="AuditedStatementPdfInput" />
-                        <span asp-validation-for="AuditedStatementPdf" class="text-danger"></span>
-                        @if (!string.IsNullOrEmpty(Model.AuditedStatementPdfName))
-                        {
-                            <a asp-controller="Aff_CA_Med_FinanceDetails"
-                               asp-action="ViewAuditedStatementPdf"
-                               target="_blank"
-                               class="btn-view-pdf">
-                                📄 View — @Model.AuditedStatementPdfName
-                            </a>
-                        }
-                        <span class="text-danger" id="AuditedStatementPdfError"></span>
-                    </div>
-                </div>
-
-                <!-- g. Donation / Capitation Fee (Only for PG) -->
-                @if (isPG)
+                @for (int i = 0; i < Model.Sections.Count; i++)
                 {
-                    <div class="section-block">
-                        <div class="section-block-title">g. Donation / Capitation Fee Levied</div>
-                        <div class="section-block-instruction">
-                            Whether any donation, capitation fee etc., is levied apart from tuition fee.
-                            If yes, give details and upload supporting document.
-                        </div>
-                        <div class="field-group" style="max-width:260px;">
-                            <label class="form-label-text">Select <span style="color:var(--danger)">*</span></label>
-                            <select asp-for="DonationLevied" class="form-control form-select" id="DonationLevied">
-                                <option value="">— Select —</option>
-                                <option value="Y" selected="@(Model.DonationLevied == "Y")">YES</option>
-                                <option value="N" selected="@(Model.DonationLevied == "N")">NO</option>
-                            </select>
-                            <span asp-validation-for="DonationLevied" class="text-danger"></span>
-                        </div>
+                    var item = Model.Sections[i];
 
-                        <div id="DonationPdfDiv" class="pdf-upload-area"
-                             style="display: @(Model.DonationLevied == "Y" ? "block" : "none");">
-                            <label class="form-label-text">Upload Supporting Document (PDF) <span style="color:var(--danger)">*</span></label>
-                            <input type="file" name="DonationPdf" accept="application/pdf" class="form-control pdf-file" />
-                            <span asp-validation-for="DonationPdf" class="text-danger"></span>
-                            @if (!string.IsNullOrEmpty(Model.DonationPdfName))
-                            {
-                                <a asp-action="ViewDonationPdf" target="_blank" class="btn-view-pdf">
-                                    &#128196; View — @Model.DonationPdfName
-                                </a>
-                            }
-                        </div>
+                    <div class="accordion-item mb-3 border rounded">
+
+                        <!-- HEADER -->
+                        <h2 class="accordion-header">
+                            @* <button class="accordion-button @(i != 0 ? "collapsed" : "")"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapse_@i">
+
+                                <strong class="course-badge">@item.CourseLevel</strong> &nbsp; Account & Fee Details
+                            </button> *@
+                                <div class="section-header">
+                                    <strong class="course-badge">@item.CourseLevel</strong>
+                                    Account & Fee Details
+                                </div>
+                        </h2>
+
+                        <!-- BODY -->
+                        @* <div id="collapse_@i"
+                             class="accordion-collapse collapse @(i == 0 ? "show" : "")"> *@
+                            <div class="section-body">
+
+                                <div class="accordion-body">
+
+                                    <!-- COPY FROM UG -->
+                                    @if (item.CourseLevel != "UG")
+                                    {
+                                        <div class="copy-box mb-3">
+                                            <input type="checkbox" class="copyFromUG" data-index="@i" />
+                                            <span>Use UG Details</span>
+                                        </div>
+                                    }
+
+                                    <!-- HIDDEN -->
+                                    <input type="hidden" name="Sections[@i].CourseLevel" value="@item.CourseLevel" />
+                                    <input type="hidden" name="Sections[@i].CollegeCode" value="@item.CollegeCode" />
+                                    <input type="hidden" name="Sections[@i].FacultyCode" value="@item.FacultyCode" />
+
+                                    <!-- ================= a. GOVERNING COUNCIL ================= -->
+                                    <div class="section-block">
+                                        <div class="section-block-title">a. College Governing Council Members</div>
+                                        <div class="section-block-instruction">
+                                            Enclose the list (Private colleges to mention details of TWO university officers included in the council)
+                                        </div>
+
+                                        <div class="field-group">
+                                            <label class="form-label-text">Upload Council List (PDF)</label>
+                                            <input type="file"
+                                                   name="Sections[@i].GoverningCouncilPdf"
+                                                   class="form-control pdf-file" />
+
+                                            @if (!string.IsNullOrEmpty(item.GoverningCouncilPdfName))
+                                            {
+                                                <a class="btn-view-pdf">📄 View — @item.GoverningCouncilPdfName</a>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- ================= b. AUTHORITY ================= -->
+                                    <div class="section-block">
+                                        <div class="section-block-title">b. Authority / Body Managing College Funds</div>
+
+                                        <div class="field-row cols-2">
+                                            <div class="field-group">
+                                                <label class="form-label-text">Name & Address</label>
+                                                <textarea name="Sections[@i].AuthorityNameAddress"
+                                                          class="form-control">@item.AuthorityNameAddress</textarea>
+                                            </div>
+
+                                            <div class="field-group">
+                                                <label class="form-label-text">Contact</label>
+                                                <input name="Sections[@i].AuthorityContact"
+                                                       value="@item.AuthorityContact"
+                                                       class="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ================= c. BUDGET ================= -->
+                                    <div class="section-block">
+                                        <div class="section-block-title">c. Budget and Deposit</div>
+
+                                        <div class="field-row cols-3">
+                                            <input name="Sections[@i].RecurrentAnnual" value="@item.RecurrentAnnual" class="form-control fee-input" placeholder="Recurrent" />
+                                            <input name="Sections[@i].NonRecurrentAnnual" value="@item.NonRecurrentAnnual" class="form-control fee-input" placeholder="Non-Recurrent" />
+                                            <input name="Sections[@i].Deposits" value="@item.Deposits" class="form-control fee-input" placeholder="Deposits" />
+                                        </div>
+                                    </div>
+
+                                    <!-- ================= d. FEES ================= -->
+                                    <div class="section-block">
+                                        <div class="section-block-title">d. Fees Collected</div>
+
+                                        <div class="field-row cols-5">
+                                            <input name="Sections[@i].TuitionFee" value="@item.TuitionFee" class="form-control fee-input" placeholder="Tuition" />
+                                            <input name="Sections[@i].SportsFee" value="@item.SportsFee" class="form-control fee-input" placeholder="Sports" />
+                                            <input name="Sections[@i].UnionFee" value="@item.UnionFee" class="form-control fee-input" placeholder="Union" />
+                                            <input name="Sections[@i].LibraryFee" value="@item.LibraryFee" class="form-control fee-input" placeholder="Library" />
+                                            <input name="Sections[@i].OtherFee" value="@item.OtherFee" class="form-control fee-input" placeholder="Other" />
+                                        </div>
+
+                                        <div class="total-fee-wrap mt-2">
+                                            <div class="total-fee-label">Total Fee</div>
+                                            <input readonly class="form-control totalFeeDisplay" />
+                                            <input type="hidden" name="Sections[@i].TotalFee" class="totalFeeHidden" value="@item.TotalFee" />
+                                        </div>
+                                    </div>
+
+                                    <!-- ================= e. ACCOUNT BOOK ================= -->
+                                    <div class="section-block">
+                                        <div class="section-block-title">e. Account Books Maintained?</div>
+
+                                        <select name="Sections[@i].AccountBooksMaintained" class="form-control">
+                                            <option value="">Select</option>
+                                            <option value="Y" selected="@(item.AccountBooksMaintained == "Y")">YES</option>
+                                            <option value="N" selected="@(item.AccountBooksMaintained == "N")">NO</option>
+                                        </select>
+
+                                        <div class="pdf-upload-area AccountBooksPdfDiv mt-2"
+                                             style="display:@(item.AccountBooksMaintained == "Y" ? "block" : "none")">
+
+                                            <input type="file" name="Sections[@i].AccountSummaryPdf" class="form-control pdf-file" />
+
+                                            @if (!string.IsNullOrEmpty(item.AccountSummaryPdfName))
+                                            {
+                                                <a class="btn-view-pdf">📄 View — @item.AccountSummaryPdfName</a>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- ================= f. AUDIT ================= -->
+                                    <div class="section-block">
+                                        <div class="section-block-title">f. Accounts Audited?</div>
+
+                                        <select name="Sections[@i].AccountsAudited" class="form-control">
+                                            <option value="">Select</option>
+                                            <option value="Y" selected="@(item.AccountsAudited == "Y")">YES</option>
+                                            <option value="N" selected="@(item.AccountsAudited == "N")">NO</option>
+                                        </select>
+
+                                        <div class="pdf-upload-area AuditedPdfDiv mt-2"
+                                             style="display:@(item.AccountsAudited == "Y" ? "block" : "none")">
+
+                                            <input type="file" name="Sections[@i].AuditedStatementPdf" class="form-control pdf-file" />
+
+                                            @if (!string.IsNullOrEmpty(item.AuditedStatementPdfName))
+                                            {
+                                                <a class="btn-view-pdf">📄 View — @item.AuditedStatementPdfName</a>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- ================= g. DONATION (PG) ================= -->
+                                    @if (item.CourseLevel == "PG")
+                                    {
+                                        <div class="section-block">
+                                            <div class="section-block-title">g. Donation / Capitation Fee</div>
+
+                                            <select name="Sections[@i].DonationLevied" class="form-control">
+                                                <option value="">Select</option>
+                                                <option value="Y" selected="@(item.DonationLevied == "Y")">YES</option>
+                                                <option value="N" selected="@(item.DonationLevied == "N")">NO</option>
+                                            </select>
+
+                                            <div class="pdf-upload-area DonationPdfDiv mt-2"
+                                                 style="display:@(item.DonationLevied == "Y" ? "block" : "none")">
+
+                                                <input type="file" name="Sections[@i].DonationPdf" class="form-control pdf-file" />
+
+                                                @if (!string.IsNullOrEmpty(item.DonationPdfName))
+                                                {
+                                                    <a class="btn-view-pdf">📄 View — @item.DonationPdfName</a>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
                     </div>
                 }
-
-                <!-- Footer Navigation -->
+                </div>   
+            
                 <div class="form-footer">
-                    @* <div class="nav-controls"> *@
-                        <!-- Previous Button -->
-                    <a asp-controller="CA_Aff_AcademicMatters"
-                        asp-action="AcademicMatters"
-                        class="btn-prev">← Previous</a>
-
-                    <!-- Save Button with Proper Text -->
-                    <button type="submit" class="btn-save" id="saveButton">
-                        Save Account and Fee Details
-                    </button>
-
-                    <!-- Next Button with Clear Text -->
-                    <a asp-controller="CA_Med_StaffDetails"
-                        asp-action="CA_Med_StaffDetails"
-                        class="btn-next">
-                        Next →
-                    </a>
-
-                    @* </div> *@
-
+                    <button type="submit" class="btn-save">Save</button>
                 </div>
-
-
             </form>
         </div>
     </div>
 </div>
 
 <!-- Scripts -->
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+@* <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script> *@
+@* <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script> *@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // Total Fee Calculation
-    function calculateTotalFee() {
-        const getVal = (selector) => parseFloat(document.querySelector(selector)?.value) || 0;
-        const total = getVal('.tuition-fee') + getVal('.sports-fee') + getVal('.union-fee') +
-                      getVal('.library-fee') + getVal('.other-fee');
-
-        document.getElementById("TotalFeeDisplay").value = total.toFixed(2);
-        document.getElementById("TotalFeeHidden").value = total.toFixed(2);
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll('.fee-input').forEach(input => {
-            input.addEventListener('input', calculateTotalFee);
-        });
-        calculateTotalFee();
 
-        // Conditional PDF sections
-        document.getElementById('AccountBooksMaintained')?.addEventListener('change', function () {
-            document.getElementById('AccountBooksPdfDiv').style.display = this.value === 'Y' ? 'block' : 'none';
-        });
+    /* ===============================
+    1. TOTAL FEE CALCULATION (PER SECTION)
+    =============================== */
+    document.querySelectorAll(".accordion-item").forEach(section => {
 
-        document.getElementById('AccountsAudited')?.addEventListener('change', function () {
-            document.getElementById('AuditedPdfDiv').style.display = this.value === 'Y' ? 'block' : 'none';
-        });
+    const inputs = section.querySelectorAll(".fee-input");
 
-        @if (isPG)
-        {
-                <text>
-                document.getElementById('DonationLevied')?.addEventListener('change', function () {
-                    document.getElementById('DonationPdfDiv').style.display = this.value === 'Y' ? 'block' : 'none';
-                });
-                </text>
-        }
+    const calc = () => {
+    let total = 0;
+
+    inputs.forEach(i => {
+    total += parseFloat(i.value) || 0;
     });
 
+    const display = section.querySelector(".totalFeeDisplay");
+    const hidden = section.querySelector(".totalFeeHidden");
+
+    if (display) display.value = total.toFixed(2);
+    if (hidden) hidden.value = total.toFixed(2);
+    };
+
+    inputs.forEach(i => i.addEventListener("input", calc));
+
+    calc(); // initial load
+    });
+
+
+    /* ===============================
+    2. COPY FROM UG FUNCTIONALITY
+    =============================== */
+    document.querySelectorAll(".copyFromUG").forEach(cb => {
+
+    cb.addEventListener("change", function () {
+
+    const index = this.dataset.index;
+
+    // 🔥 FIND UG INDEX DYNAMICALLY
+    let ugIndex = -1;
+
+    document.querySelectorAll("input[name$='.CourseLevel']").forEach((el, i) => {
+    if (el.value.trim().toUpperCase() === "UG") {
+    ugIndex = i;
+    }
+    });
+
+    if (ugIndex === -1) {
+    console.warn("UG section not found");
+    return;
+    }
+
+    if (this.checked) {
+
+    const fields = [
+    "AuthorityNameAddress",
+    "AuthorityContact",
+    "RecurrentAnnual",
+    "NonRecurrentAnnual",
+    "Deposits",
+    "TuitionFee",
+    "SportsFee",
+    "UnionFee",
+    "LibraryFee",
+    "OtherFee"
+    ];
+
+    fields.forEach(field => {
+
+    const ugField = document.querySelector(`[name="Sections[${ugIndex}].${field}"]`);
+    const targetField = document.querySelector(`[name="Sections[${index}].${field}"]`);
+
+    if (ugField && targetField) {
+    targetField.value = ugField.value;
+    }
+    });
+    }
+    });
+    });
+
+
+    /* ===============================
+    3. FILE VALIDATION (PDF + SIZE)
+    =============================== */
     document.addEventListener("change", function (e) {
 
-        if (e.target.classList.contains("pdf-file")) {
+    if (e.target.classList.contains("pdf-file")) {
 
-            const file = e.target.files[0];
-            const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+    const file = e.target.files[0];
+    const maxSize = 2 * 1024 * 1024; // 2MB
 
-            if (file) {
+    if (!file) return;
 
-                // ❌ FILE SIZE CHECK
-                if (file.size > maxSize) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "File too large",
-                        text: "Maximum allowed size is 2MB"
-                    });
+    // SIZE CHECK
+    if (file.size > maxSize) {
+    Swal.fire({
+    icon: "error",
+    title: "File too large",
+    text: "Maximum allowed size is 2MB"
+    });
 
-                    e.target.value = "";
-                    return;
-                }
+    e.target.value = "";
+    return;
+    }
 
-                // ❌ FILE TYPE CHECK
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (ext !== "pdf") {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Invalid file",
-                        text: "Only PDF files are allowed"
-                    });
+    // TYPE CHECK
+    const ext = file.name.split('.').pop().toLowerCase();
 
-                    e.target.value = "";
-                    return;
-                }
-            }
-        }
+    if (ext !== "pdf") {
+    Swal.fire({
+    icon: "error",
+    title: "Invalid file",
+    text: "Only PDF files are allowed"
+    });
+
+    e.target.value = "";
+    return;
+    }
+    }
+    });
+
+
+    /* ===============================
+    4. CONDITIONAL SECTIONS (OPTIONAL SAFE HANDLING)
+    =============================== */
+    document.querySelectorAll("select").forEach(select => {
+
+    select.addEventListener("change", function () {
+
+    const section = this.closest(".accordion-item");
+
+    // Account Books
+    if (this.name.includes("AccountBooksMaintained")) {
+    const div = section.querySelector(".AccountBooksPdfDiv");
+    if (div) div.style.display = this.value === "Y" ? "block" : "none";
+    }
+
+    // Accounts Audited
+    if (this.name.includes("AccountsAudited")) {
+    const div = section.querySelector(".AuditedPdfDiv");
+    if (div) div.style.display = this.value === "Y" ? "block" : "none";
+    }
+
+    // Donation (PG)
+    if (this.name.includes("DonationLevied")) {
+    const div = section.querySelector(".DonationPdfDiv");
+    if (div) div.style.display = this.value === "Y" ? "block" : "none";
+    }
+    });
+    });
 
     });
 </script>
-
 @if (TempData["Info"] != null)
 {
     <script>

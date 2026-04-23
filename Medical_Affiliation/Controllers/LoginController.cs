@@ -918,7 +918,7 @@ namespace Medical_Affiliation.Controllers
 
             if (nodalOfficerDetail == null) return NotFound();
 
-            var nodalOfficerInitiativeDetails = await _context.NodalOfficerInitiatives.Where(e => e.NodalOfficerId == model.Id).ToListAsync();
+            var nodalOfficerInitiativeDetails = await _context.NodalOfficerInitiatives.Where(e => e.NodalOfficerId == model.Id).ToListAsync();             
             if (nodalOfficerInitiativeDetails.Any())
             {
                 _context.NodalOfficerInitiatives.RemoveRange(nodalOfficerInitiativeDetails);

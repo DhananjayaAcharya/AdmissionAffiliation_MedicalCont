@@ -1071,12 +1071,6 @@
                     <div class="stat-value">@(string.IsNullOrEmpty(collegeCode) ? "—" : collegeCode)</div>
                     <div class="stat-sub">Unique identifier</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon teal">📋</div>
-                    <div class="stat-label">Current Step</div>
-                    <div class="stat-value">Step @currentStep</div>
-                    <div class="stat-sub">of 5 total steps</div>
-                </div>
             </div>
 
             <!-- Bottom Grid -->
@@ -1149,18 +1143,10 @@
                                 <div class="detail-val">@facultyCode</div>
                             </div>
                         }
-                        <div class="detail-row">
-                            <div class="detail-key"><i class="bi bi-layers"></i> Step</div>
-                            <div class="detail-val">@currentStep / 5</div>
-                        </div>
                     </div>
 
                     <div class="info-block">
                         <div class="info-block-title">Intake Completion</div>
-                        <div class="progress-label">
-                            <span style="color:var(--muted)">Overall Progress</span>
-                            <span>40%</span>
-                        </div>
                         <div class="prog-track">
                             <div class="prog-fill"></div>
                         </div>

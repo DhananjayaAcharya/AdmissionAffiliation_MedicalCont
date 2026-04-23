@@ -1421,6 +1421,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.PassPercentage).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.Subject).HasMaxLength(100);
 
             entity.HasOne(d => d.YearOfStudy).WithMany(p => p.CaAcademicPerformances)
                 .HasForeignKey(d => d.YearOfStudyId)
@@ -3381,7 +3382,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedCaAccountAndFeeDetail>(entity =>
         {
-            entity.HasKey(e => new { e.Id, e.CollegeCode, e.FacultyCode, e.CourseLevel });
+            entity.HasKey(e => new { e.Id, e.CollegeCode, e.FacultyCode }).HasFillFactor(80);
 
             entity.ToTable("Med_CA_AccountAndFeeDetails");
 

@@ -839,29 +839,29 @@
                 </div>
 
                 <!-- ── Footer ── -->
-               @*  <div class="form-footer">
+                <div class="form-footer">
                     <button type="button" class="btn-prev"
                             onclick="window.location.href='@Url.Action("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation")'">
                         ← Previous
                     </button>
-                    <div class="footer-right">
+                    @* <div class="footer-right"> *@
                         <button type="submit" class="btn-save" id="btnSave">
                             <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
                             &#128190; Save &amp; Continue
                         </button>
                         <button type="button" class="btn-next" id="btnNext"
-                                onclick="window.location.href='@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")'">
+                                onclick="window.location.href='@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")'">
                             Next →
                         </button>
-                    </div>
-                </div> *@
+                    @* </div> *@
+                </div>
 
                 
 
                 <div class="form-footer">
 
                     @* 🔹 PREVIOUS BUTTON *@
-                    @if (courseLevel == "UG")
+                    @* @if (courseLevel == "UG")
                     {
                         <a asp-controller="Medical_ContinuousAffiliation"
                            asp-action="Medical_LandBuildingdetails"
@@ -878,17 +878,17 @@
                         <a asp-controller="Medical_ContinuousAffiliation"
                            asp-action="Medical_LandBuildingdetails"
                            class="btn-prev">← Previous</a>
-                    }
+                    } *@
 
                     @* <div class="footer-right"> *@
 
-                        <button type="submit" class="btn-save" id="btnSave">
+                        @* <button type="submit" class="btn-save" id="btnSave">
                             <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
                             &#128190; Save &amp; Continue
-                        </button>
+                        </button> *@
 
                         @* 🔹 NEXT BUTTON *@
-                        @if (courseLevel == "UG")
+                        @* @if (courseLevel == "UG")
                         {
                             <a asp-controller="Medical_ContinuousAffiliation"
                                asp-action="Medical_EquimentDetails"
@@ -905,7 +905,7 @@
                             <a asp-controller="Medical_ContinuousAffiliation"
                                asp-action="Medical_EquimentDetails"
                                class="btn-next">Next →</a>
-                        }
+                        } *@
 
                     @* </div> *@
 

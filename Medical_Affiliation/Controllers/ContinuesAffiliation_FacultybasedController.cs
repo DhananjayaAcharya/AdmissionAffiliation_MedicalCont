@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Text.Json;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -833,23 +834,24 @@ namespace Medical_Affiliation.Controllers
             TempData["Success"] = "Trust member details saved successfully.";
 
             // 🔽 REDIRECTION BASED ON SESSION (NO DB REQUIRED)
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
-            if (courseLevel == "UG")
-            {
-                return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
-            }
-            else if (courseLevel == "PG")
-            {
-                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-            }
-            else if (courseLevel == "SS")
-            {
-                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-            }
+            //if (courseLevel == "UG")
+            //{
+            //    return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
+            //}
+            //else if (courseLevel == "PG")
+            //{
+            //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+            //}
+            //else if (courseLevel == "SS")
+            //{
+            //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+            //}
 
             // ❗ REQUIRED to avoid compiler error
-            throw new Exception("Invalid CourseLevel in session");
+            //throw new Exception("Invalid CourseLevel in session");
+            return RedirectToAction("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased");
         }
 
         private async Task<List<SelectListItem>> GetDesignationListAsync(string facultyCode)
@@ -2340,11 +2342,11 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             if (string.IsNullOrEmpty(collegeCode) ||
-                string.IsNullOrEmpty(facultyCode) ||
-                string.IsNullOrEmpty(courseLevel))
+                string.IsNullOrEmpty(facultyCode)) 
+                //string.IsNullOrEmpty(courseLevel))
             {
                 return Json(new { success = false, message = "Session expired. Please login again." });
             }
@@ -2354,7 +2356,7 @@ namespace Medical_Affiliation.Controllers
                         on intake.CourseCode equals course.CourseCode.ToString()
                         where intake.CollegeCode == collegeCode
                               && intake.FacultyCode.ToString() == facultyCode
-                              && course.CourseLevel == courseLevel
+                              //&& course.CourseLevel == courseLevel
                         orderby intake.CourseCode
                         select new
                         {
@@ -2389,6 +2391,22 @@ namespace Medical_Affiliation.Controllers
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
 
             return PhysicalFile(doc.DocumentDataPath, contentType);
+        }
+
+
+
+        [HttpGet]
+        public IActionResult GetInstitutionOrgCategory(int institutionTypeId)
+        {
+            var record = _context.MstInstitutionTypes
+                .Where(x => x.InstitutionTypeId == institutionTypeId)
+                .Select(x => new { x.OrganizationCategory })
+                .FirstOrDefault();
+
+            if (record == null)
+                return Json(new { success = false, orgCategory = (string?)null });
+
+            return Json(new { success = true, orgCategory = record.OrganizationCategory });
         }
         // ─────────────────────────────────────────────────────────────────────────────
         // GET: Institution/Institution_Details
@@ -2433,6 +2451,19 @@ namespace Medical_Affiliation.Controllers
             }
 
             FillDropDowns(vm);
+
+            var existingLevels = (from intake in _context.CollegeCourseIntakeDetails
+                                  join course in _context.MstCourses
+                                  on intake.CourseCode equals course.CourseCode.ToString()
+                                  where intake.CollegeCode == collegeCode
+                                  select course.CourseLevel)
+                      .Distinct()
+                      .ToList();
+
+            HttpContext.Session.SetString(
+                "ExistingCourseLevels",
+                JsonSerializer.Serialize(existingLevels)
+            );
             return View(vm);
         }
 
@@ -2485,7 +2516,8 @@ namespace Medical_Affiliation.Controllers
             var entity = _context.AffInstitutionsDetails
                 .FirstOrDefault(x =>
                     x.FacultyCode == vm.FacultyCode &&
-                    x.CollegeCode == vm.CollegeCode && x.CourseLevel == courseLevel);
+                    x.CollegeCode == vm.CollegeCode &&
+                    x.CourseLevel == courseLevel);
 
             bool isNew = entity == null;
 
@@ -2501,38 +2533,30 @@ namespace Medical_Affiliation.Controllers
             }
 
             // 5. Handle document upload
-            //    Only overwrite the stored document when a new file is actually submitted.
             if (documentFile != null && documentFile.Length > 0)
             {
-                // 🔹 Base folder path
                 string basePath = Path.Combine(BasePath, "InstitutionDetails");
 
                 if (!Directory.Exists(basePath))
-                {
                     Directory.CreateDirectory(basePath);
-                }
 
-                // 🔥 DELETE OLD FILE (VERY IMPORTANT)
+                // Delete old file
                 if (!string.IsNullOrEmpty(entity.DocumentDataPath) &&
                     System.IO.File.Exists(entity.DocumentDataPath))
                 {
                     System.IO.File.Delete(entity.DocumentDataPath);
                 }
 
-                // 🔹 Generate GUID file name
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(documentFile.FileName);
-
                 string fullPath = Path.Combine(basePath, fileName);
 
-                // 🔹 Save new file
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     documentFile.CopyTo(stream);
                 }
 
-                // 🔹 Save details in DB
                 entity.DocumentDataPath = fullPath;
-                entity.DocumentName = documentFile.FileName;   // original name (better)
+                entity.DocumentName = documentFile.FileName;
                 entity.DocumentContentType = documentFile.ContentType;
             }
 
@@ -2543,8 +2567,7 @@ namespace Medical_Affiliation.Controllers
             try
             {
                 _context.SaveChanges();
-                // After saving Institution Details:
-                ContinuousAffiliationController.MarkDone(HttpContext, "BasicDetails");
+                ContinuousAffiliationController.MarkDone(HttpContext, "Institution");
             }
             catch (DbUpdateException ex)
             {
@@ -2554,9 +2577,37 @@ namespace Medical_Affiliation.Controllers
                 return View(vm);
             }
 
-            // 8. Success – redirect
+            // 8. Success – redirect based on OrganizationCategory (G / P)
             TempData["SuccessMessage"] = "Institution details saved successfully.";
-            return RedirectToAction("aff_institutedetails");
+
+            // ✅ FIX 1: vm.TypeOfInstitution holds the selected InstitutionTypeId as a string
+            // ✅ FIX 2: Parse it to int before querying MstInstitutionTypes
+            string orgCategory = null;
+
+            if (int.TryParse(vm.TypeOfInstitution, out int selectedTypeId) && selectedTypeId > 0)
+            {
+                orgCategory = _context.MstInstitutionTypes
+                    .Where(x => x.InstitutionTypeId == selectedTypeId)
+                    .Select(x => x.OrganizationCategory)
+                    .FirstOrDefault();
+            }
+
+            // ✅ FIX 3: Explicit check for both G and P — no silent else fallthrough
+            if (!string.IsNullOrWhiteSpace(orgCategory) && orgCategory.Trim() == "G")
+            {
+                // Government → Dean / Director Details
+                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+            }
+            else if (!string.IsNullOrWhiteSpace(orgCategory) && orgCategory.Trim() == "P")
+            {
+                // Private → Institute Details
+                return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
+            }
+            else
+            {
+                // Fallback – orgCategory was null or unexpected value
+                return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
+            }
         }
 
 
@@ -2843,7 +2894,7 @@ namespace Medical_Affiliation.Controllers
 
                 //return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
                 //return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-                return RedirectToAction("Repo_FacultyDetails", "FacultyDetails");
+                return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
 
                 //var courseLevel = HttpContext.Session.GetString("CourseLevel");
                 //if (courseLevel == "UG")
@@ -3511,22 +3562,23 @@ namespace Medical_Affiliation.Controllers
                 _context.SaveChanges();
 
                 TempData["SuccessMessage"] = "principal details saved successfully.";
+                return RedirectToAction("Details_Of_MBBS");
 
                 // 🔥 UPDATED REDIRECT LOGIC
-                if (courseLevel == "UG")
-                {
-                    return RedirectToAction("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation");
-                }
-                else if (courseLevel == "PG")
-                {
-                    return RedirectToAction("PgCourses", "AffiliationPgCourse");
-                }
-                else if (courseLevel == "SS")
-                {
-                    return RedirectToAction("CoursesOffered", "AffiliationSS");
-                }
+                //if (courseLevel == "UG")
+                //{
+                //    return RedirectToAction("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation");
+                //}
+                //else if (courseLevel == "PG")
+                //{
+                //    return RedirectToAction("PgCourses", "AffiliationPgCourse");
+                //}
+                //else if (courseLevel == "SS")
+                //{
+                //    return RedirectToAction("CoursesOffered", "AffiliationSS");
+                //}
 
-                throw new Exception("Invalid CourseLevel");
+                //throw new Exception("Invalid CourseLevel");
             }
             catch (Exception)
             {
