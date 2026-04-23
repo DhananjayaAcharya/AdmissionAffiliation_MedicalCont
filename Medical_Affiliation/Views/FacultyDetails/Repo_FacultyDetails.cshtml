@@ -731,13 +731,12 @@
                                     <th>PG GuideShip Letter</th>
                                     <th>Recognised PhD Guide</th>
                                     <th>Ph.D GuideShip Letter</th>
-                                    <th>Litigation Pending</th>
-                                    <th>Litigation Doc</th>
                                     <th>Mobile</th>
                                     <th>Email</th>
                                     <th>PAN</th>
                                     <th>Aadhaar</th>
-                                    <th>Is Examiner</th>
+                                    <th>Litigation Pending</th>
+                                    <th>Litigation Doc</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -790,6 +789,26 @@
                                             }
                                         </div>
                                     </td>
+                                    
+                                    <td><input name="[@i].Mobile" value="@Model[i].Mobile" class="fc" placeholder="10-digit" /></td>
+                                    <td><input name="[@i].Email" value="@Model[i].Email" class="fc" placeholder="email@domain.com" /></td>
+                                    <td><input name="[@i].PAN" value="@Model[i].PAN" class="fc" placeholder="ABCDE1234F" /></td>
+                                    <td><input name="[@i].Aadhaar" value="@Model[i].Aadhaar" class="fc" placeholder="12-digit" /></td>
+                                    @* <td>
+                                        @Html.DropDownListFor(m => m[i].IsExaminer,
+                                        new List<SelectListItem> {
+                                                                                new SelectListItem("Select",""),
+                                                                                new SelectListItem("Yes","Yes"),
+                                                                                new SelectListItem("No","No")
+                                                                                }, new { @class = "fc is-examiner", data_index = i })
+                                        <div class="examiner-options" id="examinerOptions_@i"
+                                             style="display:@(Model[i].IsExaminer == "Yes" ? "flex" : "none")">
+                                            <label><input type="checkbox" name="[@i].ExaminerForList" value="UG" @(Model[i].ExaminerForList?.Contains("UG") == true ? "checked" : "") /> UG</label>
+                                            <label><input type="checkbox" name="[@i].ExaminerForList" value="PG" @(Model[i].ExaminerForList?.Contains("PG") == true ? "checked" : "") /> PG</label>
+                                            <label><input type="checkbox" name="[@i].ExaminerForList" value="PhD" @(Model[i].ExaminerForList?.Contains("PhD") == true ? "checked" : "") /> PhD</label>
+                                        </div>
+                                    </td> *@
+
                                     <td>
                                         @Html.DropDownListFor(m => m[i].LitigationPending,
                                         new List<SelectListItem> {
@@ -807,24 +826,6 @@
                                                 <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "litig", mode = "view" })"
                                                    target="_blank" class="doc-view-btn"><i class="bi bi-eye"></i> View</a>
                                             }
-                                        </div>
-                                    </td>
-                                    <td><input name="[@i].Mobile" value="@Model[i].Mobile" class="fc" placeholder="10-digit" /></td>
-                                    <td><input name="[@i].Email" value="@Model[i].Email" class="fc" placeholder="email@domain.com" /></td>
-                                    <td><input name="[@i].PAN" value="@Model[i].PAN" class="fc" placeholder="ABCDE1234F" /></td>
-                                    <td><input name="[@i].Aadhaar" value="@Model[i].Aadhaar" class="fc" placeholder="12-digit" /></td>
-                                    <td>
-                                        @Html.DropDownListFor(m => m[i].IsExaminer,
-                                        new List<SelectListItem> {
-                                                                                new SelectListItem("Select",""),
-                                                                                new SelectListItem("Yes","Yes"),
-                                                                                new SelectListItem("No","No")
-                                                                                }, new { @class = "fc is-examiner", data_index = i })
-                                        <div class="examiner-options" id="examinerOptions_@i"
-                                             style="display:@(Model[i].IsExaminer == "Yes" ? "flex" : "none")">
-                                            <label><input type="checkbox" name="[@i].ExaminerForList" value="UG" @(Model[i].ExaminerForList?.Contains("UG") == true ? "checked" : "") /> UG</label>
-                                            <label><input type="checkbox" name="[@i].ExaminerForList" value="PG" @(Model[i].ExaminerForList?.Contains("PG") == true ? "checked" : "") /> PG</label>
-                                            <label><input type="checkbox" name="[@i].ExaminerForList" value="PhD" @(Model[i].ExaminerForList?.Contains("PhD") == true ? "checked" : "") /> PhD</label>
                                         </div>
                                     </td>
                                     <td style="text-align:center;white-space:nowrap;min-width:160px;">
