@@ -710,8 +710,6 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> Aff_TrustMemberDetails()
         {
-            //var (facultyCode, collegeCode) = GetSessionCodes();
-
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
@@ -749,6 +747,7 @@ namespace Medical_Affiliation.Controllers
             }
             else
             {
+                // Start with one blank row so the table is never empty on first load
                 vm.Rows.Add(new TrustMemberDetailsRowVM
                 {
                     FacultyCode = facultyCode,
@@ -758,6 +757,8 @@ namespace Medical_Affiliation.Controllers
 
             return View(vm);
         }
+
+        // ────────────────────────────────────────────────────────────
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpPost]
@@ -770,34 +771,79 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("ClgLogin");
 
+            // Always overwrite with server-side values (never trust form hidden fields)
             vm.FacultyCode = facultyCode;
             vm.CollegeCode = collegeCode;
 
+            // ── Remove ModelState errors for server-controlled fields ──
             ModelState.Remove(nameof(vm.FacultyCode));
             ModelState.Remove(nameof(vm.CollegeCode));
 
+            for (int i = 0; i < (vm.Rows?.Count ?? 0); i++)
+            {
+                ModelState.Remove($"Rows[{i}].FacultyCode");
+                ModelState.Remove($"Rows[{i}].CollegeCode");
+                ModelState.Remove($"Rows[{i}].SlNo");
+            }
+
+            // ── Always reload designation list (needed for re-render on error) ──
             vm.DesignationList = await GetDesignationListAsync(facultyCode);
+
+            // ── Log row count for debugging ──
+            Console.WriteLine($"[TrustMember POST] Rows received: {vm.Rows?.Count}");
+
+            if (!ModelState.IsValid)
+            {
+                // Log all validation errors for debugging
+                foreach (var key in ModelState.Keys)
+                {
+                    foreach (var error in ModelState[key].Errors)
+                        Console.WriteLine($"  ModelState error [{key}]: {error.ErrorMessage}");
+                }
+                return View(vm);
+            }
+
+            // ── Filter out rows that are completely blank ──
+            var validRows = vm.Rows?
+                .Where(row =>
+                    !string.IsNullOrWhiteSpace(row.TrustMemberName) ||
+                    !string.IsNullOrWhiteSpace(row.MobileNumber) ||
+                    !string.IsNullOrWhiteSpace(row.Qualification))
+                .ToList() ?? new List<TrustMemberDetailsRowVM>();
+
+            // ── Per-row business validation ──
+            for (int i = 0; i < validRows.Count; i++)
+            {
+                var row = validRows[i];
+                if (string.IsNullOrWhiteSpace(row.TrustMemberName))
+                {
+                    ModelState.AddModelError(
+                        $"Rows[{i}].TrustMemberName",
+                        $"Row {i + 1}: Trust Member Name is required.");
+                }
+            }
 
             if (!ModelState.IsValid)
                 return View(vm);
 
-            // ── Remove existing rows ──
-            var existing = _context.ContinuationTrustMemberDetails
-                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode);
-            _context.ContinuationTrustMemberDetails.RemoveRange(existing);
-
-            // ── Load designations ──
+            // ── Load designations once ──
             var allDesignations = await _context.DesignationMasters
                 .Where(d => d.FacultyCode.ToString() == facultyCode)
                 .ToListAsync();
 
-            foreach (var row in vm.Rows)
+            // ── Delete existing records for this college + faculty ──
+            var existingList = await _context.ContinuationTrustMemberDetails
+                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode)
+                .ToListAsync();
+
+            if (existingList.Any())
+                _context.ContinuationTrustMemberDetails.RemoveRange(existingList);
+
+            // ── Insert new records ──
+            foreach (var row in validRows)
             {
-                if (string.IsNullOrWhiteSpace(row.TrustMemberName))
-                    continue;
-
+                // Parse date
                 DateOnly? joiningDate = null;
-
                 if (!string.IsNullOrWhiteSpace(row.JoiningDateString) &&
                     DateOnly.TryParseExact(
                         row.JoiningDateString,
@@ -816,14 +862,13 @@ namespace Medical_Affiliation.Controllers
                 {
                     FacultyCode = facultyCode,
                     CollegeCode = collegeCode,
-                    TrustMemberName = row.TrustMemberName.Trim(),
+                    TrustMemberName = row.TrustMemberName!.Trim(),
                     Qualification = row.Qualification,
                     MobileNumber = row.MobileNumber,
                     Age = row.Age,
                     JoiningDate = joiningDate,
-
                     DesignationId = row.DesignationCode,
-                    Designation = matchedDesignation?.DesignationName ?? row.DesignationCode
+                    Designation = matchedDesignation?.DesignationName ?? string.Empty
                 };
 
                 _context.ContinuationTrustMemberDetails.Add(entity);
@@ -833,24 +878,6 @@ namespace Medical_Affiliation.Controllers
 
             TempData["Success"] = "Trust member details saved successfully.";
 
-            // 🔽 REDIRECTION BASED ON SESSION (NO DB REQUIRED)
-            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
-
-            //if (courseLevel == "UG")
-            //{
-            //    return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
-            //}
-            //else if (courseLevel == "PG")
-            //{
-            //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-            //}
-            //else if (courseLevel == "SS")
-            //{
-            //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-            //}
-
-            // ❗ REQUIRED to avoid compiler error
-            //throw new Exception("Invalid CourseLevel in session");
             return RedirectToAction("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased");
         }
 

@@ -43,40 +43,33 @@
         padding: 0 0 48px;
     }
 
-    /* .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 24px;
-    } */
-
     /* ── Header Banner ── */
     .page-header {
         background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-        /* border-radius: 10px 10px 0 0; */
         padding: 1rem 2rem .6rem;
         position: relative;
         overflow: hidden;
     }
 
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
-        }
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+    }
 
-        .page-header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 36px;
-            right: 36px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-        }
+    .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 36px;
+        right: 36px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
 
     .header-eyebrow {
         font-family: 'DM Sans', sans-serif;
@@ -132,6 +125,27 @@
         box-shadow: 0 4px 20px rgba(15,37,69,0.07);
     }
 
+    /* ── Alert Boxes ── */
+    .alert-success {
+        padding: 10px 16px;
+        background: #eaf5ec;
+        border: 1px solid #b7dfc0;
+        border-radius: 4px;
+        margin-bottom: 16px;
+        color: var(--success);
+        font-size: 0.82rem;
+    }
+
+    .alert-danger {
+        padding: 10px 16px;
+        background: #fdecea;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        margin-bottom: 16px;
+        color: var(--danger);
+        font-size: 0.82rem;
+    }
+
     /* ── Section Label ── */
     .section-label {
         display: flex;
@@ -171,55 +185,55 @@
         font-size: 0.875rem;
     }
 
-        .data-table thead {
-            background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
-        }
+    .data-table thead {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+    }
 
-            .data-table thead th {
-                padding: 11px 12px;
-                font-size: 0.68rem;
-                font-weight: 600;
-                letter-spacing: 0.12em;
-                text-transform: uppercase;
-                color: var(--navy);
-                border-bottom: 2px solid var(--border);
-                white-space: nowrap;
-                text-align: left;
-            }
+    .data-table thead th {
+        padding: 11px 12px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--navy);
+        border-bottom: 2px solid var(--border);
+        white-space: nowrap;
+        text-align: left;
+    }
 
-                .data-table thead th:first-child {
-                    border-left: 3px solid var(--gold);
-                }
+    .data-table thead th:first-child {
+        border-left: 3px solid var(--gold);
+    }
 
-        .data-table tbody tr {
-            transition: background 0.15s;
-            border-bottom: 1px solid #f0ece4;
-        }
+    .data-table tbody tr {
+        transition: background 0.15s;
+        border-bottom: 1px solid #f0ece4;
+    }
 
-            .data-table tbody tr:last-child {
-                border-bottom: none;
-            }
+    .data-table tbody tr:last-child {
+        border-bottom: none;
+    }
 
-            .data-table tbody tr:nth-child(even) {
-                background: #faf8f4;
-            }
+    .data-table tbody tr:nth-child(even) {
+        background: #faf8f4;
+    }
 
-            .data-table tbody tr:hover {
-                background: #f3eed8 !important;
-            }
+    .data-table tbody tr:hover {
+        background: #f3eed8 !important;
+    }
 
-        .data-table td {
-            padding: 8px 10px;
-            vertical-align: middle;
-        }
+    .data-table td {
+        padding: 8px 10px;
+        vertical-align: middle;
+    }
 
-            .data-table td:first-child {
-                text-align: center;
-                font-weight: 600;
-                font-size: 0.75rem;
-                color: var(--text-muted);
-                width: 48px;
-            }
+    .data-table td:first-child {
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        width: 48px;
+    }
 
     /* ── Inputs ── */
     .form-control {
@@ -234,11 +248,11 @@
         transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-        .form-control:focus {
-            outline: none;
-            border-color: var(--navy-mid);
-            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
-        }
+    .form-control:focus {
+        outline: none;
+        border-color: var(--navy-mid);
+        box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+    }
 
     select.form-control {
         cursor: pointer;
@@ -249,7 +263,7 @@
         padding-right: 28px;
     }
 
-    .text-danger {
+    .field-validation-error {
         display: block;
         font-size: 0.7rem;
         color: var(--danger);
@@ -274,11 +288,11 @@
         line-height: 1;
     }
 
-        .btn-remove:hover {
-            background: var(--danger);
-            border-color: var(--danger);
-            color: #fff;
-        }
+    .btn-remove:hover {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: #fff;
+    }
 
     /* ── Footer Controls ── */
     .form-footer {
@@ -295,7 +309,7 @@
         align-items: center;
         gap: 7px;
         background: transparent;
-        border: 1.5px solid linear-gradient(135deg, var(--navy), var(--navy-mid));
+        border: 1.5px solid var(--navy);
         color: var(--success);
         font-size: 0.8rem;
         font-weight: 600;
@@ -307,10 +321,10 @@
         letter-spacing: 0.04em;
     }
 
-        .btn-add:hover {
-            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
-            color: #fff;
-        }
+    .btn-add:hover {
+        background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+        color: #fff;
+    }
 
     .btn-add-icon {
         font-size: 1.1rem;
@@ -339,11 +353,11 @@
         font-family: 'DM Sans', sans-serif;
     }
 
-        .btn-prev:hover {
-            border-color: var(--navy-mid);
-            color: var(--navy);
-            background: #f3f0e8;
-        }
+    .btn-prev:hover {
+        border-color: var(--navy-mid);
+        color: var(--navy);
+        background: #f3f0e8;
+    }
 
     .btn-save {
         display: inline-flex;
@@ -364,20 +378,20 @@
         overflow: hidden;
     }
 
-        .btn-save::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--gold);
-        }
+    .btn-save::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--gold);
+    }
 
-        .btn-save:hover {
-            opacity: 0.9;
-            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
-        }
+    .btn-save:hover {
+        opacity: 0.9;
+        box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+    }
 
     /* ── Empty state ── */
     .empty-notice {
@@ -401,39 +415,38 @@
         overflow-y: hidden;
         max-width: 100%;
         border-radius: var(--radius);
-        /* Optional: nice scrollbar styling */
         scrollbar-width: thin;
         scrollbar-color: var(--gold) #e6e0d1;
         margin-bottom: 20px !important;
     }
 
-        .table-scroll-wrapper::-webkit-scrollbar {
-            height: 6px;
-        }
+    .table-scroll-wrapper::-webkit-scrollbar {
+        height: 6px;
+    }
 
-        .table-scroll-wrapper::-webkit-scrollbar-thumb {
-            background-color: var(--gold);
-            border-radius: 4px;
-        }
+    .table-scroll-wrapper::-webkit-scrollbar-thumb {
+        background-color: var(--gold);
+        border-radius: 4px;
+    }
 
-        .table-scroll-wrapper::-webkit-scrollbar-track {
-            background: #f0ece4;
-        }
+    .table-scroll-wrapper::-webkit-scrollbar-track {
+        background: #f0ece4;
+    }
 
     /* Ensure table doesn't break layout */
     .data-table {
-        width: max-content; /* Important: allows horizontal scroll */
+        width: max-content;
         min-width: 100%;
-        table-layout: fixed; /* Helps with column alignment */
+        table-layout: fixed;
     }
 
-        /* Optional: Make header sticky when scrolling horizontally */
-        .data-table thead th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
-        }
+    /* Make header sticky when scrolling horizontally */
+    .data-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+    }
 
     .btn-next {
         display: inline-flex;
@@ -448,26 +461,43 @@
         text-decoration: none;
         transition: opacity 0.15s, box-shadow 0.15s;
     }
+
+    .btn-next:hover {
+        opacity: 0.9;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
-
-
 <div class="page-shell">
     <div class="page-container">
-        <!-- Header -->
+
+        <!-- ── Header ── -->
         <div class="page-header">
             <div class="emblem">
                 <i class="fas fa-book-open"></i>
             </div>
             <div class="page-header-text">
                 <h1 class="header-title">Trust Member Details</h1>
-                @* <p>Enter details of all governing trust members associated with this institution</p> *@
             </div>
         </div>
 
-        <!-- Form Card -->
+        <!-- ── Form Card ── -->
         <div class="form-card">
+
+            @* ── Success Message (shown after successful save + redirect) ── *@
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert-success">@TempData["Success"]</div>
+            }
+
+            @* ── Validation Summary (visible error list so nothing fails silently) ── *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert-danger">
+                    @Html.ValidationSummary(false, "Please fix the errors below:", new { @class = "" })
+                </div>
+            }
+
             @using (Html.BeginForm("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
@@ -485,37 +515,41 @@
                             <thead>
                                 <tr>
                                     <th style="width:50px;">#</th>
-                                    <th>Trust Member Name</th>
-                                    <th>Designation</th>
-                                    <th>Qualification</th>
-                                    <th>Mobile Number</th>
-                                    <th>Age</th>
-                                    <th>Joining Date</th>
+                                    <th style="min-width:180px;">Trust Member Name</th>
+                                    <th style="min-width:180px;">Designation</th>
+                                    <th style="min-width:160px;">Qualification</th>
+                                    <th style="min-width:140px;">Mobile Number</th>
+                                    <th style="min-width:80px;">Age</th>
+                                    <th style="min-width:150px;">Joining Date</th>
                                     <th style="width:70px; text-align:center;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (Model.Rows.Count == 0)
+                                @if (Model.Rows == null || Model.Rows.Count == 0)
                                 {
                                     <tr id="emptyRow">
                                         <td colspan="8" class="empty-notice">
-                                            No trust members added yet.<br>
+                                            No trust members added yet.<br />
                                             Click <strong>+ Add New Member</strong> to begin.
                                         </td>
                                     </tr>
                                 }
+
                                 @for (int i = 0; i < Model.Rows.Count; i++)
                                 {
                                     <tr>
-                                        <td><span class="row-index">@(i + 1)</span></td>
-                                        @Html.HiddenFor(m => m.Rows[i].SlNo)
-                                        @Html.HiddenFor(m => m.Rows[i].FacultyCode)
-                                        @Html.HiddenFor(m => m.Rows[i].CollegeCode)
+                                        
+                                        <td>
+                                            <span class="row-index">@(i + 1)</span>
+                                            @Html.HiddenFor(m => m.Rows[i].SlNo)
+                                            @Html.HiddenFor(m => m.Rows[i].FacultyCode)
+                                            @Html.HiddenFor(m => m.Rows[i].CollegeCode)
+                                        </td>
 
                                         <td>
-                                            @Html.TextBoxFor(m => m.Rows[i].TrustMemberName, 
-                                                new { 
-                                                    @class = "form-control", 
+                                            @Html.TextBoxFor(m => m.Rows[i].TrustMemberName,
+                                                new {
+                                                    @class = "form-control",
                                                     placeholder = "Full Name",
                                                     maxlength = "100"
                                                 })
@@ -531,9 +565,9 @@
                                         </td>
 
                                         <td>
-                                            @Html.TextBoxFor(m => m.Rows[i].Qualification, 
-                                                new { 
-                                                    @class = "form-control", 
+                                            @Html.TextBoxFor(m => m.Rows[i].Qualification,
+                                                new {
+                                                    @class = "form-control",
                                                     placeholder = "e.g. MBBS, MD, PhD",
                                                     maxlength = "80"
                                                 })
@@ -541,9 +575,9 @@
                                         </td>
 
                                         <td>
-                                            @Html.TextBoxFor(m => m.Rows[i].MobileNumber, 
-                                                new { 
-                                                    @class = "form-control", 
+                                            @Html.TextBoxFor(m => m.Rows[i].MobileNumber,
+                                                new {
+                                                    @class = "form-control",
                                                     placeholder = "9876543210",
                                                     maxlength = "10"
                                                 })
@@ -551,11 +585,11 @@
                                         </td>
 
                                         <td>
-                                            @Html.TextBoxFor(m => m.Rows[i].Age, 
-                                                new { 
-                                                    @class = "form-control", 
-                                                    type = "number", 
-                                                    min = "18", 
+                                            @Html.TextBoxFor(m => m.Rows[i].Age,
+                                                new {
+                                                    @class = "form-control",
+                                                    type = "number",
+                                                    min = "18",
                                                     max = "100",
                                                     placeholder = "Age"
                                                 })
@@ -563,9 +597,9 @@
                                         </td>
 
                                         <td>
-                                            @Html.TextBoxFor(m => m.Rows[i].JoiningDateString, 
-                                                new { 
-                                                    @class = "form-control", 
+                                            @Html.TextBoxFor(m => m.Rows[i].JoiningDateString,
+                                                new {
+                                                    @class = "form-control",
                                                     type = "date"
                                                 })
                                             @Html.ValidationMessageFor(m => m.Rows[i].JoiningDateString, "", new { @class = "field-validation-error" })
@@ -579,22 +613,22 @@
                             </tbody>
                         </table>
                     </div>
-                    <button type="button" id="btnAddRow" class="btn-add">
+
+                    <button type="button" id="btnAddRow" class="btn-add" style="margin-left:16px;">
                         <span style="font-size:1.25rem; margin-right:6px;">+</span> Add New Member
                     </button>
                 </div>
 
                 <div class="form-footer">
-                        <a asp-action="Aff_InstituteDetails" 
-                           asp-controller="ContinuesAffiliation_Facultybased" 
-                           class="btn-prev">← Previous</a>
+                    <a asp-action="Aff_InstituteDetails"
+                       asp-controller="ContinuesAffiliation_Facultybased"
+                       class="btn-prev">← Previous</a>
 
-                        <button type="submit" class="btn-save">Save & Continue</button>
-                        <a asp-controller="ContinuesAffiliation_Facultybased"
-                           asp-action="Dean_DirectorDetails"
-                               class="btn-next">Next →</a>
-                    @* <div class="nav-controls"> *@
-                    @* </div> *@
+                    <button type="submit" class="btn-save">Save &amp; Continue</button>
+
+                    <a asp-controller="ContinuesAffiliation_Facultybased"
+                       asp-action="Dean_DirectorDetails"
+                       class="btn-next">Next →</a>
                 </div>
             }
         </div>
@@ -608,69 +642,123 @@
 
     <script>
         $(function () {
+
+            // Tracks the next index to use when a row is added.
+            // Initialised from the server-rendered row count so it never
+            // clashes with pre-existing Razor rows.
             let rowIndex = @Model.Rows.Count;
 
-            function refreshRowNumbers() {
-                $("#tblTrust tbody tr:not(#emptyRow)").each(function (i) {
-                    $(this).find(".row-index").text(i + 1);
+            // ─────────────────────────────────────────────────────────────
+            // reindexRows()
+            // After every add or remove call this to close any index gaps.
+            // ASP.NET model binding requires a gapless 0-based sequence:
+            // Rows[0], Rows[1], Rows[2]...
+            // Any gap causes everything after it to be silently dropped.
+            // ─────────────────────────────────────────────────────────────
+            function reindexRows() {
+                $("#tblTrust tbody tr:not(#emptyRow)").each(function (index) {
+
+                    // Update the visible serial number in the first cell
+                    $(this).find(".row-index").text(index + 1);
+
+                    // Re-stamp every input and select name with the new index
+                    $(this).find("input, select").each(function () {
+                        let name = $(this).attr("name");
+                        if (name) {
+                            $(this).attr("name", name.replace(/Rows\[\d+\]/, "Rows[" + index + "]"));
+                        }
+                    });
                 });
+
+                // Keep rowIndex aligned with the actual DOM count so the next
+                // added row always gets a unique, correct index
+                rowIndex = $("#tblTrust tbody tr:not(#emptyRow)").length;
             }
 
+            // ─────────────────────────────────────────────────────────────
+            // Build designation <option> HTML exactly once from the Razor
+            // server data. Reused in every dynamically-added row so the
+            // Razor foreach loop does not run again on each click.
+            // ─────────────────────────────────────────────────────────────
+            let desigOptions = `<option value="">— Select Designation —</option>`;
+            @foreach (var item in Model.DesignationList)
+            {
+                <text>desigOptions += `<option value="@Html.Raw(item.Value)">@Html.Raw(item.Text)</option>`;</text>
+            }
+
+            // ─────────────────────────────────────────────────────────────
             // Add New Row
+            // ─────────────────────────────────────────────────────────────
             $("#btnAddRow").on("click", function () {
+
+                // Remove the "no rows" placeholder row if it exists
                 $("#emptyRow").remove();
 
-                var desigOptions = `<option value="">— Select Designation —</option>`;
-                @foreach (var item in Model.DesignationList)
-                {
-                    <text>desigOptions += `<option value="@item.Value">@item.Text</option>`;</text>
-                }
-
-                var newRow = `
+                let newRow = `
                 <tr>
-                    <td><span class="row-index">${rowIndex + 1}</span></td>
                     <td>
-                        <input type="hidden" name="Rows[${rowIndex}].SlNo" value="0" />
+                        <span class="row-index"></span>
+                        <input type="hidden" name="Rows[${rowIndex}].SlNo"        value="0" />
                         <input type="hidden" name="Rows[${rowIndex}].FacultyCode" value="@Model.FacultyCode" />
                         <input type="hidden" name="Rows[${rowIndex}].CollegeCode" value="@Model.CollegeCode" />
-                        <input class="form-control" name="Rows[${rowIndex}].TrustMemberName" 
+                    </td>
+
+                    <td>
+                        <input class="form-control"
+                               name="Rows[${rowIndex}].TrustMemberName"
                                placeholder="Full Name" maxlength="100" />
                     </td>
+
                     <td>
                         <select class="form-control" name="Rows[${rowIndex}].DesignationCode">
                             ${desigOptions}
                         </select>
                     </td>
+
                     <td>
-                        <input class="form-control" name="Rows[${rowIndex}].Qualification" 
+                        <input class="form-control"
+                               name="Rows[${rowIndex}].Qualification"
                                placeholder="e.g. MBBS, MD, PhD" maxlength="80" />
                     </td>
+
                     <td>
-                        <input class="form-control" name="Rows[${rowIndex}].MobileNumber" 
-                               placeholder="9876543210" maxlength="10" 
-                               onkeypress="return event.charCode >= 48 && event.charCode <= 57"/>
+                        <input class="form-control"
+                               name="Rows[${rowIndex}].MobileNumber"
+                               placeholder="9876543210" maxlength="10" />
                     </td>
+
                     <td>
-                        <input class="form-control" name="Rows[${rowIndex}].Age" type="number" 
-                               min="18" max="100" placeholder="Age" />
+                        <input class="form-control"
+                               name="Rows[${rowIndex}].Age"
+                               type="number" min="18" max="100" placeholder="Age" />
                     </td>
+
                     <td>
-                        <input class="form-control" name="Rows[${rowIndex}].JoiningDateString" type="date" />
+                        <input class="form-control"
+                               name="Rows[${rowIndex}].JoiningDateString"
+                               type="date" />
                     </td>
+
                     <td style="text-align:center;">
                         <button type="button" class="btn-remove btn-remove-row" title="Remove">−</button>
                     </td>
                 </tr>`;
 
                 $("#tblTrust tbody").append(newRow);
-                rowIndex++;
+
+                // Always reindex after append so the new row gets a clean index
+                reindexRows();
             });
 
+            // ─────────────────────────────────────────────────────────────
             // Remove Row
+            // ─────────────────────────────────────────────────────────────
             $("#tblTrust").on("click", ".btn-remove-row", function () {
                 if (confirm("Are you sure you want to remove this member?")) {
+
                     $(this).closest("tr").remove();
 
+                    // Show the empty-state notice when no data rows remain
                     if ($("#tblTrust tbody tr").length === 0) {
                         $("#tblTrust tbody").html(`
                             <tr id="emptyRow">
@@ -679,13 +767,21 @@
                                     Click <strong>+ Add New Member</strong> to begin.
                                 </td>
                             </tr>`);
-                    } else {
-                        refreshRowNumbers();
                     }
+
+                    // Always reindex after remove to close the index gap
+                    reindexRows();
                 }
             });
 
-            // Only numbers in Mobile field (already handled in HTML)
+            // ─────────────────────────────────────────────────────────────
+            // Final reindex immediately before the form POST (safety net).
+            // Catches any edge case where the DOM drifted out of sequence.
+            // ─────────────────────────────────────────────────────────────
+            $("form").on("submit", function () {
+                reindexRows();
+            });
+
         });
     </script>
 }
