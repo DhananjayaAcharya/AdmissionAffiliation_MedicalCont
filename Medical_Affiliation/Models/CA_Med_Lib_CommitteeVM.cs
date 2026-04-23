@@ -14,10 +14,6 @@ public class CA_Med_Lib_CommitteeVM
     public IFormFile? CommitteePdf { get; set; }
 
     public string? CommitteePdfName { get; set; }
-
-    public List<CA_Med_Lib_CommitteeVM> Committees { get; set; } = new();
-
-
-
+    public string? CourseLevel { get; set; }
 
 }

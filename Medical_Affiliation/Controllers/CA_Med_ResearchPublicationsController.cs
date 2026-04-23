@@ -2,7 +2,8 @@
 using Microsoft.EntityFrameworkCore;  // ← ADD THIS
 using Medical_Affiliation.Models;
 using Medical_Affiliation.DATA;
-using System.IO; // For MemoryStream
+using System.IO;
+using System.Text.Json; // For MemoryStream
 
 namespace Medical_Affiliation.Controllers
 {
@@ -16,50 +17,16 @@ namespace Medical_Affiliation.Controllers
         }
       
         [HttpGet]
-        public async Task<IActionResult> CA_Med_ResearchPublicationsDetails(string level)
+        public async Task<IActionResult> CA_Med_ResearchPublicationsDetails()
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+            var levels = string.IsNullOrEmpty(raw) 
+                ? new List<string>() 
+                : JsonSerializer.Deserialize<List<string>>(raw).Select(l => l.Trim().ToUpper()).Distinct().ToList();
 
-
-            //Enter this code after  var facultyCode
-            // ✅ If not coming from URL, get from Session
-            //if (string.IsNullOrEmpty(level))
-            //{
-            //    level = HttpContext.Session.GetString("CourseLevel");
-            //}
-
-            //// ✅ If still empty, go back to first page
-            //if (string.IsNullOrEmpty(level))
-            //    return RedirectToAction("Institution_Details", "ContinuesAffiliation_Facultybased");
-
-            //// ✅ Save again in session (safety)
-            //HttpContext.Session.SetString("CourseLevel", level);
-
-            // 1. If URL has level → use it (TOP PRIORITY)
-            if (!string.IsNullOrEmpty(level))
-            {
-                HttpContext.Session.SetString("CourseLevel", level);
-            }
-            else
-            {
-                // 2. Else use session
-                level = HttpContext.Session.GetString("CourseLevel");
-            }
-
-            // 3. If still empty → redirect
-            if (string.IsNullOrEmpty(level))
-            {
-                return RedirectToAction("Institution_Details", "ContinuesAffiliation_Facultybased");
-            }
-
-            // 4. Send to View
-            ViewBag.CourseLevel = level;
-
-
-            // ✅ Send to View
-            //ViewBag.CourseLevel = level;
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
@@ -70,57 +37,66 @@ namespace Medical_Affiliation.Controllers
             //var mainData = await _context.CaMedResearchPublicationsDetails
             //    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode);
 
-            var mainData = await _context.CaMedResearchPublicationsDetails
-            .FirstOrDefaultAsync(x =>
-                x.CollegeCode == collegeCode &&
-                x.FacultyCode == facultyCode &&
-                x.CourseLevel == level);
+            var mainDataList = await _context.CaMedResearchPublicationsDetails
+                                            .Where(x =>
+                                                x.CollegeCode == collegeCode &&
+                                                x.FacultyCode == facultyCode
+                                                )
+                                            .ToListAsync();
 
+
+            var commonData = mainDataList
+                    .FirstOrDefault(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == "ALL");
+
+            if (commonData == null)
+            {
+                commonData = new CaMedResearchPublicationsDetail(); // safe empty object
+            }
 
 
             // Load Other Activities with join for ActivityName
-            var otherActivities = await _context.CaMedLibOtherAcademicActivities
+            // ================= OTHER ACTIVITIES =================
+            var masterList = await _context.CaMstMedOtherAcademicActivities.ToListAsync();
+
+            var savedList = await _context.CaMedLibOtherAcademicActivities
                 .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode)
-                .Join(_context.CaMstMedOtherAcademicActivities,
-                      saved => saved.ActivityId,
-                      master => master.Id,
-                      (saved, master) => new CA_Med_Lib_OtherAcademicActivitiesVM
-                      {
-                          Id = saved.Id,
-                          ActivityId = saved.ActivityId,
-                          ActivityName = master.ActivityName,
-                          DepartmentCode = saved.DepartmentCode,
-                          DepartmentWise = saved.DepartmentWise,
-                          ActivityPdfName = saved.ActivityPdfName
-                      })
                 .ToListAsync();
 
-            // Load Committees master + saved values
-            //var committeeMasters = await _context.CaMstMedCommitteeNames
-            //    .Where(x => x.FacultyCode == facultyCode)
-            //    .OrderBy(x => x.CommitteeName)
-            //    .ToListAsync();
+            var otherActivities = masterList
+                .Select(master =>
+                {
+                    var saved = savedList.FirstOrDefault(s => s.ActivityId == master.Id);
+
+                    return new CA_Med_Lib_OtherAcademicActivitiesVM
+                    {
+                        Id = saved?.Id ?? 0,
+                        ActivityId = master.Id,
+                        ActivityName = master.ActivityName,
+                        DepartmentCode = saved?.DepartmentCode ?? "",
+                        DepartmentWise = saved?.DepartmentWise ?? "",
+                        ActivityPdfName = saved?.ActivityPdfName
+                    };
+                })
+                .ToList();
 
             // Load Committees master
-            IQueryable<CaMstMedCommitteeName> committeeMastersQuery =
-            _context.CaMstMedCommitteeNames
-            .Where(x => x.FacultyCode == facultyCode);
+            var committeeMasters = await _context.CaMstMedCommitteeNames
+                    .Where(x =>
+                        x.FacultyCode == facultyCode &&
+                        (
+                            (x.CourseLevel != null && x.CourseLevel.ToUpper() == "ALL") ||
+                            (x.CourseLevel != null && x.CourseLevel.ToUpper() == "UG" && levels.Contains("UG"))
+                        ))
+                    .OrderBy(x => x.CommitteeName)
+                    .ToListAsync();
 
-            // Apply order first
-            committeeMastersQuery = committeeMastersQuery.OrderBy(x => x.CommitteeName);
-
-            // ✅ If SS → take only first 5
-            if (level == "SS")
-            {
-                committeeMastersQuery = committeeMastersQuery.Take(5);
-            }
-
-            var committeeMasters = await committeeMastersQuery.ToListAsync();
 
 
             var savedCommittees = await _context.CaMedLibCommittees
                 .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode)
                 .ToListAsync();
+
+            var savedCommitteesDict = savedCommittees.GroupBy(x => x.CommitteeId).ToDictionary(g => g.Key, g => g.First());
 
             // Load dropdown data
             var departments = await _context.DepartmentMasters
@@ -132,36 +108,54 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(x => x.ActivityName)
                 .ToListAsync();
 
+
+
+            // 🔹 LEVEL DATA
+            //var ugData = mainDataList
+            //    .FirstOrDefault(x => x.CourseLevel != null && x.CourseLevel.ToUpper() == "ALL")
+            //    ?? mainDataList.FirstOrDefault();
+
             // Build View Model
             var vm = new CA_Med_ResearchPublicationsDetailsVM
             {
-                PublicationsNo = mainData?.PublicationsNo ?? 0,
-                PublicationsPdfName = mainData?.PublicationsPdfName,
+                // ✅ COMMON → from UG
+                PublicationsNo = commonData?.PublicationsNo ?? 0,
+                PublicationsPdfName = commonData?.PublicationsPdfName,
 
-                // ✅ Students
-                StudentsRGUHSFunded = mainData?.StudentsRguhsfunded,
-                StudentsExternalBodyFunding = mainData?.StudentsExternalBodyFunding,
-                StudentsProjectsPdfName = mainData?.StudentsProjectsPdfName,
+                // ✅ UG ONLY
+                ClinicalTrialsPdfName = commonData?.ClinicalTrialsPdfName,
 
-                // ✅ Faculty
-                FacultyRGUHSFunded = mainData?.FacultyRguhsfunded,
-                FacultyExternalBodyFunding = mainData?.FacultyExternalBodyFunding,
-                FacultyProjectsPdfName = mainData?.FacultyProjectsPdfName,
+                // ✅ Research Projects → from UG
+                StudentsRGUHSFunded = commonData?.StudentsRguhsfunded,
+                StudentsExternalBodyFunding = commonData?.StudentsExternalBodyFunding,
+                StudentsProjectsPdfName = commonData?.StudentsProjectsPdfName,
 
-                ClinicalTrialsPdfName = mainData?.ClinicalTrialsPdfName,
+                FacultyRGUHSFunded = commonData?.FacultyRguhsfunded,
+                FacultyExternalBodyFunding = commonData?.FacultyExternalBodyFunding,
+                FacultyProjectsPdfName = commonData?.FacultyProjectsPdfName,
 
+                // ✅ Other
                 OtherActivities = otherActivities,
                 Departments = departments,
                 ActivityMasters = activityMasters,
 
-                Committees = committeeMasters.Select(m => new CA_Med_Lib_CommitteeVM
+                // ✅ Committees
+                Committees = committeeMasters.Select(m =>
                 {
-                    CommitteeId = m.Id,
-                    CommitteeName = m.CommitteeName,
-                    IsPresent = savedCommittees.FirstOrDefault(s => s.CommitteeId == m.Id)?.IsPresent ?? "",
-                    CommitteePdfName = savedCommittees.FirstOrDefault(s => s.CommitteeId == m.Id)?.CommitteePdfName
-                }).ToList()
+                    savedCommitteesDict.TryGetValue(m.Id, out var saved);
+
+                    return new CA_Med_Lib_CommitteeVM
+                    {
+                        CommitteeId = m.Id,
+                        CommitteeName = m.CommitteeName,
+                        IsPresent = saved?.IsPresent ?? "",
+                        CommitteePdfName = saved?.CommitteePdfName,
+                        CourseLevel = m.CourseLevel
+                    };
+                })
+                .ToList()
             };
+
             return View(vm);
         }
 
@@ -184,7 +178,8 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
-            var level = HttpContext.Session.GetString("CourseLevel");
+            //var level = "UG";
+            var level = "ALL";
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
@@ -193,48 +188,31 @@ namespace Medical_Affiliation.Controllers
             //    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode);
 
             var entity = await _context.CaMedResearchPublicationsDetails
-            .FirstOrDefaultAsync(x =>
-            x.CollegeCode == collegeCode &&
-            x.FacultyCode == facultyCode &&
-            x.CourseLevel == level);
+                .FirstOrDefaultAsync(x =>
+                x.CollegeCode == collegeCode &&
+                x.FacultyCode == facultyCode &&
+                x.CourseLevel == level);
 
-            bool isNew = entity == null;
-
-            // ✅ FIRST SAVE → PDFs mandatory
-            //if (isNew)
-            //{
-            //    if (PublicationsPdf == null || PublicationsPdf.Length == 0)
-            //        ModelState.AddModelError("PublicationsPdf", "Publications PDF is required.");
-
-            //    if (StudentsProjectsPdf == null || StudentsProjectsPdf.Length == 0)
-            //        ModelState.AddModelError("StudentsProjectsPdf", "Students Projects PDF is required.");
-
-            //    if (FacultyProjectsPdf == null || FacultyProjectsPdf.Length == 0)
-            //        ModelState.AddModelError("FacultyProjectsPdf", "Faculty Projects PDF is required.");
-
-            //    if (ClinicalTrialsPdf == null || ClinicalTrialsPdf.Length == 0)
-            //        ModelState.AddModelError("ClinicalTrialsPdf", "Clinical Trials PDF is required.");
-            //}
-
-            if (isNew)
+            if (PublicationsPdf == null && string.IsNullOrEmpty(entity?.PublicationsPdfPath))
             {
-                if (PublicationsPdf == null || PublicationsPdf.Length == 0)
-                    ModelState.AddModelError("PublicationsPdf", "Publications PDF is required.");
-
-                if (StudentsProjectsPdf == null || StudentsProjectsPdf.Length == 0)
-                    ModelState.AddModelError("StudentsProjectsPdf", "Students Projects PDF is required.");
-
-                if (FacultyProjectsPdf == null || FacultyProjectsPdf.Length == 0)
-                    ModelState.AddModelError("FacultyProjectsPdf", "Faculty Projects PDF is required.");
-
-                // ✅ ONLY for UG (or non-SS)
-                if (level != "SS")
-                {
-                    if (ClinicalTrialsPdf == null || ClinicalTrialsPdf.Length == 0)
-                        ModelState.AddModelError("ClinicalTrialsPdf", "Clinical Trials PDF is required.");
-                }
+                ModelState.AddModelError("PublicationsPdf", "Publications PDF is required.");
             }
 
+            if (StudentsProjectsPdf == null && string.IsNullOrEmpty(entity?.StudentsProjectsPdfPath))
+            {
+                ModelState.AddModelError("StudentsProjectsPdf", "Students Projects PDF is required.");
+            }
+
+            if (FacultyProjectsPdf == null && string.IsNullOrEmpty(entity?.FacultyProjectsPdfPath))
+            {
+                ModelState.AddModelError("FacultyProjectsPdf", "Faculty Projects PDF is required.");
+            }
+
+            // ✅ UG only (always required in your case)
+            if (ClinicalTrialsPdf == null && string.IsNullOrEmpty(entity?.ClinicalTrialsPdfPath))
+            {
+                ModelState.AddModelError("ClinicalTrialsPdf", "Clinical Trials PDF is required.");
+            }
             // ✅ STOP if validation fails
             if (!ModelState.IsValid)
             {
@@ -255,17 +233,13 @@ namespace Medical_Affiliation.Controllers
             // ✅ Create new record if needed
             if (entity == null)
             {
-                //entity = new CaMedResearchPublicationsDetail
-                //{
-                //    CollegeCode = collegeCode,
-                //    FacultyCode = facultyCode
-                //};
 
                 entity = new CaMedResearchPublicationsDetail
                 {
                     CollegeCode = collegeCode,
                     FacultyCode = facultyCode,
-                    CourseLevel = level   // ✅ VERY IMPORTANT
+                    //CourseLevel = level   // ✅ VERY IMPORTANT
+                    CourseLevel = "ALL"
                 };
                 _context.CaMedResearchPublicationsDetails.Add(entity);
             }
@@ -402,7 +376,8 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var level = HttpContext.Session.GetString("CourseLevel");
+            //var level = HttpContext.Session.GetString("CourseLevel");
+            var level = "UG";
 
             var record = await _context.CaMedResearchPublicationsDetails
                 .FirstOrDefaultAsync(x =>
@@ -472,6 +447,12 @@ namespace Medical_Affiliation.Controllers
 
             if (activity != null)
             {
+
+                if (!string.IsNullOrEmpty(activity.ActivityPdfPath) && System.IO.File.Exists(activity.ActivityPdfPath))
+                {
+                    System.IO.File.Delete(activity.ActivityPdfPath);
+                }
+
                 _context.CaMedLibOtherAcademicActivities.Remove(activity);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Activity deleted successfully";
@@ -519,7 +500,7 @@ namespace Medical_Affiliation.Controllers
         private async Task<CA_Med_ResearchPublicationsDetailsVM> LoadFullViewModel()
         {
             // Pass null → method will read from Session
-            var result = await CA_Med_ResearchPublicationsDetails(null);
+            var result = await CA_Med_ResearchPublicationsDetails();
 
             if (result is ViewResult viewResult &&
                 viewResult.Model is CA_Med_ResearchPublicationsDetailsVM vm)
@@ -552,8 +533,9 @@ namespace Medical_Affiliation.Controllers
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
                 x.DepartmentCode == model.DepartmentCode &&
-                x.ActivityId == model.ActivityId
-            );
+                x.ActivityId == model.ActivityId &&
+                x.CourseLevel != null && 
+                x.CourseLevel.ToUpper() == "UG");
 
             if (alreadyExists)
             {
@@ -576,7 +558,8 @@ namespace Medical_Affiliation.Controllers
                 FacultyCode = facultyCode!,
                 DepartmentCode = model.DepartmentCode,
                 DepartmentWise = departmentName ?? "Unknown Department",
-                ActivityId = model.ActivityId
+                ActivityId = model.ActivityId,
+                CourseLevel = "UG"
             };
 
             // 🔥 FILE PATH STORAGE
@@ -615,56 +598,38 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var level = HttpContext.Session.GetString("CourseLevel");
+            //var level = HttpContext.Session.GetString("CourseLevel");
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
 
-            // 🔴 RULE 1
-            bool hasUnselectedRows = model.Committees.Any(c => string.IsNullOrEmpty(c.IsPresent));
-            if (hasUnselectedRows)
+            if (model.Committees.Any(c => string.IsNullOrEmpty(c.IsPresent)))
             {
-                TempData["Error"] = "Please select Yes or No for ALL committees before saving.";
-
+                TempData["Error"] = "Please select Yes or No for all committees.";
                 var vm = await LoadFullViewModel();
                 vm.Committees = model.Committees;
                 return View("CA_Med_ResearchPublicationsDetails", vm);
             }
 
+            // 🔴 RULE 1
+            //bool hasUnselectedRows = model.Committees.Any(c => string.IsNullOrEmpty(c.IsPresent));
+            //if (hasUnselectedRows)
+            //{
+            //    TempData["Error"] = "Please select Yes or No for ALL committees before saving.";
+
+            //    var vm = await LoadFullViewModel();
+            //    vm.Committees = model.Committees;
+            //    return View("CA_Med_ResearchPublicationsDetails", vm);
+            //}
+
             // 🔴 RULE 2
             foreach (var item in model.Committees)
             {
-                if (item.IsPresent == "Y")
-                {
-                    var existingRecord = await _context.CaMedLibCommittees
-                        .FirstOrDefaultAsync(x =>
-                            x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            x.CommitteeId == item.CommitteeId);
+                var master = await _context.CaMstMedCommitteeNames
+                    .FirstOrDefaultAsync(x => x.Id == item.CommitteeId);
 
-                    bool hasExistingFile =
-                        existingRecord != null &&
-                        !string.IsNullOrEmpty(existingRecord.CommitteePdfPath);
+                var courseLevel = master?.CourseLevel ?? "ALL"; // ✅ IMPORTANT
 
-                    bool hasNewFile =
-                        item.CommitteePdf != null &&
-                        item.CommitteePdf.Length > 0;
-
-                    if (!hasExistingFile && !hasNewFile)
-                    {
-                        TempData["Error"] =
-                            "You selected YES but did not upload document. Upload or select NO.";
-
-                        var vm = await LoadFullViewModel();
-                        vm.Committees = model.Committees;
-                        return View("CA_Med_ResearchPublicationsDetails", vm);
-                    }
-                }
-            }
-
-            // 🔹 SAVE LOGIC
-            foreach (var item in model.Committees)
-            {
                 var db = await _context.CaMedLibCommittees
                     .FirstOrDefaultAsync(x =>
                         x.CollegeCode == collegeCode &&
@@ -678,13 +643,13 @@ namespace Medical_Affiliation.Controllers
                         CollegeCode = collegeCode!,
                         FacultyCode = facultyCode!,
                         CommitteeId = item.CommitteeId,
-                        CourseLevel = level
+                        CourseLevel = courseLevel   // ✅ FROM MASTER
                     };
                     _context.CaMedLibCommittees.Add(db);
                 }
 
                 db.IsPresent = item.IsPresent;
-                db.CourseLevel = level;
+                db.CourseLevel = courseLevel;
 
                 if (item.IsPresent == "Y")
                 {
@@ -703,7 +668,6 @@ namespace Medical_Affiliation.Controllers
                             await item.CommitteePdf.CopyToAsync(stream);
                         }
 
-                        // 🔥 Delete old file
                         if (!string.IsNullOrEmpty(db.CommitteePdfPath) &&
                             System.IO.File.Exists(db.CommitteePdfPath))
                         {
@@ -714,9 +678,8 @@ namespace Medical_Affiliation.Controllers
                         db.CommitteePdfName = item.CommitteePdf.FileName;
                     }
                 }
-                else if (item.IsPresent == "N")
+                else
                 {
-                    // 🔥 Delete existing file if user selects NO
                     if (!string.IsNullOrEmpty(db.CommitteePdfPath) &&
                         System.IO.File.Exists(db.CommitteePdfPath))
                     {

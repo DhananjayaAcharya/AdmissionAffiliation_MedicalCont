@@ -1973,6 +1973,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CommitteeName).HasMaxLength(200);
             entity.Property(e => e.FacultyCode).HasMaxLength(20);
             entity.Property(e => e.SubFacultyCode).HasMaxLength(20);
+            entity.Property(e => e.CourseLevel).HasMaxLength(10);
         });
 
         modelBuilder.Entity<CaMstMedLibTechnicalProcess>(entity =>

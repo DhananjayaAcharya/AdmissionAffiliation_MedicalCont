@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.DATA;
+using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -169,10 +170,20 @@ namespace Medical_Affiliation.Controllers
                     .Select(f => new SelectListItem
                     {
                         Value = f.FacultyId.ToString(),
-                        Text = f.FacultyName
+                        Text = f.FacultyName,
+                        Selected = true
                     }).ToList(),
 
-                Colleges = new List<SelectListItem>(),
+                //Colleges = new List<SelectListItem>(),
+                Colleges = _context.AffiliationCollegeMasters
+                    .Where(c => c.FacultyCode == "1")
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CollegeCode,
+                        Text = c.CollegeName
+                    })
+                    .OrderBy(c => c.Text)
+                    .ToList(),
                 CaptchaCode = captcha
             };
 

@@ -1,10 +1,28 @@
 ﻿@model Medical_Affiliation.Models.CA_Med_ResearchPublicationsDetailsVM
 @inject IHttpContextAccessor HttpContextAccessor
+@using System.Text.Json;
 
 @{
     ViewData["Title"] = "Research and Publication";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
-    var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+    var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
+
+    var levels = new List<string>();
+
+    if (!string.IsNullOrEmpty(raw))
+    {
+        try
+        {
+            levels = JsonSerializer.Deserialize<List<string>>(raw)
+                        ?.Select(l => l.Trim().ToUpper())
+                        .Distinct()
+                        .ToList() ?? new List<string>();
+        }
+        catch
+        {
+            levels = new List<string>();
+        }
+    }
 }
 
 <!DOCTYPE html>
@@ -286,7 +304,7 @@
         </div>
         <div class="page-header-text">
             <h1>Research and Publication</h1>
-            <p>Postgraduate Courses — Research, Projects & Academic Activities</p>
+            @* <p>Postgraduate Courses — Research, Projects & Academic Activities</p> *@
         </div>
     </div>
 
@@ -367,8 +385,11 @@
                     </table>
 
                     <!-- Students Projects PDF -->
-                    <div class="mt-4 pt-3 border-top">
-                        <label class="form-label fw-semibold">Upload Students Projects PDF <span class="text-danger">*</span></label>
+                    <div class="mt-4 pt-3 border-top" style="display: flex; gap: 1rem">
+                      
+                        <div>
+                            <label class="form-label fw-semibold">Upload Students Projects PDF <span class="text-danger">*</span></label>
+                        </div>
                         <label for="studentsProjectsPdf" class="custom-upload-btn">
                             <i class="bi bi-upload"></i> Choose File
                         </label>
@@ -380,16 +401,19 @@
                         <span asp-validation-for="StudentsProjectsPdf" class="text-danger d-block mt-1"></span>
 
                         @if (!string.IsNullOrEmpty(Model.StudentsProjectsPdfName))
-                        {
+                        {<div>
                             <a asp-action="ViewStudentsProjectsPdf" target="_blank" class="btn btn-secondary ms-3">
                                 <i class="bi bi-eye"></i> View Students Projects
                             </a>
+                        </div>
                         }
                     </div>
 
                     <!-- Faculty Projects PDF -->
-                    <div class="mt-4">
-                        <label class="form-label fw-semibold">Upload Faculty Projects PDF <span class="text-danger">*</span></label>
+                    <div class="mt-4" style="display: flex; gap: 1rem">
+                        <div>
+                            <label class="form-label fw-semibold">Upload Faculty Projects PDF <span class="text-danger">*</span></label>
+                        </div>
                         <label for="facultyProjectsPdf" class="custom-upload-btn">
                             <i class="bi bi-upload"></i> Choose File
                         </label>
@@ -402,16 +426,18 @@
 
                         @if (!string.IsNullOrEmpty(Model.FacultyProjectsPdfName))
                         {
-                            <a asp-action="ViewFacultyProjectsPdf" target="_blank" class="btn btn-secondary ms-3">
-                                <i class="bi bi-eye"></i> View Faculty Projects
-                            </a>
+                            <div>
+                                <a asp-action="ViewFacultyProjectsPdf" target="_blank" class="btn btn-secondary ms-3">
+                                    <i class="bi bi-eye"></i> View Faculty Projects
+                                </a>
+                            </div>
                         }
                     </div>
                 </div>
             </div>
 
             <!-- 4.c Clinical Trials -->
-            @if (level != "SS")
+            @if (levels.Contains("UG"))
             {
                 <div class="section-card">
                     <div class="section-header">
@@ -420,8 +446,10 @@
                         </div>
                         <h2>c. Clinical Trials</h2>
                     </div>
-                    <div class="section-body">
-                        <label class="form-label fw-semibold">Upload Clinical Trials PDF <span class="text-danger">*</span></label>
+                    <div class="section-body" style="display: flex; gap: 1rem">
+                        <div>
+                            <label class="form-label fw-semibold">Upload Clinical Trials PDF <span class="text-danger">*</span></label>
+                        </div>
                         <label for="clinicalTrialsPdf" class="custom-upload-btn">
                             <i class="bi bi-upload"></i> Choose File
                         </label>
@@ -434,16 +462,18 @@
 
                         @if (!string.IsNullOrEmpty(Model.ClinicalTrialsPdfName))
                         {
-                            <a asp-action="ViewClinicalTrialsPdf" target="_blank" class="btn btn-secondary ms-3">
-                                <i class="bi bi-eye"></i> View Clinical Trials
-                            </a>
+                            <div>
+                                <a asp-action="ViewClinicalTrialsPdf" target="_blank" class="btn btn-secondary ms-3">
+                                    <i class="bi bi-eye"></i> View Clinical Trials
+                                </a>
+                            </div>
                         }
                     </div>
                 </div>
             }
 
             <!-- Action Buttons -->
-            <div class="d-flex justify-content-between align-items-center mt-5">
+            <div class="d-flex justify-content-center align-items-center mt-5">
                 @* <a asp-controller="Medical_ContinuousAffiliation"
                    asp-action="Medical_DepartmentOfficesAndEducationalUnit"
                    class="btn btn-secondary">← Previous</a> *@
@@ -459,7 +489,7 @@
         </form>
 
         <!-- 4.d Other Academic Activities (Department-wise) -->
-        @if (level != "SS")
+        @if (levels.Contains("UG"))
         {
             <div class="section-card mt-5">
                 <div class="section-header">
@@ -471,6 +501,7 @@
                 <div class="section-body">
                     <form asp-action="SaveOtherAcademicActivity" method="post" enctype="multipart/form-data" class="mb-4">
                         @Html.AntiForgeryToken()
+                        
                         <div class="row align-items-end g-3">
                             <div class="col-md-4">
                                 <label class="form-label">Department <span class="text-danger">*</span></label>
@@ -492,7 +523,7 @@
                                     }
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label class="form-label">Upload PDF <span class="text-danger">*</span></label>
                                 <label for="activityPdf" class="custom-upload-btn w-100 justify-content-center">
                                     <i class="bi bi-upload"></i> Choose File
@@ -503,25 +534,25 @@
                                     <span class="name-text"></span>
                                 </span>
                             </div>
-                            <div class="col-md-1">
-                                <button type="submit" class="btn btn-success w-100">Save</button>
-                            </div>
+                        </div>
+                        <div class="col-md-12 my-4">
+                            <button type="submit" class="btn btn-success w-100">Save</button>
                         </div>
                     </form>
 
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Department</th>
-                                <th>Activity</th>
-                                <th>PDF</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.OtherActivities?.Any() == true)
-                            {
-                                foreach (var row in Model.OtherActivities)
+                    @if (Model.OtherActivities?.Any(x => x.Id > 0) == true)
+                    {
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Activity</th>
+                                    <th>PDF</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var row in Model.OtherActivities.Where(x => x.Id > 0))
                                 {
                                     <tr>
                                         <td>@row.DepartmentWise</td>
@@ -544,15 +575,9 @@
                                         </td>
                                     </tr>
                                 }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">No activities added yet</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    }
                 </div>
             </div>
         }
@@ -586,7 +611,14 @@
                                     <tr>
                                         <input type="hidden" name="Committees[@i].CommitteeId" value="@committee.CommitteeId" />
                                         <input type="hidden" name="Committees[@i].CommitteeName" value="@committee.CommitteeName" />
-                                        <td class="fw-semibold">@committee.CommitteeName</td>
+                                        <td class="fw-semibold">
+                                            @committee.CommitteeName
+
+                                            @if (committee.CourseLevel?.ToUpper() == "UG")
+                                            {
+                                                <span class="badge bg-info ms-2">UG Only</span>
+                                            }
+                                        </td>
                                         <td class="text-center">
                                             <select name="Committees[@i].IsPresent" class="form-control is-present-select">
                                                 <option value="">-- Select --</option>
@@ -620,7 +652,7 @@
                             </tbody>
                         </table>
 
-                        <div class="text-end mt-4">
+                        <div class="text-center mt-4">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-cloud-arrow-up me-2"></i>Save Committee Details
                             </button>
@@ -641,7 +673,7 @@
 
             <a asp-controller="Aff_CA_MedicalLibrary"
                asp-action="Aff_CA_Medical_LibraryDetails"
-               class="btn btn-primary">Next → Library Details</a>
+               class="btn btn-primary">Next →</a>
         </div>
     </div>
 

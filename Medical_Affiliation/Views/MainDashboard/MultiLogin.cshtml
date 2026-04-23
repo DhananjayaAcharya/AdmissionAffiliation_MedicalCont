@@ -203,7 +203,7 @@
             height: 100%;
             max-height: 720px;
             display: grid;
-            grid-template-columns: 420px 1fr;
+            grid-template-columns: 46vw 1fr;
             border-radius: 20px;
             overflow: hidden;
             box-shadow: var(--card-shadow);
@@ -432,14 +432,17 @@
         .ph {
             margin-bottom: 14px;
             padding-bottom: 12px;
-            border-bottom: 1.5px solid var(--surface)
+            border-bottom: 1.5px solid var(--surface);
+            text-align: center;
+            display: flex;
+            align-items: center;
         }
 
         .ph-eye {
             font-size: 9px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 6px;
             margin-bottom: 5px;
@@ -484,24 +487,26 @@
             font-weight: 700;
             color: var(--navy);
             line-height: 1.15;
-            margin-bottom: 2px
+            margin-bottom: 0;
         }
 
         .ph-sub {
             font-size: 11px;
-            color: var(--muted)
+            color: var(--muted);
+            display: none;
         }
 
         /* badge */
         .yb {
-            display: inline-flex;
+            /* display: inline-flex; */
             align-items: center;
             gap: 5px;
             padding: 4px 11px;
             border-radius: 20px;
             font-size: 10px;
             font-weight: 600;
-            margin-bottom: 12px
+            margin-bottom: 12px;
+            display: none;
         }
 
         .yg {
@@ -1322,11 +1327,6 @@
                 <!-- ══ LEFT: FORM SIDE ══ -->
                 <div class="form-side">
 
-                    <!-- 🔻 ADD LOGO HERE -->
-                    <div class="form-header-logo">
-                        <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
-                    </div>
-
                     <!-- Tab bar -->
                     <div class="tab-bar">
                         <button class="tb tg on" id="tb-c" onclick="go('c')">
@@ -1347,6 +1347,11 @@
                             <span class="ts">Inspection</span>
                         </button>
                     </div>
+                    
+                    <!-- 🔻 ADD LOGO HERE -->
+                    @* <div class="form-header-logo">
+                        <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
+                    </div> *@
 
                     <!-- Panels -->
                     <div class="panels">
@@ -1354,8 +1359,12 @@
                         <!-- ── COLLEGE ── -->
                         <div class="pn on" id="pn-c">
                             <div class="ph">
+                                <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
+
                                 <div class="ph-eye eg"><i class="bi bi-building"></i> College Portal</div>
-                                <h2>College Sign In</h2>
+                                    <div style="width: 100%">
+                                    <h2>College Login</h2>
+                                </div>
                                 <div class="ph-sub">Select your faculty &amp; college, then enter credentials</div>
                             </div>
                             <div class="yb yg"><i class="bi bi-calendar3"></i> Academic Year &nbsp;<strong>2026 – 2027</strong></div>
@@ -1422,8 +1431,11 @@
                         <!-- ── UNIVERSITY ── -->
                         <div class="pn" id="pn-u">
                             <div class="ph">
+                                <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
                                 <div class="ph-eye eb"><i class="bi bi-building-check"></i> University Portal</div>
-                                <h2>University Sign In</h2>
+                                    <div style="width: 100%">
+                                        <h2>University Sign In</h2>
+                                    </div>
                                 <div class="ph-sub">Administrative access for university officials</div>
                             </div>
                             <div class="yb yb2"><i class="bi bi-person-badge"></i> Authorised Personnel Only</div>
@@ -1458,8 +1470,11 @@
                         <!-- ── LIC ── -->
                         <div class="pn" id="pn-l">
                             <div class="ph">
+                                <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
                                 <div class="ph-eye et"><i class="bi bi-clipboard2-pulse"></i> LIC Inspection</div>
-                                <h2>RGUHS Assignment</h2>
+                                    <div style="width: 100%">
+                                        <h2>RGUHS Assignment</h2>
+                                    </div>
                                 <div class="ph-sub">Inspection &amp; assignment portal for authorised members</div>
                             </div>
 
@@ -1660,15 +1675,15 @@
           });
 
           /* Faculty → College cascade */
-          $('#FacultyId').on('change',function(){
-            var id=$(this).val(),$c=$('#CollegeId');
-            $c.empty().append('<option value="">— Select College —</option>');
-            if(id){
-              $.get('@Url.Action("GetCollegesByFaculty", "Login")',{facultyId:id},function(data){
-                $.each(data,function(i,c){$c.append($('<option>',{value:c.value,text:c.text,'data-code':c.code}));});
-              });
-            }
-          });
+          // $('#FacultyId').on('change',function(){
+          //   var id=$(this).val(),$c=$('#CollegeId');
+          //   $c.empty().append('<option value="">— Select College —</option>');
+          //   if(id){
+          //     $.get('@Url.Action("GetCollegesByFaculty", "Login")',{facultyId:id},function(data){
+          //       $.each(data,function(i,c){$c.append($('<option>',{value:c.value,text:c.text,'data-code':c.code}));});
+          //     });
+          //   }
+          // });
           /* Auto-set username */
           $('#CollegeId').on('change',function(){
             $('#CollegeUsername').val($(this).find('option:selected').data('code')||'');
