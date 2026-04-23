@@ -1,4 +1,4 @@
-﻿﻿@using static Medical_Affiliation.Controllers.MainDashboardController
+﻿@using static Medical_Affiliation.Controllers.MainDashboardController
 @model RguhsDashboardViewModel
 @{
     ViewData["Title"] = "RGUHS – Admission & Affiliation Portal";
@@ -21,8 +21,8 @@
 
     <style>
         /* ════════════════════════════════════════
-                                                   DESIGN TOKENS
-                                                ════════════════════════════════════════ */
+                                                           DESIGN TOKENS
+                                                        ════════════════════════════════════════ */
         :root {
             --navy: #04101f;
             --navy2: #071a35;
@@ -560,6 +560,107 @@
             text-transform: uppercase;
         }
 
+        /* ════ HERO CAROUSEL ════ */
+        .rguhs-carousel {
+            width: 100%;
+            overflow: hidden;
+            background: var(--navy);
+            line-height: 0;
+        }
+
+        .carousel-img {
+            width: 100%;
+            height: clamp(200px, 42vw, 520px);
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            filter: brightness(.78);
+            transition: filter .3s;
+        }
+
+        .rguhs-carousel:hover .carousel-img {
+            filter: brightness(.72);
+        }
+
+        .carousel-caption-custom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: clamp(14px, 3vw, 36px) clamp(18px, 5vw, 60px);
+            background: linear-gradient(to top, rgba(4,16,31,.82) 0%, rgba(4,16,31,.35) 70%, transparent 100%);
+            text-align: left;
+            line-height: 1;
+        }
+
+        .cc-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--gold);
+            color: var(--navy);
+            font-size: clamp(9px, 1vw, 11px);
+            font-weight: 700;
+            letter-spacing: .9px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: clamp(6px, 1.2vw, 12px);
+        }
+
+        .cc-title {
+            font-family: var(--fd);
+            font-size: clamp(14px, 2.8vw, 36px);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: clamp(4px, 0.8vw, 10px);
+            text-shadow: 0 2px 12px rgba(0,0,0,.4);
+        }
+
+        .cc-sub {
+            font-size: clamp(10px, 1.3vw, 15px);
+            color: rgba(255,255,255,.72);
+            line-height: 1.4;
+        }
+
+        .rguhs-carousel .carousel-indicators {
+            margin-bottom: clamp(8px, 1.5vw, 18px);
+            gap: 4px;
+        }
+
+            .rguhs-carousel .carousel-indicators button {
+                width: clamp(18px, 2.5vw, 32px);
+                height: 4px;
+                border-radius: 2px;
+                background: rgba(255,255,255,.38);
+                border: none;
+                transition: background .25s, width .25s;
+            }
+
+                .rguhs-carousel .carousel-indicators button.active {
+                    background: var(--gold2);
+                    width: clamp(28px, 4vw, 52px);
+                }
+
+        .rguhs-ctrl {
+            width: clamp(36px, 4vw, 54px);
+            opacity: 0;
+            transition: opacity .22s;
+        }
+
+        .rguhs-carousel:hover .rguhs-ctrl {
+            opacity: 1;
+        }
+
+        .rguhs-carousel .carousel-control-prev-icon,
+        .rguhs-carousel .carousel-control-next-icon {
+            background-color: rgba(4,16,31,.5);
+            border-radius: 50%;
+            padding: 14px;
+            background-size: 50%;
+        }
+
         /* ════ BODY LAYOUT ════ */
         .body-layout {
             display: flex;
@@ -910,7 +1011,6 @@
         }
 
         .c-code {
-            /* Hidden — college code not shown to users */
             display: none;
         }
 
@@ -963,7 +1063,6 @@
             color: var(--muted);
         }
 
-        /* View Courses hover label */
         .c-view-label {
             position: absolute;
             bottom: 10px;
@@ -1298,7 +1397,6 @@
             width: 36px;
         }
 
-        /* Course code column — hidden */
         .col-course-code {
             display: none;
         }
@@ -1687,6 +1785,19 @@
                 align-items: flex-start;
                 gap: 5px;
             }
+            /* Carousel */
+            .carousel-img {
+                height: clamp(180px, 52vw, 300px);
+                object-position: center 20%;
+            }
+
+            .carousel-caption-custom {
+                padding: 12px 16px;
+            }
+
+            .rguhs-ctrl {
+                opacity: .7;
+            }
         }
 
         @@media (max-width: 599px) {
@@ -1779,6 +1890,14 @@
             .modal-summary-pill {
                 min-width: 100%;
             }
+            /* Carousel */
+            .carousel-img {
+                height: 210px;
+            }
+
+            .cc-sub {
+                display: none;
+            }
         }
 
         @@media (max-width: 380px) {
@@ -1850,25 +1969,6 @@
     </header>
 
     <!-- ════ PRIMARY NAV ════ -->
-    <nav class="primary-nav">
-        <div class="nav-inner">
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-                <i class="bi bi-list"></i>
-            </button>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="@Url.Action("Rguhsdashboard")" class="active"><i class="bi bi-house-door-fill"></i>Home</a></li>
-                <li><a asp-controller="Login" asp-action="Login" target="_blank"><i class="bi bi-person-fill-add"></i>College Login</a></li>
-                <li><a asp-controller="Admin" asp-action="UniversityLogin" target="_blank"><i class="bi bi-building-check"></i>University Login</a></li>
-                <li><a asp-controller="LICInspection" asp-action="Auth" target="_blank"><i class="bi bi-bell-fill"></i>RGUHS Assignment</a></li>
-                <li><a asp-controller="MainDashboard" asp-action="Rguhsdashboard" target="_blank"><i class="bi bi-journal-check"></i>Notifications</a></li>
-                <li><a href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-info-circle"></i>About RGUHS</a></li>
-            </ul>
-            <div class="nav-search">
-                <i class="bi bi-search ns-icon"></i>
-                <input type="text" placeholder="Search portal…" />
-            </div>
-        </div>
-    </nav>
 
     <!-- ════ TICKER ════ -->
     <div class="ticker-bar">
@@ -1889,22 +1989,110 @@
         </div>
     </div>
 
-    <!-- ════ HERO STAT STRIP ════ -->
-    <div class="hero-strip">
-        <div class="hero-inner">
-            <div class="hero-text">
-                <h2>Admission &amp; Affiliation Management System</h2>
-                <p>Centralised portal for all RGUHS affiliated colleges, streams &amp; academic administration — Academic Year 2026–27</p>
-            </div>
-            <div class="stat-pills">
-                <div class="stat-pill"><div class="stat-num">@Model.TotalColleges</div><div class="stat-lbl">Colleges</div></div>
-                <div class="stat-pill"><div class="stat-num">@Model.TotalFaculties</div><div class="stat-lbl">Streams</div></div>
-                <div class="stat-pill"><div class="stat-num">@Model.TotalTowns</div><div class="stat-lbl">Towns</div></div>
-                <div class="stat-pill"><div class="stat-num">100+</div><div class="stat-lbl">Programmes</div></div>
-            </div>
-        </div>
-    </div>
+    
 
+    <!-- ════ HERO CAROUSEL ════ -->
+    <div id="rguhsCarousel" class="carousel slide rguhs-carousel" data-bs-ride="carousel" data-bs-interval="4500">
+
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="4" aria-label="Slide 5"></button>
+        </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner">
+
+            <div class="carousel-item">
+                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm (1).jpeg"
+                     class="carousel-img"
+                     alt="Admissions 2026"
+                     onerror="this.src='https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&q=80'" />
+                <div class="carousel-caption-custom">
+                    <div class="cc-tag"><i class="bi bi-mortarboard-fill"></i> Admissions</div>
+                    <div class="cc-title">Admissions Open — Academic Year 2026–27</div>
+                    <div class="cc-sub">MBBS · BDS · B.Sc Nursing · B.Pharm · AYUSH · PG &amp; Ph.D programmes</div>
+                </div>
+            </div>
+
+            <div class="carousel-item active">
+                <img src="~/images/campus1.jpg"
+                     class="carousel-img"
+                     alt="RGUHS Campus – Main Building"
+                     onerror="this.src='https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=1600&q=80'" />
+                <div class="carousel-caption-custom">
+                    <div class="cc-tag"><i class="bi bi-building"></i> Campus</div>
+                    <div class="cc-title">Rajiv Gandhi University of Health Sciences</div>
+                    <div class="cc-sub">4th 'T' Block, Jayanagar, Bangalore – 560 041</div>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <img src="~/images/campus2.jpg"
+                     class="carousel-img"
+                     alt="Medical Education"
+                     onerror="this.src='https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1600&q=80'" />
+                <div class="carousel-caption-custom">
+                    <div class="cc-tag"><i class="bi bi-heart-pulse-fill"></i> Medical</div>
+                    <div class="cc-title">Excellence in Medical Education</div>
+                    <div class="cc-sub">Shaping the future of healthcare across Karnataka</div>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <img src="~/images/campus3.jpg"
+                     class="carousel-img"
+                     alt="Pharmacy & Nursing"
+                     onerror="this.src='https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1600&q=80'" />
+                <div class="carousel-caption-custom">
+                    <div class="cc-tag"><i class="bi bi-capsule-pill"></i> Pharmacy &amp; Nursing</div>
+                    <div class="cc-title">Affiliated Colleges Across Karnataka</div>
+                    <div class="cc-sub">Pharmacy, Nursing, Physiotherapy, AYUSH &amp; Allied Health Sciences</div>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <img src="~/images/whatsapp image 2026-04-23 at 1.20.42 pm.jpeg"
+                     class="carousel-img"
+                     alt="Research & Innovation"
+                     onerror="this.src='https://images.unsplash.com/photo-1532094349884-543559285b07?w=1600&q=80'" />
+                <div class="carousel-caption-custom">
+                    <div class="cc-tag"><i class="bi bi-flask-fill"></i> Research</div>
+                    <div class="cc-title">Research &amp; Innovation Hub</div>
+                    <div class="cc-sub">Advancing health sciences through cutting-edge research &amp; Ph.D programmes</div>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm (1).jpeg"
+                     class="carousel-img"
+                     alt="Admissions 2026"
+                     onerror="this.src='https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&q=80'" />
+                <div class="carousel-caption-custom">
+                    <div class="cc-tag"><i class="bi bi-mortarboard-fill"></i> Admissions</div>
+                    <div class="cc-title">Admissions Open — Academic Year 2026–27</div>
+                    <div class="cc-sub">MBBS · BDS · B.Sc Nursing · B.Pharm · AYUSH · PG &amp; Ph.D programmes</div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Controls -->
+        <button class="carousel-control-prev rguhs-ctrl" type="button" data-bs-target="#rguhsCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next rguhs-ctrl" type="button" data-bs-target="#rguhsCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+
+    </div>
+    <!-- /carousel -->
     <!-- ════ BODY LAYOUT ════ -->
     <div class="body-layout" id="bodyLayout">
 
@@ -2166,7 +2354,6 @@
                 <div class="modal-body" style="padding:0;">
                     <div style="padding:20px 24px 24px;">
 
-                        <!-- Table header row -->
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
                             <div style="font-family:'Playfair Display',Georgia,serif;font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;">
                                 <i class="bi bi-journal-bookmark-fill" style="color:var(--royal);"></i>
@@ -2275,13 +2462,11 @@
 
         function openCollegeModal(code, name, town, faculty) {
 
-            /* -- Reset all states -- */
             document.getElementById('collegeModalLabel').textContent = name;
             document.getElementById('modalMeta').innerHTML =
                 '<span style="display:inline-flex;align-items:center;gap:4px;"><i class="bi bi-geo-alt-fill" style="color:#7aadff;"></i>' + town + '</span>' +
                 '<span style="opacity:.35;">·</span>' +
                 '<span style="display:inline-flex;align-items:center;gap:4px;"><i class="bi bi-mortarboard-fill" style="color:#7aadff;"></i>' + faculty + '</span>';
-                /* College code intentionally removed from modal meta display */
 
             document.getElementById('modalSummary').innerHTML       = '';
             document.getElementById('modalSpinner').style.display   = 'block';
@@ -2292,7 +2477,6 @@
 
             _modal.show();
 
-            /* -- Fetch courses from controller -- */
             fetch('/MainDashboard/CollegeCourses?collegeCode=' + encodeURIComponent(code))
                 .then(function (res) {
                     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2306,17 +2490,14 @@
                         return;
                     }
 
-                    /* -- Summary strip -- */
                     var totalIntake = data.reduce(function (s, x) { return s + (x.existingIntake || 0); }, 0);
                     document.getElementById('modalSummary').innerHTML =
                         makeSummaryPill('bi-journal-bookmark-fill', data.length, 'Total Courses') +
                         makeSummaryPill('bi-people-fill',           totalIntake,  'Total Intake');
 
-                    /* -- Course count badge -- */
                     document.getElementById('modalCourseCount').textContent =
                         data.length + ' COURSE' + (data.length !== 1 ? 'S' : '');
 
-                    /* -- Table rows (course code column hidden via CSS class) -- */
                     var rows = data.map(function (row, i) {
                         var intake = (row.existingIntake !== null && row.existingIntake !== undefined)
                             ? row.existingIntake : null;

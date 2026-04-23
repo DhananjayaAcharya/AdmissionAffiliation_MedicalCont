@@ -315,7 +315,7 @@ public class InstitutionViewModel
     // Keys
     public string CollegeCode { get; set; }
     public string FacultyCode { get; set; }
-
+    public int? InstitutionTypeId { get; set; }
     public string? CourseLevel { get; set; }
 
     [Required(ErrorMessage = "Type of Institution is required")]

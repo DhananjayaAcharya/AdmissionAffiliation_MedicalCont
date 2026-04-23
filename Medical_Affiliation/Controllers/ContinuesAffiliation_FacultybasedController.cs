@@ -2501,7 +2501,8 @@ namespace Medical_Affiliation.Controllers
             var entity = _context.AffInstitutionsDetails
                 .FirstOrDefault(x =>
                     x.FacultyCode == vm.FacultyCode &&
-                    x.CollegeCode == vm.CollegeCode && x.CourseLevel == courseLevel);
+                    x.CollegeCode == vm.CollegeCode &&
+                    x.CourseLevel == courseLevel);
 
             bool isNew = entity == null;
 
@@ -2517,38 +2518,30 @@ namespace Medical_Affiliation.Controllers
             }
 
             // 5. Handle document upload
-            //    Only overwrite the stored document when a new file is actually submitted.
             if (documentFile != null && documentFile.Length > 0)
             {
-                // 🔹 Base folder path
                 string basePath = Path.Combine(BasePath, "InstitutionDetails");
 
                 if (!Directory.Exists(basePath))
-                {
                     Directory.CreateDirectory(basePath);
-                }
 
-                // 🔥 DELETE OLD FILE (VERY IMPORTANT)
+                // Delete old file
                 if (!string.IsNullOrEmpty(entity.DocumentDataPath) &&
                     System.IO.File.Exists(entity.DocumentDataPath))
                 {
                     System.IO.File.Delete(entity.DocumentDataPath);
                 }
 
-                // 🔹 Generate GUID file name
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(documentFile.FileName);
-
                 string fullPath = Path.Combine(basePath, fileName);
 
-                // 🔹 Save new file
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     documentFile.CopyTo(stream);
                 }
 
-                // 🔹 Save details in DB
                 entity.DocumentDataPath = fullPath;
-                entity.DocumentName = documentFile.FileName;   // original name (better)
+                entity.DocumentName = documentFile.FileName;
                 entity.DocumentContentType = documentFile.ContentType;
             }
 
@@ -2559,7 +2552,6 @@ namespace Medical_Affiliation.Controllers
             try
             {
                 _context.SaveChanges();
-                // After saving Institution Details:
                 ContinuousAffiliationController.MarkDone(HttpContext, "Institution");
             }
             catch (DbUpdateException ex)
@@ -2570,9 +2562,37 @@ namespace Medical_Affiliation.Controllers
                 return View(vm);
             }
 
-            // 8. Success – redirect
+            // 8. Success – redirect based on OrganizationCategory (G / P)
             TempData["SuccessMessage"] = "Institution details saved successfully.";
-            return RedirectToAction("aff_institutedetails");
+
+            // ✅ FIX 1: vm.TypeOfInstitution holds the selected InstitutionTypeId as a string
+            // ✅ FIX 2: Parse it to int before querying MstInstitutionTypes
+            string orgCategory = null;
+
+            if (int.TryParse(vm.TypeOfInstitution, out int selectedTypeId) && selectedTypeId > 0)
+            {
+                orgCategory = _context.MstInstitutionTypes
+                    .Where(x => x.InstitutionTypeId == selectedTypeId)
+                    .Select(x => x.OrganizationCategory)
+                    .FirstOrDefault();
+            }
+
+            // ✅ FIX 3: Explicit check for both G and P — no silent else fallthrough
+            if (!string.IsNullOrWhiteSpace(orgCategory) && orgCategory.Trim() == "G")
+            {
+                // Government → Dean / Director Details
+                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+            }
+            else if (!string.IsNullOrWhiteSpace(orgCategory) && orgCategory.Trim() == "P")
+            {
+                // Private → Institute Details
+                return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
+            }
+            else
+            {
+                // Fallback – orgCategory was null or unexpected value
+                return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
+            }
         }
 
 
