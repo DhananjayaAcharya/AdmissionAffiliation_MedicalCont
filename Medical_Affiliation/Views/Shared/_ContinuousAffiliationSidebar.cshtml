@@ -613,12 +613,16 @@
 
             <div class="accordion-item">
                 <!-- Accordion Header -->
-                <div class="accordion-header" onclick="toggleAccordion('@groupId')">
+                <div class="accordion-header tab-header"
+                     data-tab="@groupId"
+                     onclick="toggleAccordion('@groupId')">
                     <span>@group.Key</span>
                 </div>
 
                 <!-- Accordion Content -->
-                <div class="accordion-content" id="content-@groupId">
+                <div class="accordion-content tab-content"
+                     id="content-@groupId"
+                     data-tab-content="@groupId">
                     @foreach (var step in group)
                     {
                         var isActive = currentCtrl == step.Ctrl && currentAct == step.Act;
@@ -665,32 +669,48 @@
 
 <script>
     function toggleAccordion(groupId) {
-        const allContents = document.querySelectorAll(".accordion-content");
-        const current = document.getElementById("content-" + groupId);
 
-        allContents.forEach(content => {
-            if (content !== current) {
-                content.style.maxHeight = null;
-            }
-        });
+        // ✅ Save active tab
+        sessionStorage.setItem("activeTab", groupId);
 
-        // Toggle current
-        if (current.style.maxHeight) {
-            current.style.maxHeight = null;
-        } else {
-            current.style.maxHeight = current.scrollHeight + "px";
+        const allContents = document.querySelectorAll(".tab-content");
+        const allHeaders = document.querySelectorAll(".tab-header");
+
+        // Close all tabs
+        allContents.forEach(c => c.style.maxHeight = null);
+        allHeaders.forEach(h => h.classList.remove("active-tab"));
+
+        // Open selected tab
+        const currentContent = document.querySelector(`[data-tab-content="${groupId}"]`);
+        const currentHeader = document.querySelector(`[data-tab="${groupId}"]`);
+
+        if (currentContent) {
+            currentContent.style.maxHeight = currentContent.scrollHeight + "px";
+        }
+
+        if (currentHeader) {
+            currentHeader.classList.add("active-tab");
         }
     }
 
     // Auto-open active group
     window.onload = function () {
-        const activeItem = document.querySelector(".step-item.active");
-        if (activeItem) {
-            const content = activeItem.closest(".accordion-content");
 
-            if (content) {
-                content.style.maxHeight = content.scrollHeight + "px";
+    let activeTab = sessionStorage.getItem("activeTab");
+
+    // fallback → detect active step
+    if (!activeTab) {
+        const activeLink = document.querySelector(".ca-sb-link.is-active");
+        if (activeLink) {
+            const parent = activeLink.closest(".tab-content");
+            if (parent) {
+                activeTab = parent.getAttribute("data-tab-content");
             }
         }
-    };
+    }
+
+    if (activeTab) {
+        toggleAccordion(activeTab);
+    }
+};
 </script>
