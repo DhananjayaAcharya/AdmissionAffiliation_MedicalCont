@@ -363,8 +363,7 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         // ✅ View PDF files (Main first, else Temp during partial stage)
 
-        private async Task<StaffDetailsCombinedViewModel>
-        LoadStaffViewModel()
+        private async Task<StaffDetailsCombinedViewModel>  LoadStaffViewModel()
         {
             var collegeCode =
               HttpContext.Session.GetString("CollegeCode");

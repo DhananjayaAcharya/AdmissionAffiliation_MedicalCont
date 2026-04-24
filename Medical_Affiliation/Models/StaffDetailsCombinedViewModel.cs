@@ -23,6 +23,9 @@ namespace Medical_Affiliation.Models
         public IFormFile? AEBASInspectionDayPdf { get; set; }
         public IFormFile? ProvidentFundPdf { get; set; }
         public IFormFile? ESIPdf { get; set; }
+
+        public List<string> ExistingCourseLevels { get; set; } = new();
+
     }
 
     public class Med_CA_StaffParticularsVM

@@ -253,33 +253,7 @@
            
 
             <!-- Digital Repository – shown conditionally based on faculty -->
-            @{
-                var repoLinks = new Dictionary<string, (string Controller, string Action, string Text)>
-                {
-                {"1", ("MedicalRepository", "Medical_BasicDetails", "Medical")},
-                {"2", ("Aff_Dental", "Dental_BasicDetails", "Dental")},
-                {"3", ("Aff_Nursing", "Nursing_BasicDetails", "Nursing")},
-                {"4", ("AyurvedhaRepository", "Ayurvedha_BasicDetails", "Ayurveda")},
-                {"5", ("Aff_Homeopathy", "Homeopathy_BasicDetails", "Homeopathy")},
-                {"7", ("Aff_Unani", "Unani_BasicDetails", "Unani")},
-                {"8", ("Aff_Pharmacy", "Pharmacy_BasicDetails", "Pharmacy")},
-                {"9", ("Aff_AHS", "AHS_BasicDetails", "Allied Health Sciences")},
-                {"10", ("Aff_PhysioTherapy", "PhysioTherapy_BasicDetails", "Physiotherapy")},
-                {"11", ("Aff_SowaRigPaiController", "SowaRigPai_BasicDetails", "Sowa-Rigpa")}
-                };
-            }
-
-            @if (repoLinks.ContainsKey(facultyCode))
-            {
-                var repo = repoLinks[facultyCode];
-                <li class="sidebar-item">
-                    <a asp-controller="@repo.Controller" asp-action="@repo.Action"
-                       class="sidebar-link">
-                        <i class="bi bi-folder2-open"></i>
-                        @repo.Text Digital Repository
-                    </a>
-                </li>
-            }
+          
 
             <!-- Update Password -->
             <li class="sidebar-item sidebar-footer">
