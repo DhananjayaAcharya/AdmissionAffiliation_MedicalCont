@@ -8,6 +8,7 @@
     var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
 
     var levels = new List<string>();
+    var orderedLevels = new List<string> { "UG", "PG", "SS" };
 
     if (!string.IsNullOrEmpty(raw))
     {
@@ -16,6 +17,8 @@
             levels = JsonSerializer.Deserialize<List<string>>(raw)
                         ?.Select(l => l.Trim().ToUpper())
                         .Distinct()
+                        .Where(l => orderedLevels.Contains(l)) // ✅ filter valid values
+                        .OrderBy(l => orderedLevels.IndexOf(l)) // ✅ enforce order
                         .ToList() ?? new List<string>();
         }
         catch

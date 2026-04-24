@@ -172,6 +172,10 @@ var app = builder.Build();
 
 // Middleware Pipeline
 app.UseForwardedHeaders();
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();

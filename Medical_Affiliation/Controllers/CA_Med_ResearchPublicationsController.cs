@@ -23,9 +23,16 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
-            var levels = string.IsNullOrEmpty(raw) 
-                ? new List<string>() 
-                : JsonSerializer.Deserialize<List<string>>(raw).Select(l => l.Trim().ToUpper()).Distinct().ToList();
+            var orderedLevels = new[] { "UG", "PG", "SS" };
+
+            var levels = string.IsNullOrEmpty(raw)
+                ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(raw)
+                    ?.Select(l => l.Trim().ToUpper())
+                    .Distinct()
+                    .Where(l => orderedLevels.Contains(l))   // ✅ filter valid
+                    .OrderBy(l => Array.IndexOf(orderedLevels, l)) // ✅ enforce order
+                    .ToList() ?? new List<string>();
 
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
@@ -39,9 +46,6 @@ namespace Medical_Affiliation.Controllers
                                                 x.FacultyCode == facultyCode
                                                 )
                                             .ToListAsync();
-
-
-            var orderedLevels = new[] { "UG", "PG", "SS" };
 
             var dataDict = mainDataList
                 .Where(x => x.CourseLevel != null)
