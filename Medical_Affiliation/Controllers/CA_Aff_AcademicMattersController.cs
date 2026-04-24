@@ -22,8 +22,8 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public IActionResult AcademicMatters()
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
-            string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "M001";
+            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            string collegeCode = HttpContext.Session.GetString("CollegeCode");
             int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
@@ -32,7 +32,7 @@ namespace Medical_Affiliation.Controllers
                 CollegeCode = collegeCode,
                 FacultyId = facultyId,
                 AffiliationType = affiliationType,
-                CourseLevel = courseLevel
+                //CourseLevel = courseLevel
             };
 
 
@@ -71,7 +71,7 @@ namespace Medical_Affiliation.Controllers
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyId == facultyId &&
-                    x.CourseLevel == courseLevel &&
+                    //x.CourseLevel == courseLevel &&
                     x.AffiliationType == affiliationType &&
                     _yearIds.Any(y => y == x.YearOfStudyId))
                 .ToList();
@@ -160,7 +160,7 @@ namespace Medical_Affiliation.Controllers
             var savedSchemes = _context.CaExaminationSchemes
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyId == facultyId &&
-                            x.CourseLevel == courseLevel &&
+                            //x.CourseLevel == courseLevel &&
                             x.AffiliationType == affiliationType)
                 .ToList();
 
@@ -189,7 +189,7 @@ namespace Medical_Affiliation.Controllers
             var savedRegisters = _context.CaStudentRegisterRecords
                     .Where(x => x.CollegeCode == collegeCode &&
                                 x.FacultyId == facultyId &&
-                                x.CourseLevel == courseLevel &&
+                                //x.CourseLevel == courseLevel &&
                                 x.AffiliationType == affiliationType)
                     .ToList();
 

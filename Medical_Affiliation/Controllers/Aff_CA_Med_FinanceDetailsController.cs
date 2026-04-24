@@ -19,11 +19,11 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> Med_CA_AccountAndFeeDetails()
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var regNo = HttpContext.Session.GetString("RegistrationNo");
+            //var regNo = HttpContext.Session.GetString("RegistrationNo");
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels"); 
             var levels = string.IsNullOrEmpty(raw)
@@ -61,7 +61,7 @@ namespace Medical_Affiliation.Controllers
                     CourseLevel = level,
                     CollegeCode = collegeCode,
                     FacultyCode = facultyCode,
-                    RegistrationNo = regNo,
+                    //RegistrationNo = regNo,
 
                     AuthorityNameAddress = data?.AuthorityNameAddress ?? "",
                     AuthorityContact = data?.AuthorityContact ?? "",
@@ -85,7 +85,7 @@ namespace Medical_Affiliation.Controllers
                 });
             }
 
-            ModelState.Clear();
+            //ModelState.Clear()/*;*/
             return View("Med_CA_FinanceDetails", vm);
         }
 

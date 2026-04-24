@@ -2443,19 +2443,19 @@ namespace Medical_Affiliation.Controllers
         public IActionResult Institution_Details()
         {
             // 1. Resolve session values
-            var courseLevel = CourseLevel;
+            //var courseLevel = CourseLevel;
             var facultyCode = User.FindFirst("FacultyCode")?.Value;
             var collegeCode = User.FindFirst("CollegeCode")?.Value;
 
-            if (string.IsNullOrWhiteSpace(courseLevel))
-                return RedirectToAction("Dashboard", "Collegelogin");
+            //if (string.IsNullOrWhiteSpace(courseLevel))
+            //    return RedirectToAction("Dashboard", "Collegelogin");
 
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return BadRequest("Session expired. FacultyCode / CollegeCode not found. Please login again.");
 
             // 2. Try to load existing record
             var entity = _context.AffInstitutionsDetails.FirstOrDefault(x => x.FacultyCode.Trim() == facultyCode.Trim() &&
-                         x.CollegeCode.Trim() == collegeCode.Trim() && x.CourseLevel == courseLevel.Trim());
+                         x.CollegeCode.Trim() == collegeCode.Trim());
             var GetCollegeName = _context.AffiliationCollegeMasters.Where(e => e.CollegeCode == collegeCode).FirstOrDefault();
 
             // 3. Build view model
@@ -2468,7 +2468,7 @@ namespace Medical_Affiliation.Controllers
                 {
                     FacultyCode = facultyCode,
                     CollegeCode = collegeCode,
-                    CourseLevel = courseLevel,
+                    //CourseLevel = courseLevel,
                     NameOfInstitution = GetCollegeName.CollegeName,
                 };
             }
@@ -2952,13 +2952,13 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
-            var courseLevel = CourseLevel;
+            //var courseLevel = CourseLevel;
 
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("ClgLogin");
 
-            if (string.IsNullOrWhiteSpace(courseLevel))
-                return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
+            //if (string.IsNullOrWhiteSpace(courseLevel))
+            //    return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
 
 
 
@@ -2966,7 +2966,7 @@ namespace Medical_Affiliation.Controllers
             {
                 FacultyCode = facultyCode,
                 CollegeCode = collegeCode,
-                CourseLevel = courseLevel,
+                //CourseLevel = courseLevel,
             };
 
             // 🔽 Qualifications dropdown
@@ -2983,7 +2983,7 @@ namespace Medical_Affiliation.Controllers
             // 🔍 Fetch existing dean/director record
             var dean = _context.AffDeanOrDirectorDetails
                 .FirstOrDefault(d => d.FacultyCode == facultyCode
-                                  && d.CollegeCode == collegeCode && d.CourseLevel == courseLevel);
+                                  && d.CollegeCode == collegeCode);
 
             if (dean != null)
             {
@@ -3296,7 +3296,7 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public IActionResult Aff_PrincipalDetails()
         {
-            var courseLevel = CourseLevel;
+            //var courseLevel = CourseLevel;
 
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
@@ -3304,19 +3304,19 @@ namespace Medical_Affiliation.Controllers
             //if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
             //    return RedirectToAction("ClgLogin");
 
-            if (string.IsNullOrWhiteSpace(courseLevel))
-                return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
+            //if (string.IsNullOrWhiteSpace(courseLevel))
+            //    return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
 
-            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(courseLevel))
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            //if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(courseLevel))
+            //{
+            //    return RedirectToAction("Login", "Account");
+            //}
 
             var vm = new DeanDetailsViewModel
             {
                 FacultyCode = facultyCode,
                 CollegeCode = collegeCode,
-                CourseLevel = courseLevel,
+                //CourseLevel = courseLevel,
             };
 
             // 🔽 Qualifications dropdown
@@ -3333,7 +3333,7 @@ namespace Medical_Affiliation.Controllers
             // 🔍 Fetch existing Dean/Principal
             var dean = _context.AffPrincipalDetails
                 .FirstOrDefault(x => x.FacultyCode == facultyCode
-                                  && x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+                                  && x.CollegeCode == collegeCode);
 
             if (dean != null)
             {
