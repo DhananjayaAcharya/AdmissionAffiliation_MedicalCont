@@ -528,22 +528,56 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @for (int i = 0; i < Model.Equipments.Count; i++)
+                                @{
+                                    // Changes by Ram on 23/04/2026
+                                    // Create filtered list excluding bindery
+                                    var displayEquipments =
+                                    Model.Equipments
+                                    .Where(x => x.EquipmentName != "Bindery")
+                                    .ToList();
+                                }
+
+                                @for (int i = 0; i < displayEquipments.Count; i++)
                                 {
-                                    var item = Model.Equipments[i];
-                                    if (level == "UG" && item.EquipmentName == "Bindery") { continue; }
+                                    var item = displayEquipments[i];
+
                                     <tr>
-                                        <td><strong>@item.EquipmentName</strong></td>
                                         <td>
-                                            <select name="Equipments[@i].HasEquipment" class="form-select">
-                                                <option value="">-- Select --</option>
-                                                <option value="Y" selected="@(item.HasEquipment == "Y")">Yes</option>
-                                                <option value="N" selected="@(item.HasEquipment == "N")">No</option>
-                                            </select>
-                                            <span asp-validation-for="Equipments[@i].HasEquipment" class="text-danger"></span>
+                                            <strong>@item.EquipmentName</strong>
                                         </td>
-                                        <input type="hidden" asp-for="Equipments[@i].SlNo" />
-                                        <input type="hidden" asp-for="Equipments[@i].EquipmentName" />
+
+                                        <td>
+                                            <select asp-for="Equipments[@i].HasEquipment"
+                                                    class="form-select">
+
+                                                <option value="">-- Select --</option>
+
+                                                <option value="Y"
+                                                        selected="@(item.HasEquipment == "Y")">
+                                                    Yes
+                                                </option>
+
+                                                <option value="N"
+                                                        selected="@(item.HasEquipment == "N")">
+                                                    No
+                                                </option>
+
+                                            </select>
+
+                                            <span asp-validation-for="Equipments[@i].HasEquipment"
+                                                  class="text-danger">
+                                            </span>
+
+                                        </td>
+
+                                        <input type="hidden"
+                                               name="Equipments[@i].SlNo"
+                                               value="@item.SlNo" />
+
+                                        <input type="hidden"
+                                               name="Equipments[@i].EquipmentName"
+                                               value="@item.EquipmentName" />
+
                                     </tr>
                                 }
                             </tbody>
@@ -554,6 +588,94 @@
                         </div>
                     </form>
                 </div>
+            </div>
+
+            <!-- ===================================================== -->
+            <!-- Changes by Ram on 23/04/2026 -->
+            <!-- Separate PG/SS Specific Section -->
+            <!-- ===================================================== -->
+
+            <div class="section-label">
+                <span class="section-label-text">
+                    PG / SS — Bindery
+                </span>
+                <span class="section-label-line"></span>
+            </div>
+
+            <div class="section-block">
+
+                <div class="section-block-header"
+                     style="background:linear-gradient(180deg,#dbeafe 0%,#bfdbfe 100%);
+                color:#0f2545;">
+                    For PG and SS - Bindery
+                </div>
+
+                <div class="section-block-body">
+
+                    <form asp-action="SaveBinderyOnly" method="post">
+                        @Html.AntiForgeryToken()
+
+                        @if ((Model.ExistingCourseLevels?.Contains("PG") ?? false)
+                                                || (Model.ExistingCourseLevels?.Contains("SS") ?? false))
+                        {
+                            <!-- Changes by Ram on 23/04/2026 -->
+                            <!-- Single editable Bindery input shared for PG + SS -->
+
+                            <div class="mb-4">
+
+                                <label>Bindery Available</label>
+
+                                <select name="BinderyValue"
+                                        class="form-select">
+
+                                    <option value="">-- Select --</option>
+
+                                    <option value="Y"
+                                            selected="@(Model.BinderyValue == "Y")">
+                                        Yes
+                                    </option>
+
+                                    <option value="N"
+                                            selected="@(Model.BinderyValue == "N")">
+                                        No
+                                    </option>
+
+                                </select>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- only if college truly has no PG/SS -->
+
+                            <div class="mb-4">
+
+                                <label>Bindery Available</label>
+
+                                <select class="form-select" disabled>
+                                    <option selected>No</option>
+                                </select>
+
+                                <small style="
+                   display:block;
+                   margin-top:10px;
+                   color:#6b6358;">
+                                    Not applicable.
+                                </small>
+
+                            </div>
+                        }
+
+                        <div class="text-end mt-4">
+                            <button type="submit"
+                                    class="btn-save">
+                                Save Bindery
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
             </div>
 
             <!-- SECTION 5: Library Finance -->
