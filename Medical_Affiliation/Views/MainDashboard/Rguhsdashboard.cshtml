@@ -2453,6 +2453,9 @@
         ════════════════════════════════════════ */
         var _modal = new bootstrap.Modal(document.getElementById('collegeModal'));
 
+        /* ── Pre-render the URL server-side so it works in any hosted sub-path ── */
+        var _collegeCoursesUrl = '@Url.Action("CollegeCourses", "MainDashboard")';
+
         function openCollegeModal(code, name, town, faculty) {
 
             document.getElementById('collegeModalLabel').textContent = name;
@@ -2470,7 +2473,7 @@
 
             _modal.show();
 
-            fetch('/MainDashboard/CollegeCourses?collegeCode=' + encodeURIComponent(code))
+            fetch(_collegeCoursesUrl + '?collegeCode=' + encodeURIComponent(code))
                 .then(function (res) {
                     if (!res.ok) throw new Error('HTTP ' + res.status);
                     return res.json();

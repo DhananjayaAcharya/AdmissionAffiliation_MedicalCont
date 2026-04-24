@@ -282,7 +282,6 @@ namespace Medical_Affiliation.Controllers
 
             ContinuousAffiliationController.MarkDone(HttpContext, "FinancialDetails");
 
-            TempData["Info"] = "Account and fee details saved successfully!";
             return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
         }
 
