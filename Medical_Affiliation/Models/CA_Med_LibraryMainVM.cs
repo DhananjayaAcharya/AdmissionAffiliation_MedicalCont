@@ -18,5 +18,10 @@
         public List<CA_Medi_TechnicalProcessVM> TechnicalProcess { get; set; } = new();
         public List<CA_Medi_LibraryEquipmentsVM> Equipments { get; set; } = new();
         public CA_Medi_LibraryFinanceVM Finance { get; set; } = new();
+        public List<string> ExistingCourseLevels
+        { get; set; } = new();
+
+        public string? BinderyValue
+        { get; set; }
     }
 }
