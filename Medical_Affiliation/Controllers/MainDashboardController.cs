@@ -162,7 +162,7 @@ namespace Medical_Affiliation.Controllers
             var captcha = new Random().Next(10000, 99999).ToString();
 
             HttpContext.Session.SetString("CaptchaCode", captcha); // ✅ ADD THIS
-
+            var colleges = new[] { "M016", "M011", "M019" };
             var model = new AdmissionLoginViewModel
             {
                 Faculties = _context.Faculties
@@ -176,7 +176,7 @@ namespace Medical_Affiliation.Controllers
 
                 //Colleges = new List<SelectListItem>(),
                 Colleges = _context.AffiliationCollegeMasters
-                    .Where(c => c.FacultyCode == "1")
+                    .Where(c => c.FacultyCode == "1" && colleges.Contains(c.CollegeCode))
                     .Select(c => new SelectListItem
                     {
                         Value = c.CollegeCode,
