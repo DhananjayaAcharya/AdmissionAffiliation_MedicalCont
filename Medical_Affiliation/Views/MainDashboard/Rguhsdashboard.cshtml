@@ -1,7 +1,8 @@
 ﻿@using static Medical_Affiliation.Controllers.MainDashboardController
 @model RguhsDashboardViewModel
 @{
-    ViewData["Title"] = "RGUHS – Admission & Affiliation Portal";
+    // ViewData["Title"] = "RGUHS – Admission & Affiliation Portal";
+    ViewData["Title"] = "RGUHS – College Details Portal";
     Layout = null;
 }
 <!DOCTYPE html>
@@ -9,8 +10,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-    <meta name="description" content="Rajiv Gandhi University of Health Sciences – Admission & Affiliation Portal Karnataka" />
-    <title>RGUHS – Admission &amp; Affiliation Portal | Karnataka</title>
+    <meta name="description" content="Rajiv Gandhi University of Health Sciences" />
+    <title>RGUHS – College  | Karnataka</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -910,15 +911,28 @@
         /* ── COLLEGE GRID ── */
         .college-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(252px, 1fr));
+            grid-template-columns: 1fr;
             gap: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+            /* padding-right: 6px; */
+            scroll-behavior: smooth;
+        }
+
+        .college-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .college-grid::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
         }
 
         .c-card {
             background: var(--white);
             border: 1px solid var(--border);
             border-radius: var(--r2);
-            padding: 16px 16px 36px;
+            padding: 16px;
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow-sm);
@@ -1027,9 +1041,11 @@
             font-weight: 600;
             color: var(--navy);
             line-height: 1.45;
-            margin-bottom: 11px;
+            /* margin-bottom: 11px; */
             position: relative;
             z-index: 1;
+            display: flex;
+            justify-content: space-between;
         }
 
         .c-foot {
@@ -1960,10 +1976,10 @@
                 <a asp-controller="MainDashboard" asp-action="MultiLogin" class="btn-portal" target="_blank">
                     <i class="bi bi-box-arrow-in-right"></i> Login
                 </a>
-                <div class="portal-note">
+                @* <div class="portal-note">
                     <div class="pulse-dot"></div>
                     Admission &amp; Affiliation Management System
-                </div>
+                </div> *@
             </div>
         </div>
     </header>
@@ -2165,16 +2181,18 @@
                         <div class="c-card"
                              onclick="openCollegeModal('@c.CollegeCode','@safeName','@safeTown','@safeFac')"
                              title="Click to view courses">
-                            <div class="c-top">
+                            @* <div class="c-top">
                                 <span class="c-code" style="display:none;">@c.CollegeCode</span>
                                 <span class="c-dot" title="Affiliated &amp; Active"></span>
-                            </div>
-                            <div class="c-name">@c.CollegeName</div>
-                            <div class="c-foot">
-                                <span class="c-town">
-                                    <i class="bi bi-geo-alt-fill" style="color:var(--royal);font-size:10.5px"></i>@c.CollegeTown
-                                </span>
-                                <span class="c-fac">@c.FacultyIcon @c.FacultyName</span>
+                            </div> *@
+                            <div class="c-name">
+                                @c.CollegeName
+                                <div class="c-foot">
+                                    <span class="c-town">
+                                        <i class="bi bi-geo-alt-fill" style="color:var(--royal);font-size:10.5px"></i>@c.CollegeTown
+                                    </span>
+                                    <span class="c-fac">@c.FacultyIcon @c.FacultyName</span>
+                                </div>
                             </div>
                             <div class="c-view-label">
                                 <i class="bi bi-arrow-up-right-circle-fill"></i> View Courses
@@ -2238,7 +2256,7 @@
                     <a class="qlink" href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank"><i class="bi bi-bell"></i>Circulars</a>
                     <a class="qlink" href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-bank2"></i>RGUHS Site</a>
                     <a class="qlink" href="mailto:registrar@rguhs.ac.in"><i class="bi bi-envelope-at"></i>Email Reg.</a>
-                    <a class="qlink" href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-folder2-open"></i>Affiliation</a>
+                    @* <a class="qlink" href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-folder2-open"></i>Affiliation</a> *@
                     <a class="qlink" href="https://www.rguhsaca.karnataka.gov.in/GuideRegistrationApplication/Home/Contact" target="_blank"><i class="bi bi-life-preserver"></i>Help Desk</a>
                 </div>
             </div>

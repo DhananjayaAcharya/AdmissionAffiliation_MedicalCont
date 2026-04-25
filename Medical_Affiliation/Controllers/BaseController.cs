@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Text.Json;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -35,6 +36,24 @@ namespace Medical_Affiliation.Controllers
 
                 return level ?? "UG";
             }
+        }
+
+        protected List<string> GetSortedCourseLevels(string raw)
+        {
+            var order = new List<string> { "UG", "PG", "SS" };
+
+            var levels = string.IsNullOrEmpty(raw)
+                ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(raw)?
+                    .Where(l => !string.IsNullOrWhiteSpace(l))
+                    .Select(l => l.Trim().ToUpper())
+                    .Distinct()
+                    .ToList() ?? new List<string>();
+
+            return levels
+                .OrderBy(l => order.Contains(l) ? order.IndexOf(l) : int.MaxValue)
+                .ThenBy(l => l)
+                .ToList();
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)

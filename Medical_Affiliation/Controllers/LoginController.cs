@@ -219,7 +219,7 @@ namespace Medical_Affiliation.Controllers
             {
                 SetCaptcha(model);
                 TempData["LoginError"] = "Please select Faculty.";
-                return View(model);
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
             var user = _context.AffiliationCollegeMasters.FirstOrDefault(u =>
@@ -229,7 +229,7 @@ namespace Medical_Affiliation.Controllers
             {
                 SetCaptcha(model);
                 TempData["LoginError"] = "Invalid College.";
-                return View(model);
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
             if (user.Password != model.Password)
@@ -246,7 +246,7 @@ namespace Medical_Affiliation.Controllers
             {
                 SetCaptcha(model);
                 TempData["LoginError"] = "Invalid captcha.";
-                return View(model);
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
             // Get CourseLevel

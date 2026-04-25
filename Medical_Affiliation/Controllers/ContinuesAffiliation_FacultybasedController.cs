@@ -2457,6 +2457,7 @@ namespace Medical_Affiliation.Controllers
             var entity = _context.AffInstitutionsDetails.FirstOrDefault(x => x.FacultyCode.Trim() == facultyCode.Trim() &&
                          x.CollegeCode.Trim() == collegeCode.Trim());
             var GetCollegeName = _context.AffiliationCollegeMasters.Where(e => e.CollegeCode == collegeCode).FirstOrDefault();
+            HttpContext.Session.SetString("CollegeName", GetCollegeName.CollegeName);
 
             // 3. Build view model
             InstitutionViewModel vm;

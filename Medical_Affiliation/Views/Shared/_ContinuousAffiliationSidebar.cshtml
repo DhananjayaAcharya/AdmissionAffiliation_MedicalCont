@@ -5,14 +5,8 @@
 @using System.Text.Json;
 
 @{
-     // var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
-
-    // var level = ViewContext.RouteData.Values["level"]?.ToString()
-    //        ?? Context.Request.Query["level"].ToString()
-    //        ?? HttpContextAccessor.HttpContext.Session.GetString("CourseLevel")
-    //        ?? "UG";
-
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
+    var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
 
     var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
 
@@ -65,7 +59,8 @@
 
 
         // ================= ACADEMIC & ADMIN =================v v  v 
-        new StepItem{ Key="AcademicMatters", Label="Academic Matters", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
+        new StepItem{ Key="AcademicMatters", Label="UG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
+        new StepItem{ Key="PGAcademicMatters", Label="PG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMattersPG", Levels = new List<string>{ "PG" } },
         new StepItem{ Key="Finance", Label="Financial Details", Group="Academic & Admin", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
         new StepItem{ Key="StaffDetails", Label="Staff Particular Details", Group="Academic & Admin", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
 
@@ -85,7 +80,7 @@
 
         // ================= STUDENT AMENITIES =================
         new StepItem{ Key="IntakeDetails", Label="Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
-        new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered" },
+        new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered", Levels = new List<string>{ "SS" } },
 
 
         // new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
@@ -187,6 +182,13 @@
     // Track which group label we last printed (for group headers)
     string lastGroup = "";
 
+    allSteps = allSteps
+    .Where(step =>
+        step.Levels == null || step.Levels.Count == 0   // ✅ default (UG/common)
+        || step.Levels.Any(l => levels.Contains(l))     // PG / SS match
+    )
+    .ToList();
+
 
     var groupedSteps = allSteps
             .GroupBy(s => s.Group)
@@ -203,7 +205,7 @@
                    CA SIDEBAR
                 ══════════════════════════════ */
     .ca-sb {
-        width: 265px;
+        width: 18vw;
         min-height: 100vh;
         background: linear-gradient(180deg, #0f2545 0%, #162e55 100%);
         display: flex;
@@ -238,6 +240,7 @@
         font-size: 1.1rem;
         color: #fff;
         font-weight: 500;
+        letter-spacing: 1px;
     }
 
     .ca-sb-subtitle {
@@ -362,7 +365,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 7px 18px;
+        padding: 7px 10px;
         text-decoration: none;
         color: rgba(255,255,255,0.5);
         font-size: 0.78rem;
@@ -382,7 +385,7 @@
             border-left-color: #d4a84b;
             color: #fff;
             font-weight: 600;
-            padding-left: 15px;
+            padding-left: 10px;
         }
 
         /* Indented sub-steps (Physical Facilities items) */
@@ -397,8 +400,8 @@
 
     /* Step dot */
     .ca-dot {
-        width: 20px;
-        height: 20px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -527,12 +530,12 @@
     }
 
     .accordion-header {
-        font-size: 1rem;
-        font-weight: 700;
-        /* letter-spacing: 0.18em; */
-        text-transform: uppercase;
+        font-size: 0.9rem;
+        font-weight: 500;
+        letter-spacing: .5px;
+        /* text-transform: uppercase; */
         color: rgba(255,255,255,0.22);
-        padding: 12px 18px 4px;
+        padding: 12px 18px;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -601,9 +604,9 @@
 
     <!-- Brand -->
     <div class="ca-sb-top">
-        @* <div class="ca-sb-title">Continuous Affiliation</div> *@
+        @* <div class="ca-sb-title">@collegeName</div> *@
         <div class="ca-sb-title">College Details</div>
-        <div class="ca-sb-subtitle">Faculty-Based Module</div>
+        @* <div class="ca-sb-subtitle">Faculty-Based Module</div> *@
     </div>
 
     <!-- Level pill -->

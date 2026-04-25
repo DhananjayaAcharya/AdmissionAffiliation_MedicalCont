@@ -140,7 +140,7 @@
             border: 1px solid rgba(255,255,255,.13);
             border-radius: 40px;
             padding: 7px 16px 7px 10px;
-            max-width: 280px;
+            max-width: 45rem;
         }
 
         .tb-college-icon {
@@ -362,7 +362,7 @@
 
         .hero-name {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 48px;
+            font-size: 2.8rem;
             font-weight: 600;
             color: #fff;
             line-height: 1.1;
@@ -970,20 +970,10 @@
             <div class="tb-emblem">🎓</div>
             <div>
                 <div class="tb-brand-name">Academic Portal</div>
-                <div class="tb-brand-sub">Course Intake Management System</div>
+                @* <div class="tb-brand-sub">Course Intake Management System</div> *@
             </div>
         </a>
-        <div class="tb-right">
-            @* @if (!string.IsNullOrEmpty(collegeCode))
-            // {
-            //     <div class="tb-code-tag">Code: @collegeCode</div>
-            // } *@
-            <div class="tb-pill">
-                <i class="bi bi-calendar3"></i>
-                Academic Year 2024–25
-            </div>
-
-            <!-- College Name Display -->
+        <div class="tb-college-data">
             <div class="tb-college">
                 <div class="tb-college-icon">
                     <i class="bi bi-buildings-fill"></i>
@@ -994,6 +984,10 @@
                 </div>
             </div>
 
+        </div>
+
+        <div class="tb-right">
+            <!-- College Name Display -->
 
             <form asp-action="Logout" asp-controller="Login" method="post" style="display:inline;">
                 @Html.AntiForgeryToken()

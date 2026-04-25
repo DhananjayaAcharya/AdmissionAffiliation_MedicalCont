@@ -1,0 +1,85 @@
+﻿.form-wrap {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.section-card {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+    .section-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+.section-body {
+    padding: 16px;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .custom-table th {
+        background: #1a4c8b;
+        color: #fff;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .custom-table td {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .custom-table input,
+    .custom-table select {
+        width: 100%;
+        padding: 6px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+}
+
+.btn-primary {
+    background: #1a4c8b;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.icon-wrap {
+    width: 40px;
+    height: 40px;
+    background: #e8edf7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}

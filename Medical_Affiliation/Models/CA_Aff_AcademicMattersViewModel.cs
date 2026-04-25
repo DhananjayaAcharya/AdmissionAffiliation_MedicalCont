@@ -11,8 +11,7 @@ namespace Medical_Affiliation.Models
         public int? FacultyId { get; set; }
         public int? AffiliationType { get; set; }
 
-        public List<AcademicPerformanceViewModel> AcademicRows { get; set; }
-    = new List<AcademicPerformanceViewModel>();
+        public List<AcademicPerformanceViewModel> AcademicRows { get; set; } = new();
         public List<CourseCurriculumDisplayViewModel>? CourseCurriculumdvm { get; set; }
 
 
@@ -28,14 +27,6 @@ namespace Medical_Affiliation.Models
         public List<ExaminationSchemeRowViewModel> ExaminationSchemess { get; set; }
     = new();
         public List<StudentRegisterRecordViewModel> StudentRegisterRecords { get; set; } = new List<StudentRegisterRecordViewModel>();
-    }
-
-    public class CA_Aff_PgSsAcademicMattersViewModel : CA_Aff_AcademicMattersViewModel {
-        public string SubjectName { get; set; }
-        public string SubjectCode { get; set; }
-
-        public List<AcademicPerformancePgSsViewModel> AcademicRows { get; set; }
-    = new List<AcademicPerformancePgSsViewModel>();
     }
 
     public class CourseCurriculumDisplayViewModel
@@ -101,7 +92,7 @@ namespace Medical_Affiliation.Models
 
     public class AcademicPerformancePgSsViewModel : AcademicPerformanceViewModel
     {
-        public List<SelectListItem> SubjectData {  get; set; }
+        public string? Subject { get; set; }
     }
 
 
@@ -154,6 +145,38 @@ namespace Medical_Affiliation.Models
 
         public bool? IsMaintained { get; set; }
 
+    }
+
+    public class PgSubjectSectionVM
+    {
+        public string Subject { get; set; }
+
+        public List<YearDataVM> YearData { get; set; } = new();
+    }
+
+    public class YearDataVM
+    {
+        public int YearOfStudyId { get; set; }
+        public string YearName { get; set; }
+
+        public int? RegularStudents { get; set; }
+        public int? RepeaterStudents { get; set; }
+        public int? NumberOfStudentsPassed { get; set; }
+        public decimal? PassPercentage { get; set; }
+        public int? FirstClassCount { get; set; }
+        public int? DistinctionCount { get; set; }
+        public string Remarks { get; set; }
+    }
+
+    public class CA_Aff_PgSsAcademicMattersViewModel
+    {
+        public string CollegeCode { get; set; }
+        public int FacultyId { get; set; }
+        public int AffiliationType { get; set; }
+
+        public List<SelectListItem> Subjects { get; set; } = new();
+
+        public List<PgSubjectSectionVM> Sections { get; set; } = new();
     }
 }
 public class ExaminationSchemeRowViewModel

@@ -1381,7 +1381,8 @@
                                     <label class="fl">Faculty <span class="req-g">*</span></label>
                                     <div class="iw">
                                         <i class="ic bi bi-mortarboard-fill"></i>
-                                        @Html.DropDownListFor(m => m.FacultyId, Model.Faculties, "— Select Faculty —", new { @class = "fs", id = "FacultyId" })
+                                         @Html.DropDownListFor(m => m.FacultyId, Model.Faculties, "— Select Faculty —", new { @class = "fs", id = "FacultyId", disabled = "disabled" })
+                                         @Html.HiddenFor(m => m.FacultyId)
                                     </div>
                                     @Html.ValidationMessageFor(m => m.FacultyId, "", new { @class = "ferr" })
                                 </div>

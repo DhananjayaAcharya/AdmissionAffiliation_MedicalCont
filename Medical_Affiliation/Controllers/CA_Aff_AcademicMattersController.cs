@@ -2,10 +2,13 @@
 using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -27,6 +30,11 @@ namespace Medical_Affiliation.Controllers
             int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+
+            var levels = GetSortedCourseLevels(raw);
+
+
             var model = new CA_Aff_AcademicMattersViewModel
             {
                 CollegeCode = collegeCode,
@@ -35,8 +43,6 @@ namespace Medical_Affiliation.Controllers
                 //CourseLevel = courseLevel
             };
 
-
-            //&&
             //x.CurriculumId == curriculumId);
             var savedCurriculums = _context.CaCourseCurricula
                 .Where(x => x.CollegeCode == model.CollegeCode &&
@@ -44,27 +50,6 @@ namespace Medical_Affiliation.Controllers
                             x.CourseLevel == model.CourseLevel &&
                             x.AffiliationType == model.AffiliationType)
                 .ToList();
-
-            //model.CourseCurriculums = savedCurriculums.Select(x => new CourseCurriculumViewModel
-            //{
-            //    CurriculumId = x.CurriculumId,
-            //    CurriculumDetails = x.CurriculumDetails,
-            //    CurriculumPdfPath = x.CurriculumPdfPath
-            //}).ToList();
-
-
-
-            //if (pdf == null || pdf.CurriculumPdf == null)
-            //{
-            //    return Content("No PDF uploaded for this item.");
-            //    // OR: return NotFound("No PDF uploaded");
-            //}
-
-            //return File(
-            //    pdf.CurriculumPdf,
-            //    "application/pdf",
-            //    pdf.PdfFileName ?? "Curriculum.pdf"
-            //);
 
             // Load academic performance rows for this college/faculty/affiliation
             var academics = _context.CaAcademicPerformances
@@ -227,6 +212,116 @@ namespace Medical_Affiliation.Controllers
 
             return View("AcademicMatters", model);
         }
+
+        [HttpGet]
+        public IActionResult AcademicMattersPG(string subjectCode = null)
+        {
+            string collegeCode = HttpContext.Session.GetString("CollegeCode");
+            int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
+            int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+
+            string courseLevel = "PG";
+
+            // 🔹 SUBJECT MASTER (you must have table like this)
+            var subjects = (
+                    from c in _context.MstCourses
+                    join i in _context.CollegeCourseIntakeDetails
+                        on c.CourseCode.ToString() equals i.CourseCode
+                    where c.CourseLevel.ToUpper() == "PG"
+                          && i.CollegeCode == collegeCode
+                    group c by new { c.CourseCode, c.SubjectName } into g
+                    orderby g.Key.SubjectName
+                    select new SelectListItem
+                    {
+                        Value = g.Key.CourseCode.ToString(),
+                        Text = g.Key.SubjectName
+                    }
+                ).ToList();
+
+            var model = new CA_Aff_PgSsAcademicMattersViewModel
+            {
+                CollegeCode = collegeCode,
+                FacultyId = facultyId,
+                AffiliationType = affiliationType,
+                Subjects = subjects
+            };
+
+
+            // 🔹 YEAR MASTER
+            var yearMaster = _context.CaMstYearOfStudies
+                .OrderBy(y => y.YearOfStudyId)
+                .ToList();
+
+
+            ViewBag.YearList = yearMaster;
+
+            // 🔹 EXISTING DATA
+            var academics = _context.CaAcademicPerformances
+                .AsNoTracking()
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId == facultyId &&
+                    x.AffiliationType == affiliationType &&
+                    x.CourseLevel.ToUpper() == courseLevel
+                    )
+                .ToList();
+
+
+            var sections = new List<PgSubjectSectionVM>();
+
+            var grouped = academics
+                                .Where(a => !string.IsNullOrEmpty(a.Subject))
+                                .GroupBy(a => a.Subject);
+
+            foreach (var subjectGroup in grouped)
+            {
+                var section = new PgSubjectSectionVM
+                {
+                    Subject = subjectGroup.Key,
+                    YearData = new List<YearDataVM>()
+                };
+
+                foreach (var y in yearMaster)
+                {
+                    var existing = subjectGroup
+                        .FirstOrDefault(a => a.YearOfStudyId == y.YearOfStudyId);
+
+                    section.YearData.Add(new YearDataVM
+                    {
+                        YearOfStudyId = y.YearOfStudyId,
+                        YearName = y.YearName,
+                        RegularStudents = existing?.RegularStudents,
+                        RepeaterStudents = existing?.RepeaterStudents,
+                        NumberOfStudentsPassed = existing?.NumberOfStudentsPassed,
+                        PassPercentage = existing?.PassPercentage,
+                        FirstClassCount = existing?.FirstClassCount,
+                        DistinctionCount = existing?.DistinctionCount,
+                        Remarks = existing?.Remarks
+                    });
+                }
+
+                sections.Add(section);
+            }
+
+            if (!sections.Any())
+            {
+                sections.Add(new PgSubjectSectionVM
+                {
+                    Subject = subjects.First().Value,
+                    YearData = yearMaster.Select(y => new YearDataVM
+                    {
+                        YearOfStudyId = y.YearOfStudyId,
+                        YearName = y.YearName
+                    }).ToList()
+                });
+            }
+
+            model.Sections = sections;
+
+            return View("AcademicMattersPG", model);
+        }
+
+
         private async Task<string?> SaveCurriculumFileAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -375,10 +470,6 @@ namespace Medical_Affiliation.Controllers
                                 }
                             }
                         }
-
-
-
-
                     }
                     await _context.SaveChangesAsync();
                 }
@@ -474,6 +565,121 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AcademicMattersPG(CA_Aff_PgSsAcademicMattersViewModel model)
+        {
+            string collegeCode = HttpContext.Session.GetString("CollegeCode");
+            int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
+            int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+
+            string courseLevel = "PG";
+            if (model?.Sections == null || !model.Sections.Any())
+            {
+                return RedirectToAction("AcademicMattersPG");
+            }
+
+            // 🔹 GET EXISTING DB DATA
+            var existingRecords = _context.CaAcademicPerformances
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId == facultyId &&
+                    x.AffiliationType == affiliationType &&
+                    x.CourseLevel == courseLevel)
+                .ToList();
+
+            // 🔹 CREATE LOOKUP (Subject + Year)
+            var existingDict = existingRecords
+                    .Where(x => x.YearOfStudyId.HasValue && !string.IsNullOrEmpty(x.Subject))
+                    .GroupBy(x => $"{x.Subject}_{x.YearOfStudyId}")
+                    .ToDictionary(g => g.Key, g => g.First());
+
+            var incomingKeys = new HashSet<string>();
+
+            // 🔹 LOOP THROUGH SECTIONS
+            foreach (var section in model.Sections)
+            {
+                if (string.IsNullOrEmpty(section.Subject))
+                    continue;
+
+                foreach (var year in section.YearData)
+                {
+                    string key = $"{section.Subject}_{year.YearOfStudyId}";
+                    incomingKeys.Add(key);
+
+                    // 🔹 CHECK EXISTING
+                    if (existingDict.TryGetValue(key, out var existing))
+                    {
+                        // 🔄 UPDATE
+                        existing.RegularStudents = year.RegularStudents;
+                        existing.RepeaterStudents = year.RepeaterStudents;
+                        existing.NumberOfStudentsPassed = year.NumberOfStudentsPassed;
+                        existing.PassPercentage = year.PassPercentage;
+                        existing.FirstClassCount = year.FirstClassCount;
+                        existing.DistinctionCount = year.DistinctionCount;
+                        existing.Remarks = year.Remarks;
+                    }
+                    else
+                    {
+                        // ➕ INSERT
+                        _context.CaAcademicPerformances.Add(new CaAcademicPerformance
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyId = facultyId,
+                            AffiliationType = affiliationType,
+                            CourseLevel = courseLevel,
+                            Subject = section.Subject,
+                            YearOfStudyId = year.YearOfStudyId,
+                            RegularStudents = year.RegularStudents,
+                            RepeaterStudents = year.RepeaterStudents,
+                            NumberOfStudentsPassed = year.NumberOfStudentsPassed,
+                            PassPercentage = year.PassPercentage,
+                            FirstClassCount = year.FirstClassCount,
+                            DistinctionCount = year.DistinctionCount,
+                            Remarks = year.Remarks,
+                            CreatedOn = DateTime.Now
+                        });
+                    }
+                }
+            }
+
+            // 🔴 DELETE REMOVED RECORDS
+            var toDelete = existingRecords
+                .Where(x =>
+                    x.YearOfStudyId.HasValue &&
+                    !string.IsNullOrEmpty(x.Subject) &&
+                    !incomingKeys.Contains($"{x.Subject}_{x.YearOfStudyId}")
+                )
+                .ToList();
+
+            if (toDelete.Any())
+            {
+                _context.CaAcademicPerformances.RemoveRange(toDelete);
+            }
+
+            // 💾 SAVE
+            try
+            {
+                _context.SaveChanges();
+
+                TempData["Success"] = "Academic data saved successfully";
+            }
+            catch (Exception ex)
+            {
+                // 🔹 Log error (important)
+                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
+
+                // 🔹 User-friendly message
+                TempData["Error"] = "Something went wrong while saving data.";
+
+                return RedirectToAction("AcademicMattersPG");
+            }
+
+            return RedirectToAction("AcademicMattersPG");
+        }
+
+
         private void LoadAcademicMattersMasters(CA_Aff_AcademicMattersViewModel model)
         {
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
@@ -552,9 +758,6 @@ namespace Medical_Affiliation.Controllers
                 })
                 .ToList();
 
-
-
-
         }
 
 
@@ -589,8 +792,6 @@ namespace Medical_Affiliation.Controllers
 
             return PhysicalFile(record.CurriculumPdfPath, "application/pdf");
         }
-
-
 
     }
 }

@@ -50,6 +50,7 @@ body {
     display: flex;
     align-items: center;
     position: fixed;
+    top:0;
     width: 100%;
     z-index: 5;
     gap: 18px;
@@ -129,7 +130,8 @@ body {
 }
 
 .form-wrap, .table-wrap, .form-card, .main-box {
-    padding: 6rem 24px 60px;
+    /*    padding: 6rem 24px 60px;*/
+    padding: 5rem 12px 0px;
 }
 
 .form-card{

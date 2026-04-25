@@ -165,6 +165,8 @@ namespace Medical_Affiliation.Controllers
             var colleges = new[] { "M016", "M011", "M019" };
             var model = new AdmissionLoginViewModel
             {
+
+                FacultyId = "1",
                 Faculties = _context.Faculties
                 .Where(c => c.FacultyId == 1 )
                     .Select(f => new SelectListItem

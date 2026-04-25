@@ -1,0 +1,388 @@
+﻿@model Medical_Affiliation.Models.CA_Aff_PgSsAcademicMattersViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using Medical_Affiliation.Models
+
+@{
+    ViewData["Title"] = "Academic Matters PG";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var yearList = ViewBag.YearList as List<CaMstYearOfStudy> ?? new List<CaMstYearOfStudy>();
+}
+
+<link rel="stylesheet" href="~/css/academic-matters.css" />
+<link rel="stylesheet" href="~/css/common-form.css" />
+<style>
+    /* .page-header {
+        background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+        padding: 28px 40px 24px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        border-bottom: 3px solid var(--gold);
+    } */
+
+    .page-header{
+        top: 0;
+    }   
+    .page-header .emblem {
+        width: 54px;
+        height: 54px;
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .page-header .emblem svg {
+        width: 28px;
+        height: 28px;
+        fill: var(--gold);
+    }
+
+    .page-header-text h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.45rem;
+        color: #ffffff;
+        letter-spacing: .02em;
+    }
+
+    .page-header-text p {
+        font-size: .78rem;
+        color: rgba(255,255,255,.55);
+        margin-top: 3px;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .page-header-text h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.45rem;
+        color: #ffffff;
+        letter-spacing: .02em;
+    }
+
+    .page-header-text p {
+        font-size: .78rem;
+        color: rgba(255,255,255,.55);
+        margin-top: 3px;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .form-wrap {
+        max-width: 1280px;
+        margin: 0px auto;
+        padding: 0 0px 1rem;
+    }
+    .section-card{
+        margin: 6rem auto 0;
+    }
+
+    .section-card-clone{
+        margin: 2rem auto;
+    }
+
+</style>
+<div class="form-wrap">
+    <div class="page-header">
+        <div class="emblem">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+        </div>
+        <div class="page-header-text">
+            <h1>PG Academic Details</h1>
+            @* <p>Postgraduate Courses — Academic Performance & Records</p> *@
+        </div>
+    </div>
+    <form asp-action="AcademicMattersPG" method="post">
+        <div id="sectionsContainer" class="mt-2">
+            @for (int s = 0; s < Model.Sections.Count; s++)
+            {
+                <div class="section-card">
+
+                    <!-- SUBJECT -->
+                    <div class="section-header">
+                        <label class="check-label">Subject</label>
+                        <select name="Sections[@s].Subject" class="form-control">
+                            @foreach (var sub in Model.Subjects)
+                            {
+                                <option value="@sub.Value" selected="@(sub.Value == Model.Sections[s].Subject)">@sub.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="section-body">
+
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
+                                    {
+                                        <th>@Model.Sections[s].YearData[y].YearName</th>
+                                    }
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <!-- REGULAR -->
+                                <tr>
+                                    <td>Regular</td>
+                                    @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
+                                    {
+                                        <td>
+                                            <input type="hidden"
+                                                   name="Sections[@s].YearData[@y].YearOfStudyId"
+                                                   value="@Model.Sections[s].YearData[y].YearOfStudyId" />
+
+                                            <input type="number" min="0" name="Sections[@s].YearData[@y].RegularStudents"
+                                                   value="@Model.Sections[s].YearData[y].RegularStudents" />
+                                        </td>
+                                    }
+                                </tr>
+
+                                <!-- REPEATER -->
+                                <tr>
+                                    <td>Repeater</td>
+                                    @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
+                                    {
+                                        <td>
+                                            <input type="number" min="0" name="Sections[@s].YearData[@y].RepeaterStudents"
+                                                   value="@Model.Sections[s].YearData[y].RepeaterStudents" />
+                                        </td>
+                                    }
+                                </tr>
+
+                                <!-- PASSED -->
+                                <tr>
+                                    <td>Passed</td>
+                                    @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
+                                    {
+                                        <td>
+                                            <input type="number" min="0" name="Sections[@s].YearData[@y].NumberOfStudentsPassed" value="@Model.Sections[s].YearData[y].NumberOfStudentsPassed" />
+                                        </td>
+                                    }
+                                </tr>
+
+                                <!-- PASS % -->
+                                <tr>
+                                    <td>Pass %</td>
+                                    @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
+                                    {
+                                        <td>
+                                            <input type="number" min="0" step="0.01" name="Sections[@s].YearData[@y].PassPercentage" value="@Model.Sections[s].YearData[y].PassPercentage" readonly />
+                                        </td>
+                                    }
+                                </tr>
+
+                                <!-- FIRST CLASS -->
+                                <tr>
+                                    <td>First Class</td>
+                                    @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
+                                    {
+                                        <td>
+                                            <input type="number" min="0" name="Sections[@s].YearData[@y].FirstClassCount" value="@Model.Sections[s].YearData[y].FirstClassCount" />
+                                        </td>
+                                    }
+                                </tr>
+
+                                <!-- DISTINCTION -->
+                                <tr>
+                                    <td>Distinction</td>
+                                    @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
+                                    {
+                                        <td>
+                                            <input type="number" min="0" name="Sections[@s].YearData[@y].DistinctionCount" value="@Model.Sections[s].YearData[y].DistinctionCount" />
+                                        </td>
+                                    }
+                                </tr>
+
+                                <!-- REMARKS -->
+                                <tr>
+                                    <td>Remarks</td>
+                                    @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
+                                    {
+                                        <td>
+                                            <input type="text" name="Sections[@s].YearData[@y].Remarks" value="@Model.Sections[s].YearData[y].Remarks" />
+                                        </td>
+                                    }
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                        @* <button type="button" class="btn btn-warning clearSection">Clear All</button> *@
+                        @if (s > 0)
+                        {
+                            <button type="button" class="btn btn-danger removeSection ms-2">
+                                Remove
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+
+        </div>
+        <div class="d-flex justify-content-between mt-4 py-0 px-3">
+
+            <button type="button" id="addSection" class="btn btn-secondary">
+                + Add Subject Section
+            </button>
+
+            <button type="submit" class="btn btn-primary">
+                Save Academic Data
+            </button>
+
+            <button type="button" id="clearAllSections" class="btn btn-warning">
+                Clear All Sections
+            </button>
+
+        </div>
+    </form>
+
+</div>
+<script>
+    let sectionIndex = @Model.Sections.Count;
+
+    // ➕ ADD NEW SECTION (CLONE FIRST ONE)
+    document.getElementById("addSection").addEventListener("click", function () {
+
+        let firstSection = document.querySelector(".section-card");
+        let newSection = firstSection.cloneNode(true);
+
+        newSection.classList.add("section-card-clone");
+
+        // 🔹 RESET INPUT VALUES
+        newSection.querySelectorAll("input").forEach(input => {
+            if (input.type !== "hidden") {
+                input.value = "";
+            }
+        });
+
+        // 🔹 RESET SUBJECT DROPDOWN
+        let select = newSection.querySelector("select");
+        if (select) select.selectedIndex = 0;
+
+        // 🔹 UPDATE INDEXES (CRITICAL)
+        newSection.querySelectorAll("[name]").forEach(el => {
+
+            let name = el.getAttribute("name");
+
+            // Replace Sections[0] → Sections[newIndex]
+            name = name.replace(/Sections\[\d+\]/, `Sections[${sectionIndex}]`);
+
+            el.setAttribute("name", name);
+        });
+
+        let header = newSection.querySelector(".section-header");
+
+        if (!header.querySelector(".removeSection")) {
+            let btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn btn-danger removeSection ms-2";
+            btn.innerText = "Remove";
+
+            header.appendChild(btn);
+        }
+
+
+        // 🔹 APPEND NEW SECTION
+        document.getElementById("sectionsContainer").appendChild(newSection);
+
+        sectionIndex++;
+    });
+
+
+    // 🧹 CLEAR ENTIRE SECTION
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("clearSection")) {
+
+            let section = e.target.closest(".section-card");
+
+            section.querySelectorAll("input").forEach(i => i.value = "");
+
+            let select = section.querySelector("select");
+            if (select) select.selectedIndex = 0;
+        }
+    });
+    document.addEventListener("change", function (e) {
+        if (e.target.matches("select[name*='Sections']")) {
+
+            let values = Array.from(document.querySelectorAll("select[name*='Sections']"))
+                .map(s => s.value);
+
+            let duplicates = values.filter((v, i, a) => a.indexOf(v) !== i);
+
+            if (duplicates.length > 0) {
+                alert("Same subject selected multiple times!");
+            }
+        }
+    });
+
+    document.addEventListener("input", function (e) {
+
+        if (
+            e.target.name.includes("RegularStudents") ||
+            e.target.name.includes("RepeaterStudents") ||
+            e.target.name.includes("NumberOfStudentsPassed")
+        ) {
+            let td = e.target.closest("td");
+            let table = td.closest("table");
+
+            let colIndex = td.cellIndex;
+
+            let getVal = (rowName) => {
+                let row = Array.from(table.rows).find(r => r.cells[0].innerText.includes(rowName));
+                return parseInt(row?.cells[colIndex]?.querySelector("input")?.value) || 0;
+            };
+
+            let regular = getVal("Regular");
+            let repeater = getVal("Repeater");
+            let passed = getVal("Passed");
+
+            let total = regular + repeater;
+            let percent = total > 0 ? (passed / total) * 100 : 0;
+
+            let percentRow = Array.from(table.rows).find(r => r.cells[0].innerText.includes("Pass %"));
+
+            if (percentRow) {
+                let input = percentRow.cells[colIndex].querySelector("input");
+                input.value = percent.toFixed(2);
+            }
+        }
+    });
+
+    document.getElementById("clearAllSections").addEventListener("click", function () {
+        document.querySelectorAll("#sectionsContainer input").forEach(i => i.value = "");
+        document.querySelectorAll("#sectionsContainer select").forEach(s => s.selectedIndex = 0);
+    });
+
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("removeSection")) {
+            let section = e.target.closest(".section-card");
+            section.remove();
+            reIndexSections();
+        }
+    });
+
+    function reIndexSections() {
+
+        let sections = document.querySelectorAll(".section-card");
+
+        sections.forEach((section, sIndex) => {
+
+            section.querySelectorAll("[name]").forEach(el => {
+                let name = el.getAttribute("name");
+
+                name = name.replace(/Sections\[\d+\]/, `Sections[${sIndex}]`);
+
+                el.setAttribute("name", name);
+            });
+
+        });
+
+        sectionIndex = sections.length;
+    }
+</script>
