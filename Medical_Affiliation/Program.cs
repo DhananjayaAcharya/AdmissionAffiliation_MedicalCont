@@ -92,7 +92,7 @@ builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 // =============================================
 // 🔥 AUTHENTICATION - DYNAMIC COOKIE PATH (Fixed for Local + Server)
 // =============================================
-var cookiePath = builder.Environment.IsDevelopment() ? "/" : "/admissionaffiiliation";
+var cookiePath = builder.Environment.IsDevelopment() ? "/" : "/admissionaffiliation";
 
 builder.Services.AddAuthentication("CollegeAuth")
     .AddCookie("CollegeAuth", options =>

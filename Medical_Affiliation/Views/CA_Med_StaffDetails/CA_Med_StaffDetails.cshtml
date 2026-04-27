@@ -362,16 +362,74 @@
                         @Html.AntiForgeryToken()
 
                         <!-- b -->
+                        <!-- b -->
                         <div class="form-item">
+
                             <label class="long-label">
                                 b. Whether all teachers working in the college are updated in the online teacher's database and EMS - Examiners List
                             </label>
-                            <select asp-for="StaffOther.TeachersUpdatedInEMS" class="form-select">
+
+                            <select asp-for="StaffOther.TeachersUpdatedInEMS"
+                                    class="form-select"
+                                    id="TeachersUpdatedDropdown">
+
                                 <option value="">-- Select --</option>
-                                <option value="Y" selected="@(Model.StaffOther.TeachersUpdatedInEMS == "Y")">Yes</option>
-                                <option value="N" selected="@(Model.StaffOther.TeachersUpdatedInEMS == "N")">No</option>
+
+                                <option value="Y"
+                                        selected="@(Model.StaffOther.TeachersUpdatedInEMS == "Y")">
+                                    Yes
+                                </option>
+
+                                <option value="N"
+                                        selected="@(Model.StaffOther.TeachersUpdatedInEMS == "N")">
+                                    No
+                                </option>
+
                             </select>
-                            <span asp-validation-for="StaffOther.TeachersUpdatedInEMS" class="text-danger"></span>
+
+                            <span asp-validation-for="StaffOther.TeachersUpdatedInEMS"
+                                  class="text-danger"></span>
+
+
+                            <!-- Changes by Ram on 23/04/2026 -->
+                            <!-- show file exactly like c -->
+
+                            <div id="TeachersUpdatedFileDiv"
+                                 style="display:@(
+                                 Model.StaffOther.TeachersUpdatedInEMS == "Y"
+                                 ? "block"
+                                 : "none"
+                                          );
+         margin-top:16px;">
+
+                                <div class="file-upload-area">
+                                    <input asp-for="ExaminerDetailsPdf"
+                                           type="file"
+                                           class="file-validate"
+                                           accept="application/pdf" />
+                                </div>
+
+                                <span asp-validation-for="ExaminerDetailsPdf"
+                                      class="text-danger"></span>
+
+                                @if (!string.IsNullOrEmpty(
+                                                                Model.StaffOther.ExaminerDetailsPdfName))
+                                {
+                                    <a href="@Url.Action(
+                                                       "ViewStaffOtherPdf",
+                                                       "CA_Med_StaffDetails",
+                                                       new { type = "Examiner" })"
+                                   target="_blank"
+                                   class="view-btn">
+
+                                        <i class="fas fa-eye"></i>
+                                        View EMS / Examiner Document
+
+                                    </a>
+                                                                }
+
+                            </div>
+
                         </div>
 
                         <!-- c -->
@@ -405,7 +463,20 @@
 
                         <!-- d -->
                         <div class="form-item">
-                            <label class="long-label">d. AEBAS details of all the staff (Enclose last three months attendance report)</label>
+                            <label class="long-label">
+                                d. AEBAS details of all the staff
+                                (Enclose last three months attendance report)
+                                <span style="color:red;">*</span>
+                            </label>
+
+                            <small style="
+                                        display:block;
+                                        margin-bottom:10px;
+                                        color:red;
+                                        font-size:0.72rem;
+                                        font-weight:600;">
+                                Document should be compulsorily uploaded.
+                            </small>
                             <div class="file-upload-area">
                                 <input asp-for="AEBASLastThreeMonthsPdf" type="file" class="file-validate" accept="application/pdf" />
                             </div>
@@ -421,7 +492,20 @@
 
                         <!-- e -->
                         <div class="form-item">
-                            <label class="long-label">e. AEBAS details of all the staff on the day of inspection (Enclose copy)</label>
+                            <label class="long-label">
+                                e. AEBAS details of all the staff on the day of inspection
+                                (Enclose copy)
+                                <span style="color:red;">*</span>
+                            </label>
+
+                            <small style="
+                                            display:block;
+                                            margin-bottom:10px;
+                                            color:red;
+                                            font-size:0.72rem;
+                                            font-weight:600;">
+                                Document should be compulsorily uploaded.
+                            </small>
                             <div class="file-upload-area">
                                 <input asp-for="AEBASInspectionDayPdf" type="file" class="file-validate" accept="application/pdf" />
                             </div>
@@ -460,7 +544,19 @@
 
                         <!-- g -->
                         <div class="form-item">
-                            <label class="long-label">g. Provident fund benefit provided (Give details)</label>
+                            <label class="long-label">
+                                g. Provident fund benefit provided (Give details)
+                                <span style="color:red;">*</span>
+                            </label>
+
+                            <small style="
+                                            display:block;
+                                            margin-bottom:10px;
+                                            color:red;
+                                            font-size:0.72rem;
+                                            font-weight:600;">
+                                Document should be compulsorily uploaded.
+                            </small>
                             <div class="file-upload-area">
                                 <input asp-for="ProvidentFundPdf" type="file"  class="file-validate" accept="application/pdf" />
                             </div>
@@ -475,7 +571,7 @@
                         </div>
 
                         <!-- h -->
-                        <div class="form-item">
+                       @*  <div class="form-item">
                             <label class="long-label">h. Whether ESI benefits are provided (Give Details)</label>
                             <div class="file-upload-area">
                                 <input asp-for="ESIPdf" type="file" class="file-validate" accept="application/pdf" />
@@ -488,6 +584,80 @@
                                     <i class="fas fa-eye"></i> View ESI Document
                                 </a>
                             }
+                        </div> *@
+
+                        <!-- ===================================================== -->
+                        <!-- Changes by Ram on 23/04/2026 -->
+                        <!-- Separate UG Specific Section -->
+                        <!-- ===================================================== -->
+
+                        <div class="section-block">
+                            <div class="section-block-header"
+                                 style="background:linear-gradient(180deg,#dbeafe 0%,#bfdbfe 100%);
+                                 color:#0f2545;">
+                                For UG - ESI
+                            </div>
+
+                            <div class="section-block-body">
+
+                                @if (Model.ExistingCourseLevels.Contains("UG"))
+                                {
+                                    if (Model.CourseLevel == "UG" ||
+                                    string.IsNullOrEmpty(Model.CourseLevel))
+                                    {
+                                        <!-- UG editable block -->
+                                        <div class="form-item">
+                                            <label class="long-label">
+                                                h. Whether ESI benefits are provided (Give Details)
+                                            </label>
+
+                                            <div class="file-upload-area">
+                                                <input asp-for="ESIPdf"
+                                                       type="file"
+                                                       class="file-validate"
+                                                       accept="application/pdf" />
+                                            </div>
+
+                                            <span asp-validation-for="ESIPdf"
+                                                  class="text-danger"></span>
+
+                                            @if (!string.IsNullOrEmpty(Model.StaffOther.ESIPdfName))
+                                            {
+                                                <a href="@Url.Action(
+                                                                                 "ViewStaffOtherPdf",
+                                                                                 "CA_Med_StaffDetails",
+                                                                                 new { type = "ESI" })"
+                                       target="_blank"
+                                       class="view-btn">
+
+                                                    <i class="fas fa-eye"></i>
+                                                    View ESI Document
+                                                </a>
+                                                                        }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <!-- PG / SS show no -->
+                                        <div class="form-item">
+                                            <label class="long-label">
+                                                h. Whether ESI benefits are provided
+                                            </label>
+
+                                            <select class="form-select" disabled>
+                                                <option selected>No</option>
+                                            </select>
+
+                                            <small style="display:block;
+                                          margin-top:10px;
+                                          color:#6b6358;">
+                                                Not applicable for this course level.
+                                            </small>
+                                        </div>
+                                    }
+                                }
+
+                            </div>
                         </div>
 
                         <div class="text-end mt-4">
@@ -518,19 +688,53 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const ddl = document.getElementById("ExaminerDetailsAttachedDropdown");
-            const fileDiv = document.getElementById("ExaminerFileDiv");
+                    // Changes by Ram on 23/04/2026
 
-            function toggleFileDiv() {
-                if (ddl && fileDiv) {
-                    fileDiv.style.display = ddl.value === "Y" ? "block" : "none";
-                }
-            }
+        // c block
+        const ddlC = document.getElementById("ExaminerDetailsAttachedDropdown");
+        const fileDivC = document.getElementById("ExaminerFileDiv");
 
-            if (ddl) {
-                ddl.addEventListener("change", toggleFileDiv);
-                toggleFileDiv();
+        // b block
+        const ddlB = document.getElementById("TeachersUpdatedDropdown");
+        const fileDivB = document.getElementById("TeachersUpdatedFileDiv");
+
+
+        function toggleExaminerDiv() {
+            if (ddlC && fileDivC) {
+                fileDivC.style.display =
+                    ddlC.value === "Y"
+                    ? "block"
+                    : "none";
             }
+        }
+
+        function toggleTeachersDiv() {
+            if (ddlB && fileDivB) {
+                fileDivB.style.display =
+                    ddlB.value === "Y"
+                    ? "block"
+                    : "none";
+            }
+        }
+
+
+        if (ddlC) {
+            ddlC.addEventListener(
+                "change",
+                toggleExaminerDiv
+            );
+
+            toggleExaminerDiv();
+        }
+
+        if (ddlB) {
+            ddlB.addEventListener(
+                "change",
+                toggleTeachersDiv
+            );
+
+            toggleTeachersDiv();
+        }
 
             @if (TempData["Success"] != null)
             {

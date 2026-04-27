@@ -38,22 +38,37 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> CA_Med_StaffDetails()
         {
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+
+            var levels = string.IsNullOrEmpty(raw)
+                ? new List<string> { "UG" }
+                : System.Text.Json.JsonSerializer
+                    .Deserialize<List<string>>(raw)
+                    .Select(x => x.Trim().ToUpper())
+                    .Distinct()
+                    .OrderBy(x =>
+                        x == "UG" ? 1 :
+                        x == "PG" ? 2 :
+                        x == "SS" ? 3 : 99)
+                    .ToList();
+
             var vm = await LoadStaffViewModel();
+
+            // Changes by Ram on 23/04/2026
+            vm.ExistingCourseLevels = levels;
+
             return View(vm);
         }
 
-        // ✅ POST 1: Save PayScale
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SavePayScale(StaffDetailsCombinedViewModel model)
         {
-            // ✅ validate only PayScale form
             ModelState.Remove("StaffOther.TeachersUpdatedInEMS");
             ModelState.Remove("StaffOther.ExaminerDetailsAttached");
             ModelState.Remove("StaffOther.ServiceRegisterMaintained");
             ModelState.Remove("StaffOther.AcquittanceRegisterMaintained");
 
-            // remove file validations (these are only for Form2)
             ModelState.Remove("ExaminerDetailsPdf");
             ModelState.Remove("AEBASLastThreeMonthsPdf");
             ModelState.Remove("AEBASInspectionDayPdf");
@@ -67,56 +82,75 @@ namespace Medical_Affiliation.Controllers
                 return View("CA_Med_StaffDetails", vm);
             }
 
-
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(courseLevel))
+            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction(nameof(CA_Med_StaffDetails));
+
+            /*
+            OLD:
+            var levels = new[]{"UG","PG","SS"};
+            */
+
+            // Changes by Ram on 23/04/2026
+
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+
+            var levels = string.IsNullOrEmpty(raw)
+                ? new[] { "UG" }
+                : System.Text.Json.JsonSerializer
+                    .Deserialize<List<string>>(raw)
+                    .Select(x => x.Trim().ToUpper())
+                    .Distinct()
+                    .ToArray();
+
 
             foreach (var item in model.StaffPayScaleList)
             {
                 if (item.PayScale == null)
                 {
-                    ModelState.AddModelError("", "Please enter all Pay Scale values.");
+                    ModelState.AddModelError("", "Please enter all pay scales");
                     var vm = await LoadStaffViewModel();
                     vm.StaffPayScaleList = model.StaffPayScaleList;
                     return View("CA_Med_StaffDetails", vm);
                 }
 
-                var entity = await _context.MedCaStaffParticulars.FirstOrDefaultAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
-                     x.CourseLevel == courseLevel &&
-                    x.DesignationSlNo == item.DesignationSlNo);
-
-                if (entity == null)
+                foreach (var level in levels)
                 {
-                    entity = new MedCaStaffParticular
-                    {
-                        CollegeCode = collegeCode,
-                        FacultyCode = facultyCode,
-                        DesignationSlNo = item.DesignationSlNo,
-                        CourseLevel = courseLevel
-                    };
-                    _context.MedCaStaffParticulars.Add(entity);
-                }
+                    var entity =
+                        await _context.MedCaStaffParticulars
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            x.CourseLevel == level &&
+                            x.DesignationSlNo == item.DesignationSlNo);
 
-                // ✅ overwrite value
-                entity.PayScale = item.PayScale.Value;
+                    if (entity == null)
+                    {
+                        entity = new MedCaStaffParticular
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyCode = facultyCode,
+                            CourseLevel = level,
+                            DesignationSlNo = item.DesignationSlNo
+                        };
+
+                        _context.MedCaStaffParticulars.Add(entity);
+                    }
+
+                    entity.PayScale = item.PayScale.Value;
+                }
             }
 
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Staff Pay Scale saved successfully!";
+
+            TempData["Success"] = "Staff Pay Scale saved successfully";
             return RedirectToAction(nameof(CA_Med_StaffDetails));
         }
 
-        // ✅ POST 2: Save Staff Other
         [HttpPost]
         [ValidateAntiForgeryToken]
-
-
         public async Task<IActionResult> SaveStaffOther(StaffDetailsCombinedViewModel model)
         {
             var staffOther = model.StaffOther;
@@ -127,386 +161,416 @@ namespace Medical_Affiliation.Controllers
             var ProvidentFundPdf = model.ProvidentFundPdf;
             var ESIPdf = model.ESIPdf;
 
-            ModelState.Remove("StaffOther.FacultyCode");
-            ModelState.Remove("StaffOther.CollegeCode");
-            ModelState.Remove("StaffOther.SubFacultyCode");
-            ModelState.Remove("StaffOther.RegistrationNo");
-            ModelState.Remove("StaffPayScaleList");
+            var collegeCode =
+                HttpContext.Session.GetString("CollegeCode");
 
+            var facultyCode =
+                HttpContext.Session.GetString("FacultyCode");
 
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
-
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(courseLevel))
+            if (string.IsNullOrEmpty(collegeCode) ||
+               string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction(nameof(CA_Med_StaffDetails));
 
 
-            // =====================================================
-            // ✅ STEP 0: CHECK IF MAIN TABLE ALREADY COMPLETE
-            // =====================================================
-            var mainEntity = await _context.CaMedStaffParticularsOthers
-                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel);
+            /*
+            OLD:
+            var levels = new[]{"UG","PG","SS"};
+            */
 
-            bool mainHasAllFiles =
-                mainEntity != null &&
-                mainEntity.AebaslastThreeMonthsPdfPath != null &&
-                mainEntity.AebasinspectionDayPdfPath != null &&
-                mainEntity.ProvidentFundPdfPath != null &&
-                mainEntity.EsipdfPath != null &&
-                (
-                    mainEntity.ExaminerDetailsAttached != "Y" ||
-                    mainEntity.ExaminerDetailsPdfPath != null
+            // Changes by Ram on 23/04/2026
+
+            var raw =
+                HttpContext.Session.GetString("ExistingCourseLevels");
+
+            var levels =
+                string.IsNullOrEmpty(raw)
+                ? new[] { "UG" }
+                : System.Text.Json.JsonSerializer
+                    .Deserialize<List<string>>(raw)
+                    .Select(x => x.Trim().ToUpper())
+                    .Distinct()
+                    .ToArray();
+
+            // Changes by Ram on 24/04/26
+            // Validate only if file not newly uploaded AND no old file exists
+
+            var existingUG =
+            await _context.CaMedStaffParticularsOthers
+            .FirstOrDefaultAsync(x =>
+                x.CollegeCode == collegeCode &&
+                x.FacultyCode == facultyCode &&
+                x.CourseLevel == "UG");
+
+            if ((AEBASLastThreeMonthsPdf == null || AEBASLastThreeMonthsPdf.Length == 0)
+                && string.IsNullOrEmpty(existingUG?.AebaslastThreeMonthsPdfPath))
+            {
+                ModelState.AddModelError(
+                    "AEBASLastThreeMonthsPdf",
+                    "AEBAS last three months document is compulsory."
                 );
-
-            // =====================================================
-            // ✅ STEP 1: SAVE UPLOADED FILES INTO TEMP (ALWAYS)
-            // =====================================================
-            var tempEntity = await _context.CaMedStaffParticularsOtherTemps
-                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel);
-
-            if (tempEntity == null)
-            {
-                tempEntity = new CaMedStaffParticularsOtherTemp
-                {
-                    CollegeCode = collegeCode,
-                    FacultyCode = facultyCode,
-                    CourseLevel = courseLevel
-                };
-                _context.CaMedStaffParticularsOtherTemps.Add(tempEntity);
             }
 
-            tempEntity.TeachersUpdatedInEms = staffOther.TeachersUpdatedInEMS;
-            tempEntity.ExaminerDetailsAttached = staffOther.ExaminerDetailsAttached;
-            tempEntity.ServiceRegisterMaintained = staffOther.ServiceRegisterMaintained;
-            tempEntity.AcquittanceRegisterMaintained = staffOther.AcquittanceRegisterMaintained;
-
-            async Task SaveTemp(IFormFile? f, Action<string> setPath, Action<string> setName, string folder)
+            if ((AEBASInspectionDayPdf == null || AEBASInspectionDayPdf.Length == 0)
+                && string.IsNullOrEmpty(existingUG?.AebasinspectionDayPdfPath))
             {
-                if (f == null || f.Length == 0) return;
+                ModelState.AddModelError(
+                    "AEBASInspectionDayPdf",
+                    "AEBAS inspection day document is compulsory."
+                );
+            }
 
-                var path = await SaveStaffFileAsync(f, folder);
+            if ((ProvidentFundPdf == null || ProvidentFundPdf.Length == 0)
+                && string.IsNullOrEmpty(existingUG?.ProvidentFundPdfPath))
+            {
+                ModelState.AddModelError(
+                    "ProvidentFundPdf",
+                    "Provident Fund document is compulsory."
+                );
+            }
 
-                if (path != null)
+            if (!ModelState.IsValid)
+            {
+                var vm = await LoadStaffViewModel();
+                vm.StaffOther = model.StaffOther;
+
+                return View(
+                    "CA_Med_StaffDetails",
+                    vm
+                );
+            }
+
+            foreach (var level in levels)
+            {
+                var entity =
+                    await _context.CaMedStaffParticularsOthers
+                    .FirstOrDefaultAsync(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode &&
+                        x.CourseLevel == level);
+
+                if (entity == null)
                 {
-                    setPath(path);
-                    setName(f.FileName);
+                    entity = new CaMedStaffParticularsOther
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyCode = facultyCode,
+                        CourseLevel = level
+                    };
+
+                    _context.CaMedStaffParticularsOthers.Add(entity);
                 }
-            }
 
-            await SaveTemp(ExaminerDetailsPdf,
-    p => tempEntity.ExaminerDetailsPdfPath = p,
-    n => tempEntity.ExaminerDetailsPdfName = n,
-    "ExaminerDocs");
 
-            await SaveTemp(AEBASLastThreeMonthsPdf,
-                p => tempEntity.AebaslastThreeMonthsPdfPath = p,
-                n => tempEntity.AebaslastThreeMonthsPdfName = n,
-                "AEBAS3Months");
+                // common b-g
 
-            await SaveTemp(AEBASInspectionDayPdf,
-                p => tempEntity.AebasinspectionDayPdfPath = p,
-                n => tempEntity.AebasinspectionDayPdfName = n,
-                "AEBASInspection");
+                entity.TeachersUpdatedInEms =
+                    staffOther.TeachersUpdatedInEMS;
 
-            await SaveTemp(ProvidentFundPdf,
-                p => tempEntity.ProvidentFundPdfPath = p,
-                n => tempEntity.ProvidentFundPdfName = n,
-                "PFDocs");
+                entity.ExaminerDetailsAttached =
+                    staffOther.ExaminerDetailsAttached;
 
-            await SaveTemp(ESIPdf,
-                p => tempEntity.EsipdfPath = p,
-                n => tempEntity.EsipdfName = n,
-                "ESIDocs");
+                entity.ServiceRegisterMaintained =
+                    staffOther.ServiceRegisterMaintained;
 
-            await _context.SaveChangesAsync();
+                entity.AcquittanceRegisterMaintained =
+                    staffOther.AcquittanceRegisterMaintained;
 
-            // =====================================================
-            // ✅ STEP 2: VALIDATE ONLY IF MAIN IS NOT COMPLETE
-            // =====================================================
-            if (!mainHasAllFiles)
-            {
-                bool examinerRequired = tempEntity.ExaminerDetailsAttached == "Y";
 
-                bool hasExaminer = !examinerRequired || tempEntity.ExaminerDetailsPdfPath != null;
-                bool hasAEBAS3 = tempEntity.AebaslastThreeMonthsPdfPath != null;
-                bool hasAEBASDay = tempEntity.AebasinspectionDayPdfPath != null;
-                bool hasPF = tempEntity.ProvidentFundPdfPath != null;
-                bool hasESI = tempEntity.EsipdfPath != null;
-
-                if (!(hasExaminer && hasAEBAS3 && hasAEBASDay && hasPF && hasESI))
+                if (ExaminerDetailsPdf != null)
                 {
-                    TempData["Error"] =
-                        "Validation Failed. Please upload all remaining required files and proceed.";
-                    return RedirectToAction(nameof(CA_Med_StaffDetails));
+                    var path =
+                     await SaveStaffFileAsync(
+                        ExaminerDetailsPdf,
+                        "ExaminerDocs");
+
+                    entity.ExaminerDetailsPdfPath = path;
+                    entity.ExaminerDetailsPdfName =
+                        ExaminerDetailsPdf.FileName;
                 }
-            }
 
-            // =====================================================
-            // ✅ STEP 3: MOVE TEMP → MAIN (EDIT OR FIRST SAVE)
-            // =====================================================
-            if (mainEntity == null)
-            {
-                mainEntity = new CaMedStaffParticularsOther
+
+                if (AEBASLastThreeMonthsPdf != null)
                 {
-                    CollegeCode = collegeCode,
-                    FacultyCode = facultyCode,
-                    CourseLevel = courseLevel
-                };
-                _context.CaMedStaffParticularsOthers.Add(mainEntity);
-            }
+                    var path =
+                     await SaveStaffFileAsync(
+                        AEBASLastThreeMonthsPdf,
+                        "AEBAS3Months");
 
-            mainEntity.TeachersUpdatedInEms = tempEntity.TeachersUpdatedInEms;
-            mainEntity.ExaminerDetailsAttached = tempEntity.ExaminerDetailsAttached;
-            mainEntity.ServiceRegisterMaintained = tempEntity.ServiceRegisterMaintained;
-            mainEntity.AcquittanceRegisterMaintained = tempEntity.AcquittanceRegisterMaintained;
+                    entity.AebaslastThreeMonthsPdfPath = path;
+                    entity.AebaslastThreeMonthsPdfName =
+                        AEBASLastThreeMonthsPdf.FileName;
+                }
 
-            if (tempEntity.ExaminerDetailsPdfPath != null)
-            {
-                mainEntity.ExaminerDetailsPdfPath = tempEntity.ExaminerDetailsPdfPath;
-                mainEntity.ExaminerDetailsPdfName = tempEntity.ExaminerDetailsPdfName;
-            }
 
-            if (tempEntity.AebaslastThreeMonthsPdfPath != null)
-            {
-                mainEntity.AebaslastThreeMonthsPdfPath = tempEntity.AebaslastThreeMonthsPdfPath;
-                mainEntity.AebaslastThreeMonthsPdfName = tempEntity.AebaslastThreeMonthsPdfName;
-            }
+                if (AEBASInspectionDayPdf != null)
+                {
+                    var path =
+                     await SaveStaffFileAsync(
+                        AEBASInspectionDayPdf,
+                        "AEBASInspection");
 
-            if (tempEntity.AebasinspectionDayPdfPath != null)
-            {
-                mainEntity.AebasinspectionDayPdfPath = tempEntity.AebasinspectionDayPdfPath;
-                mainEntity.AebasinspectionDayPdfName = tempEntity.AebasinspectionDayPdfName;
-            }
+                    entity.AebasinspectionDayPdfPath = path;
+                    entity.AebasinspectionDayPdfName =
+                        AEBASInspectionDayPdf.FileName;
+                }
 
-            if (tempEntity.ProvidentFundPdfPath != null)
-            {
-                mainEntity.ProvidentFundPdfPath = tempEntity.ProvidentFundPdfPath;
-                mainEntity.ProvidentFundPdfName = tempEntity.ProvidentFundPdfName;
-            }
 
-            if (tempEntity.EsipdfPath != null)
-            {
-                mainEntity.EsipdfPath = tempEntity.EsipdfPath;
-                mainEntity.EsipdfName = tempEntity.EsipdfName;
+                if (ProvidentFundPdf != null)
+                {
+                    var path =
+                     await SaveStaffFileAsync(
+                        ProvidentFundPdf,
+                        "PFDocs");
+
+                    entity.ProvidentFundPdfPath = path;
+                    entity.ProvidentFundPdfName =
+                        ProvidentFundPdf.FileName;
+                }
+
+               
+
+
+
+                // UG ONLY
+                if (level == "UG" && ESIPdf != null)
+                {
+                    var path =
+                      await SaveStaffFileAsync(
+                        ESIPdf,
+                        "ESIDocs");
+
+                    entity.EsipdfPath = path;
+                    entity.EsipdfName = ESIPdf.FileName;
+                }
+
             }
 
             await _context.SaveChangesAsync();
 
-            _context.CaMedStaffParticularsOtherTemps.Remove(tempEntity);
-            await _context.SaveChangesAsync();
+            TempData["Success"] =
+              "Staff particulars saved successfully";
 
-            TempData["Success"] = "Staff Particulars (Other) saved successfully!";
             return RedirectToAction(nameof(CA_Med_StaffDetails));
         }
 
 
 
 
-        // ✅ Load ViewModel (PayScale blank + show saved values/files)
-        private async Task<StaffDetailsCombinedViewModel> LoadStaffViewModel()
-        {
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(courseLevel))
-                return new StaffDetailsCombinedViewModel();
-
-            // ================= PAY SCALE TABLE =================
-            var designations = await _context.MedCaMstStaffDesignations
-                .Where(x => x.FacultyCode == facultyCode)
-                .OrderBy(x => x.SlNo)
-                .ToListAsync();
-
-            var savedPayScales = await _context.MedCaStaffParticulars
-                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel)
-                .ToListAsync();
-
-            var payScaleList = designations.Select(d =>
-            {
-                var saved = savedPayScales.FirstOrDefault(s => s.DesignationSlNo == d.SlNo);
-
-                return new Med_CA_StaffParticularsVM
-                {
-                    DesignationSlNo = d.SlNo,
-                    Designation = d.Designation,
-                    PayScale = saved?.PayScale // null -> blank
-                };
-            }).ToList();
-
-            // ================= MAIN TABLE DATA =================
-            var mainEntity = await _context.CaMedStaffParticularsOthers
-                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel);
-
-            // ================= TEMP TABLE DATA =================
-            // ✅ temp table name: CA_Med_StaffPArticularsOther_Temp (scaffolded entity name may vary)
-            var tempEntity = await _context.CaMedStaffParticularsOtherTemps
-                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel);
-
-            // ================= BUILD STAFF OTHER VM =================
-            // ✅ priority: MAIN first, else TEMP
-            var staffOther = new CA_Med_StaffParticularsOtherVM();
-
-            if (mainEntity != null)
-            {
-                staffOther.TeachersUpdatedInEMS = mainEntity.TeachersUpdatedInEms;
-                staffOther.ExaminerDetailsAttached = mainEntity.ExaminerDetailsAttached;
-                staffOther.ServiceRegisterMaintained = mainEntity.ServiceRegisterMaintained;
-                staffOther.AcquittanceRegisterMaintained = mainEntity.AcquittanceRegisterMaintained;
-
-                staffOther.ExaminerDetailsPdfName = mainEntity.ExaminerDetailsPdfName;
-                staffOther.AEBASLastThreeMonthsPdfName = mainEntity.AebaslastThreeMonthsPdfName;
-                staffOther.AEBASInspectionDayPdfName = mainEntity.AebasinspectionDayPdfName;
-                staffOther.ProvidentFundPdfName = mainEntity.ProvidentFundPdfName;
-                staffOther.ESIPdfName = mainEntity.EsipdfName;
-            }
-            else if (tempEntity != null)
-            {
-                // ✅ show temp uploaded values during partial stage
-                staffOther.TeachersUpdatedInEMS = tempEntity.TeachersUpdatedInEms;
-                staffOther.ExaminerDetailsAttached = tempEntity.ExaminerDetailsAttached;
-                staffOther.ServiceRegisterMaintained = tempEntity.ServiceRegisterMaintained;
-                staffOther.AcquittanceRegisterMaintained = tempEntity.AcquittanceRegisterMaintained;
-
-                staffOther.ExaminerDetailsPdfName = tempEntity.ExaminerDetailsPdfName;
-                staffOther.AEBASLastThreeMonthsPdfName = tempEntity.AebaslastThreeMonthsPdfName;
-                staffOther.AEBASInspectionDayPdfName = tempEntity.AebasinspectionDayPdfName;
-                staffOther.ProvidentFundPdfName = tempEntity.ProvidentFundPdfName;
-                staffOther.ESIPdfName = tempEntity.EsipdfName;
-            }
-
-            return new StaffDetailsCombinedViewModel
-            {
-                CollegeCode = collegeCode,
-                FacultyCode = facultyCode,
-                CourseLevel = courseLevel,
-                StaffPayScaleList = payScaleList,
-                StaffOther = staffOther
-            };
-        }
 
 
         // ✅ View PDF files
         [HttpGet]
         // ✅ View PDF files (Main first, else Temp during partial stage)
 
+        private async Task<StaffDetailsCombinedViewModel>  LoadStaffViewModel()
+        {
+            var collegeCode =
+              HttpContext.Session.GetString("CollegeCode");
+
+            var facultyCode =
+              HttpContext.Session.GetString("FacultyCode");
+
+
+            if (string.IsNullOrEmpty(collegeCode) ||
+               string.IsNullOrEmpty(facultyCode))
+                return new StaffDetailsCombinedViewModel();
+
+
+            // Changes by Ram on 23/04/2026
+
+            var raw =
+               HttpContext.Session.GetString("ExistingCourseLevels");
+
+            var levels =
+               string.IsNullOrEmpty(raw)
+               ? new List<string> { "UG" }
+               : System.Text.Json.JsonSerializer
+                  .Deserialize<List<string>>(raw)
+                  .Select(x => x.Trim().ToUpper())
+                  .Distinct()
+                  .ToList();
+
+
+            string commonLevel =
+               levels.Contains("UG")
+               ? "UG"
+               : levels.First();
+
+
+            var designations =
+                await _context.MedCaMstStaffDesignations
+                    .Where(x => x.FacultyCode == facultyCode)
+                    .OrderBy(x => x.SlNo)
+                    .ToListAsync();
+
+
+            var savedPayScales =
+              await _context.MedCaStaffParticulars
+                .Where(x =>
+                   x.CollegeCode == collegeCode &&
+                   x.FacultyCode == facultyCode &&
+                   x.CourseLevel == commonLevel)
+                .ToListAsync();
+
+
+            var payScaleList =
+              designations.Select(d =>
+              {
+                  var saved =
+                     savedPayScales
+                     .FirstOrDefault(
+                        x => x.DesignationSlNo == d.SlNo);
+
+                  return new Med_CA_StaffParticularsVM
+                  {
+                      DesignationSlNo = d.SlNo,
+                      Designation = d.Designation,
+                      PayScale = saved?.PayScale
+                  };
+
+              }).ToList();
+
+
+            var commonEntity =
+              await _context.CaMedStaffParticularsOthers
+               .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == commonLevel);
+
+
+            var staffOther =
+              new CA_Med_StaffParticularsOtherVM();
+
+            if (commonEntity != null)
+            {
+                staffOther.TeachersUpdatedInEMS =
+                    commonEntity.TeachersUpdatedInEms;
+
+                staffOther.ExaminerDetailsAttached =
+                    commonEntity.ExaminerDetailsAttached;
+
+                staffOther.ServiceRegisterMaintained =
+                    commonEntity.ServiceRegisterMaintained;
+
+                staffOther.AcquittanceRegisterMaintained =
+                    commonEntity.AcquittanceRegisterMaintained;
+
+                staffOther.ExaminerDetailsPdfName =
+                    commonEntity.ExaminerDetailsPdfName;
+
+                staffOther.AEBASLastThreeMonthsPdfName =
+                    commonEntity.AebaslastThreeMonthsPdfName;
+
+                staffOther.AEBASInspectionDayPdfName =
+                    commonEntity.AebasinspectionDayPdfName;
+
+                staffOther.ProvidentFundPdfName =
+                    commonEntity.ProvidentFundPdfName;
+
+                staffOther.ESIPdfName =
+                    commonEntity.EsipdfName;
+            }
+
+            return new StaffDetailsCombinedViewModel
+            {
+                CollegeCode = collegeCode,
+                FacultyCode = facultyCode,
+                StaffPayScaleList = payScaleList,
+                StaffOther = staffOther,
+                ExistingCourseLevels = levels
+            };
+        }
+
+        //code added by ram on 23/04/26 
+
         [HttpGet]
         public async Task<IActionResult> ViewStaffOtherPdf(string type, string mode = "view")
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(courseLevel))
+            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+                return NotFound();
+
+            // Changes by Ram on 23/04/2026
+            // Common records are loaded from UG master
+            var courseLevel = "UG";
+
+            var record = await _context.CaMedStaffParticularsOthers
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel);
+
+            if (record == null)
                 return NotFound();
 
             string? filePath = null;
             string? fileName = null;
 
-            // ✅ 1) MAIN TABLE FIRST
-            var mainEntity = await _context.CaMedStaffParticularsOthers
-                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode &&
-                                          x.FacultyCode == facultyCode &&
-                                          x.CourseLevel == courseLevel);
-
-            if (mainEntity != null)
+            switch (type)
             {
-                switch (type)
-                {
-                    case "Examiner":
-                        filePath = mainEntity.ExaminerDetailsPdfPath;
-                        fileName = mainEntity.ExaminerDetailsPdfName;
-                        break;
+                case "Examiner":
+                    filePath = record.ExaminerDetailsPdfPath;
+                    fileName = record.ExaminerDetailsPdfName;
+                    break;
 
-                    case "AEBAS3Months":
-                        filePath = mainEntity.AebaslastThreeMonthsPdfPath;
-                        fileName = mainEntity.AebaslastThreeMonthsPdfName;
-                        break;
+                case "AEBAS3Months":
+                    filePath = record.AebaslastThreeMonthsPdfPath;
+                    fileName = record.AebaslastThreeMonthsPdfName;
+                    break;
 
-                    case "AEBASInspection":
-                        filePath = mainEntity.AebasinspectionDayPdfPath;
-                        fileName = mainEntity.AebasinspectionDayPdfName;
-                        break;
+                case "AEBASInspection":
+                    filePath = record.AebasinspectionDayPdfPath;
+                    fileName = record.AebasinspectionDayPdfName;
+                    break;
 
-                    case "PF":
-                        filePath = mainEntity.ProvidentFundPdfPath;
-                        fileName = mainEntity.ProvidentFundPdfName;
-                        break;
+                case "PF":
+                    filePath = record.ProvidentFundPdfPath;
+                    fileName = record.ProvidentFundPdfName;
+                    break;
 
-                    case "ESI":
-                        filePath = mainEntity.EsipdfPath;
-                        fileName = mainEntity.EsipdfName;
-                        break;
-                }
-            }
+                case "ESI":
+                    filePath = record.EsipdfPath;
+                    fileName = record.EsipdfName;
+                    break;
 
-            // ✅ 2) IF NOT FOUND → TEMP TABLE
-            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
-            {
-                var tempEntity = await _context.CaMedStaffParticularsOtherTemps
-                    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode &&
-                                              x.FacultyCode == facultyCode &&
-                                              x.CourseLevel == courseLevel);
-
-                if (tempEntity == null)
+                default:
                     return NotFound();
-
-                switch (type)
-                {
-                    case "Examiner":
-                        filePath = tempEntity.ExaminerDetailsPdfPath;
-                        fileName = tempEntity.ExaminerDetailsPdfName;
-                        break;
-
-                    case "AEBAS3Months":
-                        filePath = tempEntity.AebaslastThreeMonthsPdfPath;
-                        fileName = tempEntity.AebaslastThreeMonthsPdfName;
-                        break;
-
-                    case "AEBASInspection":
-                        filePath = tempEntity.AebasinspectionDayPdfPath;
-                        fileName = tempEntity.AebasinspectionDayPdfName;
-                        break;
-
-                    case "PF":
-                        filePath = tempEntity.ProvidentFundPdfPath;
-                        fileName = tempEntity.ProvidentFundPdfName;
-                        break;
-
-                    case "ESI":
-                        filePath = tempEntity.EsipdfPath;
-                        fileName = tempEntity.EsipdfName;
-                        break;
-
-                    default:
-                        return NotFound();
-                }
             }
 
-            // ✅ FINAL VALIDATION
             if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
                 return NotFound("File not found");
 
-            var finalName = string.IsNullOrEmpty(fileName)
+            var finalName =
+                string.IsNullOrEmpty(fileName)
                 ? Path.GetFileName(filePath)
                 : fileName;
 
-            // 🔥 Detect content type
-            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
-            if (!provider.TryGetContentType(filePath, out string contentType))
+            var provider =
+               new Microsoft.AspNetCore.StaticFiles
+                  .FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType(
+                filePath,
+                out string contentType))
             {
                 contentType = "application/octet-stream";
             }
 
-            // 📥 DOWNLOAD
             if (mode == "download")
             {
-                return PhysicalFile(filePath, contentType, finalName);
+                return PhysicalFile(
+                    filePath,
+                    contentType,
+                    finalName);
             }
 
-            // 👀 PREVIEW
-            Response.Headers["Content-Disposition"] = $"inline; filename=\"{finalName}\"";
+            Response.Headers["Content-Disposition"] =
+              $"inline; filename=\"{finalName}\"";
+
             return PhysicalFile(filePath, contentType);
         }
 
