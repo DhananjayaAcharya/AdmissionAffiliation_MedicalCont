@@ -238,7 +238,7 @@ namespace Medical_Affiliation.Controllers
                     }
                 ).ToList();
 
-            var model = new CA_Aff_PgSsAcademicMattersViewModel
+            var model = new CA_Aff_PgAcademicMattersViewModel
             {
                 CollegeCode = collegeCode,
                 FacultyId = facultyId,
@@ -568,7 +568,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AcademicMattersPG(CA_Aff_PgSsAcademicMattersViewModel model)
+        public IActionResult AcademicMattersPG(CA_Aff_PgAcademicMattersViewModel model)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;

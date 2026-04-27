@@ -1,8 +1,10 @@
 ﻿@model InstitutionViewModel
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Institution Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
 }
 
 <!DOCTYPE html>
@@ -726,6 +728,18 @@
                 display: block;
                 animation: fadeUp .3s ease;
             }
+
+            .college-name {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #fff;
+                margin-bottom: 4px;
+            }
+
+            .page-header-text h4 {
+                font-size: 1rem;
+                font-weight: 700;
+            }
     </style>
 </head>
 <body>
@@ -749,7 +763,12 @@
             <i class="fas fa-hospital"></i>
         </div>
         <div class="page-header-text">
-            <h1>Institution Details</h1>
+            @if (!string.IsNullOrEmpty(collegeName))
+            {
+                <div class="college-name">@collegeName</div>
+            }
+
+            <h4>Institution Details</h4>
         </div>
     </div>
 

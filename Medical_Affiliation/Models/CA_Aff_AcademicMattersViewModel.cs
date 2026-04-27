@@ -168,7 +168,8 @@ namespace Medical_Affiliation.Models
         public string Remarks { get; set; }
     }
 
-    public class CA_Aff_PgSsAcademicMattersViewModel
+
+    public class CA_Aff_BaseAcademicMattersViewModel
     {
         public string CollegeCode { get; set; }
         public int FacultyId { get; set; }
@@ -177,6 +178,18 @@ namespace Medical_Affiliation.Models
         public List<SelectListItem> Subjects { get; set; } = new();
 
         public List<PgSubjectSectionVM> Sections { get; set; } = new();
+    }
+
+    public class CA_Aff_PgAcademicMattersViewModel
+    : CA_Aff_BaseAcademicMattersViewModel
+    {
+        // future PG-specific properties here
+    }
+
+    public class CA_Aff_SsAcademicMattersViewModel
+    : CA_Aff_BaseAcademicMattersViewModel
+    {
+        // future SS-specific properties here
     }
 }
 public class ExaminationSchemeRowViewModel

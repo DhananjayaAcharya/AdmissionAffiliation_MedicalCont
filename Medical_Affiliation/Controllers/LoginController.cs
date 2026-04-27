@@ -892,11 +892,19 @@ namespace Medical_Affiliation.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePassword(UpdatePassword model)
         {
-            var college = await _context.AffiliationCollegeMasters.Where(c => c.CollegeCode == model.CollegeCode).FirstOrDefaultAsync();
+            if (model == null || string.IsNullOrEmpty(model.CollegeCode))
+                return BadRequest("Invalid request");
+
+            var college = await _context.AffiliationCollegeMasters.FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode);
 
             if (college == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(model.UpdatedPassword))
+                return BadRequest("Password required");
+
             college.Password = model.UpdatedPassword;
             college.ChangedPassword = model.UpdatedPassword;
             var passwordHasher = new PasswordHasher<AffiliationCollegeMaster>();
@@ -906,8 +914,7 @@ namespace Medical_Affiliation.Controllers
 
             TempData["ChangedPassword"] = "Password updated successfully";
 
-
-            return RedirectToAction("NodalOfficersList");
+            return RedirectToAction("Dashboard","CollegeLogin");
 
         }
 
