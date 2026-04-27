@@ -596,7 +596,6 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Department library details saved successfully!";
             return RedirectToAction("CA_DepartmentLibraryDetails");
         }
 

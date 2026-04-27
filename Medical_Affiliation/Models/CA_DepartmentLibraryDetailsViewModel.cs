@@ -21,7 +21,6 @@ namespace Medical_Affiliation.Models
         public string? RegistrationNo { get; set; }
 
         // === Input fields - validated ===
-        [Required(ErrorMessage = "Please select a department")]
         public string? DepartmentCode { get; set; }
 
         [Required(ErrorMessage = "Total books is required")]

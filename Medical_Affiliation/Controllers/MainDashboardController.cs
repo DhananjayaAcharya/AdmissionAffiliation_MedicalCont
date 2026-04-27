@@ -159,33 +159,38 @@ namespace Medical_Affiliation.Controllers
         // Controllers/LoginController.cs
         public IActionResult MultiLogin()
         {
-            var captcha = new Random().Next(10000, 99999).ToString();
+            // ✅ Clear all existing session data
+            HttpContext.Session.Clear();
 
-            HttpContext.Session.SetString("CaptchaCode", captcha); // ✅ ADD THIS
-            var colleges = new[] { "M016", "M011", "M019" };
+            // ✅ Generate new captcha after clearing session
+            var captcha = new Random().Next(10000, 99999).ToString();
+            HttpContext.Session.SetString("CaptchaCode", captcha);
+
+            var colleges = new[] { "M016", "M011", "M019", "Test1" };
+
             var model = new AdmissionLoginViewModel
             {
 
                 FacultyId = "1",
                 Faculties = _context.Faculties
-                .Where(c => c.FacultyId == 1 )
-                    .Select(f => new SelectListItem
-                    {
-                        Value = f.FacultyId.ToString(),
-                        Text = f.FacultyName,
-                        Selected = true
-                    }).ToList(),
+                .Where(c => c.FacultyId == 1)
+                .Select(f => new SelectListItem
+                {
+                    Value = f.FacultyId.ToString(),
+                    Text = f.FacultyName,
+                    Selected = true
+                }).ToList(),
 
-                //Colleges = new List<SelectListItem>(),
                 Colleges = _context.AffiliationCollegeMasters
-                    .Where(c => c.FacultyCode == "1" && colleges.Contains(c.CollegeCode))
-                    .Select(c => new SelectListItem
-                    {
-                        Value = c.CollegeCode,
-                        Text = c.CollegeName
-                    })
-                    .OrderBy(c => c.Text)
-                    .ToList(),
+                .Where(c => c.FacultyCode == "1" && colleges.Contains(c.CollegeCode))
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CollegeCode,
+                    Text = c.CollegeName
+                })
+                .OrderBy(c => c.Text)
+                .ToList(),
+
                 CaptchaCode = captcha
             };
 
