@@ -1,7 +1,6 @@
 ﻿@using static Medical_Affiliation.Controllers.MainDashboardController
 @model RguhsDashboardViewModel
 @{
-    // ViewData["Title"] = "RGUHS – Admission & Affiliation Portal";
     ViewData["Title"] = "RGUHS – College Details Portal";
     Layout = null;
 }
@@ -10,41 +9,60 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-    <meta name="description" content="Rajiv Gandhi University of Health Sciences" />
-    <title>RGUHS – College  | Karnataka</title>
+    <meta name="description" content="Rajiv Gandhi University of Health Sciences – Affiliated College Details Portal" />
+    <title>RGUHS – College Details | Karnataka</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
 
     <style>
-        /* ════════════════════════════════════════
-                                                           DESIGN TOKENS
-                                                        ════════════════════════════════════════ */
+        /* ══════════════════════════════════
+                   DESIGN TOKENS
+                ══════════════════════════════════ */
         :root {
-            --navy: #04101f;
-            --navy2: #071a35;
-            --blue: #0b2a5e;
-            --royal: #1046aa;
-            --sky: #1a5bcc;
-            --sky2: #2271e8;
-            --gold: #c4891a;
-            --gold2: #f0bf38;
-            --off: #f0f4fb;
-            --surface: #e4ecf7;
-            --muted: #5e6f8c;
-            --border: #ccd7ed;
+            --navy-950: #03060f;
+            --navy-900: #060d1f;
+            --navy-800: #0a1630;
+            --navy-700: #0f2248;
+            --navy-600: #163060;
+            --navy-500: #1e4080;
+            --blue-400: #2d62c8;
+            --blue-300: #4a7dd8;
+            --blue-200: #8ab0eb;
+            --blue-100: #d4e4f9;
+            --gold-600: #8a6200;
+            --gold-500: #b07d00;
+            --gold-400: #c99210;
+            --gold-300: #e0ac2a;
+            --gold-200: #f0cc6b;
+            --gold-100: #fdf0c0;
+            --neutral-50: #f8f9fc;
+            --neutral-100: #f0f2f8;
+            --neutral-200: #e2e6f0;
+            --neutral-300: #c8cedf;
+            --neutral-400: #8f9ab5;
+            --neutral-500: #5e6b88;
+            --neutral-700: #2a3450;
+            --neutral-900: #0f1624;
             --white: #ffffff;
-            --shadow-sm: 0 2px 10px rgba(4,16,31,.06);
-            --shadow-md: 0 6px 24px rgba(4,16,31,.11);
-            --shadow-lg: 0 14px 48px rgba(4,16,31,.18);
-            --r: 10px;
-            --r2: 16px;
+            --red: #c0392b;
+            --green: #1a7a4a;
+            --surface: #f4f6fc;
             --fd: 'Playfair Display', Georgia, serif;
             --fb: 'DM Sans', system-ui, sans-serif;
+            --fm: 'DM Mono', 'Courier New', monospace;
+            --r-sm: 6px;
+            --r: 10px;
+            --r-lg: 16px;
+            --r-xl: 24px;
+            --shadow-xs: 0 1px 3px rgba(6,13,31,.06), 0 1px 2px rgba(6,13,31,.04);
+            --shadow-sm: 0 2px 8px rgba(6,13,31,.08), 0 1px 3px rgba(6,13,31,.05);
+            --shadow-md: 0 4px 20px rgba(6,13,31,.10), 0 2px 8px rgba(6,13,31,.06);
+            --shadow-lg: 0 12px 40px rgba(6,13,31,.14), 0 4px 16px rgba(6,13,31,.08);
+            --shadow-xl: 0 24px 64px rgba(6,13,31,.20), 0 8px 24px rgba(6,13,31,.10);
         }
 
         *, *::before, *::after {
@@ -60,75 +78,90 @@
 
         body {
             font-family: var(--fb);
-            background: var(--off);
-            color: var(--navy);
+            background: var(--neutral-50);
+            color: var(--neutral-900);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ════ UTILITY BAR ════ */
+        /* ══════════════ UTILITY BAR ══════════════ */
         .util-bar {
-            background: var(--navy);
-            padding: 5px 0;
+            background: var(--navy-900);
             border-bottom: 1px solid rgba(255,255,255,.05);
-            width: 100%;
         }
 
         .util-inner {
-            width: 100%;
-            padding: 0 32px;
+            max-width: 100%;
+            padding: 0 40px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            height: 38px;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
         .util-links {
             display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
+            gap: 0;
             align-items: center;
         }
 
             .util-links a {
-                color: rgba(255,255,255,.48);
+                color: rgba(255,255,255,.4);
                 text-decoration: none;
                 font-size: 11px;
                 letter-spacing: .3px;
-                transition: color .18s;
+                font-weight: 400;
+                transition: color .18s, background .18s;
                 display: flex;
                 align-items: center;
-                gap: 4px;
+                gap: 6px;
+                padding: 0 15px;
+                height: 38px;
+                border-right: 1px solid rgba(255,255,255,.06);
             }
 
-                .util-links a:hover {
-                    color: var(--gold2);
+                .util-links a:first-child {
+                    border-left: 1px solid rgba(255,255,255,.06);
                 }
 
+                .util-links a:hover {
+                    color: var(--gold-300);
+                    background: rgba(255,255,255,.03);
+                }
+
+                .util-links a i {
+                    font-size: 11px;
+                }
+
+        .util-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
         .live-clock {
-            color: rgba(255,255,255,.38);
+            color: rgba(255,255,255,.32);
             font-size: 11px;
-            font-variant-numeric: tabular-nums;
+            font-family: var(--fm);
+            letter-spacing: .4px;
         }
 
         .lang-sel {
-            background: rgba(255,255,255,.07);
-            border: 1px solid rgba(255,255,255,.12);
-            color: rgba(255,255,255,.65);
-            padding: 3px 8px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            color: rgba(255,255,255,.5);
+            padding: 4px 10px 4px 8px;
             border-radius: 5px;
             font-size: 11px;
             font-family: var(--fb);
             cursor: pointer;
+            outline: none;
         }
 
-        /* ════ SITE HEADER ════ */
+        /* ══════════════ HEADER ══════════════ */
         .site-header {
-            background: linear-gradient(135deg, #003087 0%, #0046b0 50%, #0055cc 100%);
-            color: white;
-            width: 100%;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            background: var(--navy-800);
             position: relative;
             overflow: hidden;
         }
@@ -137,70 +170,105 @@
                 content: '';
                 position: absolute;
                 inset: 0;
+                background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+                background-size: 60px 60px;
                 pointer-events: none;
-                background: radial-gradient(ellipse 900px 500px at 90% -20%, rgba(240,191,56,.09) 0%, transparent 60%), radial-gradient(ellipse 400px 300px at -5% 120%, rgba(26,91,204,.25) 0%, transparent 60%);
             }
 
             .site-header::after {
                 content: '';
                 position: absolute;
                 inset: 0;
+                background: radial-gradient(ellipse 900px 350px at 80% -60%, rgba(192,146,16,.10) 0%, transparent 60%), radial-gradient(ellipse 600px 500px at -5% 120%, rgba(30,64,128,.28) 0%, transparent 55%);
                 pointer-events: none;
-                background-image: radial-gradient(circle, rgba(255,255,255,.018) 1px, transparent 1px);
-                background-size: 28px 28px;
             }
 
         .header-inner {
-            width: 100%;
-            padding: 18px 40px;
+            padding: 24px 40px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 20px;
+            gap: 28px;
             position: relative;
             z-index: 1;
-            flex-wrap: nowrap;
         }
 
-        .emblem {
+        /* Gold accent rule */
+        .header-rule {
+            width: 2px;
+            height: 72px;
+            background: linear-gradient(to bottom, transparent, var(--gold-300), transparent);
             flex-shrink: 0;
-            display: flex;
-            align-items: center;
+            opacity: .7;
         }
 
         .university-logo {
-            height: 84px;
+            height: 76px;
             width: auto;
             object-fit: contain;
-            filter: drop-shadow(0 3px 10px rgba(0,0,0,0.35));
-            border-radius: 8px;
-            display: block;
+            border-radius: var(--r);
+            flex-shrink: 0;
+            filter: drop-shadow(0 3px 12px rgba(0,0,0,.35));
         }
 
         .header-text {
-            flex: 1 1 0;
+            flex: 1;
             min-width: 0;
         }
 
+        .univ-eyebrow {
+            font-size: 9.5px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold-300);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: .85;
+        }
+
+            .univ-eyebrow::before, .univ-eyebrow::after {
+                content: '';
+                display: block;
+                height: 1px;
+                width: 28px;
+                background: linear-gradient(90deg, var(--gold-300), transparent);
+            }
+
+            .univ-eyebrow::after {
+                background: linear-gradient(270deg, var(--gold-300), transparent);
+            }
+
         .univ-name {
             font-family: var(--fd);
-            font-size: clamp(14px, 1.6vw, 24px);
+            font-size: clamp(17px, 1.9vw, 27px);
             color: #fff;
-            line-height: 1.22;
-            font-weight: 700;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: .1px;
         }
 
         .univ-sub {
-            font-size: clamp(10px, 0.9vw, 13px);
-            color: rgba(255,255,255,.65);
-            margin-top: 5px;
+            font-size: 11px;
+            color: rgba(255,255,255,.38);
+            margin-top: 7px;
             letter-spacing: .3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .badge-row {
+            .univ-sub i {
+                font-size: 10px;
+                color: var(--blue-200);
+                opacity: .7;
+            }
+
+        .header-badges {
             display: flex;
-            gap: 6px;
-            margin-top: 10px;
+            gap: 7px;
+            margin-top: 11px;
             flex-wrap: wrap;
         }
 
@@ -208,228 +276,142 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: clamp(9px, 0.8vw, 12px);
+            padding: 3px 11px;
+            border-radius: 4px;
+            font-size: 9.5px;
             font-weight: 600;
-            letter-spacing: .35px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
             border: 1px solid;
             white-space: nowrap;
         }
 
         .hbadge-gold {
-            background: rgba(255,215,0,.15);
-            border-color: rgba(255,215,0,.42);
-            color: #ffd700;
+            background: rgba(224,172,42,.08);
+            border-color: rgba(224,172,42,.22);
+            color: var(--gold-200);
         }
 
-        .header-actions {
+        .hbadge-blue {
+            background: rgba(45,98,200,.12);
+            border-color: rgba(45,98,200,.3);
+            color: #93c5fd;
+        }
+
+        .header-cta {
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 9px;
+            gap: 10px;
         }
 
         .btn-portal {
-            background: linear-gradient(135deg, #ffd700 0%, #f0a500 100%);
-            color: #003087;
-            border: none;
-            padding: clamp(9px,0.9vw,13px) clamp(16px,1.6vw,28px);
-            border-radius: 50px;
-            font-size: clamp(11px, 0.95vw, 15px);
-            font-weight: 700;
-            font-family: var(--fb);
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(255,215,0,.42);
-            transition: transform .15s, box-shadow .15s;
             display: inline-flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
+            padding: 12px 26px;
+            background: linear-gradient(135deg, var(--gold-300) 0%, var(--gold-400) 50%, var(--gold-500) 100%);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--r);
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--fb);
+            letter-spacing: .2px;
             text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(192,146,16,.28), inset 0 1px 0 rgba(255,255,255,.25);
+            transition: transform .18s, box-shadow .18s;
             white-space: nowrap;
         }
 
             .btn-portal:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 24px rgba(255,215,0,.55);
-                color: #003087;
+                box-shadow: 0 8px 28px rgba(192,146,16,.38), inset 0 1px 0 rgba(255,255,255,.25);
+                color: var(--navy-900);
             }
 
-        .portal-note {
-            color: rgba(255,255,255,.8);
-            font-size: clamp(9px, 0.78vw, 12px);
+        .header-status {
+            font-size: 10px;
+            color: rgba(255,255,255,.3);
             display: flex;
             align-items: center;
             gap: 6px;
-            white-space: nowrap;
         }
 
         .pulse-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: #00ff9d;
-            flex-shrink: 0;
-            box-shadow: 0 0 8px #00ff9d;
-            animation: pglow 2s ease-in-out infinite;
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,.18);
+            animation: pulseAnim 2.4s ease-in-out infinite;
+        }
+        @@keyframes pulseAnim {
+            0%,100% {
+            opacity: 1;
+            box-shadow: 0 0 0 3px rgba(34,197,94,.18);
         }
 
-        @@keyframes pglow {
-            0%, 100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: .3;
-            }
+        50% {
+            opacity: .6;
+            box-shadow: 0 0 0 7px rgba(34,197,94,.04);
         }
 
-        /* ════ PRIMARY NAV ════ */
-        .primary-nav {
-            background: var(--navy);
-            border-bottom: 2px solid var(--gold);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 3px 18px rgba(4,16,31,.5);
-            width: 100%;
         }
 
-        .nav-inner {
-            width: 100%;
-            padding: 0 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
+        /* ══════════════ GOLD STRIPE ══════════════ */
+        .header-stripe {
+            height: 3px;
+            background: linear-gradient(90deg, var(--navy-800) 0%, var(--navy-700) 8%, var(--gold-400) 30%, var(--gold-200) 50%, var(--gold-400) 70%, var(--navy-700) 92%, var(--navy-800) 100%);
         }
 
-        .nav-links {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-            .nav-links a {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                padding: 13px 14px;
-                color: rgba(255,255,255,.58);
-                text-decoration: none;
-                font-size: 12px;
-                font-weight: 500;
-                letter-spacing: .2px;
-                border-bottom: 2px solid transparent;
-                margin-bottom: -2px;
-                transition: color .2s, border-color .2s;
-                white-space: nowrap;
-            }
-
-                .nav-links a:hover {
-                    color: var(--gold2);
-                    border-bottom-color: var(--gold2);
-                }
-
-                .nav-links a.active {
-                    color: var(--gold2);
-                    border-bottom-color: var(--gold2);
-                    font-weight: 600;
-                }
-
-        .nav-toggle {
-            display: none;
-            background: none;
-            border: 1px solid rgba(255,255,255,.2);
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .nav-search {
-            position: relative;
-        }
-
-            .nav-search input {
-                background: rgba(255,255,255,.07);
-                border: 1px solid rgba(255,255,255,.11);
-                color: #fff;
-                padding: 7px 13px 7px 32px;
-                border-radius: 7px;
-                font-size: 12px;
-                font-family: var(--fb);
-                width: 175px;
-                outline: none;
-                transition: all .2s;
-            }
-
-                .nav-search input::placeholder {
-                    color: rgba(255,255,255,.26);
-                }
-
-                .nav-search input:focus {
-                    border-color: var(--gold);
-                    background: rgba(255,255,255,.1);
-                    width: 205px;
-                }
-
-            .nav-search .ns-icon {
-                position: absolute;
-                left: 9px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: rgba(255,255,255,.3);
-                font-size: 12px;
-                pointer-events: none;
-            }
-
-        /* ════ TICKER ════ */
+        /* ══════════════ TICKER ══════════════ */
         .ticker-bar {
-            background: linear-gradient(90deg, #c0830e, var(--gold));
+            background: var(--navy-700);
             display: flex;
             align-items: stretch;
             overflow: hidden;
-            height: 34px;
-            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
         }
 
         .ticker-label {
-            background: var(--navy);
-            color: var(--gold2);
-            padding: 0 16px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1.6px;
+            background: linear-gradient(135deg, var(--gold-300), var(--gold-400));
+            color: var(--navy-900);
+            padding: 0 22px 0 18px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 2.2px;
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
             flex-shrink: 0;
-            border-right: 1px solid rgba(255,255,255,.09);
             text-transform: uppercase;
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 0 100%);
+            padding-right: 30px;
         }
 
         .blink-dot {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
-            background: #e63;
-            animation: blink 1.1s ease-in-out infinite;
+            background: var(--navy-800);
+            animation: blinkAnim 1.1s ease-in-out infinite;
+        }
+        @@keyframes blinkAnim {
+            0%,100%
+
+        {
+            opacity: 1
         }
 
-        @@keyframes blink {
-            0%, 100% {
-                opacity: 1
-            }
+        50% {
+            opacity: .1
+        }
 
-            50% {
-                opacity: .1
-            }
         }
 
         .ticker-track {
@@ -442,145 +424,70 @@
         .ticker-inner {
             display: flex;
             white-space: nowrap;
-            animation: tscroll 55s linear infinite;
+            animation: tickerScroll 55s linear infinite;
         }
 
             .ticker-inner:hover {
                 animation-play-state: paused;
             }
+        @@keyframes tickerScroll {
+            0%
 
-        @@keyframes tscroll {
-            0% {
-                transform: translateX(0);
-            }
+        {
+            transform: translateX(0)
+        }
 
-            100% {
-                transform: translateX(-50%);
-            }
+        100% {
+            transform: translateX(-50%)
+        }
+
         }
 
         .t-item {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
             font-size: 11.5px;
-            font-weight: 600;
-            color: var(--navy);
-            padding-right: 48px;
+            font-weight: 500;
+            color: rgba(255,255,255,.5);
+            padding-right: 60px;
         }
 
+            .t-item i {
+                color: var(--gold-300);
+                font-size: 10px;
+            }
+
             .t-item a {
-                color: var(--navy);
+                color: rgba(255,255,255,.7);
                 text-decoration: none;
+                transition: color .18s;
             }
 
                 .t-item a:hover {
-                    text-decoration: underline;
+                    color: var(--gold-300);
                 }
 
-        /* ════ HERO STRIP ════ */
-        .hero-strip {
-            background: linear-gradient(100deg, var(--royal) 0%, var(--sky) 55%, var(--sky2) 100%);
-            padding: 20px 40px;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-        }
-
-            .hero-strip::before {
-                content: '';
-                position: absolute;
-                right: -60px;
-                top: -80px;
-                width: 300px;
-                height: 300px;
-                border-radius: 50%;
-                border: 56px solid rgba(255,255,255,.04);
-            }
-
-        .hero-inner {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-text h2 {
-            font-family: var(--fd);
-            font-size: clamp(14px, 1.7vw, 22px);
-            color: #fff;
-            font-weight: 700;
-            line-height: 1.25;
-        }
-
-        .hero-text p {
-            font-size: 12px;
-            color: rgba(255,255,255,.58);
-            margin-top: 4px;
-        }
-
-        .stat-pills {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .stat-pill {
-            background: rgba(255,255,255,.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,.15);
-            border-radius: var(--r2);
-            padding: 11px 18px;
-            text-align: center;
-            min-width: 82px;
-            transition: background .2s, transform .2s;
-        }
-
-            .stat-pill:hover {
-                background: rgba(255,255,255,.18);
-                transform: translateY(-2px);
-            }
-
-        .stat-num {
-            font-family: var(--fd);
-            font-size: 26px;
-            color: var(--gold2);
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .stat-lbl {
-            font-size: 9.5px;
-            color: rgba(255,255,255,.5);
-            margin-top: 3px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        /* ════ HERO CAROUSEL ════ */
+        /* ══════════════ HERO CAROUSEL ══════════════ */
         .rguhs-carousel {
             width: 100%;
             overflow: hidden;
-            background: var(--navy);
+            background: var(--navy-950);
             line-height: 0;
         }
 
         .carousel-img {
             width: 100%;
-            height: clamp(200px, 42vw, 520px);
+            height: clamp(220px, 38vw, 480px);
             object-fit: cover;
             object-position: center;
             display: block;
-            filter: brightness(.78);
-            transition: filter .3s;
+            filter: brightness(.62) saturate(1.05);
+            transition: filter .5s;
         }
 
         .rguhs-carousel:hover .carousel-img {
-            filter: brightness(.72);
+            filter: brightness(.56) saturate(1.05);
         }
 
         .carousel-caption-custom {
@@ -588,8 +495,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: clamp(14px, 3vw, 36px) clamp(18px, 5vw, 60px);
-            background: linear-gradient(to top, rgba(4,16,31,.82) 0%, rgba(4,16,31,.35) 70%, transparent 100%);
+            padding: clamp(18px,3.2vw,50px) clamp(24px,5vw,68px);
+            background: linear-gradient(to top, rgba(3,6,15,.92) 0%, rgba(3,6,15,.45) 60%, transparent 100%);
             text-align: left;
             line-height: 1;
         }
@@ -597,55 +504,55 @@
         .cc-tag {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            background: var(--gold);
-            color: var(--navy);
-            font-size: clamp(9px, 1vw, 11px);
-            font-weight: 700;
-            letter-spacing: .9px;
+            gap: 6px;
+            background: var(--gold-300);
+            color: var(--navy-900);
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 1.8px;
             text-transform: uppercase;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: clamp(6px, 1.2vw, 12px);
+            padding: 5px 14px;
+            border-radius: 3px;
+            margin-bottom: clamp(8px,1.5vw,18px);
         }
 
         .cc-title {
             font-family: var(--fd);
-            font-size: clamp(14px, 2.8vw, 36px);
-            font-weight: 700;
+            font-size: clamp(17px, 3vw, 42px);
+            font-weight: 600;
             color: #fff;
-            line-height: 1.2;
-            margin-bottom: clamp(4px, 0.8vw, 10px);
-            text-shadow: 0 2px 12px rgba(0,0,0,.4);
+            line-height: 1.18;
+            margin-bottom: clamp(6px,1vw,13px);
+            text-shadow: 0 2px 20px rgba(0,0,0,.5);
         }
 
         .cc-sub {
-            font-size: clamp(10px, 1.3vw, 15px);
-            color: rgba(255,255,255,.72);
-            line-height: 1.4;
+            font-size: clamp(10px, 1.1vw, 13.5px);
+            color: rgba(255,255,255,.56);
+            letter-spacing: .3px;
         }
 
         .rguhs-carousel .carousel-indicators {
-            margin-bottom: clamp(8px, 1.5vw, 18px);
+            margin-bottom: clamp(12px, 2vw, 24px);
             gap: 4px;
         }
 
             .rguhs-carousel .carousel-indicators button {
-                width: clamp(18px, 2.5vw, 32px);
-                height: 4px;
+                width: clamp(18px, 2.2vw, 30px);
+                height: 3px;
                 border-radius: 2px;
-                background: rgba(255,255,255,.38);
+                background: rgba(255,255,255,.25);
                 border: none;
                 transition: background .25s, width .25s;
             }
 
                 .rguhs-carousel .carousel-indicators button.active {
-                    background: var(--gold2);
+                    background: var(--gold-300);
                     width: clamp(28px, 4vw, 52px);
                 }
 
         .rguhs-ctrl {
-            width: clamp(36px, 4vw, 54px);
+            width: clamp(36px,4vw,50px);
             opacity: 0;
             transition: opacity .22s;
         }
@@ -656,26 +563,95 @@
 
         .rguhs-carousel .carousel-control-prev-icon,
         .rguhs-carousel .carousel-control-next-icon {
-            background-color: rgba(4,16,31,.5);
+            background-color: rgba(3,6,15,.55);
             border-radius: 50%;
             padding: 14px;
-            background-size: 50%;
+            background-size: 48%;
+            border: 1px solid rgba(255,255,255,.12);
         }
 
-        /* ════ BODY LAYOUT ════ */
+        /* ══════════════ STATS STRIP ══════════════ */
+        .stats-strip {
+            background: var(--navy-700);
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+
+        .stats-inner {
+            display: flex;
+            padding: 0 40px;
+        }
+
+        .stat-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 26px;
+            border-right: 1px solid rgba(255,255,255,.07);
+            transition: background .2s;
+        }
+
+            .stat-item:first-child {
+                padding-left: 0;
+            }
+
+            .stat-item:last-child {
+                border-right: none;
+            }
+
+            .stat-item:hover {
+                background: rgba(255,255,255,.03);
+            }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(224,172,42,.1);
+            border: 1px solid rgba(224,172,42,.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+            .stat-icon i {
+                color: var(--gold-300);
+                font-size: 17px;
+            }
+
+        .stat-num {
+            font-family: var(--fd);
+            font-size: 30px;
+            color: #fff;
+            font-weight: 600;
+            line-height: 1;
+            letter-spacing: -.5px;
+        }
+
+        .stat-lbl {
+            font-size: 9.5px;
+            color: rgba(255,255,255,.34);
+            margin-top: 4px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        /* ══════════════ BODY LAYOUT ══════════════ */
         .body-layout {
             display: flex;
             overflow: hidden;
             width: 100%;
         }
 
+        /* ══════════════ MAIN PANE ══════════════ */
         .main-pane {
             flex: 1;
             min-width: 0;
             overflow-y: auto;
-            padding: 26px 26px 48px;
+            padding: 32px 32px 60px;
             scrollbar-width: thin;
-            scrollbar-color: var(--border) transparent;
+            scrollbar-color: var(--neutral-200) transparent;
         }
 
             .main-pane::-webkit-scrollbar {
@@ -683,70 +659,53 @@
             }
 
             .main-pane::-webkit-scrollbar-thumb {
-                background: var(--border);
+                background: var(--neutral-200);
                 border-radius: 4px;
             }
 
-        .side-pane {
-            width: 292px;
-            flex-shrink: 0;
-            background: var(--white);
-            border-left: 1px solid var(--border);
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border) transparent;
-        }
-
-            .side-pane::-webkit-scrollbar {
-                width: 4px;
-            }
-
-            .side-pane::-webkit-scrollbar-thumb {
-                background: var(--border);
-                border-radius: 4px;
-            }
-
-        /* ── SECTION HEADER ── */
+        /* Section heading */
         .sec-head {
             display: flex;
             align-items: center;
-            gap: 13px;
-            margin-bottom: 18px;
+            gap: 14px;
+            margin-bottom: 22px;
         }
 
             .sec-head h3 {
                 font-family: var(--fd);
-                font-size: 19px;
-                color: var(--navy);
-                font-weight: 700;
+                font-size: 23px;
+                color: var(--navy-700);
+                font-weight: 600;
                 white-space: nowrap;
+                letter-spacing: .1px;
             }
 
         .sec-line {
             flex: 1;
             height: 1px;
-            background: var(--border);
+            background: var(--neutral-200);
         }
 
         .sec-chip {
-            background: var(--royal);
-            color: #fff;
+            background: var(--navy-800);
+            color: var(--gold-300);
             font-size: 9px;
             font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 20px;
-            letter-spacing: .9px;
+            padding: 4px 13px;
+            border-radius: 4px;
+            letter-spacing: 1.2px;
             text-transform: uppercase;
             white-space: nowrap;
+            border: 1px solid rgba(224,172,42,.2);
         }
 
-        /* ── FACULTY CHIPS ── */
+        /* ── Faculty Chips ── */
         .faculty-scroll {
             display: flex;
-            gap: 8px;
+            gap: 7px;
             overflow-x: auto;
-            padding-bottom: 6px;
-            margin-bottom: 20px;
+            padding-bottom: 4px;
+            margin-bottom: 22px;
             scrollbar-width: none;
         }
 
@@ -758,58 +717,54 @@
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            padding: 8px 14px;
-            border-radius: 40px;
-            border: 1.5px solid var(--border);
+            padding: 8px 16px;
+            border-radius: var(--r);
+            border: 1.5px solid var(--neutral-200);
             background: var(--white);
-            color: var(--navy);
+            color: var(--neutral-700);
             text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 12.5px;
+            font-weight: 500;
             white-space: nowrap;
             flex-shrink: 0;
             transition: all .2s;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-xs);
         }
 
             .fac-chip:hover {
-                border-color: var(--sky);
-                color: var(--royal);
-                transform: translateY(-2px);
-                box-shadow: var(--shadow-md);
+                border-color: var(--blue-300);
+                color: var(--navy-600);
+                box-shadow: var(--shadow-sm);
+                transform: translateY(-1px);
             }
 
             .fac-chip.active {
-                background: linear-gradient(135deg, var(--royal) 0%, var(--sky2) 100%);
+                background: var(--navy-700);
                 border-color: transparent;
                 color: #fff;
-                box-shadow: 0 4px 18px rgba(16,70,170,.32);
-                transform: translateY(-2px);
+                box-shadow: 0 4px 18px rgba(15,34,72,.22);
+                transform: translateY(-1px);
             }
 
-        .chip-icon {
-            font-size: 15px;
-            line-height: 1;
-        }
-
         .chip-cnt {
-            background: rgba(0,0,0,.1);
-            border-radius: 20px;
+            background: rgba(0,0,0,.08);
+            border-radius: 4px;
             padding: 1px 7px;
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 700;
+            font-family: var(--fm);
         }
 
         .fac-chip.active .chip-cnt {
-            background: rgba(255,255,255,.2);
+            background: rgba(255,255,255,.15);
         }
 
-        /* ── FILTER BAR ── */
+        /* ── Filter Bar ── */
         .filter-bar {
             display: flex;
             gap: 9px;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             flex-wrap: wrap;
         }
 
@@ -822,163 +777,167 @@
 
             .search-field input {
                 width: 100%;
-                padding: 10px 14px 10px 38px;
-                border: 1.5px solid var(--border);
+                padding: 11px 14px 11px 40px;
+                border: 1.5px solid var(--neutral-200);
                 border-radius: var(--r);
                 font-size: 13px;
                 font-family: var(--fb);
                 background: var(--white);
-                color: var(--navy);
+                color: var(--neutral-900);
                 outline: none;
-                box-shadow: var(--shadow-sm);
+                box-shadow: var(--shadow-xs);
                 transition: border-color .2s, box-shadow .2s;
             }
 
                 .search-field input:focus {
-                    border-color: var(--royal);
-                    box-shadow: 0 0 0 3px rgba(16,70,170,.1);
+                    border-color: var(--blue-300);
+                    box-shadow: 0 0 0 3px rgba(45,98,200,.1);
+                }
+
+                .search-field input::placeholder {
+                    color: var(--neutral-400);
                 }
 
             .search-field .si {
                 position: absolute;
-                left: 11px;
+                left: 13px;
                 top: 50%;
                 transform: translateY(-50%);
-                color: var(--muted);
+                color: var(--neutral-400);
                 font-size: 13px;
                 pointer-events: none;
             }
 
         .btn-srch {
-            background: linear-gradient(135deg, var(--royal) 0%, var(--sky) 100%);
+            background: var(--navy-700);
             color: #fff;
             border: none;
-            padding: 10px 20px;
+            padding: 11px 22px;
             border-radius: var(--r);
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 600;
             font-family: var(--fb);
             cursor: pointer;
-            box-shadow: 0 3px 12px rgba(16,70,170,.28);
+            box-shadow: 0 3px 14px rgba(15,34,72,.22);
             transition: opacity .2s, transform .15s;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            letter-spacing: .2px;
         }
 
             .btn-srch:hover {
-                opacity: .9;
+                opacity: .85;
                 transform: translateY(-1px);
             }
 
         .btn-clr {
             background: var(--white);
-            color: var(--muted);
-            border: 1.5px solid var(--border);
-            padding: 10px 14px;
+            color: var(--neutral-500);
+            border: 1.5px solid var(--neutral-200);
+            padding: 11px 16px;
             border-radius: var(--r);
-            font-size: 12.5px;
+            font-size: 13px;
             font-family: var(--fb);
             cursor: pointer;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             transition: border-color .2s, color .2s;
         }
 
             .btn-clr:hover {
-                border-color: var(--sky);
-                color: var(--navy);
+                border-color: var(--blue-300);
+                color: var(--neutral-900);
             }
 
         .res-badge {
             background: var(--white);
-            border: 1px solid var(--border);
+            border: 1px solid var(--neutral-200);
             border-radius: var(--r);
-            padding: 10px 15px;
+            padding: 11px 16px;
             font-size: 12px;
-            color: var(--muted);
+            color: var(--neutral-500);
             white-space: nowrap;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-xs);
+            font-family: var(--fm);
         }
 
             .res-badge strong {
-                color: var(--navy);
+                color: var(--navy-700);
                 font-weight: 700;
             }
 
-        /* ── COLLEGE GRID ── */
+        /* ── College Cards ── */
         .college-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
-            max-height: 500px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            max-height: 540px;
             overflow-y: auto;
-            /* padding-right: 6px; */
             scroll-behavior: smooth;
+            padding-right: 4px;
         }
 
-        .college-grid::-webkit-scrollbar {
-            width: 6px;
-        }
+            .college-grid::-webkit-scrollbar {
+                width: 5px;
+            }
 
-        .college-grid::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
-        }
+            .college-grid::-webkit-scrollbar-thumb {
+                background: var(--neutral-200);
+                border-radius: 4px;
+            }
 
         .c-card {
             background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--r2);
-            padding: 16px;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--r-lg);
+            padding: 20px 22px 44px;
             position: relative;
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            transition: transform .22s, box-shadow .22s, border-color .22s;
-            animation: fadeup .32s ease both;
+            box-shadow: var(--shadow-xs);
+            transition: transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s, border-color .22s;
+            animation: cardFadeUp .35s ease both;
             cursor: pointer;
         }
 
             .c-card:hover {
                 transform: translateY(-4px);
-                box-shadow: var(--shadow-lg);
-                border-color: #a8c0e6;
+                box-shadow: var(--shadow-md);
+                border-color: var(--neutral-300);
             }
-
+            /* Left accent on hover */
             .c-card::before {
                 content: '';
                 position: absolute;
                 top: 0;
                 left: 0;
-                right: 0;
-                height: 3px;
-                background: linear-gradient(90deg, var(--royal) 0%, var(--gold) 100%);
-            }
-
-            .c-card::after {
-                content: '';
-                position: absolute;
-                bottom: -18px;
-                right: -18px;
-                width: 70px;
-                height: 70px;
-                border-radius: 50%;
-                background: var(--off);
-                opacity: .5;
-            }
-
-        @@keyframes fadeup {
-            from {
+                bottom: 0;
+                width: 3px;
+                background: linear-gradient(to bottom, var(--navy-600), var(--gold-300));
                 opacity: 0;
-                transform: translateY(13px);
+                transition: opacity .22s;
+                border-radius: 3px 0 0 3px;
             }
 
-            to {
+            .c-card:hover::before {
                 opacity: 1;
-                transform: translateY(0);
             }
+
+        @@keyframes cardFadeUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         }
 
         .c-card:nth-child(1) {
@@ -1005,124 +964,117 @@
             animation-delay: .24s
         }
 
-        .c-card:nth-child(7) {
+        .c-card:nth-child(n+7) {
             animation-delay: .28s
-        }
-
-        .c-card:nth-child(8) {
-            animation-delay: .32s
-        }
-
-        .c-card:nth-child(n+9) {
-            animation-delay: .36s
-        }
-
-        .c-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 9px;
-        }
-
-        .c-code {
-            display: none;
-        }
-
-        .c-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #27ae60;
-            box-shadow: 0 0 0 3px rgba(39,174,96,.14);
         }
 
         .c-name {
             font-size: 13px;
             font-weight: 600;
-            color: var(--navy);
-            line-height: 1.45;
-            /* margin-bottom: 11px; */
-            position: relative;
-            z-index: 1;
-            display: flex;
-            justify-content: space-between;
+            color: var(--navy-700);
+            line-height: 1.55;
+            margin-bottom: 12px;
         }
 
-        .c-foot {
+        .c-meta {
+            position: absolute;
+            bottom: 14px;
+            left: 22px;
+            right: 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 7px;
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 1;
+            gap: 6px;
         }
 
         .c-town {
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 11px;
-            color: var(--muted);
+            font-size: 10.5px;
+            color: var(--neutral-500);
         }
+
+            .c-town i {
+                color: var(--blue-300);
+                font-size: 10px;
+            }
 
         .c-fac {
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            background: var(--off);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2px 8px;
+            background: var(--surface);
+            border: 1px solid var(--neutral-200);
+            border-radius: 4px;
+            padding: 2px 9px;
             font-size: 10px;
             font-weight: 500;
-            color: var(--muted);
+            color: var(--neutral-500);
         }
 
-        .c-view-label {
+        .c-arrow {
             position: absolute;
-            bottom: 10px;
-            right: 13px;
-            font-size: 9.5px;
-            color: var(--sky);
+            bottom: 13px;
+            right: 18px;
+            font-size: 11px;
+            color: var(--blue-400);
             font-weight: 600;
-            z-index: 2;
             display: flex;
             align-items: center;
             gap: 3px;
             opacity: 0;
-            transform: translateY(4px);
+            transform: translateX(4px);
             transition: opacity .2s, transform .2s;
         }
 
-        .c-card:hover .c-view-label {
+        .c-card:hover .c-arrow {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(0);
         }
 
         .empty-state {
             grid-column: 1/-1;
             text-align: center;
-            padding: 60px 20px;
-            color: var(--muted);
+            padding: 64px 20px;
+            color: var(--neutral-400);
         }
 
             .empty-state .em-ico {
-                font-size: 50px;
-                opacity: .3;
-                margin-bottom: 12px;
+                font-size: 52px;
+                opacity: .18;
+                margin-bottom: 14px;
             }
 
             .empty-state h4 {
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 600;
-                margin-bottom: 5px;
-                color: var(--navy);
+                margin-bottom: 6px;
+                color: var(--navy-700);
             }
 
-        /* ── SIDEBAR WIDGETS ── */
+        /* ══════════════ SIDEBAR ══════════════ */
+        .side-pane {
+            width: 300px;
+            flex-shrink: 0;
+            background: var(--white);
+            border-left: 1px solid var(--neutral-200);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--neutral-200) transparent;
+        }
+
+            .side-pane::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .side-pane::-webkit-scrollbar-thumb {
+                background: var(--neutral-200);
+                border-radius: 4px;
+            }
+
         .widget {
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--neutral-200);
         }
 
             .widget:last-child {
@@ -1130,32 +1082,35 @@
             }
 
         .w-head {
-            background: linear-gradient(90deg, var(--navy) 0%, var(--blue) 100%);
-            padding: 11px 15px;
+            padding: 13px 18px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 9px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--neutral-200);
         }
 
             .w-head h4 {
                 font-family: var(--fd);
-                color: #fff;
-                font-size: 14px;
+                color: var(--navy-700);
+                font-size: 14.5px;
                 font-weight: 600;
+                letter-spacing: .1px;
             }
 
             .w-head i {
-                color: var(--gold2);
-                font-size: 14px;
+                color: var(--navy-600);
+                font-size: 13.5px;
             }
 
+        /* Updates */
         .upd-list {
             list-style: none;
         }
 
         .upd-item {
-            border-bottom: 1px solid var(--surface);
-            padding: 10px 15px;
+            border-bottom: 1px solid var(--neutral-200);
+            padding: 12px 18px;
             transition: background .14s;
         }
 
@@ -1164,61 +1119,66 @@
             }
 
             .upd-item:hover {
-                background: var(--off);
+                background: var(--surface);
             }
 
             .upd-item a {
                 display: block;
                 text-decoration: none;
-                color: var(--navy);
+                color: var(--neutral-700);
                 font-size: 12px;
-                line-height: 1.48;
+                line-height: 1.6;
                 font-weight: 500;
             }
 
                 .upd-item a:hover {
-                    color: var(--royal);
+                    color: var(--navy-600);
                 }
 
         .upd-date {
             font-size: 10px;
-            color: var(--muted);
-            margin-top: 2px;
+            color: var(--neutral-400);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .u-tag {
             display: inline-block;
-            font-size: 9px;
+            font-size: 8.5px;
             font-weight: 700;
             padding: 2px 7px;
-            border-radius: 4px;
-            letter-spacing: .5px;
-            margin-bottom: 3px;
+            border-radius: 3px;
+            letter-spacing: .7px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
         .tag-new {
-            background: #fff0f0;
-            color: #b52a2a;
-            border: 1px solid #f8cbc8;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
         }
 
         .tag-imp {
-            background: #fff9e0;
-            color: #7a5500;
-            border: 1px solid #f0d870;
+            background: #fefce8;
+            color: #92400e;
+            border: 1px solid #fde68a;
         }
 
         .tag-info {
-            background: #e8f0fe;
-            color: var(--royal);
-            border: 1px solid #bcd0f8;
+            background: #eff6ff;
+            color: var(--navy-600);
+            border: 1px solid #bfdbfe;
         }
 
+        /* Quick links */
         .qlink-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1px;
-            background: var(--border);
+            background: var(--neutral-200);
         }
 
         .qlink {
@@ -1226,11 +1186,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 5px;
-            padding: 13px 8px;
+            gap: 6px;
+            padding: 15px 8px;
             background: var(--white);
             text-decoration: none;
-            color: var(--navy);
+            color: var(--neutral-700);
             font-size: 10.5px;
             font-weight: 600;
             text-align: center;
@@ -1238,33 +1198,35 @@
         }
 
             .qlink:hover {
-                background: var(--off);
-                color: var(--royal);
+                background: var(--surface);
+                color: var(--navy-600);
             }
 
             .qlink i {
-                font-size: 19px;
-                color: var(--royal);
+                font-size: 20px;
+                color: var(--navy-600);
             }
 
+        /* Helpline */
         .hl-body {
-            padding: 13px 15px;
+            padding: 14px 18px;
             display: flex;
             flex-direction: column;
-            gap: 9px;
+            gap: 13px;
         }
 
         .hl-row {
             display: flex;
             align-items: center;
-            gap: 9px;
+            gap: 12px;
         }
 
         .hl-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 7px;
-            background: var(--off);
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: var(--surface);
+            border: 1px solid var(--neutral-200);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1272,24 +1234,25 @@
         }
 
             .hl-icon i {
-                font-size: 14px;
-                color: var(--royal);
+                font-size: 13px;
+                color: var(--navy-600);
             }
 
         .hl-lbl {
-            font-size: 10px;
-            color: var(--muted);
-            margin-bottom: 1px;
+            font-size: 9.5px;
+            color: var(--neutral-400);
+            margin-bottom: 2px;
+            letter-spacing: .4px;
         }
 
         .hl-val {
             font-size: 12px;
             font-weight: 600;
-            color: var(--navy);
+            color: var(--navy-700);
         }
 
             .hl-val a {
-                color: var(--royal);
+                color: var(--blue-400);
                 text-decoration: none;
             }
 
@@ -1297,26 +1260,26 @@
                     text-decoration: underline;
                 }
 
-        /* ── MODAL STYLES ── */
+        /* ══════════════ MODAL ══════════════ */
         .modal-course-header {
-            background: linear-gradient(135deg, #003087 0%, #0055cc 100%);
+            background: linear-gradient(135deg, var(--navy-800) 0%, var(--navy-700) 100%);
             border: none;
-            padding: 20px 24px;
+            padding: 24px 28px;
         }
 
         .modal-summary-strip {
             display: flex;
-            border-bottom: 1px solid var(--border);
-            background: var(--off);
+            border-bottom: 1px solid var(--neutral-200);
+            background: var(--neutral-50);
         }
 
         .modal-summary-pill {
             flex: 1;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 14px 20px;
-            border-right: 1px solid var(--border);
+            gap: 14px;
+            padding: 17px 24px;
+            border-right: 1px solid var(--neutral-200);
         }
 
             .modal-summary-pill:last-child {
@@ -1324,10 +1287,10 @@
             }
 
         .msp-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, var(--royal), var(--sky));
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--navy-800);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1335,24 +1298,24 @@
         }
 
             .msp-icon i {
-                color: #fff;
+                color: var(--gold-300);
                 font-size: 16px;
             }
 
         .msp-num {
             font-family: var(--fd);
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--navy);
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--navy-700);
             line-height: 1;
         }
 
         .msp-lbl {
-            font-size: 9.5px;
-            color: var(--muted);
-            letter-spacing: .8px;
+            font-size: 9px;
+            color: var(--neutral-400);
+            letter-spacing: 1.1px;
             text-transform: uppercase;
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
         .course-table {
@@ -1362,18 +1325,18 @@
         }
 
             .course-table thead tr {
-                background: linear-gradient(90deg, var(--navy) 0%, var(--blue) 100%);
+                background: var(--navy-800);
             }
 
             .course-table thead th {
-                padding: 11px 14px;
-                color: var(--gold2);
-                font-size: 10px;
+                padding: 11px 15px;
+                color: rgba(255,255,255,.5);
+                font-size: 9.5px;
                 font-weight: 700;
-                letter-spacing: .9px;
+                letter-spacing: 1px;
                 text-transform: uppercase;
-                white-space: nowrap;
                 border: none;
+                white-space: nowrap;
             }
 
                 .course-table thead th:last-child {
@@ -1381,7 +1344,7 @@
                 }
 
             .course-table tbody tr {
-                border-bottom: 1px solid var(--surface);
+                border-bottom: 1px solid var(--neutral-200);
                 transition: background .12s;
             }
 
@@ -1390,7 +1353,7 @@
                 }
 
                 .course-table tbody tr:nth-child(even) {
-                    background: var(--off);
+                    background: var(--neutral-50);
                 }
 
                 .course-table tbody tr:nth-child(odd) {
@@ -1398,19 +1361,20 @@
                 }
 
                 .course-table tbody tr:hover {
-                    background: #e8f0fd;
+                    background: #eff6ff;
                 }
 
             .course-table tbody td {
-                padding: 11px 14px;
-                color: var(--navy);
+                padding: 11px 15px;
+                color: var(--neutral-700);
                 vertical-align: middle;
             }
 
         .td-num {
-            color: var(--muted);
+            color: var(--neutral-400);
             font-size: 11px;
             width: 36px;
+            font-family: var(--fm);
         }
 
         .col-course-code {
@@ -1418,27 +1382,15 @@
         }
 
         .td-code {
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: var(--royal);
-            background: #eaf0fc;
-            padding: 3px 8px;
-            border-radius: 5px;
+            font-family: var(--fm);
+            font-size: 10.5px;
+            color: var(--blue-400);
+            background: #eff6ff;
+            padding: 3px 9px;
+            border-radius: 4px;
             white-space: nowrap;
             display: inline-block;
-        }
-
-        .td-intake {
-            text-align: center;
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--royal);
-        }
-
-        .td-intake-zero {
-            color: var(--muted);
-            font-weight: 400;
-            font-size: 13px;
+            border: 1px solid #bfdbfe;
         }
 
         .intake-badge {
@@ -1447,57 +1399,56 @@
             justify-content: center;
             min-width: 44px;
             height: 28px;
-            border-radius: 20px;
+            border-radius: 6px;
             font-size: 13px;
             font-weight: 700;
+            font-family: var(--fm);
         }
 
         .intake-badge-filled {
-            background: linear-gradient(135deg, #e8f4ff, #d0e8ff);
-            color: var(--royal);
-            border: 1px solid #b0d0f0;
+            background: #eff6ff;
+            color: var(--blue-400);
+            border: 1px solid #bfdbfe;
         }
 
         .intake-badge-zero {
-            background: var(--surface);
-            color: var(--muted);
-            border: 1px solid var(--border);
+            background: var(--neutral-100);
+            color: var(--neutral-400);
+            border: 1px solid var(--neutral-200);
         }
 
-        /* ── FOOTER ── */
+        /* ══════════════ FOOTER ══════════════ */
         .site-footer {
-            background: var(--navy);
-            border-top: 2px solid var(--gold);
-            width: 100%;
+            background: var(--navy-900);
+            border-top: 2px solid var(--gold-400);
         }
 
         .footer-grid {
-            width: 100%;
-            padding: 28px 40px 18px;
+            padding: 38px 40px 24px;
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 28px;
+            grid-template-columns: 2.2fr 1fr 1fr 1fr;
+            gap: 32px;
         }
 
         .foot-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 13px;
+            margin-bottom: 13px;
         }
 
-        .foot-logo {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(255,255,255,.07);
-            border: 1px solid rgba(196,137,26,.33);
+        .foot-monogram {
+            width: 48px;
+            height: 48px;
+            border-radius: 11px;
+            background: rgba(224,172,42,.1);
+            border: 1px solid rgba(224,172,42,.22);
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: var(--fd);
-            font-size: 16px;
-            color: var(--gold2);
+            font-size: 18px;
+            color: var(--gold-300);
             font-weight: 700;
             flex-shrink: 0;
         }
@@ -1505,55 +1456,71 @@
         .foot-name {
             font-family: var(--fd);
             color: #fff;
-            font-size: 13.5px;
-            line-height: 1.35;
+            font-size: 14px;
+            line-height: 1.3;
+            font-weight: 500;
         }
 
             .foot-name span {
                 display: block;
-                font-size: 10.5px;
-                color: rgba(255,255,255,.35);
+                font-size: 10px;
+                color: rgba(255,255,255,.26);
                 font-family: var(--fb);
-                margin-top: 2px;
+                margin-top: 3px;
+                letter-spacing: .3px;
             }
 
         .foot-desc {
             font-size: 11.5px;
-            color: rgba(255,255,255,.36);
-            line-height: 1.7;
+            color: rgba(255,255,255,.28);
+            line-height: 1.85;
         }
 
         .foot-col h5 {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 700;
-            color: var(--gold2);
-            letter-spacing: 1.1px;
+            color: var(--gold-300);
+            letter-spacing: 1.6px;
             text-transform: uppercase;
-            margin-bottom: 11px;
+            margin-bottom: 14px;
+            padding-bottom: 9px;
+            border-bottom: 1px solid rgba(224,172,42,.14);
         }
 
         .foot-col ul {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 9px;
         }
 
             .foot-col ul li a {
-                color: rgba(255,255,255,.43);
+                color: rgba(255,255,255,.32);
                 text-decoration: none;
-                font-size: 11.5px;
+                font-size: 12px;
                 transition: color .18s;
+                display: flex;
+                align-items: center;
+                gap: 7px;
             }
 
+                .foot-col ul li a::before {
+                    content: '';
+                    display: block;
+                    width: 3px;
+                    height: 3px;
+                    border-radius: 50%;
+                    background: rgba(224,172,42,.3);
+                    flex-shrink: 0;
+                }
+
                 .foot-col ul li a:hover {
-                    color: var(--gold2);
+                    color: var(--gold-300);
                 }
 
         .footer-bar {
-            width: 100%;
-            padding: 11px 40px;
-            border-top: 1px solid rgba(255,255,255,.06);
+            padding: 14px 40px;
+            border-top: 1px solid rgba(255,255,255,.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1563,380 +1530,227 @@
 
             .footer-bar p {
                 font-size: 10.5px;
-                color: rgba(255,255,255,.26);
+                color: rgba(255,255,255,.2);
             }
 
             .footer-bar a {
-                color: var(--gold2);
+                color: rgba(224,172,42,.6);
                 text-decoration: none;
             }
 
-        /* ════ RESPONSIVE ════ */
+                .footer-bar a:hover {
+                    color: var(--gold-300);
+                }
+
+        /* ══════════════ RESPONSIVE ══════════════ */
         @@media (min-width: 1400px) {
-            .header-inner, .nav-inner, .hero-strip, .footer-grid, .footer-bar {
-                padding-left: 56px;
-                padding-right: 56px;
-            }
+            .header-inner, .stats-inner, .footer-grid, .footer-bar
 
-            .university-logo {
-                height: 92px;
-            }
+        {
+            padding-left: 60px;
+            padding-right: 60px;
         }
 
+        .main-pane {
+            padding: 36px 38px 64px;
+        }
+
+        .util-inner {
+            padding: 0 60px;
+        }
+
+        }
         @@media (max-width: 1199px) {
-            .body-layout {
-                height: auto !important;
-                flex-direction: column;
-                overflow: visible;
-            }
+            .body-layout
 
-            .main-pane {
-                overflow: visible;
-            }
-
-            .side-pane {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid var(--border);
-                overflow: visible;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .header-inner {
-                padding: 14px 24px;
-                gap: 14px;
-            }
-
-            .nav-inner {
-                padding: 0 24px;
-            }
-
-            .hero-strip {
-                padding: 16px 24px;
-            }
-
-            .footer-grid {
-                padding: 24px 24px 16px;
-            }
-
-            .footer-bar {
-                padding: 10px 24px;
-            }
-
-            .university-logo {
-                height: 72px;
-            }
-
-            .univ-sub {
-                display: none;
-            }
+        {
+            flex-direction: column;
+            height: auto !important;
+            overflow: visible;
         }
 
+        .main-pane {
+            overflow: visible;
+        }
+
+        .side-pane {
+            width: 100%;
+            border-left: none;
+            border-top: 1px solid var(--neutral-200);
+            overflow: visible;
+        }
+
+        .footer-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stats-inner {
+            padding: 0 24px;
+        }
+
+        .college-grid {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        }
         @@media (max-width: 991px) {
-            .header-inner {
-                padding: 12px 20px;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
+            .header-inner
 
-            .university-logo {
-                height: 64px;
-            }
-
-            .univ-name {
-                font-size: 16px;
-            }
-
-            .univ-sub {
-                display: none;
-            }
-
-            .badge-row {
-                margin-top: 6px;
-            }
-
-            .portal-note {
-                display: none;
-            }
-
-            .btn-portal {
-                padding: 9px 18px;
-                font-size: 12px;
-            }
-
-            .nav-toggle {
-                display: block;
-            }
-
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: var(--navy);
-                z-index: 999;
-                border-bottom: 2px solid var(--gold);
-                padding: 6px 0;
-            }
-
-                .nav-links.open {
-                    display: flex;
-                }
-
-                .nav-links a {
-                    padding: 12px 20px;
-                    border-bottom: none;
-                    border-top: 1px solid rgba(255,255,255,.05);
-                }
-
-            .nav-search {
-                display: none;
-            }
-
-            .primary-nav {
-                position: sticky;
-                top: 0;
-            }
-
-            .hero-strip {
-                padding: 14px 20px;
-            }
-
-            .hero-text h2 {
-                font-size: 15px;
-            }
-
-            .stat-pill {
-                padding: 8px 12px;
-                min-width: 68px;
-            }
-
-            .stat-num {
-                font-size: 20px;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-                padding: 20px;
-            }
-
-            .footer-bar {
-                padding: 10px 20px;
-            }
-
-            .modal-summary-strip {
-                flex-wrap: wrap;
-            }
-
-            .modal-summary-pill {
-                min-width: 50%;
-                border-bottom: 1px solid var(--border);
-            }
+        {
+            padding: 16px 20px;
+            flex-wrap: wrap;
         }
 
+        .university-logo {
+            height: 64px;
+        }
+
+        .univ-name {
+            font-size: 18px;
+        }
+
+        .univ-sub {
+            display: none;
+        }
+
+        .stats-inner {
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .stat-item {
+            min-width: 45%;
+            border-bottom: 1px solid rgba(255,255,255,.05);
+        }
+
+        .footer-grid {
+            padding: 24px 20px;
+        }
+
+        .footer-bar {
+            padding: 12px 20px;
+        }
+
+        .college-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .modal-summary-strip {
+            flex-wrap: wrap;
+        }
+
+        .modal-summary-pill {
+            min-width: 50%;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        }
         @@media (max-width: 767px) {
-            .util-inner {
-                padding: 0 16px;
-            }
+            .util-inner
 
-            .util-links a span {
-                display: none;
-            }
-
-            .header-inner {
-                padding: 12px 16px;
-            }
-
-            .university-logo {
-                height: 58px;
-            }
-
-            .univ-name {
-                font-size: 14px;
-            }
-
-            .hero-strip {
-                padding: 12px 16px;
-            }
-
-            .stat-pills {
-                gap: 7px;
-            }
-
-            .stat-pill {
-                padding: 7px 10px;
-                min-width: 60px;
-            }
-
-            .stat-num {
-                font-size: 18px;
-            }
-
-            .stat-lbl {
-                font-size: 8.5px;
-            }
-
-            .main-pane {
-                padding: 16px 14px 40px;
-            }
-
-            .college-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr;
-                padding: 18px 16px;
-            }
-
-            .footer-bar {
-                padding: 10px 16px;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-            /* Carousel */
-            .carousel-img {
-                height: clamp(180px, 52vw, 300px);
-                object-position: center 20%;
-            }
-
-            .carousel-caption-custom {
-                padding: 12px 16px;
-            }
-
-            .rguhs-ctrl {
-                opacity: .7;
-            }
+        {
+            padding: 0 16px;
         }
 
+        .util-links a span {
+            display: none;
+        }
+
+        .header-inner {
+            padding: 14px 16px;
+        }
+
+        .university-logo {
+            height: 56px;
+        }
+
+        .univ-name {
+            font-size: 16px;
+        }
+
+        .main-pane {
+            padding: 20px 14px 48px;
+        }
+
+        .college-grid {
+            grid-template-columns: 1fr;
+            max-height: none;
+        }
+
+        .footer-grid {
+            grid-template-columns: 1fr;
+            padding: 20px 16px;
+        }
+
+        .footer-bar {
+            padding: 12px 16px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .carousel-img {
+            height: clamp(190px,54vw,310px);
+        }
+
+        }
         @@media (max-width: 599px) {
-            .util-links {
-                gap: 10px;
-            }
+            .header-inner
 
-                .util-links a {
-                    font-size: 10px;
-                }
-
-            .header-inner {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                padding: 14px 14px 12px;
-                gap: 10px;
-            }
-
-            .university-logo {
-                height: 68px;
-            }
-
-            .univ-name {
-                font-size: 15px;
-                white-space: normal;
-                text-align: center;
-            }
-
-            .univ-sub {
-                display: block;
-                font-size: 10px;
-                text-align: center;
-            }
-
-            .badge-row {
-                justify-content: center;
-            }
-
-            .header-actions {
-                width: 100%;
-                align-items: center;
-            }
-
-            .btn-portal {
-                width: 100%;
-                justify-content: center;
-                padding: 11px 20px;
-                font-size: 13px;
-                border-radius: 10px;
-            }
-
-            .portal-note {
-                display: flex;
-                justify-content: center;
-                font-size: 10px;
-            }
-
-            .hero-inner {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .stat-pills {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .stat-pill {
-                flex: 1;
-                min-width: 0;
-                padding: 8px 6px;
-            }
-
-            .ticker-label {
-                padding: 0 10px;
-                font-size: 9px;
-                letter-spacing: 1px;
-            }
-
-            .college-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-summary-pill {
-                min-width: 100%;
-            }
-            /* Carousel */
-            .carousel-img {
-                height: 210px;
-            }
-
-            .cc-sub {
-                display: none;
-            }
+        {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 18px 16px;
         }
 
-        @@media (max-width: 380px) {
-            .university-logo {
-                height: 54px;
-            }
+        .header-rule {
+            display: none;
+        }
 
-            .univ-name {
-                font-size: 13px;
-            }
+        .university-logo {
+            height: 68px;
+        }
 
-            .hbadge {
-                font-size: 9px;
-                padding: 3px 9px;
-            }
+        .univ-name {
+            font-size: 17px;
+            text-align: center;
+        }
 
-            .btn-portal {
-                font-size: 12px;
-            }
+        .univ-eyebrow {
+            justify-content: center;
+        }
 
-            .stat-num {
-                font-size: 16px;
-            }
+        .univ-sub {
+            display: flex;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .header-badges {
+            justify-content: center;
+        }
+
+        .header-cta {
+            width: 100%;
+            align-items: center;
+        }
+
+        .btn-portal {
+            width: 100%;
+            justify-content: center;
+            font-size: 14px;
+            padding: 13px 20px;
+        }
+
+        .stats-inner {
+            flex-direction: column;
+        }
+
+        .stat-item {
+            width: 100%;
+            border-right: none;
+        }
+
         }
     </style>
 </head>
@@ -1952,7 +1766,7 @@
                 <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank"><i class="bi bi-bell"></i><span>Notifications</span></a>
                 <a href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-headset"></i><span>Help Desk</span></a>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
+            <div class="util-right">
                 <span class="live-clock" id="liveClock"></span>
                 <select class="lang-sel"><option>English</option><option>ಕನ್ನಡ</option></select>
             </div>
@@ -1962,63 +1776,55 @@
     <!-- ════ HEADER ════ -->
     <header class="site-header">
         <div class="header-inner">
-            <div class="emblem">
-                <img src="~/images/newLogo.jpeg" alt="Rajiv Gandhi University of Health Sciences Logo" class="university-logo" />
-            </div>
+            <div class="header-rule"></div>
+            <img src="~/images/newLogo.jpeg" alt="RGUHS Logo" class="university-logo" />
             <div class="header-text">
+                <div class="univ-eyebrow">Government of Karnataka</div>
                 <div class="univ-name">Rajiv Gandhi University of Health Sciences, Karnataka</div>
-                <div class="univ-sub">4th 'T' Block, Jayanagar, Bangalore – 560 041 &nbsp;·&nbsp; Established 1996</div>
-                <div class="badge-row">
-                    <span class="hbadge hbadge-gold"><i class="bi bi-bank2"></i> Government of Karnataka</span>
+                <div class="univ-sub">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    4th 'T' Block, Jayanagar, Bangalore – 560 041 &nbsp;·&nbsp; Established 1996
                 </div>
+                
             </div>
-            <div class="header-actions">
+            <div class="header-cta">
                 <a asp-controller="MainDashboard" asp-action="MultiLogin" class="btn-portal" target="_blank">
-                    <i class="bi bi-box-arrow-in-right"></i> Login
+                    <i class="bi bi-box-arrow-in-right"></i> Login to Portal
                 </a>
-                @* <div class="portal-note">
+                <div class="header-status">
                     <div class="pulse-dot"></div>
-                    Admission &amp; Affiliation Management System
-                </div> *@
+                    Admission &amp; Affiliation System — Live
+                </div>
             </div>
         </div>
     </header>
-
-    <!-- ════ PRIMARY NAV ════ -->
+    <div class="header-stripe"></div>
 
     <!-- ════ TICKER ════ -->
     <div class="ticker-bar">
-        <div class="ticker-label"><div class="blink-dot"></div>LIVE UPDATES</div>
+        <div class="ticker-label"><div class="blink-dot"></div>Live Updates</div>
         <div class="ticker-track">
             <div class="ticker-inner">
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="http://www.rguhs.ac.in/">Official RGUHS site </a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="https://rguhsaca.karnataka.gov.in/admissionaffiliation/MainDashboard/MultiLogin">Medical College Details Submission Has Commenced for Existing Colleges </a></span>
-
+                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="http://www.rguhs.ac.in/">Visit Official RGUHS Website</a></span>
+                <span class="t-item"><i class="bi bi-info-circle-fill"></i><a href="https://rguhsaca.karnataka.gov.in/admissionaffiliation/MainDashboard/MultiLogin">Medical College Details Submission Has Commenced for Existing Colleges</a></span>
+                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="http://www.rguhs.ac.in/">Visit Official RGUHS Website</a></span>
+                <span class="t-item"><i class="bi bi-info-circle-fill"></i><a href="https://rguhsaca.karnataka.gov.in/admissionaffiliation/MainDashboard/MultiLogin">Medical College Details Submission Has Commenced for Existing Colleges</a></span>
             </div>
         </div>
     </div>
 
-    
-
     <!-- ════ HERO CAROUSEL ════ -->
     <div id="rguhsCarousel" class="carousel slide rguhs-carousel" data-bs-ride="carousel" data-bs-interval="4500">
-
-        <!-- Indicators -->
         <div class="carousel-indicators">
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="4" aria-label="Slide 5"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="2"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="3"></button>
+            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="4"></button>
         </div>
-
-        <!-- Slides -->
         <div class="carousel-inner">
-
             <div class="carousel-item">
-                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm (1).jpeg"
-                     class="carousel-img"
-                     alt="Admissions 2026"
+                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm (1).jpeg" class="carousel-img" alt="Admissions 2026"
                      onerror="this.src='https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&q=80'" />
                 <div class="carousel-caption-custom">
                     <div class="cc-tag"><i class="bi bi-mortarboard-fill"></i> Admissions</div>
@@ -2026,11 +1832,8 @@
                     <div class="cc-sub">MBBS · BDS · B.Sc Nursing · B.Pharm · AYUSH · PG &amp; Ph.D programmes</div>
                 </div>
             </div>
-
             <div class="carousel-item active">
-                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm (1).jpeg"
-                     class="carousel-img"
-                     alt="RGUHS Campus – Main Building"
+                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm (1).jpeg" class="carousel-img" alt="RGUHS Campus"
                      onerror="this.src='https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=1600&q=80'" />
                 <div class="carousel-caption-custom">
                     <div class="cc-tag"><i class="bi bi-building"></i> Campus</div>
@@ -2038,11 +1841,8 @@
                     <div class="cc-sub">4th 'T' Block, Jayanagar, Bangalore – 560 041</div>
                 </div>
             </div>
-
             <div class="carousel-item">
-                <img src="~/images/campus2.jpg"
-                     class="carousel-img"
-                     alt="Medical Education"
+                <img src="~/images/campus2.jpg" class="carousel-img" alt="Medical Education"
                      onerror="this.src='https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1600&q=80'" />
                 <div class="carousel-caption-custom">
                     <div class="cc-tag"><i class="bi bi-heart-pulse-fill"></i> Medical</div>
@@ -2050,11 +1850,8 @@
                     <div class="cc-sub">Shaping the future of healthcare across Karnataka</div>
                 </div>
             </div>
-
             <div class="carousel-item">
-                <img src="~/images/campus3.jpg"
-                     class="carousel-img"
-                     alt="Pharmacy & Nursing"
+                <img src="~/images/campus3.jpg" class="carousel-img" alt="Pharmacy &amp; Nursing"
                      onerror="this.src='https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1600&q=80'" />
                 <div class="carousel-caption-custom">
                     <div class="cc-tag"><i class="bi bi-capsule-pill"></i> Pharmacy &amp; Nursing</div>
@@ -2062,11 +1859,8 @@
                     <div class="cc-sub">Pharmacy, Nursing, Physiotherapy, AYUSH &amp; Allied Health Sciences</div>
                 </div>
             </div>
-
             <div class="carousel-item">
-                <img src="~/images/whatsapp image 2026-04-23 at 1.20.42 pm.jpeg"
-                     class="carousel-img"
-                     alt="Research & Innovation"
+                <img src="~/images/whatsapp image 2026-04-23 at 1.20.42 pm.jpeg" class="carousel-img" alt="Research"
                      onerror="this.src='https://images.unsplash.com/photo-1532094349884-543559285b07?w=1600&q=80'" />
                 <div class="carousel-caption-custom">
                     <div class="cc-tag"><i class="bi bi-flask-fill"></i> Research</div>
@@ -2074,23 +1868,7 @@
                     <div class="cc-sub">Advancing health sciences through cutting-edge research &amp; Ph.D programmes</div>
                 </div>
             </div>
-
-            <div class="carousel-item">
-                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm (1).jpeg"
-                     class="carousel-img"
-                     alt="Admissions 2026"
-                     onerror="this.src='https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&q=80'" />
-                <div class="carousel-caption-custom">
-                    <div class="cc-tag"><i class="bi bi-mortarboard-fill"></i> Admissions</div>
-                    <div class="cc-title">Admissions Open — Academic Year 2026–27</div>
-                    <div class="cc-sub">MBBS · BDS · B.Sc Nursing · B.Pharm · AYUSH · PG &amp; Ph.D programmes</div>
-                </div>
-            </div>
-
-
         </div>
-
-        <!-- Controls -->
         <button class="carousel-control-prev rguhs-ctrl" type="button" data-bs-target="#rguhsCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
@@ -2099,9 +1877,42 @@
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
         </button>
-
     </div>
-    <!-- /carousel -->
+
+    <!-- ════ STATS STRIP ════ -->
+    <div class="stats-strip">
+        <div class="stats-inner">
+            <div class="stat-item">
+                <div class="stat-icon"><i class="bi bi-building-fill"></i></div>
+                <div>
+                    <div class="stat-num">@Model.TotalColleges</div>
+                    <div class="stat-lbl">Affiliated Colleges</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="bi bi-diagram-3-fill"></i></div>
+                <div>
+                    <div class="stat-num">@Model.Faculties.Count</div>
+                    <div class="stat-lbl">Streams</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="bi bi-mortarboard-fill"></i></div>
+                <div>
+                    <div class="stat-num">2026</div>
+                    <div class="stat-lbl">Academic Year</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                <div>
+                    <div class="stat-num">KA</div>
+                    <div class="stat-lbl">Karnataka</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ════ BODY LAYOUT ════ -->
     <div class="body-layout" id="bodyLayout">
 
@@ -2121,19 +1932,19 @@
                     string allUrl = Url.Action("Rguhsdashboard", new { faculty = "ALL", search = Model.SearchTerm });
                 }
                 <a class="fac-chip @(allActive ? "active" : "")" href="@allUrl">
-                    <span class="chip-icon">🏛️</span>All Streams<span class="chip-cnt">@Model.TotalColleges</span>
+                    🏛️ All Streams <span class="chip-cnt">@Model.TotalColleges</span>
                 </a>
                 @foreach (var fac in Model.Faculties)
                 {
                     bool isActive = Model.ActiveFaculty == fac.FacultyId;
                     string facUrl = Url.Action("Rguhsdashboard", new { faculty = fac.FacultyId, search = Model.SearchTerm });
                     <a class="fac-chip @(isActive ? "active" : "")" href="@facUrl">
-                        <span class="chip-icon">@fac.Icon</span>@fac.FacultyName<span class="chip-cnt">@fac.CollegeCount</span>
+                        @fac.Icon @fac.FacultyName <span class="chip-cnt">@fac.CollegeCount</span>
                     </a>
                 }
             </div>
 
-            <!-- Search Form -->
+            <!-- Search / Filter Bar -->
             <form method="get" action="@Url.Action("Rguhsdashboard")" class="filter-bar">
                 <input type="hidden" name="faculty" value="@Model.ActiveFaculty" />
                 <div class="search-field">
@@ -2164,7 +1975,7 @@
                         @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.ActiveFaculty != "ALL")
                         {
                             <a href="@Url.Action("Rguhsdashboard")"
-                               style="display:inline-flex;align-items:center;gap:5px;margin-top:12px;color:var(--royal);font-weight:600;text-decoration:none;">
+                               style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:var(--blue-400);font-weight:600;text-decoration:none;font-size:13px;">
                                 <i class="bi bi-arrow-left"></i> Show all colleges
                             </a>
                         }
@@ -2181,21 +1992,15 @@
                         <div class="c-card"
                              onclick="openCollegeModal('@c.CollegeCode','@safeName','@safeTown','@safeFac')"
                              title="Click to view courses">
-                            @* <div class="c-top">
-                                <span class="c-code" style="display:none;">@c.CollegeCode</span>
-                                <span class="c-dot" title="Affiliated &amp; Active"></span>
-                            </div> *@
-                            <div class="c-name">
-                                @c.CollegeName
-                                <div class="c-foot">
-                                    <span class="c-town">
-                                        <i class="bi bi-geo-alt-fill" style="color:var(--royal);font-size:10.5px"></i>@c.CollegeTown
-                                    </span>
-                                    <span class="c-fac">@c.FacultyIcon @c.FacultyName</span>
-                                </div>
+                            <div class="c-name">@c.CollegeName</div>
+                            <div class="c-meta">
+                                <span class="c-town">
+                                    <i class="bi bi-geo-alt-fill"></i>@c.CollegeTown
+                                </span>
+                                <span class="c-fac">@c.FacultyIcon @c.FacultyName</span>
                             </div>
-                            <div class="c-view-label">
-                                <i class="bi bi-arrow-up-right-circle-fill"></i> View Courses
+                            <div class="c-arrow">
+                                View Courses <i class="bi bi-arrow-up-right"></i>
                             </div>
                         </div>
                     }
@@ -2203,44 +2008,44 @@
             </div>
 
         </div><!-- /main-pane -->
-        <!-- SIDEBAR -->
+        <!-- ════ SIDEBAR ════ -->
         <aside class="side-pane">
 
             <div class="widget">
                 <div class="w-head"><i class="bi bi-bell-fill"></i><h4>Updates &amp; Notifications</h4></div>
                 <ul class="upd-list">
                     <li class="upd-item">
-                        <span class="u-tag tag-new">NEW</span>
+                        <span class="u-tag tag-new">New</span>
                         <a href="https://sscptumkur.org/wp-content/uploads/2025/12/Calender-of-Events-RGUHS-2025-26.pdf" target="_blank">Calendar of Events for Academic Year 2025–26 Released</a>
                         <div class="upd-date"><i class="bi bi-calendar3"></i> March 2025</div>
                     </li>
                     <li class="upd-item">
-                        <span class="u-tag tag-imp">IMPORTANT</span>
+                        <span class="u-tag tag-imp">Important</span>
                         <a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">NEET UG Counselling 2025 – Online Admission Statement Submission</a>
                         <div class="upd-date"><i class="bi bi-calendar3"></i> Registration Open</div>
                     </li>
                     <li class="upd-item">
-                        <span class="u-tag tag-imp">CIRCULAR</span>
+                        <span class="u-tag tag-imp">Circular</span>
                         <a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank">Eligibility Certificate Mandatory for Foreign / NRI Candidates 2025–26</a>
                         <div class="upd-date"><i class="bi bi-calendar3"></i> Dec 2025</div>
                     </li>
                     <li class="upd-item">
-                        <span class="u-tag tag-info">INFO</span>
+                        <span class="u-tag tag-info">Info</span>
                         <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank">RGUHS AYUSH UG Cutoff 2025 Released – Round-wise</a>
                         <div class="upd-date"><i class="bi bi-calendar3"></i> 25 Nov 2025</div>
                     </li>
                     <li class="upd-item">
-                        <span class="u-tag tag-new">NEW</span>
+                        <span class="u-tag tag-new">New</span>
                         <a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">B.Sc / M.Sc / Ph.D Admissions 2026 – Applications Open</a>
                         <div class="upd-date"><i class="bi bi-calendar3"></i> 2026 Session</div>
                     </li>
                     <li class="upd-item">
-                        <span class="u-tag tag-imp">DIRECTIVE</span>
+                        <span class="u-tag tag-imp">Directive</span>
                         <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank">Colleges must return original documents &amp; refund fees for withdrawing students</a>
                         <div class="upd-date"><i class="bi bi-calendar3"></i> University Order</div>
                     </li>
                     <li class="upd-item">
-                        <span class="u-tag tag-info">RESULTS</span>
+                        <span class="u-tag tag-info">Results</span>
                         <a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank">Examination Results Portal – Check UG / PG Results Online</a>
                         <div class="upd-date"><i class="bi bi-calendar3"></i> Updated Regularly</div>
                     </li>
@@ -2256,7 +2061,6 @@
                     <a class="qlink" href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank"><i class="bi bi-bell"></i>Circulars</a>
                     <a class="qlink" href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-bank2"></i>RGUHS Site</a>
                     <a class="qlink" href="mailto:registrar@rguhs.ac.in"><i class="bi bi-envelope-at"></i>Email Reg.</a>
-                    @* <a class="qlink" href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-folder2-open"></i>Affiliation</a> *@
                     <a class="qlink" href="https://www.rguhsaca.karnataka.gov.in/GuideRegistrationApplication/Home/Contact" target="_blank"><i class="bi bi-life-preserver"></i>Help Desk</a>
                 </div>
             </div>
@@ -2274,7 +2078,7 @@
                     </div>
                     <div class="hl-row">
                         <div class="hl-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                        <div><div class="hl-lbl">Address</div><div class="hl-val" style="font-weight:400;font-size:11.5px">4th 'T' Block, Jayanagar,<br>Bangalore – 560 041</div></div>
+                        <div><div class="hl-lbl">Address</div><div class="hl-val" style="font-weight:400;font-size:11.5px;">4th 'T' Block, Jayanagar,<br>Bangalore – 560 041</div></div>
                     </div>
                     <div class="hl-row">
                         <div class="hl-icon"><i class="bi bi-globe2"></i></div>
@@ -2284,14 +2088,13 @@
             </div>
 
         </aside>
-
     </div><!-- /body-layout -->
     <!-- ════ FOOTER ════ -->
     <footer class="site-footer">
         <div class="footer-grid">
             <div>
                 <div class="foot-brand">
-                    <div class="foot-logo">RG</div>
+                    <div class="foot-monogram">RG</div>
                     <div class="foot-name">Rajiv Gandhi University of Health Sciences<span>Karnataka, India — Estd. 1996</span></div>
                 </div>
                 <p class="foot-desc">RGUHS is the apex body for health sciences education in Karnataka, overseeing affiliated medical, dental, nursing, pharmacy and allied health colleges. Recognised by UGC, NMC &amp; ACU. NAAC Accredited.</p>
@@ -2336,104 +2139,88 @@
         </div>
     </footer>
 
-    <!-- ════════════════════════════════════════════════════
-         COLLEGE COURSES MODAL
-    ════════════════════════════════════════════════════ -->
+    <!-- ════ COLLEGE COURSES MODAL ════ -->
     <div class="modal fade" id="collegeModal" tabindex="-1" aria-labelledby="collegeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" style="border:none;border-radius:18px;overflow:hidden;box-shadow:0 32px 90px rgba(4,16,31,.32);">
+            <div class="modal-content" style="border:none;border-radius:18px;overflow:hidden;box-shadow:var(--shadow-xl);">
 
-                <!-- Header -->
                 <div class="modal-header modal-course-header">
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:10px;color:rgba(255,255,255,.45);letter-spacing:1.3px;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:6px;">
+                        <div style="font-size:9px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:6px;">
                             <i class="bi bi-building"></i> Affiliated College &nbsp;·&nbsp; RGUHS Karnataka
                         </div>
                         <h5 class="modal-title" id="collegeModalLabel"
-                            style="font-family:'Playfair Display',Georgia,serif;color:#fff;font-size:18px;font-weight:700;line-height:1.3;margin:0;">
+                            style="font-family:'Playfair Display',Georgia,serif;color:#fff;font-size:21px;font-weight:600;line-height:1.3;margin:0;letter-spacing:.1px;">
                             —
                         </h5>
-                        <div id="modalMeta" style="font-size:11.5px;color:rgba(255,255,255,.5);margin-top:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;"></div>
+                        <div id="modalMeta" style="font-size:11.5px;color:rgba(255,255,255,.4);margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"></div>
                     </div>
-                    <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="modal" aria-label="Close" style="opacity:.65;flex-shrink:0;"></button>
+                    <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="modal" aria-label="Close" style="opacity:.45;flex-shrink:0;"></button>
                 </div>
 
-                <!-- Summary strip -->
                 <div class="modal-summary-strip" id="modalSummary"></div>
 
-                <!-- Body -->
                 <div class="modal-body" style="padding:0;">
-                    <div style="padding:20px 24px 24px;">
-
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-                            <div style="font-family:'Playfair Display',Georgia,serif;font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;">
-                                <i class="bi bi-journal-bookmark-fill" style="color:var(--royal);"></i>
+                    <div style="padding:24px 28px 28px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px;">
+                            <div style="font-family:'Playfair Display',Georgia,serif;font-size:17px;font-weight:600;color:var(--navy-700);display:flex;align-items:center;gap:9px;letter-spacing:.1px;">
+                                <i class="bi bi-journal-bookmark-fill" style="color:var(--blue-400);font-size:15px;"></i>
                                 Courses &amp; Intake Details
                             </div>
                             <div id="modalCourseCount"
-                                 style="background:var(--royal);color:#fff;font-size:10px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:.8px;">
-                            </div>
+                                 style="background:var(--navy-800);color:var(--gold-300);font-size:9px;font-weight:700;padding:4px 14px;border-radius:4px;letter-spacing:1.2px;border:1px solid rgba(224,172,42,.2);"></div>
                         </div>
 
-                        <!-- Spinner -->
                         <div id="modalSpinner" class="text-center py-5">
                             <div class="spinner-border" role="status"
-                                 style="width:2.4rem;height:2.4rem;border-width:.24em;color:var(--royal);">
+                                 style="width:2.2rem;height:2.2rem;border-width:.2em;color:var(--blue-400);">
                                 <span class="visually-hidden">Loading…</span>
                             </div>
-                            <div style="font-size:12px;color:var(--muted);margin-top:12px;">Fetching course data…</div>
+                            <div style="font-size:12px;color:var(--neutral-400);margin-top:14px;letter-spacing:.3px;">Fetching course data…</div>
                         </div>
 
-                        <!-- Error -->
-                        <div id="modalError" style="display:none;text-align:center;padding:40px 0;">
-                            <div style="font-size:42px;opacity:.25;margin-bottom:12px;">⚠️</div>
-                            <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:5px;">Could not load data</div>
-                            <div style="font-size:12px;color:var(--muted);">Please check your connection and try again.</div>
+                        <div id="modalError" style="display:none;text-align:center;padding:44px 0;">
+                            <div style="font-size:40px;opacity:.18;margin-bottom:14px;">⚠️</div>
+                            <div style="font-size:14px;font-weight:600;color:var(--navy-700);margin-bottom:5px;">Could not load data</div>
+                            <div style="font-size:12px;color:var(--neutral-400);">Please check your connection and try again.</div>
                         </div>
 
-                        <!-- Empty -->
-                        <div id="modalEmpty" style="display:none;text-align:center;padding:40px 0;">
-                            <div style="font-size:42px;opacity:.25;margin-bottom:12px;">📭</div>
-                            <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:5px;">No courses found</div>
-                            <div style="font-size:12px;color:var(--muted);">No course records are available for this college.</div>
+                        <div id="modalEmpty" style="display:none;text-align:center;padding:44px 0;">
+                            <div style="font-size:40px;opacity:.18;margin-bottom:14px;">📭</div>
+                            <div style="font-size:14px;font-weight:600;color:var(--navy-700);margin-bottom:5px;">No courses found</div>
+                            <div style="font-size:12px;color:var(--neutral-400);">No course records are available for this college.</div>
                         </div>
 
-                        <!-- Table -->
-                        <div id="modalTableWrap" style="display:none;overflow-x:auto;border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow-sm);">
+                        <div id="modalTableWrap" style="display:none;overflow-x:auto;border-radius:10px;border:1px solid var(--neutral-200);box-shadow:var(--shadow-sm);">
                             <table class="course-table">
                                 <thead>
                                     <tr>
-                                        <th style="width:40px;">SlNo</th>
-                                        <th class="col-course-code">Course Code</th>
+                                        <th style="width:40px;">Sl.</th>
+                                        <th class="col-course-code">Code</th>
                                         <th>Course Name</th>
-                                        <th style="width:110px;text-align:center;">Existing Intake</th>
+                                        <th style="width:120px;text-align:center;">Intake</th>
                                     </tr>
                                 </thead>
                                 <tbody id="modalTableBody"></tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
 
-                <!-- Footer -->
-                <div class="modal-footer" style="border-top:1px solid var(--border);padding:12px 24px;background:var(--off);justify-content:space-between;flex-wrap:wrap;gap:8px;">
-                    <div style="font-size:10.5px;color:var(--muted);display:flex;align-items:center;gap:5px;">
-                        <i class="bi bi-shield-check" style="color:var(--royal);"></i>
+                <div class="modal-footer" style="border-top:1px solid var(--neutral-200);padding:13px 28px;background:var(--neutral-50);justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                    <div style="font-size:10.5px;color:var(--neutral-400);display:flex;align-items:center;gap:5px;">
+                        <i class="bi bi-shield-check" style="color:var(--blue-400);"></i>
                         Data sourced from RGUHS Affiliation Records
                     </div>
                     <button type="button" class="btn-clr" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle"></i> Close
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
-    <!-- /modal -->
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script>
         /* ── Live clock ── */
         function tick() {
@@ -2445,13 +2232,6 @@
                 now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
         tick(); setInterval(tick, 1000);
-
-        /* ── Mobile nav toggle ── */
-        var toggle = document.getElementById('navToggle');
-        var navLinks = document.getElementById('navLinks');
-        if (toggle && navLinks) {
-            toggle.addEventListener('click', function () { navLinks.classList.toggle('open'); });
-        }
 
         /* ── Body layout height (desktop) ── */
         function fitLayout() {
@@ -2466,87 +2246,67 @@
         fitLayout();
         window.addEventListener('resize', fitLayout);
 
-        /* ════════════════════════════════════════
-           COLLEGE COURSES MODAL
-        ════════════════════════════════════════ */
+        /* ── College modal ── */
         var _modal = new bootstrap.Modal(document.getElementById('collegeModal'));
-
-        /* ── Pre-render the URL server-side so it works in any hosted sub-path ── */
         var _collegeCoursesUrl = '@Url.Action("CollegeCourses", "MainDashboard")';
 
         function openCollegeModal(code, name, town, faculty) {
-
             document.getElementById('collegeModalLabel').textContent = name;
             document.getElementById('modalMeta').innerHTML =
-                '<span style="display:inline-flex;align-items:center;gap:4px;"><i class="bi bi-geo-alt-fill" style="color:#7aadff;"></i>' + town + '</span>' +
-                '<span style="opacity:.35;">·</span>' +
-                '<span style="display:inline-flex;align-items:center;gap:4px;"><i class="bi bi-mortarboard-fill" style="color:#7aadff;"></i>' + faculty + '</span>';
+                '<span style="display:inline-flex;align-items:center;gap:4px;"><i class="bi bi-geo-alt-fill" style="color:#7eb8f7;font-size:10px;"></i>' + town + '</span>' +
+                '<span style="opacity:.25;">·</span>' +
+                '<span style="display:inline-flex;align-items:center;gap:4px;"><i class="bi bi-mortarboard-fill" style="color:#7eb8f7;font-size:10px;"></i>' + faculty + '</span>';
 
             document.getElementById('modalSummary').innerHTML       = '';
             document.getElementById('modalSpinner').style.display   = 'block';
             document.getElementById('modalError').style.display     = 'none';
             document.getElementById('modalEmpty').style.display     = 'none';
             document.getElementById('modalTableWrap').style.display = 'none';
-            document.getElementById('modalCourseCount').textContent  = '';
+            document.getElementById('modalCourseCount').textContent = '';
 
             _modal.show();
 
             fetch(_collegeCoursesUrl + '?collegeCode=' + encodeURIComponent(code))
-                .then(function (res) {
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    return res.json();
-                })
-                .then(function (data) {
+                .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                .then(function(data) {
                     document.getElementById('modalSpinner').style.display = 'none';
-
                     if (!data || data.length === 0) {
-                        document.getElementById('modalEmpty').style.display = 'block';
-                        return;
+                        document.getElementById('modalEmpty').style.display = 'block'; return;
                     }
-
-                    var totalIntake = data.reduce(function (s, x) { return s + (x.existingIntake || 0); }, 0);
+                    var totalIntake = data.reduce(function(s,x) { return s + (x.existingIntake || 0); }, 0);
                     document.getElementById('modalSummary').innerHTML =
-                        makeSummaryPill('bi-journal-bookmark-fill', data.length, 'Total Courses') +
-                        makeSummaryPill('bi-people-fill',           totalIntake,  'Total Intake');
+                        makePill('bi-journal-bookmark-fill', data.length, 'Total Courses') +
+                        makePill('bi-people-fill', totalIntake, 'Total Intake');
+                    document.getElementById('modalCourseCount').textContent = data.length + ' COURSE' + (data.length !== 1 ? 'S' : '');
 
-                    document.getElementById('modalCourseCount').textContent =
-                        data.length + ' COURSE' + (data.length !== 1 ? 'S' : '');
-
-                    var rows = data.map(function (row, i) {
-                        var intake = (row.existingIntake !== null && row.existingIntake !== undefined)
-                            ? row.existingIntake : null;
-
-                        var intakeCell = intake !== null && intake > 0
+                    var rows = data.map(function(row, i) {
+                        var intake = (row.existingIntake !== null && row.existingIntake !== undefined) ? row.existingIntake : null;
+                        var cell = intake !== null && intake > 0
                             ? '<span class="intake-badge intake-badge-filled">' + intake + '</span>'
                             : '<span class="intake-badge intake-badge-zero">—</span>';
-
                         return '<tr>' +
-                            '<td class="td-num">' + (i + 1) + '</td>' +
-                            '<td class="col-course-code"><span class="td-code">' + (row.courseCode || '—') + '</span></td>' +
-                            '<td style="font-weight:500;line-height:1.5;color:var(--navy);">' + (row.courseName || '—') + '</td>' +
-                            '<td style="text-align:center;">' + intakeCell + '</td>' +
+                            '<td class="td-num">' + (i+1) + '</td>' +
+                            '<td class="col-course-code"><span class="td-code">' + (row.courseCode||'—') + '</span></td>' +
+                            '<td style="font-weight:500;line-height:1.6;color:var(--neutral-700);">' + (row.courseName||'—') + '</td>' +
+                            '<td style="text-align:center;">' + cell + '</td>' +
                             '</tr>';
                     }).join('');
 
                     document.getElementById('modalTableBody').innerHTML = rows;
                     document.getElementById('modalTableWrap').style.display = 'block';
                 })
-                .catch(function () {
+                .catch(function() {
                     document.getElementById('modalSpinner').style.display = 'none';
                     document.getElementById('modalError').style.display   = 'block';
                 });
         }
 
-        function makeSummaryPill(icon, value, label) {
+        function makePill(icon, value, label) {
             return '<div class="modal-summary-pill">' +
                 '<div class="msp-icon"><i class="bi ' + icon + '"></i></div>' +
-                '<div>' +
-                    '<div class="msp-num">' + value + '</div>' +
-                    '<div class="msp-lbl">' + label + '</div>' +
-                '</div>' +
+                '<div><div class="msp-num">' + value + '</div><div class="msp-lbl">' + label + '</div></div>' +
                 '</div>';
         }
     </script>
-
 </body>
 </html>
