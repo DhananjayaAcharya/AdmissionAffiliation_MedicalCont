@@ -6,13 +6,54 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class Aff_CA_SS_CoursesAppliedSSController : BaseController
+    public class Aff_CA_SS_CoursesAppliedSSController : Controller
     {
         private readonly ApplicationDbContext _context;
 
         public Aff_CA_SS_CoursesAppliedSSController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        private const long MaxFileSize = 2 * 1024 * 1024;
+
+        private async Task<string?> SaveSSFileAsync(
+        IFormFile? file,
+        string folder)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            string basePath =
+                @"D:\Affiliation_Medical\SSCoursesApplied";
+
+            string fullFolder =
+                Path.Combine(basePath, folder);
+
+            if (!Directory.Exists(fullFolder))
+                Directory.CreateDirectory(fullFolder);
+
+            string savedName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
+
+            string fullPath =
+                Path.Combine(fullFolder, savedName);
+
+            using (var stream =
+               new FileStream(
+                   fullPath,
+                   FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;   // returns D:\....pdf
+        }
+
+        private bool FileTooLarge(IFormFile file)
+        {
+            return file != null && file.Length > MaxFileSize;
         }
 
         // ===========================
@@ -23,16 +64,55 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
-            var levels = HttpContext.Session.GetString("ExistingCourseLevels");
-            bool isSS = levels.Contains("SS");
+            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            //if (string.IsNullOrEmpty(courseLevel))
+            //{
+            //    TempData["Error"] = "Session expired. Please select the course level from the menu again.";
+            //    return RedirectToAction("Index", "Home");
+            //}
+
+
+            // OLD
+            // var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            // NEW
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
 
             if (string.IsNullOrEmpty(collegeCode))
                 return RedirectToAction("Login", "Account");
 
-            if (!isSS)
+            List<string> existingCourseLevels;
+
+            if (string.IsNullOrWhiteSpace(raw))
             {
-                TempData["Error"] = "Session expired. Please select the course level from the menu again.";
+                existingCourseLevels = new List<string> { "SS" };
+            }
+            else
+            {
+                try
+                {
+                    existingCourseLevels =
+                        System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(raw)
+                        ?? new List<string> { "SS" };
+                }
+                catch
+                {
+                    existingCourseLevels =
+                        raw.Split(',')
+                           .Select(x => x.Trim().ToUpper())
+                           .Where(x => !string.IsNullOrEmpty(x))
+                           .Distinct()
+                           .ToList();
+                }
+            }
+
+            if (!existingCourseLevels.Any())
+            {
+                TempData["Error"] =
+                    "Session expired. Please select the course level from the menu again.";
+
                 return RedirectToAction("Index", "Home");
             }
 
@@ -83,7 +163,8 @@ namespace Medical_Affiliation.Controllers
                     into gj
                 from c in gj.Where(x => x.CollegeCode == collegeCode).DefaultIfEmpty()
                 where m.FacultyCode == 1
-                      && m.CourseLevel == "SS"
+                      //&& m.CourseLevel == courseLevel
+                      && existingCourseLevels.Contains(m.CourseLevel)
                       && m.CoursePrefix == "D.M."
                 select new SSCourseRow
                 {
@@ -105,7 +186,7 @@ namespace Medical_Affiliation.Controllers
                     into gj
                 from c in gj.Where(x => x.CollegeCode == collegeCode).DefaultIfEmpty()
                 where m.FacultyCode == 1
-                      && m.CourseLevel == "SS"
+                      && existingCourseLevels.Contains(m.CourseLevel)
                       && m.CoursePrefix.Replace(".", "").Replace(" ", "").ToUpper() == "MCH"
                 select new SSCourseRow
                 {
@@ -119,7 +200,8 @@ namespace Medical_Affiliation.Controllers
             // 3.a LOP
             // =====================================================
             var savedLop = await _context.CaSsLopsavedDates
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
+               .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             vm.LopList.Clear();
@@ -144,7 +226,8 @@ namespace Medical_Affiliation.Controllers
             // 3.b.i Particulars
             // =====================================================
             var savedPerm = await _context.CaSsPermissions
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
+               .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             vm.PermissionList.Clear();
@@ -170,7 +253,7 @@ namespace Medical_Affiliation.Controllers
                     Id = existing?.Id ?? 0,
                     PermissionStatus = existing?.PermissionStatus,
                     ExistingFileName = existing?.FileName,
-                    HasFile = existing?.FileData != null && existing.FileData.Length > 0
+                    HasFile = !string.IsNullOrEmpty(existing?.FilePath)
                 });
             }
 
@@ -178,7 +261,8 @@ namespace Medical_Affiliation.Controllers
             // 3.b.ii Affiliation
             // =====================================================
             var savedAff = await _context.CaSsAffiliationGrantedYears
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
+                .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             vm.AffiliationList.Clear();
@@ -195,7 +279,7 @@ namespace Medical_Affiliation.Controllers
                     AffiliationDate = existing?.AffiliationDate?.ToDateTime(TimeOnly.MinValue),
                     SanctionedIntake = c.PresentIntake ?? 0,
                     FileName = existing?.FileName,
-                    HasFile = existing?.FileData != null && existing.FileData.Length > 0
+                    HasFile = !string.IsNullOrEmpty(existing?.FilePath)
                 });
             }
 
@@ -203,7 +287,8 @@ namespace Medical_Affiliation.Controllers
             // 3.b.iii LIC
             // =====================================================
             var savedLIC = await _context.CaSsLicpreviousInspections
-               .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
+              .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             vm.LICInspections.Clear();
@@ -225,14 +310,21 @@ namespace Medical_Affiliation.Controllers
             // =====================================================
             // 3.b.iv Other Courses
             // =====================================================
+            //var mstCourses = await _context.MstCourses
+            //    .Where(x => x.CollegeCode == collegeCode &&
+            //existingCourseLevels.Contains(x.CoursesApplied))
+            //    .ToListAsync();
+
             var mstCourses = await _context.MstCourses
-                .Where(x => x.FacultyCode == 1 && x.CourseLevel == "SS")
-                .ToListAsync();
+               .Where(x => x.FacultyCode == 1
+                        && existingCourseLevels.Contains(x.CourseLevel))
+               .ToListAsync();
 
             var allCourseNames = mstCourses.Select(x => x.CourseName).Distinct().ToList();
 
             var savedOther = await _context.CaSsOtherCoursesConducteds
-                .Where(x => x.CollegeCode == collegeCode && x.CourseLevel == "SS")
+               .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             var savedCourseNames = savedOther.Select(x => x.CourseName).ToList();
@@ -249,7 +341,10 @@ namespace Medical_Affiliation.Controllers
                 {
                     Id = row.Id,
                     CourseName = row.CourseName,
-                    ExistingFileName = row.FileName ?? "View File",
+                    ExistingFileName =
+                                       !string.IsNullOrEmpty(row.DocumentPath)
+                                          ? row.FileName
+                                          : null,
                     CourseList = availableForThisRow
                 });
             }
@@ -439,7 +534,6 @@ namespace Medical_Affiliation.Controllers
 
             TempData["Success"] = "Saved Successfully";
 
-
             return RedirectToAction(nameof(CA_SS_SSCourseParticulars));
         }
 
@@ -458,19 +552,99 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
-            // ================= VALIDATION =================
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
 
-            foreach (var row in model.LICInspections)
+            List<string> existingCourseLevels;
+
+            if (string.IsNullOrWhiteSpace(raw))
             {
-                // If date is entered, action is mandatory
-                if (row.InspectionDate.HasValue &&
-                    string.IsNullOrWhiteSpace(row.ActionTaken))
+                existingCourseLevels = new List<string> { "SS" };
+            }
+            else
+            {
+                try
                 {
-                    ModelState.AddModelError("",
-                        $"Action is required for {row.CourseName}");
+                    existingCourseLevels =
+                        System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(raw)
+                        ?? new List<string> { "SS" };
+                }
+                catch
+                {
+                    existingCourseLevels =
+                        raw.Split(',')
+                           .Select(x => x.Trim().ToUpper())
+                           .Where(x => !string.IsNullOrEmpty(x))
+                           .Distinct()
+                           .ToList();
                 }
             }
 
+            // ================= VALIDATION =================
+
+            bool hasAnyData = false;
+            foreach (var row in model.LICInspections)
+            {
+                bool hasDate =
+                    row.InspectionDate.HasValue;
+
+                bool hasAction =
+                    !string.IsNullOrWhiteSpace(
+                        row.ActionTaken);
+
+                if (hasDate || hasAction)
+                    hasAnyData = true;
+
+                if (hasDate && !hasAction)
+                {
+                    TempData["Error"] =
+                        $"Action is required for {row.CourseName}";
+                    return RedirectToAction(nameof(CA_SS_CoursesApplied));
+                }
+
+                if (!hasDate && hasAction)
+                {
+                    TempData["Error"] =
+                        $"Inspection Date is required for {row.CourseName}";
+                    return RedirectToAction(nameof(CA_SS_CoursesApplied));
+                }
+
+                if (!hasDate)
+                    continue;
+
+                var entity =
+                  await _context.CaSsLicpreviousInspections
+                  .FirstOrDefaultAsync(x =>
+                     x.CollegeCode == collegeCode &&
+                     x.CourseName == row.CourseName);
+
+                if (entity == null)
+                {
+                    entity =
+                      new CaSsLicpreviousInspection
+                      {
+                          CollegeCode = collegeCode,
+                          CourseName = row.CourseName
+                      };
+
+                    _context.CaSsLicpreviousInspections
+                        .Add(entity);
+                }
+
+                entity.CoursesApplied = "SS";
+
+                entity.InspectionDate =
+                  DateOnly.FromDateTime(
+                     row.InspectionDate.Value);
+
+                entity.ActionTaken =
+                   row.ActionTaken;
+            }
+            if (!hasAnyData)
+            {
+                TempData["Info"] = "No new data entered to save.";
+                return RedirectToAction(nameof(CA_SS_CoursesApplied));
+            }
             // If validation failed → Reload page with data
             if (!ModelState.IsValid)
             {
@@ -482,39 +656,7 @@ namespace Medical_Affiliation.Controllers
 
             // ================= SAVE =================
 
-            foreach (var row in model.LICInspections)
-            {
-                // If no date → ignore
-                if (!row.InspectionDate.HasValue)
-                    continue;
 
-                var entity = await _context.CaSsLicpreviousInspections
-                    .FirstOrDefaultAsync(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.CourseName == row.CourseName);
-
-                // If not exists → insert
-                if (entity == null)
-                {
-                    entity = new CaSsLicpreviousInspection
-                    {
-                        CollegeCode = collegeCode,
-                        CourseName = row.CourseName
-                    };
-
-                    _context.CaSsLicpreviousInspections.Add(entity);
-                }
-
-                entity.CoursesApplied = courseLevel;
-
-
-
-                // Update
-                entity.InspectionDate =
-                    DateOnly.FromDateTime(row.InspectionDate.Value);
-
-                entity.ActionTaken = row.ActionTaken;
-            }
 
             await _context.SaveChangesAsync();
 
@@ -532,10 +674,60 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+
+            List<string> existingCourseLevels;
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                existingCourseLevels = new List<string> { "SS" };
+            }
+            else
+            {
+                try
+                {
+                    existingCourseLevels =
+                        System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(raw)
+                        ?? new List<string> { "SS" };
+                }
+                catch
+                {
+                    existingCourseLevels =
+                        raw.Split(',')
+                           .Select(x => x.Trim().ToUpper())
+                           .Where(x => !string.IsNullOrEmpty(x))
+                           .Distinct()
+                           .ToList();
+                }
+            }
+
+            bool hasAnyData = false;
             foreach (var row in model.LopList)
             {
-                if (row.LopDate == null && row.RecognitionDate == null)
+                bool hasLop = row.LopDate.HasValue;
+                bool hasRecognition = row.RecognitionDate.HasValue;
+
+                if (hasLop || hasRecognition)
+                    hasAnyData = true;
+
+                // both blank → ignore
+                if (!hasLop && !hasRecognition)
                     continue;
+
+                if (hasLop && !hasRecognition)
+                {
+                    TempData["Error"] =
+                        $"Recognition Date is required for {row.CourseName}";
+                    return RedirectToAction(nameof(CA_SS_CoursesApplied));
+                }
+
+                if (!hasLop && hasRecognition)
+                {
+                    TempData["Error"] =
+                        $"Date of LOP is required for {row.CourseName}";
+                    return RedirectToAction(nameof(CA_SS_CoursesApplied));
+                }
 
                 var entity = await _context.CaSsLopsavedDates
                     .FirstOrDefaultAsync(x =>
@@ -549,25 +741,26 @@ namespace Medical_Affiliation.Controllers
                         CollegeCode = collegeCode,
                         CourseCode = row.CourseCode,
                         CourseName = row.CourseName
-
                     };
 
                     _context.CaSsLopsavedDates.Add(entity);
                 }
 
-                entity.CoursesApplied = courseLevel;   // ✅ ADD THIS LINE
+                entity.CoursesApplied = "SS";
 
-                // ✅ Convert DateTime? → DateOnly?
-                entity.LopDate = row.LopDate.HasValue
-                    ? DateOnly.FromDateTime(row.LopDate.Value)
-                    : null;
+                entity.LopDate =
+                    DateOnly.FromDateTime(row.LopDate.Value);
 
-                entity.RecognitionDate = row.RecognitionDate.HasValue
-                    ? DateOnly.FromDateTime(row.RecognitionDate.Value)
-                    : null;
+                entity.RecognitionDate =
+                    DateOnly.FromDateTime(row.RecognitionDate.Value);
 
-                entity.SanctionedIntake = row.SanctionedIntake;
-
+                entity.SanctionedIntake =
+                    row.SanctionedIntake;
+            }
+            if (!hasAnyData)
+            {
+                TempData["Info"] = "No new data entered to save.";
+                return RedirectToAction(nameof(CA_SS_CoursesApplied));
             }
 
             await _context.SaveChangesAsync();
@@ -637,55 +830,111 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+
+            List<string> existingCourseLevels;
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                existingCourseLevels = new List<string> { "SS" };
+            }
+            else
+            {
+                try
+                {
+                    existingCourseLevels =
+                        System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(raw)
+                        ?? new List<string> { "SS" };
+                }
+                catch
+                {
+                    existingCourseLevels =
+                        raw.Split(',')
+                           .Select(x => x.Trim().ToUpper())
+                           .Where(x => !string.IsNullOrEmpty(x))
+                           .Distinct()
+                           .ToList();
+                }
+            }
+
+
+            bool hasAnyData = false;
             foreach (var row in model.PermissionList)
             {
+                if (!string.IsNullOrEmpty(row.PermissionStatus)
+                    || row.PermissionFile != null)
+                {
+                    hasAnyData = true;
+                }
+
                 if (string.IsNullOrEmpty(row.PermissionStatus))
                     continue;
 
-                byte[] fileData = null;
                 string fileName = null;
+                string filePath = null;
 
-                if (row.PermissionFile != null && row.PermissionFile.Length > 0)
+                if (FileTooLarge(row.PermissionFile))
                 {
-                    using var ms = new MemoryStream();
-                    await row.PermissionFile.CopyToAsync(ms);
-                    fileData = ms.ToArray();
-                    fileName = row.PermissionFile.FileName;
+                    TempData["Error"] = "File size cannot exceed 2 MB";
+                    return RedirectToAction(nameof(CA_SS_CoursesApplied));
                 }
 
-                var entity = await _context.CaSsPermissions
-                    .FirstOrDefaultAsync(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.CourseCode == row.CourseCode);
+                if (row.PermissionFile != null &&
+                   row.PermissionFile.Length > 0)
+                {
+                    var path =
+                        await SaveSSFileAsync(
+                            row.PermissionFile,
+                            "ParticularsDocs");
+
+                    filePath = path;
+                    fileName =
+                        row.PermissionFile.FileName;
+                }
+
+                var entity =
+                   await _context.CaSsPermissions
+                   .FirstOrDefaultAsync(x =>
+                      x.CollegeCode == collegeCode &&
+                      x.CourseCode == row.CourseCode);
 
                 if (entity == null)
                 {
-                    entity = new CaSsPermission
-                    {
-                        CollegeCode = collegeCode,
-                        CourseCode = row.CourseCode,
-                        CourseName = row.CourseName,
-                        CreatedOn = DateTime.Now
-                    };
+                    entity =
+                      new CaSsPermission
+                      {
+                          CollegeCode = collegeCode,
+                          CourseCode = row.CourseCode,
+                          CourseName = row.CourseName,
+                          CreatedOn = DateTime.Now
+                      };
+
                     _context.CaSsPermissions.Add(entity);
                 }
 
-                entity.CoursesApplied = courseLevel;   // ✅ ADD THIS LINE
-                entity.PermissionStatus = row.PermissionStatus;
+                entity.CoursesApplied = "SS";
+                entity.PermissionStatus =
+                   row.PermissionStatus;
 
-                // ✅ If "No" → wipe file from DB
                 if (row.PermissionStatus == "No")
                 {
-                    entity.FileData = null;
+                    entity.FilePath = null;
                     entity.FileName = null;
                 }
-                // ✅ If "Yes" and new file uploaded → save it
-                else if (row.PermissionStatus == "Yes" && fileData != null)
+                else if (row.PermissionStatus == "Yes")
                 {
-                    entity.FileData = fileData;
-                    entity.FileName = fileName;
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        entity.FilePath = filePath;
+                        entity.FileName = fileName;
+                    }
                 }
-                // ✅ If "Yes" but no new file uploaded → keep existing file (do nothing)
+            }
+            if (!hasAnyData)
+            {
+                TempData["Info"] = "No new data entered to save.";
+                return RedirectToAction(nameof(CA_SS_CoursesApplied));
             }
 
             await _context.SaveChangesAsync();
@@ -702,54 +951,110 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+
+            List<string> existingCourseLevels;
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                existingCourseLevels = new List<string> { "SS" };
+            }
+            else
+            {
+                try
+                {
+                    existingCourseLevels =
+                        System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(raw)
+                        ?? new List<string> { "SS" };
+                }
+                catch
+                {
+                    existingCourseLevels =
+                        raw.Split(',')
+                           .Select(x => x.Trim().ToUpper())
+                           .Where(x => !string.IsNullOrEmpty(x))
+                           .Distinct()
+                           .ToList();
+                }
+            }
+
+            bool hasAnyData = false;
             foreach (var row in model.AffiliationList)
             {
-                // Skip completely empty rows
+                if (row.AffiliationDate != null ||
+                   row.SupportingDoc != null)
+                {
+                    hasAnyData = true;
+                }
+
                 if (row.AffiliationDate == null)
                     continue;
 
-                byte[] fileData = null;
                 string fileName = null;
+                string filePath = null;
 
-                if (row.SupportingDoc != null && row.SupportingDoc.Length > 0)
+                if (FileTooLarge(row.SupportingDoc))
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        await row.SupportingDoc.CopyToAsync(ms);
-                        fileData = ms.ToArray();
-                    }
+                    TempData["Error"] = "File size cannot exceed 2 MB";
+                    return RedirectToAction(nameof(CA_SS_CoursesApplied));
+                }
+
+                if (row.SupportingDoc != null &&
+                   row.SupportingDoc.Length > 0)
+                {
+                    var path =
+                      await SaveSSFileAsync(
+                         row.SupportingDoc,
+                         "AffiliationDocs");
+
+                    filePath = path;
                     fileName = row.SupportingDoc.FileName;
                 }
 
-                var entity = await _context.CaSsAffiliationGrantedYears
-                                    .FirstOrDefaultAsync(x =>
-                                        x.CollegeCode == collegeCode &&
-                                        x.CourseCode == row.CourseCode &&
-                                        x.CoursesApplied == "SS");
+                var entity =
+                  await _context.CaSsAffiliationGrantedYears
+                  .FirstOrDefaultAsync(x =>
+                     x.CollegeCode == collegeCode &&
+                     x.CourseCode == row.CourseCode &&
+                     x.CoursesApplied == "SS");
 
                 if (entity == null)
                 {
-                    entity = new CaSsAffiliationGrantedYear
-                    {
-                        CollegeCode = collegeCode,
-                        CourseCode = row.CourseCode,
-                        CourseName = row.CourseName,
-                        CoursesApplied = courseLevel,
-                        CreatedOn = DateTime.Now
-                    };
-                    _context.CaSsAffiliationGrantedYears.Add(entity);
+                    entity =
+                      new CaSsAffiliationGrantedYear
+                      {
+                          CollegeCode = collegeCode,
+                          CourseCode = row.CourseCode,
+                          CourseName = row.CourseName,
+                          CoursesApplied = "SS",
+                          CreatedOn = DateTime.Now
+                      };
+
+                    _context.CaSsAffiliationGrantedYears
+                        .Add(entity);
                 }
 
-                entity.AffiliationDate = DateOnly.FromDateTime(row.AffiliationDate.Value);
-                entity.SanctionedIntake = row.SanctionedIntake;
-                entity.CoursesApplied = courseLevel;
+                entity.AffiliationDate =
+                  DateOnly.FromDateTime(
+                    row.AffiliationDate.Value);
 
-                // ✅ Only overwrite file if a new one was uploaded, keep existing otherwise
-                if (fileData != null)
+                entity.SanctionedIntake =
+                  row.SanctionedIntake;
+
+                entity.CoursesApplied = "SS";
+
+                if (row.SupportingDoc != null &&
+                   row.SupportingDoc.Length > 0)
                 {
-                    entity.FileData = fileData;
+                    entity.FilePath = filePath;
                     entity.FileName = fileName;
                 }
+            }
+            if (!hasAnyData)
+            {
+                TempData["Info"] = "No new data entered to save.";
+                return RedirectToAction(nameof(CA_SS_CoursesApplied));
             }
 
             await _context.SaveChangesAsync();
@@ -759,59 +1064,183 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-
-        //3.b.iii LIC Inspection
-
-        //3.b.iii LIC Inspection
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveOtherCourse(CA_SS_FullViewVM model)
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            //var courseLevel = "SS"; // ✅ ADD THIS LINE
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
+            // ================= VALIDATION =================
             foreach (var row in model.OtherCourses)
             {
-                if (row.SupportingDoc == null || string.IsNullOrEmpty(row.CourseName))
+                // ignore completely blank new row
+                if (string.IsNullOrWhiteSpace(row.CourseName) &&
+                    row.SupportingDoc == null)
                     continue;
 
-                // ✅ Check if this course already has a saved record
-                var existing = await _context.CaSsOtherCoursesConducteds
-                    .FirstOrDefaultAsync(x =>
+                // Course selected but no file uploaded
+                if (!string.IsNullOrWhiteSpace(row.CourseName) &&
+                    row.SupportingDoc == null &&
+                    row.Id == 0) // only new rows
+                {
+                    TempData["Error"] = "Upload document for selected course.";
+                    return RedirectToAction(nameof(CA_SS_CoursesApplied));
+                }
+
+                // File uploaded but no course selected
+                if (string.IsNullOrWhiteSpace(row.CourseName) &&
+                    row.SupportingDoc != null)
+                {
+                    TempData["Error"] = "Select course for uploaded file.";
+                    return RedirectToAction(nameof(CA_SS_CoursesApplied));
+                }
+            }
+
+            bool hasAnyData = false;
+            // ================= SAVE =================
+            foreach (var row in model.OtherCourses)
+            {
+                if (!string.IsNullOrWhiteSpace(row.CourseName)
+                   || row.SupportingDoc != null)
+                {
+                    hasAnyData = true;
+                }
+
+                if (string.IsNullOrWhiteSpace(row.CourseName))
+                    continue;
+
+                CaSsOtherCoursesConducted existing = null;
+
+                if (row.Id > 0)
+                {
+                    existing =
+                     await _context.CaSsOtherCoursesConducteds
+                     .FirstOrDefaultAsync(x => x.Id == row.Id);
+                }
+                else
+                {
+                    existing =
+                     await _context.CaSsOtherCoursesConducteds
+                     .FirstOrDefaultAsync(x =>
                         x.CollegeCode == collegeCode &&
                         x.CourseName == row.CourseName &&
-                        x.CourseLevel == "SS"); // ✅ ADD CourseLevel condition
-
-                byte[] fileData = null;
-                using (var ms = new MemoryStream())
-                {
-                    await row.SupportingDoc.CopyToAsync(ms);
-                    fileData = ms.ToArray();
+                        x.CourseLevel == "SS");
                 }
 
                 if (existing != null)
                 {
-                    // Course already saved → skip to avoid duplicate
+                    existing.CourseName = row.CourseName;
+                    existing.CourseLevel = "SS";
+                    existing.CoursesApplied = "SS";
+
+                    if (row.SupportingDoc != null &&
+                       row.SupportingDoc.Length > 0)
+                    {
+                        if (FileTooLarge(row.SupportingDoc))
+                        {
+                            TempData["Error"] = "File size cannot exceed 2 MB";
+                            return RedirectToAction(nameof(CA_SS_CoursesApplied));
+                        }
+
+                        var path =
+                           await SaveSSFileAsync(
+                               row.SupportingDoc,
+                               "OtherCoursesDocs");
+
+                        existing.DocumentPath = path;
+                        existing.FileName =
+                           row.SupportingDoc.FileName;
+                    }
+
                     continue;
                 }
 
-                // Insert new record
-                _context.CaSsOtherCoursesConducteds.Add(new CaSsOtherCoursesConducted
+                if (row.SupportingDoc != null &&
+                   row.SupportingDoc.Length > 0)
                 {
-                    CollegeCode = collegeCode,
-                    CourseName = row.CourseName,
-                    CourseLevel = courseLevel,
-                    DocumentData = fileData,
-                    FileName = row.SupportingDoc.FileName,
-                    CreatedOn = DateTime.Now
-                });
+                    var path =
+                       await SaveSSFileAsync(
+                          row.SupportingDoc,
+                          "OtherCoursesDocs");
+
+                    _context.CaSsOtherCoursesConducteds.Add(
+                      new CaSsOtherCoursesConducted
+                      {
+                          CollegeCode = collegeCode,
+                          CourseName = row.CourseName,
+                          CourseLevel = "SS",
+                          CoursesApplied = "SS",
+                          DocumentPath = path,
+                          FileName = row.SupportingDoc.FileName,
+                          CreatedOn = DateTime.Now
+                      });
+                }
+            }
+            if (!hasAnyData)
+            {
+                TempData["Info"] = "No new data entered to save.";
+                return RedirectToAction(nameof(CA_SS_CoursesApplied));
             }
 
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Other Course saved successfully!";
+
+            TempData["Success"] = "Other Course saved successfully";
+
             return RedirectToAction(nameof(CA_SS_CoursesApplied));
         }
+        //3.b.iii LIC Inspection
+
+        //3.b.iii LIC Inspection
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> SaveOtherCourse(CA_SS_FullViewVM model)
+        //{
+        //    var collegeCode = HttpContext.Session.GetString("CollegeCode");
+        //    //var courseLevel = "SS"; // ✅ ADD THIS LINE
+        //    var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+        //    foreach (var row in model.OtherCourses)
+        //    {
+        //        if (row.SupportingDoc == null || string.IsNullOrEmpty(row.CourseName))
+        //            continue;
+
+        //        // ✅ Check if this course already has a saved record
+        //        var existing = await _context.CaSsOtherCoursesConducteds
+        //            .FirstOrDefaultAsync(x =>
+        //                x.CollegeCode == collegeCode &&
+        //                x.CourseName == row.CourseName &&
+        //                x.CourseLevel == courseLevel); // ✅ ADD CourseLevel condition
+
+        //        byte[] fileData = null;
+        //        using (var ms = new MemoryStream())
+        //        {
+        //            await row.SupportingDoc.CopyToAsync(ms);
+        //            fileData = ms.ToArray();
+        //        }
+
+        //        if (existing != null)
+        //        {
+        //            // Course already saved → skip to avoid duplicate
+        //            continue;
+        //        }
+
+        //        // Insert new record
+        //        _context.CaSsOtherCoursesConducteds.Add(new CaSsOtherCoursesConducted
+        //        {
+        //            CollegeCode = collegeCode,
+        //            CourseName = row.CourseName,
+        //            CourseLevel = courseLevel,
+        //            DocumentData = fileData,
+        //            FileName = row.SupportingDoc.FileName,
+        //            CreatedOn = DateTime.Now
+        //        });
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    TempData["Success"] = "Other Course saved successfully!";
+        //    return RedirectToAction(nameof(CA_SS_CoursesApplied));
+        //}
 
 
 
@@ -819,6 +1248,34 @@ namespace Medical_Affiliation.Controllers
         private async Task PopulateFullViewModel(CA_SS_FullViewVM vm, string collegeCode)
         {
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+
+            List<string> existingCourseLevels;
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                existingCourseLevels = new List<string> { "SS" };
+            }
+            else
+            {
+                try
+                {
+                    existingCourseLevels =
+                        System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(raw)
+                        ?? new List<string> { "SS" };
+                }
+                catch
+                {
+                    existingCourseLevels =
+                        raw.Split(',')
+                           .Select(x => x.Trim().ToUpper())
+                           .Where(x => !string.IsNullOrEmpty(x))
+                           .Distinct()
+                           .ToList();
+                }
+            }
 
             // ================= Get Courses =================
             var courseList = await _context.CollegeCourseIntakeDetails
@@ -836,7 +1293,7 @@ namespace Medical_Affiliation.Controllers
                 from c in gj.Where(x => x.CollegeCode == collegeCode).DefaultIfEmpty()
 
                 where m.FacultyCode == 1
-                      && m.CourseLevel == "SS"
+                      && existingCourseLevels.Contains(m.CourseLevel)
                       && m.CoursePrefix == "D.M."
 
                 select new SSCourseRow
@@ -859,7 +1316,7 @@ namespace Medical_Affiliation.Controllers
                 from c in gj.Where(x => x.CollegeCode == collegeCode).DefaultIfEmpty()
 
                 where m.FacultyCode == 1
-                      && m.CourseLevel == "SS"
+                      && existingCourseLevels.Contains(m.CourseLevel)
                       && m.CoursePrefix
                             .Trim()
                             .Replace(".", "")
@@ -879,7 +1336,8 @@ namespace Medical_Affiliation.Controllers
             vm.LopList.Clear();
 
             var savedLop = await _context.CaSsLopsavedDates
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
+                .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             foreach (var c in courseList)
@@ -900,7 +1358,8 @@ namespace Medical_Affiliation.Controllers
             vm.PermissionList.Clear();
 
             var savedPerm = await _context.CaSsPermissions
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
+                .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             foreach (var c in courseList)
@@ -914,7 +1373,7 @@ namespace Medical_Affiliation.Controllers
                     Id = existing?.Id ?? 0,
                     PermissionStatus = existing?.PermissionStatus,
                     ExistingFileName = existing?.FileName,
-                    HasFile = existing?.FileData != null && existing.FileData.Length > 0
+                    HasFile = existing?.FilePath != null && existing.FilePath.Length > 0
                 });
             }
 
@@ -922,7 +1381,8 @@ namespace Medical_Affiliation.Controllers
             vm.AffiliationList.Clear();
 
             var savedAff = await _context.CaSsAffiliationGrantedYears
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
+               .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             foreach (var course in courseList)
@@ -937,7 +1397,7 @@ namespace Medical_Affiliation.Controllers
                     AffiliationDate = existing?.AffiliationDate?.ToDateTime(TimeOnly.MinValue),
                     SanctionedIntake = course.PresentIntake ?? 0,
                     FileName = existing?.FileName,
-                    HasFile = existing?.FileData != null && existing.FileData.Length > 0
+                    HasFile = existing?.FilePath != null && existing.FilePath.Length > 0
                 });
             }
 
@@ -945,7 +1405,8 @@ namespace Medical_Affiliation.Controllers
             vm.LICInspections.Clear();
 
             var savedLIC = await _context.CaSsLicpreviousInspections
-                .Where(x => x.CollegeCode == collegeCode && x.CoursesApplied == "SS")
+                .Where(x => x.CollegeCode == collegeCode &&
+            existingCourseLevels.Contains(x.CoursesApplied))
                 .ToListAsync();
 
             foreach (var c in courseList)
@@ -965,16 +1426,25 @@ namespace Medical_Affiliation.Controllers
             // ================= 3.b.iv Other Courses =================
             vm.OtherCourses.Clear();
 
+            //var mstCourses = await _context.MstCourses
+            //    .Where(x => x.FacultyCode == 1 && x.CourseLevel == courseLevel)
+            //    .ToListAsync();
+
             var mstCourses = await _context.MstCourses
-                .Where(x => x.FacultyCode == 1 && x.CourseLevel == "SS")
-                .ToListAsync();
+            .Where(x => x.FacultyCode == 1 &&
+                        existingCourseLevels.Contains(x.CourseLevel))
+            .ToListAsync();
 
             var allCourseNames = mstCourses.Select(x => x.CourseName).Distinct().ToList();
 
-            var savedOther = await _context.CaSsOtherCoursesConducteds
-                .Where(x => x.CollegeCode == collegeCode && x.CourseLevel == "SS")
-                .ToListAsync();
+            //var savedOther = await _context.CaSsOtherCoursesConducteds
+            //    .Where(x => x.CollegeCode == collegeCode && x.CourseLevel == courseLevel)
+            //    .ToListAsync();
 
+            var savedOther = await _context.CaSsOtherCoursesConducteds
+                .Where(x => x.CollegeCode == collegeCode &&
+                            existingCourseLevels.Contains(x.CourseLevel))
+                .ToListAsync();
             var savedCourseNames = savedOther.Select(x => x.CourseName).ToList();
 
             foreach (var row in savedOther)
@@ -1004,54 +1474,94 @@ namespace Medical_Affiliation.Controllers
 
         public async Task<IActionResult> ViewAffiliationFile(int id)
         {
-            var file = await _context.CaSsAffiliationGrantedYears
-                .FindAsync(id);
+            var file =
+                await _context.CaSsAffiliationGrantedYears
+                    .FindAsync(id);
 
-            if (file == null || file.FileData == null)
+            if (file == null ||
+                string.IsNullOrWhiteSpace(file.FilePath))
+            {
                 return NotFound();
+            }
 
-            return File(file.FileData, "application/pdf", file.FileName);
+            // file physically missing on disk
+            if (!System.IO.File.Exists(file.FilePath))
+            {
+                return NotFound();
+            }
+
+            return PhysicalFile(
+                file.FilePath,
+                "application/pdf",
+                file.FileName
+            );
         }
 
         public async Task<IActionResult> ViewOtherCourseFile(int id)
         {
-            var file = await _context.CaSsOtherCoursesConducteds
-                .FindAsync(id);
+            var file =
+                await _context.CaSsOtherCoursesConducteds
+                    .FindAsync(id);
 
-            if (file == null || file.DocumentData == null)
+            if (file == null ||
+                string.IsNullOrWhiteSpace(file.DocumentPath))
+            {
                 return NotFound();
+            }
 
-            return File(file.DocumentData, "application/pdf", file.FileName);
+            if (!System.IO.File.Exists(file.DocumentPath))
+            {
+                return NotFound();
+            }
+
+            return PhysicalFile(
+                file.DocumentPath,
+                "application/pdf",
+                file.FileName
+            );
         }
 
         public async Task<IActionResult> ViewPermissionFile(int id)
         {
-            var file = await _context.CaSsPermissions
-                .FindAsync(id);
+            var file =
+                await _context.CaSsPermissions
+                    .FindAsync(id);
 
-            if (file == null || file.FileData == null)
+            if (file == null ||
+                string.IsNullOrWhiteSpace(file.FilePath))
+            {
                 return NotFound();
+            }
 
-            return File(file.FileData, "application/pdf", file.FileName);
+            if (!System.IO.File.Exists(file.FilePath))
+            {
+                return NotFound();
+            }
+
+            return PhysicalFile(
+                file.FilePath,
+                "application/pdf",
+                file.FileName
+            );
         }
 
-        public async Task<IActionResult> ViewDonationPdf()
-        {
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var level = HttpContext.Session.GetString("CourseLevel");
+        //public async Task<IActionResult> ViewDonationPdf()
+        //{
+        //    var collegeCode = HttpContext.Session.GetString("CollegeCode");
+        //    var facultyCode = HttpContext.Session.GetString("FacultyCode");
+        //    var level = HttpContext.Session.GetString("CourseLevel");
 
-            var record = await _context.MedCaAccountAndFeeDetails
-                .FirstOrDefaultAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
-                    x.CourseLevel == level);
+        //    var record = await _context.MedCaAccountAndFeeDetails
+        //        .FirstOrDefaultAsync(x =>
+        //            x.CollegeCode == collegeCode &&
+        //            x.FacultyCode == facultyCode &&
+        //            x.CourseLevel == level);
 
-            if (record == null || record.DonationPdfPath == null)
-                return NotFound();
+        //    if (record == null || record.DonationPdf == null)
+        //        return NotFound();
 
-            return File(record.DonationPdfPath, "application/pdf", record.DonationPdfName);
-        }
+        //    return File(record.DonationPdf, "application/pdf", record.DonationPdfName);
+        //}
 
 
 
