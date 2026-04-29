@@ -514,9 +514,12 @@
     });
 
     // SAVE SPINNER
-    document.getElementById('sBtn')?.addEventListener('click', function () {
-        this.innerHTML = '<svg class="spin" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg> Saving…';
-        this.disabled = true;
+        document.getElementById('intakeForm')?.addEventListener('submit', function () {
+        const btn = document.getElementById('sBtn');
+        if (btn) {
+            btn.innerHTML = '<svg class="spin" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg> Saving…';
+            btn.disabled = true;
+        }
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
