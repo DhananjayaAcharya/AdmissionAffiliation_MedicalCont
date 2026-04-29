@@ -17,15 +17,11 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // 🔹 MVC + Localization
-//builder.Services.AddControllersWithViews()
-//    .AddViewLocalization()
-//    .AddDataAnnotationsLocalization();
-
-builder.Services.AddScoped<AutoProgressFilter>();   // ✅ ADD THIS
+builder.Services.AddScoped<AutoProgressFilter>();
 
 builder.Services.AddControllersWithViews(options =>
 {
-    options.Filters.Add<AutoProgressFilter>();      // ✅ ADD THIS
+    options.Filters.Add<AutoProgressFilter>();
 })
 .AddViewLocalization()
 .AddDataAnnotationsLocalization();
@@ -34,6 +30,7 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 
 QuestPDF.Settings.License = LicenseType.Community;
 
+// 🔹 Localization
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     options.DefaultRequestCulture = new RequestCulture("kn");
@@ -54,9 +51,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// =============================================
 // 🔥 DATA PROTECTION
-// =============================================
 var keysDirectory = Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
 
 if (!Directory.Exists(keysDirectory))
@@ -68,12 +63,12 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
     .SetApplicationName("MedicalAffiliation");
 
-// 🔹 HttpContextAccessor
+// 🔹 HttpContext
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<LicTadaService>();
 
+// 🔹 Services
+builder.Services.AddScoped<LicTadaService>();
 builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();
-//builder.Services.AddScoped<IFacultyHospitalHandler, NursingHospitalHandler>();
 builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
 builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
 builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
@@ -90,66 +85,40 @@ builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
 builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 
 // =============================================
-// 🔥 AUTHENTICATION - DYNAMIC COOKIE PATH (Fixed for Local + Server)
+// 🔥 AUTHENTICATION (FIXED)
 // =============================================
-var cookiePath = builder.Environment.IsDevelopment() ? "/" : "/admissionaffiliation";
-
 builder.Services.AddAuthentication("CollegeAuth")
     .AddCookie("CollegeAuth", options =>
     {
         options.Cookie.Name = "College.Cookie";
+
         options.LoginPath = "/MainDashboard/MultiLogin";
         options.LogoutPath = "/CollegeLogin/Logout";
         options.AccessDeniedPath = "/Login/AccessDenied";
+
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.SlidingExpiration = true;
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
-            ? CookieSecurePolicy.SameAsRequest
-            : CookieSecurePolicy.Always;
-        options.Cookie.Path = cookiePath;               // ← Dynamic Fix
-    })
-    .AddCookie("AdminAuth", options =>
-    {
-        options.Cookie.Name = "Admin.Cookie";
-        options.LoginPath = "/Admin/UniversityLogin";
-        options.Cookie.Path = cookiePath;
-    })
-    .AddCookie("SectionOfficerAuth", options =>
-    {
-        options.Cookie.Name = "SectionOfficer.Cookie";
-        options.LoginPath = "/Admin/UniversityLogin";
-        options.Cookie.Path = cookiePath;
-    })
-    .AddCookie("LicInspectionAuth", options =>
-    {
-        options.Cookie.Name = "LicInspection.Cookie";
-        options.LoginPath = "/LICInspection/Login";
-        options.Cookie.Path = cookiePath;
-    })
-    .AddCookie("DirectorAuth", options =>
-    {
-        options.Cookie.Name = "Director.Cookie";
-        options.Cookie.Path = cookiePath;
-    })
-    .AddCookie("DirectorAuth1", options =>
-    {
-        options.Cookie.Name = "LICDirector.Cookie";
-        options.Cookie.Path = cookiePath;
-    })
-    .AddCookie("LICSectionAuth", options =>
-    {
-        options.Cookie.Name = "Section.Cookie";
-        options.Cookie.Path = cookiePath;
-    })
-    .AddCookie("FinanceAuth", options =>
-    {
-        options.Cookie.Name = "Finance.Cookie";
-        options.Cookie.Path = cookiePath;
-    });
 
-// Authorization Policy
+        options.Cookie.HttpOnly = true;
+
+        // ✅ FIXED (CRITICAL)
+        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
+        // ✅ FIXED (VERY IMPORTANT)
+        options.Cookie.Path = "/";  // safest for all environments
+    })
+
+    // Other schemes unchanged
+    .AddCookie("AdminAuth", o => { o.Cookie.Name = "Admin.Cookie"; o.LoginPath = "/Admin/UniversityLogin"; o.Cookie.Path = "/"; })
+    .AddCookie("SectionOfficerAuth", o => { o.Cookie.Name = "SectionOfficer.Cookie"; o.LoginPath = "/Admin/UniversityLogin"; o.Cookie.Path = "/"; })
+    .AddCookie("LicInspectionAuth", o => { o.Cookie.Name = "LicInspection.Cookie"; o.LoginPath = "/LICInspection/Login"; o.Cookie.Path = "/"; })
+    .AddCookie("DirectorAuth", o => { o.Cookie.Name = "Director.Cookie"; o.Cookie.Path = "/"; })
+    .AddCookie("DirectorAuth1", o => { o.Cookie.Name = "LICDirector.Cookie"; o.Cookie.Path = "/"; })
+    .AddCookie("LICSectionAuth", o => { o.Cookie.Name = "Section.Cookie"; o.Cookie.Path = "/"; })
+    .AddCookie("FinanceAuth", o => { o.Cookie.Name = "Finance.Cookie"; o.Cookie.Path = "/"; });
+
+// 🔹 Authorization
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("CollegeOnly", policy =>
@@ -160,26 +129,30 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-// Forwarded Headers
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
-});
-
+// 🔹 Middleware
 var app = builder.Build();
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
 
-// Middleware Pipeline
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
+
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value;
+
+    if (!string.IsNullOrEmpty(path) && path.StartsWith("/AdmissionAffiliation"))
+    {
+        var lower = path.Replace("/AdmissionAffiliation", "/admissionaffiliation");
+
+        context.Response.Redirect(lower + context.Request.QueryString, true);
+        return;
+    }
+
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 

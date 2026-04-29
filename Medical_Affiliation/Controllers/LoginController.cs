@@ -213,7 +213,7 @@ namespace Medical_Affiliation.Controllers
                     Text = c.CollegeName
                 }).ToList();
 
-            // Validations...
+            // Validation
             var faculty = _context.Faculties.FirstOrDefault(f => f.FacultyId.ToString() == model.FacultyId);
             if (faculty == null)
             {
@@ -223,7 +223,8 @@ namespace Medical_Affiliation.Controllers
             }
 
             var user = _context.AffiliationCollegeMasters.FirstOrDefault(u =>
-                u.FacultyCode.ToString() == model.FacultyId && u.CollegeCode == model.CollegeId);
+                u.FacultyCode.ToString() == model.FacultyId &&
+                u.CollegeCode == model.CollegeId);
 
             if (user == null)
             {
@@ -239,17 +240,16 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
-            //if (model.Captcha != TempData["CaptchaCode"]?.ToString())
             var sessionCaptcha = HttpContext.Session.GetString("CaptchaCode");
 
-            if (model.Captcha != sessionCaptcha)
+            if (string.IsNullOrEmpty(sessionCaptcha) || model.Captcha != sessionCaptcha)
             {
                 SetCaptcha(model);
                 TempData["LoginError"] = "Invalid captcha.";
                 return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
-            // Get CourseLevel
+            // CourseLevel
             var courseLevel = await (from cc in _context.CollegeCourseIntakeDetails
                                      join cm in _context.MstCourses
                                      on cc.CourseCode equals cm.CourseCode.ToString()
@@ -260,22 +260,21 @@ namespace Medical_Affiliation.Controllers
             var userIP = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
 
-                    var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.CollegeName ?? ""),
-                new Claim(ClaimTypes.Role, "College"),
-                new Claim("CollegeCode", user.CollegeCode ?? ""),
-                new Claim("FacultyCode", user.FacultyCode ?? ""),
-                new Claim("CourseLevel", courseLevel ?? ""),
-                new Claim("UserIP", userIP ?? ""),
-                new Claim("UserAgent", userAgent ?? "")
-            };
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.CollegeName ?? ""),
+        new Claim(ClaimTypes.Role, "College"),
+        new Claim("CollegeCode", user.CollegeCode ?? ""),
+        new Claim("FacultyCode", user.FacultyCode ?? ""),
+        new Claim("CourseLevel", courseLevel ?? ""),
+        new Claim("UserIP", userIP ?? ""),
+        new Claim("UserAgent", userAgent ?? "")
+    };
 
             var identity = new ClaimsIdentity(claims, "CollegeAuth");
             var principal = new ClaimsPrincipal(identity);
 
-            // Clear all other schemes
-            await HttpContext.SignOutAsync("CollegeAuth");
+            // Clear other roles
             await HttpContext.SignOutAsync("SectionOfficerAuth");
             await HttpContext.SignOutAsync("AdminAuth");
             await HttpContext.SignOutAsync("LicInspectionAuth");
@@ -284,9 +283,7 @@ namespace Medical_Affiliation.Controllers
             await HttpContext.SignOutAsync("LICSectionAuth");
             await HttpContext.SignOutAsync("FinanceAuth");
 
-            // Sign in with persistent cookie
-            // After successful validation...
-
+            // ✅ SINGLE SIGN-IN ONLY
             await HttpContext.SignInAsync("CollegeAuth", principal, new AuthenticationProperties
             {
                 IsPersistent = true,
@@ -299,12 +296,8 @@ namespace Medical_Affiliation.Controllers
             HttpContext.Session.SetString("CollegeCode", user.CollegeCode ?? "");
             HttpContext.Session.SetString("FacultyCode", user.FacultyCode ?? "");
 
-            // Force cookie to be issued
-            await HttpContext.SignInAsync("CollegeAuth", principal);
-
-            return RedirectToAction("Dashboard", "Collegelogin");
+            return RedirectToAction("Dashboard", "CollegeLogin");
         }
-
         private void SetCaptcha(AdmissionLoginViewModel model)
         {
             model.CaptchaCode = GenerateCaptchaCode();
