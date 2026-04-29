@@ -162,7 +162,7 @@ namespace Medical_Affiliation.Controllers
             var captcha = new Random().Next(10000, 99999).ToString();
 
             HttpContext.Session.SetString("CaptchaCode", captcha); // ✅ ADD THIS
-            var colleges = new[] { "M016", "M011", "M019" };
+            var colleges = new[] { "M016", "M011", "M019", "M007" };
             var model = new AdmissionLoginViewModel
             {
                 Faculties = _context.Faculties

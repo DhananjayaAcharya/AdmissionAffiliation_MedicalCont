@@ -37,6 +37,8 @@
         public IFormFile? PermissionFile { get; set; }
 
         public string? ExistingFileName { get; set; }
+
+        
         public bool HasFile { get; set; }
     }
 
@@ -86,6 +88,8 @@
         public DateTime? InspectionDate { get; set; }
 
         public string? ActionTaken { get; set; }
+
+        
     }
 
 

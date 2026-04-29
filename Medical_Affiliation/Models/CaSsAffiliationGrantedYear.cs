@@ -17,11 +17,11 @@ public partial class CaSsAffiliationGrantedYear
 
     public int? SanctionedIntake { get; set; }
 
-    public byte[]? FileData { get; set; }
-
     public string? FileName { get; set; }
 
     public DateTime? CreatedOn { get; set; }
 
     public string? CoursesApplied { get; set; }
+
+    public string? FilePath { get; set; }
 }

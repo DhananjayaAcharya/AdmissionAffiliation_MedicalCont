@@ -2106,6 +2106,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CoursesApplied).HasMaxLength(10);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.FileName).HasMaxLength(300);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
         });
 
         modelBuilder.Entity<CaSsLicpreviousInspection>(entity =>
@@ -2144,6 +2145,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CourseName).HasMaxLength(200);
             entity.Property(e => e.CoursesApplied).HasMaxLength(10);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.DocumentPath).HasMaxLength(500);
             entity.Property(e => e.FileName).HasMaxLength(255);
             entity.Property(e => e.SanctionedIntake).HasMaxLength(100);
         });
@@ -2159,6 +2161,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CoursesApplied).HasMaxLength(10);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.FileName).HasMaxLength(300);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
             entity.Property(e => e.PermissionStatus).HasMaxLength(20);
         });
 
