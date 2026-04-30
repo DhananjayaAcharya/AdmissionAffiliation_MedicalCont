@@ -1,0 +1,1175 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model FacultyIntakeViewModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = null;
+    ViewData["Title"] = "Course Intake Details";
+    var courseLevels = ViewBag.CourseLevels as List<string> ?? new List<string>();
+    var repositoryRows = ViewBag.RepositoryRows as List<UgandPgrepository> ?? new List<UgandPgrepository>();
+    var freshIncreaseOptions = ViewBag.FreshIncreaseOptions as string[] ?? new[] { "Fresh", "Increase" };
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+    Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    Context.Response.Headers["Pragma"] = "no-cache";
+    Context.Response.Headers["Expires"] = "0";
+    int currentStep = 2;
+    var isSidebarVisible = !string.IsNullOrEmpty(facultyCode);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — RGUHS Portal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- jQuery (needed for existing AJAX logic) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+
+    <!-- jQuery Validation (for asp-validation) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.20.0/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
+
+    <style>
+        /* ===== TOKENS ===== */
+        :root {
+            --navy: #0d1b3e;
+            --navy-mid: #1a2f5f;
+            --blue: #1d4ed8;
+            --blue-light: #3b82f6;
+            --gold: #c8a84b;
+            --gold-pale: #f7f0dc;
+            --surface: #f4f6fb;
+            --card-bg: #ffffff;
+            --border: #dde3f0;
+            --text-main: #0d1b3e;
+            --text-muted: #6b7a99;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --radius: 14px;
+            --shadow-sm: 0 2px 8px rgba(13,27,62,.07);
+            --shadow-md: 0 6px 24px rgba(13,27,62,.10);
+            --shadow-lg: 0 16px 48px rgba(13,27,62,.14);
+        }
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER BAR ===== */
+        .portal-header {
+            background: var(--navy);
+            color: #fff;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 12px rgba(0,0,0,.25);
+            border-bottom: 2px solid var(--gold);
+        }
+
+            .portal-header .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                text-decoration: none;
+            }
+
+            .portal-header .brand-emblem {
+                width: 38px;
+                height: 38px;
+                background: var(--gold);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+                color: var(--navy);
+                font-weight: 700;
+            }
+
+            .portal-header .brand-text {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.1;
+            }
+
+            .portal-header .brand-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 1rem;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: .3px;
+            }
+
+            .portal-header .brand-sub {
+                font-size: .7rem;
+                color: rgba(255,255,255,.6);
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+
+            .portal-header .header-meta {
+                font-size: .78rem;
+                color: rgba(255,255,255,.7);
+                display: flex;
+                align-items: center;
+                gap: 18px;
+            }
+
+                .portal-header .header-meta span {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                }
+
+        /* ===== LAYOUT ===== */
+        .page-shell {
+            display: flex;
+            flex: 1;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar-wrap {
+            width: 260px;
+            flex-shrink: 0;
+            background: var(--navy-mid);
+            min-height: calc(100vh - 64px);
+            position: sticky;
+            top: 64px;
+            align-self: flex-start;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .content-area {
+            flex: 1;
+            padding: 2rem 2.5rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ===== PAGE TITLE SECTION ===== */
+        .page-title-block {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .page-title-block h1 {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.7rem;
+                font-weight: 700;
+                color: var(--navy);
+                line-height: 1.2;
+            }
+
+            .page-title-block .page-crumb {
+                font-size: .78rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+                .page-title-block .page-crumb i {
+                    color: var(--gold);
+                }
+
+        /* ===== PROGRESS STEPPER ===== */
+        .stepper-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem 1.25rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stepper-label {
+            font-size: .68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: .75rem;
+        }
+
+        .stepper {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+        }
+
+            .stepper::-webkit-scrollbar {
+                display: none;
+            }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            position: relative;
+        }
+
+            .step-item:not(:last-child)::after {
+                content: '';
+                position: absolute;
+                top: 14px;
+                left: 50%;
+                width: 100%;
+                height: 2px;
+                background: var(--border);
+                z-index: 0;
+                transition: background .4s;
+            }
+
+            .step-item.completed:not(:last-child)::after {
+                background: var(--success);
+            }
+
+        .step-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+            transition: all .3s;
+            flex-shrink: 0;
+        }
+
+        .step-item.active .step-dot {
+            border-color: var(--blue);
+            background: var(--blue);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(29,78,216,.15);
+        }
+
+        .step-item.completed .step-dot {
+            border-color: var(--success);
+            background: var(--success);
+            color: #fff;
+        }
+
+        .step-title {
+            font-size: .65rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 6px;
+            line-height: 1.3;
+            max-width: 88px;
+            word-break: break-word;
+        }
+
+        .step-item.active .step-title {
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        .step-item.completed .step-title {
+            color: var(--success);
+        }
+
+        /* ===== GRID ===== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        /* ===== CARD ===== */
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: .85rem 1.25rem;
+            background: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .panel-header h5 {
+                font-family: 'Playfair Display', serif;
+                font-size: 1rem;
+                font-weight: 700;
+                color: #fff;
+                margin: 0;
+            }
+
+            .panel-header i {
+                color: var(--gold);
+                font-size: 1.1rem;
+            }
+
+        .panel-body {
+            padding: 1.5rem;
+        }
+
+        /* ===== FORM CONTROLS ===== */
+        .form-label {
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .3px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: .4rem;
+        }
+
+        .form-control, .form-select {
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: .55rem .85rem;
+            color: var(--text-main);
+            background: #fafbfd;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: var(--blue);
+                box-shadow: 0 0 0 3px rgba(29,78,216,.1);
+                background: #fff;
+                outline: none;
+            }
+
+            .form-control::placeholder {
+                color: #b0b9cc;
+            }
+
+        /* ===== DIVIDER ===== */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 1.25rem 0 1rem;
+        }
+
+            .section-divider span {
+                font-size: .7rem;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                white-space: nowrap;
+            }
+
+            .section-divider::before,
+            .section-divider::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+
+        /* ===== FILE UPLOAD ===== */
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .75rem;
+        }
+
+        .upload-field-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: .35rem;
+        }
+
+        .upload-box {
+            border: 1.5px dashed var(--border);
+            border-radius: 10px;
+            padding: .65rem .85rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+            background: #fafbfd;
+        }
+
+            .upload-box:hover {
+                border-color: var(--blue-light);
+                background: #eff4ff;
+            }
+
+            .upload-box i {
+                font-size: 1.3rem;
+                color: var(--blue-light);
+            }
+
+            .upload-box .upload-label-txt {
+                font-size: .72rem;
+                color: var(--text-muted);
+                text-align: center;
+            }
+
+            .upload-box .file-name {
+                font-size: .68rem;
+                font-style: italic;
+                color: var(--text-muted);
+                word-break: break-all;
+                text-align: center;
+            }
+
+                .upload-box .file-name.file-selected {
+                    color: var(--blue);
+                    font-style: normal;
+                }
+
+        .hidden-file-input {
+            display: none !important;
+        }
+
+        /* ===== PRIMARY BUTTON ===== */
+        .btn-official {
+            background: var(--navy);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: .65rem 1.4rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            font-weight: 600;
+            letter-spacing: .3px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background .2s, transform .15s, box-shadow .2s;
+        }
+
+            .btn-official:hover {
+                background: var(--blue);
+                box-shadow: 0 4px 16px rgba(29,78,216,.25);
+                transform: translateY(-1px);
+                color: #fff;
+            }
+
+        .btn-official-outline {
+            background: transparent;
+            color: var(--navy);
+            border: 1.5px solid var(--navy);
+            border-radius: 8px;
+            padding: .55rem 1.1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all .2s;
+            text-decoration: none;
+        }
+
+            .btn-official-outline:hover {
+                background: var(--navy);
+                color: #fff;
+            }
+
+        /* ===== TABLE ===== */
+        .table-panel-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .table-panel-header h5 {
+                font-family: 'Playfair Display', serif;
+                font-size: 1rem;
+                font-weight: 700;
+                color: var(--navy);
+                margin: 0;
+            }
+
+            .table-panel-header .record-count {
+                background: var(--navy);
+                color: #fff;
+                font-size: .7rem;
+                font-weight: 700;
+                padding: 3px 10px;
+                border-radius: 20px;
+            }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .8rem;
+        }
+
+            .data-table thead th {
+                background: var(--surface);
+                color: var(--text-muted);
+                font-weight: 700;
+                font-size: .67rem;
+                text-transform: uppercase;
+                letter-spacing: .8px;
+                padding: .7rem 1rem;
+                border-bottom: 2px solid var(--border);
+                white-space: nowrap;
+                position: sticky;
+                top: 0;
+            }
+
+            .data-table tbody td {
+                padding: .7rem 1rem;
+                border-bottom: 1px solid var(--border);
+                color: var(--text-main);
+                vertical-align: middle;
+            }
+
+            .data-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .data-table tbody tr:hover td {
+                background: #f4f7ff;
+            }
+
+        .badge-fresh {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: .65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+        }
+
+        .badge-increase {
+            background: #fef3c7;
+            color: #92400e;
+            font-size: .65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+        }
+
+        .doc-btn {
+            background: #eff4ff;
+            color: var(--blue);
+            border: 1px solid #c7d7fd;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: .68rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all .18s;
+        }
+
+            .doc-btn:hover {
+                background: var(--blue);
+                color: #fff;
+                border-color: var(--blue);
+            }
+
+        .doc-btn-missing {
+            color: #c0c8db;
+            font-size: .7rem;
+        }
+
+        .btn-delete {
+            background: #fef2f2;
+            color: var(--danger);
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: .7rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all .18s;
+        }
+
+            .btn-delete:hover {
+                background: var(--danger);
+                color: #fff;
+                border-color: var(--danger);
+            }
+
+        /* ===== ALERT ===== */
+        .alert-custom {
+            border-radius: 8px;
+            padding: .65rem 1rem;
+            font-size: .82rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+            .alert-custom.danger {
+                background: #fef2f2;
+                color: var(--danger);
+                border: 1px solid #fecaca;
+            }
+
+            .alert-custom.success {
+                background: #f0fdf4;
+                color: var(--success);
+                border: 1px solid #bbf7d0;
+            }
+
+        /* ===== NAVIGATION FOOTER ===== */
+        .nav-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.75rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            padding: 2.5rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+            .empty-state i {
+                font-size: 2rem;
+                margin-bottom: .5rem;
+                display: block;
+            }
+
+            .empty-state p {
+                font-size: .82rem;
+            }
+
+        /* ===== RESPONSIVE ===== */
+        @@media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-area {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .sidebar-wrap {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 600px) {
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .portal-header .header-meta {
+                display: none;
+            }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c0c8db;
+            border-radius: 3px;
+        }
+
+        /* ===== TABLE WRAPPER ===== */
+        .table-scroll-wrap {
+            overflow-x: auto;
+            max-height: 460px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================= HEADER ============================= -->
+    <header class="portal-header">
+        <a href="#" class="brand" style="text-decoration:none;">
+            <div class="brand-emblem"><i class="bi bi-mortarboard-fill"></i></div>
+            <div class="brand-text">
+                <span class="brand-title">RGUHS Affiliation Portal</span>
+                <span class="brand-sub">Rajiv Gandhi University of Health Sciences</span>
+            </div>
+        </a>
+        <div class="header-meta">
+            @using System.Text.RegularExpressions
+            @{
+                var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
+                var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
+            }
+            @if (!string.IsNullOrEmpty(collegeName))
+            {
+                <span><i class="bi bi-building"></i> @collegeName</span>
+            }
+            <span><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd MMM yyyy")</span>
+        </div>
+    </header>
+
+    <!-- ============================= BODY SHELL ============================= -->
+    <div class="page-shell">
+
+        <main class="content-area">
+
+            <!-- Page Title -->
+            <div class="page-title-block">
+                <div>
+                    <h1>UG / PG Intake Details</h1>
+                    <div class="page-crumb">
+                        <i class="bi bi-house-fill"></i> Home
+                        <i class="bi bi-chevron-right" style="font-size:.65rem;"></i> Admission Affiliation
+                        <i class="bi bi-chevron-right" style="font-size:.65rem;"></i>
+                        <strong>Course Intake</strong>
+                    </div>
+                </div>
+                <span style="font-size:.72rem;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;">
+                    <i class="bi bi-shield-lock" style="color:var(--gold);"></i> Secure Session
+                </span>
+            </div>
+
+            <!-- ===== PROGRESS STEPPER ===== -->
+            @{
+                var stepTitles = new[] {
+                        "Institute Basic Details",
+                        "Course Details",
+                        "Hospital Details",
+                        "Required Faculty Details",
+                        "Add College Faculty details",
+                        "Academic Performance"
+                        };
+            }
+            <div class="stepper-card">
+                <div class="stepper-label">Application Progress — Step @currentStep of @stepTitles.Length</div>
+                <div class="stepper">
+                    @for (int i = 0; i < stepTitles.Length; i++)
+                    {
+                        var isActive = (currentStep == i + 1);
+                        var isCompleted = (currentStep > i + 1);
+                        var cls = isActive ? "active" : (isCompleted ? "completed" : "");
+                        <div class="step-item @cls">
+                            <div class="step-dot">
+                                @if (isCompleted)
+                                {
+                                    <i class="bi bi-check-lg" style="font-size:.75rem;"></i>
+                                }
+                                else
+                                {
+
+                                    @(i + 1)
+                                }
+                            </div>
+                            <span class="step-title">@stepTitles[i]</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- ===== MAIN GRID ===== -->
+            <div class="main-grid">
+
+                <!-- ========== LEFT: FORM ========== -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <i class="bi bi-journal-plus"></i>
+                        <h5>Faculty Intake Form</h5>
+                    </div>
+                    <div class="panel-body">
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert-custom danger">
+                                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+                            </div>
+                        }
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert-custom success">
+                                <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+                            </div>
+                        }
+
+                        <form asp-action="Repo_UGPG" method="post" enctype="multipart/form-data" autocomplete="off">
+                            @Html.AntiForgeryToken()
+
+                            <!-- Course Level -->
+                            <div class="mb-3">
+                                <label for="CourseLevel" class="form-label">Course Level</label>
+                                <select id="CourseLevel" name="CourseLevel" asp-for="CourseLevel" class="form-select">
+                                    <option value="">— Select Level —</option>
+                                    @foreach (var lvl in courseLevels)
+                                    {
+                                        <option value="@lvl" @@(Model.CourseLevel= =lvl ? "selected" : "" )>@lvl</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="CourseLevel" class="text-danger" style="font-size:.75rem;"></span>
+                            </div>
+
+                            <!-- Course -->
+                            <div class="mb-3">
+                                <label for="CourseDropdown" class="form-label">Course</label>
+                                <select asp-for="CourseCode" class="form-select" id="CourseDropdown" name="CourseCode">
+                                    <option value="">— Select Level First —</option>
+                                </select>
+                                <span asp-validation-for="CourseCode" class="text-danger" style="font-size:.75rem;"></span>
+                            </div>
+
+                            <!-- Fresh / Increase -->
+                            <div class="mb-3">
+                                <label asp-for="FreshOrIncrease" class="form-label">Fresh / Increase / Additional</label>
+                                <select asp-for="FreshOrIncrease" class="form-select" id="FreshOrIncrease" name="FreshOrIncrease">
+                                    <option value="">— Select —</option>
+                                    @foreach (var option in freshIncreaseOptions)
+                                    {
+                                        <option value="@option" @@(Model.FreshOrIncrease= =option ? "selected" : "" )>@option</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="FreshOrIncrease" class="text-danger" style="font-size:.75rem;"></span>
+                            </div>
+
+                            <!-- Intake Details -->
+                            <div class="mb-3">
+                                <label asp-for="IntakeDetails" class="form-label">Intake Details</label>
+                                <input asp-for="IntakeDetails" class="form-control" placeholder="e.g. 60" />
+                                <span asp-validation-for="IntakeDetails" class="text-danger" style="font-size:.75rem;"></span>
+                            </div>
+
+                            <!-- Document Uploads -->
+                            <div class="section-divider">
+                                <i class="bi bi-paperclip" style="color:var(--gold);font-size:.85rem;"></i>
+                                <span>Supporting Documents</span>
+                            </div>
+
+                            <div class="upload-grid">
+                                <!-- RGUHS -->
+                                <div>
+                                    <div class="upload-field-label">RGUHS Notification</div>
+                                    <div class="upload-box" onclick="this.querySelector('.hidden-file-input').click()">
+                                        <i class="bi bi-cloud-upload"></i>
+                                        <span class="upload-label-txt">Click to upload</span>
+                                        <span class="file-name file-not-selected">No file chosen</span>
+                                        <input type="file" asp-for="RGUHSNotificationFile" class="hidden-file-input" />
+                                    </div>
+                                    <span asp-validation-for="RGUHSNotificationFile" class="text-danger" style="font-size:.72rem;"></span>
+                                </div>
+
+                                <!-- INC -->
+                                <div>
+                                    <div class="upload-field-label">INC Upload</div>
+                                    <div class="upload-box" onclick="this.querySelector('.hidden-file-input').click()">
+                                        <i class="bi bi-cloud-upload"></i>
+                                        <span class="upload-label-txt">Click to upload</span>
+                                        <span class="file-name file-not-selected">No file chosen</span>
+                                        <input type="file" asp-for="INCUploadFile" class="hidden-file-input" />
+                                    </div>
+                                    <span asp-validation-for="INCUploadFile" class="text-danger" style="font-size:.72rem;"></span>
+                                </div>
+
+                                <!-- KNMC -->
+                                <div>
+                                    <div class="upload-field-label">KNMC Upload</div>
+                                    <div class="upload-box" onclick="this.querySelector('.hidden-file-input').click()">
+                                        <i class="bi bi-cloud-upload"></i>
+                                        <span class="upload-label-txt">Click to upload</span>
+                                        <span class="file-name file-not-selected">No file chosen</span>
+                                        <input type="file" asp-for="KNMCUploadFile" class="hidden-file-input" />
+                                    </div>
+                                    <span asp-validation-for="KNMCUploadFile" class="text-danger" style="font-size:.72rem;"></span>
+                                </div>
+
+                                <!-- GOK -->
+                                <div>
+                                    <div class="upload-field-label">GOK Upload</div>
+                                    <div class="upload-box" onclick="this.querySelector('.hidden-file-input').click()">
+                                        <i class="bi bi-cloud-upload"></i>
+                                        <span class="upload-label-txt">Click to upload</span>
+                                        <span class="file-name file-not-selected">No file chosen</span>
+                                        <input type="file" asp-for="GOKUploadFile" class="hidden-file-input" />
+                                    </div>
+                                    <span asp-validation-for="GOKUploadFile" class="text-danger" style="font-size:.72rem;"></span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-official w-100 mt-4" style="justify-content:center;">
+                                <i class="bi bi-save2"></i> Save Intake Record
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ========== RIGHT: TABLE ========== -->
+                <div class="panel">
+                    <div class="table-panel-header">
+                        <h5><i class="bi bi-table" style="color:var(--gold);margin-right:6px;"></i> Recent Uploads</h5>
+                        <span class="record-count">@repositoryRows.Count Records</span>
+                    </div>
+                    <div class="table-scroll-wrap">
+                        @if (!repositoryRows.Any())
+                        {
+                            <div class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <p>No intake records submitted yet.<br />Fill the form on the left to add your first entry.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>SlNo</th>
+                                        <th>Intake</th>
+                                        <th>Type</th>
+                                        <th>Course</th>
+                                        <th>RGUHS</th>
+                                        <th>INC</th>
+                                        <th>KNMC</th>
+                                        <th>GOK</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var row in repositoryRows)
+                                    {
+                                        <tr>
+                                            <td style="font-weight:700;color:var(--text-muted);">@row.Id</td>
+                                            <td style="font-weight:600;">@row.IntakeDetails</td>
+                                            <td>
+                                                @if (row.FreshOrIncrease == "Fresh")
+                                                {
+                                                    <span class="badge-fresh">@row.FreshOrIncrease</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-increase">@row.FreshOrIncrease</span>
+                                                }
+                                            </td>
+                                            <td>@row.CourseName</td>
+                                            <td>
+                                                @if (row.Rguhsnotification != null)
+                                                {
+                                                    <a asp-action="DownloadDoc" asp-route-id="@row.Id" asp-route-type="RGUHS" class="doc-btn">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                }
+                                                else
+                                                {
+
+                                                    <span class="doc-btn-missing">—</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (row.Inc != null)
+                                                {
+                                                    <a asp-action="DownloadDoc" asp-route-id="@row.Id" asp-route-type="INC" class="doc-btn">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                }
+                                                else
+                                                {
+
+                                                    <span class="doc-btn-missing">—</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (row.Knmc != null)
+                                                {
+                                                    <a asp-action="DownloadDoc" asp-route-id="@row.Id" asp-route-type="KNMC" class="doc-btn">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                }
+                                                else
+                                                {
+
+                                                    <span class="doc-btn-missing">—</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (row.Gok != null)
+                                                {
+                                                    <a asp-action="DownloadDoc" asp-route-id="@row.Id" asp-route-type="GOK" class="doc-btn">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                }
+                                                else
+                                                {
+
+                                                    <span class="doc-btn-missing">—</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn-delete delete-row" data-id="@row.Id">
+                                                    <i class="bi bi-trash3"></i> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                </div>
+
+            </div><!-- /main-grid -->
+            <!-- ===== NAVIGATION FOOTER ===== -->
+            <div class="nav-footer">
+                <a asp-controller="Repo" asp-action="Repo_BasicDetails" class="btn-official-outline">
+                    <i class="bi bi-arrow-left"></i> Previous
+                </a>
+                <span style="font-size:.75rem;color:var(--text-muted);">
+                    <i class="bi bi-info-circle"></i> All fields marked are mandatory. Ensure documents are in PDF/JPG format.
+                </span>
+                <a asp-controller="Repo" asp-action="Repo_Affiliated_YearwiseMaterials" class="btn-official" style="text-decoration:none;">
+                    Proceed to Next <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </main>
+    </div><!-- /page-shell -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            /* ---- Course by level ---- */
+            $('#CourseLevel').change(function () {
+                var selectedLevel = $(this).val();
+                var $courseDropdown = $('#CourseDropdown');
+                $courseDropdown.empty().append('<option value="">— Select —</option>');
+                if (selectedLevel) {
+                    $.get('@Url.Action("GetCoursesByLevel")', { level: selectedLevel }, function (response) {
+                        if (response.success) {
+                            $.each(response.data, function (i, course) {
+                                $courseDropdown.append(
+                                    '<option value="' + course.courseCode + '">' + course.courseName + '</option>'
+                                );
+                            });
+                        }
+                    });
+                }
+            });
+
+            /* ---- Auto-set Fresh / Increase ---- */
+            $('#CourseDropdown').change(function () {
+                var selectedText = $("#CourseDropdown option:selected").text();
+                if (selectedText && selectedText !== "— Select Level First —" && selectedText !== "— Select —") {
+                    $.get('@Url.Action("IsCourseFresh")', { courseName: selectedText }, function (result) {
+                        $('#FreshOrIncrease').val(result.exists ? 'Increase' : 'Fresh');
+                    });
+                }
+            });
+
+            /* ---- Delete row ---- */
+            $(document).on('click', '.delete-row', function () {
+                var $button = $(this);
+                var id = $button.data('id');
+                if (confirm("Are you sure you want to delete record #" + id + "? This action cannot be undone.")) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteFacultyIntake")',
+                        type: 'POST',
+                        data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                        success: function (result) {
+                            if (result.success) {
+                                $button.closest('tr').fadeOut(350, function () { $(this).remove(); });
+                            } else {
+                                alert(result.message || "Delete failed. Please try again.");
+                            }
+                        },
+                        error: function () { alert("Request failed. Please check your connection."); }
+                    });
+                }
+            });
+        });
+
+        /* ---- File upload label ---- */
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".hidden-file-input").forEach(function (input) {
+                input.addEventListener("change", function () {
+                    const fileLabel = this.closest(".upload-box").querySelector(".file-name");
+                    const hasFile = this.files && this.files.length > 0;
+                    fileLabel.textContent = hasFile ? this.files[0].name : "No file chosen";
+                    fileLabel.classList.toggle("file-selected", hasFile);
+                    fileLabel.classList.toggle("file-not-selected", !hasFile);
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
