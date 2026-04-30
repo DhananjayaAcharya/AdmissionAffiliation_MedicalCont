@@ -129,9 +129,36 @@ namespace Medical_Affiliation.Controllers
             // =====================================================
             // Get College Courses
             // =====================================================
-            var courseList = await _context.CollegeCourseIntakeDetails
-                .Where(x => x.CollegeCode == collegeCode)
-                .ToListAsync();
+            //var courseList = await _context.CollegeCourseIntakeDetails
+            //    .Where(x => x.CollegeCode == collegeCode)
+            //    .ToListAsync();
+
+            //code added by ram on 30/04/26
+
+            var courseList = await (
+                     from c in _context.CollegeCourseIntakeDetails
+                     join m in _context.MstCourses
+                         on new
+                         {
+                             CourseCode = c.CourseCode,
+                             FacultyCode = c.FacultyCode
+                         }
+                         equals new
+                         {
+                             CourseCode = m.CourseCode.ToString(),
+                             FacultyCode = m.FacultyCode
+                         }
+                     where c.CollegeCode == collegeCode
+                           && m.FacultyCode == 1
+                           && m.CourseLevel == "SS"   // ✅ FIXED
+                     select new
+                     {
+                         CourseCode = c.CourseCode,
+                         CourseName = m.CourseName,
+                         PresentIntake = c.PresentIntake,
+                         FacultyCode = c.FacultyCode
+                     }
+                 ).ToListAsync();
 
             // ✅ NEW
             //var courseList = await (
