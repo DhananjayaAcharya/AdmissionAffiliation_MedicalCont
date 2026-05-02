@@ -2,6 +2,7 @@
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.UserContext;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
@@ -15,7 +16,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly SessionUserContext _userContext;
-
+        private readonly IWebHostEnvironment _webHostEnvironment;
         public ContinuesAffiliation_FacultybasedController(ApplicationDbContext context)
         {
             _context = context;
@@ -564,27 +565,50 @@ namespace Medical_Affiliation.Controllers
                 .FirstOrDefaultAsync(x => x.InstitutionId == id);
 
             if (entity == null)
-                return NotFound();
+                return NotFound("Institution not found.");
 
-            var path = pathSelector(entity);
+            var rawPath = pathSelector(entity);
 
-            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
-                return NotFound("File not found");
+            if (string.IsNullOrWhiteSpace(rawPath))
+                return NotFound("No file path stored.");
 
-            // 🔥 OPEN FILE STREAM (KEY FIX)
-            var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            // ✅ Trim whitespace and normalize separators
+            rawPath = rawPath.Trim().Replace("/", Path.DirectorySeparatorChar.ToString())
+                                    .Replace("\\", Path.DirectorySeparatorChar.ToString());
 
-            // 🔥 FORCE PDF VIEW
+            // ✅ Resolve to absolute path if relative
+            string absolutePath;
+            if (Path.IsPathRooted(rawPath))
+            {
+                absolutePath = rawPath;
+            }
+            else
+            {
+                // Combine with wwwroot or ContentRootPath depending on where you store files
+                absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, rawPath);
+
+                // 🔁 Fallback: try ContentRootPath if not found in wwwroot
+                if (!System.IO.File.Exists(absolutePath))
+                    absolutePath = Path.Combine(_webHostEnvironment.ContentRootPath, rawPath);
+            }
+
+            // ✅ Debug log — remove after fixing (or keep in dev only)
+            Console.WriteLine($"[ServeFile] Raw: '{rawPath}' | Resolved: '{absolutePath}' | Exists: {System.IO.File.Exists(absolutePath)}");
+
+            if (!System.IO.File.Exists(absolutePath))
+                return NotFound($"File not found at: {absolutePath}");
+
+            // ✅ Detect content type
             string contentType = "application/pdf";
-
-            var ext = Path.GetExtension(path).ToLower();
+            var ext = Path.GetExtension(absolutePath).ToLower();
             if (ext == ".jpg" || ext == ".jpeg") contentType = "image/jpeg";
             else if (ext == ".png") contentType = "image/png";
 
-            // 🔥 THIS IS THE MAGIC LINE
+            // ✅ Stream file inline (no download prompt)
+            var stream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             return new FileStreamResult(stream, contentType)
             {
-                FileDownloadName = null // 🚨 IMPORTANT: no filename = no download
+                FileDownloadName = null // null = inline view, not download
             };
         }
 

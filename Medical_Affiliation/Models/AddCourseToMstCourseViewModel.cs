@@ -369,8 +369,8 @@ public class InstitutionViewModel
     public string EmailId { get; set; }
 
     // ✅ Alt Mobile
-    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
-    public string AltLandlineMobile { get; set; }
+    
+    public string? AltLandlineMobile { get; set; }
 
     [EmailAddress(ErrorMessage = "Invalid email")]
     public string AltEmailId { get; set; }
@@ -429,11 +429,10 @@ public class InstitutionViewModel
     // ✅ Dean
     public string DeanName { get; set; }
 
-    [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
-    public string DeanMobileNumber { get; set; }
+    
+    public string? DeanMobileNumber { get; set; }
 
-    [EmailAddress(ErrorMessage = "Invalid email")]
-    public string DeanEmailId { get; set; }
+    public string? DeanEmailId { get; set; }
 
     // ✅ Principal Alt
     [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
