@@ -125,26 +125,35 @@ namespace Medical_Affiliation.Controllers
         //csharp Medical_Affiliation\Controllers\MedicalContinuesAffiliationController.cs
         // GET: /Institution/Create
 
-        private async Task<(string path, string name, string type)> SaveFileAsync(IFormFile file, string folder)
+        private async Task<(string? path, string? name, string? type)> SaveFileAsync(
+    IFormFile? file, string folder)
         {
             if (file == null || file.Length == 0)
                 return (null, null, null);
 
-            string basePath = Path.Combine(BasePath, "TrustDocuments"); ;
+            // ✅ Validate extension
+            var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png" };
+            var ext = Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(ext))
+                return (null, null, null);
+
+            string basePath = Path.Combine(BasePath, "TrustDocuments");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid().ToString() + ext;
             string fullPath = Path.Combine(fullFolder, fileName);
 
             using (var stream = new FileStream(fullPath, FileMode.Create))
-            {
                 await file.CopyToAsync(stream);
-            }
 
-            return (fullPath, file.FileName, file.ContentType);
+            // ✅ Store RELATIVE path only → "TrustDocuments/folder/guid.pdf"
+            string relativePath = Path.Combine("TrustDocuments", folder, fileName)
+                                      .Replace("\\", "/"); // forward slashes in DB
+
+            return (relativePath, file.FileName, file.ContentType);
         }
 
 
@@ -254,11 +263,29 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-        private void DeleteOldFile(string? oldPath)
+        private void DeleteOldFile(string? storedPath)
         {
-            if (!string.IsNullOrEmpty(oldPath) && System.IO.File.Exists(oldPath))
+            if (string.IsNullOrWhiteSpace(storedPath)) return;
+
+            try
             {
-                System.IO.File.Delete(oldPath);
+                string absolutePath;
+
+                if (Path.IsPathRooted(storedPath.Trim()))
+                    absolutePath = storedPath.Trim(); // legacy absolute
+                else
+                {
+                    var normalized = storedPath.Trim()
+                        .Replace("/", Path.DirectorySeparatorChar.ToString());
+                    absolutePath = Path.Combine(BasePath, normalized);
+                }
+
+                if (System.IO.File.Exists(absolutePath))
+                    System.IO.File.Delete(absolutePath);
+            }
+            catch
+            {
+                // Non-critical — log and continue
             }
         }
 
@@ -558,8 +585,8 @@ namespace Medical_Affiliation.Controllers
 
 
         private async Task<IActionResult> ServeFileFromPath(
-     int id,
-     Func<InstitutionBasicDetail, string?> pathSelector)
+       int id,
+       Func<InstitutionBasicDetail, string?> pathSelector)
         {
             var entity = await _context.InstitutionBasicDetails
                 .FirstOrDefaultAsync(x => x.InstitutionId == id);
@@ -572,43 +599,39 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrWhiteSpace(rawPath))
                 return NotFound("No file path stored.");
 
-            // ✅ Trim whitespace and normalize separators
-            rawPath = rawPath.Trim().Replace("/", Path.DirectorySeparatorChar.ToString())
-                                    .Replace("\\", Path.DirectorySeparatorChar.ToString());
-
-            // ✅ Resolve to absolute path if relative
             string absolutePath;
-            if (Path.IsPathRooted(rawPath))
+
+            if (Path.IsPathRooted(rawPath.Trim()))
             {
-                absolutePath = rawPath;
+                // 🔁 Legacy: old records still have absolute path stored
+                absolutePath = rawPath.Trim();
             }
             else
             {
-                // Combine with wwwroot or ContentRootPath depending on where you store files
-                absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, rawPath);
-
-                // 🔁 Fallback: try ContentRootPath if not found in wwwroot
-                if (!System.IO.File.Exists(absolutePath))
-                    absolutePath = Path.Combine(_webHostEnvironment.ContentRootPath, rawPath);
+                // ✅ New records: relative path → resolve using BasePath
+                var normalized = rawPath.Trim().Replace("/", Path.DirectorySeparatorChar.ToString());
+                absolutePath = Path.Combine(BasePath, normalized);
             }
 
-            // ✅ Debug log — remove after fixing (or keep in dev only)
-            Console.WriteLine($"[ServeFile] Raw: '{rawPath}' | Resolved: '{absolutePath}' | Exists: {System.IO.File.Exists(absolutePath)}");
-
             if (!System.IO.File.Exists(absolutePath))
-                return NotFound($"File not found at: {absolutePath}");
+                return NotFound($"File not found. Checked: {absolutePath}");
 
             // ✅ Detect content type
-            string contentType = "application/pdf";
             var ext = Path.GetExtension(absolutePath).ToLower();
-            if (ext == ".jpg" || ext == ".jpeg") contentType = "image/jpeg";
-            else if (ext == ".png") contentType = "image/png";
+            var contentType = ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/pdf"
+            };
 
-            // ✅ Stream file inline (no download prompt)
-            var stream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            // ✅ Stream inline (no download prompt)
+            var stream = new FileStream(
+                absolutePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
             return new FileStreamResult(stream, contentType)
             {
-                FileDownloadName = null // null = inline view, not download
+                FileDownloadName = null
             };
         }
 
