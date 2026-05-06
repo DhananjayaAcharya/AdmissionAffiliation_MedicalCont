@@ -24,8 +24,4 @@ public partial class CaSsAffiliationGrantedYear
     public string? CoursesApplied { get; set; }
 
     public string? FilePath { get; set; }
-
-    
-
-
 }

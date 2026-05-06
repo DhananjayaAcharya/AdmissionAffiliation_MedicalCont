@@ -1381,8 +1381,8 @@
                                     <label class="fl">Faculty <span class="req-g">*</span></label>
                                     <div class="iw">
                                         <i class="ic bi bi-mortarboard-fill"></i>
-                                         @Html.DropDownListFor(m => m.FacultyId, Model.Faculties, "— Select Faculty —", new { @class = "fs", id = "FacultyId", disabled = "disabled" })
-                                         @Html.HiddenFor(m => m.FacultyId)
+                                         @Html.DropDownListFor(m => m.FacultyId, Model.Faculties, "— Select Faculty —", new { @class = "fs", id = "FacultyId" })
+                                         @* @Html.HiddenFor(m => m.FacultyId) *@
                                     </div>
                                     @Html.ValidationMessageFor(m => m.FacultyId, "", new { @class = "ferr" })
                                 </div>
@@ -1676,15 +1676,32 @@
           });
 
           /* Faculty → College cascade */
-          // $('#FacultyId').on('change',function(){
-          //   var id=$(this).val(),$c=$('#CollegeId');
-          //   $c.empty().append('<option value="">— Select College —</option>');
-          //   if(id){
-          //     $.get('@Url.Action("GetCollegesByFaculty", "Login")',{facultyId:id},function(data){
-          //       $.each(data,function(i,c){$c.append($('<option>',{value:c.value,text:c.text,'data-code':c.code}));});
-          //     });
-          //   }
-          // });
+        $('#CollegeId').prop('disabled', true);
+
+        $('#FacultyId').on('change', function () {
+            var id = $(this).val();
+            var $c = $('#CollegeId');
+
+            $c.prop('disabled', !id);
+
+            $c.empty().append('<option value="">— Select College —</option>');
+
+            if (id) {
+                $.get('@Url.Action("GetCollegesByFaculty", "Login")',{ facultyId: id },
+                    function (data) {
+                        $.each(data, function (i, c) {
+                            $c.append(
+                                $('<option>', {
+                                    value: c.value,
+                                    text: c.text
+                                })
+                            );
+                    });
+
+                });
+            }
+        });
+
           /* Auto-set username */
           $('#CollegeId').on('change',function(){
             $('#CollegeUsername').val($(this).find('option:selected').data('code')||'');

@@ -18,6 +18,12 @@ namespace Admission_Affiliation.Models
         //public string CollegeId { get; set; }
     }
 
+    public class BulkCollegeStatusUpdateModel
+    {
+        public List<string> CollegeCodes { get; set; }
+
+        public bool Status { get; set; }
+    }
 
     public class CollegeCourseForAdminViewModel
     {

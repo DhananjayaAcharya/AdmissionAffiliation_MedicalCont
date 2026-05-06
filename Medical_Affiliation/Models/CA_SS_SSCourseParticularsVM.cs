@@ -56,6 +56,7 @@
         public int Id { get; set; }              // ✅ ADD THIS
 
         public string? FileName { get; set; }    // ✅ ADD THIS
+        public string? FilePath { get; set; }    // ✅ ADD THIS
 
         public bool HasFile { get; set; }        // ✅ ADD THIS
     }

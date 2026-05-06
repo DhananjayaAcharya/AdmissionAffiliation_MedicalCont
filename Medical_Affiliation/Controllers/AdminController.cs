@@ -73,6 +73,7 @@ namespace Admission_Affiliation.Controllers
             var username = (model.UserName ?? string.Empty).Trim();
             var isFellowshipSo = string.Equals(username, "Fellowship_SO", StringComparison.OrdinalIgnoreCase)
                                 || string.Equals(username, "Felloeship_SO", StringComparison.OrdinalIgnoreCase);
+            var user = await _context.TblRguhsFacultyUsers.Where(e => e.UserName.ToLower() == model.UserName.ToLower()).FirstOrDefaultAsync();
 
             if (isFellowshipSo && model.Password == "Fellowship@SO")
             {
@@ -99,6 +100,7 @@ namespace Admission_Affiliation.Controllers
                 HttpContext.Session.SetString("FacultyCode", "12");
                 HttpContext.Session.SetString("FacultyId", "12");
                 HttpContext.Session.SetString("IsDirector", "true");
+                //HttpContext.Session.SetString("IsAdmin", user.IsAdmin?.ToString() ?? "false");
 
                 return RedirectToAction("AdminDashboard_Fellowship", "Fellowship");
             }
@@ -221,8 +223,8 @@ namespace Admission_Affiliation.Controllers
 
 
             // Existing user lookup from database
-            var user = await _context.TblRguhsFacultyUsers
-                .FirstOrDefaultAsync(u => u.UserName == model.UserName);
+            //var user = await _context.TblRguhsFacultyUsers
+            //    .FirstOrDefaultAsync(u => u.UserName == model.UserName);
 
             if (user == null)
             {
@@ -233,6 +235,7 @@ namespace Admission_Affiliation.Controllers
             HttpContext.Session.SetString("logoutController", "Admin");
             HttpContext.Session.SetString("FacultyCode", user.Faculty.ToString());
             HttpContext.Session.SetString("FacultyId", user.Faculty.ToString());
+            HttpContext.Session.SetString("IsAdmin", user.IsAdmin?.ToString() ?? "false");
 
             // existing passwordCreds/coursesList logic...
             var passwordCreds = await _context.AffiliationCollegeMasters
@@ -551,6 +554,86 @@ namespace Admission_Affiliation.Controllers
             return RedirectToAction("AdminDashboard");
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> ManageCollegeStatus()
+        {
+            bool isAdmin = Convert.ToBoolean(HttpContext.Session.GetString("IsAdmin"));
+
+            if (!isAdmin)
+            {
+                return Unauthorized();
+            }
+
+            var faculties = await _context.Faculties
+                .Where(x => x.Status.ToLower() == "active")
+                .OrderBy(x => x.FacultyName)
+                .ToListAsync();
+
+            var colleges = await _context.AffiliationCollegeMasters
+                .OrderBy(x => x.CollegeName)
+                .ToListAsync();
+
+            ViewBag.Faculties = faculties;
+
+            return View(colleges);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> BulkUpdateCollegeStatus(
+    [FromBody] BulkCollegeStatusUpdateModel model)
+        {
+            bool isAdmin =
+                Convert.ToBoolean(HttpContext.Session.GetString("IsAdmin"));
+
+            if (!isAdmin)
+            {
+                return Unauthorized();
+            }
+
+            if (model == null || model.CollegeCodes == null || !model.CollegeCodes.Any())
+            {
+                return BadRequest();
+            }
+
+            var colleges = await _context.AffiliationCollegeMasters
+                .Where(x => model.CollegeCodes.Contains(x.CollegeCode))
+                .ToListAsync();
+
+            foreach (var college in colleges)
+            {
+                college.Status = model.Status;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleCollegeStatus(string collegeCode)
+        {
+            bool isAdmin = Convert.ToBoolean(HttpContext.Session.GetString("IsAdmin"));
+
+            if (!isAdmin)
+            {
+                return Unauthorized();
+            }
+
+            var college = await _context.AffiliationCollegeMasters
+                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode);
+
+            if (college == null)
+            {
+                return NotFound();
+            }
+
+            college.Status = !(college.Status ?? false);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ManageCollegeStatus));
+        }
 
         [HttpPost]
         public async Task<IActionResult> FinanceLogout()

@@ -12,5 +12,6 @@ public partial class CaMstMedCommitteeName
     public string? FacultyCode { get; set; }
 
     public string? SubFacultyCode { get; set; }
+
     public string? CourseLevel { get; set; }
 }

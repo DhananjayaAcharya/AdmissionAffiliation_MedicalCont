@@ -1,0 +1,492 @@
+﻿@model IEnumerable<AffiliationCollegeMaster>
+
+@{
+    ViewData["Title"] = "Manage College Status";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    body {
+        background-color: #f5f7fb;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #0d6efd, #084298);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .search-box {
+        max-width: 350px;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background-color: #d1f7df;
+        color: #0f8a43;
+    }
+
+    .status-inactive {
+        background-color: #fde2e2;
+        color: #c0392b;
+    }
+
+    .table thead {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+    .form-switch .form-check-input {
+        width: 3rem;
+        height: 1.5rem;
+        cursor: pointer;
+    }
+
+    .bulk-action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .selected-count {
+        font-weight: 600;
+        color: #555;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8fbff;
+        transition: 0.2s;
+    }
+
+    .table-scroll-body {
+        max-height: 30vw;
+        overflow-y: auto;
+        overflow-x: auto;
+        border-radius: 10px;
+    }
+
+    /* Sticky header while scrolling */
+    .table-scroll-body thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #0d6efd !important;
+        color: white;
+    }
+    .back{
+        padding: 2px 5px;
+        color: white;
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+    <div class="page-header">
+        <a class="back" href="@Url.Action("AdminDashboard", "Admin")">Back to Dashboard</a> <h2 class="mb-1">Manage College Status</h2>
+        <div class="row mb-4">
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Faculty</label>
+
+                <select id="facultyFilter" class="form-select">
+
+                    <option value="">-- All Faculties --</option>
+
+                    @foreach (var faculty in ViewBag.Faculties)
+                    {
+                        <option value="@faculty.FacultyId">
+                            @faculty.FacultyName
+                        </option>
+                    }
+
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">College</label>
+
+                <select id="collegeFilter" class="form-select">
+
+                    <option value="">-- All Colleges --</option>
+
+                    @foreach (var college in Model)
+                    {
+                        <option value="@college.CollegeCode"
+                                data-faculty="@college.FacultyCode">
+
+                            @college.CollegeName
+
+                        </option>
+                    }
+
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="table-card">
+
+        <div class="bulk-action-bar">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="selectAll">
+                    <label class="form-check-label fw-semibold" for="selectAll">
+                        Select All
+                    </label>
+                </div>
+
+                <span class="selected-count" id="selectedCount">
+                    0 Selected
+                </span>
+
+                <button class="btn btn-success btn-sm"
+                        onclick="bulkUpdateStatus(true)">
+                    Activate Selected
+                </button>
+
+                <button class="btn btn-danger btn-sm"
+                        onclick="bulkUpdateStatus(false)">
+                    Deactivate Selected
+                </button>
+
+            </div>
+
+            <div class="search-box">
+                <input type="text"
+                       class="form-control"
+                       id="searchInput"
+                       placeholder="Search by College Name / Code / Mobile">
+            </div>
+
+        </div>
+
+        <div class="table-responsive table-scroll-body">
+            <table class="table table-bordered align-middle" id="collegeTable">
+
+                <thead>
+                    <tr>
+                        <th width="50">Select</th>
+
+                        <th onclick="sortTable(1)" style="cursor:pointer;">
+                            College Code ▲▼
+                        </th>
+
+                        <th onclick="sortTable(2)" style="cursor:pointer;">
+                            College Name ▲▼
+                        </th>
+
+                        <th onclick="sortTable(3)" style="cursor:pointer;">
+                            Principal Mobile ▲▼
+                        </th>
+
+                        <th onclick="sortTable(4)" style="cursor:pointer;">
+                            Status ▲▼
+                        </th>
+
+                        <th width="140">
+                            Toggle
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var college in Model)
+                    {
+                        var isActive = college.Status;
+
+                        <tr data-faculty="@college.FacultyCode"
+                            data-college="@college.CollegeCode">
+
+                            <td>
+                                <input type="checkbox"
+                                       class="form-check-input row-checkbox">
+                            </td>
+
+                            <td>
+                                @college.CollegeCode
+                            </td>
+
+                            <td>
+                                @college.CollegeName
+                            </td>
+
+                            <td>
+                                @college.PrincipalMobileNumber
+                            </td>
+
+                            <td>
+                                @if (college.Status == true)
+                                {
+                                    <span class="status-badge status-active">
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-inactive">
+                                        Inactive
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+
+                                <form method="post"
+                                      asp-action="ToggleCollegeStatus"
+                                      asp-controller="Admin">
+
+                                    <input type="hidden"
+                                           name="collegeCode"
+                                           value="@college.CollegeCode" />
+
+                                    <div class="form-check form-switch">
+
+                                        <input class="form-check-input status-toggle"
+                                               type="checkbox"
+                                               onchange="this.form.submit()"
+                                        @(isActive == true ? "checked" : "")>
+
+                                    </div>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    // Select All
+
+    document.getElementById('selectAll').addEventListener('change', function () {
+
+        const visibleRows = document.querySelectorAll(
+            '#collegeTable tbody tr:not([style*="display: none"])'
+        );
+
+        visibleRows.forEach(row => {
+
+            const checkbox = row.querySelector('.row-checkbox');
+
+            if (checkbox) {
+                checkbox.checked = this.checked;
+            }
+        });
+
+        updateSelectedCount();
+    });
+
+    // Individual select
+    document.querySelectorAll('.row-checkbox').forEach(cb => {
+
+        cb.addEventListener('change', function () {
+
+            updateSelectedCount();
+
+            const total = document.querySelectorAll('.row-checkbox').length;
+            const checked = document.querySelectorAll('.row-checkbox:checked').length;
+
+            document.getElementById('selectAll').checked = total === checked;
+        });
+
+    });
+
+    function updateSelectedCount() {
+
+        const checked = document.querySelectorAll(
+            '.row-checkbox:checked'
+        ).length;
+
+        document.getElementById('selectedCount').innerText =
+            checked + ' Selected';
+    }
+
+    // Search
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+
+        const value = this.value.toLowerCase();
+
+        const rows = document.querySelectorAll('#collegeTable tbody tr');
+
+        rows.forEach(row => {
+
+            const text = row.innerText.toLowerCase();
+
+            row.style.display = text.includes(value)
+                ? ''
+                : 'none';
+        });
+
+    });
+
+        // Faculty → College filter
+
+    const facultyFilter = document.getElementById('facultyFilter');
+    const collegeFilter = document.getElementById('collegeFilter');
+
+    facultyFilter.addEventListener('change', function () {
+
+        const facultyId = this.value;
+
+        Array.from(collegeFilter.options).forEach(option => {
+
+            if (option.value === "") {
+                option.hidden = false;
+                return;
+            }
+
+            const faculty = option.getAttribute('data-faculty');
+
+            option.hidden = facultyId && faculty !== facultyId;
+        });
+
+        collegeFilter.value = "";
+
+        filterTable();
+    });
+
+    collegeFilter.addEventListener('change', filterTable);
+
+    function filterTable() {
+
+        const facultyId = facultyFilter.value;
+        const collegeCode = collegeFilter.value;
+
+        const rows = document.querySelectorAll('#collegeTable tbody tr');
+
+        rows.forEach(row => {
+
+            const rowFaculty = row.getAttribute('data-faculty');
+            const rowCollege = row.getAttribute('data-college');
+
+            const facultyMatch =
+                !facultyId || rowFaculty === facultyId;
+
+            const collegeMatch =
+                !collegeCode || rowCollege === collegeCode;
+
+            row.style.display =
+                facultyMatch && collegeMatch
+                    ? ''
+                    : 'none';
+        });
+    }
+
+    // Column Sorting
+
+    let sortDirection = {};
+
+    function sortTable(columnIndex) {
+
+        const table = document.getElementById("collegeTable");
+        const tbody = table.querySelector("tbody");
+
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        sortDirection[columnIndex] =
+            !sortDirection[columnIndex];
+
+        rows.sort((a, b) => {
+
+            const aText =
+                a.cells[columnIndex].innerText.trim().toLowerCase();
+
+            const bText =
+                b.cells[columnIndex].innerText.trim().toLowerCase();
+
+            return sortDirection[columnIndex]
+                ? aText.localeCompare(bText, undefined, { numeric: true })
+                : bText.localeCompare(aText, undefined, { numeric: true });
+
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+        function bulkUpdateStatus(isActive) {
+
+        const selectedRows = document.querySelectorAll(
+            '.row-checkbox:checked'
+        );
+
+        if (selectedRows.length === 0) {
+            alert('Please select at least one college.');
+            return;
+        }
+
+        const collegeCodes = [];
+
+        selectedRows.forEach(cb => {
+
+            const row = cb.closest('tr');
+
+            const collegeCode =
+                row.getAttribute('data-college');
+
+            if (collegeCode) {
+                collegeCodes.push(collegeCode);
+            }
+        });
+
+        fetch('/Admin/BulkUpdateCollegeStatus', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                collegeCodes: collegeCodes,
+                status: isActive
+            })
+
+        })
+        .then(response => {
+
+            if (response.ok) {
+                location.reload();
+            }
+            else {
+                alert('Failed to update status.');
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert('Something went wrong.');
+        });
+    }
+</script>

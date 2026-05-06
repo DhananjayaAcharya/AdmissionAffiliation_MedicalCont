@@ -166,30 +166,19 @@ namespace Medical_Affiliation.Controllers
             var captcha = new Random().Next(10000, 99999).ToString();
             HttpContext.Session.SetString("CaptchaCode", captcha);
 
-            var colleges = new[] { "M016", "M011", "M019", "Test1" };
+            //var colleges = new[] { "M016", "M011", "M019", "Test1" };
 
             var model = new AdmissionLoginViewModel
             {
-
-                FacultyId = "1",
                 Faculties = _context.Faculties
-                .Where(c => c.FacultyId == 1)
+                .Where(e=>e.Status.ToLower()=="active")
                 .Select(f => new SelectListItem
                 {
                     Value = f.FacultyId.ToString(),
                     Text = f.FacultyName,
-                    Selected = true
                 }).ToList(),
 
-                Colleges = _context.AffiliationCollegeMasters
-                .Where(c => c.FacultyCode == "1" && colleges.Contains(c.CollegeCode))
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CollegeCode,
-                    Text = c.CollegeName
-                })
-                .OrderBy(c => c.Text)
-                .ToList(),
+                Colleges = new List<SelectListItem>(),
 
                 CaptchaCode = captcha
             };

@@ -22,6 +22,4 @@ public partial class CaSsPermission
     public string? CoursesApplied { get; set; }
 
     public string? FilePath { get; set; }
-
-    
 }

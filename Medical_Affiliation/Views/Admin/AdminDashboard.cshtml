@@ -2,7 +2,8 @@
     ViewData["Title"] = "Admin Dashboard";
     var faculties = ViewBag.Faculties;
     var username = ViewBag.UserName as string ?? "Administrator";
-    var IsAdmin = ViewBag.IsAdmin ?? true;
+    var IsAdmin = ViewBag.IsAdmin ??  true;
+    // bool isAdmin = Convert.ToBoolean(Context.Session.GetString("IsAdmin"));
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -181,6 +182,14 @@
         <li class="sidebar-item"><a href="@Url.Action("NodalOfficersForAdmin", "Admin")"><i class="bi bi-person-badge-fill"></i> Nodal Officers</a></li>
         <li class="sidebar-item"><a href="@Url.Action("AdminDocumentReport", "Admin")"><i class="bi bi-file-earmark-check"></i> Document Reports</a></li>
         <li class="sidebar-item"><a href="@Url.Action("CollegeWiseReport", "Admin")"><i class="bi bi-building-check"></i> College Reports</a></li>
+        @if (IsAdmin)
+        {
+            <li class="sidebar-item">
+                <a href="@Url.Action("ManageCollegeStatus", "Admin")">
+                    <i class="bi bi-building-gear"></i> Manage College Status
+                </a>
+            </li>
+        }
         <li class="sidebar-item"><a href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
     </ul>
 </aside>

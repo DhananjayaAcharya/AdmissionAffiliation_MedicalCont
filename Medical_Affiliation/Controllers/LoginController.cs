@@ -305,22 +305,22 @@ namespace Medical_Affiliation.Controllers
             HttpContext.Session.SetString("CaptchaCode", model.CaptchaCode); // ✅ FIX
         }
 
-        //[HttpGet]
-        //public JsonResult GetCollegesByFaculty(string facultyId)
-        //{
-        //    var colleges = _context.AffiliationCollegeMasters
-        //        .Where(c => c.FacultyCode.ToString() == facultyId)
-        //        .Select(c => new
-        //        {
-        //            Value = c.CollegeCode,
-        //            Text = c.CollegeName,
-        //            Code = c.CollegeCode
-        //        })
-        //        .OrderBy(c => c.Text)
-        //        .ToList();
+        [HttpGet]
+        public JsonResult GetCollegesByFaculty(string facultyId)
+        {
+            var colleges = _context.AffiliationCollegeMasters
+                .Where(c => c.FacultyCode.ToString() == facultyId)
+                .Select(c => new
+                {
+                    Value = c.CollegeCode,
+                    Text = c.CollegeName,
+                    Code = c.CollegeCode
+                })
+                .OrderBy(c => c.Text)
+                .ToList();
 
-        //    return Json(colleges);
-        //}
+            return Json(colleges);
+        }
 
         private string GenerateCaptchaCode()
         {

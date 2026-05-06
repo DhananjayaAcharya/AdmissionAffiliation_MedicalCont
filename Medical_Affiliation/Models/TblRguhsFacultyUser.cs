@@ -26,4 +26,6 @@ public partial class TblRguhsFacultyUser
     public string? DesignationDescription { get; set; }
 
     public bool? IsSection { get; set; }
+
+    public bool? IsAdmin { get; set; }
 }
