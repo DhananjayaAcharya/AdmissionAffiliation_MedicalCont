@@ -817,7 +817,6 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> ClaimDetails()
         {
             // ── 1. Resolve phone ──────────────────────────────────────────────────
-            // ✅ Use plain "PhoneNumber" string — matches claim stored in Login
             var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
                 return RedirectToAction("Login");
@@ -843,13 +842,14 @@ namespace Medical_Affiliation.Controllers
             var savedClaim = savedClaims.FirstOrDefault();
 
             // ── 5. College name for pre-filled college code ───────────────────────
+            // Fetched from LIC_InspectionCollege_Details (consistent source)
             string? collegeName = null;
             if (!string.IsNullOrWhiteSpace(savedClaim?.CollegeCode))
             {
-                collegeName = await _context.AffiliationCollegeMasters
+                collegeName = await _context.LicInspectionCollegeDetails
                     .AsNoTracking()
-                    .Where(x => x.CollegeCode == savedClaim.CollegeCode)
-                    .Select(x => x.CollegeName)
+                    .Where(x => x.Collegecode == savedClaim.CollegeCode)
+                    .Select(x => x.Collegename)
                     .FirstOrDefaultAsync();
             }
 
@@ -889,7 +889,7 @@ namespace Medical_Affiliation.Controllers
                 ReturnKilometers = savedClaim?.ReturnKilometers?.ToString(),
                 TotalCost = savedClaim?.TotalCost,
                 getAirFare = savedClaim?.AirFare,
-                isBanglore = savedClaim?.IsBanglore ?? false,
+                isBanglore = savedIsBangalore,
                 NumberOfDays = int.TryParse(savedClaim?.NoofDays, out var nd) ? nd : 1,
 
                 // New fields
@@ -1180,7 +1180,7 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadBill()
         {
-            var phone = User.FindFirst(ClaimTypes.MobilePhone)?.Value?.Trim();
+            var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
                 return RedirectToAction("Login");
 
@@ -1197,7 +1197,7 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadAttendenceDoc()
         {
-            var phone = User.FindFirst(ClaimTypes.MobilePhone)?.Value?.Trim();
+            var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
                 return RedirectToAction("Login");
 
@@ -1217,39 +1217,21 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCollegesByFaculty(string? facultyId)
         {
-            var phone = User.FindFirst(ClaimTypes.MobilePhone)?.Value?.Trim();
+            // ── Fix: use same claim name as Login/ClaimDetails ────────────────────
+            var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
                 return Json(new List<object>());
 
             var member = await _context.LicInspections
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone);
-
             if (member == null)
                 return Json(new List<object>());
 
             // All colleges assigned to this inspector
+            // Senate Member filtering is now handled inside GetAssignedCollegesAsync
             var assignedColleges = await GetAssignedCollegesAsync(
                 member.TypeofMember?.Trim() ?? "", phone);
-
-            // ── Senate Member filter ──────────────────────────────────────────────
-            // If the logged-in member is a Senate Member, only show colleges where
-            // IsAttended = true in LicInspectionOtherDetails (matched by CollegeCode)
-            if (string.Equals(member.TypeofMember?.Trim(), "Senate Members",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                var attendedCollegeCodes = await _context.LicInspectionOtherDetails
-                    .AsNoTracking()
-                    .Where(x => x.Phonenumber.Trim() == phone && x.IsAttended == true)
-                    .Select(x => x.CollegeCode.Trim())
-                    .Distinct()
-                    .ToListAsync();
-
-                assignedColleges = assignedColleges
-                    .Where(c => attendedCollegeCodes.Contains(c.CollegeCode.Trim()))
-                    .ToList();
-            }
-            // ─────────────────────────────────────────────────────────────────────
 
             // If no faculty selected, return all assigned colleges
             if (string.IsNullOrWhiteSpace(facultyId))
@@ -1286,10 +1268,42 @@ namespace Medical_Affiliation.Controllers
         {
             var query = _context.LicInspectionCollegeDetails.AsNoTracking();
 
+            // ── Senate Members ────────────────────────────────────────────────────
+            // Only show colleges where their data exists in LicInspectionOtherDetails
+            // (IsAttended check removed here — just existence in the table is enough)
+            if (string.Equals(role, "Senate Members", StringComparison.OrdinalIgnoreCase))
+            {
+                // Step 1: Get college codes that exist for this Senate Member
+                //         in LicInspectionOtherDetails
+                var senatCollegeCodes = await _context.LicInspectionOtherDetails
+                    .AsNoTracking()
+                    .Where(x => x.Phonenumber.Trim() == phone)
+                    .Select(x => x.CollegeCode.Trim())
+                    .Distinct()
+                    .ToListAsync();
+
+                // Step 2: If no data in LicInspectionOtherDetails → return empty
+                if (!senatCollegeCodes.Any())
+                    return new List<AssignedCollegeItem>();
+
+                // Step 3: Return only assigned colleges that exist in OtherDetails
+                return await query
+                    .Where(x => x.SenetMemberPhNo.ToString() == phone
+                             && senatCollegeCodes.Contains(x.Collegecode.Trim()))
+                    .OrderBy(x => x.Collegename)
+                    .Select(x => new AssignedCollegeItem
+                    {
+                        CollegeName = x.Collegename,
+                        CollegeCode = x.Collegecode
+                    })
+                    .ToListAsync();
+            }
+
+            // ── Academic Council & Subject Expertise ──────────────────────────────
+            // Display all assigned colleges directly — no extra condition
             IQueryable<LicInspectionCollegeDetail> filtered = role switch
             {
                 "Academic Council" => query.Where(x => x.AcMemberPhno.ToString() == phone),
-                "Senate Members" => query.Where(x => x.SenetMemberPhNo.ToString() == phone),
                 "Subject Expertise" => query.Where(x => x.SubjectExpertisePhNo.ToString() == phone),
                 _ => Enumerable.Empty<LicInspectionCollegeDetail>().AsQueryable()
             };
@@ -1303,6 +1317,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .ToListAsync();
         }
+
 
 
         /// <summary>
@@ -2183,8 +2198,7 @@ namespace Medical_Affiliation.Controllers
 
             var collegeRows = await filtered.OrderBy(x => x.Collegename).ToListAsync();
 
-            // ── 2. Faculty lookup — keyed by FacultyId (int → string) ────────────
-            // FIX: was using Collegecode as key; must use Facultycode from the row
+            // ── 2. Faculty lookup — keyed by FacultyId ────────────────────────────
             var facultyMap = await _context.Faculties
                 .AsNoTracking()
                 .ToDictionaryAsync(f => f.FacultyId.ToString(), f => f);
@@ -2198,12 +2212,10 @@ namespace Medical_Affiliation.Controllers
             // ── 4. Map to view items ──────────────────────────────────────────────
             var colleges = collegeRows.Select(c =>
             {
-                // FIX: look up faculty by c.Facultycode, not c.Collegecode
                 facultyMap.TryGetValue(c.Facultycode.ToString() ?? "", out var fac);
                 claimMap.TryGetValue(c.Collegecode ?? "", out var claim);
 
-                // "Not Assigned" is treated as Pending everywhere — normalise here
-                // so the status filter works with exactly two values: Completed / Pending
+                // ── Fix: claim can be null — use null-conditional everywhere ──────
                 string claimStatus = (claim != null && claim.TotalCost > 0)
                     ? "Completed"
                     : "Pending";
@@ -2219,11 +2231,11 @@ namespace Medical_Affiliation.Controllers
                     SenetMemberPhone = c.SenetMemberPhNo?.ToString(),
                     SubjectExpertise = c.SubjectExpertise,
                     SubjectExpertisePhone = c.SubjectExpertisePhNo?.ToString(),
-                    // FIX: faculty resolved from correct facultycode lookup
                     FacultyName = fac?.FacultyName,
                     FacultyAbbr = fac?.FacultyAbbre,
                     ClaimStatus = claimStatus,
-                    ClaimMobile = claim?.PhoneNumber
+                    Totalcost = claim?.TotalCost?.ToString() ?? "0",  // ← Fix
+                    ClaimMobile = claim?.PhoneNumber                    // ← already safe
                 };
             }).ToList();
 
@@ -2239,16 +2251,13 @@ namespace Medical_Affiliation.Controllers
                 ).ToList();
             }
 
-            // ── 6. Status filter ─────────────────────────────────────────────────
-            // FIX: ClaimStatus is now always "Completed" or "Pending" (normalised
-            // in step 4), so this comparison now works correctly for both values.
+            // ── 6. Status filter ──────────────────────────────────────────────────
             if (!string.IsNullOrWhiteSpace(statusFilter))
                 colleges = colleges
                     .Where(c => c.ClaimStatus == statusFilter)
                     .ToList();
 
-            // ── 7. Summary counts — computed BEFORE paging so totals are accurate─
-            // FIX: counts were on Colleges (paged) — moved here on full filtered list
+            // ── 7. Summary counts — before paging ────────────────────────────────
             int totalCompleted = colleges.Count(c => c.ClaimStatus == "Completed");
             int totalPending = colleges.Count(c => c.ClaimStatus == "Pending");
 
@@ -2270,8 +2279,8 @@ namespace Medical_Affiliation.Controllers
                 MobileNumber = phone,
                 Colleges = paged,
                 TotalRecords = total,
-                ClaimsCompleted = totalCompleted,   // FIX: pre-computed from full list
-                ClaimsPending = totalPending,     // FIX: pre-computed from full list
+                ClaimsCompleted = totalCompleted,
+                ClaimsPending = totalPending,
                 SearchTerm = searchTerm,
                 StatusFilter = statusFilter,
                 PageNumber = pageNumber,
@@ -2316,6 +2325,7 @@ namespace Medical_Affiliation.Controllers
             public string? SubjectExpertisePhone { get; set; }
             public string? FacultyName { get; set; }
             public string? FacultyAbbr { get; set; }
+            public string? Totalcost { get; set; }
             public string? ClaimStatus { get; set; }
             public string? ClaimMobile { get; set; }
         }

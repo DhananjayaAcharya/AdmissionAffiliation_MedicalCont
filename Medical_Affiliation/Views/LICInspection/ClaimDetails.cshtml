@@ -2460,7 +2460,7 @@
                                 <table class="saved-table">
                                     <thead>
                                         <tr>
-                                            <th>#</th>
+                                            <th>SlNo</th>
                                             <th>College</th>
                                             <th>Faculty</th>
                                             <th>Insp. Date</th>
@@ -2560,7 +2560,7 @@
                                                     {
                                                         @allowance.ToString("N2")
                                                         <br />
-                                            
+
                                                         <span style="font-size:.58rem;color:var(--t3);font-weight:400">@(isLCA ? "LCA" : "DA")</span>
                                                     }
                                                     else
@@ -2677,9 +2677,9 @@
             const submittedCodes = new Set([
                 @Html.Raw(string.Join(",",
                     Model.SavedClaims
-                            .Select(x => x.CollegeCode)
-                            .Where(c => !string.IsNullOrWhiteSpace(c))
-                            .Select(c => $"\"{c}\"")))
+                                    .Select(x => x.CollegeCode)
+                                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                                    .Select(c => $"\"{c}\"")))
             ]);
 
             function flash(id) {

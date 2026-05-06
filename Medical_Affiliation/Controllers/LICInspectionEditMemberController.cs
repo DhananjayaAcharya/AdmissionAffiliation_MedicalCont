@@ -64,8 +64,7 @@ namespace Medical_Affiliation.Controllers
             // type = "AC Member" or "Senate Member" — matches TypeofMember column exactly
             var members = _context.LicInspections
                 .Where(x => x.TypeofMember == type)
-                .Select(x => new
-                {
+                .Select(x => new {
                     id = x.Id,
                     name = x.Name,
                     phone = x.PhoneNumber
