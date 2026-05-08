@@ -428,9 +428,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -442,21 +442,82 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("AcademicIntake");
 
-            entity.Property(e => e.Ay2024ExistingIntake).HasColumnName("AY2024_ExistingIntake");
-            entity.Property(e => e.Ay2024IncreaseIntake).HasColumnName("AY2024_IncreaseIntake");
-            entity.Property(e => e.Ay2024TotalIntake).HasColumnName("AY2024_TotalIntake");
-            entity.Property(e => e.Ay2025ExistingIntake).HasColumnName("AY2025_ExistingIntake");
-            entity.Property(e => e.Ay2025LopDate).HasColumnName("AY2025_LopDate");
-            entity.Property(e => e.Ay2025LopDocument).HasColumnName("AY2025_LopDocument");
-            entity.Property(e => e.Ay2025LopNmcIntake).HasColumnName("AY2025_LopNmcIntake");
-            entity.Property(e => e.Ay2025NmcDocument).HasColumnName("AY2025_NmcDocument");
-            entity.Property(e => e.Ay2025TotalIntake).HasColumnName("AY2025_TotalIntake");
-            entity.Property(e => e.Ay2026AddRequestedIntake).HasColumnName("AY2026_AddRequestedIntake");
-            entity.Property(e => e.Ay2026ExistingIntake).HasColumnName("AY2026_ExistingIntake");
-            entity.Property(e => e.Ay2026TotalIntake).HasColumnName("AY2026_TotalIntake");
-            entity.Property(e => e.CollegeCode).HasMaxLength(20);
-            entity.Property(e => e.Courses).HasMaxLength(250);
-            entity.Property(e => e.FacultyCode).HasMaxLength(20);
+            // ── 2024-25 ─────────────────────────────
+            entity.Property(e => e.Ay2024ExistingIntake)
+                .HasColumnName("AY2024_ExistingIntake");
+
+            entity.Property(e => e.Ay2024IncreaseIntake)
+                .HasColumnName("AY2024_IncreaseIntake");
+
+            entity.Property(e => e.Ay2024TotalIntake)
+                .HasColumnName("AY2024_TotalIntake");
+
+            // ── 2025-26 ─────────────────────────────
+            entity.Property(e => e.Ay2025ExistingIntake)
+                .HasColumnName("AY2025_ExistingIntake");
+
+            entity.Property(e => e.Ay2025LopDate)
+                .HasColumnName("AY2025_LopDate");
+
+            entity.Property(e => e.Ay2025LopDocument)
+                .HasColumnName("AY2025_LopDocument");
+
+            entity.Property(e => e.Ay2025LopNmcIntake)
+                .HasColumnName("AY2025_LopNmcIntake");
+
+            entity.Property(e => e.Ay2025NmcDocument)
+                .HasColumnName("AY2025_NmcDocument");
+
+            entity.Property(e => e.Ay2025DciDocument)
+                .HasColumnName("AY2025_DCIDocument");
+
+            entity.Property(e => e.Ay2025KsdcDocument)
+                .HasColumnName("AY2025_KSDCDocument");
+
+            entity.Property(e => e.Ay2025TotalIntake)
+                .HasColumnName("AY2025_TotalIntake");
+
+            // ── 2026-27 ─────────────────────────────
+            entity.Property(e => e.Ay2026ExistingIntake)
+                .HasColumnName("AY2026_ExistingIntake");
+
+            entity.Property(e => e.Ay2026AddRequestedIntake)
+                .HasColumnName("AY2026_AddRequestedIntake");
+
+            entity.Property(e => e.Ay2026TotalIntake)
+                .HasColumnName("AY2026_TotalIntake");
+
+            entity.Property(e => e.Ay2026DciDocument)
+                .HasColumnName("AY2026_DCIDocument");
+
+            entity.Property(e => e.Ay2026KsdcDocument)
+                .HasColumnName("AY2026_KSDCDocument");
+
+            // ── 2027-28 ─────────────────────────────
+            entity.Property(e => e.Ay2027ExistingIntake)
+                .HasColumnName("AY2027_ExistingIntake");
+
+            entity.Property(e => e.Ay2027AddRequestedIntake)
+                .HasColumnName("AY2027_AddRequestedIntake");
+
+            entity.Property(e => e.Ay2027TotalIntake)
+                .HasColumnName("AY2027_TotalIntake");
+
+            entity.Property(e => e.Ay2027DciDocument)
+                .HasColumnName("AY2027_DCIDocument");
+
+            entity.Property(e => e.Ay2027KsdcDocument)
+                .HasColumnName("AY2027_KSDCDocument");
+
+            // ── COMMON ──────────────────────────────
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20);
+
+            entity.Property(e => e.Courses)
+                .HasMaxLength(250);
+
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(20);
         });
 
         modelBuilder.Entity<AcademicYear>(entity =>

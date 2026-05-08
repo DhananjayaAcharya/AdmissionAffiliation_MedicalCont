@@ -13,7 +13,7 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
-
+        
         // ════════════════════════════════════════════════════════════
         //  GET
         // ════════════════════════════════════════════════════════════
@@ -100,10 +100,30 @@ namespace Medical_Affiliation.Controllers
                 foreach (var inc in incoming)
                 {
                     // Server-side recalculation — never trust client-computed values
-                    int t2024 = inc.Ay2024ExistingIntake + inc.Ay2024IncreaseIntake;
-                    int t2025 = inc.Ay2025ExistingIntake + inc.Ay2025LopNmcIntake;
-                    int e2026 = t2025;                                         // carry-forward
-                    int t2026 = e2026 + inc.Ay2026AddRequestedIntake;
+                    //int t2024 = inc.Ay2024ExistingIntake + inc.Ay2024IncreaseIntake;
+                    //int t2025 = inc.Ay2025ExistingIntake + inc.Ay2025LopNmcIntake;
+                    //int e2026 = t2025;                                        
+                    //int t2026 = e2026 + inc.Ay2026AddRequestedIntake;
+
+                    int t2024 = facultyId == 2
+                                                ? 0
+                                                : inc.Ay2024ExistingIntake + inc.Ay2024IncreaseIntake;
+
+                    int t2025 =
+                        inc.Ay2025ExistingIntake +
+                        inc.Ay2025LopNmcIntake;
+
+                    int e2026 = t2025;
+
+                    int t2026 =
+                        e2026 +
+                        inc.Ay2026AddRequestedIntake;
+
+                    int e2027 = t2026;
+
+                    int t2027 =
+                        e2027 +
+                        inc.Ay2027AddRequestedIntake;
 
                     if (existingDict.TryGetValue(inc.Courses, out var db))
                     {
@@ -121,12 +141,78 @@ namespace Medical_Affiliation.Controllers
                         db.Ay2025LopDate = inc.Ay2025LopDate;
 
                         // Only replace document bytes when a new file was uploaded
-                        if (inc.Ay2025NmcDocument is { Length: > 0 })
-                            db.Ay2025NmcDocument = inc.Ay2025NmcDocument;
+                        if (facultyId == 2)
+                        {
+                            var ugVm = model.UgCourses?
+                                .FirstOrDefault(x => x.CourseCode == inc.Courses);
+
+                            var pgVm = model.PgCourses?
+                                .FirstOrDefault(x => x.CourseCode == inc.Courses);
+
+                            var vm = ugVm ?? pgVm;
+
+                            if (vm != null)
+                            {
+
+                                if (vm.AY2025_LopDocument != null)
+                                
+                                    db.Ay2025LopDocument =
+                                        ToBytes(vm.AY2025_LopDocument);
+                                
+
+                                if (vm.AY2025_DCIDocument != null)
+                                    db.Ay2025DciDocument =
+                                        ToBytes(vm.AY2025_DCIDocument);
+
+                                if (vm.AY2025_KSDCDocument != null)
+                                    db.Ay2025KsdcDocument =
+                                        ToBytes(vm.AY2025_KSDCDocument);
+
+                                if (vm.AY2026_DCIDocument != null)
+                                    db.Ay2026DciDocument =
+                                        ToBytes(vm.AY2026_DCIDocument);
+
+                                if (vm.AY2026_KSDCDocument != null)
+                                    db.Ay2026KsdcDocument =
+                                        ToBytes(vm.AY2026_KSDCDocument);
+
+                                if (vm.AY2027_DCIDocument != null)
+                                    db.Ay2027DciDocument =
+                                        ToBytes(vm.AY2027_DCIDocument);
+
+                                if (vm.AY2027_KSDCDocument != null)
+                                    db.Ay2027KsdcDocument =
+                                        ToBytes(vm.AY2027_KSDCDocument);
+                            }
+                        }
+                        else
+                        {
+                            var ugVm = model.UgCourses?
+                                .FirstOrDefault(x => x.CourseCode == inc.Courses);
+
+                            var pgVm = model.PgCourses?
+                                .FirstOrDefault(x => x.CourseCode == inc.Courses);
+
+                            var ssVm = model.SsCourses?
+                                .FirstOrDefault(x => x.CourseCode == inc.Courses);
+
+                            var vm = ugVm ?? pgVm ?? ssVm;
+
+                            if (vm?.AY2025_NmcDocument != null)
+                            {
+                                db.Ay2025NmcDocument =
+                                    ToBytes(vm.AY2025_NmcDocument);
+                            }
+                        }
+
 
                         db.Ay2026ExistingIntake = e2026;
                         db.Ay2026AddRequestedIntake = inc.Ay2026AddRequestedIntake;
                         db.Ay2026TotalIntake = t2026;
+                        db.Ay2027ExistingIntake = e2027;
+                        db.Ay2027AddRequestedIntake = inc.Ay2027AddRequestedIntake;
+                        db.Ay2027TotalIntake = t2027;
+
 
                         Console.WriteLine($"[UPDATE] {inc.Courses} → 2026Exist={e2026}, 2026Total={t2026}");
                         updated++;
@@ -138,6 +224,12 @@ namespace Medical_Affiliation.Controllers
                         inc.Ay2025TotalIntake = t2025;
                         inc.Ay2026ExistingIntake = e2026;
                         inc.Ay2026TotalIntake = t2026;
+                        inc.Ay2027ExistingIntake = e2027;
+
+                        inc.Ay2027AddRequestedIntake =
+                            inc.Ay2027AddRequestedIntake;
+
+                        inc.Ay2027TotalIntake = t2027;
 
                         _context.AcademicIntakes.Add(inc);
                         Console.WriteLine($"[INSERT] {inc.Courses}");
@@ -174,48 +266,97 @@ namespace Medical_Affiliation.Controllers
         /// Converts one IntakeByLevelViewModel1 row into an AcademicIntake entity.
         /// Handles IFormFile → byte[] conversion for the NMC document.
         /// </summary>
-        private static AcademicIntake MapToEntity(
-            string facultyCode,
-            string collegeCode,
-            IntakeByLevelViewModel1 vm)
+        /// 
+        private static byte[]? ToBytes(IFormFile? file)
         {
-            byte[]? docBytes = null;
-            if (vm.AY2025_NmcDocument is { Length: > 0 })
-            {
-                try
-                {
-                    using var ms = new MemoryStream((int)vm.AY2025_NmcDocument.Length);
-                    vm.AY2025_NmcDocument.CopyTo(ms);
-                    docBytes = ms.ToArray();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[WARN] NMC document read failed for {vm.CourseCode}: {ex.Message}");
-                }
-            }
+            if (file == null || file.Length == 0)
+                return null;
 
+            using var ms = new MemoryStream();
+
+            file.CopyTo(ms);
+
+            return ms.ToArray();
+        }
+        private static AcademicIntake MapToEntity(
+      string facultyCode,
+      string collegeCode,
+      IntakeByLevelViewModel1 vm)
+        {
             return new AcademicIntake
             {
                 FacultyCode = facultyCode,
                 CollegeCode = collegeCode,
                 Courses = vm.CourseCode!,
 
-                Ay2024ExistingIntake = (int)vm.AY2024_ExistingIntake,
-                Ay2024IncreaseIntake = (int)vm.AY2024_IncreaseIntake,
-                Ay2024TotalIntake = (int)vm.AY2024_TotalIntake,   // recalculated server-side after this
+                // ── 2024-25 ─────────────────────────────
+                Ay2024ExistingIntake =
+                    vm.AY2024_ExistingIntake ?? 0,
 
-                Ay2025ExistingIntake = (int)vm.AY2025_ExistingIntake,
-                Ay2025LopNmcIntake = (int)vm.AY2025_LopNmcIntake,
-                Ay2025TotalIntake = (int)vm.AY2025_TotalIntake,   // recalculated server-side after this
-                Ay2025LopDate = vm.AY2025_LopDate,
-                Ay2025NmcDocument = docBytes,
+                Ay2024IncreaseIntake =
+                    vm.AY2024_IncreaseIntake ?? 0,
 
-                Ay2026ExistingIntake = (int)vm.AY2026_ExistingIntake,    // recalculated server-side after this
-                Ay2026AddRequestedIntake = (int)vm.AY2026_AddRequestedIntake,
-                Ay2026TotalIntake = (int)vm.AY2026_TotalIntake         // recalculated server-side after this
+                Ay2024TotalIntake =
+                    vm.AY2024_TotalIntake ?? 0,
+
+                // ── 2025-26 ─────────────────────────────
+                Ay2025ExistingIntake =
+                    vm.AY2025_ExistingIntake ?? 0,
+
+                Ay2025LopNmcIntake =
+                    vm.AY2025_LopNmcIntake ?? 0,
+
+                Ay2025TotalIntake =
+                    vm.AY2025_TotalIntake ?? 0,
+
+                Ay2025LopDate =
+                    vm.AY2025_LopDate,
+
+                Ay2025LopDocument =
+                         ToBytes(vm.AY2025_LopDocument),
+
+                Ay2025NmcDocument =
+                    ToBytes(vm.AY2025_NmcDocument),
+
+                Ay2025DciDocument =
+                    ToBytes(vm.AY2025_DCIDocument),
+
+                Ay2025KsdcDocument =
+                    ToBytes(vm.AY2025_KSDCDocument),
+
+                // ── 2026-27 ─────────────────────────────
+                Ay2026ExistingIntake =
+                    vm.AY2026_ExistingIntake ?? 0,
+
+                Ay2026AddRequestedIntake =
+                    vm.AY2026_AddRequestedIntake ?? 0,
+
+                Ay2026TotalIntake =
+                    vm.AY2026_TotalIntake ?? 0,
+
+                Ay2026DciDocument =
+                    ToBytes(vm.AY2026_DCIDocument),
+
+                Ay2026KsdcDocument =
+                    ToBytes(vm.AY2026_KSDCDocument),
+
+                // ── 2027-28 ─────────────────────────────
+                Ay2027ExistingIntake =
+                    vm.AY2027_ExistingIntake ?? 0,
+
+                Ay2027AddRequestedIntake =
+                    vm.AY2027_AddRequestedIntake ?? 0,
+
+                Ay2027TotalIntake =
+                    vm.AY2027_TotalIntake ?? 0,
+
+                Ay2027DciDocument =
+                    ToBytes(vm.AY2027_DCIDocument),
+
+                Ay2027KsdcDocument =
+                    ToBytes(vm.AY2027_KSDCDocument)
             };
         }
-
         /// <summary>
         /// Iterates a list of view-model rows, maps each to an entity, and appends to target.
         /// Skips rows with no CourseCode.
@@ -263,34 +404,145 @@ namespace Medical_Affiliation.Controllers
                 .ToList();
 
             // ── Reusable LINQ projection ───────────────────────────────────
-            IEnumerable<IntakeByLevelViewModel1> Project(string level) =>
-                from d in intakeDetails.Where(d => int.TryParse(d.CourseCode, out _))
-                let codeInt = int.Parse(d.CourseCode!)
-                join c in allCourses on codeInt equals c.CourseCode
-                where c.CourseLevel == level
-                join e in existingIntakes on c.CourseCode.ToString() equals e.Courses into ej
-                from existing in ej.DefaultIfEmpty()
-                select new IntakeByLevelViewModel1
+            //IEnumerable<IntakeByLevelViewModel1> Project(string level) =>
+            //    from d in intakeDetails.Where(d => int.TryParse(d.CourseCode, out _))
+            //    let codeInt = int.Parse(d.CourseCode!)
+            //    join c in allCourses on codeInt equals c.CourseCode
+            //    where c.CourseLevel == level
+            //    join e in existingIntakes on c.CourseCode.ToString() equals e.Courses into ej
+            //    from existing in ej.DefaultIfEmpty()
+            //    select new IntakeByLevelViewModel1
+            //    {
+            //        CourseCode = c.CourseCode.ToString(),
+            //        CourseName = c.CourseName,
+
+            //        // 2024-25
+            //        AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
+            //        AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
+            //        AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? d.ExistingIntake.GetValueOrDefault(),
+
+            //        // 2025-26  (use DB value for existing, master-table value for new)
+            //        AY2025_ExistingIntake = existing?.Ay2025ExistingIntake ?? d.ExistingIntake ?? 0,
+            //        AY2025_LopNmcIntake = existing?.Ay2025LopNmcIntake ?? 0,
+            //        AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
+            //        AY2025_LopDate = existing?.Ay2025LopDate,
+
+            //        // 2026-27
+            //        AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
+            //        AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
+            //        AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
+            //    };
+
+            //code added by DP on 07052026
+
+            IEnumerable<IntakeByLevelViewModel1> Project(string level)
+            {
+                // Courses for this level
+                var levelCourses = allCourses
+                    .Where(c => c.CourseLevel == level)
+                    .ToList();
+
+                // If intake details exist → use them
+                if (intakeDetails.Any())
                 {
-                    CourseCode = c.CourseCode.ToString(),
-                    CourseName = c.CourseName,
+                    return
+                        from d in intakeDetails.Where(d => int.TryParse(d.CourseCode, out _))
+                        let codeInt = int.Parse(d.CourseCode!)
+                        join c in levelCourses on codeInt equals c.CourseCode
+                        join e in existingIntakes
+                            on c.CourseCode.ToString() equals e.Courses into ej
+                        from existing in ej.DefaultIfEmpty()
 
-                    // 2024-25
-                    AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
-                    AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
-                    AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? d.ExistingIntake.GetValueOrDefault(),
+                        select new IntakeByLevelViewModel1
+                        {
+                            CourseCode = c.CourseCode.ToString(),
+                            CourseName = c.CourseName,
 
-                    // 2025-26  (use DB value for existing, master-table value for new)
-                    AY2025_ExistingIntake = existing?.Ay2025ExistingIntake ?? d.ExistingIntake ?? 0,
-                    AY2025_LopNmcIntake = existing?.Ay2025LopNmcIntake ?? 0,
-                    AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
-                    AY2025_LopDate = existing?.Ay2025LopDate,
+                            // 2024-25
+                            AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
+                            AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
+                            AY2024_TotalIntake =
+                                existing?.Ay2024TotalIntake
+                                ?? d.ExistingIntake.GetValueOrDefault(),
 
-                    // 2026-27
-                    AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
-                    AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-                    AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
-                };
+                            // 2025-26
+                            AY2025_ExistingIntake =
+                                existing?.Ay2025ExistingIntake
+                                ?? d.ExistingIntake
+                                ?? 0,
+
+                            AY2025_LopNmcIntake =
+                                existing?.Ay2025LopNmcIntake ?? 0,
+
+                            AY2025_TotalIntake =
+                                existing?.Ay2025TotalIntake ?? 0,
+
+                            AY2025_LopDate = existing?.Ay2025LopDate,
+
+                            // 2026-27
+                            AY2026_ExistingIntake =
+                                existing?.Ay2026ExistingIntake ?? 0,
+
+                            AY2026_AddRequestedIntake =
+                                existing?.Ay2026AddRequestedIntake ?? 0,
+
+                            AY2026_TotalIntake =
+                             existing?.Ay2026TotalIntake ?? 0,
+
+                            AY2027_ExistingIntake =
+                                existing?.Ay2027ExistingIntake ?? 0,
+
+                            AY2027_AddRequestedIntake =
+                                  existing?.Ay2027AddRequestedIntake ?? 0,
+
+                            AY2027_TotalIntake =
+                                 existing?.Ay2027TotalIntake ?? 0
+                        };
+                }
+
+                // Fallback → only MstCourses (for Dental etc.)
+                return
+                    from c in levelCourses
+                    join e in existingIntakes
+                        on c.CourseCode.ToString() equals e.Courses into ej
+                    from existing in ej.DefaultIfEmpty()
+
+                    select new IntakeByLevelViewModel1
+                    {
+                        CourseCode = c.CourseCode.ToString(),
+                        CourseName = c.CourseName,
+
+                        AY2024_ExistingIntake =
+                            existing?.Ay2024ExistingIntake ?? 0,
+
+                        AY2024_IncreaseIntake =
+                            existing?.Ay2024IncreaseIntake ?? 0,
+
+                        AY2024_TotalIntake =
+                            existing?.Ay2024TotalIntake ?? 0,
+
+                        AY2025_ExistingIntake =
+                            existing?.Ay2025ExistingIntake ?? 0,
+
+                        AY2025_LopNmcIntake =
+                            existing?.Ay2025LopNmcIntake ?? 0,
+
+                        AY2025_TotalIntake =
+                            existing?.Ay2025TotalIntake ?? 0,
+
+                        AY2025_LopDate =
+                            existing?.Ay2025LopDate,
+
+                        AY2026_ExistingIntake =
+                            existing?.Ay2026ExistingIntake ?? 0,
+
+                        AY2026_AddRequestedIntake =
+                            existing?.Ay2026AddRequestedIntake ?? 0,
+
+                        AY2026_TotalIntake =
+                            existing?.Ay2026TotalIntake ?? 0
+                    };
+            }
 
             model.UgCourses = Project("UG").DistinctBy(x => x.CourseCode).ToList();
             model.PgCourses = Project("PG").DistinctBy(x => x.CourseCode).ToList();
@@ -311,7 +563,43 @@ namespace Medical_Affiliation.Controllers
                     AY2024_TotalIntake = e.Ay2024TotalIntake,
                     AY2025_TotalIntake = e.Ay2025TotalIntake,
                     AY2026_TotalIntake = e.Ay2026TotalIntake,
-                    HasNmcDocument = e.Ay2025NmcDocument != null && e.Ay2025NmcDocument.Length > 0,
+                    AY2027_TotalIntake = e.Ay2027TotalIntake,
+                    HasNmcDocument =
+                            e.Ay2025NmcDocument != null &&
+                            e.Ay2025NmcDocument.Length > 0,
+
+                    HasLopDocument =
+                        e.Ay2025LopDocument != null &&
+                        e.Ay2025LopDocument.Length > 0,
+
+                    HasDciDocument =
+                                (e.Ay2025DciDocument != null &&
+                                 e.Ay2025DciDocument.Length > 0)
+
+                                ||
+
+                                (e.Ay2026DciDocument != null &&
+                                 e.Ay2026DciDocument.Length > 0)
+
+                                ||
+
+                                (e.Ay2027DciDocument != null &&
+                                 e.Ay2027DciDocument.Length > 0),
+
+                  HasKsdcDocument =
+                                (e.Ay2025KsdcDocument != null &&
+                                 e.Ay2025KsdcDocument.Length > 0)
+
+                                ||
+
+                                (e.Ay2026KsdcDocument != null &&
+                                 e.Ay2026KsdcDocument.Length > 0)
+
+                                ||
+
+                                (e.Ay2027KsdcDocument != null &&
+                                 e.Ay2027KsdcDocument.Length > 0),
+
                     CreatedOn = DateTime.Now
                 }
             )
