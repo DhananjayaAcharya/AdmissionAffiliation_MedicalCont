@@ -140,7 +140,7 @@ namespace Medical_Affiliation.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadMemberTypesAsync();
-                return View("Auth", model);
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
             // ✅ Find user by phone number
@@ -151,7 +151,7 @@ namespace Medical_Affiliation.Controllers
             {
                 ModelState.AddModelError("", "Invalid phone number or account not registered.");
                 await LoadMemberTypesAsync();
-                return View("Auth", model);
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
             // ✅ Verify password
@@ -160,7 +160,7 @@ namespace Medical_Affiliation.Controllers
             {
                 ModelState.AddModelError("", "Invalid password.");
                 await LoadMemberTypesAsync();
-                return View("Auth", model);
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
             // ✅ Build Claims
