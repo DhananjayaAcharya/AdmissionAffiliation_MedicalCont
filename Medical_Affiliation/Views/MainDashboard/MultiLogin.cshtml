@@ -34,7 +34,6 @@
             --red: #dc2626;
             --red2: #fef2f2;
             --white: #ffffff;
-           /*  --off: #f8faff; */
             --surface: #f1f4fb;
             --border: #dde3f0;
             --text: #0f1b35;
@@ -45,77 +44,21 @@
 
         html, body {
             height: 100%;
-            font-family: 'Plus Jakarta Sans',sans-serif;
-           /*  background: var(--off); */
+            font-family: 'Plus Jakarta Sans', sans-serif;
             overflow: hidden
         }
 
-        /* ════════════════════════════════
-           PAGE SHELL
-        ════════════════════════════════ */
         .page {
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-          /*   background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.8)), url('/images/Bg.jpg'); */
             background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.8)), url('/images/Medaff.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             min-height: 100vh;
         }
-
-        /* ── Top identity bar ── */
-        .topbar {
-            flex-shrink: 0;
-            height: 38px;
-            background: var(--navy);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 28px;
-            overflow: hidden;
-            white-space: nowrap
-        }
-
-        .tb-l {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 11px;
-            color: rgba(255,255,255,0.6)
-        }
-
-        .gok-badge {
-            background: var(--gold);
-            color: var(--navy);
-            font-size: 8.5px;
-            font-weight: 800;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-            padding: 2px 8px;
-            border-radius: 3px
-        }
-
-        .tb-sep {
-            width: 1px;
-            height: 11px;
-            background: rgba(255,255,255,0.15)
-        }
-
-        .tb-r {
-            font-size: 10px;
-            color: rgba(255,255,255,0.35);
-            display: flex;
-            align-items: center;
-            gap: 5px
-        }
-
-            .tb-r i {
-                color: var(--gold2);
-                font-size: 11px
-            }
 
         /* ── Header ── */
         .hdr {
@@ -142,7 +85,7 @@
         }
 
         .hdr-uni {
-            font-family: 'Playfair Display',Georgia,serif;
+            font-family: 'Playfair Display', Georgia, serif;
             font-size: 17px;
             font-weight: 700;
             color: var(--navy);
@@ -174,7 +117,7 @@
             text-decoration: none;
             transition: all .2s;
             flex-shrink: 0;
-            font-family: 'Plus Jakarta Sans',inherit
+            font-family: 'Plus Jakarta Sans', inherit
         }
 
             .hdr-home:hover {
@@ -192,14 +135,11 @@
             justify-content: center;
             padding: 16px 24px;
             overflow: hidden;
-           /*  background: var(--off) */
         }
 
-        /* ════════════════════════════════
-           CARD  — split layout
-        ════════════════════════════════ */
+        /* ── Card ── */
         .card {
-            width: min(98vw,1400px);
+            width: min(98vw, 1400px);
             height: 100%;
             max-height: 720px;
             display: grid;
@@ -210,6 +150,7 @@
             background: var(--white);
             animation: cardIn .5s cubic-bezier(.22,1,.36,1) both;
         }
+
         @@keyframes cardIn {
             from
 
@@ -226,18 +167,15 @@
         }
 
         /* ════════════════════════════════
-           LEFT — form side
-        ════════════════════════════════ */
+                   LEFT — form side
+                ════════════════════════════════ */
         .form-side {
             display: flex;
             flex-direction: column;
             position: relative;
-            /* 🔥 STRONG visible gradient */
             background: linear-gradient(180deg, #ffffff 0%, #eef3ff 100%);
             overflow: hidden;
-            /* visible separation */
             border-right: 1px solid rgba(0,0,0,0.08);
-            /* soft elevation */
             box-shadow: inset -10px 0 30px rgba(0,0,0,0.03);
         }
 
@@ -245,43 +183,15 @@
                 content: "";
                 position: absolute;
                 inset: 0;
-                /* 🔥 stronger glow so you SEE it */
                 background: radial-gradient(circle at 10% 10%, rgba(26,86,196,0.12), transparent 40%), radial-gradient(circle at 90% 90%, rgba(13,122,107,0.10), transparent 40%);
                 pointer-events: none;
-            }
-
-            /* .form-side::after {
-                content: "";
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 4px;
-                background: linear-gradient(90deg, #1a56c4, #0d7a6b);
-            } */
-
-        /* ── FORM HEADER LOGO (NEW) ── */
-        .form-header-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 18px 16px 14px;
-            background: linear-gradient(135deg, #f8fbff, #eaf2ff);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-        }
-
-            .form-header-logo img {
-                height: 70px;
-                filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));
-                border-radius: 50%;
-                background: transparent;
             }
 
         /* tab bar */
         .tab-bar {
             display: grid;
             grid-template-columns: 1fr 1px 1fr 1px 1fr;
-            background: var(--off);
+            background: var(--surface);
             border-bottom: 1.5px solid var(--border);
             flex-shrink: 0;
             margin-top: 4px;
@@ -302,7 +212,7 @@
             background: transparent;
             color: var(--muted);
             cursor: pointer;
-            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             transition: all .2s;
             position: relative
         }
@@ -343,7 +253,7 @@
             .tb:hover {
                 color: var(--sub)
             }
-            /* active states */
+
             .tb.tg.on {
                 color: var(--gold);
                 background: rgba(184,132,30,0.05)
@@ -413,6 +323,7 @@
             .pn.on {
                 display: block
             }
+
         @@keyframes pnIn {
             from
 
@@ -482,7 +393,7 @@
             }
 
         .ph h2 {
-            font-family: 'Playfair Display',Georgia,serif;
+            font-family: 'Playfair Display', Georgia, serif;
             font-size: 22px;
             font-weight: 700;
             color: var(--navy);
@@ -494,37 +405,6 @@
             font-size: 11px;
             color: var(--muted);
             display: none;
-        }
-
-        /* badge */
-        .yb {
-            /* display: inline-flex; */
-            align-items: center;
-            gap: 5px;
-            padding: 4px 11px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: none;
-        }
-
-        .yg {
-            background: rgba(184,132,30,0.08);
-            border: 1px solid rgba(184,132,30,0.2);
-            color: var(--gold)
-        }
-
-        .yb2 {
-            background: var(--blue3);
-            border: 1px solid rgba(26,86,196,0.18);
-            color: var(--blue)
-        }
-
-        .yt {
-            background: var(--teal3);
-            border: 1px solid rgba(13,122,107,0.2);
-            color: var(--teal)
         }
 
         /* fields */
@@ -577,7 +457,7 @@
             border-radius: 9px;
             font-size: 12.5px;
             color: var(--text);
-            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             outline: none;
             transition: all .18s;
             appearance: none
@@ -595,7 +475,8 @@
             color: var(--muted);
             opacity: .65
         }
-        /* focus per tab */
+
+        /* focus colours per tab */
         .fg.focus-g .iw:focus-within .ic {
             color: var(--gold)
         }
@@ -666,7 +547,7 @@
             border: 1.5px solid rgba(184,132,30,0.35);
             border-radius: 8px;
             padding: 8px 12px;
-            font-family: 'Courier New',monospace;
+            font-family: 'Courier New', monospace;
             font-size: 16px;
             font-weight: 800;
             letter-spacing: 8px;
@@ -698,7 +579,7 @@
                 transform: rotate(180deg)
             }
 
-        /* LIC role pills */
+        /* ── LIC role pills ── */
         .role-grid {
             display: flex;
             flex-wrap: wrap;
@@ -706,7 +587,7 @@
             margin-bottom: 10px
         }
 
-        .role-btn {
+        .lic-role-btn {
             padding: 5px 12px;
             border-radius: 20px;
             border: 1.5px solid var(--border);
@@ -714,22 +595,69 @@
             cursor: pointer;
             font-size: 11px;
             font-weight: 600;
-            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--sub);
             transition: all .18s
         }
 
-            .role-btn:hover {
+            .lic-role-btn:hover {
                 border-color: var(--teal2);
                 color: var(--teal);
                 background: var(--teal3)
             }
 
-            .role-btn.on {
+            .lic-role-btn.on {
                 background: var(--teal);
                 color: var(--white);
                 border-color: var(--teal)
             }
+
+        /* role required banner */
+        .role-required-msg {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-size: 10.5px;
+            color: var(--red);
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding: 5px 10px;
+            background: var(--red2);
+            border: 1px solid #fca5a5;
+            border-radius: 7px;
+        }
+
+            .role-required-msg.show {
+                display: flex
+            }
+
+        /* name loading hint */
+        .name-loading {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--teal);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+            .name-loading.show {
+                display: flex
+            }
+
+        .spin-icon {
+            animation: spinIcon .7s linear infinite;
+            display: inline-block
+        }
+        @@keyframes spinIcon {
+            to
+
+        {
+            transform: rotate(360deg)
+        }
+
+        }
 
         /* LIC sub-tabs */
         .lic-tabs {
@@ -747,7 +675,7 @@
             padding: 7px;
             border: none;
             background: transparent;
-            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 11.5px;
             font-weight: 700;
             color: var(--muted);
@@ -782,7 +710,7 @@
             height: 40px;
             border: none;
             border-radius: 10px;
-            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
@@ -799,7 +727,7 @@
                 content: '';
                 position: absolute;
                 inset: 0;
-                background: linear-gradient(135deg,rgba(255,255,255,0.15),transparent 55%)
+                background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 55%)
             }
 
         .bn-g {
@@ -848,7 +776,7 @@
             background: var(--white);
             border: 1.5px solid var(--border);
             border-radius: 10px;
-            font-family: 'Plus Jakarta Sans',sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 12px;
             font-weight: 600;
             color: var(--sub);
@@ -887,7 +815,7 @@
             gap: 7px
         }
 
-        /* footer */
+        /* form footer */
         .form-foot {
             flex-shrink: 0;
             padding: 10px 24px;
@@ -915,12 +843,28 @@
             color: var(--muted)
         }
 
+        /* quick switch link */
+        .quick-switch {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+            .quick-switch a {
+                color: var(--teal);
+                font-weight: 700;
+                text-decoration: none;
+            }
+
+                .quick-switch a:hover {
+                    text-decoration: underline
+                }
+
         /* ════════════════════════════════
-           RIGHT — visual panel
-        ════════════════════════════════ */
+                   RIGHT — visual side
+                ════════════════════════════════ */
         .visual-side {
-          /*   background: linear-gradient(145deg,#e8f4f8 0%,#dceeff 40%,#e4f5f0 100%); */
-         /*    background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.95)), url('/images/Bg.jpg'); */
             background: url('/images/Bg.jpg');
             background-size: cover;
             background-position: center;
@@ -933,14 +877,14 @@
             position: relative;
             overflow: hidden;
         }
-            /* soft bg shapes */
+
             .visual-side::before {
                 content: '';
                 position: absolute;
                 width: 420px;
                 height: 420px;
                 border-radius: 50%;
-                background: radial-gradient(circle,rgba(26,86,196,0.08),transparent 65%);
+                background: radial-gradient(circle, rgba(26,86,196,0.08), transparent 65%);
                 top: -80px;
                 right: -80px
             }
@@ -951,13 +895,13 @@
                 width: 300px;
                 height: 300px;
                 border-radius: 50%;
-                background: radial-gradient(circle,rgba(13,122,107,0.07),transparent 65%);
+                background: radial-gradient(circle, rgba(13,122,107,0.07), transparent 65%);
                 bottom: -60px;
                 left: -40px
             }
 
         .vis-tagline {
-            font-family: 'Playfair Display',Georgia,serif;
+            font-family: 'Playfair Display', Georgia, serif;
             font-size: 22px;
             font-weight: 700;
             color: var(--navy);
@@ -981,7 +925,7 @@
             z-index: 2
         }
 
-        /* ── Orbital diagram ── */
+        /* Orbital */
         .orbital {
             position: relative;
             width: 260px;
@@ -989,7 +933,7 @@
             z-index: 2;
             flex-shrink: 0
         }
-        /* Center pulse */
+
         .orb-center {
             position: absolute;
             top: 50%;
@@ -998,7 +942,7 @@
             width: 72px;
             height: 72px;
             border-radius: 50%;
-            background: linear-gradient(135deg,var(--blue2),var(--blue));
+            background: linear-gradient(135deg, var(--blue2), var(--blue));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1006,18 +950,11 @@
             z-index: 10
         }
 
-            .orb-center img {
-                width: 44px;
-                height: 44px;
-                object-fit: contain;
-                border-radius: 50%
-            }
-
         .orb-center-icon {
             font-size: 32px;
             color: var(--white)
         }
-        /* pulse rings */
+
         .pulse-ring {
             position: absolute;
             top: 50%;
@@ -1045,6 +982,7 @@
             height: 175px;
             animation-delay: 1.6s
         }
+
         @@keyframes pulse-expand {
             0%
 
@@ -1060,7 +998,6 @@
 
         }
 
-        /* orbit rings */
         .orbit-ring {
             position: absolute;
             top: 50%;
@@ -1087,6 +1024,7 @@
             height: 260px;
             animation: spin 38s linear infinite
         }
+
         @@keyframes spin {
             from
 
@@ -1100,7 +1038,6 @@
 
         }
 
-        /* icon nodes */
         .onode {
             position: absolute;
             width: 42px;
@@ -1119,46 +1056,43 @@
             .onode:hover {
                 transform: translate(-50%,-50%) scale(1.15)
             }
-        /* positions on orbits — computed via JS, but we set static for CSS-only */
-        /* orbit 1 (r=65px from center=130px) */
+
         .n1 {
             top: calc(50% - 65px);
             left: 50%;
             color: #e63946
         }
-        /* cross/medical */
+
         .n2 {
             top: 50%;
             left: calc(50% + 65px);
             color: #1a56c4
         }
-        /* hospital */
-        /* orbit 2 (r=100px) */
+
         .n3 {
             top: calc(50% - 100px);
             left: 50%;
             color: #0d7a6b
         }
-        /* stethoscope */
+
         .n4 {
             top: 50%;
             left: calc(50% + 100px);
             color: #7c4dde
         }
-        /* microscope */
+
         .n5 {
             top: calc(50% + 100px);
             left: 50%;
             color: #d4a240
         }
-        /* certificate */
+
         .n6 {
             top: 50%;
             left: calc(50% - 100px);
             color: #e63946
         }
-        /* pill */
-        /* orbit 3 (r=130px) */
+
         .n7 {
             top: calc(50% - 130px);
             left: calc(50% + 65px);
@@ -1177,7 +1111,6 @@
             color: #7c4dde
         }
 
-        /* rotate nodes with orbit so they appear at right spot and counter-rotate icons */
         .or1 .onode {
             animation: counter-spin 18s linear infinite
         }
@@ -1189,6 +1122,7 @@
         .or3 .onode {
             animation: counter-spin 38s linear infinite
         }
+
         @@keyframes counter-spin {
             from
 
@@ -1202,79 +1136,6 @@
 
         }
 
-        /* feature pills below */
-        .vis-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 24px;
-            position: relative;
-            z-index: 2
-        }
-
-        .vpill {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255,255,255,0.75);
-            border: 1px solid rgba(26,86,196,0.12);
-            border-radius: 20px;
-            padding: 5px 14px;
-            font-size: 10.5px;
-            font-weight: 600;
-            color: var(--sub);
-            backdrop-filter: blur(6px)
-        }
-
-            .vpill i {
-                font-size: 12px
-            }
-
-            .vpill.vg i {
-                color: var(--gold)
-            }
-
-            .vpill.vb i {
-                color: var(--blue)
-            }
-
-            .vpill.vt i {
-                color: var(--teal)
-            }
-
-        /* ── FOOTER ── */
-        .foot {
-            flex-shrink: 0;
-            height: 28px;
-            background: var(--white);
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            font-size: 10px;
-            color: var(--muted);
-            white-space: nowrap;
-            overflow: hidden;
-            gap: 10px
-        }
-
-            .foot a {
-                color: var(--blue);
-                text-decoration: none;
-                font-weight: 500
-            }
-
-                .foot a:hover {
-                    text-decoration: underline
-                }
-
-        .fsep {
-            margin: 0 4px;
-            opacity: .35
-        }
-
         @@media(max - width:780px) {
             .card
 
@@ -1286,31 +1147,14 @@
             display: none
         }
 
-        .topbar {
-            display: none
         }
-
-        }</style>
+    </style>
 </head>
 <body>
     <div class="page">
 
-        <!-- TOP BAR -->
-       @*  <div class="topbar">
-             <div class="tb-l">
-                <span class="gok-badge">GoK</span>
-                <span>Government of Karnataka</span>
-                <span class="tb-sep"></span>
-                <span>Department of Health &amp; Family Welfare</span>
-                <span class="tb-sep"></span>
-                <span>Rajiv Gandhi University of Health Sciences</span>
-            </div>
-            <div class="tb-r"><i class="bi bi-shield-fill-check"></i><span>Secure &amp; Certified Portal</span></div> 
-        </div> *@
-
-        <!-- HEADER -->
-         <div class="hdr">
-          @*   <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" /> *@
+        <!-- ══ HEADER ══ -->
+        <div class="hdr">
             <div class="hdr-txt">
                 <div class="hdr-uni">Rajiv Gandhi University of Health Sciences, Karnataka</div>
                 <div class="hdr-sub">Admission &amp; Affiliation Management Portal · Bengaluru</div>
@@ -1318,13 +1162,15 @@
             <a asp-controller="MainDashboard" asp-action="Rguhsdashboard" class="hdr-home">
                 <i class="bi bi-house-door-fill"></i> Home
             </a>
-        </div> 
+        </div>
 
-        <!-- MAIN -->
+        <!-- ══ MAIN ══ -->
         <div class="main">
             <div class="card">
 
-                <!-- ══ LEFT: FORM SIDE ══ -->
+                <!-- ══════════════════════════
+                     LEFT — FORM SIDE
+                ══════════════════════════ -->
                 <div class="form-side">
 
                     <!-- Tab bar -->
@@ -1347,31 +1193,25 @@
                             <span class="ts">Inspection</span>
                         </button>
                     </div>
-                    
-                    <!-- 🔻 ADD LOGO HERE -->
-                    @* <div class="form-header-logo">
-                        <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
-                    </div> *@
 
                     <!-- Panels -->
                     <div class="panels">
 
-                        <!-- ── COLLEGE ── -->
+                        <!-- ══ COLLEGE PANEL ══ -->
                         <div class="pn on" id="pn-c">
                             <div class="ph">
                                 <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
-
-                                <div class="ph-eye eg"><i class="bi bi-building"></i> College Portal</div>
-                                    <div style="width: 100%">
+                                <div style="width:100%">
                                     <h2>College Login</h2>
                                 </div>
-                                <div class="ph-sub">Select your faculty &amp; college, then enter credentials</div>
                             </div>
-                            <div class="yb yg"><i class="bi bi-calendar3"></i> Academic Year &nbsp;<strong>2026 – 2027</strong></div>
 
                             @if (TempData["LoginError"] != null && Context.Request.Method == "POST")
                             {
-                                <div class="err-box"><i class="bi bi-exclamation-circle-fill"></i> @TempData["LoginError"]</div>
+                                <div class="err-box">
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                    @TempData["LoginError"]
+                                </div>
                             }
 
                             <form asp-action="Login" asp-controller="Login" method="post" novalidate autocomplete="off">
@@ -1381,8 +1221,9 @@
                                     <label class="fl">Faculty <span class="req-g">*</span></label>
                                     <div class="iw">
                                         <i class="ic bi bi-mortarboard-fill"></i>
-                                         @Html.DropDownListFor(m => m.FacultyId, Model.Faculties, "— Select Faculty —", new { @class = "fs", id = "FacultyId" })
-                                         @* @Html.HiddenFor(m => m.FacultyId) *@
+                                        @Html.DropDownListFor(m => m.FacultyId, Model.Faculties,
+                                        "— Select Faculty —",
+                                                                                new { @class = "fs", id = "FacultyId" })
                                     </div>
                                     @Html.ValidationMessageFor(m => m.FacultyId, "", new { @class = "ferr" })
                                 </div>
@@ -1391,7 +1232,9 @@
                                     <label class="fl">College <span class="req-g">*</span></label>
                                     <div class="iw">
                                         <i class="ic bi bi-building-fill"></i>
-                                        @Html.DropDownListFor(m => m.CollegeId, Model.Colleges, "— Select College —", new { @class = "fs", id = "CollegeId" })
+                                        @Html.DropDownListFor(m => m.CollegeId, Model.Colleges,
+                                                                                "— Select College —",
+                                                                                new { @class = "fs", id = "CollegeId" })
                                     </div>
                                     @Html.ValidationMessageFor(m => m.CollegeId, "", new { @class = "ferr" })
                                 </div>
@@ -1402,8 +1245,13 @@
                                     <label class="fl">Password <span class="req-g">*</span></label>
                                     <div class="iw pw">
                                         <i class="ic bi bi-key-fill"></i>
-                                        <input asp-for="Password" type="password" class="fc" id="pw-c" placeholder="Enter your password" autocomplete="current-password" />
-                                        <button type="button" class="pw-eye" onclick="togglePw('pw-c',this)"><i class="bi bi-eye"></i></button>
+                                        <input asp-for="Password" type="password" class="fc" id="pw-c"
+                                               placeholder="Enter your password"
+                                               autocomplete="current-password" />
+                                        <button type="button" class="pw-eye"
+                                                onclick="togglePw('pw-c',this)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
                                     </div>
                                     @Html.ValidationMessageFor(m => m.Password, "", new { @class = "ferr" })
                                 </div>
@@ -1412,10 +1260,13 @@
                                     <label class="fl">Verification Code <span class="req-g">*</span></label>
                                     <div class="cap-row">
                                         <div class="cap-box" id="cap-c">@Model.CaptchaCode</div>
-                                        <button type="button" class="cap-ref" id="cap-c-ref" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+                                        <button type="button" class="cap-ref" id="cap-c-ref" title="Refresh">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
                                         <div class="iw">
                                             <i class="ic bi bi-shield-check"></i>
-                                            <input asp-for="Captcha" class="fc captcha-val" placeholder="Type code" autocomplete="off" maxlength="5" />
+                                            <input asp-for="Captcha" class="fc captcha-val"
+                                                   placeholder="Type code" autocomplete="off" maxlength="5" />
                                         </div>
                                     </div>
                                     <input type="hidden" asp-for="CaptchaCode" id="CaptchaCodeHidden" />
@@ -1423,32 +1274,36 @@
                                 </div>
 
                                 <div class="btn-row">
-                                    <button type="submit" class="btn-s bn-g"><i class="bi bi-box-arrow-in-right"></i> Sign In</button>
-                                    <button type="reset" class="btn-r"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                                    <button type="submit" class="btn-s bn-g">
+                                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                                    </button>
+                                    <button type="reset" class="btn-r">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                    </button>
                                 </div>
                             </form>
                         </div>
 
-                        <!-- ── UNIVERSITY ── -->
+                        <!-- ══ UNIVERSITY PANEL ══ -->
                         <div class="pn" id="pn-u">
                             <div class="ph">
                                 <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
-                                <div class="ph-eye eb"><i class="bi bi-building-check"></i> University Portal</div>
-                                    <div style="width: 100%">
-                                        <h2>University Sign In</h2>
-                                    </div>
-                                <div class="ph-sub">Administrative access for university officials</div>
+                                <div style="width:100%">
+                                    <h2>University Sign In</h2>
+                                </div>
                             </div>
-                            <div class="yb yb2"><i class="bi bi-person-badge"></i> Authorised Personnel Only</div>
 
-                            <form asp-action="AdminLogin" asp-controller="Admin" method="post" novalidate autocomplete="off" id="univForm">
+                            <form asp-action="AdminLogin" asp-controller="Admin" method="post"
+                                  novalidate autocomplete="off" id="univForm">
                                 @Html.AntiForgeryToken()
 
                                 <div class="fg focus-b">
                                     <label class="fl">User ID / Username <span class="req-b">*</span></label>
                                     <div class="iw">
                                         <i class="ic bi bi-person-badge-fill"></i>
-                                        <input name="UserName" type="text" class="fc" id="univ-user" placeholder="Enter user ID or username" autocomplete="username" />
+                                        <input name="UserName" type="text" class="fc" id="univ-user"
+                                               placeholder="Enter user ID or username"
+                                               autocomplete="username" />
                                     </div>
                                 </div>
 
@@ -1456,134 +1311,253 @@
                                     <label class="fl">Password <span class="req-b">*</span></label>
                                     <div class="iw pw">
                                         <i class="ic bi bi-key-fill"></i>
-                                        <input name="Password" type="password" class="fc" id="pw-u" placeholder="Enter your password" autocomplete="current-password" />
-                                        <button type="button" class="pw-eye" onclick="togglePw('pw-u',this)"><i class="bi bi-eye"></i></button>
+                                        <input name="Password" type="password" class="fc" id="pw-u"
+                                               placeholder="Enter your password"
+                                               autocomplete="current-password" />
+                                        <button type="button" class="pw-eye"
+                                                onclick="togglePw('pw-u',this)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
                                     </div>
                                 </div>
 
                                 <div class="btn-row">
-                                    <button type="submit" class="btn-s bn-b"><i class="bi bi-building-check"></i> Access Portal</button>
-                                    <button type="reset" class="btn-r"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                                    <button type="submit" class="btn-s bn-b">
+                                        <i class="bi bi-building-check"></i> Access Portal
+                                    </button>
+                                    <button type="reset" class="btn-r">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                    </button>
                                 </div>
                             </form>
                         </div>
 
-                        <!-- ── LIC ── -->
+                        <!-- ══ LIC PANEL ══ -->
                         <div class="pn" id="pn-l">
                             <div class="ph">
                                 <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS" class="hdr-logo" />
-                                <div class="ph-eye et"><i class="bi bi-clipboard2-pulse"></i> LIC Inspection</div>
-                                    <div style="width: 100%">
-                                        <h2>LIC Claims</h2>
-                                    </div>
-                                <div class="ph-sub">Inspection &amp; assignment portal for authorised members</div>
+                                <div class="ph-eye et">
+                                    <i class="bi bi-clipboard2-pulse"></i> LIC Inspection
+                                </div>
+                                <div style="width:100%">
+                                    <h2>LIC Claims</h2>
+                                </div>b
                             </div>
 
+                            <!-- Sub-tab toggle -->
                             <div class="lic-tabs">
-                                <button type="button" class="lt-btn" id="lt-signup" onclick="licTab('signup')"><i class="bi bi-person-plus"></i> Create Account</button>
-                                <button type="button" class="lt-btn on" id="lt-login" onclick="licTab('login')"><i class="bi bi-box-arrow-in-right"></i> Login</button>
+                                <button type="button" class="lt-btn" id="lt-signup"
+                                        onclick="licTab('signup')">
+                                    <i class="bi bi-person-plus"></i> Create Account
+                                </button>
+                                <button type="button" class="lt-btn on" id="lt-login"
+                                        onclick="licTab('login')">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </button>
                             </div>
 
-                            <!-- LIC Signup -->
+                            <!-- ─── LIC SIGNUP ─── -->
                             <div class="lic-pn" id="lic-signup">
-                                <form asp-action="Signup" asp-controller="LICInspection" method="post" novalidate autocomplete="off">
+                                <form asp-action="Signup" asp-controller="LICInspection"
+                                      method="post" novalidate autocomplete="off"
+                                      id="licSignupForm">
                                     @Html.AntiForgeryToken()
+
+                                    <!-- Hidden field carries selected role value -->
                                     <input type="hidden" name="TypeofMember" id="selectedRole" />
-                                    <div style="font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--sub);margin-bottom:7px">Select Designation</div>
+
+                                    <!-- Designation pills -->
+                                    <div style="font-size:9.5px;font-weight:700;letter-spacing:.8px;
+                                            text-transform:uppercase;color:var(--sub);margin-bottom:7px">
+                                        Select Designation <span class="req-t">*</span>
+                                    </div>
+
                                     <div class="role-grid" id="roleGrid">
-                                        @if (ViewBag.MemberTypes != null)
+                                        @if (ViewBag.MemberTypes != null && ((List<string>)ViewBag.MemberTypes).Any())
                                         {
                                             foreach (var type in (List<string>)ViewBag.MemberTypes)
                                             {
-                                                <button type="button" class="role-btn" data-role="@type">@type</button>
+                                                <button type="button" class="lic-role-btn"
+                                                        data-role="@type">
+                                                    @type
+                                                </button>
                                             }
                                         }
+                                        else
+                                        {
+                                            <!-- Hardcoded fallback if ViewBag not set -->
+                                            <button type="button" class="lic-role-btn"
+                                                    data-role="Senate Members">
+                                                Senate Members
+                                            </button>
+                                            <button type="button" class="lic-role-btn"
+                                                    data-role="Academic Council">
+                                                AC Members
+                                            </button>
+                                            <button type="button" class="lic-role-btn"
+                                                    data-role="Subject Expertise">
+                                                Subject Expert
+                                            </button>
+                                        }
                                     </div>
+
+                                    <!-- Role not selected warning -->
+                                    <div class="role-required-msg" id="roleRequiredMsg">
+                                        <i class="bi bi-exclamation-circle-fill"></i>
+                                        Please select a designation first
+                                    </div>
+
+                                    <!-- Name dropdown — populated via AJAX -->
                                     <div class="fg focus-t">
                                         <label class="fl">Name <span class="req-t">*</span></label>
                                         <div class="iw">
                                             <i class="ic bi bi-person-lines-fill"></i>
-                                            <select name="Name" id="nameDropdown" class="fs" required><option value="">— Select Name —</option></select>
+                                            <select name="Name" id="nameDropdown" class="fs" required>
+                                                <option value="">— Select Designation First —</option>
+                                            </select>
+                                        </div>
+                                        <div class="name-loading" id="nameLoading">
+                                            <i class="bi bi-arrow-repeat spin-icon"></i> Loading names…
                                         </div>
                                     </div>
+
                                     <div class="fg focus-t">
                                         <label class="fl">Email <span class="req-t">*</span></label>
                                         <div class="iw">
                                             <i class="ic bi bi-envelope-fill"></i>
-                                            <input name="Email" type="email" class="fc" placeholder="your@email.com" required />
+                                            <input name="Email" type="email" class="fc"
+                                                   placeholder="your@email.com" required />
                                         </div>
                                     </div>
+
                                     <div class="fg focus-t">
                                         <label class="fl">Phone Number <span class="req-t">*</span></label>
                                         <div class="iw">
                                             <i class="ic bi bi-phone-fill"></i>
-                                            <input name="PhoneNumber" class="fc" placeholder="10-digit mobile number" required />
+                                            <input name="PhoneNumber" class="fc"
+                                                   placeholder="10-digit mobile number" required />
                                         </div>
                                     </div>
+
                                     <div class="fg focus-t">
                                         <label class="fl">Password <span class="req-t">*</span></label>
                                         <div class="iw pw">
                                             <i class="ic bi bi-key-fill"></i>
-                                            <input name="Password" type="password" class="fc" id="pw-ls" placeholder="Create password" required />
-                                            <button type="button" class="pw-eye" onclick="togglePw('pw-ls',this)"><i class="bi bi-eye"></i></button>
+                                            <input name="Password" type="password" class="fc"
+                                                   id="pw-ls" placeholder="Create password" required />
+                                            <button type="button" class="pw-eye"
+                                                    onclick="togglePw('pw-ls',this)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
                                         </div>
                                     </div>
+
                                     <div class="fg focus-t">
                                         <label class="fl">Confirm Password <span class="req-t">*</span></label>
                                         <div class="iw">
                                             <i class="ic bi bi-key-fill"></i>
-                                            <input name="ConfirmPassword" type="password" class="fc" placeholder="Repeat password" required />
+                                            <input name="ConfirmPassword" type="password" class="fc"
+                                                   placeholder="Repeat password" required />
                                         </div>
                                     </div>
-                                    <div class="btn-row"><button type="submit" class="btn-s bn-t"><i class="bi bi-person-check-fill"></i> Create Account</button></div>
+
+                                    <div class="btn-row">
+                                        <button type="submit" class="btn-s bn-t" id="licSignupBtn">
+                                            <i class="bi bi-person-check-fill"></i> Create Account
+                                        </button>
+                                    </div>
+
+                                    <div class="quick-switch">
+                                        Already have an account?
+                                        <a href="#" onclick="licTab('login');return false;">Login here</a>
+                                    </div>
                                 </form>
                             </div>
 
-                            <!-- LIC Login -->
+                            <!-- ─── LIC LOGIN ─── -->
                             <div class="lic-pn on" id="lic-login">
-                                <form asp-action="Login" asp-controller="LICInspection" method="post" novalidate autocomplete="off">
+                                <form asp-action="Login" asp-controller="LICInspection"
+                                      method="post" novalidate autocomplete="off">
                                     @Html.AntiForgeryToken()
+
+                                    @if (TempData["LICLoginError"] != null)
+                                    {
+                                        <div class="err-box">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            @TempData["LICLoginError"]
+                                        </div>
+                                    }
+
                                     <div class="fg focus-t">
                                         <label class="fl">Phone Number <span class="req-t">*</span></label>
                                         <div class="iw">
                                             <i class="ic bi bi-phone-fill"></i>
-                                            <input name="PhoneNumber" class="fc" placeholder="Registered phone number" required />
+                                            <input name="PhoneNumber" class="fc"
+                                                   placeholder="Registered phone number" required />
                                         </div>
                                     </div>
+
                                     <div class="fg focus-t">
                                         <label class="fl">Password <span class="req-t">*</span></label>
                                         <div class="iw pw">
                                             <i class="ic bi bi-key-fill"></i>
-                                            <input name="Password" type="password" class="fc" id="pw-ll" placeholder="Enter your password" required />
-                                            <button type="button" class="pw-eye" onclick="togglePw('pw-ll',this)"><i class="bi bi-eye"></i></button>
+                                            <input name="Password" type="password" class="fc"
+                                                   id="pw-ll" placeholder="Enter your password" required />
+                                            <button type="button" class="pw-eye"
+                                                    onclick="togglePw('pw-ll',this)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                    <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--sub);cursor:pointer;margin-bottom:4px">
-                                        <input type="checkbox" name="RememberMe" style="accent-color:var(--teal);width:13px;height:13px" /> Remember me for 14 days
+
+                                    <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;
+                                              color:var(--sub);cursor:pointer;margin-bottom:4px">
+                                        <input type="checkbox" name="RememberMe"
+                                               style="accent-color:var(--teal);width:13px;height:13px" />
+                                        Remember me for 14 days
                                     </label>
+
                                     <div class="btn-row">
-                                        <button type="submit" class="btn-s bn-t"><i class="bi bi-box-arrow-in-right"></i> Login to Portal</button>
-                                        <button type="reset" class="btn-r"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                                        <button type="submit" class="btn-s bn-t">
+                                            <i class="bi bi-box-arrow-in-right"></i> Login to Portal
+                                        </button>
+                                        <button type="reset" class="btn-r">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                        </button>
+                                    </div>
+
+                                    <div class="quick-switch">
+                                        No account?
+                                        <a href="#" onclick="licTab('signup');return false;">Create one here</a>
                                     </div>
                                 </form>
                             </div>
-                        </div>
+
+                        </div><!-- /pn-l -->
 
                     </div><!-- /panels -->
 
                     <div class="form-foot">
-                        <div class="ff-sec"><i class="bi bi-shield-fill-check"></i> 256-bit TLS Encrypted &nbsp;·&nbsp; GIGW Compliant</div>
+                        <div class="ff-sec">
+                            <i class="bi bi-shield-fill-check"></i>
+                            256-bit TLS Encrypted &nbsp;·&nbsp; GIGW Compliant
+                        </div>
                         <div class="ff-copy">&copy; @DateTime.Now.Year RGUHS Karnataka</div>
                     </div>
-                </div><!-- /form-side -->
-                <!-- ══ RIGHT: VISUAL SIDE ══ -->
-                <div class="visual-side">
-                    <div class="vis-tagline">Empowering <span>Medical Education</span><br>Across Karnataka</div>
-                    <div class="vis-sub">Secure portal for affiliated colleges, university &amp; inspection authorities</div>
 
-                    <!-- Orbital diagram -->
+                </div><!-- /form-side -->
+                <!-- ══════════════════════════
+                     RIGHT — VISUAL SIDE
+                ══════════════════════════ -->
+                <div class="visual-side">
+                    <div class="vis-tagline">
+                        Empowering <span>Medical Education</span><br>Across Karnataka
+                    </div>
+                    <div class="vis-sub">
+                        Secure portal for affiliated colleges, university &amp; inspection authorities
+                    </div>
+
                     <div class="orbital">
-                        <!-- Orbit rings (rotate) -->
                         <div class="orbit-ring or1">
                             <div class="onode n1"><i class="bi bi-heart-pulse-fill"></i></div>
                             <div class="onode n2"><i class="bi bi-hospital-fill"></i></div>
@@ -1599,36 +1573,17 @@
                             <div class="onode n8"><i class="bi bi-building-fill"></i></div>
                             <div class="onode n9"><i class="bi bi-file-earmark-medical-fill"></i></div>
                         </div>
-                        <!-- Pulse rings -->
                         <div class="pulse-ring pr1"></div>
                         <div class="pulse-ring pr2"></div>
                         <div class="pulse-ring pr3"></div>
-                        <!-- Center -->
                         <div class="orb-center">
                             <i class="orb-center-icon bi bi-plus-circle-fill"></i>
                         </div>
                     </div>
-
-                    <!-- Feature pills -->
-                    @* <div class="vis-pills">
-                        <div class="vpill vg"><i class="bi bi-buildings-fill"></i> 1500+ Colleges</div>
-                        <div class="vpill vb"><i class="bi bi-mortarboard-fill"></i> 12 Streams</div>
-                        <div class="vpill vt"><i class="bi bi-shield-fill-check"></i> Secure Access</div>
-                        <div class="vpill vb"><i class="bi bi-calendar3-event-fill"></i> 2026 – 2027</div>
-                    </div> *@
-                </div><!-- /visual-side -->
+                </div>
 
             </div><!-- /card -->
         </div><!-- /main -->
-        <!-- FOOTER -->
-       @*  <footer class="foot">
-            <span>&copy; @DateTime.Now.Year &nbsp;Rajiv Gandhi University of Health Sciences, Karnataka — All rights reserved.</span>
-            <span>
-                <a href="#">Help &amp; Support</a><span class="fsep">&bull;</span>
-                <a href="#">Privacy Policy</a><span class="fsep">&bull;</span>
-                <a href="#">Terms of Use</a>
-            </span>
-        </footer> *@
 
     </div><!-- /page -->
 
@@ -1636,128 +1591,220 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        /* ── TAB SWITCHING ── */
-        const TABS={c:{tab:'tb-c',panel:'pn-c'},u:{tab:'tb-u',panel:'pn-u'},l:{tab:'tb-l',panel:'pn-l'}};
-        function go(k){
-          Object.values(TABS).forEach(v=>{
-            document.getElementById(v.tab).classList.remove('on');
-            document.getElementById(v.panel).classList.remove('on');
-          });
-          document.getElementById(TABS[k].tab).classList.add('on');
-          const p=document.getElementById(TABS[k].panel);
-          p.classList.add('on');p.style.animation='none';
-          requestAnimationFrame(()=>p.style.animation='');
-        }
-        /* ── LIC SUB-TABS ── */
-        function licTab(n){
-          ['signup','login'].forEach(x=>{
-            document.getElementById('lt-'+x).classList.remove('on');
-            document.getElementById('lic-'+x).classList.remove('on');
-          });
-          document.getElementById('lt-'+n).classList.add('on');
-          document.getElementById('lic-'+n).classList.add('on');
-        }
-        /* ── PASSWORD TOGGLE ── */
-        function togglePw(id,btn){
-          const el=document.getElementById(id),ic=btn.querySelector('i');
-          el.type=el.type==='password'?'text':'password';
-          ic.className=el.type==='password'?'bi bi-eye':'bi bi-eye-slash';
-        }
+        /* ════════════════════════════════
+           TAB SWITCHING
+        ════════════════════════════════ */
+        const TABS = {
+            c: { tab: 'tb-c', panel: 'pn-c' },
+            u: { tab: 'tb-u', panel: 'pn-u' },
+            l: { tab: 'tb-l', panel: 'pn-l' }
+        };
 
-        $(function(){
-          /* Captcha refresh */
-          $('#cap-c-ref').on('click',function(){
-            var $b=$(this);$b.css('transform','rotate(180deg)');
-            $.get('@Url.Action("GenerateCaptcha", "Login")',function(d){
-              $('#cap-c').text(d.newCaptcha);
-              $('#CaptchaCodeHidden').val(d.newCaptcha);
-              setTimeout(()=>$b.css('transform',''),350);
+        function go(k) {
+            Object.values(TABS).forEach(v => {
+                document.getElementById(v.tab).classList.remove('on');
+                document.getElementById(v.panel).classList.remove('on');
             });
-          });
+            document.getElementById(TABS[k].tab).classList.add('on');
+            const p = document.getElementById(TABS[k].panel);
+            p.classList.add('on');
+            p.style.animation = 'none';
+            requestAnimationFrame(() => p.style.animation = '');
+        }
 
-          /* Faculty → College cascade */
-        $('#CollegeId').prop('disabled', true);
+        /* ════════════════════════════════
+           LIC SUB-TABS
+        ════════════════════════════════ */
+        function licTab(n) {
+            ['signup', 'login'].forEach(x => {
+                document.getElementById('lt-' + x).classList.remove('on');
+                document.getElementById('lic-' + x).classList.remove('on');
+            });
+            document.getElementById('lt-' + n).classList.add('on');
+            document.getElementById('lic-' + n).classList.add('on');
+        }
 
-        $('#FacultyId').on('change', function () {
-            var id = $(this).val();
-            var $c = $('#CollegeId');
+        /* ════════════════════════════════
+           PASSWORD TOGGLE
+        ════════════════════════════════ */
+        function togglePw(id, btn) {
+            const el = document.getElementById(id);
+            const ic = btn.querySelector('i');
+            el.type = el.type === 'password' ? 'text' : 'password';
+            ic.className = el.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+        }
 
-            $c.prop('disabled', !id);
+        $(function () {
 
-            $c.empty().append('<option value="">— Select College —</option>');
-
-            if (id) {
-                $.get('@Url.Action("GetCollegesByFaculty", "Login")',{ facultyId: id },
-                    function (data) {
-                        $.each(data, function (i, c) {
-                            $c.append(
-                                $('<option>', {
-                                    value: c.value,
-                                    text: c.text
-                                })
-                            );
-                    });
-
+            /* ── Captcha refresh ── */
+            $('#cap-c-ref').on('click', function () {
+                var $b = $(this);
+                $b.css('transform', 'rotate(180deg)');
+                $.get('@Url.Action("GenerateCaptcha", "Login")', function (d) {
+                    $('#cap-c').text(d.newCaptcha);
+                    $('#CaptchaCodeHidden').val(d.newCaptcha);
+                    setTimeout(() => $b.css('transform', ''), 350);
                 });
+            });
+
+            /* ── Faculty → College cascade (College login) ── */
+            $('#CollegeId').prop('disabled', true);
+
+            $('#FacultyId').on('change', function () {
+                var id = $(this).val();
+                var $c = $('#CollegeId');
+                $c.prop('disabled', !id).empty().append('<option value="">— Select College —</option>');
+                if (id) {
+                    $.get('@Url.Action("GetCollegesByFaculty", "Login")', { facultyId: id }, function (data) {
+                        $.each(data, function (i, c) {
+                            $c.append($('<option>', { value: c.value, text: c.text }));
+                        });
+                    });
+                }
+            });
+
+            /* ── Auto-set username from college selection ── */
+            $('#CollegeId').on('change', function () {
+                $('#CollegeUsername').val($(this).find('option:selected').data('code') || '');
+            });
+
+            /* ── College login error (SweetAlert) ── */
+            @if (TempData["LoginError"] != null)
+            {
+                    <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: '@Html.Raw(TempData["LoginError"])',
+                        confirmButtonColor: '#1a56c4',
+                        confirmButtonText: 'Try Again'
+                    });
+                    document.querySelector('.captcha-val') && (document.querySelector('.captcha-val').value = '');
+                    </text>
             }
-        });
 
-          /* Auto-set username */
-          $('#CollegeId').on('change',function(){
-            $('#CollegeUsername').val($(this).find('option:selected').data('code')||'');
-          });
-
-          /* College login error */
-          @if (TempData["LoginError"] != null)
-        {
-                <text>
-                Swal.fire({icon:'error',title:'Login Failed',text:'@Html.Raw(TempData["LoginError"])',confirmButtonColor:'#1a56c4',confirmButtonText:'Try Again'});
-                document.querySelector('.captcha-val')&&(document.querySelector('.captcha-val').value='');
-                </text>
-          }
-
-          /* University model errors */
-          @{
-                var allErrs = string.Join(" ", ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-          }
-          @if (!ViewData.ModelState.IsValid && Context.Request.Method == "POST" && !string.IsNullOrEmpty(allErrs))
-        {
-                <text>
-                go('u');
-                Swal.fire({icon:'error',title:'Login Failed',html:'@Html.Raw(allErrs.Replace("\r\n", "<br>"))',confirmButtonColor:'#1a56c4'});
-                </text>
-          }
-
-          /* University client-side validation */
-          $('#univForm').on('submit',function(e){
-            if(!$.trim($('#univ-user').val())||!$.trim($('#pw-u').val())){
-              e.preventDefault();
-              Swal.fire({icon:'warning',title:'Required Fields',text:'Please enter both Username and Password.',confirmButtonColor:'#1a56c4'});
+            /* ── University model errors (SweetAlert) ── */
+            @{
+                    var allErrs = string.Join(" ", ViewData.ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage));
             }
-          });
+            @if (!ViewData.ModelState.IsValid && Context.Request.Method == "POST" && !string.IsNullOrEmpty(allErrs))
+            {
+                    <text>
+                    go('u');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        html: '@Html.Raw(allErrs.Replace("\r\n", "<br>"))',
+                        confirmButtonColor: '#1a56c4'
+                    });
+                    </text>
+            }
 
-          /* LIC role cascade */
-          $(document).on('click','.role-btn',function(){
-            $('.role-btn').removeClass('on');$(this).addClass('on');
-            var role=$(this).data('role');$('#selectedRole').val(role);
-            fetch('/LICInspection/GetNamesByRole?role='+encodeURIComponent(role))
-              .then(r=>r.json()).then(data=>{
-                var $d=$('#nameDropdown');
-                $d.html('<option value="">— Select Name —</option>');
-                if(data&&data.length)data.forEach(n=>$d.append($('<option>',{value:n,text:n})));
-                else $d.append('<option value="">No names found</option>');
-              }).catch(e=>console.error(e));
-          });
+            /* ── University form client-side guard ── */
+            $('#univForm').on('submit', function (e) {
+                if (!$.trim($('#univ-user').val()) || !$.trim($('#pw-u').val())) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required Fields',
+                        text: 'Please enter both Username and Password.',
+                        confirmButtonColor: '#1a56c4'
+                    });
+                }
+            });
 
-          /* Signup success */
-          @if (TempData["SuccessMessage"] != null)
-        {
-                <text>
-                go('l');licTab('login');
-                Swal.fire({icon:'success',title:'Account Created',text:'@TempData["SuccessMessage"]',confirmButtonColor:'#0d7a6b'});
-                </text>
-          }
-        });
+            /* ════════════════════════════════
+               LIC — ROLE PILL → NAME DROPDOWN
+               Uses .lic-role-btn (scoped class)
+               so it never conflicts with
+               college login buttons
+            ════════════════════════════════ */
+            $(document).on('click', '.lic-role-btn', function () {
+                // Highlight active pill
+                $('.lic-role-btn').removeClass('on');
+                $(this).addClass('on');
+
+                var role = $(this).data('role');
+                $('#selectedRole').val(role);
+
+                // Hide "select designation" warning if shown
+                $('#roleRequiredMsg').removeClass('show');
+
+                // Show loading state
+                var $dd = $('#nameDropdown');
+                $('#nameLoading').addClass('show');
+                $dd.prop('disabled', true).html('<option value="">Loading…</option>');
+
+                fetch('/LICInspection/GetNamesByRole?role=' + encodeURIComponent(role))
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        $dd.html('<option value="">— Select Name —</option>');
+                        if (data && data.length) {
+                            data.forEach(function (n) {
+                                $dd.append($('<option>', { value: n, text: n }));
+                            });
+                        } else {
+                            $dd.html('<option value="">— No names found for this role —</option>');
+                        }
+                    })
+                    .catch(function (err) {
+                        console.error('GetNamesByRole error:', err);
+                        $dd.html('<option value="">— Error loading, please retry —</option>');
+                    })
+                    .finally(function () {
+                        $dd.prop('disabled', false);
+                        $('#nameLoading').removeClass('show');
+                    });
+            });
+
+            /* ── LIC signup: guard against submitting without a role ── */
+            $('#licSignupForm').on('submit', function (e) {
+                if (!$('#selectedRole').val()) {
+                    e.preventDefault();
+                    $('#roleRequiredMsg').addClass('show');
+                    // Scroll role grid into view
+                    document.getElementById('roleGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return false;
+                }
+            });
+
+            /* ── LIC signup success → switch to login tab ── */
+            @if (TempData["SuccessMessage"] != null)
+            {
+                    <text>
+                    go('l');
+                    licTab('login');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Account Created',
+                        text: '@TempData["SuccessMessage"]',
+                        confirmButtonColor: '#0d7a6b'
+                    });
+                    </text>
+            }
+
+            /* ── LIC login error ── */
+            @if (TempData["LICLoginError"] != null)
+            {
+                    <text>
+                    go('l');
+                    licTab('login');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: '@Html.Raw(TempData["LICLoginError"])',
+                        confirmButtonColor: '#0d7a6b',
+                        confirmButtonText: 'Try Again'
+                    });
+                    </text>
+            }
+
+        }); // end document.ready
     </script>
     <partial name="_ValidationScriptsPartial" />
 </body>

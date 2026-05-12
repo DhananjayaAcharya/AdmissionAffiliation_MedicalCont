@@ -29,7 +29,7 @@ namespace Admission_Affiliation.Controllers
 
         public IActionResult UniversityLogin()
         {
-            return RedirectToAction("AdminLogin");
+            return RedirectToAction("MultiLogin", "MainDashboard");
         }
 
         public IActionResult AdminLogin()

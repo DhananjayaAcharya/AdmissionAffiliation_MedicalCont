@@ -74,7 +74,7 @@ namespace Medical_Affiliation.Controllers
                 return View("Auth", model);
             }
 
-            // 🔎 Validate Role + Name + Phone from LIC_Inspection table
+            // 🔎 Validate Role + Name from LIC_Inspection table
             var record = await _context.LicInspections
                 .FirstOrDefaultAsync(x =>
                     x.TypeofMember == model.TypeofMember &&
@@ -82,16 +82,32 @@ namespace Medical_Affiliation.Controllers
 
             if (record == null)
             {
-                ModelState.AddModelError("", "Invalid member selection.");
+                ModelState.AddModelError("", "Invalid member selection. " +
+                    "Please select a valid designation and name.");
                 await LoadMemberTypesAsync();
                 return View("Auth", model);
             }
 
-            // 📱 Phone verification
-            if (record.PhoneNumber != model.PhoneNumber)
+            // 📱 Phone number verification
+            if (record.PhoneNumber != model.PhoneNumber?.Trim())
             {
                 ModelState.AddModelError("PhoneNumber",
                     "Entered phone number does not match our records.");
+                await LoadMemberTypesAsync();
+                return View("Auth", model);
+            }
+
+            // 📧 Email format already validated by model annotations
+            // Check if email already used by another account
+            bool emailTaken = await _context.LicInspections
+                .AnyAsync(x =>
+                    x.Email == model.Email.Trim().ToLowerInvariant() &&
+                    x.Name != model.Name);
+
+            if (emailTaken)
+            {
+                ModelState.AddModelError("Email",
+                    "This email address is already registered to another account.");
                 await LoadMemberTypesAsync();
                 return View("Auth", model);
             }
@@ -100,12 +116,13 @@ namespace Medical_Affiliation.Controllers
             if (!string.IsNullOrWhiteSpace(record.CreatedPassword))
             {
                 ModelState.AddModelError("",
-                    "Account already registered. Please login.");
+                    "An account is already registered for this member. " +
+                    "Please login instead.");
                 await LoadMemberTypesAsync();
                 return View("Auth", model);
             }
 
-            // 🔐 Hash password
+            // 🔐 Hash password and save
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password.Trim());
 
             record.Email = model.Email?.Trim()?.ToLowerInvariant();
@@ -113,8 +130,8 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Signup successful! Please login.";
-            return RedirectToAction(nameof(Auth));
+            TempData["SuccessMessage"] = "Account created successfully! Please login.";
+            return RedirectToAction("MultiLogin", "MainDashboard");
         }
 
         // =========================================================
@@ -209,7 +226,7 @@ namespace Medical_Affiliation.Controllers
             await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);
 
-            return RedirectToAction(nameof(Auth));
+            return RedirectToAction("MultiLogin", "MainDashboard");
         }
 
         // =========================================================
@@ -1370,7 +1387,7 @@ namespace Medical_Affiliation.Controllers
         {
             var list = await _context.Faculties
                 .AsNoTracking()
-                .Where(f => f.Status == "Active")          // only active faculty
+                .Where(f => f.Status == "Active" && f.FacultyId==9)          // only active faculty
                 .OrderBy(f => f.FacultyName)
                 .Select(f => new SelectListItem
                 {
