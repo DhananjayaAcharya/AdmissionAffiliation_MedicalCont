@@ -161,27 +161,27 @@ namespace Medical_Affiliation.Controllers
                                 
 
                                 if (vm.AY2025_DCIDocument != null)
-                                    db.Ay2025DciDocument =
+                                    db.Ay2025Dcidocument =
                                         ToBytes(vm.AY2025_DCIDocument);
 
                                 if (vm.AY2025_KSDCDocument != null)
-                                    db.Ay2025KsdcDocument =
+                                    db.Ay2025Ksdcdocument =
                                         ToBytes(vm.AY2025_KSDCDocument);
 
                                 if (vm.AY2026_DCIDocument != null)
-                                    db.Ay2026DciDocument =
+                                    db.Ay2026Dcidocument =
                                         ToBytes(vm.AY2026_DCIDocument);
 
                                 if (vm.AY2026_KSDCDocument != null)
-                                    db.Ay2026KsdcDocument =
+                                    db.Ay2026Ksdcdocument =
                                         ToBytes(vm.AY2026_KSDCDocument);
 
                                 if (vm.AY2027_DCIDocument != null)
-                                    db.Ay2027DciDocument =
+                                    db.Ay2027Dcidocument =
                                         ToBytes(vm.AY2027_DCIDocument);
 
                                 if (vm.AY2027_KSDCDocument != null)
-                                    db.Ay2027KsdcDocument =
+                                    db.Ay2027Ksdcdocument =
                                         ToBytes(vm.AY2027_KSDCDocument);
                             }
                         }
@@ -318,10 +318,10 @@ namespace Medical_Affiliation.Controllers
                 Ay2025NmcDocument =
                     ToBytes(vm.AY2025_NmcDocument),
 
-                Ay2025DciDocument =
+                Ay2025Dcidocument =
                     ToBytes(vm.AY2025_DCIDocument),
 
-                Ay2025KsdcDocument =
+                Ay2025Ksdcdocument =
                     ToBytes(vm.AY2025_KSDCDocument),
 
                 // ── 2026-27 ─────────────────────────────
@@ -334,10 +334,10 @@ namespace Medical_Affiliation.Controllers
                 Ay2026TotalIntake =
                     vm.AY2026_TotalIntake ?? 0,
 
-                Ay2026DciDocument =
+                Ay2026Dcidocument =
                     ToBytes(vm.AY2026_DCIDocument),
 
-                Ay2026KsdcDocument =
+                Ay2026Ksdcdocument =
                     ToBytes(vm.AY2026_KSDCDocument),
 
                 // ── 2027-28 ─────────────────────────────
@@ -350,10 +350,10 @@ namespace Medical_Affiliation.Controllers
                 Ay2027TotalIntake =
                     vm.AY2027_TotalIntake ?? 0,
 
-                Ay2027DciDocument =
+                Ay2027Dcidocument =
                     ToBytes(vm.AY2027_DCIDocument),
 
-                Ay2027KsdcDocument =
+                Ay2027Ksdcdocument =
                     ToBytes(vm.AY2027_KSDCDocument)
             };
         }
@@ -573,32 +573,32 @@ namespace Medical_Affiliation.Controllers
                         e.Ay2025LopDocument.Length > 0,
 
                     HasDciDocument =
-                                (e.Ay2025DciDocument != null &&
-                                 e.Ay2025DciDocument.Length > 0)
+                                (e.Ay2025Dcidocument != null &&
+                                 e.Ay2025Dcidocument.Length > 0)
 
                                 ||
 
-                                (e.Ay2026DciDocument != null &&
-                                 e.Ay2026DciDocument.Length > 0)
+                                (e.Ay2026Dcidocument != null &&
+                                 e.Ay2026Dcidocument.Length > 0)
 
                                 ||
 
-                                (e.Ay2027DciDocument != null &&
-                                 e.Ay2027DciDocument.Length > 0),
+                                (e.Ay2027Dcidocument != null &&
+                                 e.Ay2027Dcidocument.Length > 0),
 
                   HasKsdcDocument =
-                                (e.Ay2025KsdcDocument != null &&
-                                 e.Ay2025KsdcDocument.Length > 0)
+                                (e.Ay2025Ksdcdocument != null &&
+                                 e.Ay2025Ksdcdocument.Length > 0)
 
                                 ||
 
-                                (e.Ay2026KsdcDocument != null &&
-                                 e.Ay2026KsdcDocument.Length > 0)
+                                (e.Ay2026Ksdcdocument != null &&
+                                 e.Ay2026Ksdcdocument.Length > 0)
 
                                 ||
 
-                                (e.Ay2027KsdcDocument != null &&
-                                 e.Ay2027KsdcDocument.Length > 0),
+                                (e.Ay2027Ksdcdocument != null &&
+                                 e.Ay2027Ksdcdocument.Length > 0),
 
                     CreatedOn = DateTime.Now
                 }
