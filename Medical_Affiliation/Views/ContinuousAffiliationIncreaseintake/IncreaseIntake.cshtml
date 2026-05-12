@@ -355,7 +355,7 @@
                             {
                                 <th style="text-align:center">LOP Document</th>
                                 <th style="text-align:center">DCI Document</th>
-                                <th style="text-align:center">KSDC Document</th>
+                                @* <th style="text-align:center">KSDC Document</th> *@
                             }
                             else
                             {
@@ -449,7 +449,7 @@
                                         }
                                     </td>
 
-                                    <td style="text-align:center">
+                                  @*   <td style="text-align:center">
                                         @if (row.HasKsdcDocument)
                                         {
                                             <span class="pill py">
@@ -462,7 +462,7 @@
                                                 — None
                                             </span>
                                         }
-                                    </td>
+                                    </td> *@
                                 }
                                 else
                                 {
@@ -597,7 +597,7 @@
                         {
                             <th class="g25">LOP Document</th>
                             <th class="g25">DCI Document</th>
-                            <th class="g25">KSDC Document</th>
+                            // <th class="g25">KSDC Document</th>
                         }
                         else
                         {
@@ -609,7 +609,7 @@
                         @if (Model.FacultyId == 2)
                         {
                             <th class="g26">DCI Document</th>
-                            <th class="g26">KSDC Document</th>
+                            // <th class="g26">KSDC Document</th>
                         }
                         <th class="g26">Existing</th>
                         <th class="g26">Add. Requested</th>
@@ -617,7 +617,7 @@
                         @if (Model.FacultyId == 2)
                         {
                             <th class="g26">DCI Document</th>
-                            <th class="g26">KSDC Document</th>
+                            // <th class="g26">KSDC Document</th>
                         }
                         
                     </tr>
@@ -640,21 +640,30 @@
                                 @if (Model.FacultyId != 2)
                                 {
                                     <td class="cc">
-                                        <input type="number" class="ni"
+                                        <input type="number"
+                                               class="ni"
                                                name="@(p).AY2024_ExistingIntake"
-                                               value="@c.AY2024_ExistingIntake" />
+                                               value="@c.AY2024_ExistingIntake"
+                                               data-r="e24" />
                                     </td>
 
                                     <td class="cc">
-                                        <input type="number" class="ni"
+                                        <input type="number"
+                                               class="ni"
                                                name="@(p).AY2024_IncreaseIntake"
-                                               value="@c.AY2024_IncreaseIntake" />
+                                               value="@c.AY2024_IncreaseIntake"
+                                               data-r="i24" />
                                     </td>
 
                                     <td class="cc">
                                         <span class="cf2" data-r="t24">
                                             @c.AY2024_TotalIntake
                                         </span>
+
+                                        <input type="hidden"
+                                               name="@(p).AY2024_TotalIntake"
+                                               data-h="t24"
+                                               value="@c.AY2024_TotalIntake" />
                                     </td>
                                 }
                                 @* 2025-26 *@
@@ -713,25 +722,25 @@
                                         </label>
                                     </td>
 
-                                    <td style="min-width:170px">
-                                        <label class="fl">
-                                            <svg width="12" height="12" fill="none"
-                                                 stroke="currentColor"
-                                                 stroke-width="2.2"
-                                                 viewBox="0 0 24 24">
-                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                                                <polyline points="17 8 12 3 7 8" />
-                                                <line x1="12" y1="3" x2="12" y2="15" />
-                                            </svg>
+                                    // <td style="min-width:170px">
+                                    //     <label class="fl">
+                                    //         <svg width="12" height="12" fill="none"
+                                    //              stroke="currentColor"
+                                    //              stroke-width="2.2"
+                                    //              viewBox="0 0 24 24">
+                                    //             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                    //             <polyline points="17 8 12 3 7 8" />
+                                    //             <line x1="12" y1="3" x2="12" y2="15" />
+                                    //         </svg>
 
-                                            <span class="fn">KSDC File</span>
+                                    //         <span class="fn">KSDC File</span>
 
-                                            <input type="file"
-                                                   name="@(p).AY2025_KSDCDocument"
-                                                   class="file-validate"
-                                                   accept=".pdf" />
-                                        </label>
-                                    </td>
+                                    //         <input type="file"
+                                    //                name="@(p).AY2025_KSDCDocument"
+                                    //                class="file-validate"
+                                    //                accept=".pdf" />
+                                    //     </label>
+                                    // </td>
                                 }
                                 else
                                 {
@@ -788,25 +797,25 @@
                                         </label>
                                     </td>
 
-                                    <td style="min-width:170px">
-                                        <label class="fl">
-                                            <svg width="12" height="12" fill="none"
-                                                 stroke="currentColor"
-                                                 stroke-width="2.2"
-                                                 viewBox="0 0 24 24">
-                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                                                <polyline points="17 8 12 3 7 8" />
-                                                <line x1="12" y1="3" x2="12" y2="15" />
-                                            </svg>
+                                    // <td style="min-width:170px">
+                                    //     <label class="fl">
+                                    //         <svg width="12" height="12" fill="none"
+                                    //              stroke="currentColor"
+                                    //              stroke-width="2.2"
+                                    //              viewBox="0 0 24 24">
+                                    //             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                    //             <polyline points="17 8 12 3 7 8" />
+                                    //             <line x1="12" y1="3" x2="12" y2="15" />
+                                    //         </svg>
 
-                                            <span class="fn">KSDC File</span>
+                                    //         <span class="fn">KSDC File</span>
 
-                                            <input type="file"
-                                                   name="@(p).AY2026_KSDCDocument"
-                                                   class="file-validate"
-                                                   accept=".pdf" />
-                                        </label>
-                                    </td>
+                                    //         <input type="file"
+                                    //                name="@(p).AY2026_KSDCDocument"
+                                    //                class="file-validate"
+                                    //                accept=".pdf" />
+                                    //     </label>
+                                    //</td>
                                 }
 
                                
@@ -814,14 +823,10 @@
                                 <td class="cc">
                                     <input type="number"
                                            class="ni"
+                                           name="@(p).AY2027_ExistingIntake"
                                            value="@c.AY2027_ExistingIntake"
                                            data-r="e27"
                                            readonly />
-
-                                    <input type="hidden"
-                                           name="@(p).AY2027_ExistingIntake"
-                                           data-h="e27"
-                                           value="@c.AY2027_ExistingIntake" />
                                 </td>
 
                                 <td class="cc">
@@ -830,6 +835,7 @@
                                            name="@(p).AY2027_AddRequestedIntake"
                                            value="@c.AY2027_AddRequestedIntake"
                                            min="0"
+                                           step="1"
                                            data-r="r27" />
                                 </td>
 
@@ -865,25 +871,25 @@
                                         </label>
                                     </td>
 
-                                    <td style="min-width:170px">
-                                        <label class="fl">
-                                            <svg width="12" height="12" fill="none"
-                                                 stroke="currentColor"
-                                                 stroke-width="2.2"
-                                                 viewBox="0 0 24 24">
-                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                                                <polyline points="17 8 12 3 7 8" />
-                                                <line x1="12" y1="3" x2="12" y2="15" />
-                                            </svg>
+                                    // <td style="min-width:170px">
+                                    //     <label class="fl">
+                                    //         <svg width="12" height="12" fill="none"
+                                    //              stroke="currentColor"
+                                    //              stroke-width="2.2"
+                                    //              viewBox="0 0 24 24">
+                                    //             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                    //             <polyline points="17 8 12 3 7 8" />
+                                    //             <line x1="12" y1="3" x2="12" y2="15" />
+                                    //         </svg>
 
-                                            <span class="fn">KSDC File</span>
+                                    //         <span class="fn">KSDC File</span>
 
-                                            <input type="file"
-                                                   name="@(p).AY2027_KSDCDocument"
-                                                   class="file-validate"
-                                                   accept=".pdf" />
-                                        </label>
-                                    </td>
+                                    //         <input type="file"
+                                    //                name="@(p).AY2027_KSDCDocument"
+                                    //                class="file-validate"
+                                    //                accept=".pdf" />
+                                    //     </label>
+                                    // </td>
                                 }
                             </tr>
                             ri++;
@@ -907,80 +913,126 @@
         });
     });
 
-    // // LIVE RECALC
-    // function recalcRow(row) {
-    //     const val = r => +(row.querySelector(`[data-r="${r}"]`)?.value
-    //                     ?? row.querySelector(`[data-r="${r}"]`)?.textContent
-    //                     ?? 0);
-    //     const set = (r, v) => {
-    //         const sp = row.querySelector(`[data-r="${r}"]`);
-    //         const hd = row.querySelector(`[data-h="${r}"]`);
-    //         if (sp) sp.textContent = v;
-    //         if (hd) hd.value = v;
-    //     };
-    //     const t24 = val('e24') + val('i24'); set('t24', t24);
-    //     const t25 = val('e25') + val('l25'); set('t25', t25);
-    //     set('e26', t25);
-    //     set('t26', t25 + val('r26'));
-    //     const t27 = val('e27') + val('r27');
-    //     set('t27', t27);
-    // }
+    
 
         // LIVE RECALC
-    function recalcRow(row) {
+    // function recalcRow(row) {
 
-        const val = r => +(
-            row.querySelector(`[data-r="${r}"]`)?.value
-            ?? row.querySelector(`[data-r="${r}"]`)?.textContent
-            ?? 0
-        );
+    //     const val = r => +(
+    //         row.querySelector(`[data-r="${r}"]`)?.value
+    //         ?? row.querySelector(`[data-r="${r}"]`)?.textContent
+    //         ?? 0
+    //     );
 
-            const set = (r, v) => {
+    //         const set = (r, v) => {
 
-        const sp = row.querySelector(`[data-r="${r}"]`);
-        const hd = row.querySelector(`[data-h="${r}"]`);
+    //     const sp = row.querySelector(`[data-r="${r}"]`);
+    //     const hd = row.querySelector(`[data-h="${r}"]`);
 
-        if (sp) {
+    //     if (sp) {
 
-            if (
-                sp.tagName === "INPUT" ||
-                sp.tagName === "TEXTAREA"
-            ) {
-                sp.value = v;
+    //         if (
+    //             sp.tagName === "INPUT" ||
+    //             sp.tagName === "TEXTAREA"
+    //         ) {
+    //             sp.value = v;
+    //         }
+    //         else {
+    //             sp.textContent = v;
+    //         }
+    //     }
+
+    //     if (hd)
+    //         hd.value = v;
+    // };
+
+    //     // AY 2024-25
+    //     const t24 = val('e24') + val('i24');
+    //     set('t24', t24);
+
+    //     // AY 2025-26
+    //     const t25 = val('e25') + val('l25');
+    //     set('t25', t25);
+
+    //     // AY 2026-27
+    //     set('e26', t25);
+
+    //     const t26 = t25 + val('r26');
+    //     set('t26', t26);
+
+    //         // AY 2027-28
+
+    //     const existing27Input =
+    //         row.querySelector('[data-r="e27"]');
+
+    //     const requested27Input =
+    //         row.querySelector('[data-r="r27"]');
+
+    //     // preserve DB-loaded value
+    //     const existing27 =
+    //         +(existing27Input?.value || 0);
+
+    //     const requested27 =
+    //         +(requested27Input?.value || 0);
+
+    //     // only auto-fill if empty and no DB value
+    //     if (existing27 === 0 && requested27 === 0) {
+
+    //         set('e27', t26);
+
+    //         const autoTotal27 = t26;
+
+    //         set('t27', autoTotal27);
+    //     }
+    //     else {
+
+    //         const total27 =
+    //             existing27 + requested27;
+
+    //         set('t27', total27);
+    //     }
+    // }
+
+
+         function recalcRow(row) {
+        const val = r => +(row.querySelector(`[data-r="${r}"]`)?.value
+                         ?? row.querySelector(`[data-r="${r}"]`)?.textContent
+                         ?? 0);
+
+        const set = (r, v) => {
+            const sp = row.querySelector(`[data-r="${r}"]`);
+            const hd = row.querySelector(`[data-h="${r}"]`);
+            if (sp) {
+                if (sp.tagName === "INPUT") {
+                    sp.value = Math.max(0, v);   // prevent negative
+                } else {
+                    sp.textContent = v;
+                }
             }
-            else {
-                sp.textContent = v;
-            }
-        }
+            if (hd) hd.value = v;
+        };
 
-        if (hd)
-            hd.value = v;
-    };
-
-        // AY 2024-25
-        const t24 = val('e24') + val('i24');
-        set('t24', t24);
-
-        // AY 2025-26
+        // 2025-26
         const t25 = val('e25') + val('l25');
         set('t25', t25);
 
-        // AY 2026-27
+        // 2026-27
         set('e26', t25);
-
         const t26 = t25 + val('r26');
         set('t26', t26);
 
-        // AY 2027-28
+        // 2027-28 - FIXED
         set('e27', t26);
-
-        const t27 = t26 + val('r27');
-        set('t27', t27);
+        const requested27 = val('r27');
+        const total27 = t26 + requested27;
+        set('t27', total27);
     }
 
-    document.querySelectorAll('table.t tbody tr').forEach(row => {
-        row.querySelectorAll('input[type="number"]').forEach(i => i.addEventListener('input', () => recalcRow(row)));
-        recalcRow(row);
+       document.querySelectorAll('table.t tbody tr').forEach(row => {
+        row.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => recalcRow(row));
+        });
+        recalcRow(row);   // Run once on load
     });
 
     // FILE LABELS

@@ -85,7 +85,15 @@ namespace Medical_Affiliation.Controllers
                                    AY2025_LopDate = (existing?.Ay2025LopDate),
                                    AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
                                    AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
+                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0,
+                                   AY2027_ExistingIntake =
+                                    existing?.Ay2027ExistingIntake ?? 0,
+
+                                                                   AY2027_AddRequestedIntake =
+                                    existing?.Ay2027AddRequestedIntake ?? 0,
+
+                                                                   AY2027_TotalIntake =
+                                    existing?.Ay2027TotalIntake ?? 0,
                                };
 
             model.UgCourses = ugintakelist.ToList().DistinctBy(x => x.CourseCode).ToList();
@@ -110,7 +118,15 @@ namespace Medical_Affiliation.Controllers
                                    AY2025_LopDate = (existing?.Ay2025LopDate),
                                    AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
                                    AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
+                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0,
+                                   AY2027_ExistingIntake =
+                                    existing?.Ay2027ExistingIntake ?? 0,
+
+                                                                   AY2027_AddRequestedIntake =
+                                    existing?.Ay2027AddRequestedIntake ?? 0,
+
+                                                                   AY2027_TotalIntake =
+                                    existing?.Ay2027TotalIntake ?? 0,
                                };
 
             model.PgCourses = pgintakelist.ToList().DistinctBy(x => x.CourseCode).ToList();
@@ -135,7 +151,11 @@ namespace Medical_Affiliation.Controllers
                                    AY2025_LopDate = (existing?.Ay2025LopDate),
                                    AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
                                    AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
+                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0,
+                                   // 2027 - THIS WAS MISSING / INCOMPLETE
+                                   AY2027_ExistingIntake = existing?.Ay2027ExistingIntake ?? 0,
+                                   AY2027_AddRequestedIntake = existing?.Ay2027AddRequestedIntake ?? 0,
+                                   AY2027_TotalIntake = existing?.Ay2027TotalIntake ?? 0,
                                };
 
             model.SsCourses = ssintakelist.ToList().DistinctBy(x => x.CourseCode).ToList();
@@ -175,6 +195,27 @@ namespace Medical_Affiliation.Controllers
                 if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode))
                 {
                     return RedirectToAction("Collegelogin", "Login");
+                }
+
+                // === DEBUG - CHECK IF VALUE IS REACHING THE MODEL ===
+                Console.WriteLine("=== 2027 ADD REQUESTED DEBUG ===");
+                Console.WriteLine($"UgCourses Count: {model.UgCourses?.Count ?? 0}");
+                Console.WriteLine($"PgCourses Count: {model.PgCourses?.Count ?? 0}");
+
+                if (model.UgCourses != null)
+                {
+                    foreach (var c in model.UgCourses)
+                    {
+                        Console.WriteLine($"[UG] {c.CourseCode,-15} | AY2027_AddRequestedIntake = {c.AY2027_AddRequestedIntake}");
+                    }
+                }
+
+                if (model.PgCourses != null)
+                {
+                    foreach (var c in model.PgCourses)
+                    {
+                        Console.WriteLine($"[PG] {c.CourseCode,-15} | AY2027_AddRequestedIntake = {c.AY2027_AddRequestedIntake}");
+                    }
                 }
 
                 var incoming = new List<AcademicIntake>();
@@ -257,11 +298,16 @@ namespace Medical_Affiliation.Controllers
                         dbRecord.Ay2026ExistingIntake = calculated2026Existing;           // ← enforced
                         dbRecord.Ay2026AddRequestedIntake = inc.Ay2026AddRequestedIntake;
                         dbRecord.Ay2026TotalIntake = calculated2026Existing + (inc.Ay2026AddRequestedIntake);
+                        // 2027–28
+                        dbRecord.Ay2027ExistingIntake =inc.Ay2026ExistingIntake;
 
-                        // Optional: also log what we're actually saving
-                        Console.WriteLine(
-                            $"[SAVING UPDATE] {inc.Courses,-30} → 2026 Existing saved as: {dbRecord.Ay2026ExistingIntake}"
-                        );
+                        dbRecord.Ay2027AddRequestedIntake =inc.Ay2027AddRequestedIntake;
+
+                        dbRecord.Ay2027TotalIntake =
+                                    dbRecord.Ay2027ExistingIntake +
+                                    dbRecord.Ay2027AddRequestedIntake;
+
+                      
 
                         updated++;
                     }
@@ -270,6 +316,13 @@ namespace Medical_Affiliation.Controllers
                         // For new records - also enforce carry-forward
                         inc.Ay2026ExistingIntake = (inc.Ay2025ExistingIntake) + (inc.Ay2025LopNmcIntake);
                         inc.Ay2026TotalIntake = inc.Ay2026ExistingIntake + (inc.Ay2026AddRequestedIntake);
+                        // 2027-28
+                        inc.Ay2027ExistingIntake =
+                            inc.Ay2026TotalIntake;
+
+                        inc.Ay2027TotalIntake =
+                            inc.Ay2027ExistingIntake +
+                            inc.Ay2027AddRequestedIntake;
 
                         _context.AcademicIntakes.Add(inc);
                         added++;
@@ -333,10 +386,8 @@ namespace Medical_Affiliation.Controllers
             model.CollegeName = collegeName;
 
             if (!int.TryParse(facultyCode, out int facultyId)) return;
-
             model.FacultyId = facultyId;
 
-            // Load base data (same as GET method)
             var intakeDetails = await _context.CollegeCourseIntakeDetails
                 .Where(d => d.FacultyCode == facultyId && d.CollegeCode == collegeCode)
                 .ToListAsync();
@@ -349,7 +400,7 @@ namespace Medical_Affiliation.Controllers
                 .Where(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode)
                 .ToListAsync();
 
-            // Populate UG, PG, SS courses (same LINQ as GET)
+            // UG
             model.UgCourses = (from d in intakeDetails.Where(d => int.TryParse(d.CourseCode, out _))
                                let courseCodeInt = int.Parse(d.CourseCode!)
                                join c in allCourses on courseCodeInt equals c.CourseCode
@@ -363,15 +414,22 @@ namespace Medical_Affiliation.Controllers
                                    AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
                                    AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
                                    AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? d.ExistingIntake.GetValueOrDefault(),
+
                                    AY2025_ExistingIntake = existing?.Ay2025ExistingIntake ?? 0,
                                    AY2025_LopNmcIntake = existing?.Ay2025LopNmcIntake ?? 0,
                                    AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
-                                   AY2025_LopDate = (existing?.Ay2025LopDate),
+                                   AY2025_LopDate = existing?.Ay2025LopDate,
+
                                    AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
                                    AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
+                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0,
+
+                                   AY2027_ExistingIntake = existing?.Ay2027ExistingIntake ?? 0,
+                                   AY2027_AddRequestedIntake = existing?.Ay2027AddRequestedIntake ?? 0,
+                                   AY2027_TotalIntake = existing?.Ay2027TotalIntake ?? 0,
                                }).DistinctBy(x => x.CourseCode).ToList();
 
+            // PG
             model.PgCourses = (from d in intakeDetails.Where(d => int.TryParse(d.CourseCode, out _))
                                let courseCodeInt = int.Parse(d.CourseCode!)
                                join c in allCourses on courseCodeInt equals c.CourseCode
@@ -385,15 +443,22 @@ namespace Medical_Affiliation.Controllers
                                    AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
                                    AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
                                    AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? d.ExistingIntake.GetValueOrDefault(),
+
                                    AY2025_ExistingIntake = existing?.Ay2025ExistingIntake ?? 0,
                                    AY2025_LopNmcIntake = existing?.Ay2025LopNmcIntake ?? 0,
                                    AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
-                                   AY2025_LopDate = (existing?.Ay2025LopDate),
+                                   AY2025_LopDate = existing?.Ay2025LopDate,
+
                                    AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
                                    AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
+                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0,
+
+                                   AY2027_ExistingIntake = existing?.Ay2027ExistingIntake ?? 0,
+                                   AY2027_AddRequestedIntake = existing?.Ay2027AddRequestedIntake ?? 0,
+                                   AY2027_TotalIntake = existing?.Ay2027TotalIntake ?? 0,
                                }).DistinctBy(x => x.CourseCode).ToList();
 
+            // SS
             model.SsCourses = (from d in intakeDetails.Where(d => int.TryParse(d.CourseCode, out _))
                                let courseCodeInt = int.Parse(d.CourseCode!)
                                join c in allCourses on courseCodeInt equals c.CourseCode
@@ -407,111 +472,100 @@ namespace Medical_Affiliation.Controllers
                                    AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
                                    AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
                                    AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? d.ExistingIntake.GetValueOrDefault(),
+
                                    AY2025_ExistingIntake = existing?.Ay2025ExistingIntake ?? 0,
                                    AY2025_LopNmcIntake = existing?.Ay2025LopNmcIntake ?? 0,
                                    AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
-                                   AY2025_LopDate = (existing?.Ay2025LopDate),
+                                   AY2025_LopDate = existing?.Ay2025LopDate,
+
                                    AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
                                    AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
+                                   AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0,
+
+                                   AY2027_ExistingIntake = existing?.Ay2027ExistingIntake ?? 0,
+                                   AY2027_AddRequestedIntake = existing?.Ay2027AddRequestedIntake ?? 0,
+                                   AY2027_TotalIntake = existing?.Ay2027TotalIntake ?? 0,
                                }).DistinctBy(x => x.CourseCode).ToList();
 
-            // Populate saved intakes table
-            var savedIntakes = from e in existingIntakes
-                               join c in allCourses on int.Parse(e.Courses) equals c.CourseCode
-                               select new SavedAcademicIntakeRowViewModel1
-                               {
-                                   Id = e.Id,
-                                   CourseLevel = c.CourseLevel,
-                                   CourseCode = e.Courses,
-                                   CourseName = c.CourseName,
-                                   AY2024_TotalIntake = e.Ay2024TotalIntake,
-                                   AY2025_TotalIntake = e.Ay2025TotalIntake,
-                                   AY2026_TotalIntake = e.Ay2026TotalIntake,
-                                   HasNmcDocument = e.Ay2025NmcDocument != null && e.Ay2025NmcDocument.Length > 0,
-
-                                   CreatedOn = DateTime.Now
-                               };
-
-            model.SavedIntakes = savedIntakes.OrderBy(x => x.CourseLevel == "UG" ? 1 : x.CourseLevel == "PG" ? 2 : 3).ToList();
-        }
-        private AcademicIntake CreateIntakeRecord(
-            string facultyCode,
-            string collegeCode,
-            string courseCode,
-            IntakeByLevelViewModel1 course)
-        {
-            byte[]? nmcDocumentBytes = null;
-
-            if (course.AY2025_NmcDocument is { Length: > 0 })
+            // === DEBUG - Very Important ===
+            Console.WriteLine("=== LOAD DEBUG AFTER SAVE ===");
+            foreach (var c in model.UgCourses ?? Enumerable.Empty<IntakeByLevelViewModel1>())
             {
-                try
+                Console.WriteLine($"[LOAD UG] {c.CourseCode,-12} | 2027 Add Req = {c.AY2027_AddRequestedIntake}");
+            }
+            foreach (var c in model.PgCourses ?? Enumerable.Empty<IntakeByLevelViewModel1>())
+            {
+                Console.WriteLine($"[LOAD PG] {c.CourseCode,-12} | 2027 Add Req = {c.AY2027_AddRequestedIntake}");
+            }
+
+            // Saved Records
+            model.SavedIntakes = (from e in existingIntakes
+                                  join c in allCourses on int.Parse(e.Courses) equals c.CourseCode
+                                  select new SavedAcademicIntakeRowViewModel1
+                                  {
+                                      Id = e.Id,
+                                      CourseLevel = c.CourseLevel,
+                                      CourseCode = e.Courses,
+                                      CourseName = c.CourseName,
+                                      AY2024_TotalIntake = e.Ay2024TotalIntake,
+                                      AY2025_TotalIntake = e.Ay2025TotalIntake,
+                                      AY2026_TotalIntake = e.Ay2026TotalIntake,
+                                      AY2027_TotalIntake = e.Ay2027TotalIntake,
+                                      HasNmcDocument = e.Ay2025NmcDocument != null && e.Ay2025NmcDocument.Length > 0,
+                                      CreatedOn = DateTime.Now
+                                  }).OrderBy(x => x.CourseLevel == "UG" ? 1 : x.CourseLevel == "PG" ? 2 : 3)
+                                  .ToList();
+        }
+
+
+
+        private AcademicIntake CreateIntakeRecord(string facultyCode, string collegeCode, string courseCode, IntakeByLevelViewModel1 course)
+        {
+                byte[]? nmcDocumentBytes = null;
+                if (course.AY2025_NmcDocument?.Length > 0)
                 {
-                    using var ms = new MemoryStream((int)course.AY2025_NmcDocument.Length);
+                    using var ms = new MemoryStream();
                     course.AY2025_NmcDocument.CopyTo(ms);
                     nmcDocumentBytes = ms.ToArray();
                 }
-                catch (Exception ex)
+
+                return new AcademicIntake
                 {
-                    // In production → use proper logger
-                    Console.WriteLine($"Failed to read NMC document for {courseCode}: {ex.Message}");
-                    // logger?.LogWarning(ex, "NMC document read failed for course {CourseCode}", courseCode);
-                }
-            }
+                    FacultyCode = facultyCode,
+                    CollegeCode = collegeCode,
+                    Courses = courseCode,
 
-            return new AcademicIntake
+                    Ay2024ExistingIntake = course.AY2024_ExistingIntake ?? 0,
+                    Ay2024IncreaseIntake = course.AY2024_IncreaseIntake ?? 0,
+                    Ay2024TotalIntake = course.AY2024_TotalIntake ?? 0,
+
+                    Ay2025ExistingIntake = course.AY2025_ExistingIntake ?? 0,
+                    Ay2025LopNmcIntake = course.AY2025_LopNmcIntake ?? 0,
+                    Ay2025TotalIntake = course.AY2025_TotalIntake ?? 0,
+                    Ay2025LopDate = course.AY2025_LopDate,
+                    Ay2025NmcDocument = nmcDocumentBytes,
+
+                    Ay2026ExistingIntake = course.AY2026_ExistingIntake ?? 0,
+                    Ay2026AddRequestedIntake = course.AY2026_AddRequestedIntake ?? 0,
+                    Ay2026TotalIntake = course.AY2026_TotalIntake ?? 0,
+
+                    // 2027
+                    Ay2027ExistingIntake = course.AY2027_ExistingIntake ?? 0,
+                    Ay2027AddRequestedIntake = course.AY2027_AddRequestedIntake ?? 0,
+                    Ay2027TotalIntake = course.AY2027_TotalIntake ?? 0
+        };
+        }
+
+            // ✅ PERFECT File to Byte conversion
+            private byte[] ConvertFileToBytes(IFormFile file)
             {
-                FacultyCode = facultyCode,
-                CollegeCode = collegeCode,
-                Courses = courseCode,
+                if (file == null || file.Length == 0)
+                    return Array.Empty<byte>();
 
-                // ──────────────────────────────
-                //       2024–25 (all 3 fields)
-                // ──────────────────────────────
-                Ay2024ExistingIntake = course.AY2024_ExistingIntake ?? 0,
-                Ay2024IncreaseIntake = course.AY2024_IncreaseIntake ?? 0,
-                Ay2024TotalIntake = course.AY2024_TotalIntake
-                                       ?? (course.AY2024_ExistingIntake ?? 0)
-                                        + (course.AY2024_IncreaseIntake ?? 0),
-
-                // ──────────────────────────────
-                //       2025–26
-                // ──────────────────────────────
-                Ay2025ExistingIntake = course.AY2025_ExistingIntake ?? 0,
-                Ay2025LopNmcIntake = course.AY2025_LopNmcIntake ?? 0,
-                Ay2025TotalIntake = course.AY2025_TotalIntake
-                                       ?? (course.AY2025_ExistingIntake ?? 0)
-                                        + (course.AY2025_LopNmcIntake ?? 0),
-
-                Ay2025LopDate = course.AY2025_LopDate,
-                Ay2025NmcDocument = nmcDocumentBytes,
-
-                // ──────────────────────────────
-                //       2026–27
-                // ──────────────────────────────
-                Ay2026ExistingIntake = course.AY2026_ExistingIntake ?? 0,
-                Ay2026AddRequestedIntake = course.AY2026_AddRequestedIntake ?? 0,
-                Ay2026TotalIntake = course.AY2026_TotalIntake
-                                           ?? (course.AY2026_ExistingIntake ?? 0)
-                                            + (course.AY2026_AddRequestedIntake ?? 0),
-
-                // Optional – good for auditing
-                // CreatedAt = DateTime.UtcNow,
-                // CreatedBy = HttpContext?.User?.Identity?.Name ?? "System",
-                // IsActive  = true,
-            };
-        }
-
-        // ✅ PERFECT File to Byte conversion
-        private byte[] ConvertFileToBytes(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                return Array.Empty<byte>();
-
-            using var memoryStream = new MemoryStream();
-            file.CopyTo(memoryStream);
-            return memoryStream.ToArray();
-        }
+                using var memoryStream = new MemoryStream();
+                file.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
 
 
     }

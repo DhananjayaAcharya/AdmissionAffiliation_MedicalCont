@@ -3709,6 +3709,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Sicu).HasColumnName("SICU");
             entity.Property(e => e.SkinVd).HasColumnName("SkinVD");
             entity.Property(e => e.TotalIcubeds).HasColumnName("TotalICUBeds");
+            entity.Property(e => e.OralMaxillofacialSurgery).HasColumnName("OralMaxillofacialSurgery");
         });
 
         modelBuilder.Entity<MstAdministration>(entity =>

@@ -2,6 +2,10 @@
 @{
     ViewData["Title"] = "Bed Distribution – MBBS";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+  
+    var facultyCode = Context.Session.GetString("FacultyCode");
+    bool isDentalFaculty = facultyCode == "2";
+
 }
 
 <!DOCTYPE html>
@@ -285,179 +289,224 @@
             <div class="p-4">
                 <form asp-action="MedicalUGBedDistribution" method="post" id="bedForm">
                     @Html.AntiForgeryToken()
+                    @if (isDentalFaculty)
+                    {
+                        <!-- DENTAL FACULTY -->
 
-                    <!-- A. Medicine & Allied -->
-                    <div class="section" style="margin-bottom: 2.5rem;">
-                        <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
-                            A. Medicine & Allied
-                        </h5>
-                        <div class="bed-item">
-                            <div class="bed-label">General Medicine</div>
-                            <div class="bed-input-group">
-                                <input asp-for="GenMedicine" class="bed-input medicine" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">Paediatrics</div>
-                            <div class="bed-input-group">
-                                <input asp-for="Paediatrics" class="bed-input medicine" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">Skin & V.D.</div>
-                            <div class="bed-input-group">
-                                <input asp-for="SkinVD" class="bed-input medicine" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">Psychiatry</div>
-                            <div class="bed-input-group">
-                                <input asp-for="Psychiatry" class="bed-input medicine" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="total-row">
-                            <div class="total-label">Total Medicine & Allied</div>
-                            <div class="total-value" id="totalMedicine">0</div>
-                        </div>
-                    </div>
+                        <div class="section" style="margin-bottom: 2.5rem;">
 
-                    <!-- B. Surgery & Allied -->
-                    <div class="section" style="margin-bottom: 2.5rem;">
-                        <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
-                            B. Surgery & Allied
-                        </h5>
-                        <div class="bed-item">
-                            <div class="bed-label">General Surgery</div>
-                            <div class="bed-input-group">
-                                <input asp-for="GenSurgery" class="bed-input surgery" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">Orthopaedics</div>
-                            <div class="bed-input-group">
-                                <input asp-for="Orthopaedics" class="bed-input surgery" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">Ophthalmology</div>
-                            <div class="bed-input-group">
-                                <input asp-for="Ophthalmology" class="bed-input surgery" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">ENT</div>
-                            <div class="bed-input-group">
-                                <input asp-for="ENT" class="bed-input surgery" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="total-row">
-                            <div class="total-label">Total Surgery & Allied</div>
-                            <div class="total-value" id="totalSurgery">0</div>
-                        </div>
-                    </div>
+                            <h5 class="section-title"
+                            style="font-size:1.05rem;
+                           font-weight:600;
+                           color:var(--accent);
+                           margin-bottom:1.1rem;
+                           border-left:5px solid #1a4c8b;
+                           padding-left:14px;">
+                                Oral & Maxillofacial Surgery
+                            </h5>
 
-                    <!-- C. OBG -->
-                    <div class="section" style="margin-bottom: 2.5rem;">
-                        <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
-                            C. Obstetrics & Gynaecology
-                        </h5>
-                        <div class="bed-item">
-                            <div class="bed-label">Obstetrics & ANC</div>
-                            <div class="bed-input-group">
-                                <input asp-for="ObstetricsANC" class="bed-input obg" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">Gynaecology</div>
-                            <div class="bed-input-group">
-                                <input asp-for="Gynaecology" class="bed-input obg" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">Postpartum</div>
-                            <div class="bed-input-group">
-                                <input asp-for="Postpartum" class="bed-input obg" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="total-row">
-                            <div class="total-label">Total OBG</div>
-                            <div class="total-value" id="totalOBG">0</div>
-                        </div>
-                    </div>
+                            <div class="bed-item">
+                                <div class="bed-label">
+                                    Oral Maxillofacial Surgery Beds
+                                </div>
 
-                    <!-- Grand Total -->
-                    <div class="grand-total-box">
-                        <div class="total-label">GRAND TOTAL BEDS (Clinical)</div>
-                        <div class="total-value" id="grandTotal">0</div>
-                    </div>
+                                <div class="bed-input-group">
+                                    <input asp-for="OralMaxillofacialSurgery"
+                                    class="bed-input dental-bed"
+                                    type="number"
+                                    min="0" />
+                                </div>
+                            </div>
 
-                    <!-- II. OT -->
-                    <div class="section" style="margin-bottom: 2.2rem;">
-                        <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
-                            II. Operation Theatres
-                        </h5>
-                        <div class="bed-item">
-                            <div class="bed-label">Major OT</div>
-                            <div class="bed-input-group">
-                                <input asp-for="MajorOT" class="bed-input other" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">Minor OT</div>
-                            <div class="bed-input-group">
-                                <input asp-for="MinorOT" class="bed-input other" type="number" min="0" />
-                            </div>
-                        </div>
-                    </div>
+                            <div class="total-row">
+                                <div class="total-label">
+                                    Total Beds
+                                </div>
 
-                    <!-- III. Intensive Care -->
-                    <div class="section" style="margin-bottom: 2.2rem;">
-                        <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
-                            III. Intensive Care Facilities
-                        </h5>
-                        <div class="bed-item">
-                            <div class="bed-label">ICCU</div>
-                            <div class="bed-input-group">
-                                <input asp-for="ICCU" class="bed-input icu" type="number" min="0" />
+                                <div class="total-value" id="dentalTotalBeds">
+                                    0
+                                </div>
                             </div>
                         </div>
-                        <div class="bed-item">
-                            <div class="bed-label">ICU</div>
-                            <div class="bed-input-group">
-                                <input asp-for="ICU" class="bed-input icu" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">PICU / NICU</div>
-                            <div class="bed-input-group">
-                                <input asp-for="PICU_NICU" class="bed-input icu" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="bed-item">
-                            <div class="bed-label">SICU</div>
-                            <div class="bed-input-group">
-                                <input asp-for="SICU" class="bed-input icu" type="number" min="0" />
-                            </div>
-                        </div>
-                        <div class="total-row">
-                            <div class="total-label">Total ICU Beds</div>
-                            <div class="total-value" id="totalICUBedsDisplay">0</div>
-                            <input asp-for="TotalICUBeds" type="hidden" id="totalICUBeds" />
-                        </div>
-                    </div>
+                    }
+                    else
+                    {
 
-                    <!-- Casualty -->
-                    <div class="section">
-                        <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
-                            Casualty
-                        </h5>
-                        <div class="bed-item">
-                            <div class="bed-label">Casualty Beds</div>
-                            <div class="bed-input-group">
-                                <input asp-for="CasualtyBeds" class="bed-input other" type="number" min="0" />
+
+                        <!-- A. Medicine & Allied -->
+                        <div class="section" style="margin-bottom: 2.5rem;">
+                            <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
+                                A. Medicine & Allied
+                            </h5>
+                            <div class="bed-item">
+                                <div class="bed-label">General Medicine</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="GenMedicine" class="bed-input medicine" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">Paediatrics</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="Paediatrics" class="bed-input medicine" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">Skin & V.D.</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="SkinVD" class="bed-input medicine" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">Psychiatry</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="Psychiatry" class="bed-input medicine" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="total-row">
+                                <div class="total-label">Total Medicine & Allied</div>
+                                <div class="total-value" id="totalMedicine">0</div>
                             </div>
                         </div>
-                    </div>
+
+                        <!-- B. Surgery & Allied -->
+                        <div class="section" style="margin-bottom: 2.5rem;">
+                            <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
+                                B. Surgery & Allied
+                            </h5>
+                            <div class="bed-item">
+                                <div class="bed-label">General Surgery</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="GenSurgery" class="bed-input surgery" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">Orthopaedics</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="Orthopaedics" class="bed-input surgery" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">Ophthalmology</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="Ophthalmology" class="bed-input surgery" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">ENT</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="ENT" class="bed-input surgery" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="total-row">
+                                <div class="total-label">Total Surgery & Allied</div>
+                                <div class="total-value" id="totalSurgery">0</div>
+                            </div>
+                        </div>
+
+                        <!-- C. OBG -->
+                        <div class="section" style="margin-bottom: 2.5rem;">
+                            <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
+                                C. Obstetrics & Gynaecology
+                            </h5>
+                            <div class="bed-item">
+                                <div class="bed-label">Obstetrics & ANC</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="ObstetricsANC" class="bed-input obg" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">Gynaecology</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="Gynaecology" class="bed-input obg" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">Postpartum</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="Postpartum" class="bed-input obg" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="total-row">
+                                <div class="total-label">Total OBG</div>
+                                <div class="total-value" id="totalOBG">0</div>
+                            </div>
+                        </div>
+
+                        <!-- Grand Total -->
+                        <div class="grand-total-box">
+                            <div class="total-label">GRAND TOTAL BEDS (Clinical)</div>
+                            <div class="total-value" id="grandTotal">0</div>
+                        </div>
+
+                        <!-- II. OT -->
+                        <div class="section" style="margin-bottom: 2.2rem;">
+                            <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
+                                II. Operation Theatres
+                            </h5>
+                            <div class="bed-item">
+                                <div class="bed-label">Major OT</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="MajorOT" class="bed-input other" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">Minor OT</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="MinorOT" class="bed-input other" type="number" min="0" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- III. Intensive Care -->
+                        <div class="section" style="margin-bottom: 2.2rem;">
+                            <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
+                                III. Intensive Care Facilities
+                            </h5>
+                            <div class="bed-item">
+                                <div class="bed-label">ICCU</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="ICCU" class="bed-input icu" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">ICU</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="ICU" class="bed-input icu" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">PICU / NICU</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="PICU_NICU" class="bed-input icu" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="bed-item">
+                                <div class="bed-label">SICU</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="SICU" class="bed-input icu" type="number" min="0" />
+                                </div>
+                            </div>
+                            <div class="total-row">
+                                <div class="total-label">Total ICU Beds</div>
+                                <div class="total-value" id="totalICUBedsDisplay">0</div>
+                                <input asp-for="TotalICUBeds" type="hidden" id="totalICUBeds" />
+                            </div>
+                        </div>
+
+                        <!-- Casualty -->
+                        <div class="section">
+                            <h5 class="section-title" style="font-size:1.05rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; border-left:5px solid #1a4c8b; padding-left:14px;">
+                                Casualty
+                            </h5>
+                            <div class="bed-item">
+                                <div class="bed-label">Casualty Beds</div>
+                                <div class="bed-input-group">
+                                    <input asp-for="CasualtyBeds" class="bed-input other" type="number" min="0" />
+                                </div>
+                            </div>
+                        </div>
+
+                    }
 
                     @* <div style="padding:30px 24px 20px; border-top:1px solid var(--border); text-align:center; margin-top:20px;">
                         <button type="submit" class="btn btn-primary">
@@ -498,47 +547,85 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+
+                const isDentalFaculty =
+                    '@isDentalFaculty'.toLowerCase() === 'true';
+
                 const calculate = () => {
+
+                    // DENTAL
+                    if (isDentalFaculty) {
+
+                        let dentalBeds = 0;
+
+                        document.querySelectorAll('.dental-bed')
+                            .forEach(el => dentalBeds += Number(el.value) || 0);
+
+                        const dentalTotal =
+                            document.getElementById('dentalTotalBeds');
+
+                        if (dentalTotal) {
+                            dentalTotal.textContent = dentalBeds;
+                        }
+
+                        return;
+                    }
+
+                    // MEDICAL
                     let med = 0;
-                    document.querySelectorAll('.medicine').forEach(el => med += Number(el.value) || 0);
-                    document.getElementById('totalMedicine').textContent = med;
+
+                    document.querySelectorAll('.medicine')
+                        .forEach(el => med += Number(el.value) || 0);
+
+                    document.getElementById('totalMedicine')
+                        .textContent = med;
 
                     let surg = 0;
-                    document.querySelectorAll('.surgery').forEach(el => surg += Number(el.value) || 0);
-                    document.getElementById('totalSurgery').textContent = surg;
+
+                    document.querySelectorAll('.surgery')
+                        .forEach(el => surg += Number(el.value) || 0);
+
+                    document.getElementById('totalSurgery')
+                        .textContent = surg;
 
                     let obg = 0;
-                    document.querySelectorAll('.obg').forEach(el => obg += Number(el.value) || 0);
-                    document.getElementById('totalOBG').textContent = obg;
 
-                    let icu = 0;
-                    document.querySelectorAll('.icu').forEach(el => icu += Number(el.value) || 0);
-                    document.getElementById('totalICUBeds').value = icu;
-                    document.getElementById('totalICUBedsDisplay').textContent = icu;
+                    document.querySelectorAll('.obg')
+                        .forEach(el => obg += Number(el.value) || 0);
+
+                    document.getElementById('totalOBG')
+                        .textContent = obg;
 
                     const grand = med + surg + obg;
-                    document.getElementById('grandTotal').textContent = grand;
+
+                    const grandTotal =
+                        document.getElementById('grandTotal');
+
+                    if (grandTotal) {
+                        grandTotal.textContent = grand;
+                    }
                 };
 
-                document.querySelectorAll('input[type="number"]').forEach(input => {
-                    input.addEventListener('input', calculate);
-                    input.addEventListener('change', calculate);
-                });
+                document.querySelectorAll('input[type="number"]')
+                    .forEach(input => {
+                        input.addEventListener('input', calculate);
+                        input.addEventListener('change', calculate);
+                    });
 
                 calculate();
             });
 
             @if (TempData["SuccessMessage"] != null)
             {
-                <text>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Saved Successfully',
-                    text: '@TempData["SuccessMessage"]',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-                </text>
+                    <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Saved Successfully',
+                        text: '@TempData["SuccessMessage"]',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    </text>
             }
         </script>
     }

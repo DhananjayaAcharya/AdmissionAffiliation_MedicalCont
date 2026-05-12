@@ -4773,7 +4773,8 @@ namespace Medical_Affiliation.Controllers
                 PICU_NICU = existing.PicuNicu,
                 SICU = existing.Sicu,
                 TotalICUBeds = existing.TotalIcubeds,
-                CasualtyBeds = existing.CasualtyBeds
+                CasualtyBeds = existing.CasualtyBeds,
+                OralMaxillofacialSurgery = existing.OralMaxillofacialSurgery,
             };
 
             return View(vm);
@@ -4812,31 +4813,42 @@ namespace Medical_Affiliation.Controllers
                 _context.MedicalUgbedDistributions.Add(entity);
             }
 
-            // Update fields
-            entity.GenMedicine = vm.GenMedicine;
-            entity.Paediatrics = vm.Paediatrics;
-            entity.SkinVd = vm.SkinVD;
-            entity.Psychiatry = vm.Psychiatry;
+            // COMMON FIELDS
+           
+            // DENTAL
+            if (facultyCode == "2")
+            {
+                entity.OralMaxillofacialSurgery =
+                    vm.OralMaxillofacialSurgery;
+            }
+            else
+            {
+                // MEDICAL
 
-            entity.GenSurgery = vm.GenSurgery;
-            entity.Orthopaedics = vm.Orthopaedics;
-            entity.Ophthalmology = vm.Ophthalmology;
-            entity.Ent = vm.ENT;
+                entity.GenMedicine = vm.GenMedicine;
+                entity.Paediatrics = vm.Paediatrics;
+                entity.SkinVd = vm.SkinVD;
+                entity.Psychiatry = vm.Psychiatry;
 
-            entity.ObstetricsAnc = vm.ObstetricsANC;
-            entity.Gynaecology = vm.Gynaecology;
-            entity.Postpartum = vm.Postpartum;
+                entity.GenSurgery = vm.GenSurgery;
+                entity.Orthopaedics = vm.Orthopaedics;
+                entity.Ophthalmology = vm.Ophthalmology;
+                entity.Ent = vm.ENT;
 
-            entity.MajorOt = vm.MajorOT;
-            entity.MinorOt = vm.MinorOT;
+                entity.ObstetricsAnc = vm.ObstetricsANC;
+                entity.Gynaecology = vm.Gynaecology;
+                entity.Postpartum = vm.Postpartum;
+                entity.MajorOt = vm.MajorOT;
+                entity.MinorOt = vm.MinorOT;
 
-            entity.Iccu = vm.ICCU;
-            entity.Icu = vm.ICU;
-            entity.PicuNicu = vm.PICU_NICU;
-            entity.Sicu = vm.SICU;
-            entity.TotalIcubeds = vm.TotalICUBeds;
-            entity.CasualtyBeds = vm.CasualtyBeds;
+                entity.Iccu = vm.ICCU;
+                entity.Icu = vm.ICU;
+                entity.PicuNicu = vm.PICU_NICU;
+                entity.Sicu = vm.SICU;
 
+                entity.TotalIcubeds = vm.TotalICUBeds;
+                entity.CasualtyBeds = vm.CasualtyBeds;
+            }
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Bed distribution saved successfully!";

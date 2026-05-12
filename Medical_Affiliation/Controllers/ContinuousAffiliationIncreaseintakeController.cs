@@ -279,9 +279,9 @@ namespace Medical_Affiliation.Controllers
             return ms.ToArray();
         }
         private static AcademicIntake MapToEntity(
-      string facultyCode,
-      string collegeCode,
-      IntakeByLevelViewModel1 vm)
+                          string facultyCode,
+                          string collegeCode,
+                          IntakeByLevelViewModel1 vm)
         {
             return new AcademicIntake
             {
@@ -540,7 +540,15 @@ namespace Medical_Affiliation.Controllers
                             existing?.Ay2026AddRequestedIntake ?? 0,
 
                         AY2026_TotalIntake =
-                            existing?.Ay2026TotalIntake ?? 0
+                            existing?.Ay2026TotalIntake ?? 0,
+                        AY2027_ExistingIntake =
+                         existing?.Ay2027ExistingIntake ?? 0,
+
+                        AY2027_AddRequestedIntake =
+                            existing?.Ay2027AddRequestedIntake ?? 0,
+
+                        AY2027_TotalIntake =
+                            existing?.Ay2027TotalIntake ?? 0
                     };
             }
 

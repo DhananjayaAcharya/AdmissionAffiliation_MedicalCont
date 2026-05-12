@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
 
-
+        public int? OralMaxillofacialSurgery { get; set; } 
         public int? GenMedicine { get; set; }
         public int? Paediatrics { get; set; }
         public int? SkinVD { get; set; }
