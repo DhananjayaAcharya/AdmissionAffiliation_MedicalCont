@@ -7,6 +7,7 @@
 @{
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
     var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
+    var facultyCode = Context.Session.GetString("FacultyCode");
 
     var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
 
@@ -52,6 +53,7 @@
         new StepItem{ Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
         new StepItem{ Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
         new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
+        // new StepItem{ Key="ChairDistribution", Label="Chair Distribution", Group="Physical Infrastructure", Ctrl="PhysicalInfrastructure", Act="ChairDistribution" },
         new StepItem{ Key="DepartmentUnits", Label="Department / Units", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
         new StepItem{ Key="Hostel", Label="Hostel Details", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
         new StepItem{ Key = "AssociatedInstitutions", Label = "Associated Institutions",   Group = "Physical Infrastructure", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
@@ -189,10 +191,30 @@
     )
     .ToList();
 
+    if (facultyCode == "2")
+    {
+        allSteps.Add(new StepItem
+        {
+            Key = "ChairDistribution",
+            Label = "Chair Distribution",
+            Group = "Physical Infrastructure",
+            Ctrl = "PhysicalInfrastructure",
+            Act = "ChairDistribution"
+        });
+    }
+
+    // skipped for Dental
+    if (facultyCode == "2")
+    {
+        allSteps = allSteps
+            .Where(x => x.Key != "AssociatedInstitutions")
+            .ToList();
+    }
 
     var groupedSteps = allSteps
             .GroupBy(s => s.Group)
             .ToList();
+
 
 
 }
