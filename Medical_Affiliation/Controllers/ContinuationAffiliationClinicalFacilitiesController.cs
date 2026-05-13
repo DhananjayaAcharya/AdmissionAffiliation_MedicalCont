@@ -53,6 +53,15 @@ namespace Medical_Affiliation.Controllers
             return View("HospitalDetailsForAffiliation", model);
         }
 
+        private async Task<bool> HospitalExists(int hospitalId, string collegeCode, string facultyCode)
+        {
+            return await _context.HospitalDetailsForAffiliations
+                .AnyAsync(h => h.HospitalDetailsId == hospitalId
+                          && h.CollegeCode == collegeCode
+                          && h.FacultyCode == facultyCode);
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveClinicalHospitalDetails(ClinicalHospitalDetailsPostVM vm)
@@ -854,6 +863,13 @@ namespace Medical_Affiliation.Controllers
             if (model == null || model.Requirements == null)
                 return BadRequest("Invalid data");
 
+            if (!await HospitalExists(model.HospitalDetailsId, model.CollegeCode, model.FacultyCode.ToString()))
+            {
+                // Return a 200 OK but with success=false so the .then block catches it, 
+                // OR return BadRequest with a JSON object.
+                return Json(new { success = false, message = "Hospital record not found. Please verify and submit Basic Details (first section)." });
+            }
+
             await SaveRequirementsAsync(
                 collegeCode: model.CollegeCode,
                 facultyCode: model.FacultyCode,
@@ -876,6 +892,13 @@ namespace Medical_Affiliation.Controllers
         {
             if (model == null || model.Requirements == null)
                 return BadRequest("Invalid data");
+
+            if (!await HospitalExists(model.HospitalDetailsId, model.CollegeCode, model.FacultyCode.ToString()))
+            {
+                // Return a 200 OK but with success=false so the .then block catches it, 
+                // OR return BadRequest with a JSON object.
+                return Json(new { success = false, message = "Hospital record not found. Please verify and submit Basic Details (first section)." });
+            }
 
             await SaveRequirementsAsync(
                 collegeCode: model.CollegeCode,
@@ -900,6 +923,13 @@ namespace Medical_Affiliation.Controllers
         {
             if (model == null || model.Requirements == null)
                 return BadRequest("Invalid data");
+
+            if (!await HospitalExists(model.HospitalDetailsId, model.CollegeCode, model.FacultyCode.ToString()))
+            {
+                // Return a 200 OK but with success=false so the .then block catches it, 
+                // OR return BadRequest with a JSON object.
+                return Json(new { success = false, message = "Hospital record not found. Please verify and submit Basic Details (first section)." });
+            }
 
             await SaveRequirementsAsync(
                 collegeCode: model.CollegeCode,

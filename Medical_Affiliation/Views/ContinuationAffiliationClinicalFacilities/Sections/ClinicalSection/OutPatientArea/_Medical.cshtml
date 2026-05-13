@@ -122,23 +122,29 @@
             },
             body: JSON.stringify(payload)
         })
-        .then(response => {
-            if (!response.ok)
-                throw new Error('Request failed');
-            return response.json();
+        .then(async response => {
+            // Instead of throwing error immediately, we parse the JSON first
+            const data = await response.json(); 
+            
+            if (!response.ok) {
+                // If the server returned 400 or 500, but provided a message in JSON
+                throw new Error(data.message || 'Request failed');
+            }
+            return data;
         })
         .then(result => {
             if (result.success) {
                 Swal.fire({
                     icon: "success",
-                    title: "saved",
+                    title: "Saved",
                     text: result.message || 'Out Patient Area Requirements saved successfully',
                     confirmButtonText: 'OK'
                 });
             } else {
+                // This handles the "success: false" case from your helper
                 Swal.fire({
                     icon: "error",
-                    title: "Failed",
+                    title: "Validation Failed",
                     text: result.message || 'Failed to save Out Patient Area Requirements',
                     confirmButtonText: 'OK'
                 });
@@ -149,9 +155,10 @@
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: 'Error while saving Out Patient Area Requirements data.',
+                text: error.message || 'Error while saving Out Patient Area Requirements data.',
                 confirmButtonText: 'OK'
-            })
+            });
         });
+
     }
 </script>
