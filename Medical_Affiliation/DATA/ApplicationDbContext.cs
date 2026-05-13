@@ -202,6 +202,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DentalChair> DentalChairs { get; set; }
 
+    public virtual DbSet<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; }
+
     public virtual DbSet<DepartmentMaster> DepartmentMasters { get; set; }
 
     public virtual DbSet<DepartmentWiseFacultyMaster> DepartmentWiseFacultyMasters { get; set; }
@@ -421,6 +423,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<TypeOfMinorityMaster> TypeOfMinorityMasters { get; set; }
 
     public virtual DbSet<TypeOfOrganizationMaster> TypeOfOrganizationMasters { get; set; }
+
+    public virtual DbSet<UgSeatSlabNormMaster> UgSeatSlabNormMasters { get; set; }
 
     public virtual DbSet<UgandPgrepository> UgandPgrepositories { get; set; }
 
@@ -2445,6 +2449,59 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__DentalCha__Facul__4E9398CC");
+        });
+
+        modelBuilder.Entity<DentalCollegeLandBuildingDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__DentalCo__3214EC079F5AA898");
+
+            entity.ToTable("DentalCollegeLandBuildingDetail");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode }, "UQ_DentalCollegeLandBuildingDetail").IsUnique();
+
+            entity.Property(e => e.ApprovedBuildingPlanDocumentPath).IsUnicode(false);
+            entity.Property(e => e.ApprovedLayoutPlanDocumentPath).IsUnicode(false);
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CompletionCertificateDocumentPath).IsUnicode(false);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentWiseAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.DistanceBetweenCollegeAndHospitalKm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.DistanceCertificateDocumentPath).IsUnicode(false);
+            entity.Property(e => e.ElectricalSafetyCertificateDocumentPath).IsUnicode(false);
+            entity.Property(e => e.EncumbranceCertificateDocumentPath).IsUnicode(false);
+            entity.Property(e => e.ExaminationHallAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.FireSafetyNocDocumentPath).IsUnicode(false);
+            entity.Property(e => e.HospitalAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.LandCategory)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.LandOwnershipType).HasMaxLength(50);
+            entity.Property(e => e.LandSketchDocumentPath).IsUnicode(false);
+            entity.Property(e => e.LandUseCertificateDocumentPath).IsUnicode(false);
+            entity.Property(e => e.LectureHallAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.LibraryAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.LiftLicenseDocumentPath).IsUnicode(false);
+            entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
+            entity.Property(e => e.MuseumDemoRoomsAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.PreclinicalSkillLabAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.SaleDeedDocumentPath).IsUnicode(false);
+            entity.Property(e => e.SewageSanitationApprovalDocumentPath).IsUnicode(false);
+            entity.Property(e => e.StructuralStabilityCertificateDocumentPath).IsUnicode(false);
+            entity.Property(e => e.TotalBuiltupAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.TotalLandAreaAcres).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.WaterSupplyCertificateDocumentPath).IsUnicode(false);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalCollegeLandBuildingDetails)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalCollegeLandBuildingDetail_College");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.DentalCollegeLandBuildingDetails)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalCollegeLandBuildingDetail_Faculty");
         });
 
         modelBuilder.Entity<DepartmentMaster>(entity =>
@@ -4882,6 +4939,24 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.TypeName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<UgSeatSlabNormMaster>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UG_SeatS__3214EC0754E06F65");
+
+            entity.ToTable("UG_SeatSlabNormMaster");
+
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.LandOtherAreaAcres).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.LandTier2Acres).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.MaximumCollegeHospitalDistanceKm).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.RequiresDepartmentalAreas).HasDefaultValue(true);
+            entity.Property(e => e.RequiresFutureExpansion).HasDefaultValue(true);
+            entity.Property(e => e.RequiresMuseumAndDemoRooms).HasDefaultValue(true);
+            entity.Property(e => e.RequiresPreclinicalSkillLabs).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<UgandPgrepository>(entity =>

@@ -429,6 +429,7 @@ public class BuildingDetailsViewModel
     public string? ExistingSaleDeedCertificate { get; set; }
 
 }
+
 public class TeachingFacultyViewModel
 {
     public string FacultyCode { get; set; } = null!;
@@ -449,6 +450,36 @@ public class TeachingFacultyViewModel
     public string PresentSeatIntake { get; set; } = null!;
 
 }
+
+
+public class DentalTeachingFacultyVm
+{
+    public string FacultyCode { get; set; } = null!;
+
+    public string Faculty { get; set; } = null!;
+
+    public string CollegeCode { get; set; } = null!;
+
+    public string DepartmentCode { get; set; } = null!;
+
+    public string DepartmentName { get; set; } = null!;
+
+    public string DesignationCode { get; set; } = null!;
+
+    public string DesignationName { get; set; } = null!;
+
+    public string CourseLevel { get; set; } = "UG";
+
+    public string SeatSlabId { get; set; } = null!;
+
+    // Required faculty count
+    public string ExistingSeatIntake { get; set; } = "0";
+
+    // Available faculty entered by college
+    public string PresentSeatIntake { get; set; } = "0";
+}
+
+
 public class YearwiseMaterialViewModel
 {
     public int Id { get; set; }

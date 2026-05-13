@@ -33,7 +33,7 @@
             <h5 class="mb-0">Chair Distribution Details</h5>
         </div>
 
-        <form asp-action="ChairDistribution" method="post">
+        <form asp-action="ChairDistribution" method="post" id="chairForm">
             <div class="table-responsive">
                     @Html.AntiForgeryToken()
                     <table class="table align-middle custom-chair-table mb-0">
@@ -82,7 +82,7 @@
                                     </td>
                                     <td>
                                         <input type="number"
-                                               class="form-control chair-input"
+                                           class="form-control chair-input chair-existing"
                                                asp-for="@Model[i].ChairsExisting"
                                                min="0" />
                                     </td>
@@ -102,7 +102,7 @@
             </div>
             <!-- Footer -->
             <div class="table-footer">
-                <button class="btn btn-primary save-btn px-4">
+                <button class="btn btn-primary save-btn px-4" type="button">
                     <i class="bi bi-save2 me-2"></i>
                     Save Chair Details
                 </button>
@@ -113,3 +113,66 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelector(".save-btn").addEventListener("click", function(){
+            const inputs = document.querySelectorAll(".chair-existing");
+            let hasError = false;
+            let errorMsg = "";
+            inputs.forEach((input,idx) => {
+                const value = input.value;
+
+                if(value === ""){
+                    hasError = true;
+                    errorMsg = `Please enter chair count for ${idx+1}`;
+                    return;
+                }
+
+                if(parseInt(value)<0){
+                    hasError = true;
+                    errorMsg = `Chair count cannot be negative in row ${row+1}`;
+                    return;
+                }
+            })
+
+            if(hasError){
+                Swal.fire({
+                    icon: "error",
+                    title: "Check Again",
+                    text: errorMsg,
+                    confirmButtonColor: '#d33';
+                });
+                return;
+            }
+
+            document.querySelector("#chairForm").submit();
+        })
+    </script>
+
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["Success"]',
+                timer: 2000
+                showConfirmationButton:false
+            });
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '@TempData["Error"]',
+            confirmButtonColor: '#d33'
+            });
+        </script>
+    }
+}

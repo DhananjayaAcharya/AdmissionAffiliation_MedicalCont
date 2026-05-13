@@ -45,8 +45,13 @@
         new StepItem{ Key="DeanDetails", Label="Dean / Director Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
         new StepItem{ Key="PrincipalDetails", Label="Principal Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
 
+        // ================= STUDENT AMENITIES =================
+        new StepItem{ Key="IntakeDetails", Label="Course-wise Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
+        new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered", Levels = new List<string>{ "SS" } },
+
+
         // ================= PHYSICAL INFRASTRUCTURE =================
-        new StepItem{ Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
+        // new StepItem{ Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
         new StepItem{ Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
         new StepItem{ Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
         new StepItem{ Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
@@ -80,17 +85,51 @@
         // ================= STUDENT AMENITIES =================
         // new StepItem{ Key="Hostel", Label="Hostel Details", Group="Student Amenities", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
 
-        // ================= STUDENT AMENITIES =================
-        new StepItem{ Key="IntakeDetails", Label="Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
-        new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered", Levels = new List<string>{ "SS" } },
-
-
         // new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
         // new { Key="Declaration", Label="Declaration", Group="Final Submission", Ctrl="AffiliationDeclaration", Act="Declaration" },
 
         new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
 
+    // ======================================================
+    // LAND & BUILDING STEP BASED ON FACULTY
+    // ======================================================
+
+    var insertIndex = allSteps.FindIndex(x => x.Key == "SkillsLab");
+
+    if (insertIndex < 0)
+    {
+        insertIndex = allSteps.Count;
+    }
+
+    if (facultyCode == "2")
+    {
+        // Dental
+        allSteps.Insert(insertIndex,
+
+            new StepItem
+            {
+                Key = "LandBuilding",
+                Label = "Land & Building",
+                Group = "Physical Infrastructure",
+                Ctrl = "PhysicalInfrastructure",
+                Act = "DentalCollegeLandBuildingDetail"
+            });
+    }
+    else
+    {
+        // Medical / Others
+        allSteps.Insert(insertIndex,
+
+            new StepItem
+            {
+                Key = "LandBuilding",
+                Label = "Land & Building",
+                Group = "Physical Infrastructure",
+                Ctrl = "Medical_ContinuousAffiliation",
+                Act = "Medical_LandBuildingdetails"
+            });
+    }
     // ✅ Add MBBS ONLY for UG
     if (levels.Contains("UG"))
     {
@@ -102,6 +141,23 @@
             Ctrl = "ContinuesAffiliation_Facultybased",
             Act = "Details_Of_MBBS"
         });
+    }
+
+    if (facultyCode == "2")
+    {
+        var intakeIndex = allSteps.FindIndex(x => x.Key == "IntakeDetails");
+
+        if (intakeIndex >= 0)
+        {
+            allSteps.Insert(intakeIndex + 1, new StepItem
+            {
+                Key = "DentalFacultyDetails",
+                Label = "Faculty Repository",
+                Group = "Intake Details",
+                Ctrl = "DentalRepository",
+                Act = "TeachingFacultyDetails"
+            });
+        }
     }
 
     // ✅ Add PG-specific steps

@@ -36,6 +36,7 @@ public class AutoProgressFilter : IAsyncActionFilter
 
         var collegeCode = http.Session.GetString("CollegeCode");
         var courseLevel = http.Session.GetString("CourseLevel");
+        var facultyCode = http.Session.GetString("FacultyCode");
 
 
         var rawLevels = http.Session.GetString("ExistingCourseLevels");
@@ -65,8 +66,9 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key="FacultyDetails", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
             new CAStep { Key="DeanDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
             new CAStep { Key="PrincipalDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
+            new CAStep { Key="DentalFacultyDetails", Ctrl="DentalRepository", Act="TeachingFacultyDetails" },
 
-            new CAStep { Key="LandBuilding", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
+            //new CAStep { Key="LandBuilding", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
             new CAStep { Key="SkillsLab", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
             new CAStep { Key="EquipmentDetails", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
             new CAStep { Key="EquipmentMaster", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
@@ -106,6 +108,31 @@ public class AutoProgressFilter : IAsyncActionFilter
             //new CAStep { Key="PaymentDetails", Ctrl="AffiliationPayment", Act="Payment" },
             //new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
         };
+
+        // ======================================================
+        // LAND & BUILDING STEP BASED ON FACULTY
+        // ======================================================
+
+        if (facultyCode == "2")
+        {
+            // Dental
+            allSteps.Add(new CAStep
+            {
+                Key = "LandBuilding",
+                Ctrl = "PhysicalInfrastructure",
+                Act = "DentalCollegeLandBuildingDetail"
+            });
+        }
+        else
+        {
+            // Medical / Others
+            allSteps.Add(new CAStep
+            {
+                Key = "LandBuilding",
+                Ctrl = "Medical_ContinuousAffiliation",
+                Act = "Medical_LandBuildingdetails"
+            });
+        }
 
         // 🔥 Find matching step dynamically
         var step = allSteps.FirstOrDefault(s =>
