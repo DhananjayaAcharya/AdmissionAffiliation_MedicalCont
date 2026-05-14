@@ -1599,7 +1599,8 @@
                                                 <a class="college-name"
                                                    asp-action="ClaimDetails"
                                                    asp-controller="LICInspection"
-                                                   asp-route-collegeCode="@col.CollegeCode">
+                                                   asp-route-collegeCode="@col.CollegeCode"
+                                                   asp-route-faculty="@col.FacultyAbbr">
                                                     @col.CollegeName
                                                 </a>
                                                 @if (!string.IsNullOrEmpty(col.CollegeCode))

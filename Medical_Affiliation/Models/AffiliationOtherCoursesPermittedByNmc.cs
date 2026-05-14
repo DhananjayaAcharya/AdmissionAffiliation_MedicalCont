@@ -23,6 +23,8 @@ public partial class AffiliationOtherCoursesPermittedByNmc
 
     public int? NumberOfAdmissionsPerYear { get; set; }
 
+    public byte[]? NmcsupportingDocument { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public string? NmcsupportingDocumentPath { get; set; }

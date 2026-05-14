@@ -21,6 +21,8 @@ public partial class AffiliationPgSsCourseDetailsRguh
 
     public int? RguhsIntake { get; set; }
 
+    public byte[]? RguhssupportingDocument { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public string? RguhssupportingDocumentPath { get; set; }

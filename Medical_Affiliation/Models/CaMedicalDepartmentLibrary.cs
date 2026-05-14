@@ -28,4 +28,12 @@ public partial class CaMedicalDepartmentLibrary
     public DateTime? CreatedDate { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public int? Titles { get; set; }
+
+    public int? InternationalJournals { get; set; }
+
+    public int? BackVolumes { get; set; }
+
+    public int? PrintJournalPercentage { get; set; }
 }

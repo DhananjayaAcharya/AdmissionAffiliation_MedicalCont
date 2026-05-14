@@ -1,340 +1,916 @@
 ﻿@{
+    Layout = null;
     ViewData["Title"] = "Admin Dashboard";
     var faculties = ViewBag.Faculties;
     var username = ViewBag.UserName as string ?? "Administrator";
-    var IsAdmin = ViewBag.IsAdmin ??  true;
-    // bool isAdmin = Convert.ToBoolean(Context.Session.GetString("IsAdmin"));
+    var IsAdmin = ViewBag.IsAdmin ?? true;
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — RGUHS Admin Portal</title>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
-<style>
-    :root {
-        --primary: #0047AB;
-        --primary-dark: #003366;
-        --accent: #097969;
-        --sidebar-bg: #0f1e3a;
-        --sidebar-text: #e0f0ff;
-        --card-bg: white;
-        --shadow: 0 6px 20px rgba(0,0,0,0.08);
-    }
+    <style>
+        :root {
+            --navy: #0b1e3d;
+            --navy-mid: #122648;
+            --navy-light: #1a3560;
+            --gold: #c9973a;
+            --gold-light: #e2b460;
+            --teal: #0e8a73;
+            --teal-light: #12a98d;
+            --surface: #f0f4f9;
+            --card: #ffffff;
+            --text-main: #0d1b2a;
+            --text-muted: #6b7a8d;
+            --border: #dde3ee;
+            --shadow-sm: 0 2px 8px rgba(11,30,61,.07);
+            --shadow-md: 0 6px 24px rgba(11,30,61,.11);
+            --shadow-lg: 0 12px 40px rgba(11,30,61,.15);
+            --radius: 14px;
+            --sidebar-w: 272px;
+        }
 
-    body {
-        background: #f5f7fa;
-        margin: 0;
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    }
-
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 260px;
-        height: 100vh;
-        background: var(--sidebar-bg);
-        color: var(--sidebar-text);
-        padding-top: 80px;
-        z-index: 1000;
-        transition: transform 0.3s ease;
-        box-shadow: 2px 0 20px rgba(0,0,0,0.25);
-    }
-
-    .sidebar-header {
-        padding: 1.5rem 1.5rem;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        text-align: center;
-    }
-
-        .sidebar-header h4 {
-            font-size: 1.4rem;
-            font-weight: 600;
+        *, *::before, *::after {
+            box-sizing: border-box;
             margin: 0;
-            color: white;
+            padding: 0;
         }
 
-    .sidebar-menu {
-        list-style: none;
-        padding: 1rem 0;
-    }
-
-    .sidebar-item a {
-        display: flex;
-        align-items: center;
-        padding: 0.9rem 1.5rem;
-        color: var(--sidebar-text);
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.25s;
-    }
-
-        .sidebar-item a:hover,
-        .sidebar-item a.active {
-            background: rgba(9,121,105,0.15);
-            color: white;
-            border-left: 4px solid var(--accent);
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--surface);
+            color: var(--text-main);
+            min-height: 100vh;
         }
 
-    .sidebar-item i {
-        margin-right: 12px;
-        font-size: 1.3rem;
-        width: 24px;
-        text-align: center;
-    }
-
-    .main-content {
-        margin-left: 260px;
-        padding: 2rem;
-        min-height: 100vh;
-        transition: margin-left 0.3s ease;
-    }
-
-    .dashboard-welcome {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-        box-shadow: var(--shadow);
-    }
-
-    .stat-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-        padding: 1.6rem;
-        box-shadow: var(--shadow);
-        transition: transform 0.25s ease;
-    }
-
-        .stat-card:hover {
-            transform: translateY(-6px);
+        /* ── TOP HEADER ─────────────────────────────────────────── */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--navy);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem 0 calc(var(--sidebar-w) + 1.5rem);
+            z-index: 1100;
+            box-shadow: 0 2px 16px rgba(0,0,0,.35);
+            gap: 1rem;
         }
 
-    .action-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-        padding: 1.8rem;
-        box-shadow: var(--shadow);
-        margin-bottom: 1.5rem;
-    }
-
-    .btn-action {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 1rem 1.4rem;
-        font-size: 1.05rem;
-        border-radius: 10px;
-        background: white;
-        border: 1px solid #dee2e6;
-        color: var(--primary);
-        transition: all 0.28s;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        width: 100%;
-        justify-content: flex-start;
-        text-decoration: none;
-    }
-
-        .btn-action:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 24px rgba(0,71,171,0.18);
+        .header-logo-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-w);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 1.4rem;
+            background: linear-gradient(135deg, #0d2554 0%, #0b1e3d 100%);
+            border-right: 1px solid rgba(255,255,255,.07);
         }
 
-    @@media (max-width: 992px) {
-        .sidebar {
-            transform: translateX(-100%);
+        .logo-emblem {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: .85rem;
+            color: var(--navy);
+            letter-spacing: .03em;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(201,151,58,.4);
         }
 
-            .sidebar.active {
-                transform: translateX(0);
+        .logo-text {
+            line-height: 1.2;
+        }
+
+        .logo-title {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: .78rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #fff;
+        }
+
+        .logo-sub {
+            font-size: .65rem;
+            color: rgba(255,255,255,.45);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .header-breadcrumb {
+            font-size: .78rem;
+            color: rgba(255,255,255,.45);
+            letter-spacing: .05em;
+            text-transform: uppercase;
+        }
+
+            .header-breadcrumb span {
+                color: var(--gold-light);
+                font-weight: 600;
             }
 
-        .main-content {
-            margin-left: 0;
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
         }
 
-        .navbar-toggler {
-            display: block !important;
+        .header-badge {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 8px;
+            padding: .3rem .75rem;
+            font-size: .78rem;
+            color: rgba(255,255,255,.75);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-    }
-</style>
 
-<!-- Sidebar Toggle (mobile) -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark d-lg-none">
-    <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+            .header-badge i {
+                color: var(--gold-light);
+            }
+
+        .header-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: .8rem;
+            border: 2px solid rgba(255,255,255,.15);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: .3rem;
+        }
+
+        /* ── SIDEBAR ─────────────────────────────────────────────── */
+        .sidebar {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            width: var(--sidebar-w);
+            height: calc(100vh - 64px);
+            background: linear-gradient(180deg, #0d2554 0%, var(--navy) 100%);
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1000;
+            transition: transform .3s cubic-bezier(.4,0,.2,1);
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+
+            .sidebar::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .sidebar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,.15);
+                border-radius: 4px;
+            }
+
+        .sidebar-section-label {
+            padding: 1.5rem 1.4rem .5rem;
+            font-size: .65rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.28);
+        }
+
+        .sidebar-nav {
+            padding: 0 .75rem 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: .72rem 1rem;
+            border-radius: 9px;
+            color: rgba(255,255,255,.62);
+            text-decoration: none;
+            font-size: .875rem;
+            font-weight: 500;
+            transition: all .22s ease;
+            margin-bottom: 2px;
+            position: relative;
+        }
+
+            .sidebar-link:hover {
+                background: rgba(255,255,255,.07);
+                color: rgba(255,255,255,.92);
+            }
+
+            .sidebar-link.active {
+                background: linear-gradient(90deg, rgba(201,151,58,.18) 0%, rgba(201,151,58,.06) 100%);
+                color: var(--gold-light);
+                border: 1px solid rgba(201,151,58,.2);
+            }
+
+                .sidebar-link.active::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 20%;
+                    bottom: 20%;
+                    width: 3px;
+                    border-radius: 0 3px 3px 0;
+                    background: var(--gold);
+                }
+
+            .sidebar-link i {
+                font-size: 1.1rem;
+                width: 20px;
+                text-align: center;
+                flex-shrink: 0;
+                opacity: .85;
+            }
+
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255,255,255,.07);
+            margin: .5rem .75rem;
+        }
+
+        .sidebar-link.logout {
+            color: rgba(255,120,100,.65);
+        }
+
+            .sidebar-link.logout:hover {
+                background: rgba(255,80,60,.08);
+                color: rgba(255,120,100,.9);
+            }
+
+        /* ── MAIN ────────────────────────────────────────────────── */
+        .main {
+            margin-left: var(--sidebar-w);
+            margin-top: 64px;
+            padding: 2rem 2rem 3rem;
+            min-height: calc(100vh - 64px);
+            transition: margin-left .3s;
+        }
+
+        /* ── WELCOME BANNER ──────────────────────────────────────── */
+        .welcome-banner {
+            background: linear-gradient(130deg, var(--navy) 0%, #163b7a 55%, #0e5c6e 100%);
+            border-radius: var(--radius);
+            padding: 2rem 2.2rem;
+            margin-bottom: 1.8rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .welcome-banner::before {
+                content: '';
+                position: absolute;
+                top: -40px;
+                right: -40px;
+                width: 220px;
+                height: 220px;
+                border-radius: 50%;
+                background: rgba(201,151,58,.08);
+                pointer-events: none;
+            }
+
+            .welcome-banner::after {
+                content: '';
+                position: absolute;
+                bottom: -60px;
+                right: 80px;
+                width: 160px;
+                height: 160px;
+                border-radius: 50%;
+                background: rgba(14,138,115,.1);
+                pointer-events: none;
+            }
+
+        .welcome-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: .3rem;
+        }
+
+            .welcome-title strong {
+                color: var(--gold-light);
+            }
+
+        .welcome-sub {
+            font-size: .87rem;
+            color: rgba(255,255,255,.55);
+        }
+
+        .btn-manage {
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.2);
+            color: #fff;
+            border-radius: 9px;
+            padding: .6rem 1.3rem;
+            font-size: .85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .25s;
+            white-space: nowrap;
+            backdrop-filter: blur(6px);
+        }
+
+            .btn-manage:hover {
+                background: rgba(201,151,58,.25);
+                border-color: var(--gold);
+                color: var(--gold-light);
+                transform: translateY(-2px);
+            }
+
+        /* ── STAT CARDS ──────────────────────────────────────────── */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.1rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 1.4rem 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform .25s, box-shadow .25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stat-card::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                border-radius: var(--radius) var(--radius) 0 0;
+            }
+
+            .stat-card.blue::after {
+                background: linear-gradient(90deg, #1a5fd4, #3b8ef0);
+            }
+
+            .stat-card.green::after {
+                background: linear-gradient(90deg, var(--teal), var(--teal-light));
+            }
+
+            .stat-card.amber::after {
+                background: linear-gradient(90deg, #d97706, #f59e0b);
+            }
+
+            .stat-card.gold::after {
+                background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            }
+
+            .stat-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+            }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            flex-shrink: 0;
+        }
+
+        .stat-card.blue .stat-icon {
+            background: #e8f0fd;
+            color: #1a5fd4;
+        }
+
+        .stat-card.green .stat-icon {
+            background: #e6f7f3;
+            color: var(--teal);
+        }
+
+        .stat-card.amber .stat-icon {
+            background: #fef3e2;
+            color: #d97706;
+        }
+
+        .stat-card.gold .stat-icon {
+            background: #fdf3e0;
+            color: var(--gold);
+        }
+
+        .stat-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .stat-label {
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: .02em;
+        }
+
+        /* ── ACTION PANELS ───────────────────────────────────────── */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.4rem;
+        }
+
+        .action-panel {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 1.6rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+            .panel-icon.navy {
+                background: #e4ecfa;
+                color: var(--navy);
+            }
+
+            .panel-icon.teal {
+                background: #e4f7f2;
+                color: var(--teal);
+            }
+
+        .panel-title {
+            font-weight: 700;
+            font-size: .92rem;
+            color: var(--text-main);
+            letter-spacing: .01em;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: .75rem 1rem;
+            border-radius: 9px;
+            background: #f7f9fc;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: .855rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all .22s;
+            margin-bottom: .5rem;
+        }
+
+            .action-btn:last-child {
+                margin-bottom: 0;
+            }
+
+            .action-btn i {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: #edf1f8;
+                color: var(--navy-light);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                flex-shrink: 0;
+                transition: all .22s;
+            }
+
+            .action-btn:hover {
+                background: var(--navy);
+                border-color: var(--navy);
+                color: #fff;
+                transform: translateX(4px);
+                box-shadow: var(--shadow-md);
+            }
+
+                .action-btn:hover i {
+                    background: rgba(255,255,255,.15);
+                    color: var(--gold-light);
+                }
+
+        /* ── MODAL ───────────────────────────────────────────────── */
+        .modal-content {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0,0,0,.18);
+        }
+
+        .modal-header {
+            background: linear-gradient(130deg, var(--navy) 0%, #163b7a 100%);
+            color: white;
+            padding: 1.2rem 1.6rem;
+            border-bottom: none;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: .97rem;
+        }
+
+        .btn-close {
+            filter: invert(1) brightness(2);
+        }
+
+        .modal-body {
+            padding: 1.4rem 1.6rem;
+        }
+
+        .table th {
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text-muted);
+            background: #f6f8fc;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .table td {
+            vertical-align: middle;
+            font-size: .875rem;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--teal);
+            border-color: var(--teal);
+        }
+
+        /* ── RESPONSIVE ──────────────────────────────────────────── */
+        @@media (max-width: 1200px) {
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .site-header {
+                padding-left: 4.5rem;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 640px) {
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .welcome-title {
+                font-size: 1.15rem;
+            }
+
+            .main {
+                padding: 1.2rem 1rem;
+            }
+        }
+
+        /* ── FADE-IN ANIMATION ───────────────────────────────────── */
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-banner {
+            animation: fadeUp .4s ease both;
+        }
+
+        .stat-card:nth-child(1) {
+            animation: fadeUp .4s .05s ease both;
+        }
+
+        .stat-card:nth-child(2) {
+            animation: fadeUp .4s .10s ease both;
+        }
+
+        .stat-card:nth-child(3) {
+            animation: fadeUp .4s .15s ease both;
+        }
+
+        .stat-card:nth-child(4) {
+            animation: fadeUp .4s .20s ease both;
+        }
+
+        .action-panel:nth-child(1) {
+            animation: fadeUp .4s .25s ease both;
+        }
+
+        .action-panel:nth-child(2) {
+            animation: fadeUp .4s .30s ease both;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ╔═══════════════════════════════════════════╗ -->
+    <!-- ║              GLOBAL HEADER                ║ -->
+    <!-- ╚═══════════════════════════════════════════╝ -->
+    <header class="site-header">
+        <!-- Logo locked in sidebar column -->
+        <div class="header-logo-area">
+            <div class="logo-emblem">RGU</div>
+            <div class="logo-text">
+                <div class="logo-title">RGUHS Portal</div>
+                <div class="logo-sub">Admin Management System</div>
+            </div>
+        </div>
+
+        <!-- Mobile toggle -->
+        <button class="mobile-toggle" id="sidebarToggle" aria-label="Open sidebar">
+            <i class="bi bi-list"></i>
         </button>
-        <span class="navbar-brand ms-2">Admin Panel</span>
-    </div>
-</nav>
 
-<!-- Sidebar -->
-<aside class="sidebar collapse d-lg-block" id="sidebarMenu">
-    <div class="sidebar-header">
-        <h4>Admin Panel</h4>
-    </div>
-    <ul class="sidebar-menu">
-        <li class="sidebar-item"><a href="@Url.Action("Dashboard", "Admin")" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-        <li class="sidebar-item"><a href="@Url.Action("AddCollege", "Admin")"><i class="bi bi-building-add"></i> Add College</a></li>
-        <li class="sidebar-item"><a href="@Url.Action("AddCourse", "Admin")"><i class="bi bi-journal-plus"></i> Add Course</a></li>
-        <li class="sidebar-item"><a href="@Url.Action("NodalOfficersForAdmin", "Admin")"><i class="bi bi-person-badge-fill"></i> Nodal Officers</a></li>
-        <li class="sidebar-item"><a href="@Url.Action("AdminDocumentReport", "Admin")"><i class="bi bi-file-earmark-check"></i> Document Reports</a></li>
-        <li class="sidebar-item"><a href="@Url.Action("CollegeWiseReport", "Admin")"><i class="bi bi-building-check"></i> College Reports</a></li>
-        @if (IsAdmin)
-        {
-            <li class="sidebar-item">
-                <a href="@Url.Action("ManageCollegeStatus", "Admin")">
+        <!-- Breadcrumb -->
+        <div class="header-breadcrumb d-none d-md-block">
+            Admin Console &nbsp;/&nbsp; <span>Dashboard</span>
+        </div>
+
+        <div class="ms-auto header-right">
+            <div class="header-badge">
+                <i class="bi bi-shield-check-fill"></i>
+                @(IsAdmin ? "Super Admin" : "Operator")
+            </div>
+            <div class="header-avatar">
+                @(username?.Length > 0 ? username[0].ToString().ToUpper() : "A")
+            </div>
+        </div>
+    </header>
+
+    <!-- ╔═══════════════════════════════════════════╗ -->
+    <!-- ║                 SIDEBAR                   ║ -->
+    <!-- ╚═══════════════════════════════════════════╝ -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Navigation</div>
+
+            <a class="sidebar-link active" href="@Url.Action("Dashboard", "Admin")">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a class="sidebar-link" href="@Url.Action("AddCollege", "Admin")">
+                <i class="bi bi-building-add"></i> Add College
+            </a>
+            <a class="sidebar-link" href="@Url.Action("AddCourse", "Admin")">
+                <i class="bi bi-journal-plus"></i> Add Course
+            </a>
+            <a class="sidebar-link" href="@Url.Action("NodalOfficersForAdmin", "Admin")">
+                <i class="bi bi-person-badge-fill"></i> Nodal Officers
+            </a>
+
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-section-label">Reports</div>
+
+            <a class="sidebar-link" href="@Url.Action("AdminDocumentReport", "Admin")">
+                <i class="bi bi-file-earmark-check"></i> Document Reports
+            </a>
+            <a class="sidebar-link" href="@Url.Action("CollegeWiseReport", "Admin")">
+                <i class="bi bi-building-check"></i> College Reports
+            </a>
+
+            @if (IsAdmin)
+            {
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-section-label">Administration</div>
+                <a class="sidebar-link" href="@Url.Action("ManageCollegeStatus", "Admin")">
                     <i class="bi bi-building-gear"></i> Manage College Status
                 </a>
-            </li>
-        }
-        <li class="sidebar-item"><a href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
-    </ul>
-</aside>
+            }
 
-<!-- Main Content -->
-<main class="main-content">
-    <div class="dashboard-welcome">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="sidebar-divider" style="margin-top:auto;"></div>
+            <a class="sidebar-link logout" href="#">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+            </a>
+        </nav>
+    </aside>
+
+    <!-- ╔═══════════════════════════════════════════╗ -->
+    <!-- ║               MAIN CONTENT                ║ -->
+    <!-- ╚═══════════════════════════════════════════╝ -->
+    <main class="main">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <h2 class="mb-1">Welcome back, <strong>@username</strong></h2>
-                <p class="mb-0 opacity-75">Manage colleges, courses, nodal officers & reports</p>
+                <div class="welcome-title">Welcome back, <strong>@username</strong></div>
+                <div class="welcome-sub">Rajiv Gandhi University of Health Sciences &mdash; Administrative Portal</div>
             </div>
             @if (IsAdmin)
             {
-                <button class="btn btn-light px-4 py-2" data-bs-toggle="modal" data-bs-target="#facultyModal">
-                    <i class="bi bi-gear me-2"></i>Manage Faculties
+                <button class="btn-manage" data-bs-toggle="modal" data-bs-target="#facultyModal">
+                    <i class="bi bi-gear-fill"></i> Manage Faculties
                 </button>
             }
         </div>
-    </div>
 
-    <!-- Quick Stats -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card text-center">
-                <h3 class="fw-bold text-primary">248</h3>
-                <p class="text-muted mb-0">Active Colleges</p>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card text-center">
-                <h3 class="fw-bold text-accent">1,842</h3>
-                <p class="text-muted mb-0">Total Courses</p>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card text-center">
-                <h3 class="fw-bold text-warning">67</h3>
-                <p class="text-muted mb-0">Pending Approvals</p>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card text-center">
-                <h3 class="fw-bold text-success">94%</h3>
-                <p class="text-muted mb-0">Documents Verified</p>
-            </div>
-        </div>
-    </div>
+        <!-- Action Panels -->
+        <div class="action-grid">
 
-    <!-- Action Groups -->
-    <div class="row g-4">
-        <!-- Management Actions -->
-        <div class="col-lg-6">
-            <div class="action-card">
-                <h5 class="mb-4 fw-semibold border-bottom pb-2">Management Actions</h5>
-                <div class="d-grid gap-3">
-                    <a asp-action="AddCollege" class="btn-action"><i class="bi bi-building-add"></i> Add New College</a>
-                    <a asp-action="AddCourse" class="btn-action"><i class="bi bi-journal-plus"></i> Add Course to College</a>
-                    <a asp-action="AddCourseToMstCourse" class="btn-action"><i class="bi bi-book"></i> Add to Course Master</a>
-                    <a asp-action="AddDepartmentToDepartmentMaster" class="btn-action"><i class="bi bi-diagram-3"></i> Add Department</a>
-                    <a asp-action="NodalOfficersForAdmin" class="btn-action"><i class="bi bi-person-badge-fill"></i> Manage Nodal Officers</a>
-                    <a asp-action="TabsToggle" class="btn-action"><i class="bi bi-layout-sidebar-inset"></i> Sidebar Settings</a>
+            <!-- Management -->
+            <div class="action-panel">
+                <div class="panel-header">
+                    <div class="panel-icon navy"><i class="bi bi-sliders2"></i></div>
+                    <div class="panel-title">Management Actions</div>
                 </div>
+                <a asp-action="AddCollege" class="action-btn"><i class="bi bi-building-add"></i> Add New College</a>
+                <a asp-action="AddCourse" class="action-btn"><i class="bi bi-journal-plus"></i> Add Course to College</a>
+                <a asp-action="AddCourseToMstCourse" class="action-btn"><i class="bi bi-book"></i> Add to Course Master</a>
+                <a asp-action="AddDepartmentToDepartmentMaster" class="action-btn"><i class="bi bi-diagram-3"></i> Add Department</a>
+                <a asp-action="NodalOfficersForAdmin" class="action-btn"><i class="bi bi-person-badge-fill"></i> Manage Nodal Officers</a>
+                <a asp-action="TabsToggle" class="action-btn"><i class="bi bi-layout-sidebar-inset"></i> Sidebar Settings</a>
             </div>
-        </div>
 
-        <!-- Reports & Approvals -->
-        <div class="col-lg-6">
-            <div class="action-card">
-                <h5 class="mb-4 fw-semibold border-bottom pb-2">Reports & Approvals</h5>
-                <div class="d-grid gap-3">
-                    <a asp-action="Dashboard" asp-route-facultyId="@ViewBag.FacultyId" class="btn-action"><i class="bi bi-bar-chart-line"></i> College Intake Report</a>
-                    <a asp-action="AdminDocumentReport" class="btn-action"><i class="bi bi-file-earmark-check"></i> College Documents Report</a>
-                    <a asp-action="AdminDocumentIncompleteReport" class="btn-action"><i class="bi bi-exclamation-triangle"></i> Incomplete Intake Report</a>
-                    <a asp-action="CollegeWiseReport" class="btn-action"><i class="bi bi-building-check"></i> College-Wise Summary</a>
-                    <a asp-action="NodalOfficerReport" class="btn-action"><i class="bi bi-people"></i> Nodal Officer Report</a>
-                    <a asp-action="AdminGetUpdatedRGUHSIntakeBySectionOfficer" class="btn-action"><i class="bi bi-check2-square"></i> Approve Section Intake</a>
+            <!-- Reports -->
+            <div class="action-panel">
+                <div class="panel-header">
+                    <div class="panel-icon teal"><i class="bi bi-bar-chart-steps"></i></div>
+                    <div class="panel-title">Reports &amp; Approvals</div>
                 </div>
+                <a asp-action="Dashboard" asp-route-facultyId="@ViewBag.FacultyId" class="action-btn"><i class="bi bi-bar-chart-line"></i> College Intake Report</a>
+                <a asp-action="AdminDocumentReport" class="action-btn"><i class="bi bi-file-earmark-check"></i> College Documents Report</a>
+                <a asp-action="AdminDocumentIncompleteReport" class="action-btn"><i class="bi bi-exclamation-triangle"></i> Incomplete Intake Report</a>
+                <a asp-action="CollegeWiseReport" class="action-btn"><i class="bi bi-building-check"></i> College-Wise Summary</a>
+                <a asp-action="NodalOfficerReport" class="action-btn"><i class="bi bi-people"></i> Nodal Officer Report</a>
+                <a asp-action="AdminGetUpdatedRGUHSIntakeBySectionOfficer" class="action-btn"><i class="bi bi-check2-square"></i> Approve Section Intake</a>
             </div>
-        </div>
-    </div>
-</main>
 
-<!-- Faculty Management Modal -->
-@if (IsAdmin)
-{
-    <div class="modal fade" id="facultyModal" tabindex="-1" aria-labelledby="facultyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="facultyModalLabel">Faculty Status Management</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-hover table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Faculty Name</th>
-                                <th class="text-center" style="width: 180px;">Active / Inactive</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var faculty in faculties)
-                            {
+        </div>
+    </main>
+
+    <!-- ╔═══════════════════════════════════════════╗ -->
+    <!-- ║            FACULTY MODAL                  ║ -->
+    <!-- ╚═══════════════════════════════════════════╝ -->
+    @if (IsAdmin)
+    {
+        <div class="modal fade" id="facultyModal" tabindex="-1" aria-labelledby="facultyModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="facultyModalLabel">
+                            <i class="bi bi-mortarboard-fill me-2" style="color:var(--gold-light)"></i>
+                            Faculty Status Management
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-hover table-bordered mb-0">
+                            <thead>
                                 <tr>
-                                    <td class="align-middle">@faculty.FacultyName</td>
-                                    <td class="text-center align-middle">
-                                        <div class="form-check form-switch d-inline-block">
-                                            <input class="form-check-input faculty-status"
-                                                   type="checkbox"
-                                                   data-id="@faculty.FacultyId"
-                                                   @(faculty.Status == "Active" ? "checked" : "") />
-                                        </div>
-                                    </td>
+                                    <th>Faculty Name</th>
+                                    <th class="text-center" style="width:160px">Status</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+                            </thead>
+                            <tbody>
+                                @foreach (var faculty in faculties)
+                                {
+                                    <tr>
+                                        <td>@faculty.FacultyName</td>
+                                        <td class="text-center">
+                                            <div class="form-check form-switch d-inline-block">
+                                                <input class="form-check-input faculty-status"
+                                                       type="checkbox"
+                                                       role="switch"
+                                                       data-id="@faculty.FacultyId"
+                                                       @(faculty.Status == "Active" ? "checked" : "") />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-}
+    }
 
-@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
+        // Sidebar mobile toggle
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('sidebarToggle');
+            if (window.innerWidth < 992 && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Faculty status AJAX
         $(document).ready(function () {
             $('.faculty-status').on('change', function () {
                 const $chk = $(this);
                 const facultyId = $chk.data('id');
                 const status = $chk.is(':checked') ? 'Active' : 'Inactive';
-
                 $.ajax({
                     url: '@Url.Action("UpdateFacultyStatus", "Admin")',
                     type: 'POST',
                     data: { facultyId, status },
-                    success: function () {
-                        console.log('Status updated');
-                    },
                     error: function () {
-                        alert('Failed to update status');
+                        alert('Failed to update status. Please try again.');
                         $chk.prop('checked', !$chk.is(':checked'));
                     }
                 });
@@ -345,4 +921,5 @@
             });
         });
     </script>
-}
+</body>
+</html>

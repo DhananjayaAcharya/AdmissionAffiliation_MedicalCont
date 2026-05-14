@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Medical Library";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+     var facultyCode = Context.Session.GetString("FacultyCode");
+    bool isDentalFaculty = facultyCode == "2";
 }
 
 <!DOCTYPE html>
@@ -272,7 +274,14 @@
             <i class="fas fa-book-open"></i>
         </div>
         <div class="page-header-text">
-            <h1>Medical Library</h1>
+            @if (!isDentalFaculty)
+            {
+                <h1>Medical Library</h1>
+            }
+            else
+            {
+                <h1>Dental Library</h1>
+            }
             @* <p>RGUHS · Affiliation & Recognition Portal</p> *@
         </div>
     </div>
@@ -288,6 +297,8 @@
             <input type="hidden" asp-for="AffiliationType" />
 
             <!-- SECTION 1: Library Services -->
+            @if (!isDentalFaculty)
+            {
             <div class="section-card">
                 <div class="section-header" style="background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%); color: white;">
                     <div class="icon-wrap" style="background: rgba(255,255,255,0.25);">
@@ -366,76 +377,82 @@
                     </div>
                 </div>
             </div>
+            }
 
             <!-- SECTION 2: Library Usage Report -->
-            <div class="section-card">
-                <div class="section-header" style="background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%); color: white;">
-                    <div class="icon-wrap" style="background: rgba(255,255,255,0.25);">
-                        <i class="bi bi-chart-bar" style="font-size: 1.5rem; color: white;"></i>
+             @if (!isDentalFaculty)
+            {
+                <div class="section-card">
+                    <div class="section-header" style="background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%); color: white;">
+                        <div class="icon-wrap" style="background: rgba(255,255,255,0.25);">
+                            <i class="bi bi-chart-bar" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <h2 style="color: white;">Library Usage Report</h2>
                     </div>
-                    <h2 style="color: white;">Library Usage Report</h2>
-                </div>
-                <div class="section-body">
-                    <p class="mb-3 fw-semibold">
-                        Enclose the Library Usage Report / Ledger details for the last three months.
-                    </p>
-                    <div class="d-flex align-items-center gap-3">
-                        <label class="fw-semibold">Upload Document <span class="text-danger">*</span></label>
-                        <input asp-for="UsageReportPdf" type="file" class="form-control form-control-sm file-validate"
-                               accept=".pdf" style="max-width:280px"
-                               data-has-file="@(!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))" />
-                        @if (!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))
-                        {
-                            <a asp-action="ViewUsageReportPdf" target="_blank" class="btn btn-ghost">
-                                <i class="bi bi-eye"></i> View
-                            </a>
-                        }
-                    </div>
+                    <div class="section-body">
+                        <p class="mb-3 fw-semibold">
+                            Enclose the Library Usage Report / Ledger details for the last three months.
+                        </p>
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="fw-semibold">Upload Document <span class="text-danger">*</span></label>
+                            <input asp-for="UsageReportPdf" type="file" class="form-control form-control-sm file-validate"
+                            accept=".pdf" style="max-width:280px"
+                            data-has-file="@(!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))" />
+                            @if (!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))
+                            {
+                                <a asp-action="ViewUsageReportPdf" target="_blank" class="btn btn-ghost">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            }
+                        </div>
                     <span asp-validation-for="UsageReportPdf" class="text-danger small d-block mt-2"></span>
                 </div>
             </div>
+            }
 
             <!-- SECTION 3: Library Staff Details -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="icon-wrap" style="background:#e3f4f4;">
-                        <i class="bi bi-people-fill" style="font-size:1.4rem; color:#1a7f7a;"></i>
+            @if (!isDentalFaculty)
+            {
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="icon-wrap" style="background:#e3f4f4;">
+                            <i class="bi bi-people-fill" style="font-size:1.4rem; color:#1a7f7a;"></i>
+                        </div>
+                        <h2>Library Staff Details</h2>
                     </div>
-                    <h2>Library Staff Details</h2>
-                </div>
-                <div class="section-body">
-                    <div class="scrollable-table-container">
-                        <table class="custom-table" id="libraryStaffTable">
-                            <thead>
-                                <tr>
-                                    <th>Sl. No</th>
-                                    <th>Name</th>
-                                    <th>Designation</th>
-                                    <th>Qualification</th>
-                                    <th>Experience (Years)</th>
-                                    <th>Category</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model.LibraryStaff != null && Model.LibraryStaff.Count > 0)
-                                {
-                                    for (int i = 0; i < Model.LibraryStaff.Count; i++)
+                    <div class="section-body">
+                        <div class="scrollable-table-container">
+                            <table class="custom-table" id="libraryStaffTable">
+                                <thead>
+                                    <tr>
+                                        <th>Sl. No</th>
+                                        <th>Name</th>
+                                        <th>Designation</th>
+                                        <th>Qualification</th>
+                                        <th>Experience (Years)</th>
+                                        <th>Category</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.LibraryStaff != null && Model.LibraryStaff.Count > 0)
                                     {
-                                        <tr>
-                                            <td class="text-center fw-semibold">@(i + 1)</td>
-                                            <td><input asp-for="LibraryStaff[@i].StaffName" class="form-control" /></td>
-                                            <td><input asp-for="LibraryStaff[@i].Designation" class="form-control" /></td>
-                                            <td><input asp-for="LibraryStaff[@i].Qualification" class="form-control" /></td>
-                                            <td><input asp-for="LibraryStaff[@i].Experience" type="number" min="0" class="form-control text-center" /></td>
-                                            <td><input asp-for="LibraryStaff[@i].Category" class="form-control" /></td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-danger btn-sm deleteStaffRow">Delete</button>
-                                            </td>
-                                        </tr>
+                                        for (int i = 0; i < Model.LibraryStaff.Count; i++)
+                                        {
+                                            <tr>
+                                                <td class="text-center fw-semibold">@(i + 1)</td>
+                                                <td><input asp-for="LibraryStaff[@i].StaffName" class="form-control" /></td>
+                                                <td><input asp-for="LibraryStaff[@i].Designation" class="form-control" /></td>
+                                                <td><input asp-for="LibraryStaff[@i].Qualification" class="form-control" /></td>
+                                                <td><input asp-for="LibraryStaff[@i].Experience" type="number" min="0" class="form-control text-center" /></td>
+                                                <td><input asp-for="LibraryStaff[@i].Category" class="form-control" /></td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm deleteStaffRow">Delete</button>
+                                                </td>
+                                            </tr>
+                                        }
                                     }
-                                }
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                     <div class="text-center mt-3">
@@ -445,7 +462,7 @@
                     </div>
                 </div>
             </div>
-
+            }
             <!-- SECTION 4: Department Library Details -->
             <div class="section-card">
                 <div class="section-header">
@@ -464,6 +481,13 @@
                                     <th>Total Books</th>
                                     <th>Books Added This Year</th>
                                     <th>Current Journals</th>
+                                    @if (ViewBag.IsDentalFaculty == true)
+                                    {
+                                        <th>Titles</th>
+                                        <th>International Journals</th>
+                                        <th>Back Volumes</th>
+                                        <th>Print Journal %</th>
+                                    }
                                     <th>Library Staff</th>
                                     <th class="text-center">Action</th>
                                 </tr>
@@ -490,6 +514,40 @@
                                             <td><input type="number" min="0" class="form-control text-center" name="DepartmentLibraries[@i].TotalBooks" value="@Model.DepartmentLibraries[i].TotalBooks" /></td>
                                             <td><input type="number" min="0" class="form-control text-center" name="DepartmentLibraries[@i].BooksAddedInYear" value="@Model.DepartmentLibraries[i].BooksAddedInYear" /></td>
                                             <td><input type="number" min="0" class="form-control text-center" name="DepartmentLibraries[@i].CurrentJournals" value="@Model.DepartmentLibraries[i].CurrentJournals" /></td>
+                                            @if (ViewBag.IsDentalFaculty == true)
+                                            {
+                                                <td>
+                                                    <input type="number"
+                                                           min="0"
+                                                           class="form-control text-center"
+                                                           name="DepartmentLibraries[@i].Titles"
+                                                           value="@Model.DepartmentLibraries[i].Titles" />
+                                                </td>
+
+                                                <td>
+                                                    <input type="number"
+                                                           min="0"
+                                                           class="form-control text-center"
+                                                           name="DepartmentLibraries[@i].InternationalJournals"
+                                                           value="@Model.DepartmentLibraries[i].InternationalJournals" />
+                                                </td>
+
+                                                <td>
+                                                    <input type="number"
+                                                           min="0"
+                                                           class="form-control text-center"
+                                                           name="DepartmentLibraries[@i].BackVolumes"
+                                                           value="@Model.DepartmentLibraries[i].BackVolumes" />
+                                                </td>
+
+                                                <td>
+                                                    <input type="number"
+                                                           min="0"
+                                                           class="form-control text-center"
+                                                           name="DepartmentLibraries[@i].PrintJournalPercentage"
+                                                           value="@Model.DepartmentLibraries[i].PrintJournalPercentage" />
+                                                </td>
+                                            }
                                             <td>
                                                 <input type="text" class="form-control mb-2" name="DepartmentLibraries[@i].LibraryStaff1" value="@Model.DepartmentLibraries[i].LibraryStaff1" placeholder="Staff 1" />
                                                 <input type="text" class="form-control" name="DepartmentLibraries[@i].LibraryStaff2" value="@Model.DepartmentLibraries[i].LibraryStaff2" placeholder="Staff 2" />
@@ -511,91 +569,174 @@
                 </div>
             </div>
 
-            <!-- SECTION 5: Digital Valuation Centre -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="icon-wrap" style="background:#e3f4f4;">
-                        <i class="bi bi-laptop" style="font-size:1.4rem; color:#1a7f7a;"></i>
-                    </div>
-                    <h2>Digital Valuation Centre</h2>
-                </div>
-                <div class="section-body">
-                    <div class="mb-4">
-                        <label>Does the library have a Digital Valuation Centre?</label>
-                        <div class="d-flex gap-4 mt-2">
-                            <label class="check-label">
-                                <input class="form-check-input" type="radio" asp-for="OtherDetails.HasDigitalValuationCentre" value="Yes" id="digitalYes" />
-                                Yes
-                            </label>
-                            <label class="check-label">
-                                <input class="form-check-input" type="radio" asp-for="OtherDetails.HasDigitalValuationCentre" value="No" id="digitalNo" />
-                                No
-                            </label>
+             @if (!isDentalFaculty)
+            {
+                <!-- SECTION 5: Digital Valuation Centre -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="icon-wrap" style="background:#e3f4f4;">
+                            <i class="bi bi-laptop" style="font-size:1.4rem; color:#1a7f7a;"></i>
                         </div>
+                        <h2>Digital Valuation Centre</h2>
                     </div>
+                    <div class="section-body">
+                        <div class="mb-4">
+                            <label>Does the library have a Digital Valuation Centre?</label>
+                            <div class="d-flex gap-4 mt-2">
+                                <label class="check-label">
+                                    <input class="form-check-input" type="radio" asp-for="OtherDetails.HasDigitalValuationCentre" value="Yes" id="digitalYes" />
+                                    Yes
+                                </label>
+                                <label class="check-label">
+                                    <input class="form-check-input" type="radio" asp-for="OtherDetails.HasDigitalValuationCentre" value="No" id="digitalNo" />
+                                    No
+                                </label>
+                            </div>
+                        </div>
 
-                    <div id="digitalQuestions" style="display:none; margin-left:20px;">
-                        <div class="mb-3">
-                            <label>1. How many computer systems are available in the library?</label>
-                            <input type="number" class="form-control w-25" asp-for="OtherDetails.NoOfSystems" min="0" />
-                            <small id="systemsWarning" class="text-warning d-none">⚠ Library has less than 10 computer systems. Please note.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label>2. Is there a stable LAN / Internet connection for library use?</label>
-                            <select class="form-control w-25" asp-for="OtherDetails.HasStableInternet">
-                                <option value="">--Select--</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label>3. Is there a CCTV Camera system in the library?</label>
-                            <select class="form-control w-25" asp-for="OtherDetails.HasCccameraSystem">
-                                <option value="">--Select--</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
+                        <div id="digitalQuestions" style="display:none; margin-left:20px;">
+                            <div class="mb-3">
+                                <label>1. How many computer systems are available in the library?</label>
+                                <input type="number" class="form-control w-25" asp-for="OtherDetails.NoOfSystems" min="0" />
+                                <small id="systemsWarning" class="text-warning d-none">⚠ Library has less than 10 computer systems. Please note.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label>2. Is there a stable LAN / Internet connection for library use?</label>
+                                <select class="form-control w-25" asp-for="OtherDetails.HasStableInternet">
+                                    <option value="">--Select--</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label>3. Is there a CCTV Camera system in the library?</label>
+                                <select class="form-control w-25" asp-for="OtherDetails.HasCccameraSystem">
+                                    <option value="">--Select--</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- SECTION 6: Special Features -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="icon-wrap" style="background:#fdf3e0;">
+                            <i class="bi bi-trophy" style="font-size:1.4rem; color:#a0660a;"></i>
+                        </div>
+                        <h2>Special Features / Achievements</h2>
+                    </div>
+                    <div class="section-body">
+                        <div class="mb-4">
+                            <label>Do you want to mention any special features / achievements?</label>
+                            <div class="d-flex gap-4 mt-2">
+                                <label class="check-label">
+                                    <input class="form-check-input" type="radio" asp-for="OtherDetails.SpecialFeaturesQuestion" value="Yes" id="specialYes" />
+                                    Yes
+                                </label>
+                                <label class="check-label">
+                                    <input class="form-check-input" type="radio" asp-for="OtherDetails.SpecialFeaturesQuestion" value="No" id="specialNo" />
+                                    No
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="specialPdfRow" class="align-items-center gap-3" style="display:none;">
+                            <input type="file" class="form-control file-validate" style="max-width:320px"
+                            asp-for="OtherDetails.SpecialFeaturesPdf" accept=".pdf" />
+                            @if (Model.OtherDetails?.HasSpecialFeaturesPdf == true)
+                            {
+                                <a asp-action="ViewSpecialFeaturesPdf" target="_blank" class="btn btn-ghost">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            }
+                        </div>
                 </div>
             </div>
+            }
 
-            <!-- SECTION 6: Special Features -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="icon-wrap" style="background:#fdf3e0;">
-                        <i class="bi bi-trophy" style="font-size:1.4rem; color:#a0660a;"></i>
-                    </div>
-                    <h2>Special Features / Achievements</h2>
-                </div>
-                <div class="section-body">
-                    <div class="mb-4">
-                        <label>Do you want to mention any special features / achievements?</label>
-                        <div class="d-flex gap-4 mt-2">
-                            <label class="check-label">
-                                <input class="form-check-input" type="radio" asp-for="OtherDetails.SpecialFeaturesQuestion" value="Yes" id="specialYes" />
-                                Yes
-                            </label>
-                            <label class="check-label">
-                                <input class="form-check-input" type="radio" asp-for="OtherDetails.SpecialFeaturesQuestion" value="No" id="specialNo" />
-                                No
-                            </label>
+            @if (isDentalFaculty)
+            {
+                <div class="section-card">
+
+                    <div class="section-header">
+                        <div class="icon-wrap"
+                             style="background:#eef4ff;">
+
+                            <i class="bi bi-folder-check"
+                               style="font-size:1.4rem;
+                              color:#1a4c8b;"></i>
                         </div>
+
+                        <h2>LIBRARY RECORDS</h2>
                     </div>
 
-                    <div id="specialPdfRow" class="align-items-center gap-3" style="display:none;">
-                        <input type="file" class="form-control file-validate" style="max-width:320px"
-                               asp-for="OtherDetails.SpecialFeaturesPdf" accept=".pdf" />
-                        @if (Model.OtherDetails?.HasSpecialFeaturesPdf == true)
-                        {
-                            <a asp-action="ViewSpecialFeaturesPdf" target="_blank" class="btn btn-ghost">
-                                <i class="bi bi-eye"></i> View
-                            </a>
-                        }
+                    <div class="section-body">
+
+                        <table class="custom-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Sl. No</th>
+                                    <th>Record</th>
+                                    <th>Upload PDF</th>
+                                    <th>View</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @for (int i = 0; i < Model.DentalLibraryRecords.Count; i++)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @(i + 1)
+                                        </td>
+
+                                        <td>
+                                            @Model.DentalLibraryRecords[i].RecordName
+
+                                            <input type="hidden" asp-for="DentalLibraryRecords[@i].RecordId" />
+                                        </td>
+
+                                        <td>
+
+                                            <input type="file"
+                                                   asp-for="DentalLibraryRecords[@i].UploadFile"
+                                                   class="form-control file-validate"
+                                                   accept=".pdf" />
+
+                                        </td>
+
+                                        <td>
+
+                                            @if (!string.IsNullOrEmpty(Model.DentalLibraryRecords[i].ExistingFileName))
+                                            {
+                                                <a asp-action="ViewDentalLibraryRecord"
+                                                   asp-route-recordId="@Model.DentalLibraryRecords[i].RecordId"
+                                                   target="_blank"
+                                                   class="btn btn-ghost">
+                                                   <i class="bi bi-eye"></i>
+                                                    View
+
+                                                </a>
+                                            }
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
                     </div>
                 </div>
-            </div>
-
+            }
             <!-- Footer Actions -->
             <div class="form-footer">
                 <a asp-controller="Aff_CA_MedicalLibrary" asp-action="Aff_CA_Medical_LibraryDetails"
@@ -615,6 +756,44 @@
         <partial name="_ValidationScriptsPartial" />
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+        @{
+            var dentalColumns = "";
+
+            if (ViewBag.IsDentalFaculty == true)
+            {
+                dentalColumns = @"
+        <td>
+        <input type='number'
+        min='0'
+        name='DepartmentLibraries[${index}].Titles'
+        class='form-control text-center' />
+        </td>
+
+        <td>
+        <input type='number'
+        min='0'
+        name='DepartmentLibraries[${index}].InternationalJournals'
+        class='form-control text-center' />
+        </td>
+
+        <td>
+        <input type='number'
+        min='0'
+        name='DepartmentLibraries[${index}].BackVolumes'
+        class='form-control text-center' />
+        </td>
+
+        <td>
+        <input type='number'
+        min='0'
+        name='DepartmentLibraries[${index}].PrintJournalPercentage'
+        class='form-control text-center' />
+        </td>
+        ";
+            }
+        }
+
 
         <script>
             $(document).ready(function () {
@@ -675,25 +854,59 @@
                     $(this).closest('tr').remove();
                 });
 
+                // const pdfRow = document.getElementById('specialPdfRow');
+                // // debugger;
+
+                // function togglePdfRow(){
+                //     const selected = document.querySelector('input[name="OtherDetails.SpecialFeaturesQuestion"]:checked');
+                //     const isYes = selected && selected.value == "Yes";
+                //     console.log(isYes);
+                //     if(isYes) pdfRow.style.display = "flex";
+                //     else pdfRow.style.display = "none";
+                // }
+
                 const pdfRow = document.getElementById('specialPdfRow');
-                // debugger;
 
                 function togglePdfRow(){
-                    const selected = document.querySelector('input[name="OtherDetails.SpecialFeaturesQuestion"]:checked');
-                    const isYes = selected && selected.value == "Yes";
-                    console.log(isYes);
-                    if(isYes) pdfRow.style.display = "flex";
-                    else pdfRow.style.display = "none";
+
+                    // Dental page doesn't have this section
+                    if (!pdfRow)
+                        return;
+
+                    const selected =
+                        document.querySelector(
+                            'input[name="OtherDetails.SpecialFeaturesQuestion"]:checked'
+                        );
+
+                    const isYes =
+                        selected && selected.value == "Yes";
+
+                    pdfRow.style.display =
+                        isYes ? "flex" : "none";
                 }
 
                 // attach change event
-                document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]')
-                    .forEach(radio => {
+                // document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]')
+                //     .forEach(radio => {
+                //         radio.addEventListener('change', togglePdfRow);
+                //     });
+
+                // // initial load
+                // togglePdfRow();
+
+                const specialFeatureRadios = document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]');
+
+                if (specialFeatureRadios.length > 0)
+                {
+                    specialFeatureRadios.forEach(radio => {
                         radio.addEventListener('change', togglePdfRow);
                     });
 
-                // initial load
-                togglePdfRow();
+                    togglePdfRow();
+                }
+
+
+
                 // Add Department Row
                 $('#addDepartmentRow').on('click', function () {
                     var tbody = $('#libraryDepartmentTable tbody');
@@ -713,6 +926,7 @@
                             <td><input type="number" min="0" name="DepartmentLibraries[${index}].TotalBooks" class="form-control text-center" /></td>
                             <td><input type="number" min="0" name="DepartmentLibraries[${index}].BooksAddedInYear" class="form-control text-center" /></td>
                             <td><input type="number" min="0" name="DepartmentLibraries[${index}].CurrentJournals" class="form-control text-center" /></td>
+                            @Html.Raw(dentalColumns)
                             <td>
                                 <input class="form-control mb-2" name="DepartmentLibraries[${index}].LibraryStaff1" placeholder="Staff 1" />
                                 <input class="form-control" name="DepartmentLibraries[${index}].LibraryStaff2" placeholder="Staff 2" />

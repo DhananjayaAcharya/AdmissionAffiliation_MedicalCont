@@ -13,11 +13,13 @@ public partial class CaSsOtherCoursesConducted
 
     public string? SanctionedIntake { get; set; }
 
+    public byte[]? DocumentData { get; set; }
+
     public DateTime? CreatedOn { get; set; }
 
     public string? FileName { get; set; }
 
-    public string? CourseLevel { get; set; }
+    public string CourseLevel { get; set; } = null!;
 
     public string? CoursesApplied { get; set; }
 

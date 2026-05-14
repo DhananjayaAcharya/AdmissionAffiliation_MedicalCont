@@ -54,4 +54,6 @@ public partial class MedicalUgbedDistribution
     public string? CollegeCode { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public int? OralMaxillofacialSurgery { get; set; }
 }

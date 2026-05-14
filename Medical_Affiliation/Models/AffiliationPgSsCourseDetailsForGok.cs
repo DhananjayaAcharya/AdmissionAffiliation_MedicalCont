@@ -25,6 +25,8 @@ public partial class AffiliationPgSsCourseDetailsForGok
 
     public DateOnly? Gokdate { get; set; }
 
+    public byte[]? DocumentofGok { get; set; }
+
     public string AcademicYear { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
