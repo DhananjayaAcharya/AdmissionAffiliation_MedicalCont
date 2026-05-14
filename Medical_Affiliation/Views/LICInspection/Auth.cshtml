@@ -324,52 +324,55 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+            // Define the URL using Razor so it works in all environments
+            var getNamesUrl = '@Url.Action("GetNamesByRole", "LICInspection")';
 
-            document.querySelectorAll(".tab-btn").forEach(btn => {
-                btn.addEventListener("click", function () {
-                    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-                    this.classList.add("active");
+            document.addEventListener("DOMContentLoaded", function () {
 
-                    document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
-                    document.getElementById(this.dataset.tab).classList.remove("hidden");
+                document.querySelectorAll(".tab-btn").forEach(btn => {
+                    btn.addEventListener("click", function () {
+                        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+                        this.classList.add("active");
+
+                        document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
+                        document.getElementById(this.dataset.tab).classList.remove("hidden");
+                    });
                 });
-            });
 
-            const roleInput = document.getElementById("selectedRole");
+                const roleInput = document.getElementById("selectedRole");
 
-            document.querySelectorAll(".role-btn").forEach(btn => {
-                btn.addEventListener("click", function () {
+                document.querySelectorAll(".role-btn").forEach(btn => {
+                    btn.addEventListener("click", function () {
 
-                    document.querySelectorAll(".role-btn").forEach(b => b.classList.remove("active"));
-                    this.classList.add("active");
+                        document.querySelectorAll(".role-btn").forEach(b => b.classList.remove("active"));
+                        this.classList.add("active");
 
-                    let role = this.dataset.role;
-                    roleInput.value = role;
+                        let role = this.dataset.role;
+                        roleInput.value = role;
 
-                    fetch('/LICInspection/GetNamesByRole?role=' + encodeURIComponent(role))
-                        .then(response => response.json())
-                        .then(data => {
+                        fetch(getNamesUrl + '?role=' + encodeURIComponent(role))
+                            .then(response => response.json())
+                            .then(data => {
 
-                            let dropdown = document.getElementById("nameDropdown");
-                            dropdown.innerHTML = '<option value="">-- Select Name --</option>';
+                                let dropdown = document.getElementById("nameDropdown");
+                                dropdown.innerHTML = '<option value="">-- Select Name --</option>';
 
-                            if (!data || data.length === 0) {
-                                dropdown.innerHTML += '<option value="">No names found</option>';
-                                return;
-                            }
+                                if (!data || data.length === 0) {
+                                    dropdown.innerHTML += '<option value="">No names found</option>';
+                                    return;
+                                }
 
-                            data.forEach(function(name) {
-                                dropdown.innerHTML += `<option value="${name}">${name}</option>`;
+                                data.forEach(function(name) {
+                                    dropdown.innerHTML += `<option value="${name}">${name}</option>`;
+                                });
+                            })
+                            .catch(error => {
+                                console.error("Error loading names:", error);
                             });
-                        })
-                        .catch(error => {
-                            console.error("Error loading names:", error);
-                        });
+                    });
                 });
-            });
 
-        });
+            });
     </script>
 
 </body>

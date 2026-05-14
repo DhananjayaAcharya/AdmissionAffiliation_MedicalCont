@@ -166,12 +166,12 @@ namespace Medical_Affiliation.Controllers
             var captcha = new Random().Next(10000, 99999).ToString();
             HttpContext.Session.SetString("CaptchaCode", captcha);
 
-            //var colleges = new[] { "M016", "M011", "M019", "Test1" };
+            var colleges = new[] { "M016", "M011", "M019", "Test1" };
 
             var model = new AdmissionLoginViewModel
             {
                 Faculties = _context.Faculties
-                .Where(e=>e.Status.ToLower()=="active")
+                .Where(e=>e.FacultyId == 1)
                 .Select(f => new SelectListItem
                 {
                     Value = f.FacultyId.ToString(),

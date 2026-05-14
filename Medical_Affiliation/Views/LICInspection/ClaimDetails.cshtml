@@ -2785,7 +2785,7 @@
                                             var collegeName = Model.CollegeOptions.FirstOrDefault(x => x.Value == s.CollegeCode)?.Text ?? s.CollegeCode ?? "—";
 
                                             <tr>
-                                                <td class="mono" style="color:var(--t3);font-size:.7rem">@rowNum</td>
+                                                <td class="mono" style="color:var(--t3);font-size:.7rem">@rowNum</td>  
                                                 <td style="max-width:150px;white-space:normal;line-height:1.4;font-size:.82rem;font-weight:500;color:var(--navy)">@collegeName</td>
                                                 <td style="max-width:120px;white-space:normal;font-size:.8rem">
                                                     @if (!string.IsNullOrWhiteSpace(s.Faculty))
