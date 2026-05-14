@@ -170,15 +170,26 @@ namespace Medical_Affiliation.Controllers
 
             var model = new AdmissionLoginViewModel
             {
+
+                FacultyId = "1",
                 Faculties = _context.Faculties
-                .Where(e=>e.FacultyId == 1)
+                .Where(c => c.FacultyId == 1)
                 .Select(f => new SelectListItem
                 {
                     Value = f.FacultyId.ToString(),
                     Text = f.FacultyName,
+                    Selected = true
                 }).ToList(),
 
-                Colleges = new List<SelectListItem>(),
+                Colleges = _context.AffiliationCollegeMasters
+                .Where(c => c.FacultyCode == "1")
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CollegeCode,
+                    Text = c.CollegeName
+                })
+                .OrderBy(c => c.Text)
+                .ToList(),
 
                 CaptchaCode = captcha
             };

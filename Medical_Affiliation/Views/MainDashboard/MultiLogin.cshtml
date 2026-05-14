@@ -1221,9 +1221,8 @@
                                     <label class="fl">Faculty <span class="req-g">*</span></label>
                                     <div class="iw">
                                         <i class="ic bi bi-mortarboard-fill"></i>
-                                        @Html.DropDownListFor(m => m.FacultyId, Model.Faculties,
-                                        "— Select Faculty —",
-                                                                                new { @class = "fs", id = "FacultyId" })
+                                        @Html.DropDownListFor(m => m.FacultyId, Model.Faculties, "— Select Faculty —", new { @class = "fs", id = "FacultyId", disabled = "disabled" })
+                                        @Html.HiddenFor(m => m.FacultyId)
                                     </div>
                                     @Html.ValidationMessageFor(m => m.FacultyId, "", new { @class = "ferr" })
                                 </div>
@@ -1232,9 +1231,7 @@
                                     <label class="fl">College <span class="req-g">*</span></label>
                                     <div class="iw">
                                         <i class="ic bi bi-building-fill"></i>
-                                        @Html.DropDownListFor(m => m.CollegeId, Model.Colleges,
-                                                                                "— Select College —",
-                                                                                new { @class = "fs", id = "CollegeId" })
+                                        @Html.DropDownListFor(m => m.CollegeId, Model.Colleges, "— Select College —", new { @class = "fs", id = "CollegeId" })
                                     </div>
                                     @Html.ValidationMessageFor(m => m.CollegeId, "", new { @class = "ferr" })
                                 </div>
@@ -1245,13 +1242,8 @@
                                     <label class="fl">Password <span class="req-g">*</span></label>
                                     <div class="iw pw">
                                         <i class="ic bi bi-key-fill"></i>
-                                        <input asp-for="Password" type="password" class="fc" id="pw-c"
-                                               placeholder="Enter your password"
-                                               autocomplete="current-password" />
-                                        <button type="button" class="pw-eye"
-                                                onclick="togglePw('pw-c',this)">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
+                                        <input asp-for="Password" type="password" class="fc" id="pw-c" placeholder="Enter your password" autocomplete="current-password" />
+                                        <button type="button" class="pw-eye" onclick="togglePw('pw-c',this)"><i class="bi bi-eye"></i></button>
                                     </div>
                                     @Html.ValidationMessageFor(m => m.Password, "", new { @class = "ferr" })
                                 </div>
@@ -1260,13 +1252,10 @@
                                     <label class="fl">Verification Code <span class="req-g">*</span></label>
                                     <div class="cap-row">
                                         <div class="cap-box" id="cap-c">@Model.CaptchaCode</div>
-                                        <button type="button" class="cap-ref" id="cap-c-ref" title="Refresh">
-                                            <i class="bi bi-arrow-clockwise"></i>
-                                        </button>
+                                        <button type="button" class="cap-ref" id="cap-c-ref" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
                                         <div class="iw">
                                             <i class="ic bi bi-shield-check"></i>
-                                            <input asp-for="Captcha" class="fc captcha-val"
-                                                   placeholder="Type code" autocomplete="off" maxlength="5" />
+                                            <input asp-for="Captcha" class="fc captcha-val" placeholder="Type code" autocomplete="off" maxlength="5" />
                                         </div>
                                     </div>
                                     <input type="hidden" asp-for="CaptchaCode" id="CaptchaCodeHidden" />
@@ -1274,12 +1263,8 @@
                                 </div>
 
                                 <div class="btn-row">
-                                    <button type="submit" class="btn-s bn-g">
-                                        <i class="bi bi-box-arrow-in-right"></i> Sign In
-                                    </button>
-                                    <button type="reset" class="btn-r">
-                                        <i class="bi bi-arrow-counterclockwise"></i> Reset
-                                    </button>
+                                    <button type="submit" class="btn-s bn-g"><i class="bi bi-box-arrow-in-right"></i> Sign In</button>
+                                    <button type="reset" class="btn-r"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
                                 </div>
                             </form>
                         </div>
@@ -1648,20 +1633,20 @@
             });
 
             /* ── Faculty → College cascade (College login) ── */
-            $('#CollegeId').prop('disabled', true);
+            // $('#CollegeId').prop('disabled', true);
 
-            $('#FacultyId').on('change', function () {
-                var id = $(this).val();
-                var $c = $('#CollegeId');
-                $c.prop('disabled', !id).empty().append('<option value="">— Select College —</option>');
-                if (id) {
-                    $.get('@Url.Action("GetCollegesByFaculty", "Login")', { facultyId: id }, function (data) {
-                        $.each(data, function (i, c) {
-                            $c.append($('<option>', { value: c.value, text: c.text }));
-                        });
-                    });
-                }
-            });
+            // $('#FacultyId').on('change', function () {
+            //     var id = $(this).val();
+            //     var $c = $('#CollegeId');
+            //     $c.prop('disabled', !id).empty().append('<option value="">— Select College —</option>');
+            //     if (id) {
+            //         $.get('@Url.Action("GetCollegesByFaculty", "Login")', { facultyId: id }, function (data) {
+            //             $.each(data, function (i, c) {
+            //                 $c.append($('<option>', { value: c.value, text: c.text }));
+            //             });
+            //         });
+            //     }
+            // });
 
             /* ── Auto-set username from college selection ── */
             $('#CollegeId').on('change', function () {
