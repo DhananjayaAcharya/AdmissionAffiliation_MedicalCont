@@ -3,8 +3,14 @@
 @using System.Text.Json;
 
 @{
-    ViewData["Title"] = "Staff Particulars - Principal";
+    // ViewData["Title"] = "Staff Particulars - Principal";
+    // Layout = "~/Views/Shared/_CaLayout.cshtml";
+
+    
+    ViewData["Title"] = "Principal Details";
+    ViewData["HeaderTitle"] = "Principal Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+
 
     // var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
     var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
@@ -487,15 +493,7 @@
             <div class="header-subtitle">Enter qualifications and experience details for the Principal</div>
             <div class="header-badge">Staff Particulars</div>
         </div> *@
-        <div class="page-header">
-            <div class="emblem">
-                <i class="fas fa-hospital"></i>
-            </div>
-            <div class="page-header-text">
-                <h1>Principal Details</h1>
-                @* <p>RGUHS · Affiliation Portal </p> *@
-            </div>
-        </div>
+       
 
         <!-- Form Card -->
         <div class="form-card">
@@ -718,10 +716,11 @@
                     }
                     else
                     {    *@
-                        <a asp-controller="Medical_ContinuousAffiliation"
-                           asp-action="Medical_LandBuildingdetails"
+
+                    <a asp-controller="ContinuesAffiliation_Facultybased"
+                       asp-action="Details_Of_MBBS"
                            class="btn-next"> Next</a>
-                    @* } *@
+                    
                 </div>
 
             </form>

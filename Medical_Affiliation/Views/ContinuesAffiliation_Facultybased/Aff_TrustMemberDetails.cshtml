@@ -1,7 +1,10 @@
 ﻿@model Medical_TrustMemberDetailsListVM
 
+
+
 @{
-    ViewBag.Title = "Trust Member Details";
+    ViewData["Title"] = "Trust Member Details";
+    ViewData["HeaderTitle"] = "Trust Member Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
@@ -50,6 +53,25 @@
         position: relative;
         overflow: hidden;
     }
+
+    .page-header .emblem {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    background: white;
+}
+
+.header-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
 
     .page-header::before {
         content: '';
@@ -465,21 +487,44 @@
     .btn-next:hover {
         opacity: 0.9;
     }
+
+    /* ── Override: remove gap caused by layout + page-shell stacking ── */
+.page-shell {
+    padding: 0 !important;
+    background-color: transparent !important;
+}
+
+.page-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+}
+
+.form-card {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 24px 36px 40px !important;
+}
+
+/* Add top padding to the first section label inside the card */
+.form-card .section-label:first-of-type {
+    margin-top: 24px !important;
+}
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
-<div class="page-shell">
+@* <div class="page-shell">
     <div class="page-container">
 
         <!-- ── Header ── -->
         <div class="page-header">
-            <div class="emblem">
-                <i class="fas fa-book-open"></i>
-            </div>
-            <div class="page-header-text">
-                <h1 class="header-title">Trust Member Details</h1>
-            </div>
-        </div>
+    <div class="emblem">
+        <img src="~/images/newLogo.jpeg" alt="RGUHS Logo" class="header-logo" />
+    </div>
+    <div class="page-header-text">
+        <h1 class="header-title">Trust Member Details</h1>
+    </div>
+</div> *@
 
         <!-- ── Form Card ── -->
         <div class="form-card">

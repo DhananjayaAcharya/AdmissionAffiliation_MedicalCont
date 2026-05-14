@@ -1,9 +1,13 @@
 ﻿@model AcademicIntakePageViewModel1
 
+
 @{
-    ViewData["Title"] = "Increase Intake – Continuous Affiliation";
+    ViewData["Title"] = "Increase Intake";
+    ViewData["HeaderTitle"] = "Increase Intake";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
+
+
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -60,6 +64,11 @@
         .ph { padding: 1.5rem 1.2rem; }
         .wrap { padding: 1rem 1rem 2rem; }
         .al { margin: 1rem 1rem 0; }
+    }
+
+    .ni[readonly] {
+        background: #f0f0f0;
+        cursor: not-allowed;
     }
 
     /* CARD */
@@ -195,18 +204,7 @@
     }
 </style>
 
-@* ── PAGE HEADER ── *@
-<div class="ph">
-    <div class="phi">
-        @* <div class="ph-tag">Continuous Affiliation</div> *@
-        <h4> Increase Intake</h4>
-        <div class="ph-meta">
-            @* <span><span class="dot"></span>College:&nbsp;<strong>@Model.CollegeName</strong></span> *@
-@*             <span><span class="dot"></span>College Code:&nbsp;<strong>@Model.CollegeCode</strong></span>
-            <span><span class="dot"></span>Faculty Code:&nbsp;<strong>@Model.FacultyCode</strong></span> *@
-        </div>
-    </div>
-</div>
+
 
 @* ── ALERTS ── *@
 @if (TempData["SuccessMessage"] != null)
@@ -361,17 +359,73 @@
         </div>
         <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
 
-                <!-- 🔙 PREVIOUS -->
-                <a href="@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")"
+            @{
+                var rawLevels = Context.Session.GetString("ExistingCourseLevels");
+
+                List<string> levels;
+
+                if (string.IsNullOrWhiteSpace(rawLevels))
+                {
+                    levels = new List<string>();
+                }
+                else
+                {
+                    try
+                    {
+                        levels = System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(rawLevels)?
+                        .Select(x => x.Trim().ToUpper())
+                        .Distinct()
+                        .ToList()
+                        ?? new List<string>();
+                    }
+                    catch
+                    {
+                        levels = rawLevels.Split(',')
+                        .Select(x => x.Trim().ToUpper())
+                        .Distinct()
+                        .ToList();
+                    }
+                }
+
+                string prevController;
+                string prevAction;
+
+                // Priority: SS > PG > UG
+                if (levels.Contains("SS"))
+                {
+                    prevController = "Aff_CA_SS_CoursesAppliedSS";
+                    prevAction = "CA_SS_CoursesApplied";
+                }
+                else if (levels.Contains("PG"))
+                {
+                    prevController = "AffiliationPgCourse";
+                    prevAction = "PgCourses";
+                }
+                else
+                {
+                    prevController = "ContinuesAffiliation_Facultybased";
+                    prevAction = "Details_Of_MBBS";
+                }
+            }
+
+            <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
+
+                <!-- PREVIOUS -->
+                <a asp-controller="@prevController"
+                   asp-action="@prevAction"
                    class="btn btn-prev">
                     ← Previous
                 </a>
 
-                <!-- 🔜 NEXT -->
-                <a href="@Url.Action("CoursesOffered", "AffiliationSS")"
+                <!-- NEXT -->
+                <a asp-controller="AffiliationSS"
+                   asp-action="CoursesOffered"
                    class="btn btn-next">
                     Next →
                 </a>
+
+            </div>
 
             </div>
     </div>
@@ -431,8 +485,22 @@
                                     <input type="hidden" name="@(p).CourseName" value="@c.CourseName" />
                                 </td>
                                 @* 2024-25 *@
-                                <td class="cc"><input type="number" class="ni" name="@(p).AY2024_ExistingIntake" value="@c.AY2024_ExistingIntake" min="0" data-r="e24" /></td>
-                                <td class="cc"><input type="number" class="ni" name="@(p).AY2024_IncreaseIntake" value="@c.AY2024_IncreaseIntake" min="0" data-r="i24" /></td>
+                                <td class="cc">
+                                    <input type="number" class="ni"
+                                           name="@(p).AY2024_ExistingIntake"
+                                           value="@c.AY2024_ExistingIntake"
+                                           min="0"
+                                           data-r="e24"
+                                           readonly />
+                                </td>
+                                <td class="cc">
+                                    <input type="number" class="ni"
+                                           name="@(p).AY2024_IncreaseIntake"
+                                           value="@c.AY2024_IncreaseIntake"
+                                           min="0"
+                                           data-r="i24"
+                                           readonly />
+                                </td>
                                 <td class="cc">
                                     <span class="cf2" data-r="t24">@c.AY2024_TotalIntake</span>
                                     <input type="hidden" name="@(p).AY2024_TotalIntake" data-h="t24" value="@c.AY2024_TotalIntake" />
@@ -485,18 +553,34 @@
     });
 
     // LIVE RECALC
-    function recalcRow(row) {
+       function recalcRow(row) {
+
         const val = r => +(row.querySelector(`[data-r="${r}"]`)?.value
-                        ?? row.querySelector(`[data-r="${r}"]`)?.textContent
-                        ?? 0);
+            ?? row.querySelector(`[data-r="${r}"]`)?.textContent
+            ?? 0);
+
         const set = (r, v) => {
             const sp = row.querySelector(`[data-r="${r}"]`);
             const hd = row.querySelector(`[data-h="${r}"]`);
             if (sp) sp.textContent = v;
             if (hd) hd.value = v;
         };
-        const t24 = val('e24') + val('i24'); set('t24', t24);
-        const t25 = val('e25') + val('l25'); set('t25', t25);
+
+        // ✅ 2024
+        const t24 = val('e24') + val('i24');
+        set('t24', t24);
+
+        // ✅ 🔥 KEY CHANGE: 2025 Existing = 2024 Total
+        const e25Input = row.querySelector('[data-r="e25"]');
+        if (e25Input) {
+            e25Input.value = t24;
+        }
+
+        // ✅ 2025 Total
+        const t25 = t24 + val('l25');
+        set('t25', t25);
+
+        // ✅ 2026
         set('e26', t25);
         set('t26', t25 + val('r26'));
     }

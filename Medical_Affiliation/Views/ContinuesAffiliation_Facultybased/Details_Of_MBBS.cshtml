@@ -1,6 +1,8 @@
 ﻿@model AffiliationCourseDetailsViewModel
+
 @{
     ViewData["Title"] = "Details of MBBS Course";
+    ViewData["HeaderTitle"] = "Details of MBBS Course";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
@@ -73,10 +75,25 @@
             letter-spacing: 0.06em;
         }
 
-        .form-wrap {
+       /*  .form-wrap {
             max-width: 1100px;
             margin: 32px auto;
             padding: 0 24px 60px;
+        } */
+
+        .form-wrap {
+            max-width: 1240px;
+            margin: 1px auto 0; /* Tight top margin */
+            padding: 0 12px 0;
+        }
+
+        /* Ensure no extra space from layout */
+        .ca-body {
+            padding-top: 0 !important;
+        }
+
+        .shared-page-header {
+            margin-bottom: 0 !important;
         }
 
         .section-card {
@@ -230,15 +247,7 @@
 </head>
 <body>
     <!-- Page Header -->
-    <div class="page-header">
-        <div class="emblem">
-            <i class="fas fa-book-medical"></i>
-        </div>
-        <div class="page-header-text">
-            <h1>Details of MBBS Course</h1>
-            @* <p>RGUHS · Continuation Affiliation Portal</p> *@
-        </div>
-    </div>
+    
 
     <div class="form-wrap">
         <form asp-action="Details_Of_MBBS" method="post" enctype="multipart/form-data">
@@ -447,10 +456,10 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Footer -->
             <div class="form-footer">
-                <a asp-action="Aff_TrustMemberDetails" asp-controller="ContinuesAffiliation_Facultybased" class="btn btn-ghost">
+                <a asp-action="Aff_PrincipalDetails" asp-controller="ContinuesAffiliation_Facultybased" class="btn btn-ghost">
                     ← Previous
                 </a>
                 <button type="submit" class="btn btn-primary">
@@ -458,6 +467,29 @@
                     Save & Proceed
                     <i class="fas fa-arrow-right"></i>
                 </button>
+
+              @*   @{
+                    var courseLevel = Context.Session.GetString("CourseLevel");
+                }
+
+                @if (courseLevel == "PG")
+                {
+                    <a asp-controller="AffiliationPgCourse"
+                       asp-action="PgCourses"
+                       class="btn-next">
+                        Next
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Aff_CA_SS_CoursesAppliedSS"
+                       asp-action="CA_SS_CoursesApplied"
+                       class="btn-next">
+                        Next
+                    </a>
+                } *@
+
+
             </div>
         </form>
     </div>

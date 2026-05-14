@@ -428,9 +428,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1132,6 +1132,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.NmcsupportingDocument).HasColumnName("NMCsupportingDocument");
             entity.Property(e => e.NmcsupportingDocumentPath)
                 .HasMaxLength(500)
                 .HasColumnName("NMCsupportingDocumentPath");
@@ -1275,6 +1276,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.RguhssupportingDocument).HasColumnName("RGUHSsupportingDocument");
             entity.Property(e => e.RguhssupportingDocumentPath)
                 .HasMaxLength(500)
                 .HasColumnName("RGUHSsupportingDocumentPath");
@@ -1428,10 +1430,6 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Subject)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-
-            entity.HasOne(d => d.YearOfStudy).WithMany(p => p.CaAcademicPerformances)
-                .HasForeignKey(d => d.YearOfStudyId)
-                .HasConstraintName("FK_AcademicPerformance_Year");
         });
 
         modelBuilder.Entity<CaCourseCurriculum>(entity =>

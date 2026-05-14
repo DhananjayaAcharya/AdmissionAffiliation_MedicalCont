@@ -1,7 +1,11 @@
 ﻿@model Medical_Affiliation.Models.CA_VehicleDetailsViewModel
+
+
 @{
-    ViewBag.Title = "Vehicle Registration & Documents";
+    ViewData["Title"] = "Vehicle Registration & Documents";
+    ViewData["HeaderTitle"] = "Vehicle Registration & Documents";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+   
 }
 
 <style>
@@ -429,22 +433,34 @@
             opacity: 0.9;
             box-shadow: 0 4px 14px rgba(15,37,69,0.3);
         }
+
+    /* ── Override: remove gap caused by layout + page-shell stacking ── */
+    .page-shell {
+        padding: 0 !important;
+        background-color: transparent !important;
+    }
+
+    .page-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .form-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 24px 36px 40px !important;
+    }
+
+        /* Add top padding to the first section label inside the card */
+        .form-card .section-label:first-of-type {
+            margin-top: 24px !important;
+        }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
-        <!-- Page Header -->
-        <div class="page-header">
-            @* <div class="header-eyebrow">Continuous Affiliation · Infrastructure</div> *@
-
-            <!-- Stacked Title and Subtitle on Left -->
-            <div class="header-content">
-                <div class="header-title">Vehicle Registration & Documents</div>
-                <div class="header-subtitle">Enter and manage vehicle details for transport and compliance</div>
-            </div>
-
-            <div class="header-badge">Step 10 of 21</div>
-        </div>
+       
 
         <!-- Form Card -->
         <div class="form-card">
@@ -517,7 +533,7 @@
                 <span class="section-label-line"></span>
             </div>
             <div style="margin-bottom:12px;">
-                <input type="text" id="searchBox" placeholder="Search by vehicle registration number..." />
+                <input type="text" id="searchBox" placeholder="Search by Vehicle Registration Number" />
             </div>
             <div class="table-wrap" style="overflow-x:auto; white-space:nowrap;">
                 <table class="data-table" style="min-width:1400px;">

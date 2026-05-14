@@ -1,7 +1,11 @@
 ﻿@model SmallGroupTeachingViewModel
+
+
 @{
     ViewData["Title"] = "Land, Building & Teaching Facilities";
+    ViewData["HeaderTitle"] = "Land, Building & Teaching Facilities";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    
 }
 @{
     var courseLevel = Context.Session.GetString("CourseLevel");
@@ -126,7 +130,7 @@
         border: 1px solid var(--border);
         border-top: none;
         border-radius: 0 0 10px 10px;
-        padding: 32px 36px 40px;
+        padding: 0 36px 40px;
         box-shadow: 0 4px 20px rgba(15,37,69,0.07);
     }
 
@@ -615,29 +619,37 @@
             color: #fff;
             text-decoration: none;
         }
+
+    /* ── Override: remove gap caused by layout + page-shell stacking ── */
+    .page-shell {
+        padding: 0 !important;
+        background-color: transparent !important;
+    }
+
+    .page-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .form-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 24px 36px 40px !important;
+    }
+
+        /* Add top padding to the first section label inside the card */
+        .form-card .section-label:first-of-type {
+            margin-top: 24px !important;
+        }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
 <div class="page-shell">
     <div class="page-container">
 
-        <!-- Header -->
-        @* <div class="page-header">
-            <div class="header-eyebrow">Continuous Affiliation · Physical Facilities</div>
-            <div class="header-title">Land, Building &amp; Teaching Facilities</div>
-            <div class="header-subtitle">Provide details of physical infrastructure and teaching facility compliance</div>
-            <div class="header-badge">Physical Facilities</div>
-        </div> *@
 
-        <div class="page-header">
-            <div class="emblem">
-                <i class="fas fa-book-medical"></i>
-            </div>
-            <div class="page-header-text">
-                <h1>Land, Building &amp; Teaching Facilities</h1>
-                @* <p>Continuous Affiliation · Physical Facilities</p> *@
-            </div>
-        </div>
+        
 
         <!-- Form Card -->
         <div class="form-card">

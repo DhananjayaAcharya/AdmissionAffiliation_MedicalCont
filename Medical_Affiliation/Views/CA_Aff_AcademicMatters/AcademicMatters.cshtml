@@ -4,12 +4,18 @@
 @using System.Collections.Generic
 @using System.Linq
 
+
+
 @{
     ViewData["Title"] = "Academic Matters";
-    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["HeaderTitle"] = "Academic Matters";
 
+
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    
     var academicRows = Model.AcademicRows ?? new List<AcademicPerformanceViewModel>();
     var yearList = ViewBag.YearList as List<CaMstYearOfStudy> ?? new List<CaMstYearOfStudy>();
+
 }
 
 <!DOCTYPE html>
@@ -92,7 +98,7 @@
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             overflow: hidden;
-            margin-bottom: 28px;
+            margin-bottom: 60px;
             animation: fadeUp .35s ease both;
         }
 
@@ -217,6 +223,8 @@
         .custom-upload-btn:hover { background: #1564c0; transform: translateY(-1px); }
 
         input[type="file"] { display: none !important; }
+
+
     </style>
 
     <link rel="stylesheet" href="~/css/common-form.css" />
@@ -224,18 +232,7 @@
 </head>
 <body>
 
-    <div class="page-header">
-        <div class="emblem">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-        </div>
-        <div class="page-header-text">
-            <h1>UG Academic Details</h1>
-            @* <p>Postgraduate Courses — Academic Performance & Records</p> *@
-        </div>
-    </div>
-
+  
     <div class="form-wrap">
         <form asp-action="AcademicMatters" asp-controller="CA_Aff_AcademicMatters" method="post" enctype="multipart/form-data" id="academicForm">
             @Html.AntiForgeryToken()
@@ -401,9 +398,14 @@
                 </button>
 
                 <!-- 🔹 NEXT -->
-                <a asp-controller="Aff_CA_Med_FinanceDetails"
+              @*   <a asp-controller="Aff_CA_Med_FinanceDetails"
                    asp-action="Med_CA_AccountAndFeeDetails"
+                   class="btn btn-primary">Next →</a> *@
+
+                <a asp-controller="CA_Aff_AcademicMatters"
+                   asp-action="AcademicMattersPG"
                    class="btn btn-primary">Next →</a>
+                
 
             </div>
         </form>

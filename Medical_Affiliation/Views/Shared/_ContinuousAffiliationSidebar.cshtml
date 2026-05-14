@@ -34,7 +34,13 @@
     {
         // ================= BASIC DETAILS =================
         new StepItem{ Key="Institution", Label="Institution Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Institution_Details" },
-        new StepItem{ Key="TrustDetails", Label="Trust Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="aff_institutedetails" },
+                   new StepItem{
+                Key="TrustDetails",
+                Label="Trust Details",
+                Group="Basic Details",
+                Ctrl="ContinuesAffiliation_Facultybased",
+                Act="Aff_InstituteDetails"
+            },
         new StepItem{ Key="TrustMemberDetails", Label="Trust Member Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
 
         // 👇 CONDITIONAL STEP
@@ -161,7 +167,12 @@
                   Ctrl = "Aff_CA_SS_CoursesAppliedSS",
                   Act = "CA_SS_CoursesApplied" }
         };
-        InsertAfterBasicDetails(ssSteps);
+        var pgIndex = allSteps.FindIndex(x => x.Key == "PgCourses");
+
+        if (pgIndex >= 0)
+            allSteps.InsertRange(pgIndex + 1, ssSteps);
+        else
+            InsertAfterBasicDetails(ssSteps);
     }
 
 
@@ -199,405 +210,173 @@
 <link rel="stylesheet" href="~/css/common-form.css" />
 
 <style>
-    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-    /* ══════════════════════════════
-                   CA SIDEBAR
-                ══════════════════════════════ */
-    .ca-sb {
-        width: 18vw;
-        min-height: 100vh;
-        background: linear-gradient(180deg, #0f2545 0%, #162e55 100%);
-        display: flex;
-        flex-direction: column;
-        flex-shrink: 0;
-        font-family: 'DM Sans', sans-serif;
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        overflow-y: auto;
-        box-shadow: 2px 0 16px rgba(0,0,0,0.25);
-    }
+@@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-        .ca-sb::-webkit-scrollbar {
-            width: 3px;
-        }
+/* ===== SIDEBAR BASE ===== */
+.ca-sb {
+    width: 18vw;
+    min-height: 100vh;
+    background: #f2f2f2;
+    display: flex;
+    flex-direction: column;
+    font-family: 'DM Sans', sans-serif;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+}
 
-        .ca-sb::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
-            border-radius: 99px;
-        }
+/* ===== HEADER ===== */
+.ca-sb-top {
+    padding: 20px 18px 14px;
+    border-bottom: 1px solid #ddd;
+}
 
-    /* Brand */
-    .ca-sb-top {
-        padding: 20px 18px 14px;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-        flex-shrink: 0;
-    }
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+}
 
-    .ca-sb-title {
-        font-family: 'EB Garamond', serif;
-        font-size: 1.1rem;
-        color: #fff;
-        font-weight: 500;
-        letter-spacing: 1px;
-    }
+.tab-content {
+    padding-left: 10px;
+}
 
-    .ca-sb-subtitle {
-        font-size: 0.6rem;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: #d4a84b;
-        margin-top: 3px;
-    }
+.ca-sb-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    color: #222;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
 
-    /* Level pill */
-    .ca-sb-level-row {
-        padding: 12px 18px;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-        flex-shrink: 0;
-    }
+/* ===== PROGRESS ===== */
+.ca-sb-prog {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid #ddd;
+}
 
-    .ca-sb-level-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(184,136,42,0.14);
-        border: 1px solid rgba(184,136,42,0.3);
-        border-radius: 5px;
-        padding: 5px 13px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        color: #d4a84b;
-        text-transform: uppercase;
-    }
+.ca-sb-prog-lbl {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #777;
+}
 
-    /* Progress */
-    .ca-sb-prog {
-        padding: 14px 18px 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-        flex-shrink: 0;
-    }
+.ca-sb-prog-pct {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #c59b2a;
+}
 
-    .ca-sb-prog-top {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
-    }
+.ca-sb-track {
+    height: 5px;
+    background: #ddd;
+    border-radius: 99px;
+}
 
-    .ca-sb-prog-lbl {
-        font-size: 0.58rem;
-        font-weight: 600;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.3);
-    }
+.ca-sb-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #b8882a, #d4a84b);
+}
 
-    .ca-sb-prog-pct {
-        font-size: 0.68rem;
-        font-weight: 700;
-        color: #d4a84b;
-    }
+.ca-sb-prog-note {
+    font-size: 0.6rem;
+    color: #888;
+}
 
-    .ca-sb-track {
-        height: 4px;
-        background: rgba(255,255,255,0.08);
-        border-radius: 99px;
-        overflow: hidden;
-    }
+/* ===== ACCORDION FIX (IMPORTANT) ===== */
+.accordion-item {
+    background: transparent;   /* 🚨 FIXED */
+}
 
-    .ca-sb-fill {
-        height: 100%;
-        border-radius: 99px;
-        background: linear-gradient(90deg, #b8882a, #d4a84b);
-        transition: width 0.4s ease;
-    }
+/* ===== GROUP HEADERS ===== */
+.accordion-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    padding: 12px 18px;
+    cursor: pointer;
+    background: #e9e9e9;
+    border-bottom: 1px solid #ddd;
+}
 
-    .ca-sb-prog-note {
-        font-size: 0.58rem;
-        color: rgba(255,255,255,0.25);
-        text-align: right;
-        margin-top: 4px;
-    }
+.accordion-header:hover {
+    background: #dcdcdc;
+}
 
-    /* Nav */
-    .ca-sb-nav {
-        flex: 1;
-        list-style: none;
-        padding: 6px 0 16px;
-        margin: 0;
-        overflow-y: auto;
-    }
+/* ===== TOGGLE ICON ===== */
+.toggle-icon {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: #666;
+}
 
-        .ca-sb-nav::-webkit-scrollbar {
-            width: 3px;
-        }
+/* ===== LINKS ===== */
+.ca-sb-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    color: #333;
+    font-size: 0.8rem;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
 
-        .ca-sb-nav::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.08);
-            border-radius: 99px;
-        }
+.ca-sb-link:hover {
+    background: #e6e6e6;
+    color: #000;
+}
 
-    /* Group label (e.g. "Physical Facilities") */
-    .ca-sb-group-label {
-        font-size: 0.57rem;
-        font-weight: 700;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.22);
-        padding: 12px 18px 4px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+/* ACTIVE */
+.ca-sb-link.is-active {
+    background: #dcdcdc;
+    color: #000;
+    font-weight: 600;
+    border-left: 3px solid #999;
+}
 
-        .ca-sb-group-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255,255,255,0.07);
-        }
+/* ===== DOTS ===== */
+.ca-dot-pending {
+    background: #ccc;
+}
 
-    /* Step link */
-    .ca-sb-link {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 7px 10px;
-        text-decoration: none;
-        color: rgba(255,255,255,0.5);
-        font-size: 0.78rem;
-        font-weight: 500;
-        transition: background 0.15s, color 0.15s;
-        border-left: 3px solid transparent;
-    }
+.ca-dot-done {
+    background: #28a745;
+    color: white;
+}
 
-        .ca-sb-link:hover {
-            background: rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.82);
-            text-decoration: none;
-        }
+.ca-dot-current {
+    background: #d4a84b;
+    color: white;
+}
 
-        .ca-sb-link.is-active {
-            background: rgba(184,136,42,0.12);
-            border-left-color: #d4a84b;
-            color: #fff;
-            font-weight: 600;
-            padding-left: 10px;
-        }
+/* ===== CHECK ICON ===== */
+.ca-sb-check {
+    color: green;
+}
 
-        /* Indented sub-steps (Physical Facilities items) */
-        .ca-sb-link.is-sub {
-            padding-left: 32px;
-            font-size: 0.75rem;
-        }
+/* ===== FOOTER ===== */
+.ca-sb-footer {
+    padding: 12px;
+    border-top: 1px solid #ddd;
+}
 
-            .ca-sb-link.is-sub.is-active {
-                padding-left: 29px;
-            }
+.ca-sb-footer a {
+    color: #000 !important;
+    font-weight: 500;
+}
 
-    /* Step dot */
-    .ca-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.58rem;
-        font-weight: 700;
-        flex-shrink: 0;
-    }
-
-    .ca-dot-done {
-        background: #1a6b3a;
-        color: #fff;
-    }
-
-    .ca-dot-current {
-        background: linear-gradient(135deg,#b8882a,#d4a84b);
-        color: #fff;
-        box-shadow: 0 0 0 3px rgba(212,168,75,0.18);
-    }
-
-    .ca-dot-pending {
-        background: rgba(255,255,255,0.07);
-        border: 1.5px solid rgba(255,255,255,0.14);
-        color: rgba(255,255,255,0.22);
-    }
-
-    .ca-sb-check {
-        font-size: 0.6rem;
-        color: #2e8b57;
-        margin-left: auto;
-    }
-
-    /* Footer */
-    .ca-sb-footer {
-        padding: 12px 18px;
-        border-top: 1px solid rgba(255,255,255,0.07);
-        flex-shrink: 0;
-    }
-
-    .ca-sb-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.3);
-        text-decoration: none;
-        transition: color 0.15s;
-    }
-
-        .ca-sb-back:hover {
-            color: #d4a84b;
-            text-decoration: none;
-        }
-
-    /* SS Coming Soon overlay */
-    .ca-ss-coming {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 30px 18px;
-        text-align: center;
-        color: rgba(255,255,255,0.3);
-        gap: 10px;
-    }
-
-    .ca-ss-coming-icon {
-        font-size: 2.2rem;
-        opacity: 0.35;
-    }
-
-    .ca-ss-coming-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: rgba(255,255,255,0.45);
-    }
-
-    .ca-ss-coming-desc {
-        font-size: 0.72rem;
-        line-height: 1.5;
-    }
-
-    .ca-ss-badge {
-        display: inline-block;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 99px;
-        padding: 4px 14px;
-        font-size: 0.62rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.3);
-        margin-top: 4px;
-    }
-
-    .btn-logout {
-        background: transparent;
-        border: 1px solid rgba(255,255,255,.35);
-        color: rgba(255,255,255,.85);
-        border-radius: 7px;
-        padding: 5px 14px;
-        font-size: .78rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all .2s;
-        font-family: 'DM Sans', sans-serif;
-    }
-
-        .btn-logout:hover {
-            background: var(--danger);
-            border-color: var(--danger);
-            color: #fff;
-        }
-
-
-    .accordion-container {
-        width: 100%;
-    }
-
-    .accordion-item {
-        /* border-bottom: 1px solid #eee; */
-
-        background: linear-gradient(180deg, #0f2545 0%, #162e55 100%);
-    }
-
-    .accordion-header {
-        font-size: 0.9rem;
-        font-weight: 500;
-        letter-spacing: .5px;
-        /* text-transform: uppercase; */
-        color: rgba(255,255,255,0.22);
-        padding: 12px 18px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    /* .accordion-header::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: rgba(255,255,255,0.07);
-    } */
-        .accordion-header:hover {
-            color: rgba(255,255,255,0.45);
-        }
-
-    .accordion-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.35s ease;
-        padding-left: 10px;
-    }
-
-    /* .step-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 16px;
-        text-decoration: none;
-        color: #333;
-    }
-
-        .step-item.active {
-            background: #e6f0ff;
-            font-weight: bold;
-        } */
-
-    .tick {
-        color: green;
-    }
-
-    .tab-header.active-tab {
-        color: #d4a84b;
-        font-weight: 700;
-    }
-
-    .tab-header.active-tab .toggle-icon {
-        transform: rotate(180deg);   /* ▼ becomes ▲ */
-        color: #d4a84b;
-    }
-
-    .toggle-icon {
-        margin-left: auto;              /* push to right */
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.4);
-        transition: transform 0.3s ease;
-    }
-
-    .accordion-header:hover .toggle-icon {
-        transform: rotate(180deg);
-        color: #fff;
-    }
-
+/* ===== SCROLLBAR ===== */
+.ca-sb::-webkit-scrollbar {
+    width: 4px;
+}
+.ca-sb::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
 </style>
 
 <aside class="ca-sb">
@@ -605,8 +384,12 @@
     <!-- Brand -->
     <div class="ca-sb-top">
         @* <div class="ca-sb-title">@collegeName</div> *@
-        <div class="ca-sb-title">College Details</div>
+        @* <div class="ca-sb-title">College Details</div> *@
         @* <div class="ca-sb-subtitle">Faculty-Based Module</div> *@
+
+        <div class="ca-sb-title">
+            @(string.IsNullOrEmpty(collegeName) ? "College Details" : collegeName)
+        </div>
     </div>
 
     <!-- Level pill -->
@@ -694,57 +477,69 @@
 </aside>
 
 <script>
-    
     function toggleAccordion(groupId) {
 
-        const currentContent = document.querySelector(`[data-tab-content="${groupId}"]`);
-        const currentHeader = document.querySelector(`[data-tab="${groupId}"]`);
+        const content = document.getElementById("content-" + groupId);
+        const header = document.querySelector(`[data-tab="${groupId}"]`);
 
-        const isOpen = currentHeader.classList.contains("active-tab");
+        if (!content || !header) return;
 
-        const allContents = document.querySelectorAll(".tab-content");
-        const allHeaders = document.querySelectorAll(".tab-header");
+        const isOpen = content.style.maxHeight && content.style.maxHeight !== "0px";
 
-        // Close all
-        allContents.forEach(c => c.style.maxHeight = null);
-        allHeaders.forEach(h => h.classList.remove("active-tab"));
+        // Close ALL first
+        document.querySelectorAll(".accordion-content").forEach(c => {
+            c.style.maxHeight = null;
+        });
 
-        // If it was already open → close only
+        document.querySelectorAll(".tab-header").forEach(h => {
+            h.classList.remove("active-tab");
+        });
+
+        // If already open → just close (toggle OFF)
         if (isOpen) {
             sessionStorage.removeItem("activeTab");
             return;
         }
 
-        // Otherwise open it
+        // Open clicked section
+        content.style.maxHeight = content.scrollHeight + "px";
+        header.classList.add("active-tab");
+
+        // Save state
         sessionStorage.setItem("activeTab", groupId);
-
-        if (currentContent) {
-            currentContent.style.maxHeight = currentContent.scrollHeight + "px";
-        }
-
-        if (currentHeader) {
-            currentHeader.classList.add("active-tab");
-        }
     }
 
-    // Auto-open active group
-    window.onload = function () {
+    // 🔥 AUTO OPEN ACTIVE TAB (on page load)
+       window.addEventListener("load", function () {
 
-    let activeTab = sessionStorage.getItem("activeTab");
-
-    // fallback → detect active step
-    if (!activeTab) {
+        // ALWAYS detect current active page first
         const activeLink = document.querySelector(".ca-sb-link.is-active");
+
+        let activeTab = null;
+
         if (activeLink) {
             const parent = activeLink.closest(".tab-content");
+
             if (parent) {
                 activeTab = parent.getAttribute("data-tab-content");
+
+                // keep storage synced
+                sessionStorage.setItem("activeTab", activeTab);
             }
         }
-    }
+        else {
+            // fallback only if no active route found
+            activeTab = sessionStorage.getItem("activeTab");
+        }
 
-    if (activeTab) {
-        toggleAccordion(activeTab);
-    }
-};
+        if (activeTab) {
+            const content = document.getElementById("content-" + activeTab);
+            const header = document.querySelector(`[data-tab="${activeTab}"]`);
+
+            if (content && header) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                header.classList.add("active-tab");
+            }
+        }
+    });
 </script>

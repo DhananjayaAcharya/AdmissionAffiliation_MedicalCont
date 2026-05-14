@@ -1,11 +1,16 @@
 ﻿@model InstitutionViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 
+
+
 @{
     ViewData["Title"] = "Institution Details";
+    ViewData["HeaderTitle"] = "Institution Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
 }
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -57,21 +62,23 @@
         }
 
             .page-header .emblem {
-                width: 54px;
-                height: 54px;
-                border: 2px solid var(--gold);
-                border-radius: 50%;
+                width: 42px;
+                height: 42px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
+                overflow: hidden;
+                border-radius: 50%;
+                background: white;
             }
 
-                .page-header .emblem svg {
-                    width: 28px;
-                    height: 28px;
-                    fill: var(--gold);
-                }
+        .header-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
         .page-header-text h1 {
             font-family: 'Playfair Display', serif;
@@ -90,10 +97,10 @@
 
         /* ─── MAIN LAYOUT ─── */
         .form-wrap {
-            max-width: 1240px;
-            margin: 32px auto;
-            padding: 5rem 12px 0px;
-        }
+    max-width: 1240px;
+    margin: 24px auto;
+    padding: 0 12px;
+}
 
         .grid-2 {
             display: grid;
@@ -736,10 +743,14 @@
                 margin-bottom: 4px;
             }
 
-            .page-header-text h4 {
-                font-size: 1rem;
-                font-weight: 700;
-            }
+          .page-header-text h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25 rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.03em;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -757,20 +768,7 @@
     <!-- ─── FLOATING BADGE ─── -->
     <div id="missingBadge" onclick="scrollToFirstError()"></div>
 
-    <!-- PAGE HEADER -->
-    <div class="page-header">
-        <div class="emblem">
-            <i class="fas fa-hospital"></i>
-        </div>
-        <div class="page-header-text">
-            @if (!string.IsNullOrEmpty(collegeName))
-            {
-                <div class="college-name">@collegeName</div>
-            }
-
-            <h4>Institution Details</h4>
-        </div>
-    </div>
+    
 
     <!-- FORM BODY -->
     <div class="form-wrap">
@@ -1150,8 +1148,16 @@
             </div><!-- /grid-2 -->
             <!-- FOOTER ACTIONS -->
             <div class="form-footer">
+                
+
                 <a asp-action="Dashboard" asp-controller="Collegelogin" class="btn btn-ghost">Cancel</a>
                 <button type="submit" id="saveBtn" class="btn btn-primary">Save &amp; Proceed →</button>
+
+                <a asp-action="aff_institutedetails"
+                   asp-controller="ContinuesAffiliation_Facultybased"
+                   class="btn btn-ghost">
+                    next   <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
 
         </form>

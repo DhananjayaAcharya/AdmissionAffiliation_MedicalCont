@@ -2969,21 +2969,32 @@ namespace Medical_Affiliation.Controllers
 
                 //return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
                 //return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-                return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
+                //return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
 
-                //var courseLevel = HttpContext.Session.GetString("CourseLevel");
-                //if (courseLevel == "UG")
-                //{
-                //    return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
-                //}
-                //else if (courseLevel == "PG")
-                //{
-                //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-                //}
-                //else if (courseLevel == "SS")
-                //{
-                //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased_SS");
-                //}
+                var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+
+                var levels = string.IsNullOrEmpty(raw)
+                    ? new List<string>()
+                    : JsonSerializer.Deserialize<List<string>>(raw)
+                        .Select(x => x.Trim().ToUpper())
+                        .Distinct()
+                        .OrderBy(x => x == "UG" ? 1 :
+                                      x == "PG" ? 2 :
+                                      x == "SS" ? 3 : 99)
+                        .ToList();
+
+                if (levels.Contains("PG"))
+                {
+                    return RedirectToAction("PgCourses", "AffiliationPgCourse");
+                }
+                else if (levels.Contains("SS"))
+                {
+                    return RedirectToAction("Dean_DirectorDetails", "Aff_CA_SS_CoursesAppliedSS");
+                }
+                else
+                {
+                    return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
+                }
             }
 
             // Repopulate on validation error

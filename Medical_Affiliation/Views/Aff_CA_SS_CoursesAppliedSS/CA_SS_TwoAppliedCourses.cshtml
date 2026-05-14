@@ -1,8 +1,11 @@
 ﻿@model Medical_Affiliation.Models.CA_SS_FullViewVM
 
+
 @{
     ViewData["Title"] = "Super Specialty Courses";
+    ViewData["HeaderTitle"] = "Super Specialty Courses";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+   
 }
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -86,45 +89,16 @@
 
     /* ========= Top Banner ========= */
 
-    .page-header {
-        background: linear-gradient(135deg,#0f1923 0%,#1a4c8b 100%);
-        padding: 28px 40px 24px;
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        border-bottom: 3px solid var(--gold);
-    }
+   
 
-        .page-header .emblem {
-            width: 54px;
-            height: 54px;
-            border: 2px solid var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-    .page-header-text h1 {
-        font-family: 'Playfair Display',serif;
-        font-size: 1.45rem;
-        color: #fff;
-        margin: 0;
-    }
-
-    .page-header-text p {
-        color: rgba(255,255,255,.55);
-        font-size: .78rem;
-        margin-top: 4px;
-        text-transform: uppercase;
-    }
+    
 
     /* ========= Page Width ========= */
 
     .form-wrap {
         max-width: 1400px;
-        margin: 30px auto;
-        padding: 20px 35px 60px;
+        margin: 0 auto;
+        padding: 0 35px 60px;
     }
 
     /* ========= Cards ========= */
@@ -299,15 +273,7 @@
     }
 </style>
 
-<div class="page-header">
-    <div class="emblem">
-        <i class="bi bi-mortarboard-fill" style="color:#c9a84c;"></i>
-    </div>
-    <div class="page-header-text">
-        <h1>Super Specialty Courses</h1>
-        <p>Affiliation & Recognition Portal</p>
-    </div>
-</div>
+
 
 <div class="form-wrap">
     <div class="container mt-4 mb-5">
@@ -869,6 +835,7 @@
                         levels = System.Text.Json.JsonSerializer
                         .Deserialize<List<string>>(rawLevels)?
                         .Select(x => x.Trim().ToUpper())
+                        .Distinct()
                         .ToList()
                         ?? new List<string>();
                     }
@@ -876,6 +843,7 @@
                     {
                         levels = rawLevels.Split(',')
                         .Select(x => x.Trim().ToUpper())
+                        .Distinct()
                         .ToList();
                     }
                 }
@@ -884,32 +852,22 @@
                 string prevController;
                 string prevAction;
 
-                if (levels.Contains("UG"))
+                // Priority: if PG exists, go to PG page
+                if (levels.Contains("PG"))
                 {
+                    prevController = "AffiliationPgCourse";
+                    prevAction = "PgCourses";
+                }
+                else
+                {
+                    // Only UG / no PG
                     prevController = "ContinuesAffiliation_Facultybased";
                     prevAction = "Details_Of_MBBS";
                 }
-                else
-                {
-                    prevController = "ContinuesAffiliation_Facultybased";
-                    prevAction = "Aff_PrincipalDetails";
-                }
-
 
                 // ================= Next Button =================
-                string nextController;
-                string nextAction;
-
-                if (levels.Contains("PG"))
-                {
-                    nextController = "AffiliationPgCourse";
-                    nextAction = "PgCourses";
-                }
-                else
-                {
-                    nextController = "ContinuousAffiliationIncreaseintake";
-                    nextAction = "IncreaseIntake";
-                }
+                string nextController = "ContinuousAffiliationIncreaseintake";
+                string nextAction = "IncreaseIntake";
             }
 
             <!-- Previous / Next Buttons -->
@@ -942,16 +900,7 @@
         </script>
     }
 
-    @if (TempData["Info"] != null)
-    {
-        <script>
-            Swal.fire({
-                icon:'info',
-                title:'Nothing to Save',
-                text:'@TempData["Info"]'
-            });
-        </script>
-    }
+    
 
     @if (TempData["Error"] != null)
     {

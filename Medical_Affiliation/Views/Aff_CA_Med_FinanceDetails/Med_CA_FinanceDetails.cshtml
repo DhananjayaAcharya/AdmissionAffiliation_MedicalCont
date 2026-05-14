@@ -1,8 +1,11 @@
 ﻿@model Medical_Affiliation.Models.Med_CA_AccountAndFeeDetailsPageVM
 
 @inject IHttpContextAccessor HttpContextAccessor
+
+
 @{
-    ViewData["Title"] = "Account and Fee Details";
+    ViewData["Title"] = "Increase Intake";
+    ViewData["HeaderTitle"] = "Increase Intake";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 
     var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
@@ -502,17 +505,34 @@
         background: white;
         border-radius: 0 0 6px 6px;
     }
+
+    /* ── Fix top gap ── */
+    .page-shell {
+        padding: 0 !important;
+        min-height: unset !important;
+        background-color: transparent !important;
+    }
+
+    .page-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .page-header.head {
+        display: none !important;
+    }
+
+    .form-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 16px 36px 40px !important;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
-        <!-- Header -->
-        <div class="page-header head">
-            @* <div class="header-eyebrow">Affiliation Module · College Registration</div> *@
-            <div class="header-title">Account &amp; Fee Details</div>
-            <div class="header-subtitle">Enter financial and fee structure details for the institution</div>
-            @* <div class="header-badge">Step 4 of 5</div> *@
-        </div>
+        
 
         <!-- Form Card -->
         <div class="form-card">
@@ -710,6 +730,20 @@
                 <div class="form-footer">
                     <button type="submit" class="btn-save">Save</button>
                 </div>
+
+                <div class="form-footer">
+                    <a asp-action="AcademicMattersPG"
+                       asp-controller="CA_Aff_AcademicMatters"
+                       class="btn-prev">
+                        ← Previous
+                    </a>
+
+                    <a asp-action="CA_Med_StaffDetails"
+                       asp-controller="CA_Med_StaffDetails"
+                       class="btn-next">
+                        Next →
+                    </a>
+                </div>/
             </form>
         </div>
     </div>
@@ -874,12 +908,7 @@
 
     });
 </script>
-@if (TempData["Info"] != null)
-{
-    <script>
-        Swal.fire({ icon: 'success', title: 'Saved Successfully!', text: '@TempData["Info"]', timer: 5000, timerProgressBar: true });
-    </script>
-}
+
 @if (TempData["Error"] != null)
 {
     <script>

@@ -1,8 +1,12 @@
 ﻿@model DepartmentOfficesMeuViewModel
 
+
+
 @{
-    ViewBag.Title = "DepartmentOffices Details";
+    ViewData["Title"] = "Department Offices & Medical Education Unit";
+    ViewData["HeaderTitle"] = "Department Offices & Medical Education Unit";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -491,16 +495,7 @@
     }
 </style>
 
-<!-- PAGE HEADER -->
-<div class="dm-page-header">
-    <div class="emblem">
-        <i class="fas fa-building"></i>
-    </div>
-    <div class="dm-page-header-text">
-        <h1>Department Offices &amp; Medical Education Unit</h1>
-        <p>RGUHS · Affiliation Portal · Continuous Affiliation</p>
-    </div>
-</div>
+
 
 <form asp-action="Medical_DepartmentOfficesAndEducationalUnit" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
@@ -785,7 +780,7 @@
         <div class="dm-form-footer d-flex justify-content-between gap-2">
 
             <button type="button" class="btn-dm btn-dm-ghost"
-                    onclick="window.location.href='@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")'">
+                    onclick="window.location.href='@Url.Action("MedicalUGBedDistribution", "ContinuesAffiliation_Facultybased")'">
                 <i class="fas fa-arrow-left"></i> Previous
             </button>
 

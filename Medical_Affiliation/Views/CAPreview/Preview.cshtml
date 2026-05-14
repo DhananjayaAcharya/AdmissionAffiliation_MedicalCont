@@ -1,6 +1,7 @@
 ﻿@model Medical_Affiliation.Models.CApreviewViewModel
 @{
     ViewData["Title"] = "Details Preview";
+    ViewData["HeaderTitle"] = "Details Preview";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
@@ -268,63 +269,40 @@
                 justify-content: center;
             }
     }
+
+    /* ── Fix top gap ── */
+    .page-shell {
+        padding: 0 !important;
+        min-height: unset !important;
+        background-color: transparent !important;
+    }
+
+    .page-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .form-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 16px 32px 36px !important;
+    }
+
+    body {
+        background: transparent !important;
+        min-height: unset !important;
+    }
+
 </style>
 
 <div class="affiliation-page-container">
     <div class="container-fluid">
 
-        <!-- ========================= -->
-        <!-- PAGE HEADER -->
-        <!-- ========================= -->
-        <div class="affiliation-header-wrapper">
-            <div class="affiliation-header-content">
-                <span class="affiliation-badge">
-                    <i class="bi bi-clipboard-check"></i>
-                    <a href="@Url.Action("TestPdf","CAPreview")" target="_blank">
+        
 
-                    Preview Mode
-                    </a>
-                </span>
-                <h1 class="affiliation-title">Details Preview</h1>
-
-                <div class="affiliation-meta">
-                    <div class="meta-item">
-                        <div class="meta-label">
-                            <i class="bi bi-building"></i>
-                            College
-                        </div>
-                        <div class="meta-value">@Model.CollegeName</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">
-                            <i class="bi bi-mortarboard"></i>
-                            Faculty
-                        </div>
-                        <div class="meta-value">@Model.FacultyName</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================= -->
-        <!-- BREADCRUMB NAVIGATION -->
-        <!-- ========================= -->
-        <div class="breadcrumb-wrapper">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-custom">
-                    <li class="breadcrumb-item">
-                        <i class="bi bi-house-door me-1"></i>
-                        <a href="#" class="text-decoration-none">Home</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="#" class="text-decoration-none">College Affiliation</a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">
-                        Preview
-                    </li>
-                </ol>
-            </nav>
-        </div>
+        
+       
 
         <!-- ========================= -->
         <!-- INFO ALERT -->
@@ -582,8 +560,13 @@
         <div class="d-flex justify-content-start align-items-center">
 
             <!-- 🔙 PREVIOUS -->
-            <a href="@Url.Action("Payment", "AffiliationPayment")"
+            @* <a href="@Url.Action("Payment", "AffiliationPayment")"
                    class="btn btn-secondary">
+                ← Previous
+            </a> *@
+
+            <a href="@Url.Action("NonTeachingStaffDepartmentwise", "ContinuesAffiliation_Facultybased")"
+               class="btn btn-secondary">
                 ← Previous
             </a>
 

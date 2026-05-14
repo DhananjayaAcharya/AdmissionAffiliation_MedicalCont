@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Non-Teaching Staff Details";
+    ViewData["HeaderTitle"] = "Non-Teaching Staff Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
@@ -425,19 +426,37 @@
         text-decoration: none;
         transition: opacity 0.15s, box-shadow 0.15s;
     }
+
+    /* ── Fix top gap ── */
+    .page-shell {
+        padding: 0 !important;
+        min-height: unset !important;
+        background-color: transparent !important;
+    }
+
+    .page-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .form-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 16px 32px 36px !important;
+    }
+
+    body {
+        background: transparent !important;
+        min-height: unset !important;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
 <div class="page-shell">
     <div class="page-container">
 
-        <!-- Header -->
-        <div class="page-header head">
-            @* <div class="header-eyebrow">Continuous Affiliation · Faculty Details</div> *@
-            <div class="header-title">Non-Teaching Staff Details</div>
-            <div class="header-subtitle">Enter details of all non-teaching staff members</div>
-            @* <div class="header-badge">Staff Details</div> *@
-        </div>
+       
 
         <!-- Form Card -->
         <div class="form-card">
@@ -515,8 +534,8 @@
                         <a asp-action="TeachingStaffDepartmentWise" class="btn-prev">← Previous</a>
                         <button type="submit" class="btn-save">&#128190; Save →</button>
                     @* </div> *@
-                    <a asp-controller="ContinuesAffiliation_Facultybased"
-                       asp-action="Aff_HostelDetails"
+                    <a asp-controller="CAPreview"
+                       asp-action="Preview"
                        class="btn-next">Next →</a>
 
                 </div>

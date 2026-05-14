@@ -1,8 +1,11 @@
 ﻿@model MedicalVm
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Trust Institution Details";
+    ViewData["HeaderTitle"] = "Trust Institution Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
 }
 
 <!DOCTYPE html>
@@ -42,6 +45,10 @@
             min-height: 100vh;
         }
 
+
+
+        
+
         /* ── PAGE HEADER ───────────────────────────────────── */
         .page-header {
             background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
@@ -57,20 +64,23 @@
         }
 
             .page-header .emblem {
-                width: 54px;
-                height: 54px;
-                border: 2px solid var(--gold);
-                border-radius: 50%;
+                width: 42px;
+                height: 42px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
+                overflow: hidden;
+                border-radius: 50%;
+                background: white;
             }
 
-                .page-header .emblem i {
-                    color: var(--gold);
-                    font-size: 22px;
-                }
+        .header-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
         .page-header-text h1 {
             font-family: 'Playfair Display', serif;
@@ -175,8 +185,8 @@
         /* ── MAIN WRAP ─────────────────────────────────────── */
         .form-wrap {
             max-width: 1240px;
-            margin: 32px auto;
-            padding: 5rem 12px 0px;
+            margin: 24px auto;
+            padding: 0 12px;
         }
 
         /* ── SECTION CARDS ─────────────────────────────────── */
@@ -628,14 +638,14 @@
 </head>
 <body>
     <!-- PAGE HEADER -->
-    <div class="page-header">
+    @* <div class="page-header">
         <div class="emblem">
-            <i class="fas fa-hospital"></i>
+            <img src="~/images/newLogo.jpeg" alt="RGUHS Logo" class="header-logo" />
         </div>
         <div class="page-header-text">
             <h1>Trust Institution Details</h1>
         </div>
-    </div>
+    </div> *@
 
     <!-- FORM BODY -->
     <div class="form-wrap">

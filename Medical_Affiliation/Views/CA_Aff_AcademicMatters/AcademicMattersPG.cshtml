@@ -2,14 +2,20 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @using Medical_Affiliation.Models
 
+
+
 @{
     ViewData["Title"] = "Academic Matters PG";
+    ViewData["HeaderTitle"] = "Academic Matters PG";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+
     var yearList = ViewBag.YearList as List<CaMstYearOfStudy> ?? new List<CaMstYearOfStudy>();
+
 }
 
 <link rel="stylesheet" href="~/css/academic-matters.css" />
 <link rel="stylesheet" href="~/css/common-form.css" />
+
 <style>
     /* .page-header {
         background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
@@ -82,19 +88,70 @@
         margin: 2rem auto;
     }
 
+    .form-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 24px;
+        padding: 20px 24px;
+        border-top: 1px solid #d4dae3;
+    }
+
+    .btn-prev,
+    .btn-next {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 8px;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 130px;
+        transition: all 0.25s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-prev {
+        background: #6c757d;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.25);
+    }
+
+        .btn-prev:hover {
+            background: #5a6268;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+        }
+
+    .btn-next {
+        background: linear-gradient(135deg, #1a4c8b, #1565c0);
+        color: #ffffff !important;
+        box-shadow: 0 4px 15px rgba(26, 76, 139, 0.3);
+    }
+
+        .btn-next:hover {
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 76, 139, 0.4);
+        }
+    
+
+    /* ── Fix top gap ── */
+    .section-card {
+        margin: 0 0 28px 0 !important;
+    }
+
+    .form-wrap {
+        margin: 0 auto !important;
+        padding: 16px 24px 60px !important;
+    }
 </style>
 <div class="form-wrap">
-    <div class="page-header">
-        <div class="emblem">
-            <svg viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-        </div>
-        <div class="page-header-text">
-            <h1>PG Academic Details</h1>
-            @* <p>Postgraduate Courses — Academic Performance & Records</p> *@
-        </div>
-    </div>
+    
+
     <form asp-action="AcademicMattersPG" method="post">
         <div id="sectionsContainer" class="mt-2">
             @for (int s = 0; s < Model.Sections.Count; s++)
@@ -240,6 +297,20 @@
             </button>
 
         </div>
+
+        <div class="form-footer">
+            <a asp-action="AcademicMatters"
+               asp-controller="CA_Aff_AcademicMatters"
+               class="btn-prev">
+                ← Previous
+            </a>
+
+            <a asp-action="Med_CA_AccountAndFeeDetails"
+               asp-controller="Aff_CA_Med_FinanceDetails"
+               class="btn-next">
+                Next →
+            </a>
+        </div>/
     </form>
 
 </div>

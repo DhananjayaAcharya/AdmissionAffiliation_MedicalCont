@@ -1,8 +1,11 @@
 ﻿@model AffiliationPgCourseViewModel
+
+
 @{
     ViewData["Title"] = "PG Course Affiliation";
+    ViewData["HeaderTitle"] = "PG Course Affiliation";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
-    var courseLevel= Context.Session.GetString("CourseLevel");
+    var courseLevel = Context.Session.GetString("CourseLevel");
 }
 
 <!DOCTYPE html>
@@ -277,17 +280,7 @@
 <body>
 
     <!-- PAGE HEADER -->
-    <div class="page-header">
-        <div class="emblem">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-        </div>
-        <div class="page-header-text">
-            <h1>PG Course Details</h1>
-            @* <p>Affiliation &amp; Recognition Portal — Postgraduate Courses</p> *@
-        </div>
-    </div>
+   
 
     <div class="form-wrap">
         <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:20px; font-size:0.85rem;"></div>
@@ -651,24 +644,92 @@
                     </div>
                 </div>
                 <!-- Navigation -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 .5rem;">
-                    @* <a asp-action="Aff_TrustMemberDetails" asp-controller="ContinuesAffiliation_Facultybased"
-                       class="btn btn-ghost">← Previous</a> *@
+              
+                    <!-- Navigation -->
+                    @{
+                        var rawLevels = Context.Session.GetString("ExistingCourseLevels");
 
-                    <a asp-action="Aff_PrincipalDetails" asp-controller="ContinuesAffiliation_Facultybased"
-                       class="btn btn-ghost">← Previous</a>
-                        <div style="padding:20px 24px; border-top:1px solid var(--border); text-align:center;">
-                            <small class="text-muted">Maximum file size: 1 MB</small><br>
-                            <button type="submit" class="btn btn-primary mt-2">
-                                <i class="bi bi-cloud-arrow-up me-2"></i>Save
-                            </button>
-                        </div>
-                    @* <a asp-action="CoursesOffered" asp-controller="AffiliationPg"
-                       class="btn btn-primary">Next →</a> *@
+                        List<string> levels;
 
-                    <a asp-action="ContinuousAffiliationIncreaseintake" asp-controller="IncreaseIntake"
-                       class="btn btn-primary">Next →</a>
-                </div>
+                        if (string.IsNullOrWhiteSpace(rawLevels))
+                        {
+                            levels = new List<string>();
+                        }
+                        else
+                        {
+                            try
+                            {
+                                levels = System.Text.Json.JsonSerializer
+                                .Deserialize<List<string>>(rawLevels)?
+                                .Select(x => x.Trim().ToUpper())
+                                .Distinct()
+                                .ToList()
+                                ?? new List<string>();
+                            }
+                            catch
+                            {
+                                levels = rawLevels.Split(',')
+                                .Select(x => x.Trim().ToUpper())
+                                .Distinct()
+                                .ToList();
+                            }
+                        }
+
+                        string prevController;
+                        string prevAction;
+
+                        if (levels.Contains("UG"))
+                        {
+                            prevController = "ContinuesAffiliation_Facultybased";
+                            prevAction = "Details_Of_MBBS";
+                        }
+                        else
+                        {
+                            prevController = "ContinuesAffiliation_Facultybased";
+                            prevAction = "Aff_PrincipalDetails";
+                        }
+
+                        string nextController;
+                        string nextAction;
+
+                        if (levels.Contains("SS"))
+                        {
+                            nextController = "Aff_CA_SS_CoursesAppliedSS";
+                            nextAction = "CA_SS_CoursesApplied";
+                        }
+                        else
+                        {
+                            nextController = "ContinuousAffiliationIncreaseintake";
+                            nextAction = "IncreaseIntake";
+                        }
+                    }
+
+                   <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-top:1px solid var(--border);">
+
+    <!-- PREVIOUS -->
+    <a asp-controller="@prevController"
+       asp-action="@prevAction"
+       class="btn btn-ghost">
+        ← Previous
+    </a>
+
+    <!-- SAVE -->
+    <div style="text-align:center;">
+        <small class="text-muted d-block mb-2">Maximum file size: 1 MB</small>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-cloud-arrow-up me-2"></i>Save
+        </button>
+    </div>
+
+    <!-- NEXT -->
+    <a asp-controller="@nextController"
+       asp-action="@nextAction"
+       class="btn btn-primary">
+        Next →
+    </a>
+
+</div>
+                
             </form>
         </div>
 

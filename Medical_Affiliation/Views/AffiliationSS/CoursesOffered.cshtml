@@ -1,8 +1,10 @@
 ﻿@model AffiliationSSViewModel
+
 @{
     ViewData["Title"] = "Affiliation – SS Courses";
+    ViewData["HeaderTitle"] = "Affiliation – SS Courses";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
-    var courseLevel= Context.Session.GetString("CourseLevel");
+    var courseLevel = Context.Session.GetString("CourseLevel");
 }
 
 <!DOCTYPE html>
@@ -87,7 +89,7 @@
 
         .form-wrap {
             max-width: 1280px;
-            margin: 32px auto;
+            margin: 0 auto;
             padding: 0 24px 60px;
         }
 
@@ -273,17 +275,7 @@
 <body>
 
     <!-- PAGE HEADER - Matching your PG Course Affiliation page -->
-    <div class="page-header">
-        <div class="emblem">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-        </div>
-        <div class="page-header-text">
-            <h1>Affiliation – SS Courses</h1>
-            <p>Affiliation &amp; Recognition Portal — Postgraduate Courses</p>
-        </div>
-    </div>
+   
 
     <div class="form-wrap">
 
@@ -338,7 +330,7 @@
 
 
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 .5rem;">
-                        <a asp-action="Aff_PrincipalDetails" asp-controller="ContinuesAffiliation_Facultybased"
+                        <a asp-action="IncreaseIntake" asp-controller="ContinuousAffiliationIncreaseintake"
                            class="btn btn-ghost">← Previous</a>
                             <div style="padding:20px 24px; border-top:1px solid var(--border); text-align:center;">
                                 <small class="text-muted">Maximum file size: 1 MB</small><br>

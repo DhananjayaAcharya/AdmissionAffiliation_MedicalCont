@@ -1,6 +1,7 @@
 ﻿@model EquipmentMasterViewModel
 @{
-    ViewData["Title"] = "Equipment Master";
+    ViewData["Title"] = "Additional Equipments";
+    ViewData["HeaderTitle"] = "Additional Equipments";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
@@ -334,6 +335,30 @@
         border-top: 1px solid var(--border);
         margin-top: 4px;
     }
+
+    /* ── Fix top gap ── */
+    .page-shell {
+        padding: 0 !important;
+        min-height: unset !important;
+        background-color: transparent !important;
+    }
+
+    .page-wrap {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .form-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 16px 36px 36px !important;
+    }
+
+    body {
+        background: transparent !important;
+        min-height: unset !important;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
@@ -346,17 +371,7 @@
             <div class="header-subtitle">Register a new equipment item to a department</div>
         </div> *@
 
-        <div class="page-header">
-            <div class="emblem">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
-            </div>
-            <div class="page-header-text">
-                <h1>Additional Equipment</h1>
-                @* <p>Register a new equipment item to a department</p> *@
-            </div>
-        </div>
+        
 
         <!-- Form Card -->
         <div class="form-card">

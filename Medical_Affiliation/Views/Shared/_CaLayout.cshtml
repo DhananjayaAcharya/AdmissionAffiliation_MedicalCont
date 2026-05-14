@@ -1,5 +1,4 @@
-﻿@* Views/Shared/_CaLayout.cshtml *@
-@inject IHttpContextAccessor HttpContextAccessor
+﻿@inject IHttpContextAccessor HttpContextAccessor
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,13 +11,13 @@
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-
+    <link rel="stylesheet" href="~/css/common-form.css" />
     <style>
         html, body {
             margin: 0;
             padding: 0;
             height: 100%;
+            font-family: 'DM Sans', sans-serif;
         }
 
         .ca-shell {
@@ -32,22 +31,63 @@
             background: #f9f7f2;
             overflow-y: auto;
         }
-    </style>
 
-    <link rel="stylesheet" href="~/css/common-form.css" />
+        .shared-page-header {
+            background: #ffffff; /* ← changed from dark gradient */
+            border-bottom: 1px solid #e8e4dc; /* ← subtle border instead of gold line */
+            padding: 18px 36px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shared-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: white;
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+            .shared-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .shared-title {
+            color: #0f2545; /* ← changed from white to dark navy */
+            font-family: 'EB Garamond', serif;
+            font-size: 2.1rem;
+            font-weight: 600;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+    </style>
 </head>
 <body>
-
-    @* ── Include your existing top header here ── *@
-    @* Example: @await Html.PartialAsync("_Header") *@
-
     <div class="ca-shell">
         @await Html.PartialAsync("_ContinuousAffiliationSidebar")
         <main class="ca-body">
+            @if (ViewData["HeaderTitle"] != null)
+            {
+                <div class="shared-page-header">
+                    <div class="shared-logo">
+                        <img src="~/images/newLogo.jpeg" alt="RGUHS Logo" />
+                    </div>
+                    <h1 class="shared-title">@ViewData["HeaderTitle"]</h1>
+                </div>
+            }
             @RenderBody()
         </main>
     </div>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)

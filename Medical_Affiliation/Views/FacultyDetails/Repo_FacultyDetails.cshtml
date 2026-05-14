@@ -4,6 +4,7 @@
 @{
     Layout = null;
     ViewData["Title"] = "Faculty Details";
+    ViewData["HeaderTitle"] = "Faculty Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
     Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
@@ -11,12 +12,14 @@
     Context.Response.Headers["Expires"] = "0";
     int currentStep = 5;
 }
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] — RGUHS Portal</title>
+   
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -650,48 +653,12 @@
 </head>
 <body>
 
-    <header class="portal-header">
-        <a href="#" class="brand">
-            <div class="brand-emblem"><i class="bi bi-mortarboard-fill"></i></div>
-            <div class="brand-text">
-                <span class="brand-title">RGUHS Affiliation Portal</span>
-                <span class="brand-sub">Rajiv Gandhi University of Health Sciences</span>
-            </div>
-        </a>
-        <div class="header-meta">
-            @using System.Text.RegularExpressions
-            @{
-                var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
-                var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
-            }
-            @if (!string.IsNullOrEmpty(collegeName))
-            {
-                <span><i class="bi bi-building"></i> @collegeName</span>
-            }
-            <span><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd MMM yyyy")</span>
-            <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
-                <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</button>
-            </form>
-        </div>
-    </header>
+   
 
     <div class="page-shell">
         <main class="content-area">
 
-            <div class="page-title-block">
-                <div>
-                    <h1>Faculty Details</h1>
-                    <div class="page-crumb">
-                        <i class="bi bi-house-fill"></i> Home
-                        <i class="bi bi-chevron-right" style="font-size:.65rem;"></i> Admission Affiliation
-                        <i class="bi bi-chevron-right" style="font-size:.65rem;"></i>
-                        <strong>Add College Faculty</strong>
-                    </div>
-                </div>
-                <span style="font-size:.72rem;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;">
-                    <i class="bi bi-shield-lock" style="color:var(--gold);"></i> Secure Session
-                </span>
-            </div>
+          
 
             @if (TempData["Error"] != null)
             {
@@ -858,7 +825,7 @@
                 </div>
 
                 <div class="nav-footer">
-                    <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="NonTeachingStaffDepartmentwise" class="btn-official-outline">
+                    <a asp-controller="CA_Aff_MedicalLibrary" asp-action="MedicalLibrary" class="btn-official-outline">
                         <i class="bi bi-arrow-left"></i> Previous
                     </a>
                     <div style="display: flex; flex-direction: column;">
@@ -869,7 +836,7 @@
                             <i class="bi bi-info-circle"></i> Guide Ship Letter required only if PG/PhD Guide is Yes.
                         </span>
                     </div>
-                    <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="Aff_HostelDetails" class="btn-official-outline">
+                    <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="TeachingStaffDepartmentWise" class="btn-official-outline">
                         <i class="bi bi-arrow-right"></i> Next
                     </a>
                 </div>

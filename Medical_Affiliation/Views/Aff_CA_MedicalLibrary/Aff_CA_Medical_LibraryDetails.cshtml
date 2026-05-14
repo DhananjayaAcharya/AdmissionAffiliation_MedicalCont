@@ -2,10 +2,12 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Library Details";
+    ViewData["HeaderTitle"] = "Library Details";
     var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
     var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
+
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -325,23 +327,36 @@
     .text-center {
         text-align: center;
     }
+
+    /* ── Fix top gap ── */
+    .page-shell {
+        padding: 0 !important;
+        min-height: unset !important;
+        background-color: transparent !important;
+    }
+
+    .page-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .form-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 16px 36px 40px !important;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
 
-        <!-- Header -->
-        <div class="page-header head">
-            @* <div class="header-eyebrow">Continuous Affiliation · Medical Library</div> *@
-            <div class="header-title">Library Details</div>
-            <div class="header-subtitle">Enter complete library infrastructure and facilities details</div>
-            @* <div class="header-badge">Step 10 of 27</div> *@
-        </div>
+       
 
         <!-- Main Form Card -->
         <div class="form-card">
 
-            <h3 class="text-center" style="color:var(--navy); font-family:'EB Garamond', serif; margin-bottom: 28px;">6. Library</h3>
+           
 
             <!-- SECTION 1: General Information & Library Items -->
             <div class="section-label">

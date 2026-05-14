@@ -1,10 +1,10 @@
 ﻿@model DeanDetailsViewModel
 
 @{
-    ViewData["Title"] = "Staff Particulars - Dean / Director";
+    ViewData["Title"] = "Dean / Director Details";
+    ViewData["HeaderTitle"] = "Dean / Director Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
-
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -478,15 +478,7 @@
             <div class="header-badge">Staff Particulars</div>
         </div> *@
 
-        <div class="page-header">
-            <div class="emblem">
-                <i class="fas fa-hospital"></i>
-            </div>
-            <div class="page-header-text">
-                <h1>Dean / Director Details</h1>
-                @* <p>RGUHS · Affiliation Portal </p> *@
-            </div>
-        </div>
+        
 
         <!-- Form Card -->
         <div class="form-card">
@@ -701,19 +693,11 @@
 
                 <div class="form-footer">
 
-                    @if (Context.Session.GetString("CourseLevel") == "UG")
-                    {
-                        <a asp-controller="ContinuesAffiliation_Facultybased"
-                           asp-action="Details_Of_MBBS"
-                           class="btn-prev">← Previous</a>
-                    }
-                    else if (Context.Session.GetString("CourseLevel") == "PG"
-                    || Context.Session.GetString("CourseLevel") == "SS")
-                    {
-                        <a asp-controller="ContinuesAffiliation_Facultybased"
-                           asp-action="Aff_TrustMemberDetails"
-                           class="btn-prev">← Previous</a>
-                    }
+                    
+                    <a asp-controller="ContinuesAffiliation_Facultybased"
+                        asp-action="Aff_TrustMemberDetails"
+                        class="btn-prev">← Previous</a>
+                    
 
                     <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
 

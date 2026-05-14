@@ -1,8 +1,11 @@
 ﻿@model EquipmentAvailabilityViewModel
 
+
+
 @{
     ViewData["Title"] = "Medical Equipment Details";
-    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["HeaderTitle"] = "Medical Equipment Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml"; 
 }
 
 <style>
@@ -460,6 +463,29 @@
         .btn-next:hover {
             opacity: 0.9;
         }
+
+    /* ── Override: remove gap caused by layout + page-shell stacking ── */
+    .page-shell {
+        padding: 0 !important;
+        background-color: transparent !important;
+    }
+
+    .page-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .form-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        padding: 24px 36px 40px !important;
+    }
+
+        /* Add top padding to the first section label inside the card */
+        .form-card .section-label:first-of-type {
+            margin-top: 24px !important;
+        }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
@@ -474,15 +500,7 @@
             <div class="header-badge">Equipment</div>
         </div> *@
 
-        <div class="page-header">
-            <div class="emblem">
-                <i class="fas fa-book-medical"></i>
-            </div>
-            <div class="page-header-text">
-                <h1>Medical Equipment Details</h1>
-                @* <p>Continuous Affiliation · Physical Facilities</p> *@
-            </div>
-        </div>
+        
 
         <!-- Form Card -->
         <div class="form-card">

@@ -1,7 +1,9 @@
 ﻿@model Medical_Affiliation.Models.MedicalUGBedDistributionVm
+
 @{
     ViewData["Title"] = "Bed Distribution – MBBS";
-    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["HeaderTitle"] = "Bed Distribution – MBBS";
+    Layout = "~/Views/Shared/_CaLayout.cshtml"; 
 }
 
 <!DOCTYPE html>
@@ -32,11 +34,18 @@
             --radius: 10px;
             --shadow: 0 2px 16px rgba(15,25,35,.07);
         }
-        body {
+        /* body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--ink);
             min-height: 100vh;
+        } */
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: transparent !important; /* let ca-body handle the bg */
+            color: var(--ink);
+            min-height: unset !important; /* ca-shell already handles height */
         }
 
         /* TOP HEADER - Same as PG Affiliation */
@@ -79,8 +88,8 @@
 
         .form-wrap {
             max-width: 1280px;
-            margin: 32px auto;
-            padding: 0 24px 60px;
+            margin: 0 auto !important; /* removes the 32px top gap */
+            padding: 1px 24px 60px; /* top padding now controls the breathing room */
         }
         .section-card {
             background: var(--surface);
@@ -252,24 +261,39 @@
             text-decoration: none;
             transition: opacity 0.15s, box-shadow 0.15s;
         }
+
+        /* ── Override: remove gap caused by layout + page-shell stacking ── */
+        .page-shell {
+            padding: 0 !important;
+            background-color: transparent !important;
+        }
+
+        .page-container {
+            padding: 0 !important;
+            max-width: 100% !important;
+        }
+
+        .form-card {
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+            padding: 24px 36px 40px !important;
+        }
+
+            /* Add top padding to the first section label inside the card */
+            .form-card .section-label:first-of-type {
+                margin-top: 24px !important;
+            }
+
+        /* ── Fix gap between shared header and content ── */
+        
     </style>
 
     <link rel="stylesheet" href="~/css/common-form.css" />
 
 </head>
 <body>
-    <!-- PAGE HEADER -->
-    <div class="page-header">
-        <div class="emblem">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-        </div>
-        <div class="page-header-text">
-            <h1>Bed Distribution – MBBS</h1>
-            <p>Clinical Infrastructure & Facilities</p>
-        </div>
-    </div>
+   
 
     <div class="form-wrap">
         <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:20px; font-size:0.85rem;"></div>
