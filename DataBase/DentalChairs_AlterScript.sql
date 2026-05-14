@@ -3757,3 +3757,38 @@ VALUES
 (2, 'Dental Materials Lab', 120, 150),
 (2, 'Skill / Simulation Lab', 200, 250);
 GO
+
+
+-- =============================================
+-- Table: DentalPreClinicalAndSkillsLabAreaReq
+-- =============================================
+
+CREATE TABLE DentalPreClinicalAndSkillsLabAreaReq
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    CollegeCode NVARCHAR(20) NOT NULL,
+
+    FacultyCode INT NOT NULL,
+
+    SeatIntake INT NOT NULL,
+
+    LabId INT NOT NULL,
+
+    LabName NVARCHAR(200) NOT NULL,
+
+    RequiredAreaSqM DECIMAL(10,2) NOT NULL,
+
+    ExistingAreaSqM DECIMAL(10,2) NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedOn DATETIME NOT NULL DEFAULT GETDATE(),
+
+    UpdatedOn DATETIME NULL,
+
+    CONSTRAINT FK_DentalPreClinicalAndSkillsLabAreaReq_LabId
+        FOREIGN KEY (LabId)
+        REFERENCES MstDentalPreClinicalAndSkillsLaboratoryAreaReq(Id)
+);
+GO
