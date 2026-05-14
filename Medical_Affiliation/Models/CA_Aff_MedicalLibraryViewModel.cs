@@ -67,8 +67,8 @@ namespace Medical_Affiliation.Models
         public MedicalLibraryOtherDetailsViewModel OtherDetails { get; set; }
             = new MedicalLibraryOtherDetailsViewModel();
 
-        
 
+        public List<DentalLibraryRecordViewModel> DentalLibraryRecords { get; set; } = new();
     }
 
     public class LibraryServiceRowViewModel : IValidatableObject
@@ -135,6 +135,25 @@ namespace Medical_Affiliation.Models
         public string? LibraryStaff1 { get; set; }
         public string? LibraryStaff2 { get; set; }
         public bool IsDeleted { get; set; }
+
+        public int? Titles { get; set; }
+
+        public int? InternationalJournals { get; set; }
+
+        public int? BackVolumes { get; set; }
+
+        public int? PrintJournalPercentage { get; set; }
+    }
+
+    public class DentalLibraryRecordViewModel
+    {
+        public int RecordId { get; set; }
+
+        public string? RecordName { get; set; }
+
+        public IFormFile? UploadFile { get; set; }
+
+        public string? ExistingFileName { get; set; }
     }
 
     public class MedicalLibraryOtherDetailsViewModel : IValidatableObject

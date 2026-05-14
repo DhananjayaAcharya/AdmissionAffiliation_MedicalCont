@@ -15,7 +15,7 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
-      
+
         [HttpGet]
         public async Task<IActionResult> CA_Med_ResearchPublicationsDetails()
         {
@@ -23,8 +23,8 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
-            var levels = string.IsNullOrEmpty(raw) 
-                ? new List<string>() 
+            var levels = string.IsNullOrEmpty(raw)
+                ? new List<string>()
                 : JsonSerializer.Deserialize<List<string>>(raw).Select(l => l.Trim().ToUpper()).Distinct().ToList();
 
 
@@ -534,7 +534,7 @@ namespace Medical_Affiliation.Controllers
                 x.FacultyCode == facultyCode &&
                 x.DepartmentCode == model.DepartmentCode &&
                 x.ActivityId == model.ActivityId &&
-                x.CourseLevel != null && 
+                x.CourseLevel != null &&
                 x.CourseLevel.ToUpper() == "UG");
 
             if (alreadyExists)
