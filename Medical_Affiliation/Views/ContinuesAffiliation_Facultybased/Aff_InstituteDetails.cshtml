@@ -1288,78 +1288,75 @@
             await Html.RenderPartialAsync("_ValidationScriptsPartial");
         }
         <script>
+            // ✅ FIX 1: Resolve URL server-side so production base paths are handled correctly
+            var getTaluksUrl = '@Url.Action("GetTaluksByDistrictt", "ContinuesAffiliation_Facultybased")';
+
+            // ✅ FIX 2: Serialize via Json.Serialize to safely handle nulls, apostrophes, special chars
+            var existingTaluk = @Html.Raw(Json.Serialize(Model.Taluk ?? ""));
+
+            function loadTaluks(selectedTaluk) {
+            var district = $("#districtDropdown").val();
+
+            if (!district) {
+            $("#talukDropdown").empty();
+            $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
+            return;
+            }
+
+            $.get(getTaluksUrl, { district: district })
+            .done(function (data) {
+            $("#talukDropdown").empty();
+            $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
+
+            $.each(data, function (i, item) {
+            var isSelected = item.text === selectedTaluk ? "selected" : "";
+            $("#talukDropdown").append(
+            '<option value="' + item.text + '" ' + isSelected + '>' + item.text + '</option>'
+            );
+            });
+            })
+            .fail(function (xhr, status, error) {
+            // ✅ FIX 3: Visible error in console so production failures aren't silent
+            console.error("Failed to load taluks:", status, error, xhr.responseText);
+            });
+            }
+
             $(document).ready(function () {
+            // On district change by user
+            $("#districtDropdown").change(function () {
+            loadTaluks(""); // no pre-selection when user manually changes
+            });
 
-                function loadTaluks(selectedTaluk = "") {
-
-                    var district = $("#districtDropdown").val();
-
-                    if (district !== "") {
-
-                        $.get('@Url.Action("GetTaluksByDistrictt", "ContinuesAffiliation_Facultybased")',
-                            { district: district },
-                            function (data) {
-
-                                $("#talukDropdown").empty();
-                                $("#talukDropdown").append('<option value="">— Select Taluk —</option>');
-
-                                $.each(data, function (i, item) {
-
-                                    var selected = item.text === selectedTaluk ? "selected" : "";
-
-                                    $("#talukDropdown").append(
-                                        '<option value="' + item.text + '" ' + selected + '>' + item.text + '</option>'
-                                    );
-                                });
-                            });
-                    }
-                }
-
-                $("#districtDropdown").change(function () {
-                    loadTaluks();
-                });
-
-                // ✅ IMPORTANT: Auto load on edit
-                var existingTaluk = '@Model.Taluk';
-                if ($("#districtDropdown").val()) {
-                    loadTaluks(existingTaluk);
-                }
-
+            // ✅ FIX 4: On page load (edit mode), auto-populate taluks and re-select saved taluk
+            var initialDistrict = $("#districtDropdown").val();
+            if (initialDistrict) {
+            loadTaluks(existingTaluk);
+            }
             });
         </script>
+
         <script>
-            //below new code added by ram on 16/04/2026 for file size validation
-
+            // File size validation (unchanged)
             document.querySelectorAll('input[type="file"]').forEach(function (input) {
-
-                input.addEventListener("change", function () {
-
-                    if (this.files.length > 0) {
-
-                        const file = this.files[0];
-                        const maxSize = 2 * 1024 * 1024; // 2 MB
-
-                        if (file.size > maxSize) {
-
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'File too large',
-                                text: 'File size should not exceed 2 MB.',
-                                timer: 7000,
-                                timerProgressBar: true,
-                                showConfirmButton: true,
-                                confirmButtonText: 'OK'
-                            });
-
-                            this.value = ""; // clear file
-                            return;
-                        }
-                    }
-                });
-
+            input.addEventListener("change", function () {
+            if (this.files.length > 0) {
+            const file = this.files[0];
+            const maxSize = 2 * 1024 * 1024; // 2 MB
+            if (file.size > maxSize) {
+            Swal.fire({
+            icon: 'warning',
+            title: 'File too large',
+            text: 'File size should not exceed 2 MB.',
+            timer: 7000,
+            timerProgressBar: true,
+            showConfirmButton: true,
+            confirmButtonText: 'OK'
             });
-
-            //new code of ram ends here
+            this.value = "";
+            }
+            }
+            });
+            });
         </script>
     }
 </body>
