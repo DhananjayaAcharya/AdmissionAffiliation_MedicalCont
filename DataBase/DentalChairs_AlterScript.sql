@@ -3715,9 +3715,8 @@ GO
 
 
 -----------------------------------------------
-
 -- =============================================
--- Master Table: MstDentalPreClinicalAndSkillsLaboratoryAreaReq
+-- Create Master Table
 -- =============================================
 
 CREATE TABLE MstDentalPreClinicalAndSkillsLaboratoryAreaReq
@@ -3728,9 +3727,9 @@ CREATE TABLE MstDentalPreClinicalAndSkillsLaboratoryAreaReq
 
     LaboratoryName NVARCHAR(200) NOT NULL,
 
-    AreaRequiredFor50SqM DECIMAL(10,2) NOT NULL,
+    SeatIntake INT NOT NULL,
 
-    AreaRequiredFor100Or150SqM DECIMAL(10,2) NOT NULL,
+    AreaRequiredSqM DECIMAL(10,2) NOT NULL,
 
     IsActive BIT NOT NULL DEFAULT 1,
 
@@ -3748,16 +3747,30 @@ INSERT INTO MstDentalPreClinicalAndSkillsLaboratoryAreaReq
 (
     FacultyCode,
     LaboratoryName,
-    AreaRequiredFor50SqM,
-    AreaRequiredFor100Or150SqM
+    SeatIntake,
+    AreaRequiredSqM
 )
 VALUES
-(2, 'Pre Clinical Prosthodontics Lab', 200, 250),
-(2, 'Pre Clinical Conservative Lab', 200, 250),
-(2, 'Dental Materials Lab', 120, 150),
-(2, 'Skill / Simulation Lab', 200, 250);
-GO
+-- Pre Clinical Prosthodontics Lab
+(2, 'Pre Clinical Prosthodontics Lab', 50, 200),
+(2, 'Pre Clinical Prosthodontics Lab', 100, 250),
+(2, 'Pre Clinical Prosthodontics Lab', 150, 250),
 
+-- Pre Clinical Conservative Lab
+(2, 'Pre Clinical Conservative Lab', 50, 200),
+(2, 'Pre Clinical Conservative Lab', 100, 250),
+(2, 'Pre Clinical Conservative Lab', 150, 250),
+
+-- Dental Materials Lab
+(2, 'Dental Materials Lab', 50, 120),
+(2, 'Dental Materials Lab', 100, 150),
+(2, 'Dental Materials Lab', 150, 150),
+
+-- Skill / Simulation Lab
+(2, 'Skill / Simulation Lab', 50, 200),
+(2, 'Skill / Simulation Lab', 100, 250),
+(2, 'Skill / Simulation Lab', 150, 250);
+GO
 
 -- =============================================
 -- Table: DentalPreClinicalAndSkillsLabAreaReq
