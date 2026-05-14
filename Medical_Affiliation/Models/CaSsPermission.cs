@@ -22,4 +22,6 @@ public partial class CaSsPermission
     public DateTime? CreatedOn { get; set; }
 
     public string? CoursesApplied { get; set; }
+
+    public string? FilePath { get; set; }
 }

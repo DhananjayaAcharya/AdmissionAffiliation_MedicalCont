@@ -47,4 +47,3 @@ public partial class AffiliationCollegeMaster
 
     public virtual ICollection<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; } = new List<DentalCollegeLandBuildingDetail>();
 }
-

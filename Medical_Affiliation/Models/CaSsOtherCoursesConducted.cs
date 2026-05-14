@@ -22,4 +22,6 @@ public partial class CaSsOtherCoursesConducted
     public string CourseLevel { get; set; } = null!;
 
     public string? CoursesApplied { get; set; }
+
+    public string? DocumentPath { get; set; }
 }
