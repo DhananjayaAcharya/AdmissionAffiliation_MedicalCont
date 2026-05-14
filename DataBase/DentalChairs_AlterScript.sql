@@ -400,3 +400,3261 @@ VALUES
 
 
 SELECT * FROM [dbo].[DentalCollegeLandBuildingDetail]
+
+
+------ MASTER FOR EQUIPMENT DEPARTMENTS ------
+CREATE TABLE MstEquipmentDepartments
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    DepartmentCode NVARCHAR(20) NOT NULL UNIQUE,
+
+    DepartmentName NVARCHAR(500) NOT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_MstEquipmentDepartments_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId)
+);
+
+--- INSERT QUERIES for Equipment departments-------------------------------
+
+
+INSERT INTO MstEquipmentDepartments
+(FacultyCode, DepartmentCode, DepartmentName)
+VALUES
+(2, 'EQDEPT001', 'Prosthodontics and Crown & Bridge'),
+(2, 'EQDEPT002', 'Clinical Lab for Prosthetics'),
+(2, 'EQDEPT003', 'Chrome – Cobalt Lab Equipment'),
+(2, 'EQDEPT004', 'Ceramic Lab Equipment'),
+(2, 'EQDEPT005', 'Implant Equipment'),
+(2, 'EQDEPT006', 'Periodontology'),
+(2, 'EQDEPT007', 'Surgical Instruments'),
+(2, 'EQDEPT008', 'Special Surgical Instruments'),
+(2, 'EQDEPT009', 'Miscellaneous Instruments'),
+(2, 'EQDEPT010', 'Oral & Maxillofacial Surgery'),
+(2, 'EQDEPT011', 'Conservative Dentistry and Endodontics'),
+(2, 'EQDEPT012', 'Orthodontics and Dentofacial Orthopedics'),
+(2, 'EQDEPT013', 'Oral & Maxillofacial Pathology and Oral Microbiology'),
+(2, 'EQDEPT014', 'Public Health Dentistry'),
+(2, 'EQDEPT015', 'Paedodontics and Preventive Dentistry'),
+(2, 'EQDEPT016', 'Oral Medicine and Radiology');
+
+
+-----------------MASTER FOR EQUIPMENTS DEPT WISE ------------------------
+
+CREATE TABLE MstEquipmentDeptWise
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    DepartmentCode NVARCHAR(20) NOT NULL,
+
+    EquipmentName NVARCHAR(500) NOT NULL,
+
+    Specification NVARCHAR(MAX) NULL,
+
+    OneUnitRequirement INT NULL,
+
+    TwoUnitRequirement INT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_MstEquipmentDeptWise_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_MstEquipmentDeptWise_Department
+        FOREIGN KEY (DepartmentCode)
+        REFERENCES MstEquipmentDepartments(DepartmentCode)
+);
+
+-------------INSERT QUERIES FOR EQUIPMENT MASTER ------------
+
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT001',
+    'Electrical Dental Chairs and Units',
+    'With shadowless lamp, spittoon, 3 way syringe, instrument tray and motorized suction, micromotor and airotor attachment with handpieces. One chair and unit per PG student and two chairs with unit for the faculty.',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT001',
+    'Articulators – Semi Adjustable/Adjustable with Face Bow',
+    NULL,
+    6,
+    12
+),
+(
+    2,
+    'EQDEPT001',
+    'Micromotor',
+    'Lab type can also be attached (fixed) to wall',
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT001',
+    'Ultrasonic Scaler',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT001',
+    'Light Cures',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT001',
+    'Hot Air Oven',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT001',
+    'Autoclave',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT001',
+    'Surveyor',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT001',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT001',
+    'X-ray Viewer',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT001',
+    'Pneumatic Crown Bridge Remover',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT001',
+    'Needle Destroyer',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT001',
+    'Intra Oral Camera',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT001',
+    'Digital SLR Camera',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT001',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT001',
+    'LCD Projector',
+    NULL,
+    1,
+    1
+);
+
+--2
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT002',
+    'Plaster Dispenser',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT002',
+    'Model Trimmer with Carborandum Disc',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT002',
+    'Model Trimmer with Diamond Disc',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT002',
+    'High Speed Lathe',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT002',
+    'Vibrator',
+    NULL,
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT002',
+    'Acrylizer',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT002',
+    'Dewaxing Unit',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT002',
+    'Hydraulic Press',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT002',
+    'Mechanical Press',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT002',
+    'Vacuum Mixing Machine',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT002',
+    'Micro Motor Lab Type',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT002',
+    'Curing Pressure Pot',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT002',
+    'Pressure Molding Machine',
+    NULL,
+    1,
+    1
+);
+
+--3
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT003',
+    'Duplicator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Pindex System',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Burn-out Furnace',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Welder',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Sandblaster',
+    'Micro and macro',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Electro-polisher',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Model Trimmer with Carborandum Disc',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Model Trimmer with Diamond Disc',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Model Trimmer with Double Disc',
+    'One carborandum and one diamond disc',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Casting Machine',
+    'Motor cast with safety door closure, gas blow torch with regulator',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Dewaxing Furnace',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Induction Casting Machine with Vacuum Pump',
+    'Capable of casting titanium chrome cobalt precision metal',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Spot Welder',
+    'With soldering attachment of cable',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Steam Cleaner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Vacuum Mixing Machine',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Spindle Grinder',
+    '24,000 RPM with vacuum suction',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Wax Heater',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT003',
+    'Wax Carvers (Full PKT Set)',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT003',
+    'Milling Machine',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Stereo Microscope',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Magnifying Work Lamp',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Heavy Duty Lathe with Suction',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Preheating Furnace',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Dry Model Trimmer',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Die Cutting Machine',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT003',
+    'Ultrasonic Cleaner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT003',
+    'Composite Curing Unit',
+    NULL,
+    1,
+    1
+);
+
+--4
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT004',
+    'Fully Programmable Porcelain Furnace with Vacuum Pump',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT004',
+    'Ceramic Kit',
+    'Instruments',
+    3,
+    3
+),
+(
+    2,
+    'EQDEPT004',
+    'Ceramic Materials',
+    'Kit',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT004',
+    'Ceramic Polishing Kit',
+    NULL,
+    2,
+    2
+);
+
+--5
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT005',
+    'Electrical Dental Chair and Unit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT005',
+    'Physio Dispenser',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT005',
+    'Implant Kit',
+    'Minimum 2 systems',
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT005',
+    'Implants',
+    NULL,
+    10,
+    10
+),
+(
+    2,
+    'EQDEPT005',
+    'Prosthetic Components',
+    NULL,
+    10,
+    10
+),
+(
+    2,
+    'EQDEPT005',
+    'Unit Mount Light Cure',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT005',
+    'X-ray Viewer',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT005',
+    'Needle Destroyer',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT005',
+    'Ultrasonic Cleaner',
+    'Capacity 3.5 lts',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT005',
+    'Autoclave',
+    'Programmable for all recommended cycles',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT005',
+    'X-ray Machine with RVG',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT005',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT005',
+    'Surgical Kit/Prosthetic Kit',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT005',
+    'Educating Models',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT005',
+    'Implant Removing Instruments',
+    NULL,
+    1,
+    1
+);
+
+--6
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT006',
+    'Dental Chairs and Units',
+    'Electrically operated with shadowless lamp, spittoon, 3 way syringe, instrument tray and motorized suction, micromotor attachment with contra angle handpiece, airotor attachment, ultrasonic scaler (Piezo) with detachable autoclavable hand piece. One chair and unit per post-graduate student and two chairs with unit for the faculty',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT006',
+    'Auto Clave',
+    'Fully automatic front loading',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT006',
+    'Steel Bin',
+    NULL,
+    4,
+    6
+),
+(
+    2,
+    'EQDEPT006',
+    'Airoter Hand Pieces',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT006',
+    'UV Chamber',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT006',
+    'Formalin Chamber',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT006',
+    'W.H.O Probe',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT006',
+    'Nabers Probe',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT006',
+    'Williams Probe',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT006',
+    'UNC-15 Probe',
+    NULL,
+    4,
+    4
+),
+(
+    2,
+    'EQDEPT006',
+    'Gold Man Fox Probe',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT006',
+    'Pressure Sensitive Probe',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT006',
+    'Marquis Color Coded Probe',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT006',
+    'Supra Gingival Scalers Set',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT006',
+    'Sub Gingival Scaler Set',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT006',
+    'Arkansas Sharpening Stone',
+    NULL,
+    1,
+    1
+);
+
+--7
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT007',
+    'Routine Surgical Instrument Kit',
+    'Benquis periosteal elevator, periotome',
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT007',
+    'Surgery Trolleys',
+    NULL,
+    6,
+    6
+),
+(
+    2,
+    'EQDEPT007',
+    'X-ray Viewer',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT007',
+    'Surgical Cassette with Sterilisation Pouches',
+    NULL,
+    4,
+    6
+),
+(
+    2,
+    'EQDEPT007',
+    'Electro Surgery Unit',
+    NULL,
+    1,
+    1
+);
+
+--8
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT008',
+    'Kirkland’s Knife Set',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Orban’s Knife Set',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Paquette Blade Handle',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Krane Kaplan Pocket Marker Set',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Mc Calls Universal Curettes Set',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Gracey’s Curettes (No. 1-18) Set',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT008',
+    'Mini Five Curettes Set',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Cumine Scalar',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Mallet',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Chisel',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Oschenbein Chisel',
+    'Straight, curved',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Schluger Bone File',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Bone Fixation Screw Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Bone Scrapper',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Bone Trephines for Harvesting Autografts',
+    '1 set',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Bone Regenerative Materials',
+    'Bone graft and GTR membranes',
+    5,
+    5
+),
+(
+    2,
+    'EQDEPT008',
+    'Local Drug Delivery Systems',
+    'At least two different agents',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Root Conditioning Agent',
+    'At least two different agents',
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT008',
+    'Micro Needle Holder',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Micro Scissors',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Magnifying Loop (2.5 – 3.5)',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT008',
+    'Operating Microscope',
+    'Optional',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    '3rd Generation Digital Probe',
+    'Optional',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Bone Expander and Bone Crester',
+    'Optional',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Distraction Osteogenesis Kit',
+    'Optional',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Bone Mill',
+    'Optional',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Bone Graft / Membrane Placement Spoon',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Bone Condenser',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Peizo-surgery Unit',
+    'Optional',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Centrifuge for PRP/PRF Preparation',
+    'Optional',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Soft Tissue Laser (8 Watt)',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT008',
+    'Osteotome Set',
+    'Optional',
+    1,
+    1
+);
+
+--9
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT009',
+    'Composite Gun with Material Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Splinting Kit with Material',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT009',
+    'Composite Finishing Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Glass Ionomer Cement',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Digital Camera',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Intra Oral Camera',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Ultrasonic Cleaner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Emergency Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'X-ray Viewer',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT009',
+    'LCD Projector',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Electrical Dental Chair and Unit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Physio Dispenser',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Implant Kit',
+    'At least two different systems',
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT009',
+    'Implants',
+    NULL,
+    10,
+    10
+),
+(
+    2,
+    'EQDEPT009',
+    'Implant Maintenance Kit',
+    'Plastic instruments',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Implant Guide',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'X-ray Viewer',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT009',
+    'Needle Destroyer',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT009',
+    'Ultrasonic Cleaner',
+    'Capacity 3.5 lts',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Autoclave',
+    'Programmable for all recommended cycles',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'RVG with X-ray Machine',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Surgical Kit',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT009',
+    'Sinus Lift Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Educating Models',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT009',
+    'Implant Removing Kit',
+    NULL,
+    1,
+    1
+);
+
+--10
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT010',
+    'Dental Chairs and Units',
+    'Electrically operated with shadowless lamp, spittoon, 3 way syringe, instrument tray and high motorized suction, with micromotor and micro motor attachment. One chair and unit per post-graduate student and two chairs with unit for the faculty',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT010',
+    'Autoclave',
+    'Front loading',
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT010',
+    'Fumigators',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Oscillating Saw',
+    'With all hand pieces',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'General Surgery Kit Including Tracheotomy Kit',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT010',
+    'Minor Oral Surgery Kit',
+    NULL,
+    5,
+    10
+),
+(
+    2,
+    'EQDEPT010',
+    'Osteotomy Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Cleft Surgery Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Bone Grafting Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Emergency Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Trauma Set Including Bone Plating Kit',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT010',
+    'Implantology Kit with Implants',
+    'Minimum 2 systems',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Distraction Osteogenesis Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Peizo Surgical Unit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Magnifying Loops',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Operating Microscope and Microsurgery Kit',
+    'Desirable',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Dermatomes',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Needle Destroyer',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT010',
+    'Ultrasonic Cleaner',
+    'Capacity 3.5 lts',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Formalin Chamber',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Pulse Oxymeter',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Ventilator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Major Operation Theatre with All Facilities',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Recovery and Intensive Care Unit with All Necessary Life Support Equipments',
+    '2 beds',
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT010',
+    'Fibrooptic Light',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Inpatient Beds',
+    NULL,
+    20,
+    20
+),
+(
+    2,
+    'EQDEPT010',
+    'Fiber Optic Laryngoscope',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'LCD Projector',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT010',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+);
+
+--11
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT011',
+    'Dental Chairs and Units',
+    'Electrically operated with shadowless lamp, spittoon, 3 way syringe, instrument tray and motorized suction, micromotor, airotor attachment with hand pieces. One chair and unit per post-graduate student and two chairs with unit for the faculty',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT011',
+    'Endosonic Handpieces',
+    'Micro endosonic tips, retro treatment',
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT011',
+    'Mechanised Rotary Instruments Including Hand Pieces',
+    'Speed and torque control and hand instruments various systems',
+    3,
+    6
+),
+(
+    2,
+    'EQDEPT011',
+    'Rubber Dam Kit',
+    'One per chair',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Autoclaves for Bulk Instrument Sterilization',
+    'Vacuum front loading',
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT011',
+    'Autoclaves for Hand Piece Sterilization',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Apex Locators',
+    'One for every two chairs',
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT011',
+    'Pulp Tester',
+    NULL,
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT011',
+    'Equipments for Injectable Thermoplasticized Gutta Percha',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT011',
+    'Operating Microscopes',
+    '3 step or 5 step magnification',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Surgical Endo Kits',
+    'Microsurgery',
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT011',
+    'Set of Hand Instruments',
+    'Specifications required',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT011',
+    'Sterilizer Trays for Autoclave',
+    NULL,
+    4,
+    4
+),
+(
+    2,
+    'EQDEPT011',
+    'Ultrasonic Cleaner',
+    'Capacity 3.5 lts',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Variable Intensity Polymerization Equipments - VLC Units',
+    'Desirable',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Conventional VLC Units',
+    'One for every two chairs',
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT011',
+    'Needle Destroyer',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT011',
+    'Magnifying Loupes',
+    'One for students and one for faculty',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT011',
+    'LCD Projector',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Composite Kits with Different Shades and Polishing Kits',
+    NULL,
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT011',
+    'Ceramic Finishing Kits, Metal Finishing Kits',
+    'In ceramic labs',
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT011',
+    'Amalgam Finishing Kits',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT011',
+    'RVG with X-ray Machine Developing Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Chair Side Micro Abrasion',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Bleaching Unit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Instrument Retrieval Kits',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Equipments for Casting Procedures',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Equipments for Ceramics Including Induction Casting Machines / Burnout Preheat Furnaces / Wax Elimination Furnaces',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Lab Micro Motor / Metal Grinders / Sand Blasters / Polishing Lathes / Duplicator Equipment / Vacuum Investment Equipments',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Laser',
+    'Preferably hard tissue',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT011',
+    'Face Bow with Semi Adjustable Articulator',
+    NULL,
+    1,
+    2
+);
+
+--12
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT012',
+    'Dental Chairs and Unit',
+    'Electrically operated with shadow less lamp, spittoon, 3 way syringe, instrument tray and motorized suction. One chair and unit per PG student and two chairs with unit for the faculty',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT012',
+    'Vacuum / Pressure Moulding Unit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Hydrogen Soldering Unit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Lab Micromotor',
+    NULL,
+    3,
+    5
+),
+(
+    2,
+    'EQDEPT012',
+    'Spot Welders',
+    NULL,
+    3,
+    5
+),
+(
+    2,
+    'EQDEPT012',
+    'Model Trimmer (Double Disc)',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT012',
+    'Light Curing Unit',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT012',
+    'High Intensity Light Curing Unit',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT012',
+    'Polishing Lathes',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT012',
+    'Tracing Tables',
+    NULL,
+    3,
+    5
+),
+(
+    2,
+    'EQDEPT012',
+    'SLR Digital Camera',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Scanner with Transparency Adapter',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'X-ray Viewer',
+    NULL,
+    3,
+    4
+),
+(
+    2,
+    'EQDEPT012',
+    'LCD Projector',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Autoclaves for Bulk Instrument Sterilization',
+    'Vacuum front loading',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Needle Destroyer',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Dry Heat Sterilizer',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Ultrasonic Scaler',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Sets of Orthodontic Pliers',
+    NULL,
+    3,
+    3
+),
+(
+    2,
+    'EQDEPT012',
+    'Orthodontic Impression Trays',
+    NULL,
+    3,
+    5
+),
+(
+    2,
+    'EQDEPT012',
+    'Ultrasonic Cleaner',
+    'Capacity 3.5 lts',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Electropolisher',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Typodonts with Full Teeth Set',
+    NULL,
+    3,
+    3
+),
+(
+    2,
+    'EQDEPT012',
+    'Anatomical Articulator with Face Bow Attachments',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Free Plane Articulators',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Hinge Articulators',
+    NULL,
+    4,
+    4
+),
+(
+    2,
+    'EQDEPT012',
+    'Computer Software for Cephalometrics',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT012',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+);
+
+--13
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT013',
+    'Dental Chairs and Units',
+    'Electrically operated with shadow less lamp, spittoon, 3 way syringe, instrument tray and suction',
+    3,
+    6
+),
+(
+    2,
+    'EQDEPT013',
+    'Adequate Laboratory Glasswares',
+    'As required for processing of biopsy specimens and staining. Reasonable quantity should be made available',
+    NULL,
+    NULL
+),
+(
+    2,
+    'EQDEPT013',
+    'Adequate Tissue Capsules / Tissue Embedding Cassettes',
+    'Reasonable quantity should be made available',
+    NULL,
+    NULL
+),
+(
+    2,
+    'EQDEPT013',
+    'Paraffin Wax Bath',
+    'Thermostatically controlled',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Leuckhart Pieces',
+    NULL,
+    10,
+    10
+),
+(
+    2,
+    'EQDEPT013',
+    'Block Holders',
+    NULL,
+    25,
+    25
+),
+(
+    2,
+    'EQDEPT013',
+    'Microtome',
+    'Manual',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Microtome',
+    'Semi-automated',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Tissue Floatation Water Bath',
+    'Thermostatically controlled',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Slide Warming Table',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Steel Slide Racks for Staining',
+    NULL,
+    5,
+    5
+),
+(
+    2,
+    'EQDEPT013',
+    'Diamond Glass Marker',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT013',
+    'Research Microscope',
+    'With phase contrast, dark field, polarization, image analyzer and photomicrography attachments',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Multi Head Microscope',
+    'Penta headed',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Binocular Compound Microscope',
+    '2 for faculty and one per student',
+    NULL,
+    NULL
+),
+(
+    2,
+    'EQDEPT013',
+    'Stereo Microscope',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Aluminum Slide Trays',
+    NULL,
+    5,
+    5
+),
+(
+    2,
+    'EQDEPT013',
+    'Wooden / Plastic Slide Boxes',
+    NULL,
+    5,
+    5
+),
+(
+    2,
+    'EQDEPT013',
+    'Wax Block Storing Cabinet',
+    '5,000 capacity',
+    5000,
+    10000
+),
+(
+    2,
+    'EQDEPT013',
+    'Slide Storing Cabinet',
+    '5,000 capacity',
+    5000,
+    10000
+),
+(
+    2,
+    'EQDEPT013',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Pipettes',
+    NULL,
+    5,
+    5
+),
+(
+    2,
+    'EQDEPT013',
+    'Surgical Kit for Biopsy',
+    NULL,
+    3,
+    6
+),
+(
+    2,
+    'EQDEPT013',
+    'Immuno Histo Chemistry Lab',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'LCD Projector',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Cryostat',
+    'Desirable equipment',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Fluorescent Microscope',
+    'Desirable equipment',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Hard Tissue Microtome',
+    'Desirable equipment',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Tissue Storing Cabinet (Frozen)',
+    'Desirable equipment',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT013',
+    'Microwave',
+    'Desirable equipment',
+    1,
+    1
+);
+
+--14
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT014',
+    'Dental Chairs',
+    'Electrically operated with shadowless lamp, spittoon, 3 way syringe, instrument tray and motorized suction, micromotor attachment with contra angle handpiece, airoter attachment, ultrasonic scaler (Piezo) with detachable autoclavable hand piece with minimum 3 tips. One chair and unit per post-graduate student and one chair with unit for the faculty',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT014',
+    'Extraction Forceps',
+    NULL,
+    4,
+    6
+),
+(
+    2,
+    'EQDEPT014',
+    'Filling Instruments',
+    NULL,
+    4,
+    6
+),
+(
+    2,
+    'EQDEPT014',
+    'Scaling Instruments',
+    'Supra gingival scaling',
+    4,
+    6
+),
+(
+    2,
+    'EQDEPT014',
+    'Amalgamator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Pulp Tester',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Autoclave',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'X-ray Viewer',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Instrument Cabinet',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'LCD or DLP Multimedia Projector',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Staff Bus',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Mobile Dental Clinic',
+    'Fitted with at least 2 dental chairs with complete dental unit with fire extinguisher',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Ultrasonic Scaler',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT014',
+    'Ultrasonic Cleaner',
+    'Capacity 3.5 lts',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Compressor',
+    'One with chair',
+    NULL,
+    NULL
+),
+(
+    2,
+    'EQDEPT014',
+    'Generator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Public Address System, Audio-visual Aids',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Television',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Digital Versatile Disc Player',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Instrument Cabinet, Emergency Medicine Kits, Blood Pressure Apparatus',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Portable Oxygen Cylinder',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Portable Chair',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT014',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+);
+
+--15
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT015',
+    'Dental Chairs and Units',
+    'Electrically operated with shadowless lamp, spittoon, 3 way syringe, and motorised suction, micromotor attachment with contra angle miniature handpiece, airotor attachment with miniature handpiece, dental operator stool. 40% dental chairs shall be pedo chairs. One chair and unit per post-graduate student and two chairs with unit for the faculty',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT015',
+    'Pedo Extraction Forceps Sets',
+    NULL,
+    3,
+    4
+),
+(
+    2,
+    'EQDEPT015',
+    'Autoclaves for Bulk Instrument Sterilization',
+    'Vacuum front loading',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT015',
+    'RVG with Intra Oral X-ray Unit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Automatic Developer',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Pulp Tester',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT015',
+    'Apex Locator',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Rubber Dam Kit',
+    'One set per student',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Injectable GP Condenser',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Endodontic Pressure Syringe',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Glass Bead Steriliser',
+    NULL,
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT015',
+    'Spot Welder',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT015',
+    'Ultrasonic Scalers',
+    NULL,
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT015',
+    'Needle Destroyer',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Formalin Chamber',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Ultrasonic Cleaner',
+    'Capacity 3.5 lts',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'X-ray Viewer',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT015',
+    'Amalgamator',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT015',
+    'Plaster Dispenser',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT015',
+    'Dental Lathe',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT015',
+    'Vibrator',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT015',
+    'Typodonts',
+    'One set per student',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Soldering Unit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Band Pinching Beak Pliers',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT015',
+    'Proximal Contouring Pliers',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT015',
+    'Crown Crimping Pliers',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT015',
+    'Double Beak Pliers Anterior and Posterior',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT015',
+    'Lab Micro Motor',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT015',
+    'Acryliser',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT015',
+    'Magnifying Loupes',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Conscious Sedation Unit',
+    'Desirable',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Pulse Oxymeter',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Phantom Head Table with Attached Light, Airotor and Micro Motor',
+    'One set per each P.G. student',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'LCD Projector',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT015',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+);
+
+--16
+INSERT INTO MstEquipmentDeptWise
+(
+    FacultyCode,
+    DepartmentCode,
+    EquipmentName,
+    Specification,
+    OneUnitRequirement,
+    TwoUnitRequirement
+)
+VALUES
+(
+    2,
+    'EQDEPT016',
+    'Dental Chairs and Units',
+    'Electrically operated with shadowless lamp, spittoon, 3 way syringe, instrument tray and suction. One chair and unit per post-graduate student and one chair with unit for the faculty',
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'RVG with Intra Oral Radiography Machine',
+    'FDA approved, 55-70 kVp with digital compatibility',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Extra Oral Radiography Machine',
+    '100 kVp',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Panoramic Radiography (OPG) Machine with Cephalometric and TMJ Attachment with Printer',
+    'Digital compatibility',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Intra Oral Camera',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Pulp Tester',
+    NULL,
+    2,
+    4
+),
+(
+    2,
+    'EQDEPT016',
+    'Autoclave',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Punch Biopsy Tool',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT016',
+    'Biopsy Equipment',
+    NULL,
+    1,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Surgical Trolley',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Emergency Medicines Kit',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Extra Oral Cassettes with Intensifying Screens',
+    'Conventional and rare earth',
+    4,
+    6
+),
+(
+    2,
+    'EQDEPT016',
+    'Lead Screens',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Lead Aprons',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Lead Gloves',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Radiographic Filters',
+    'Conventional and rare earth',
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Dark Room with Safe Light Facility',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Automatic Radiographic Film Processors',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Radiographic Film Storage Lead Containers',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Thyroid Collars',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Digital Sphygmomanometer',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Digital Blood Glucose Tester',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Digital Camera',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'X-ray Viewer Boxes',
+    NULL,
+    2,
+    3
+),
+(
+    2,
+    'EQDEPT016',
+    'Lacrimal Probes',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Sialography Cannula',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Illuminated Mouth Mirror and Probe',
+    NULL,
+    2,
+    2
+),
+(
+    2,
+    'EQDEPT016',
+    'Computer with Internet Connection with Attached Printer and Scanner',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'LCD Projector',
+    NULL,
+    1,
+    1
+),
+(
+    2,
+    'EQDEPT016',
+    'Refrigerator',
+    NULL,
+    1,
+    1
+);
+
+-----------------------------
+
+CREATE TABLE [dbo].[DentalCollegeEquipmentDetails] (
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    
+    -- Primary Identifiers
+    [CollegeCode] [nvarchar](50) NOT NULL, 
+    [FacultyCode] [int] NOT NULL,         -- 1 for Medical, 2 for Dental, etc.
+    [DepartmentCode] [nvarchar](50) NOT NULL,
+    [EquipmentId] [int] NOT NULL,        -- Link to MstEquipmentDeptWise
+    [EquipmentName] [nvarchar](500) NOT NULL,
+    
+    -- Requirement Snapshots (Nullable as requested)
+    [OneUnitRequirement] [int] NULL,
+    [TwoUnitRequirement] [int] NULL,
+    
+    -- Existing Data / User Input (Nullable as requested)
+    [OneUnitExisting] [int] NULL,
+    [TwoUnitExisting] [int] NULL,
+    
+    -- Audit Trail
+    [CreatedDate] [datetime] NOT NULL DEFAULT (getdate()),
+    [UpdatedDate] [datetime] NULL,
+    [IsActive] [bit] NOT NULL DEFAULT (1),
+    
+    CONSTRAINT [PK_CollegeEquipmentDetails] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_CollegeEquipmentDetails_MstEquipmentDeptWise] FOREIGN KEY ([EquipmentId]) 
+        REFERENCES [dbo].[MstEquipmentDeptWise] ([Id])
+);
+
+-- Index for performance when fetching a specific college's equipment
+CREATE INDEX IX_College_Faculty ON [dbo].[DentalCollegeEquipmentDetails] (CollegeCode, FacultyCode);
+
+
+Alter Table Medical_UGBedDistribution
+add OralMaxillofacialSurgery INT NULL;

@@ -35,6 +35,10 @@ public partial class Faculty
 
     public virtual ICollection<MstAdministration> MstAdministrations { get; set; } = new List<MstAdministration>();
 
+    public virtual ICollection<MstEquipmentDepartment> MstEquipmentDepartments { get; set; } = new List<MstEquipmentDepartment>();
+
+    public virtual ICollection<MstEquipmentDeptWise> MstEquipmentDeptWises { get; set; } = new List<MstEquipmentDeptWise>();
+
     public virtual ICollection<MstFieldTypeChp> MstFieldTypeChps { get; set; } = new List<MstFieldTypeChp>();
 
     public virtual ICollection<MstFpaAdopAffType> MstFpaAdopAffTypes { get; set; } = new List<MstFpaAdopAffType>();

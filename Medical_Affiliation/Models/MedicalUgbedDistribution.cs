@@ -45,8 +45,6 @@ public partial class MedicalUgbedDistribution
 
     public int? CasualtyBeds { get; set; }
 
-    public int? OralMaxillofacialSurgery { get; set; }
-
     public DateTime? CreatedDate { get; set; }
 
     public string? FacultyCode { get; set; }

@@ -206,6 +206,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DentalChair> DentalChairs { get; set; }
 
+    public virtual DbSet<DentalCollegeEquipmentDetail> DentalCollegeEquipmentDetails { get; set; }
+
     public virtual DbSet<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; }
 
     public virtual DbSet<DepartmentMaster> DepartmentMasters { get; set; }
@@ -311,6 +313,10 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<MstCourse> MstCourses { get; set; }
 
     public virtual DbSet<MstDesignation> MstDesignations { get; set; }
+
+    public virtual DbSet<MstEquipmentDepartment> MstEquipmentDepartments { get; set; }
+
+    public virtual DbSet<MstEquipmentDeptWise> MstEquipmentDeptWises { get; set; }
 
     public virtual DbSet<MstFeesType> MstFeesTypes { get; set; }
 
@@ -2482,6 +2488,27 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK__DentalCha__Facul__4E9398CC");
         });
 
+        modelBuilder.Entity<DentalCollegeEquipmentDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_CollegeEquipmentDetails");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode }, "IX_College_Faculty");
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentCode).HasMaxLength(50);
+            entity.Property(e => e.EquipmentName).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Equipment).WithMany(p => p.DentalCollegeEquipmentDetails)
+                .HasForeignKey(d => d.EquipmentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CollegeEquipmentDetails_MstEquipmentDeptWise");
+        });
+
         modelBuilder.Entity<DentalCollegeLandBuildingDetail>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__DentalCo__3214EC079F5AA898");
@@ -3771,7 +3798,6 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Sicu).HasColumnName("SICU");
             entity.Property(e => e.SkinVd).HasColumnName("SkinVD");
             entity.Property(e => e.TotalIcubeds).HasColumnName("TotalICUBeds");
-            entity.Property(e => e.OralMaxillofacialSurgery).HasColumnName("OralMaxillofacialSurgery");
         });
 
         modelBuilder.Entity<MstAdministration>(entity =>
@@ -3892,6 +3918,50 @@ public partial class ApplicationDbContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("Designation_Type");
             entity.Property(e => e.FacultyId).HasColumnName("FacultyID");
+        });
+
+        modelBuilder.Entity<MstEquipmentDepartment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstEquip__3214EC078BB9316C");
+
+            entity.HasIndex(e => e.DepartmentCode, "UQ__MstEquip__6EA8896D18ED3C2D").IsUnique();
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentCode).HasMaxLength(20);
+            entity.Property(e => e.DepartmentName).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.MstEquipmentDepartments)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstEquipmentDepartments_Faculty");
+        });
+
+        modelBuilder.Entity<MstEquipmentDeptWise>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstEquip__3214EC07E2C9B484");
+
+            entity.ToTable("MstEquipmentDeptWise");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentCode).HasMaxLength(20);
+            entity.Property(e => e.EquipmentName).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.DepartmentCodeNavigation).WithMany(p => p.MstEquipmentDeptWises)
+                .HasPrincipalKey(p => p.DepartmentCode)
+                .HasForeignKey(d => d.DepartmentCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstEquipmentDeptWise_Department");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.MstEquipmentDeptWises)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstEquipmentDeptWise_Faculty");
         });
 
         modelBuilder.Entity<MstFeesType>(entity =>

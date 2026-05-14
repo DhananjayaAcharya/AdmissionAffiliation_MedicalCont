@@ -71,6 +71,7 @@ public class AutoProgressFilter : IAsyncActionFilter
             //new CAStep { Key="LandBuilding", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
             new CAStep { Key="SkillsLab", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
             new CAStep { Key="EquipmentDetails", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
+            new CAStep { Key="DentalEquipmentDetails", Ctrl="Dental", Act="EquipmentList" },
             new CAStep { Key="EquipmentMaster", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
 
             new CAStep { Key="ClinicalFacilities", Ctrl="ContinuationAffiliationClinicalFacilities", Act="SaveOperationTheatreRequirements" },

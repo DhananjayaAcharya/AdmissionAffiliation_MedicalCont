@@ -53,7 +53,7 @@
         // ================= PHYSICAL INFRASTRUCTURE =================
         // new StepItem{ Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
         new StepItem{ Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
-        new StepItem{ Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
+        // new StepItem{ Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
         new StepItem{ Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
         new StepItem{ Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
         new StepItem{ Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
@@ -128,6 +128,42 @@
                 Group = "Physical Infrastructure",
                 Ctrl = "Medical_ContinuousAffiliation",
                 Act = "Medical_LandBuildingdetails"
+            });
+    }
+
+    var equipmentIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+
+    if (equipmentIndex < 0)
+    {
+        equipmentIndex = allSteps.Count;
+    }
+
+    if (facultyCode == "2")
+    {
+        // Dental
+        allSteps.Insert(equipmentIndex,
+
+            new StepItem
+            {
+                Key = "DentalEquipmentDetails",
+                Label = "Equipment List",
+                Group = "Physical Infrastructure",
+                Ctrl = "Dental",
+                Act = "EquipmentList"
+            });
+    }
+    else
+    {
+        // Medical / Others
+        allSteps.Insert(equipmentIndex,
+
+            new StepItem
+            {
+                Key = "EquipmentDetails",
+                Label = "Equipment Details",
+                Group = "Physical Infrastructure",
+                Ctrl = "Medical_ContinuousAffiliation",
+                Act = "Medical_EquimentDetails"
             });
     }
     // ✅ Add MBBS ONLY for UG
