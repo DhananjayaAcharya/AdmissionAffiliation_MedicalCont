@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace Medical_Affiliation.ViewModels
 {
@@ -157,6 +158,13 @@ namespace Medical_Affiliation.ViewModels
         // =====================================================
         // REMARKS
         // =====================================================
+
+        // =====================================================
+        // PRE CLINICAL & SKILL LABORATORIES
+        // =====================================================
+
+        public List<DentalPreClinicalAndSkillsLabAreaReqVM> PreClinicalAndSkillsLabs { get; set; }
+            = new();
 
         public string? Remarks { get; set; }
     }

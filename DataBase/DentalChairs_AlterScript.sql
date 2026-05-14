@@ -430,7 +430,7 @@ INSERT INTO MstEquipmentDepartments
 VALUES
 (2, 'EQDEPT001', 'Prosthodontics and Crown & Bridge'),
 (2, 'EQDEPT002', 'Clinical Lab for Prosthetics'),
-(2, 'EQDEPT003', 'Chrome – Cobalt Lab Equipment'),
+(2, 'EQDEPT003', 'Chrome ï¿½ Cobalt Lab Equipment'),
 (2, 'EQDEPT004', 'Ceramic Lab Equipment'),
 (2, 'EQDEPT005', 'Implant Equipment'),
 (2, 'EQDEPT006', 'Periodontology'),
@@ -500,7 +500,7 @@ VALUES
 (
     2,
     'EQDEPT001',
-    'Articulators – Semi Adjustable/Adjustable with Face Bow',
+    'Articulators ï¿½ Semi Adjustable/Adjustable with Face Bow',
     NULL,
     6,
     12
@@ -1344,7 +1344,7 @@ VALUES
 (
     2,
     'EQDEPT008',
-    'Kirkland’s Knife Set',
+    'Kirklandï¿½s Knife Set',
     NULL,
     1,
     1
@@ -1352,7 +1352,7 @@ VALUES
 (
     2,
     'EQDEPT008',
-    'Orban’s Knife Set',
+    'Orbanï¿½s Knife Set',
     NULL,
     1,
     1
@@ -1384,7 +1384,7 @@ VALUES
 (
     2,
     'EQDEPT008',
-    'Gracey’s Curettes (No. 1-18) Set',
+    'Graceyï¿½s Curettes (No. 1-18) Set',
     NULL,
     2,
     2
@@ -1504,7 +1504,7 @@ VALUES
 (
     2,
     'EQDEPT008',
-    'Magnifying Loop (2.5 – 3.5)',
+    'Magnifying Loop (2.5 ï¿½ 3.5)',
     NULL,
     1,
     2
@@ -3658,3 +3658,102 @@ CREATE INDEX IX_College_Faculty ON [dbo].[DentalCollegeEquipmentDetails] (Colleg
 
 Alter Table Medical_UGBedDistribution
 add OralMaxillofacialSurgery INT NULL;
+
+CREATE TABLE CA_DentalLibraryRecords
+(
+    Id INT IDENTITY PRIMARY KEY,
+
+    CollegeCode NVARCHAR(20) NOT NULL,
+
+    FacultyCode INT NOT NULL,
+
+    CourseLevel NVARCHAR(20) NULL,
+
+    AffiliationType INT NOT NULL,
+
+    RecordId INT NOT NULL,
+
+    FilePath NVARCHAR(MAX) NULL,
+
+    FileName NVARCHAR(500) NULL,
+
+    CreatedDate DATETIME
+        DEFAULT GETDATE()
+);
+
+
+USE [Admission_Affiliation]
+GO
+/****** Object:  Table [dbo].[CA_MST_DentalLibraryRecords]    Script Date: 14-05-2026 11:36:24 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CA_MST_DentalLibraryRecords](
+    [RecordId] [int] NOT NULL,
+    [RecordName] [nvarchar](500) NOT NULL,
+    [DisplayOrder] [int] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+    [RecordId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+INSERT [dbo].[CA_MST_DentalLibraryRecords] ([RecordId], [RecordName], [DisplayOrder]) VALUES (1, N'Central Library Book List', 1)
+GO
+INSERT [dbo].[CA_MST_DentalLibraryRecords] ([RecordId], [RecordName], [DisplayOrder]) VALUES (2, N'Departmental Library List (PG)', 2)
+GO
+INSERT [dbo].[CA_MST_DentalLibraryRecords] ([RecordId], [RecordName], [DisplayOrder]) VALUES (3, N'Journal Subscription Receipts', 3)
+GO
+INSERT [dbo].[CA_MST_DentalLibraryRecords] ([RecordId], [RecordName], [DisplayOrder]) VALUES (4, N'Back Volume Records', 4)
+GO
+INSERT [dbo].[CA_MST_DentalLibraryRecords] ([RecordId], [RecordName], [DisplayOrder]) VALUES (5, N'Library Attendance Register', 5)
+GO
+INSERT [dbo].[CA_MST_DentalLibraryRecords] ([RecordId], [RecordName], [DisplayOrder]) VALUES (6, N'E-Library Subscription Proof', 6)
+GO
+
+
+
+-----------------------------------------------
+
+-- =============================================
+-- Master Table: MstDentalPreClinicalAndSkillsLaboratoryAreaReq
+-- =============================================
+
+CREATE TABLE MstDentalPreClinicalAndSkillsLaboratoryAreaReq
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    LaboratoryName NVARCHAR(200) NOT NULL,
+
+    AreaRequiredFor50SqM DECIMAL(10,2) NOT NULL,
+
+    AreaRequiredFor100Or150SqM DECIMAL(10,2) NOT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedOn DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
+
+
+-- =============================================
+-- Insert Master Data
+-- FacultyCode = 2 (Dental)
+-- =============================================
+
+INSERT INTO MstDentalPreClinicalAndSkillsLaboratoryAreaReq
+(
+    FacultyCode,
+    LaboratoryName,
+    AreaRequiredFor50SqM,
+    AreaRequiredFor100Or150SqM
+)
+VALUES
+(2, 'Pre Clinical Prosthodontics Lab', 200, 250),
+(2, 'Pre Clinical Conservative Lab', 200, 250),
+(2, 'Dental Materials Lab', 120, 150),
+(2, 'Skill / Simulation Lab', 200, 250);
+GO

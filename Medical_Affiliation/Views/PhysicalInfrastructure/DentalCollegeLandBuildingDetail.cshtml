@@ -325,6 +325,90 @@
 
             </div>
 
+            <!-- ===================================================== -->
+            <!-- PRE CLINICAL & SKILL LABORATORIES -->
+            <!-- ===================================================== -->
+
+            <div class="lb-section-title">
+                PRE CLINICAL & SKILL LABORATORIES
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table lb-table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th style="width:40%">Laboratory</th>
+                            <th style="width:25%">Required Area as per DCI (Sq.m)</th>
+                            <th style="width:35%">Existing / Available Area (Sq.m)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (Model.PreClinicalAndSkillsLabs != null &&
+                             Model.PreClinicalAndSkillsLabs.Any())
+                        {
+                            for (int i = 0; i < Model.PreClinicalAndSkillsLabs.Count; i++)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @Model.PreClinicalAndSkillsLabs[i].LabName
+
+                                        <input type="hidden"
+                                               asp-for="PreClinicalAndSkillsLabs[@i].Id" />
+
+                                        <input type="hidden"
+                                               asp-for="PreClinicalAndSkillsLabs[@i].CollegeCode" />
+
+                                        <input type="hidden"
+                                               asp-for="PreClinicalAndSkillsLabs[@i].FacultyCode" />
+
+                                        <input type="hidden"
+                                               asp-for="PreClinicalAndSkillsLabs[@i].SeatIntake" />
+
+                                        <input type="hidden"
+                                               asp-for="PreClinicalAndSkillsLabs[@i].LabId" />
+
+                                        <input type="hidden"
+                                               asp-for="PreClinicalAndSkillsLabs[@i].LabName" />
+
+                                        <input type="hidden"
+                                               asp-for="PreClinicalAndSkillsLabs[@i].RequiredAreaSqM" />
+                                    </td>
+
+                                    <td class="requirement-cell">
+                                        @Model.PreClinicalAndSkillsLabs[i].RequiredAreaSqM Sq.m
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="PreClinicalAndSkillsLabs[@i].ExistingAreaSqM"
+                                               class="form-control" />
+
+                                        <span asp-validation-for="PreClinicalAndSkillsLabs[@i].ExistingAreaSqM"
+                                              class="text-danger"></span>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">
+                                    No Pre Clinical / Skill Laboratory norms configured.
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
             <!-- LAND DOCUMENTS -->
 
             <div class="lb-section-title">

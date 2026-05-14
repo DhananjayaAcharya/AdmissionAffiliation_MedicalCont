@@ -2501,8 +2501,11 @@ namespace Medical_Affiliation.Controllers
                 return BadRequest("Session expired. FacultyCode / CollegeCode not found. Please login again.");
 
             // 2. Try to load existing record
-            var entity = _context.AffInstitutionsDetails.FirstOrDefault(x => x.FacultyCode.Trim() == facultyCode.Trim() &&
-                         x.CollegeCode.Trim() == collegeCode.Trim());
+            var entity = _context.AffInstitutionsDetails
+                .FirstOrDefault(x =>
+                    (x.FacultyCode ?? "").Trim().ToLower() == (facultyCode ?? "").Trim().ToLower()
+                    &&
+                    (x.CollegeCode ?? "").Trim().ToLower() == (collegeCode ?? "").Trim().ToLower());
             var GetCollegeName = _context.AffiliationCollegeMasters.Where(e => e.CollegeCode == collegeCode).FirstOrDefault();
             HttpContext.Session.SetString("CollegeName", GetCollegeName.CollegeName);
 

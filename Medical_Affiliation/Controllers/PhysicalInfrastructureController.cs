@@ -391,6 +391,28 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Index");
             }
 
+            // ======================================================
+            // PRE CLINICAL & SKILL LABS
+            // ======================================================
+
+            // Master Data
+            var labMasters = await _context
+                .MstDentalPreClinicalAndSkillsLaboratoryAreaReqs
+                .Where(x =>
+                    x.FacultyCode == facultyCode &&
+                    x.SeatIntake == seatSlab)
+                .ToListAsync();
+
+            // Existing Saved Data
+            var savedLabs = await _context
+                .DentalPreClinicalAndSkillsLabAreaReqs
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.SeatIntake == seatIntake &&
+                    x.IsActive)
+                .ToListAsync();
+
             // Existing Submitted Data
             var existingData = await _context.DentalCollegeLandBuildingDetails
                 .FirstOrDefaultAsync(x =>
@@ -410,6 +432,33 @@ namespace Medical_Affiliation.Controllers
 
                
             };
+
+            model.PreClinicalAndSkillsLabs = labMasters
+                    .Select(lab =>
+                    {
+                        var saved = savedLabs
+                            .FirstOrDefault(x => x.LabId == lab.Id);
+
+                        return new DentalPreClinicalAndSkillsLabAreaReqVM
+                        {
+                            Id = saved?.Id ?? 0,
+
+                            CollegeCode = collegeCode,
+
+                            FacultyCode = facultyCode,
+
+                            SeatIntake = seatIntake,
+
+                            LabId = lab.Id,
+
+                            LabName = lab.LaboratoryName,
+
+                            RequiredAreaSqM = lab.AreaRequiredSqM,
+
+                            ExistingAreaSqM = saved?.ExistingAreaSqM
+                        };
+                    })
+                    .ToList();
 
             // Populate Existing Data
             if (existingData != null)
@@ -726,6 +775,52 @@ namespace Medical_Affiliation.Controllers
             if (!string.IsNullOrEmpty(sewageSanitationApprovalDocumentPath))
             {
                 entity.SewageSanitationApprovalDocumentPath = sewageSanitationApprovalDocumentPath;
+            }
+
+            // ==============================
+            // PRE CLINICAL & SKILL LABS
+            // ==============================
+
+            if (model.PreClinicalAndSkillsLabs != null &&
+                model.PreClinicalAndSkillsLabs.Any())
+            {
+                foreach (var item in model.PreClinicalAndSkillsLabs)
+                {
+                    var existingLab = await _context
+                        .DentalPreClinicalAndSkillsLabAreaReqs
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            x.SeatIntake == seatIntake &&
+                            x.LabId == item.LabId);
+
+                    if (existingLab == null)
+                    {
+                        existingLab = new DentalPreClinicalAndSkillsLabAreaReq
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyCode = facultyCode,
+                            SeatIntake = seatIntake,
+                            LabId = item.LabId,
+                            LabName = item.LabName,
+                            RequiredAreaSqM = item.RequiredAreaSqM,
+                            CreatedOn = DateTime.Now,
+                            IsActive = true
+                        };
+
+                        _context.DentalPreClinicalAndSkillsLabAreaReqs
+                            .Add(existingLab);
+                    }
+
+                    existingLab.ExistingAreaSqM =
+                        item.ExistingAreaSqM;
+
+                    existingLab.RequiredAreaSqM =
+                        item.RequiredAreaSqM;
+
+                    existingLab.CreatedOn =
+                        DateTime.Now;
+                }
             }
 
 
