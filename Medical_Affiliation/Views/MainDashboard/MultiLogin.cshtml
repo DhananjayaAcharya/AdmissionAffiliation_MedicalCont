@@ -1592,217 +1592,217 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         /* ════════════════════════════════
-           TAB SWITCHING
+        TAB SWITCHING
         ════════════════════════════════ */
         const TABS = {
-            c: { tab: 'tb-c', panel: 'pn-c' },
-            u: { tab: 'tb-u', panel: 'pn-u' },
-            l: { tab: 'tb-l', panel: 'pn-l' }
+        c: { tab: 'tb-c', panel: 'pn-c' },
+        u: { tab: 'tb-u', panel: 'pn-u' },
+        l: { tab: 'tb-l', panel: 'pn-l' }
         };
 
         function go(k) {
-            Object.values(TABS).forEach(v => {
-                document.getElementById(v.tab).classList.remove('on');
-                document.getElementById(v.panel).classList.remove('on');
-            });
-            document.getElementById(TABS[k].tab).classList.add('on');
-            const p = document.getElementById(TABS[k].panel);
-            p.classList.add('on');
-            p.style.animation = 'none';
-            requestAnimationFrame(() => p.style.animation = '');
+        Object.values(TABS).forEach(v => {
+        document.getElementById(v.tab).classList.remove('on');
+        document.getElementById(v.panel).classList.remove('on');
+        });
+        document.getElementById(TABS[k].tab).classList.add('on');
+        const p = document.getElementById(TABS[k].panel);
+        p.classList.add('on');
+        p.style.animation = 'none';
+        requestAnimationFrame(() => p.style.animation = '');
         }
 
         /* ════════════════════════════════
-           LIC SUB-TABS
+        LIC SUB-TABS
         ════════════════════════════════ */
         function licTab(n) {
-            ['signup', 'login'].forEach(x => {
-                document.getElementById('lt-' + x).classList.remove('on');
-                document.getElementById('lic-' + x).classList.remove('on');
-            });
-            document.getElementById('lt-' + n).classList.add('on');
-            document.getElementById('lic-' + n).classList.add('on');
+        ['signup', 'login'].forEach(x => {
+        document.getElementById('lt-' + x).classList.remove('on');
+        document.getElementById('lic-' + x).classList.remove('on');
+        });
+        document.getElementById('lt-' + n).classList.add('on');
+        document.getElementById('lic-' + n).classList.add('on');
         }
 
         /* ════════════════════════════════
-           PASSWORD TOGGLE
+        PASSWORD TOGGLE
         ════════════════════════════════ */
         function togglePw(id, btn) {
-            const el = document.getElementById(id);
-            const ic = btn.querySelector('i');
-            el.type = el.type === 'password' ? 'text' : 'password';
-            ic.className = el.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+        const el = document.getElementById(id);
+        const ic = btn.querySelector('i');
+        el.type = el.type === 'password' ? 'text' : 'password';
+        ic.className = el.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
         }
 
         $(function () {
 
-            /* ── Captcha refresh ── */
-            $('#cap-c-ref').on('click', function () {
-                var $b = $(this);
-                $b.css('transform', 'rotate(180deg)');
-                $.get('@Url.Action("GenerateCaptcha", "Login")', function (d) {
-                    $('#cap-c').text(d.newCaptcha);
-                    $('#CaptchaCodeHidden').val(d.newCaptcha);
-                    setTimeout(() => $b.css('transform', ''), 350);
+        /* ── Captcha refresh ── */
+        $('#cap-c-ref').on('click', function () {
+        var $b = $(this);
+        $b.css('transform', 'rotate(180deg)');
+        $.get('@Url.Action("GenerateCaptcha", "Login")', function (d) {
+        $('#cap-c').text(d.newCaptcha);
+        $('#CaptchaCodeHidden').val(d.newCaptcha);
+        setTimeout(() => $b.css('transform', ''), 350);
+        });
+        });
+
+        /* ── Faculty → College cascade (College login) ── */
+        $('#CollegeId').prop('disabled', true);
+
+        $('#FacultyId').on('change', function () {
+        var id = $(this).val();
+        var $c = $('#CollegeId');
+        $c.prop('disabled', !id).empty().append('<option value="">— Select College —</option>');
+        if (id) {
+        $.get('@Url.Action("GetCollegesByFaculty", "Login")', { facultyId: id }, function (data) {
+        $.each(data, function (i, c) {
+        $c.append($('<option>', { value: c.value, text: c.text }));
+        });
+        });
+        }
+        });
+
+        /* ── Auto-set username from college selection ── */
+        $('#CollegeId').on('change', function () {
+        $('#CollegeUsername').val($(this).find('option:selected').data('code') || '');
+        });
+
+        /* ── College login error (SweetAlert) ── */
+        @if (TempData["LoginError"] != null)
+        {
+            <text>
+                Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: '@Html.Raw(TempData["LoginError"])',
+                confirmButtonColor: '#1a56c4',
+                confirmButtonText: 'Try Again'
                 });
-            });
+                document.querySelector('.captcha-val') && (document.querySelector('.captcha-val').value = '');
+            </text>
+        }
 
-            /* ── Faculty → College cascade (College login) ── */
-            $('#CollegeId').prop('disabled', true);
+        /* ── University model errors (SweetAlert) ── */
+        @{
+            var allErrs = string.Join(" ", ViewData.ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+        }
+        @if (!ViewData.ModelState.IsValid && Context.Request.Method == "POST" && !string.IsNullOrEmpty(allErrs))
+        {
+            <text>
+                go('u');
+                Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                html: '@Html.Raw(allErrs.Replace("\r\n", "<br>"))',
+                confirmButtonColor: '#1a56c4'
+                });
+            </text>
+        }
 
-            $('#FacultyId').on('change', function () {
-                var id = $(this).val();
-                var $c = $('#CollegeId');
-                $c.prop('disabled', !id).empty().append('<option value="">— Select College —</option>');
-                if (id) {
-                    $.get('@Url.Action("GetCollegesByFaculty", "Login")', { facultyId: id }, function (data) {
-                        $.each(data, function (i, c) {
-                            $c.append($('<option>', { value: c.value, text: c.text }));
-                        });
-                    });
-                }
-            });
+        /* ── University form client-side guard ── */
+        $('#univForm').on('submit', function (e) {
+        if (!$.trim($('#univ-user').val()) || !$.trim($('#pw-u').val())) {
+        e.preventDefault();
+        Swal.fire({
+        icon: 'warning',
+        title: 'Required Fields',
+        text: 'Please enter both Username and Password.',
+        confirmButtonColor: '#1a56c4'
+        });
+        }
+        });
 
-            /* ── Auto-set username from college selection ── */
-            $('#CollegeId').on('change', function () {
-                $('#CollegeUsername').val($(this).find('option:selected').data('code') || '');
-            });
+        /* ════════════════════════════════
+        LIC — ROLE PILL → NAME DROPDOWN
+        Uses .lic-role-btn (scoped class)
+        so it never conflicts with
+        college login buttons
+        ════════════════════════════════ */
+        $(document).on('click', '.lic-role-btn', function () {
+        // Highlight active pill
+        $('.lic-role-btn').removeClass('on');
+        $(this).addClass('on');
 
-            /* ── College login error (SweetAlert) ── */
-            @if (TempData["LoginError"] != null)
-            {
-                    <text>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Login Failed',
-                        text: '@Html.Raw(TempData["LoginError"])',
-                        confirmButtonColor: '#1a56c4',
-                        confirmButtonText: 'Try Again'
-                    });
-                    document.querySelector('.captcha-val') && (document.querySelector('.captcha-val').value = '');
-                    </text>
-            }
+        var role = $(this).data('role');
+        $('#selectedRole').val(role);
 
-            /* ── University model errors (SweetAlert) ── */
-            @{
-                    var allErrs = string.Join(" ", ViewData.ModelState.Values
-                            .SelectMany(v => v.Errors)
-                            .Select(e => e.ErrorMessage));
-            }
-            @if (!ViewData.ModelState.IsValid && Context.Request.Method == "POST" && !string.IsNullOrEmpty(allErrs))
-            {
-                    <text>
-                    go('u');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Login Failed',
-                        html: '@Html.Raw(allErrs.Replace("\r\n", "<br>"))',
-                        confirmButtonColor: '#1a56c4'
-                    });
-                    </text>
-            }
+        // Hide "select designation" warning if shown
+        $('#roleRequiredMsg').removeClass('show');
 
-            /* ── University form client-side guard ── */
-            $('#univForm').on('submit', function (e) {
-                if (!$.trim($('#univ-user').val()) || !$.trim($('#pw-u').val())) {
-                    e.preventDefault();
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Required Fields',
-                        text: 'Please enter both Username and Password.',
-                        confirmButtonColor: '#1a56c4'
-                    });
-                }
-            });
+        // Show loading state
+        var $dd = $('#nameDropdown');
+        $('#nameLoading').addClass('show');
+        $dd.prop('disabled', true).html('<option value="">Loading…</option>');
 
-            /* ════════════════════════════════
-               LIC — ROLE PILL → NAME DROPDOWN
-               Uses .lic-role-btn (scoped class)
-               so it never conflicts with
-               college login buttons
-            ════════════════════════════════ */
-            $(document).on('click', '.lic-role-btn', function () {
-                // Highlight active pill
-                $('.lic-role-btn').removeClass('on');
-                $(this).addClass('on');
+        fetch('@Url.Action("GetNamesByRole", "LICInspection")' + '?role=' + encodeURIComponent(role))
+        .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+        })
+        .then(function (data) {
+        $dd.html('<option value="">— Select Name —</option>');
+        if (data && data.length) {
+        data.forEach(function (n) {
+        $dd.append($('<option>', { value: n, text: n }));
+        });
+        } else {
+        $dd.html('<option value="">— No names found for this role —</option>');
+        }
+        })
+        .catch(function (err) {
+        console.error('GetNamesByRole error:', err);
+        $dd.html('<option value="">— Error loading, please retry —</option>');
+        })
+        .finally(function () {
+        $dd.prop('disabled', false);
+        $('#nameLoading').removeClass('show');
+        });
+        });
 
-                var role = $(this).data('role');
-                $('#selectedRole').val(role);
+        /* ── LIC signup: guard against submitting without a role ── */
+        $('#licSignupForm').on('submit', function (e) {
+        if (!$('#selectedRole').val()) {
+        e.preventDefault();
+        $('#roleRequiredMsg').addClass('show');
+        // Scroll role grid into view
+        document.getElementById('roleGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+        }
+        });
 
-                // Hide "select designation" warning if shown
-                $('#roleRequiredMsg').removeClass('show');
+        /* ── LIC signup success → switch to login tab ── */
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                go('l');
+                licTab('login');
+                Swal.fire({
+                icon: 'success',
+                title: 'Account Created',
+                text: '@TempData["SuccessMessage"]',
+                confirmButtonColor: '#0d7a6b'
+                });
+            </text>
+        }
 
-                // Show loading state
-                var $dd = $('#nameDropdown');
-                $('#nameLoading').addClass('show');
-                $dd.prop('disabled', true).html('<option value="">Loading…</option>');
-
-                fetch('/LICInspection/GetNamesByRole?role=' + encodeURIComponent(role))
-                    .then(function (r) {
-                        if (!r.ok) throw new Error('HTTP ' + r.status);
-                        return r.json();
-                    })
-                    .then(function (data) {
-                        $dd.html('<option value="">— Select Name —</option>');
-                        if (data && data.length) {
-                            data.forEach(function (n) {
-                                $dd.append($('<option>', { value: n, text: n }));
-                            });
-                        } else {
-                            $dd.html('<option value="">— No names found for this role —</option>');
-                        }
-                    })
-                    .catch(function (err) {
-                        console.error('GetNamesByRole error:', err);
-                        $dd.html('<option value="">— Error loading, please retry —</option>');
-                    })
-                    .finally(function () {
-                        $dd.prop('disabled', false);
-                        $('#nameLoading').removeClass('show');
-                    });
-            });
-
-            /* ── LIC signup: guard against submitting without a role ── */
-            $('#licSignupForm').on('submit', function (e) {
-                if (!$('#selectedRole').val()) {
-                    e.preventDefault();
-                    $('#roleRequiredMsg').addClass('show');
-                    // Scroll role grid into view
-                    document.getElementById('roleGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    return false;
-                }
-            });
-
-            /* ── LIC signup success → switch to login tab ── */
-            @if (TempData["SuccessMessage"] != null)
-            {
-                    <text>
-                    go('l');
-                    licTab('login');
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Account Created',
-                        text: '@TempData["SuccessMessage"]',
-                        confirmButtonColor: '#0d7a6b'
-                    });
-                    </text>
-            }
-
-            /* ── LIC login error ── */
-            @if (TempData["LICLoginError"] != null)
-            {
-                    <text>
-                    go('l');
-                    licTab('login');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Login Failed',
-                        text: '@Html.Raw(TempData["LICLoginError"])',
-                        confirmButtonColor: '#0d7a6b',
-                        confirmButtonText: 'Try Again'
-                    });
-                    </text>
-            }
+        /* ── LIC login error ── */
+        @if (TempData["LICLoginError"] != null)
+        {
+            <text>
+                go('l');
+                licTab('login');
+                Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: '@Html.Raw(TempData["LICLoginError"])',
+                confirmButtonColor: '#0d7a6b',
+                confirmButtonText: 'Try Again'
+                });
+            </text>
+        }
 
         }); // end document.ready
     </script>
