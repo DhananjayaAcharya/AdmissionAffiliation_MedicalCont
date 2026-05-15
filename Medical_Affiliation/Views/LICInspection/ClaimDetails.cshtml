@@ -2788,9 +2788,14 @@
                                                 <td class="mono" style="color:var(--t3);font-size:.7rem">@rowNum</td>  
                                                 <td style="max-width:150px;white-space:normal;line-height:1.4;font-size:.82rem;font-weight:500;color:var(--navy)">@collegeName</td>
                                                 <td style="max-width:120px;white-space:normal;font-size:.8rem">
-                                                    @if (!string.IsNullOrWhiteSpace(s.Faculty))
+                                                    @{
+                                                        var facultyName = Model.FacultyOptions
+                                                            .FirstOrDefault(x => x.Value == s.Faculty)?.Text
+                                                            ?? s.Faculty;
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(facultyName))
                                                     {
-                                                        @s.Faculty
+                                                        @facultyName
                                                     }
                                                     else
                                                     {
