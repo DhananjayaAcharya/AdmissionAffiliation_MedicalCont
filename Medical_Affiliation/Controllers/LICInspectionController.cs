@@ -267,32 +267,20 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> InspectionDetails()
         {
-            // ✅ Use plain "PhoneNumber" string — matches claim stored in Login
             var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
-            {
-                // Log: "No phone claim found"
                 return RedirectToAction("Login");
-            }
 
             var member = await _context.LicInspections
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone);
 
             if (member == null)
-            {
-                // Log: $"No member found for phone: {phone}"
                 return RedirectToAction("Login");
-            }
 
             string role = member.TypeofMember?.Trim();
 
-            // Debug line (uncomment when needed)
-            // return Content($"Phone: {phone}\nRole: {role}\nName: {member.Name}");
-
-            var collegesQuery = _context.LicInspectionCollegeDetails
-                .AsNoTracking();
-
+            var collegesQuery = _context.LicInspectionCollegeDetails.AsNoTracking();
             List<InspectionCollegeItem> assignedColleges;
 
             if (role == "Academic Council")
@@ -334,7 +322,6 @@ namespace Medical_Affiliation.Controllers
             else
             {
                 assignedColleges = new List<InspectionCollegeItem>();
-                // Log: $"Unknown role: {role}"
             }
 
             var model = new LICInspectionDetailsViewModel
@@ -347,24 +334,27 @@ namespace Medical_Affiliation.Controllers
                 Email = member.Email,
                 PANNumber = member.Pannumber,
                 AadhaarNumber = member.AadhaarNumber,
-                AccountHolderName = member.Name,
+                AccountHolderName = member.AccountHolderName ?? member.Name,
                 AccountNumber = member.AccountNumber,
                 IFSCCode = member.Ifsccode,
                 BankName = member.BankName,
                 BranchName = member.BranchName,
                 Colleges = assignedColleges,
-
-                // Keep existing inspection/claim fields
                 DateOfInspection = member.DateOfInspection,
                 Kilometers = member.Kilometers,
                 TotalCost = member.TotalCost,
                 ModeOfTravel = member.ModeOfTravel,
                 FromPlace = member.FromPlace,
                 ToPlace = member.ToPlace,
-                IsCompleted = member.IsCompleted ?? false
+                IsCompleted = member.IsCompleted ?? false,
+
+                // Professional
+                ProfessionalCollegeCode = member.CollegeCode,
+                ProfessionalDesignation = member.DesignationCode,
+                ProfessionalDepartment = member.DepartmentCode,
             };
 
-            // ── Load Mode of Travel dropdown options ──────────────────────────────
+            // ── Mode of Travel ────────────────────────────────────────────────────
             var travelModes = await _context.Database
                 .SqlQuery<string>(
                     $"SELECT Modeoftravel FROM [Admission_Affiliation].[dbo].[LIC_ModeofTravel] ORDER BY Modeoftravel"
@@ -378,11 +368,60 @@ namespace Medical_Affiliation.Controllers
                     Text = m,
                     Selected = string.Equals(m, model.ModeOfTravel, StringComparison.OrdinalIgnoreCase)
                 })
-                .Prepend(new SelectListItem
+                .Prepend(new SelectListItem { Value = "", Text = "-- Select Mode of Travel --" })
+                .ToList();
+
+            // ── Colleges ──────────────────────────────────────────────────────────
+            var colleges = await _context.Database
+                .SqlQuery<CollegeDropdownItem>(
+                    $@"SELECT CollegeCode, CollegeName 
+               FROM [Admission_Affiliation].[dbo].[Affiliation_College_Master] where facultycode = 9
+               ORDER BY CollegeName "
+                )
+                .ToListAsync();
+
+            model.CollegeOptions = colleges
+                .Select(c => new SelectListItem
                 {
-                    Value = "",
-                    Text = "-- Select Mode of Travel --"
+                    Value = c.CollegeCode,
+                    Text = c.CollegeName,
+                    Selected = string.Equals(c.CollegeCode, model.ProfessionalCollegeCode, StringComparison.OrdinalIgnoreCase)
                 })
+                .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
+                .ToList();
+
+            // ── Designations ──────────────────────────────────────────────────────
+            var designations = await _context.Database
+                .SqlQuery<string>(
+                    $"SELECT DesignationName FROM [Admission_Affiliation].[dbo].[DesignationMaster] WHERE FacultyCode = 9 ORDER BY DesignationName"
+                )
+                .ToListAsync();
+
+            model.DesignationOptions = designations
+                .Select(d => new SelectListItem
+                {
+                    Value = d,
+                    Text = d,
+                    Selected = string.Equals(d, model.ProfessionalDesignation, StringComparison.OrdinalIgnoreCase)
+                })
+                .Prepend(new SelectListItem { Value = "", Text = "-- Select Designation --" })
+                .ToList();
+
+            // ── Departments ───────────────────────────────────────────────────────
+            var departments = await _context.Database
+                .SqlQuery<string>(
+                    $"SELECT SubjectName FROM [Admission_Affiliation].[dbo].[Mst_Course] WHERE FacultyCode = 9 ORDER BY SubjectName"
+                )
+                .ToListAsync();
+
+            model.DepartmentOptions = departments
+                .Select(d => new SelectListItem
+                {
+                    Value = d,
+                    Text = d,
+                    Selected = string.Equals(d, model.ProfessionalDepartment, StringComparison.OrdinalIgnoreCase)
+                })
+                .Prepend(new SelectListItem { Value = "", Text = "-- Select Department --" })
                 .ToList();
 
             return View(model);
@@ -401,10 +440,9 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InspectionDetails(
-            LICInspectionDetailsViewModel model,
-            string submitType)
+    LICInspectionDetailsViewModel model,
+    string submitType)
         {
-            // ✅ Use plain "PhoneNumber" string — matches claim stored in Login
             var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
 
             if (string.IsNullOrWhiteSpace(phone))
@@ -434,21 +472,14 @@ namespace Medical_Affiliation.Controllers
 
                 TempData["Message"] = "Bank details updated successfully.";
             }
-            //else if (submitType == "Inspection")
-            //{
-            //    member.CollegeName = model.Collegename;
-            //    member.DateOfInspection = model.DateOfInspection;
-            //    member.IsCompleted = model.IsCompleted;
+            else if (submitType == "Professional")
+            {
+                member.CollegeCode = model.ProfessionalCollegeCode;
+                member.DesignationCode = model.ProfessionalDesignation;
+                member.DepartmentCode = model.ProfessionalDepartment;
 
-            //    if (model.AttendenceDoc != null && model.AttendenceDoc.Length > 0)
-            //    {
-            //        using var memoryStream = new MemoryStream();
-            //        await model.AttendenceDoc.CopyToAsync(memoryStream);
-            //        member.AttendenceDoc = memoryStream.ToArray();
-            //    }
-
-            //    TempData["Message"] = "Inspection details updated successfully.";
-            //}
+                TempData["Message"] = "Professional details updated successfully.";
+            }
             else if (submitType == "Claim")
             {
                 member.ModeOfTravel = model.ModeOfTravel;
@@ -1387,7 +1418,7 @@ namespace Medical_Affiliation.Controllers
         {
             var list = await _context.Faculties
                 .AsNoTracking()
-                .Where(f => f.Status == "Active" && f.FacultyId==9)          // only active faculty
+                .Where(f => f.Status == "Active" && f.FacultyId == 9)          // only active faculty
                 .OrderBy(f => f.FacultyName)
                 .Select(f => new SelectListItem
                 {
@@ -1852,64 +1883,65 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveOtherDetails(LicInspectionOtherDetailsViewModel vm)
         {
-            // ✅ Use plain "PhoneNumber" string — matches claim stored in Login
+            // ── Auth ──────────────────────────────────────────────────────────────
             var phoneNumber = User.FindFirst("PhoneNumber")?.Value?.Trim();
-
             if (string.IsNullOrEmpty(phoneNumber))
                 return RedirectToAction("Login");
 
-            // Filter out empty rows
+            // ── Filter submitted rows ─────────────────────────────────────────────
             var validItems = vm.PendingList?
                 .Where(x => !string.IsNullOrWhiteSpace(x.SelectedMemberCode))
                 .ToList() ?? new List<OtherDetails>();
 
             if (!validItems.Any())
             {
-                TempData["Error"] = "Please fill in at least one member's details.";
+                TempData["Error"] = "No valid member details found in the submitted form.";
                 return RedirectToAction(nameof(OtherDetails));
             }
 
-            // 1. Get all college codes from submitted items
-            var collegeCodes = validItems
+            // ── College codes in this form (one per-college form = one code) ───────
+            var submittedCollegeCodes = validItems
                 .Select(x => x.collegeCode?.Trim())
                 .Where(x => !string.IsNullOrEmpty(x))
                 .Distinct()
                 .ToList();
 
-            // 2. Load college details to resolve member names
+            // ── College details for submitted colleges ────────────────────────────
             var collegeDetails = await _context.LicInspectionCollegeDetails
-                .Where(e => collegeCodes.Contains(e.Collegecode))
+                .Where(e => submittedCollegeCodes.Contains(e.Collegecode))
                 .ToListAsync();
 
-            // 3. Build mapped phone numbers (senate + AC + SE) — same as GET
+            // ── All mapped phones (senate + AC + SE) — same as GET ────────────────
             var mappedPhoneNumbers = collegeDetails
                 .SelectMany(x => new[]
                 {
-                    x.SenetMemberPhNo?.ToString(),
-                    x.AcMemberPhno?.ToString(),
-                    x.SubjectExpertisePhNo?.ToString()
+            x.SenetMemberPhNo?.ToString(),
+            x.AcMemberPhno?.ToString(),
+            x.SubjectExpertisePhNo?.ToString()
                 })
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .Distinct()
                 .ToList();
 
-            // 4. Fetch DateOfInspection filtered by collegeCodes AND mappedPhoneNumbers
-            var inspectionRows = await _context.LicinspectionDetails
-                .Where(e =>
-                    e.SelectedCollegeCode != null &&
-                    collegeCodes.Contains(e.SelectedCollegeCode.Trim()) &&
-                    mappedPhoneNumbers.Contains(e.PhoneNumber))
+            // ── Date lookup: LicclaimDetails — EXACTLY mirrors the GET action ─────
+            // GET:  inspectionDateMap = claimDetails grouped by c.CollegeCode → c.InspectionDate
+            // Previous POSTs queried LicinspectionDetails which had no matching rows → always empty
+            var claimDetails = await _context.LicclaimDetails
+                .Where(c => mappedPhoneNumbers.Contains(c.PhoneNumber) &&
+                            c.CollegeCode != null &&
+                            c.InspectionDate != null)
                 .ToListAsync();
 
-            var inspectionDateMap = inspectionRows
-                .GroupBy(e => e.SelectedCollegeCode?.Trim())
+            var inspectionDateMap = claimDetails
+                .GroupBy(c => c.CollegeCode.Trim(), StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(
                     g => g.Key,
-                    g => g.OrderByDescending(x => x.CreatedDate).First().DateOfInspection
+                    g => g.OrderByDescending(x => x.InspectionDate).First().InspectionDate,
+                    StringComparer.OrdinalIgnoreCase
                 );
 
-            // 5. Build name map: PhoneNo -> Name (for both AC and SE members)
-            var memberNameMap = new Dictionary<string, string>();
+            // ── Member name map ───────────────────────────────────────────────────
+            var memberNameMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (var c in collegeDetails)
             {
                 if (c.AcMemberPhno.HasValue && !string.IsNullOrEmpty(c.Acmember))
@@ -1919,15 +1951,10 @@ namespace Medical_Affiliation.Controllers
                     memberNameMap.TryAdd(c.SubjectExpertisePhNo.Value.ToString(), c.SubjectExpertise);
             }
 
-            // 6. Build AC phone set to determine MemberType
-            var acPhoneSet = collegeDetails
-                .Where(c => c.AcMemberPhno.HasValue)
-                .Select(c => c.AcMemberPhno.Value.ToString())
-                .ToHashSet();
-
-            // 7. Load existing records scoped by SenetMemberPhNo + MemberCode + collegeCodes
+            // ── Existing records for upsert ───────────────────────────────────────
             var memberPhones = validItems
-                .Select(x => x.SelectedMemberCode)
+                .Select(x => x.SelectedMemberCode?.Trim())
+                .Where(x => !string.IsNullOrEmpty(x))
                 .Distinct()
                 .ToList();
 
@@ -1935,11 +1962,13 @@ namespace Medical_Affiliation.Controllers
                 .Where(x =>
                     x.Phonenumber == phoneNumber &&
                     memberPhones.Contains(x.MemberCode) &&
-                    collegeCodes.Contains(x.CollegeCode))
+                    submittedCollegeCodes.Contains(x.CollegeCode))
                 .ToListAsync();
 
-            var existingMap = existingRecords.ToDictionary(x => (x.MemberCode, x.CollegeCode?.Trim()));
+            var existingMap = existingRecords
+                .ToDictionary(x => (x.MemberCode?.Trim(), x.CollegeCode?.Trim()));
 
+            // ── Process rows ──────────────────────────────────────────────────────
             var newRecords = new List<LicInspectionOtherDetail>();
             var hasErrors = false;
 
@@ -1962,10 +1991,12 @@ namespace Medical_Affiliation.Controllers
                     memberName = item.SelectedMemberName;
 
                 var collegeName = collegeDetails
-                    .FirstOrDefault(c => c.Collegecode?.Trim() == trimmedCollegeCode)?.Collegename
-                    ?? item.collegeName;
+                    .FirstOrDefault(c => string.Equals(
+                        c.Collegecode?.Trim(), trimmedCollegeCode,
+                        StringComparison.OrdinalIgnoreCase))
+                    ?.Collegename ?? item.collegeName;
 
-                var key = (item.SelectedMemberCode, trimmedCollegeCode);
+                var key = (item.SelectedMemberCode?.Trim(), trimmedCollegeCode);
 
                 if (existingMap.TryGetValue(key, out var existing))
                 {
@@ -1980,151 +2011,276 @@ namespace Medical_Affiliation.Controllers
                         CollegeCode = trimmedCollegeCode,
                         CollegeName = collegeName,
                         Phonenumber = phoneNumber,
-                        MemberCode = item.SelectedMemberCode,
+                        MemberCode = item.SelectedMemberCode?.Trim(),
                         MemberName = memberName,
-                        InspectionDate = resolvedDate.Value,
+                        InspectionDate = resolvedDate,
                         IsAttended = item.IsAttended,
                         CreatedAt = DateTime.Now
                     });
                 }
             }
 
+            // ── Validation error → reload full page ───────────────────────────────
             if (hasErrors)
             {
-                var licInspectionUser = await _context.LicInspections
-                    .Where(e => e.PhoneNumber == phoneNumber)
-                    .FirstOrDefaultAsync();
-
-                var reloadedDetails = await _context.LicInspectionCollegeDetails
-                    .Where(e => e.SenetMemberPhNo.ToString() == phoneNumber)
-                    .OrderBy(e => e.Collegename)
-                    .ToListAsync();
-
-                var reloadedCollegeCodes = reloadedDetails
-                    .Select(c => c.Collegecode?.Trim())
-                    .Where(c => !string.IsNullOrWhiteSpace(c))
-                    .Distinct()
-                    .ToList();
-
-                var reloadedMappedPhoneNumbers = reloadedDetails
-                    .SelectMany(x => new[]
-                    {
-                        x.SenetMemberPhNo?.ToString(),
-                        x.AcMemberPhno?.ToString(),
-                        x.SubjectExpertisePhNo?.ToString()
-                    })
-                    .Where(p => !string.IsNullOrWhiteSpace(p))
-                    .Distinct()
-                    .ToList();
-
-                var reloadedInspectionRows = await _context.LicinspectionDetails
-                    .Where(e =>
-                        e.SelectedCollegeCode != null &&
-                        reloadedCollegeCodes.Contains(e.SelectedCollegeCode.Trim()) &&
-                        reloadedMappedPhoneNumbers.Contains(e.PhoneNumber))
-                    .OrderByDescending(e => e.CreatedDate)
-                    .ToListAsync();
-
-                var reloadedDateMap = reloadedInspectionRows
-                    .GroupBy(e => e.SelectedCollegeCode?.Trim())
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.First().DateOfInspection
-                    );
-
-                var reloadedClaimDetails = await _context.LicclaimDetails
-                    .Where(c => reloadedMappedPhoneNumbers.Contains(c.PhoneNumber))
-                    .ToListAsync();
-
-                var reloadedClaimAmountMap = reloadedClaimDetails
-                    .GroupBy(c => c.PhoneNumber)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Sum(x => x.TotalCost ?? 0)
-                    );
-
-                var reloadedOtherDetails = await _context.LicInspectionOtherDetails
-                    .Where(x =>
-                        x.Phonenumber == phoneNumber &&
-                        reloadedCollegeCodes.Contains(x.CollegeCode))
-                    .ToListAsync();
-
-                var reloadedAcPhoneSet = reloadedDetails
-                    .Where(c => c.AcMemberPhno.HasValue)
-                    .Select(c => c.AcMemberPhno.Value.ToString())
-                    .ToHashSet();
-
-                vm.SenetMemberName = licInspectionUser?.Name;
-
-                vm.GroupedColleges = reloadedDetails
-                    .GroupBy(e => new { Collegecode = e.Collegecode?.Trim(), e.Collegename, e.CollegePlace })
-                    .Select(g => new CollegeGroupVM
-                    {
-                        CollegeCode = g.Key.Collegecode,
-                        CollegeName = g.Key.Collegename,
-                        CollegePlace = g.Key.CollegePlace,
-                        SenetMember = g.First().SenetMember,
-                        SenetMemberPhNo = g.First().SenetMemberPhNo?.ToString(),
-                        DateOfInspection = reloadedDateMap.TryGetValue(
-                            g.Key.Collegecode?.Trim() ?? "", out var d) ? d : null,
-                        ACMembers = g
-                            .Where(e => !string.IsNullOrEmpty(e.Acmember))
-                            .Select(e => new ACMemberVM
-                            {
-                                Id = e.Id,
-                                Name = e.Acmember,
-                                PhoneNo = e.AcMemberPhno?.ToString(),
-                                InspectionAmount = reloadedClaimAmountMap.TryGetValue(
-                                    e.AcMemberPhno?.ToString() ?? "", out var acAmt) ? acAmt : 0
-                            })
-                            .DistinctBy(x => x.PhoneNo)
-                            .OrderBy(x => x.Name)
-                            .ToList(),
-                        SubjectExpertiseMembers = g
-                            .Where(e => !string.IsNullOrEmpty(e.SubjectExpertise))
-                            .Select(e => new SubjectExpertiseVM
-                            {
-                                Id = e.Id,
-                                Name = e.SubjectExpertise,
-                                PhoneNo = e.SubjectExpertisePhNo?.ToString(),
-                                InspectionAmount = reloadedClaimAmountMap.TryGetValue(
-                                    e.SubjectExpertisePhNo?.ToString() ?? "", out var seAmt) ? seAmt : 0
-                            })
-                            .DistinctBy(x => x.PhoneNo)
-                            .OrderBy(x => x.Name)
-                            .ToList()
-                    })
-                    .OrderBy(x => x.CollegeName)
-                    .ToList();
-
-                vm.OtherDetailsList = reloadedOtherDetails
-                    .Select(e => new OtherDetails
-                    {
-                        Id = e.Id,
-                        SelectedMemberCode = e.MemberCode,
-                        SelectedMemberName = e.MemberName,
-                        collegeName = e.CollegeName,
-                        DateOfInspection = e.InspectionDate,
-                        IsAttended = (bool)e.IsAttended,
-                        MemberType = reloadedAcPhoneSet.Contains(e.MemberCode) ? "AC Member" : "SE Member"
-                    })
-                    .ToList();
-
-                vm.CompletedSet = reloadedOtherDetails
-                    .Select(x => $"{x.CollegeCode}_{x.MemberCode}")
-                    .ToHashSet();
-
+                await ReloadViewModel(vm, phoneNumber);
                 return View("OtherDetails", vm);
             }
 
+            // ── Persist ───────────────────────────────────────────────────────────
             if (newRecords.Any())
                 _context.LicInspectionOtherDetails.AddRange(newRecords);
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Inspection details saved successfully.";
+            var savedCollegeName = validItems
+                .Select(x => x.collegeName)
+                .FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? "College";
+
+            TempData["Success"] = $"Inspection details for {savedCollegeName} saved successfully.";
             return RedirectToAction(nameof(OtherDetails));
         }
+
+        // ── ReloadViewModel — mirrors GET exactly ─────────────────────────────────
+        private async Task ReloadViewModel(LicInspectionOtherDetailsViewModel vm, string phoneNumber)
+        {
+            var licInspectionUser = await _context.LicInspections
+                .Where(e => e.PhoneNumber == phoneNumber)
+                .FirstOrDefaultAsync();
+
+            var mappedCollegeDetails = await _context.LicInspectionCollegeDetails
+                .Where(e => e.SenetMemberPhNo.ToString() == phoneNumber)
+                .OrderBy(e => e.Collegename)
+                .ToListAsync();
+
+            var mappedPhoneNumbers = mappedCollegeDetails
+                .SelectMany(x => new[]
+                {
+            x.SenetMemberPhNo?.ToString(),
+            x.AcMemberPhno?.ToString(),
+            x.SubjectExpertisePhNo?.ToString()
+                })
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct()
+                .ToList();
+
+            var collegeCodes = mappedCollegeDetails
+                .Where(c => !string.IsNullOrWhiteSpace(c.Collegecode))
+                .Select(c => c.Collegecode.Trim())
+                .Distinct()
+                .ToList();
+
+            // Mirror GET: LicclaimDetails for both amounts and dates
+            var claimDetails = await _context.LicclaimDetails
+                .Where(c => mappedPhoneNumbers.Contains(c.PhoneNumber))
+                .ToListAsync();
+
+            var claimAmountMap = claimDetails
+                .GroupBy(c => c.PhoneNumber)
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.TotalCost ?? 0));
+
+            var inspectionDateMap = claimDetails
+                .Where(c => c.CollegeCode != null && c.InspectionDate != null)
+                .GroupBy(c => c.CollegeCode.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.OrderByDescending(x => x.InspectionDate).First().InspectionDate,
+                    StringComparer.OrdinalIgnoreCase
+                );
+
+            var otherDetails = await _context.LicInspectionOtherDetails
+                .Where(e =>
+                    e.Phonenumber == phoneNumber &&
+                    collegeCodes.Contains(e.CollegeCode))
+                .ToListAsync();
+
+            var acPhoneSet = mappedCollegeDetails
+                .Where(c => c.AcMemberPhno.HasValue)
+                .Select(c => c.AcMemberPhno.Value.ToString())
+                .ToHashSet();
+
+            vm.SenetMemberName = licInspectionUser?.Name;
+
+            vm.GroupedColleges = mappedCollegeDetails
+                .GroupBy(e => new { Collegecode = e.Collegecode?.Trim(), e.Collegename, e.CollegePlace })
+                .Select(g => new CollegeGroupVM
+                {
+                    CollegeCode = g.Key.Collegecode,
+                    CollegeName = g.Key.Collegename,
+                    CollegePlace = g.Key.CollegePlace,
+                    SenetMember = g.First().SenetMember,
+                    SenetMemberPhNo = g.First().SenetMemberPhNo?.ToString(),
+                    DateOfInspection = inspectionDateMap.TryGetValue(
+                        g.Key.Collegecode ?? "", out var d) ? d : null,
+                    ACMembers = g
+                        .Where(e => !string.IsNullOrEmpty(e.Acmember))
+                        .Select(e => new ACMemberVM
+                        {
+                            Id = e.Id,
+                            Name = e.Acmember,
+                            PhoneNo = e.AcMemberPhno?.ToString(),
+                            InspectionAmount = claimAmountMap.TryGetValue(
+                                e.AcMemberPhno?.ToString() ?? "", out var acAmt) ? acAmt : 0
+                        })
+                        .DistinctBy(x => x.PhoneNo)
+                        .OrderBy(x => x.Name)
+                        .ToList(),
+                    SubjectExpertiseMembers = g
+                        .Where(e => !string.IsNullOrEmpty(e.SubjectExpertise))
+                        .Select(e => new SubjectExpertiseVM
+                        {
+                            Id = e.Id,
+                            Name = e.SubjectExpertise,
+                            PhoneNo = e.SubjectExpertisePhNo?.ToString(),
+                            InspectionAmount = claimAmountMap.TryGetValue(
+                                e.SubjectExpertisePhNo?.ToString() ?? "", out var seAmt) ? seAmt : 0
+                        })
+                        .DistinctBy(x => x.PhoneNo)
+                        .OrderBy(x => x.Name)
+                        .ToList()
+                })
+                .OrderBy(x => x.CollegeName)
+                .ToList();
+
+            vm.OtherDetailsList = otherDetails
+                .Select(e => new OtherDetails
+                {
+                    Id = e.Id,
+                    SelectedMemberCode = e.MemberCode,
+                    SelectedMemberName = e.MemberName,
+                    collegeName = e.CollegeName,
+                    DateOfInspection = e.InspectionDate,
+                    IsAttended = (bool)e.IsAttended,
+                    MemberType = acPhoneSet.Contains(e.MemberCode) ? "AC Member" : "SE Member"
+                })
+                .ToList();
+
+            vm.CompletedSet = otherDetails
+                .Select(x => $"{x.CollegeCode}_{x.MemberCode}")
+                .ToHashSet();
+        }
+
+        // ── Shared reload helper — keeps the error path DRY ──────────────────────
+        //private async Task ReloadViewModel(LicInspectionOtherDetailsViewModel vm, string phoneNumber)
+        //{
+        //    var licInspectionUser = await _context.LicInspections
+        //        .Where(e => e.PhoneNumber == phoneNumber)
+        //        .FirstOrDefaultAsync();
+
+        //    var allCollegeDetails = await _context.LicInspectionCollegeDetails
+        //        .Where(e => e.SenetMemberPhNo.ToString() == phoneNumber)
+        //        .OrderBy(e => e.Collegename)
+        //        .ToListAsync();
+
+        //    var allCollegeCodes = allCollegeDetails
+        //        .Select(c => c.Collegecode?.Trim())
+        //        .Where(c => !string.IsNullOrWhiteSpace(c))
+        //        .Distinct()
+        //        .ToList();
+
+        //    // FIX: use senate member's phone only — same fix as the save path above
+        //    var allInspectionRows = await _context.LicinspectionDetails
+        //        .Where(e =>
+        //            e.SelectedCollegeCode != null &&
+        //            allCollegeCodes.Contains(e.SelectedCollegeCode.Trim()) &&
+        //            e.PhoneNumber == phoneNumber)
+        //        .OrderByDescending(e => e.CreatedDate)
+        //        .ToListAsync();
+
+        //    var allDateMap = allInspectionRows
+        //        .GroupBy(e => e.SelectedCollegeCode?.Trim(), StringComparer.OrdinalIgnoreCase)
+        //        .ToDictionary(g => g.Key, g => g.First().DateOfInspection, StringComparer.OrdinalIgnoreCase);
+
+        //    // Claim amounts still use all mapped phones (AC + SE submitted their own claims)
+        //    var allMappedPhones = allCollegeDetails
+        //        .SelectMany(x => new[]
+        //        {
+        //    x.SenetMemberPhNo?.ToString(),
+        //    x.AcMemberPhno?.ToString(),
+        //    x.SubjectExpertisePhNo?.ToString()
+        //        })
+        //        .Where(p => !string.IsNullOrWhiteSpace(p))
+        //        .Distinct()
+        //        .ToList();
+
+        //    var allClaimDetails = await _context.LicclaimDetails
+        //        .Where(c => allMappedPhones.Contains(c.PhoneNumber))
+        //        .ToListAsync();
+
+        //    var allClaimAmountMap = allClaimDetails
+        //        .GroupBy(c => c.PhoneNumber)
+        //        .ToDictionary(g => g.Key, g => g.Sum(x => x.TotalCost ?? 0));
+
+        //    var allOtherDetails = await _context.LicInspectionOtherDetails
+        //        .Where(x =>
+        //            x.Phonenumber == phoneNumber &&
+        //            allCollegeCodes.Contains(x.CollegeCode))
+        //        .ToListAsync();
+
+        //    var allAcPhoneSet = allCollegeDetails
+        //        .Where(c => c.AcMemberPhno.HasValue)
+        //        .Select(c => c.AcMemberPhno.Value.ToString())
+        //        .ToHashSet();
+
+        //    vm.SenetMemberName = licInspectionUser?.Name;
+
+        //    vm.GroupedColleges = allCollegeDetails
+        //        .GroupBy(e => new { Collegecode = e.Collegecode?.Trim(), e.Collegename, e.CollegePlace })
+        //        .Select(g => new CollegeGroupVM
+        //        {
+        //            CollegeCode = g.Key.Collegecode,
+        //            CollegeName = g.Key.Collegename,
+        //            CollegePlace = g.Key.CollegePlace,
+        //            SenetMember = g.First().SenetMember,
+        //            SenetMemberPhNo = g.First().SenetMemberPhNo?.ToString(),
+        //            DateOfInspection = allDateMap.TryGetValue(g.Key.Collegecode ?? "", out var d) ? d : null,
+        //            ACMembers = g
+        //                .Where(e => !string.IsNullOrEmpty(e.Acmember))
+        //                .Select(e => new ACMemberVM
+        //                {
+        //                    Id = e.Id,
+        //                    Name = e.Acmember,
+        //                    PhoneNo = e.AcMemberPhno?.ToString(),
+        //                    InspectionAmount = allClaimAmountMap.TryGetValue(
+        //                        e.AcMemberPhno?.ToString() ?? "", out var acAmt) ? acAmt : 0
+        //                })
+        //                .DistinctBy(x => x.PhoneNo)
+        //                .OrderBy(x => x.Name)
+        //                .ToList(),
+        //            SubjectExpertiseMembers = g
+        //                .Where(e => !string.IsNullOrEmpty(e.SubjectExpertise))
+        //                .Select(e => new SubjectExpertiseVM
+        //                {
+        //                    Id = e.Id,
+        //                    Name = e.SubjectExpertise,
+        //                    PhoneNo = e.SubjectExpertisePhNo?.ToString(),
+        //                    InspectionAmount = allClaimAmountMap.TryGetValue(
+        //                        e.SubjectExpertisePhNo?.ToString() ?? "", out var seAmt) ? seAmt : 0
+        //                })
+        //                .DistinctBy(x => x.PhoneNo)
+        //                .OrderBy(x => x.Name)
+        //                .ToList()
+        //        })
+        //        .OrderBy(x => x.CollegeName)
+        //        .ToList();
+
+        //    vm.OtherDetailsList = allOtherDetails
+        //        .Select(e => new OtherDetails
+        //        {
+        //            Id = e.Id,
+        //            SelectedMemberCode = e.MemberCode,
+        //            SelectedMemberName = e.MemberName,
+        //            collegeName = e.CollegeName,
+        //            DateOfInspection = e.InspectionDate,
+        //            IsAttended = (bool)e.IsAttended,
+        //            MemberType = allAcPhoneSet.Contains(e.MemberCode) ? "AC Member" : "SE Member"
+        //        })
+        //        .ToList();
+
+        //    vm.CompletedSet = allOtherDetails
+        //        .Select(x => $"{x.CollegeCode}_{x.MemberCode}")
+        //        .ToHashSet();
+        //}
 
         [HttpDelete]
         public async Task<IActionResult> DeleteOtherDetails(int id)

@@ -62,4 +62,10 @@ public partial class LicInspection
     public decimal? TotalCost { get; set; }
 
     public string? MemberCode { get; set; }
+
+    public string? CollegeCode { get; set; }
+
+    public string? DesignationCode { get; set; }
+
+    public string? DepartmentCode { get; set; }
 }

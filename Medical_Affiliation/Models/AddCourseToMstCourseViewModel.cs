@@ -695,6 +695,13 @@ public class InspectionCollegeItem
     public string ExistingAttendanceDocPath { get; set; }  // if already uploaded
     // Optional: Kilometers, TotalCost, ModeOfTravel, etc. — if per-college
 }
+
+// Add this at the bottom of your ViewModel file, outside the main class
+public class CollegeDropdownItem
+{
+    public string CollegeCode { get; set; } = "";
+    public string CollegeName { get; set; } = "";
+}
 public class LICInspectionDetailsViewModel
 {
     // Basic Details
@@ -708,6 +715,17 @@ public class LICInspectionDetailsViewModel
     public string PANNumber { get; set; }
     public string AadhaarNumber { get; set; }
 
+
+
+    // Professional Details
+public string? ProfessionalCollegeCode { get; set; }
+public string? ProfessionalDesignation { get; set; }
+public string? ProfessionalDepartment { get; set; }
+
+// Dropdown options
+public List<SelectListItem> CollegeOptions { get; set; } = new();
+public List<SelectListItem> DesignationOptions { get; set; } = new();
+public List<SelectListItem> DepartmentOptions { get; set; } = new();
     // Bank Details
     public string AccountHolderName { get; set; }   // ✅ KEEP THIS
     public string AccountNumber { get; set; }
@@ -735,7 +753,7 @@ public class LICInspectionDetailsViewModel
     public List<SelectListItem> ModeOfTravelOptions { get; set; } = new();   // ← add this
     public string SelectedCollegeCode { get;  set; }
     public string? SelectedCollegeName { get;  set; }
-    public List<SelectListItem> CollegeOptions { get; set; }
+    //public List<SelectListItem> CollegeOptions { get; set; }
     public List<LicinspectionDetail> SavedInspections { get; set; } = new();
 
 
