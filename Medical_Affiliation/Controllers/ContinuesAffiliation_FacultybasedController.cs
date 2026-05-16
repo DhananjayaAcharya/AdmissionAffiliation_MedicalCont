@@ -4477,6 +4477,7 @@ namespace Medical_Affiliation.Controllers
                     join c in _context.MstCourses
                         on f.DepartmentDetails equals c.CourseCode.ToString()
                     join des in _context.DesignationMasters
+                            .Where(x => x.FacultyCode == facultyCodeInt)
                         on f.Designation equals des.DesignationCode
                     where f.CollegeCode == collegeCode
                           && f.FacultyCode == facultyCode

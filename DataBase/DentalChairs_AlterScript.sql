@@ -3805,3 +3805,20 @@ CREATE TABLE DentalPreClinicalAndSkillsLabAreaReq
         REFERENCES MstDentalPreClinicalAndSkillsLaboratoryAreaReq(Id)
 );
 GO
+
+ALTER TABLE [dbo].[CA_MedicalDepartmentLibrary]
+ADD
+    Titles INT NULL,
+    InternationalJournals INT NULL,
+    BackVolumes INT NULL,
+    PrintJournalPercentage INT NULL;
+
+
+SELECT * FROM DesignationMaster WHERE FacultyCode=2;
+
+SELECT * FROM DesignationMaster 
+WHERE FacultyCode=2 AND DesignationCode IN ('D013','D014');
+
+--DELETE FROM DesignationMaster
+--WHERE FacultyCode=2 and DesignationCode in ('D013','D014');
+
