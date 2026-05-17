@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.InteropServices;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -348,5 +349,408 @@ namespace Medical_Affiliation.Controllers
             TempData["SuccessMessage"] = "Equipment data saved successfully!";
             return RedirectToAction("EquipmentList");
         }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> TeachingStaffDepartmentWise()
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            int.TryParse(facultyCode, out int facultyCodeInt);
+
+            // ✅ ALL DESIGNATIONS (except order 0)
+            var designationMasters = await _context.DesignationMasters
+                .Where(x =>
+                    x.FacultyCode == facultyCodeInt &&
+                    x.DesignationOrder != 0)
+                .OrderBy(x => x.DesignationOrder)
+                .ToListAsync();
+
+            var vm = new DentalTeachingStaffVm
+            {
+                CollegeCode = collegeCode,
+                FacultyCode = facultyCode,
+
+                // ✅ COLLEGES
+                Colleges = await _context.AffiliationCollegeMasters
+                        .Where(c => c.FacultyCode.ToString() == facultyCode)
+                        .OrderBy(c => c.CollegeName)
+                        .Select(c => new SelectListItem
+                        {
+                            Value = c.CollegeCode,
+                            Text = c.CollegeName
+                        })
+                        .Distinct()
+                        .ToListAsync(),
+
+                // ✅ DEPARTMENTS
+                Departments = await _context.MstCourses
+                        .Where(x => x.FacultyCode == facultyCodeInt)
+                        .OrderBy(x => x.CourseName)
+                        .Select(x => new SelectListItem
+                        {
+                            Value = x.CourseCode.ToString(),
+                            Text = x.CourseName,
+
+                            // UG / PG
+                            Group = new SelectListGroup
+                            {
+                                Name = x.CourseLevel
+                            }
+                        })
+                        .ToListAsync(),
+                DesignationHeaders = designationMasters
+                        .Select(x => new DentalDesignationTeachingVm
+                        {
+                            DesignationCode = x.DesignationCode,
+                            DesignationName = x.DesignationName
+                        })
+                        .ToList()
+            };
+
+
+            // ✅ FACULTY LIST
+            var facultyList = await (
+                from f in _context.FacultyDetails
+
+                join c in _context.MstCourses
+                    on f.DepartmentDetails equals c.CourseCode.ToString()
+
+                join des in _context.DesignationMasters
+                        .Where(x => x.FacultyCode == facultyCodeInt && x.DesignationOrder != 0)
+                    on f.Designation equals des.DesignationCode
+
+                where f.CollegeCode == collegeCode
+                      && f.FacultyCode == facultyCode
+
+                select new
+                {
+                    f.NameOfFaculty,
+
+                    f.DepartmentDetails,
+                    DepartmentName = c.SubjectName,
+                    f.From,
+                    f.To,
+                    CourseLevel = c.CourseLevel,
+                    f.Designation,
+                    DesignationName = des.DesignationName
+                }
+
+            ).ToListAsync();
+
+            // ✅ SAVED DATA
+            var saved = await _context.TeachingStaffDepartmentWiseDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode)
+                .ToListAsync();
+
+
+            // =========================
+            // FACULTY GROUPING
+            // =========================
+
+            var groupedFaculty = facultyList
+                .Where(x => !string.IsNullOrWhiteSpace(x.NameOfFaculty))
+                .GroupBy(x => x.NameOfFaculty.Trim())
+                .ToList();
+
+            // =========================
+            // BUILD FACULTY ROWS
+            // =========================
+
+            foreach (var facultyGroup in groupedFaculty)
+            {
+                var firstFaculty = facultyGroup.First();
+
+                var facultyVm = new DentalFacultyTeachingVm
+                {
+                    NameOfFaculty = firstFaculty.NameOfFaculty,
+                    Designations = new List<DentalDesignationTeachingVm>()
+                };
+
+                // =========================
+                // ALL DESIGNATION SLOTS
+                // =========================
+
+                foreach (var header in designationMasters)
+                {
+                    // faculty detail for this designation
+                    var faculty = facultyGroup
+                        .FirstOrDefault(x =>
+                            x.Designation == header.DesignationCode);
+
+                    // saved teaching staff detail
+                    var existing = saved
+                        .Where(x =>
+
+                            !string.IsNullOrWhiteSpace(x.NameOfFaculty) &&
+
+                            x.NameOfFaculty.Trim() ==
+                            firstFaculty.NameOfFaculty.Trim() &&
+
+                            x.DesignationCode ==
+                            header.DesignationCode)
+
+                        .OrderByDescending(x => x.Id)
+
+                        .FirstOrDefault();
+
+                    // =========================
+                    // EMPTY SLOT
+                    // =========================
+
+                    if (faculty == null && existing == null)
+                    {
+                        facultyVm.Designations.Add(
+                            new DentalDesignationTeachingVm
+                            {
+                                DesignationCode =
+                                    header.DesignationCode,
+
+                                DesignationName =
+                                    header.DesignationName
+                            });
+
+                        continue;
+                    }
+
+                    // =========================
+                    // VIEWMODEL
+                    // =========================
+
+                    var vmDesignation =
+                        new DentalDesignationTeachingVm
+                        {
+                            Id = existing?.Id ?? 0,
+
+                            DesignationCode =
+                                header.DesignationCode,
+
+                            DesignationName =
+                                header.DesignationName,
+
+                            DepartmentCode =
+                                existing?.DepartmentCode,
+
+                            DepartmentName =
+                                faculty?.DepartmentName,
+
+                            CourseLevel =
+                                existing?.CourseLevel,
+
+                            TotalExperience =
+                                existing?.TotalExperience
+                        };
+
+                    // =========================
+                    // EXISTING SAVED DATA
+                    // =========================
+
+                    if (existing != null)
+                    {
+                        // UG
+                        if (existing.CourseLevel == "UG")
+                        {
+                            vmDesignation.CollegeCode =
+                                existing.UgcollegeCode?.Trim();
+
+                            vmDesignation.FromDate =
+                                existing.Ugfrom?.ToDateTime(TimeOnly.MinValue);
+
+                            vmDesignation.ToDate =
+                                existing.Ugto?.ToDateTime(TimeOnly.MinValue);
+                        }
+
+                        // PG
+                        else if (existing.CourseLevel == "PG")
+                        {
+                            vmDesignation.CollegeCode =
+                                existing.PgcollegeCode?.Trim();
+
+                            vmDesignation.FromDate =
+                                existing.Pgfrom?.ToDateTime(TimeOnly.MinValue);
+
+                            vmDesignation.ToDate =
+                                existing.Pgto?.ToDateTime(TimeOnly.MinValue);
+                        }
+                    }
+
+                    // =========================
+                    // DEFAULT FACULTY DETAILS
+                    // =========================
+
+                    else if (faculty != null)
+                    {
+                        vmDesignation.CourseLevel =
+                            faculty.CourseLevel;
+
+                        vmDesignation.CollegeCode =
+                            collegeCode;
+
+                        vmDesignation.DepartmentCode =
+                            faculty.DepartmentDetails;
+
+                        vmDesignation.FromDate =
+                            faculty.From?.ToDateTime(TimeOnly.MinValue);
+
+                        vmDesignation.ToDate =
+                            faculty.To?.ToDateTime(TimeOnly.MinValue);
+                    }
+
+                    // =========================
+                    // ADD SLOT
+                    // =========================
+
+                    facultyVm.Designations
+                        .Add(vmDesignation);
+                }
+
+                vm.FacultyRows
+                    .Add(facultyVm);
+            }
+
+            vm.FacultyRows = vm.FacultyRows
+                .GroupBy(x => x.NameOfFaculty)
+                .Select(x => x.First())
+                .ToList();
+
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestFormLimits(ValueCountLimit = 500000)]
+        [RequestSizeLimit(50_000_000)]
+        public async Task<IActionResult> TeachingStaffDepartmentWise(DentalTeachingStaffVm vm)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+                return RedirectToAction("Login", "Account");
+
+            if (vm?.FacultyRows == null || !vm.FacultyRows.Any())
+                return RedirectToAction("TeachingStaffDepartmentWise");
+
+            foreach (var faculty in vm.FacultyRows)
+            {
+                if (faculty.Designations == null)
+                    continue;
+
+                foreach (var des in faculty.Designations)
+                {
+                    // =========================
+                    // SKIP EMPTY BLOCK
+                    // =========================
+
+                    if (string.IsNullOrWhiteSpace(des.DesignationCode))
+                        continue;
+
+                    if (string.IsNullOrWhiteSpace(des.CourseLevel) &&
+                        string.IsNullOrWhiteSpace(des.CollegeCode) &&
+                        !des.FromDate.HasValue &&
+                        !des.ToDate.HasValue)
+                    {
+                        continue;
+                    }
+
+                    // =========================
+                    // FIND EXISTING
+                    // =========================
+
+                    var existing = await _context
+                        .TeachingStaffDepartmentWiseDetails
+                        .FirstOrDefaultAsync(x =>
+
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+
+                            x.NameOfFaculty == faculty.NameOfFaculty &&
+
+                            x.DesignationCode == des.DesignationCode);
+
+                    // =========================
+                    // INSERT
+                    // =========================
+
+                    if (existing == null)
+                    {
+                        existing = new TeachingStaffDepartmentWiseDetail
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyCode = facultyCode,
+
+                            NameOfFaculty = faculty.NameOfFaculty,
+
+                            DesignationCode = des.DesignationCode,
+                            DesignationName = des.DesignationName
+                        };
+
+                        _context.TeachingStaffDepartmentWiseDetails
+                            .Add(existing);
+                    }
+
+                    // =========================
+                    // COMMON
+                    // =========================
+
+                    existing.DepartmentCode = des.DepartmentCode;
+
+                    existing.CourseLevel = des.CourseLevel;
+
+                    existing.TotalExperience = des.TotalExperience;
+
+
+                    // =========================
+                    // UG SAVE
+                    // =========================
+
+                    if (des.CourseLevel == "UG")
+                    {
+                        existing.UgcollegeCode =
+                            des.CollegeCode;
+
+                        existing.Ugfrom =
+                            des.FromDate.HasValue
+                                ? DateOnly.FromDateTime(des.FromDate.Value)
+                                : null;
+
+                        existing.Ugto =
+                            des.ToDate.HasValue
+                                ? DateOnly.FromDateTime(des.ToDate.Value)
+                                : null;
+                    }
+
+                    // =========================
+                    // PG SAVE
+                    // =========================
+
+                    else if (des.CourseLevel == "PG")
+                    {
+                        existing.PgcollegeCode =
+                            des.CollegeCode;
+
+                        existing.Pgfrom =
+                            des.FromDate.HasValue
+                                ? DateOnly.FromDateTime(des.FromDate.Value)
+                                : null;
+
+                        existing.Pgto =
+                            des.ToDate.HasValue
+                                ? DateOnly.FromDateTime(des.ToDate.Value)
+                                : null;
+                    }
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("TeachingStaffDepartmentWise");
+        }
+
+
     }
 }

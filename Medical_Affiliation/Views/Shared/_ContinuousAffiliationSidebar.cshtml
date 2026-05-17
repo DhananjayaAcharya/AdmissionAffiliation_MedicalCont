@@ -78,7 +78,7 @@
 
         // ================= STUDENT & STAFF =================
         new StepItem{ Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
-        new StepItem{ Key="TeachingStaff", Label="Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
+        // new StepItem{ Key="TeachingStaff", Label="Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
         new StepItem{ Key="NonTeachingStaff", Label="Non-Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
 
@@ -129,6 +129,29 @@
                 Ctrl = "Medical_ContinuousAffiliation",
                 Act = "Medical_LandBuildingdetails"
             });
+    }
+
+    if (facultyCode == "2")
+    {
+        allSteps.Add(new StepItem
+        {
+            Key = "TeachingStaff",
+            Label = "Teaching Staff Dept Wise",
+            Group = "Human Resources",
+            Ctrl = "Dental",
+            Act = "TeachingStaffDepartmentWise"
+        });
+    }
+    else
+    {
+        allSteps.Add(new StepItem
+        {
+            Key = "TeachingStaff",
+            Label = "Teaching Staff Dept Wise",
+            Group = "Human Resources",
+            Ctrl = "ContinuesAffiliation_Facultybased",
+            Act = "TeachingStaffDepartmentWise"
+        });
     }
 
     var equipmentIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");

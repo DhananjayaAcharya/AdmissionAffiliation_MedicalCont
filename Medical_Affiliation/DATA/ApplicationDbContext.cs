@@ -2727,6 +2727,8 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ExaminerFor).HasMaxLength(150);
             entity.Property(e => e.FacultyCode).HasMaxLength(50);
             entity.Property(e => e.GuideRecognitionDocPath).HasMaxLength(500);
+            entity.Property(e => e.From);
+            entity.Property(e => e.To);
             entity.Property(e => e.IsExaminer).HasMaxLength(150);
             entity.Property(e => e.LitigationDocPath).HasMaxLength(500);
             entity.Property(e => e.LitigationPending).HasMaxLength(150);

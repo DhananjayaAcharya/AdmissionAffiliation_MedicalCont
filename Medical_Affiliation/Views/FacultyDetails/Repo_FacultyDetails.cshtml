@@ -727,6 +727,11 @@
                                     <th>Name of Faculty</th>
                                     <th>Department</th>
                                     <th>Designation</th>
+                                    @if (facultyCode == "2")
+                                    {
+                                        <th>From</th>
+                                        <th>To</th>
+                                    }
                                     <th>Recognised PG Guide</th>
                                     <th>PG GuideShip Letter</th>
                                     <th>Recognised PhD Guide</th>
@@ -751,6 +756,22 @@
                                         <td><input name="[@i].NameOfFaculty" value="@Model[i].NameOfFaculty" class="fc" placeholder="Full name" /></td>
                                         <td>@Html.DropDownListFor(m => m[i].SelectedDepartment, Model[i].DepartmentDetails, "Select", new { @class = "fc" })</td>
                                         <td>@Html.DropDownListFor(m => m[i].Designation, Model[i].Designations, "Select", new { @class = "fc" })</td>
+                                        @if(facultyCode == "2"){
+                                            <td>
+                                                <input type="date"
+                                                       name="[@i].From"
+                                                       value="@(Model[i].From?.ToString("yyyy-MM-dd"))"
+                                                       class="fc" />
+                                            </td>
+
+                                            <!-- TO DATE -->
+                                            <td>
+                                                <input type="date"
+                                                       name="[@i].To"
+                                                       value="@(Model[i].To?.ToString("yyyy-MM-dd"))"
+                                                       class="fc" />
+                                            </td>
+                                        }
                                         <td>
                                             @Html.DropDownListFor(m => m[i].RecognizedPGTeacher,
                                             new List<SelectListItem> {
@@ -977,6 +998,19 @@
                             <option value="">Select</option>${DesignationOptions}
                         </select>
                     </td>
+                    ${'@facultyCode' === '2' ? `
+                    <td>
+                        <input type="date"
+                               name="[${ri}].From"
+                               class="fc" />
+                    </td>
+
+                    <td>
+                        <input type="date"
+                               name="[${ri}].To"
+                               class="fc" />
+                    </td>
+                    ` : ''}
                     <td>
                         <select name="[${ri}].RecognizedPGTeacher" class="fc pg-teacher">
                             <option value="">Select</option><option>Yes</option><option>No</option>
@@ -993,27 +1027,17 @@
                     <td>
                         <input type="file" name="[${ri}].PhDRecognitionDoc" class="fc phd-doc file-validate" style="display:none;min-width:140px;" />
                     </td>
+                    <td><input name="[${ri}].Mobile"  class="fc" placeholder="10-digit" /></td>
+                    <td><input name="[${ri}].Email"   class="fc" placeholder="email@domain.com" /></td>
+                    <td><input name="[${ri}].PAN"     class="fc" placeholder="ABCDE1234F" /></td>
+                    <td><input name="[${ri}].Aadhaar" class="fc" placeholder="12-digit" /></td>
                     <td>
                         <select name="[${ri}].LitigationPending" class="fc litig-teacher">
                             <option value="">Select</option><option>Yes</option><option>No</option>
                         </select>
                     </td>
                     <td>
-        <input type="file" name="[${ri}].LitigationDoc" class="fc litig-doc file-validate" style="display:none;min-width:140px;" />
-                    </td>
-                    <td><input name="[${ri}].Mobile"  class="fc" placeholder="10-digit" /></td>
-                    <td><input name="[${ri}].Email"   class="fc" placeholder="email@domain.com" /></td>
-                    <td><input name="[${ri}].PAN"     class="fc" placeholder="ABCDE1234F" /></td>
-                    <td><input name="[${ri}].Aadhaar" class="fc" placeholder="12-digit" /></td>
-                    <td>
-                        <select name="[${ri}].IsExaminer" class="fc is-examiner" data-index="${ri}">
-                            <option value="">Select</option><option>Yes</option><option>No</option>
-                        </select>
-                        <div class="examiner-options" id="examinerOptions_${ri}" style="display:none;">
-                            <label><input type="checkbox" name="[${ri}].ExaminerForList" value="UG"  /> UG</label>
-                            <label><input type="checkbox" name="[${ri}].ExaminerForList" value="PG"  /> PG</label>
-                            <label><input type="checkbox" name="[${ri}].ExaminerForList" value="PhD" /> PhD</label>
-                        </div>
+                        <input type="file" name="[${ri}].LitigationDoc" class="fc litig-doc file-validate" style="display:none;min-width:140px;" />
                     </td>
                     <td style="text-align:center;white-space:nowrap;min-width:160px;">
                         <button type="button" class="btn-remove remove-row">

@@ -183,6 +183,8 @@ namespace Medical_Affiliation.Models
 
         public bool IsRemoved { get; set; }
 
+        public DateOnly? From { get; set; }
+        public DateOnly? To { get; set; }
 
 
 

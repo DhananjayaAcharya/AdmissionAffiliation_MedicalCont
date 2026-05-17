@@ -3822,3 +3822,19 @@ WHERE FacultyCode=2 AND DesignationCode IN ('D013','D014');
 --DELETE FROM DesignationMaster
 --WHERE FacultyCode=2 and DesignationCode in ('D013','D014');
 
+SELECT * FROM FacultyDetails where FacultyCode=2;
+
+--INSERT INTO DesignationMaster
+--(FacultyCode, DesignationCode, DesignationName, DesignationOrder)
+--VALUES
+--(2, 'D013','Principal/Dean', 0)
+
+
+SELECT * FROM TeachingStaffDepartmentWiseDetails;
+
+--DELETE  FROM TeachingStaffDepartmentWiseDetails;
+
+
+ALTER TABLE [dbo].[TeachingStaffDepartmentWiseDetails]
+ADD [From] DATE NULL, 
+    [To] DATE NULL;
