@@ -788,11 +788,11 @@ public class PendingInspectionVM
 
     public string CollegeName { get; set; }
 
-    public DateTime DateOfInspection { get; set; }
+    public required DateTime DateOfInspection { get; set; }
 
     public bool IsCompleted { get; set; }
 
-    public string? AttendanceFilePath { get; set; }
+    public required string AttendanceFilePath { get; set; }
 }
 public class CompletedInspectionVM
 {
@@ -810,9 +810,9 @@ public class ClaimVM
 
     public string CollegeName { get; set; }
 
-    public DateTime DateOfInspection { get; set; }
+    public required DateTime DateOfInspection { get; set; }
 
-    public string ModeOfTravel { get; set; }
+    public required string ModeOfTravel { get; set; }
 
     public string FromPlace { get; set; }
 

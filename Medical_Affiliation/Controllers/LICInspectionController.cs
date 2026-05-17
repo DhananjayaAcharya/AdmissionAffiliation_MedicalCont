@@ -375,8 +375,8 @@ namespace Medical_Affiliation.Controllers
             var colleges = await _context.Database
                 .SqlQuery<CollegeDropdownItem>(
                     $@"SELECT CollegeCode, CollegeName 
-               FROM [Admission_Affiliation].[dbo].[Affiliation_College_Master] where facultycode = 9
-               ORDER BY CollegeName "
+                       FROM [Admission_Affiliation].[dbo].[Affiliation_College_Master]
+                       ORDER BY CollegeName"
                 )
                 .ToListAsync();
 
@@ -393,7 +393,7 @@ namespace Medical_Affiliation.Controllers
             // ── Designations ──────────────────────────────────────────────────────
             var designations = await _context.Database
                 .SqlQuery<string>(
-                    $"SELECT DesignationName FROM [Admission_Affiliation].[dbo].[DesignationMaster] WHERE FacultyCode = 9 ORDER BY DesignationName"
+                    $"SELECT DesignationName FROM [Admission_Affiliation].[dbo].[DesignationMaster] WHERE FacultyCode = 1 ORDER BY DesignationName"
                 )
                 .ToListAsync();
 
@@ -410,7 +410,7 @@ namespace Medical_Affiliation.Controllers
             // ── Departments ───────────────────────────────────────────────────────
             var departments = await _context.Database
                 .SqlQuery<string>(
-                    $"SELECT SubjectName FROM [Admission_Affiliation].[dbo].[Mst_Course] WHERE FacultyCode = 9 ORDER BY SubjectName"
+                    $"SELECT SubjectName FROM [Admission_Affiliation].[dbo].[Mst_Course] ORDER BY SubjectName"
                 )
                 .ToListAsync();
 
@@ -820,6 +820,7 @@ namespace Medical_Affiliation.Controllers
             public DateOnly? InspectionDate { get; set; }
             public bool HasUploadedAttendence { get; set; }
 
+            public List<SelectListItem> AllCollegeOptions { get; set; } = new();
             // ── New dropdown ──────────────────────────────────────────────────────────
             public List<SelectListItem> FacultyOptions { get; set; } = new();
         }
@@ -887,37 +888,9 @@ namespace Medical_Affiliation.Controllers
                 .Where(x => x.PhoneNumber.Trim() == phone)
                 .ToListAsync();
 
-            var savedClaim = savedClaims.FirstOrDefault();
-
-            // ── 5. College name for pre-filled college code ───────────────────────
-            // Fetched from LIC_InspectionCollege_Details (consistent source)
-            string? collegeName = null;
-            if (!string.IsNullOrWhiteSpace(savedClaim?.CollegeCode))
-            {
-                collegeName = await _context.LicInspectionCollegeDetails
-                    .AsNoTracking()
-                    .Where(x => x.Collegecode == savedClaim.CollegeCode)
-                    .Select(x => x.Collegename)
-                    .FirstOrDefaultAsync();
-            }
-
-            // ── 6. Split saved ModeOfTravel CSV ───────────────────────────────────
-            var savedModes = savedClaim?.ModeOfTravel?
-                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Trim())
-                .ToList() ?? new List<string>();
-
-            // ── 7. Restore IsBangalore ────────────────────────────────────────────
-            bool savedIsBangalore = savedClaim?.IsBanglore ?? false;
-            if (!savedIsBangalore && !string.IsNullOrWhiteSpace(savedClaim?.ToPlace))
-            {
-                savedIsBangalore = Regex.IsMatch(
-                    savedClaim.ToPlace.Trim(),
-                    "bangalore|bengaluru",
-                    RegexOptions.IgnoreCase);
-            }
-
-            // ── 8. Build model ────────────────────────────────────────────────────
+            // ── 5. Build model — identity + collections only ──────────────────────
+            // Form fields intentionally left blank so the form is always fresh.
+            // Saved data is visible in the Saved Claim Details table below.
             var model = new LICClaimDetailsViewModel
             {
                 // Identity — always from LicInspections
@@ -925,35 +898,8 @@ namespace Medical_Affiliation.Controllers
                 TypeofMember = member.TypeofMember,
                 PhoneNumber = member.PhoneNumber,
 
-                // Form fields — from first saved claim
-                ModeOfTravel = savedModes,
-                CollegeCode = savedClaim?.CollegeCode,
-                CollegeName = collegeName,
-                FromPlace = savedClaim?.FromPlace,
-                ToPlace = savedClaim?.ToPlace,
-                Kilometers = (double?)savedClaim?.Kilometers,
-                ReturnFromPlace = savedClaim?.ReturnFromPlace,
-                ReturnToPlace = savedClaim?.ReturnToPlace,
-                ReturnKilometers = savedClaim?.ReturnKilometers?.ToString(),
-                TotalCost = savedClaim?.TotalCost,
-                getAirFare = savedClaim?.AirFare,
-                isBanglore = savedIsBangalore,
-                NumberOfDays = int.TryParse(savedClaim?.NoofDays, out var nd) ? nd : 1,
-
-                // New fields
-                Faculty = savedClaim?.Faculty,
-                InspectionDate = savedClaim?.InspectionDate,
-
-                // Summary breakdown — restored from saved claim
-                TravelCost = savedClaim?.TravelCost,
-                DACost = savedClaim?.Dacost,
-                LCACost = savedClaim?.Lcacost,
-                CollegeCost = savedClaim?.CollegeCost,
-                AirFareCost = savedClaim?.AirFareCost,
-                AirRoadCost = savedClaim?.AirRoadCost,
-                Division = savedClaim?.Division,
-                IsLCA = savedClaim?.IsLca,
-                NumberOfDaysSaved = savedClaim?.NumberOfDays,
+                // Default days to 1
+                NumberOfDays = 1,
 
                 // Collections
                 SavedClaims = savedClaims,
@@ -962,267 +908,284 @@ namespace Medical_Affiliation.Controllers
                 AssignedColleges = assignedColleges
             };
 
-            // ── 9. Submitted college codes (to exclude from dropdowns) ────────────
+            // ── 6. Submitted college codes (to exclude from dropdowns) ────────────
             var submittedCodes = savedClaims
                 .Select(x => x.CollegeCode)
                 .Where(c => !string.IsNullOrWhiteSpace(c))
                 .ToHashSet();
 
-            // ── 10. College dropdown ──────────────────────────────────────────────
-            var collegesForDropdown = string.IsNullOrWhiteSpace(model.Faculty)
-                ? assignedColleges
-                : await GetCollegesByFacultyAsync(model.Faculty, assignedColleges);
-
-            model.CollegeOptions = collegesForDropdown
+            // ── 7. College dropdown ───────────────────────────────────────────────
+            model.CollegeOptions = assignedColleges
                 .Select(c => new SelectListItem
                 {
                     Value = c.CollegeCode,
-                    Text = c.CollegeName,
-                    Selected = c.CollegeCode == model.CollegeCode
+                    Text = c.CollegeName
                 })
-                .Where(x => !submittedCodes.Contains(x.Value) || x.Value == model.CollegeCode)
+                .Where(x => !submittedCodes.Contains(x.Value))
                 .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
                 .ToList();
 
-            // ── 11. Mode of travel options ────────────────────────────────────────
+            // ── 8. All colleges for saved-claims name lookup ──────────────────────
+            // Full list — no faculty filter, no exclusions — so every saved claim
+            // row can resolve its college code to a display name.
+            model.AllCollegeOptions = assignedColleges
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CollegeCode,
+                    Text = c.CollegeName
+                })
+                .ToList();
+
+            // ── 9. Mode of travel options ─────────────────────────────────────────
             model.ModeOfTravelOptions = await GetTravelModesAsync(null);
 
-            // ── 12. Faculty options ───────────────────────────────────────────────
-            model.FacultyOptions = await GetFacultyOptionsAsync(model.Faculty);
+            // ── 10. Faculty options ───────────────────────────────────────────────
+            model.FacultyOptions = await GetFacultyOptionsAsync(null);
 
             return View(model);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClaimDetails(
-            LICClaimDetailsViewModel model,
-            IFormFile? UploadBillsFile,
-            IFormFile? AttendenceDocFile,
-            [FromForm] decimal DACost,
-            [FromForm] decimal LCACost,
-            [FromForm] decimal AirFareCost,
-            [FromForm] decimal AirRoadCost,
-            [FromForm] string? Division,
-            [FromForm] bool IsLCA)
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> ClaimDetails(
+    LICClaimDetailsViewModel model,
+    IFormFile? UploadBillsFile,
+    IFormFile? AttendenceDocFile,
+    [FromForm] decimal DACost,
+    [FromForm] decimal LCACost,
+    [FromForm] decimal AirFareCost,
+    [FromForm] decimal AirRoadCost,
+    [FromForm] string? Division,
+    [FromForm] bool IsLCA)
+{
+    // ── 1. Resolve phone ──────────────────────────────────────────────────
+    var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
+    if (string.IsNullOrWhiteSpace(phone))
+        return RedirectToAction("Login");
+
+    // ── 2. Load member ────────────────────────────────────────────────────
+    var memberInfo = await _context.LicInspections
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone);
+    if (memberInfo == null)
+        return RedirectToAction("Login");
+
+    string role       = memberInfo.TypeofMember?.Trim() ?? "";
+    string memberName = memberInfo.Name?.Trim() ?? "";
+
+    var assignedCols = await GetAssignedCollegesAsync(role, phone);
+    string assignedCsv = string.Join(",", assignedCols.Select(c => c.CollegeCode));
+
+    // ── 3. Determine IsBangalore ──────────────────────────────────────────
+    bool isBangaloreChk = Request.Form["IsBangalore"]
+        .ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
+
+    bool isBangaloreAuto = !string.IsNullOrWhiteSpace(model.ToPlace) &&
+        Regex.IsMatch(model.ToPlace.Trim(), "bangalore|bengaluru", RegexOptions.IgnoreCase);
+
+    bool isBangalore = isBangaloreChk || isBangaloreAuto;
+
+    // ── 4. Distances ──────────────────────────────────────────────────────
+    double onwardKm = model.Kilometers ?? 0;
+    double returnKm = double.TryParse(model.ReturnKilometers, out var rk) ? rk : 0;
+    double totalKm  = onwardKm + returnKm;
+
+    // ── 5. Rates ──────────────────────────────────────────────────────────
+    decimal daRate      = isBangalore ? 1500m : 900m;
+    decimal lcaRate     = isBangalore ? 500m  : 300m;
+    decimal airRoadRate = isBangalore ? 2000m : 750m;
+
+    // ── 6. Days ───────────────────────────────────────────────────────────
+    int numberOfDays = model.NumberOfDays > 0 ? model.NumberOfDays : 1;
+
+    // ── 7. Apply 40 km rule ───────────────────────────────────────────────
+    const double lcaThreshold = 40.0;
+    bool applyLCA = totalKm > 0 && totalKm <= lcaThreshold;
+    bool applyTA  = totalKm > lcaThreshold;
+
+    // ── 8. Calculate components ───────────────────────────────────────────
+    decimal travelCost  = applyTA  ? (decimal)totalKm * LICClaimDetailsViewModel.RatePerKm : 0m;
+    decimal daCostCalc  = applyTA  ? numberOfDays * daRate  : 0m;
+    decimal lcaCostCalc = applyLCA ? numberOfDays * lcaRate : 0m;
+
+    // ── Always 1 college per claim — never multiply by total assigned count ──
+    decimal collegeCost = LICClaimDetailsViewModel.CollegeAllowance; // ₹2,500 × 1
+
+    decimal airFare = AirFareCost > 0 ? AirFareCost : 0m;
+    decimal airRoad = 0m;
+
+    var selectedModes = model.ModeOfTravel ?? new List<string>();
+    bool airSelected = selectedModes.Any(m => m.Equals("Air", StringComparison.OrdinalIgnoreCase));
+    if (airSelected)
+        airRoad = AirRoadCost > 0 ? AirRoadCost : airRoadRate;
+
+    // ── 9. Grand total — only this single claim's components ──────────────
+    model.TotalCost = travelCost + daCostCalc + lcaCostCalc
+                    + collegeCost + airFare + airRoad;
+
+    // ── 10. Populate summary on model ─────────────────────────────────────
+    model.TravelCost      = travelCost;
+    model.DACost          = daCostCalc;
+    model.LCACost         = lcaCostCalc;
+    model.CollegeCost     = collegeCost;
+    model.AirFareCost     = airFare;
+    model.AirRoadCost     = airRoad;
+    model.Division        = isBangalore ? "bangalore" : "other";
+    model.IsLCA           = applyLCA;
+    model.NumberOfDaysSaved = numberOfDays;
+
+    // ── 11. Validate uploaded files ───────────────────────────────────────
+    if (UploadBillsFile != null && UploadBillsFile.Length > 0)
+    {
+        var ext = Path.GetExtension(UploadBillsFile.FileName).ToLowerInvariant();
+        var allowedExts = new HashSet<string> { ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx" };
+        if (!allowedExts.Contains(ext))
+            ModelState.AddModelError("UploadBills", "Only PDF, JPG, PNG, DOC, or DOCX files are allowed.");
+        if (UploadBillsFile.Length > 5 * 1024 * 1024)
+            ModelState.AddModelError("UploadBills", "File size must not exceed 5 MB.");
+    }
+
+    if (AttendenceDocFile != null && AttendenceDocFile.Length > 0)
+    {
+        var ext = Path.GetExtension(AttendenceDocFile.FileName).ToLowerInvariant();
+        var allowedExts = new HashSet<string> { ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx" };
+        if (!allowedExts.Contains(ext))
+            ModelState.AddModelError("AttendenceDoc", "Only PDF, JPG, PNG, DOC, or DOCX files are allowed.");
+        if (AttendenceDocFile.Length > 5 * 1024 * 1024)
+            ModelState.AddModelError("AttendenceDoc", "File size must not exceed 5 MB.");
+    }
+
+    ModelState.Remove("NumberOfDays");
+
+    // ── 12. Return view on validation failure ─────────────────────────────
+    if (!ModelState.IsValid)
+    {
+        model.AssignedColleges = assignedCols;
+
+        var collegesForDropdown = string.IsNullOrWhiteSpace(model.Faculty)
+            ? assignedCols
+            : await GetCollegesByFacultyAsync(model.Faculty, assignedCols);
+
+        model.CollegeOptions = collegesForDropdown
+            .Select(c => new SelectListItem { Value = c.CollegeCode, Text = c.CollegeName })
+            .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
+            .ToList();
+
+        // ── All colleges for name lookup in saved-claims table ────────────
+        model.AllCollegeOptions = assignedCols
+            .Select(c => new SelectListItem
+            {
+                Value = c.CollegeCode,
+                Text  = c.CollegeName
+            })
+            .ToList();
+
+        model.ModeOfTravelOptions = await GetTravelModesAsync(null);
+        model.FacultyOptions      = await GetFacultyOptionsAsync(model.Faculty);
+        model.SavedClaims         = await _context.LicclaimDetails
+            .AsNoTracking()
+            .Where(x => x.PhoneNumber.Trim() == phone)
+            .ToListAsync();
+        model.HasUploadedBill       = model.SavedClaims.Any(r => r.UploadBills?.Length > 0);
+        model.HasUploadedAttendence = model.SavedClaims.Any(r => r.AttendenceDoc?.Length > 0);
+        model.isBanglore            = isBangalore;
+        return View(model);
+    }
+
+    // ── 13. Resolve selected college ──────────────────────────────────────
+    var selectedCollege = await _context.LicInspectionCollegeDetails
+        .AsNoTracking()
+        .Where(x => x.Collegecode == model.CollegeCode)
+        .Select(x => new { x.Collegecode, x.Collegename })
+        .FirstOrDefaultAsync();
+
+    // ── 14. Find or create record (one row per inspector per college) ──────
+    var existing = await _context.LicclaimDetails
+        .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone
+                               && x.CollegeCode == model.CollegeCode);
+    if (existing == null)
+    {
+        existing = new LicclaimDetail
         {
-            // ── 1. Resolve phone ──────────────────────────────────────────────────
-            // ✅ Use plain "PhoneNumber" string — matches claim stored in Login
-            var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
-            if (string.IsNullOrWhiteSpace(phone))
-                return RedirectToAction("Login");
+            PhoneNumber = phone,
+            CreatedDate = DateTime.Now
+        };
+        _context.LicclaimDetails.Add(existing);
+    }
 
-            // ── 2. Load member ────────────────────────────────────────────────────
-            var memberInfo = await _context.LicInspections
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone);
-            if (memberInfo == null)
-                return RedirectToAction("Login");
+    // ── 15. Map all fields ────────────────────────────────────────────────
+    existing.MemberName      = memberName;
+    existing.TypeofMember    = role;
+    existing.PhoneNumber     = phone;
+    existing.ModeOfTravel    = string.Join(",", selectedModes);
+    existing.CollegeCode     = selectedCollege?.Collegecode;
+    existing.AssignedColleges = assignedCsv;
+    existing.AirFare         = airFare > 0 ? airFare.ToString("F2") : null;
 
-            string role = memberInfo.TypeofMember?.Trim() ?? "";
-            string memberName = memberInfo.Name?.Trim() ?? "";
+    // Onward
+    existing.FromPlace  = model.FromPlace;
+    existing.ToPlace    = model.ToPlace;
+    existing.Kilometers = (decimal?)model.Kilometers;
 
-            var assignedCols = await GetAssignedCollegesAsync(role, phone);
-            int collegeCount = assignedCols.Count;
-            string assignedCsv = string.Join(",", assignedCols.Select(c => c.CollegeCode));
+    // Return
+    existing.ReturnFromPlace    = model.ReturnFromPlace;
+    existing.ReturnToPlace      = model.ReturnToPlace;
+    existing.ReturnKilometers   = returnKm > 0 ? (decimal?)returnKm : null;
+    existing.NoofDays           = numberOfDays.ToString();
 
-            // ── 3. Determine IsBangalore ──────────────────────────────────────────
-            bool isBangaloreChk = Request.Form["IsBangalore"]
-                .ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
+    existing.IsBanglore  = isBangalore;
+    existing.TotalCost   = model.TotalCost;
+    existing.UpdatedDate = DateTime.Now;
 
-            bool isBangaloreAuto = !string.IsNullOrWhiteSpace(model.ToPlace) &&
-                Regex.IsMatch(model.ToPlace.Trim(), "bangalore|bengaluru", RegexOptions.IgnoreCase);
+    // Summary breakdown
+    existing.TravelCost  = travelCost;
+    existing.Dacost      = daCostCalc;
+    existing.Lcacost     = lcaCostCalc;
+    existing.CollegeCost = collegeCost;   // always ₹2,500
+    existing.AirFareCost = airFare;
+    existing.AirRoadCost = airRoad;
+    existing.Division    = isBangalore ? "bangalore" : "other";
+    existing.IsLca       = applyLCA;
+    existing.NumberOfDays = numberOfDays;
 
-            bool isBangalore = isBangaloreChk || isBangaloreAuto;
+    // New fields
+    existing.Faculty        = model.Faculty;
+    existing.InspectionDate = model.InspectionDate;
 
-            // ── 4. Distances ──────────────────────────────────────────────────────
-            double onwardKm = model.Kilometers ?? 0;
-            double returnKm = double.TryParse(model.ReturnKilometers, out var rk) ? rk : 0;
-            double totalKm = onwardKm + returnKm;
+    // ── 16. File uploads ──────────────────────────────────────────────────
+    if (UploadBillsFile != null && UploadBillsFile.Length > 0)
+    {
+        using var ms = new MemoryStream();
+        await UploadBillsFile.CopyToAsync(ms);
+        existing.UploadBills = ms.ToArray();
+    }
 
-            // ── 5. Rates ──────────────────────────────────────────────────────────
-            decimal daRate = isBangalore ? 1500m : 900m;
-            decimal lcaRate = isBangalore ? 500m : 300m;
-            decimal airRoadRate = isBangalore ? 2000m : 750m;
+    if (AttendenceDocFile != null && AttendenceDocFile.Length > 0)
+    {
+        using var ms = new MemoryStream();
+        await AttendenceDocFile.CopyToAsync(ms);
+        existing.AttendenceDoc = ms.ToArray();
+    }
 
-            // ── 6. Days ───────────────────────────────────────────────────────────
-            int numberOfDays = model.NumberOfDays > 0 ? model.NumberOfDays : 1;
+    // ── 17. Save ──────────────────────────────────────────────────────────
+    await _context.SaveChangesAsync();
 
-            // ── 7. Apply 40 km rule ───────────────────────────────────────────────
-            const double lcaThreshold = 40.0;
-            bool applyLCA = totalKm > 0 && totalKm <= lcaThreshold;
-            bool applyTA = totalKm > lcaThreshold;
+    string allowanceType = applyLCA
+        ? $"LCA ({numberOfDays} day(s) × ₹{lcaRate:N0}): ₹{lcaCostCalc:N2}"
+        : $"DA  ({numberOfDays} day(s) × ₹{daRate:N0}): ₹{daCostCalc:N2}";
 
-            // ── 8. Calculate components ───────────────────────────────────────────
-            decimal travelCost = applyTA ? (decimal)totalKm * LICClaimDetailsViewModel.RatePerKm : 0m;
-            decimal daCostCalc = applyTA ? numberOfDays * daRate : 0m;
-            decimal lcaCostCalc = applyLCA ? numberOfDays * lcaRate : 0m;
-            decimal collegeCost = collegeCount * LICClaimDetailsViewModel.CollegeAllowance;
+    string divisionLabel = isBangalore ? "Bangalore Division" : "Other Division";
 
-            decimal airFare = AirFareCost > 0 ? AirFareCost : 0m;
-            decimal airRoad = 0m;
+    TempData["Message"] =
+        $"Claim saved for {selectedCollege?.Collegename} [{divisionLabel}] — " +
+        $"Onward: {onwardKm} km | Return: {returnKm} km | " +
+        $"TA: ₹{travelCost:N2} | {allowanceType} | " +
+        $"College Allowance (1 × ₹2,500): ₹{collegeCost:N2} | " +
+        $"Air Fare: ₹{airFare:N2} | Air Road: ₹{airRoad:N2} | " +
+        $"Grand Total: ₹{model.TotalCost:N2}";
 
-            var selectedModes = model.ModeOfTravel ?? new List<string>();
-            bool airSelected = selectedModes.Any(m => m.Equals("Air", StringComparison.OrdinalIgnoreCase));
-            if (airSelected)
-                airRoad = AirRoadCost > 0 ? AirRoadCost : airRoadRate;
-
-            // ── 9. Grand total ────────────────────────────────────────────────────
-            model.TotalCost = travelCost + daCostCalc + lcaCostCalc
-                            + collegeCost + airFare + airRoad;
-
-            // ── 10. Populate summary on model ─────────────────────────────────────
-            model.TravelCost = travelCost;
-            model.DACost = daCostCalc;
-            model.LCACost = lcaCostCalc;
-            model.CollegeCost = collegeCost;
-            model.AirFareCost = airFare;
-            model.AirRoadCost = airRoad;
-            model.Division = isBangalore ? "bangalore" : "other";
-            model.IsLCA = applyLCA;
-            model.NumberOfDaysSaved = numberOfDays;
-
-            // ── 11. Validate uploaded files ───────────────────────────────────────
-            if (UploadBillsFile != null && UploadBillsFile.Length > 0)
-            {
-                var ext = Path.GetExtension(UploadBillsFile.FileName).ToLowerInvariant();
-                if (ext != ".pdf")
-                    ModelState.AddModelError("UploadBills", "Only PDF files are allowed.");
-                if (UploadBillsFile.Length > 5 * 1024 * 1024)
-                    ModelState.AddModelError("UploadBills", "File size must not exceed 5 MB.");
-            }
-
-            if (AttendenceDocFile != null && AttendenceDocFile.Length > 0)
-            {
-                var ext = Path.GetExtension(AttendenceDocFile.FileName).ToLowerInvariant();
-                if (ext != ".pdf")
-                    ModelState.AddModelError("AttendenceDoc", "Only PDF files are allowed.");
-                if (AttendenceDocFile.Length > 5 * 1024 * 1024)
-                    ModelState.AddModelError("AttendenceDoc", "File size must not exceed 5 MB.");
-            }
-
-            ModelState.Remove("NumberOfDays");
-
-            // ── 12. Return view on validation failure ─────────────────────────────
-            if (!ModelState.IsValid)
-            {
-                model.AssignedColleges = assignedCols;
-
-                var collegesForDropdown = string.IsNullOrWhiteSpace(model.Faculty)
-                    ? assignedCols
-                    : await GetCollegesByFacultyAsync(model.Faculty, assignedCols);
-
-                model.CollegeOptions = collegesForDropdown
-                    .Select(c => new SelectListItem { Value = c.CollegeCode, Text = c.CollegeName })
-                    .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
-                    .ToList();
-
-                model.ModeOfTravelOptions = await GetTravelModesAsync(null);
-                model.FacultyOptions = await GetFacultyOptionsAsync(model.Faculty);
-                model.SavedClaims = await _context.LicclaimDetails
-                    .AsNoTracking()
-                    .Where(x => x.PhoneNumber.Trim() == phone)
-                    .ToListAsync();
-                model.HasUploadedBill = model.SavedClaims.Any(r => r.UploadBills?.Length > 0);
-                model.HasUploadedAttendence = model.SavedClaims.Any(r => r.AttendenceDoc?.Length > 0);
-                model.isBanglore = isBangalore;
-                return View(model);
-            }
-
-            // ── 13. Resolve selected college ──────────────────────────────────────
-            var selectedCollege = await _context.LicInspectionCollegeDetails
-                .AsNoTracking()
-                .Where(x => x.Collegecode == model.CollegeCode)
-                .Select(x => new { x.Collegecode, x.Collegename })
-                .FirstOrDefaultAsync();
-
-            // ── 14. Find or create record (one row per inspector per college) ──────
-            var existing = await _context.LicclaimDetails
-                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone
-                                       && x.CollegeCode == model.CollegeCode);
-            if (existing == null)
-            {
-                existing = new LicclaimDetail
-                {
-                    PhoneNumber = phone,
-                    CreatedDate = DateTime.Now
-                };
-                _context.LicclaimDetails.Add(existing);
-            }
-
-            // ── 15. Map all fields ────────────────────────────────────────────────
-            existing.MemberName = memberName;
-            existing.TypeofMember = role;
-            existing.PhoneNumber = phone;
-            existing.ModeOfTravel = string.Join(",", selectedModes);
-            existing.CollegeCode = selectedCollege?.Collegecode;
-            existing.AssignedColleges = assignedCsv;
-            existing.AirFare = airFare > 0 ? airFare.ToString("F2") : null;
-
-            // Onward
-            existing.FromPlace = model.FromPlace;
-            existing.ToPlace = model.ToPlace;
-            existing.Kilometers = (decimal?)model.Kilometers;
-
-            // Return
-            existing.ReturnFromPlace = model.ReturnFromPlace;
-            existing.ReturnToPlace = model.ReturnToPlace;
-            existing.ReturnKilometers = returnKm > 0 ? (decimal?)returnKm : null;
-            existing.NoofDays = numberOfDays.ToString();
-
-            existing.IsBanglore = isBangalore;
-            existing.TotalCost = model.TotalCost;
-            existing.UpdatedDate = DateTime.Now;
-
-            // Summary breakdown
-            existing.TravelCost = travelCost;
-            existing.Dacost = daCostCalc;
-            existing.Lcacost = lcaCostCalc;
-            existing.CollegeCost = collegeCost;
-            existing.AirFareCost = airFare;
-            existing.AirRoadCost = airRoad;
-            existing.Division = isBangalore ? "bangalore" : "other";
-            existing.IsLca = applyLCA;
-            existing.NumberOfDays = numberOfDays;
-
-            // New fields
-            existing.Faculty = model.Faculty;
-            existing.InspectionDate = model.InspectionDate;
-
-            // ── 16. File uploads ──────────────────────────────────────────────────
-            if (UploadBillsFile != null && UploadBillsFile.Length > 0)
-            {
-                using var ms = new MemoryStream();
-                await UploadBillsFile.CopyToAsync(ms);
-                existing.UploadBills = ms.ToArray();
-            }
-
-            if (AttendenceDocFile != null && AttendenceDocFile.Length > 0)
-            {
-                using var ms = new MemoryStream();
-                await AttendenceDocFile.CopyToAsync(ms);
-                existing.AttendenceDoc = ms.ToArray();
-            }
-
-            // ── 17. Save ──────────────────────────────────────────────────────────
-            await _context.SaveChangesAsync();
-
-            string allowanceType = applyLCA
-                ? $"LCA ({numberOfDays} day(s) × ₹{lcaRate:N0}): ₹{lcaCostCalc:N2}"
-                : $"DA  ({numberOfDays} day(s) × ₹{daRate:N0}): ₹{daCostCalc:N2}";
-
-            string divisionLabel = isBangalore ? "Bangalore Division" : "Other Division";
-
-            TempData["Message"] =
-                $"Claim saved for {selectedCollege?.Collegename} [{divisionLabel}] — " +
-                $"Onward: {onwardKm} km | Return: {returnKm} km | " +
-                $"TA: ₹{travelCost:N2} | {allowanceType} | " +
-                $"College ({collegeCount} × ₹2,500): ₹{collegeCost:N2} | " +
-                $"Air Fare: ₹{airFare:N2} | Air Road: ₹{airRoad:N2} | " +
-                $"Grand Total: ₹{model.TotalCost:N2}";
-
-            return RedirectToAction("ClaimDetails");
-        }
+    return RedirectToAction("ClaimDetails");
+}
 
 
         [HttpGet]
@@ -1239,7 +1202,9 @@ namespace Medical_Affiliation.Controllers
             if (record?.UploadBills == null || record.UploadBills.Length == 0)
                 return NotFound("No bill uploaded.");
 
-            return File(record.UploadBills, "application/pdf", $"Bill_{phone}.pdf");
+            var (contentType, extension) = DetectFileType(record.UploadBills);
+
+            return File(record.UploadBills, contentType, $"Bill_{phone}{extension}");
         }
 
         [HttpGet]
@@ -1256,7 +1221,38 @@ namespace Medical_Affiliation.Controllers
             if (record?.AttendenceDoc == null || record.AttendenceDoc.Length == 0)
                 return NotFound("No attendance document uploaded.");
 
-            return File(record.AttendenceDoc, "application/pdf", $"Attendance_{phone}.pdf");
+            var (contentType, extension) = DetectFileType(record.AttendenceDoc);
+
+            return File(record.AttendenceDoc, contentType, $"Attendance_{phone}{extension}");
+        }
+
+        private static (string ContentType, string Extension) DetectFileType(byte[] data)
+        {
+            if (data == null || data.Length < 4)
+                return ("application/octet-stream", ".bin");
+
+            // PDF — %PDF
+            if (data[0] == 0x25 && data[1] == 0x50 && data[2] == 0x44 && data[3] == 0x46)
+                return ("application/pdf", ".pdf");
+
+            // JPG — FF D8 FF
+            if (data[0] == 0xFF && data[1] == 0xD8 && data[2] == 0xFF)
+                return ("image/jpeg", ".jpg");
+
+            // PNG — 89 50 4E 47
+            if (data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47)
+                return ("image/png", ".png");
+
+            // DOC — D0 CF 11 E0 (OLE2 — old .doc format)
+            if (data[0] == 0xD0 && data[1] == 0xCF && data[2] == 0x11 && data[3] == 0xE0)
+                return ("application/msword", ".doc");
+
+            // DOCX — 50 4B 03 04 (ZIP-based — .docx is a ZIP)
+            if (data[0] == 0x50 && data[1] == 0x4B && data[2] == 0x03 && data[3] == 0x04)
+                return ("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx");
+
+            // Fallback
+            return ("application/octet-stream", ".bin");
         }
 
         // ── AJAX: colleges filtered by selected faculty ───────────────────────────

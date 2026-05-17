@@ -41,6 +41,8 @@
                 --blue-bg: #EFF6FF;
                 --blue-bd: rgba(29,78,216,.15);
                 --red: #DC2626;
+                --red-bg: #FEF2F2;
+                --red-bd: rgba(220,38,38,.18);
                 --r-sm: 6px;
                 --r-md: 10px;
                 --r-lg: 14px;
@@ -52,9 +54,7 @@
                 --sidebar-w: 240px;
             }
 
-            html {
-                font-size: 15px;
-            }
+            html { font-size: 15px; }
 
             body {
                 font-family: 'DM Sans', sans-serif;
@@ -180,9 +180,7 @@
                 opacity: .7;
             }
 
-            .nav-link.active .nav-icon, .nav-link:hover .nav-icon {
-                opacity: 1;
-            }
+            .nav-link.active .nav-icon, .nav-link:hover .nav-icon { opacity: 1; }
 
             .sidebar-footer {
                 padding: 12px 10px 16px;
@@ -220,10 +218,7 @@
                 text-overflow: ellipsis;
             }
 
-            .user-role {
-                font-size: .68rem;
-                color: rgba(255,255,255,.35);
-            }
+            .user-role { font-size: .68rem; color: rgba(255,255,255,.35); }
 
             .btn-logout {
                 display: flex;
@@ -259,9 +254,7 @@
                 backdrop-filter: blur(2px);
             }
 
-                .sidebar-overlay.show {
-                    display: block;
-                }
+                .sidebar-overlay.show { display: block; }
 
             /* ══════════════════ MAIN WRAPPER ══════════════════ */
             .main {
@@ -296,7 +289,6 @@
                     background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 40%, transparent 100%);
                 }
 
-            /* Hamburger button – hidden on desktop */
             .btn-hamburger {
                 display: none;
                 align-items: center;
@@ -318,11 +310,7 @@
                 flex-shrink: 0;
             }
 
-            .topbar-page {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
+            .topbar-page { display: flex; align-items: center; gap: 8px; }
 
             .topbar-dot {
                 width: 7px;
@@ -344,17 +332,9 @@
                 gap: 10px;
             }
 
-            .member-band {
-                display: flex;
-                align-items: center;
-                gap: 18px;
-            }
+            .member-band { display: flex; align-items: center; gap: 18px; }
 
-            .mb-item {
-                display: flex;
-                flex-direction: column;
-                gap: 1px;
-            }
+            .mb-item { display: flex; flex-direction: column; gap: 1px; }
 
             .mb-lbl {
                 font-size: .6rem;
@@ -383,11 +363,7 @@
                 padding: 24px 20px 64px;
             }
 
-            .page-blocks {
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
+            .page-blocks { display: flex; flex-direction: column; gap: 20px; }
 
             /* ══════════════════ CARDS ══════════════════ */
             .block-card {
@@ -399,23 +375,13 @@
                 animation: fadeUp .4s var(--ease) both;
             }
 
-                .block-card:nth-child(2) {
-                    animation-delay: .1s;
-                }
+                .block-card:nth-child(2) { animation-delay: .1s; }
 
             @@keyframes fadeUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(12px);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+                from { opacity: 0; transform: translateY(12px); }
+                to   { opacity: 1; transform: translateY(0); }
             }
 
-            /* Card section header */
             .sec-head {
                 display: flex;
                 align-items: center;
@@ -425,17 +391,9 @@
                 border-bottom: 1px solid var(--border);
             }
 
-                .sec-head.navy-accent {
-                    border-left: 3px solid var(--navy);
-                }
-
-                .sec-head.gold-accent {
-                    border-left: 3px solid var(--gold);
-                }
-
-                .sec-head.green-accent {
-                    border-left: 3px solid var(--green);
-                }
+                .sec-head.navy-accent  { border-left: 3px solid var(--navy);  }
+                .sec-head.gold-accent  { border-left: 3px solid var(--gold);  }
+                .sec-head.green-accent { border-left: 3px solid var(--green); }
 
             .sec-icon {
                 width: 32px;
@@ -447,22 +405,11 @@
                 flex-shrink: 0;
             }
 
-                .sec-icon.i-navy {
-                    background: rgba(10,35,66,.07);
-                }
+                .sec-icon.i-navy  { background: rgba(10,35,66,.07); }
+                .sec-icon.i-gold  { background: rgba(201,168,76,.1); }
+                .sec-icon.i-green { background: var(--green-bg); }
 
-                .sec-icon.i-gold {
-                    background: rgba(201,168,76,.1);
-                }
-
-                .sec-icon.i-green {
-                    background: var(--green-bg);
-                }
-
-            .sec-head-text {
-                flex: 1;
-                min-width: 0;
-            }
+            .sec-head-text { flex: 1; min-width: 0; }
 
             .sec-head-title {
                 font-size: .9rem;
@@ -471,11 +418,7 @@
                 letter-spacing: -.01em;
             }
 
-            .sec-head-sub {
-                font-size: .7rem;
-                color: var(--t3);
-                margin-top: 1px;
-            }
+            .sec-head-sub { font-size: .7rem; color: var(--t3); margin-top: 1px; }
 
             .sec-pill {
                 display: inline-flex;
@@ -489,27 +432,11 @@
                 white-space: nowrap;
             }
 
-            .pill-blue {
-                background: var(--blue-bg);
-                color: var(--blue);
-                border: 1px solid var(--blue-bd);
-            }
+            .pill-blue  { background: var(--blue-bg);  color: var(--blue);  border: 1px solid var(--blue-bd);  }
+            .pill-gold  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
+            .pill-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
 
-            .pill-gold {
-                background: var(--amber-bg);
-                color: var(--amber);
-                border: 1px solid var(--amber-bd);
-            }
-
-            .pill-green {
-                background: var(--green-bg);
-                color: var(--green);
-                border: 1px solid var(--green-bd);
-            }
-
-            .sec-body {
-                padding: 20px;
-            }
+            .sec-body { padding: 20px; }
 
             /* ══════════════════ RATE/INFO BANNERS ══════════════════ */
             .alert-ok {
@@ -524,6 +451,64 @@
                 font-size: .82rem;
                 font-weight: 500;
                 margin-bottom: 16px;
+            }
+
+            /* ── Validation Summary Banner ── */
+            .val-summary {
+                display: none;
+                flex-direction: column;
+                gap: 6px;
+                padding: 12px 16px;
+                background: var(--red-bg);
+                border: 1px solid var(--red-bd);
+                border-left: 3px solid var(--red);
+                border-radius: var(--r-sm);
+                margin-bottom: 18px;
+                animation: shakeX .4s var(--ease);
+            }
+            .val-summary.show { display: flex; }
+
+            @@keyframes shakeX {
+                0%,100% { transform: translateX(0); }
+                20%      { transform: translateX(-6px); }
+                40%      { transform: translateX(6px); }
+                60%      { transform: translateX(-4px); }
+                80%      { transform: translateX(4px); }
+            }
+
+            .val-summary-title {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: .82rem;
+                font-weight: 700;
+                color: var(--red);
+            }
+
+            .val-summary-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+                padding-left: 4px;
+            }
+
+            .val-summary-list li {
+                font-size: .75rem;
+                color: #991B1B;
+                font-family: 'DM Mono', monospace;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .val-summary-list li::before {
+                content: '';
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background: var(--red);
+                flex-shrink: 0;
             }
 
             .rate-banner {
@@ -555,15 +540,9 @@
                 flex-shrink: 0;
             }
 
-            .rate-banner.bng-active .rate-banner-lbl {
-                color: var(--amber);
-            }
+            .rate-banner.bng-active .rate-banner-lbl { color: var(--amber); }
 
-            .rate-chips {
-                display: flex;
-                gap: 6px;
-                flex-wrap: wrap;
-            }
+            .rate-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 
             .rate-chip {
                 display: inline-flex;
@@ -575,9 +554,7 @@
                 min-width: 80px;
             }
 
-            .rate-banner.bng-active .rate-chip {
-                border-color: var(--gold-bd);
-            }
+            .rate-banner.bng-active .rate-chip { border-color: var(--gold-bd); }
 
             .chip-lbl {
                 font-size: .6rem;
@@ -594,9 +571,7 @@
                 color: var(--navy);
             }
 
-                .chip-val.gold {
-                    color: var(--amber);
-                }
+                .chip-val.gold { color: var(--amber); }
 
             .bng-banner {
                 display: none;
@@ -614,9 +589,7 @@
                 margin-bottom: 10px;
             }
 
-                .bng-banner.show {
-                    display: flex;
-                }
+                .bng-banner.show { display: flex; }
 
             .pulse-dot {
                 width: 7px;
@@ -628,15 +601,8 @@
             }
 
             @@keyframes pulse {
-                0%, 100% {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-
-                50% {
-                    opacity: .4;
-                    transform: scale(.6);
-                }
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50%       { opacity: .4; transform: scale(.6); }
             }
 
             .rule-banner {
@@ -675,14 +641,8 @@
                 border-bottom: 1px solid var(--border);
             }
 
-                .form-sec:last-child {
-                    border-bottom: none;
-                    padding-bottom: 0;
-                }
-
-                .form-sec:first-child {
-                    padding-top: 0;
-                }
+                .form-sec:last-child  { border-bottom: none; padding-bottom: 0; }
+                .form-sec:first-child { padding-top: 0; }
 
             .form-sec-hd {
                 display: flex;
@@ -702,11 +662,7 @@
                 flex-shrink: 0;
             }
 
-            .form-sec-title {
-                font-size: .9rem;
-                font-weight: 600;
-                color: var(--navy);
-            }
+            .form-sec-title { font-size: .9rem; font-weight: 600; color: var(--navy); }
 
             .form-sec-rule {
                 flex: 1;
@@ -728,23 +684,11 @@
             }
 
             /* ══════════════════ FIELD GRID ══════════════════ */
-            .fg {
-                display: grid;
-                gap: 14px;
-            }
+            .fg { display: grid; gap: 14px; }
+            .fg-2 { grid-template-columns: 1fr 1fr; }
+            .fg-3 { grid-template-columns: 1fr 1fr 1fr; }
 
-            .fg-2 {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .fg-3 {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-
-            .field {
-                display: flex;
-                flex-direction: column;
-            }
+            .field { display: flex; flex-direction: column; }
 
             .field-lbl {
                 font-size: .67rem;
@@ -758,10 +702,7 @@
                 justify-content: space-between;
             }
 
-                .field-lbl .req {
-                    color: var(--blue);
-                    margin-left: 2px;
-                }
+                .field-lbl .req { color: var(--blue); margin-left: 2px; }
 
             .field-hint {
                 font-size: .67rem;
@@ -773,11 +714,36 @@
                 gap: 4px;
             }
 
+            /* ── Validation error styles ── */
             .field-err {
                 font-size: .67rem;
                 color: var(--red);
                 font-weight: 600;
                 margin-top: 4px;
+                display: none;
+                align-items: center;
+                gap: 4px;
+                animation: errSlide .2s var(--ease);
+            }
+            .field-err.show { display: flex; }
+            .field-err::before {
+                content: '!';
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 13px;
+                height: 13px;
+                background: var(--red);
+                color: #fff;
+                border-radius: 50%;
+                font-size: .58rem;
+                font-weight: 800;
+                flex-shrink: 0;
+            }
+
+            @@keyframes errSlide {
+                from { opacity: 0; transform: translateY(-4px); }
+                to   { opacity: 1; transform: none; }
             }
 
             /* ══════════════════ INPUTS ══════════════════ */
@@ -802,13 +768,24 @@
                     box-shadow: 0 0 0 3px rgba(10,35,66,.08);
                 }
 
-                .form-input::placeholder {
-                    color: var(--t3);
-                }
+                .form-input::placeholder { color: var(--t3); }
 
                 .form-input.mono, .form-select.mono {
                     font-family: 'DM Mono', monospace;
                     font-size: .82rem;
+                }
+
+                /* ── Invalid state ── */
+                .form-input.input-invalid, .form-select.input-invalid {
+                    border-color: var(--red) !important;
+                    box-shadow: 0 0 0 3px rgba(220,38,38,.1) !important;
+                    background: var(--red-bg);
+                }
+
+                /* ── Valid state ── */
+                .form-input.input-valid, .form-select.input-valid {
+                    border-color: var(--green) !important;
+                    box-shadow: 0 0 0 2px rgba(5,150,105,.08) !important;
                 }
 
             .form-select {
@@ -827,28 +804,16 @@
             }
 
             input[type=number]::-webkit-inner-spin-button,
-            input[type=number]::-webkit-outer-spin-button {
-                -webkit-appearance: none;
-            }
+            input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
-            input[type=number] {
-                -moz-appearance: textfield;
-            }
+            input[type=number] { -moz-appearance: textfield; }
 
-            input[type="date"].form-input {
-                line-height: 38px;
-                cursor: pointer;
-            }
+            input[type="date"].form-input { line-height: 38px; cursor: pointer; }
 
-                input[type="date"].form-input::-webkit-calendar-picker-indicator {
-                    opacity: .45;
-                    cursor: pointer;
-                }
+                input[type="date"].form-input::-webkit-calendar-picker-indicator { opacity: .45; cursor: pointer; }
 
             /* ══════════════════ SELECT WRAP ══════════════════ */
-            .select-wrap {
-                position: relative;
-            }
+            .select-wrap { position: relative; }
 
             .select-spinner {
                 display: none;
@@ -862,15 +827,10 @@
                 pointer-events: none;
             }
 
-                .select-spinner.show {
-                    display: block;
-                }
+                .select-spinner.show { display: block; }
 
             /* ══════════════════ MULTI-SELECT ══════════════════ */
-            .ms-wrap {
-                position: relative;
-                width: 100%;
-            }
+            .ms-wrap { position: relative; width: 100%; }
 
             .ms-trigger {
                 height: 38px;
@@ -888,9 +848,7 @@
                 transition: border-color .18s, box-shadow .18s;
             }
 
-                .ms-trigger:hover {
-                    border-color: var(--border-dk);
-                }
+                .ms-trigger:hover { border-color: var(--border-dk); }
 
                 .ms-trigger.open {
                     border-color: var(--navy);
@@ -912,8 +870,17 @@
                     flex-shrink: 0;
                 }
 
-                .ms-trigger.open::after {
-                    transform: translateY(-50%) rotate(180deg);
+                .ms-trigger.open::after { transform: translateY(-50%) rotate(180deg); }
+
+                /* ── Multi-select invalid ── */
+                .ms-trigger.ms-invalid {
+                    border-color: var(--red) !important;
+                    box-shadow: 0 0 0 3px rgba(220,38,38,.1) !important;
+                    background: var(--red-bg);
+                }
+                .ms-trigger.ms-valid {
+                    border-color: var(--green) !important;
+                    box-shadow: 0 0 0 2px rgba(5,150,105,.08) !important;
                 }
 
             .ms-placeholder {
@@ -947,15 +914,8 @@
                 flex-shrink: 0;
             }
 
-            .ms-tag-x {
-                cursor: pointer;
-                opacity: .6;
-                font-size: .8rem;
-            }
-
-                .ms-tag-x:hover {
-                    opacity: 1;
-                }
+            .ms-tag-x { cursor: pointer; opacity: .6; font-size: .8rem; }
+                .ms-tag-x:hover { opacity: 1; }
 
             .ms-overflow {
                 font-size: .68rem;
@@ -979,21 +939,11 @@
                 overflow: hidden;
             }
 
-                .ms-panel.open {
-                    display: block;
-                    animation: panelDrop .14s var(--ease);
-                }
+                .ms-panel.open { display: block; animation: panelDrop .14s var(--ease); }
 
             @@keyframes panelDrop {
-                from {
-                    opacity: 0;
-                    transform: translateY(-6px);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: none;
-                }
+                from { opacity: 0; transform: translateY(-6px); }
+                to   { opacity: 1; transform: none; }
             }
 
             .ms-panel-hd {
@@ -1013,10 +963,7 @@
                 color: var(--t3);
             }
 
-            .ms-panel-actions {
-                display: flex;
-                gap: 6px;
-            }
+            .ms-panel-actions { display: flex; gap: 6px; }
 
             .ms-panel-btn {
                 font-size: .64rem;
@@ -1030,28 +977,13 @@
                 transition: all .15s;
             }
 
-                .ms-panel-btn:hover {
-                    background: var(--blue-bg);
-                    border-color: var(--blue-bd);
-                }
+                .ms-panel-btn:hover { background: var(--blue-bg); border-color: var(--blue-bd); }
 
-            .ms-options {
-                max-height: 220px;
-                overflow-y: auto;
-            }
+            .ms-options { max-height: 220px; overflow-y: auto; }
 
-                .ms-options::-webkit-scrollbar {
-                    width: 4px;
-                }
-
-                .ms-options::-webkit-scrollbar-track {
-                    background: var(--surface);
-                }
-
-                .ms-options::-webkit-scrollbar-thumb {
-                    background: var(--border-dk);
-                    border-radius: 2px;
-                }
+                .ms-options::-webkit-scrollbar { width: 4px; }
+                .ms-options::-webkit-scrollbar-track { background: var(--surface); }
+                .ms-options::-webkit-scrollbar-thumb { background: var(--border-dk); border-radius: 2px; }
 
             .ms-option {
                 display: flex;
@@ -1063,21 +995,10 @@
                 border-bottom: 1px solid var(--border);
             }
 
-                .ms-option:last-child {
-                    border-bottom: none;
-                }
-
-                .ms-option:hover {
-                    background: var(--surface);
-                }
-
-                .ms-option.selected {
-                    background: rgba(10,35,66,.03);
-                }
-
-                    .ms-option.selected:hover {
-                        background: rgba(10,35,66,.06);
-                    }
+                .ms-option:last-child { border-bottom: none; }
+                .ms-option:hover { background: var(--surface); }
+                .ms-option.selected { background: rgba(10,35,66,.03); }
+                    .ms-option.selected:hover { background: rgba(10,35,66,.06); }
 
             .ms-chk {
                 width: 15px;
@@ -1092,10 +1013,7 @@
                 transition: background .15s, border-color .15s;
             }
 
-            .ms-option.selected .ms-chk {
-                background: var(--navy);
-                border-color: var(--navy);
-            }
+            .ms-option.selected .ms-chk { background: var(--navy); border-color: var(--navy); }
 
             .ms-chk-tick {
                 width: 8px;
@@ -1110,15 +1028,9 @@
                 transition: opacity .15s, transform .15s;
             }
 
-            .ms-option.selected .ms-chk-tick {
-                opacity: 1;
-                transform: scale(1);
-            }
+            .ms-option.selected .ms-chk-tick { opacity: 1; transform: scale(1); }
 
-            .ms-opt-lbl {
-                font-size: .84rem;
-                color: var(--t1);
-            }
+            .ms-opt-lbl { font-size: .84rem; color: var(--t1); }
 
             .ms-opt-sub {
                 font-size: .63rem;
@@ -1143,9 +1055,7 @@
                 margin-left: 6px;
             }
 
-                .ms-count.hidden {
-                    display: none;
-                }
+                .ms-count.hidden { display: none; }
 
             /* ══════════════════ BANGALORE TOGGLE ══════════════════ */
             .bng-wrap {
@@ -1162,10 +1072,7 @@
                 transition: all .18s;
             }
 
-                .bng-wrap.active {
-                    background: #FFF0C4;
-                    border-color: rgba(201,168,76,.5);
-                }
+                .bng-wrap.active { background: #FFF0C4; border-color: rgba(201,168,76,.5); }
 
             .bng-chk-box {
                 width: 16px;
@@ -1180,10 +1087,7 @@
                 transition: background .15s, border-color .15s;
             }
 
-            .bng-wrap.active .bng-chk-box {
-                background: var(--gold);
-                border-color: var(--gold);
-            }
+            .bng-wrap.active .bng-chk-box { background: var(--gold); border-color: var(--gold); }
 
             .bng-chk-tick {
                 width: 9px;
@@ -1198,21 +1102,11 @@
                 transition: opacity .15s, transform .15s;
             }
 
-            .bng-wrap.active .bng-chk-tick {
-                opacity: 1;
-                transform: scale(1);
-            }
+            .bng-wrap.active .bng-chk-tick { opacity: 1; transform: scale(1); }
 
-            .bng-chk-lbl {
-                font-size: .84rem;
-                color: var(--t2);
-                transition: color .15s;
-            }
+            .bng-chk-lbl { font-size: .84rem; color: var(--t2); transition: color .15s; }
 
-            .bng-wrap.active .bng-chk-lbl {
-                color: var(--amber);
-                font-weight: 600;
-            }
+            .bng-wrap.active .bng-chk-lbl { color: var(--amber); font-weight: 600; }
 
             /* ══════════════════ FILE UPLOAD ══════════════════ */
             .file-drop {
@@ -1227,30 +1121,17 @@
                 gap: 10px;
             }
 
-                .file-drop:hover {
-                    border-color: var(--navy);
-                    background: var(--blue-bg);
-                }
+                .file-drop:hover { border-color: var(--navy); background: var(--blue-bg); }
 
-                .file-drop.amber-drop {
-                    border-color: var(--amber-bd);
-                    background: var(--amber-bg);
-                }
+                .file-drop.amber-drop { border-color: var(--amber-bd); background: var(--amber-bg); }
+                    .file-drop.amber-drop:hover { border-color: var(--amber); background: #FFF0C4; }
 
-                    .file-drop.amber-drop:hover {
-                        border-color: var(--amber);
-                        background: #FFF0C4;
-                    }
+                /* ── File drop invalid ── */
+                .file-drop.drop-invalid { border-color: var(--red) !important; background: var(--red-bg) !important; }
 
-            .file-drop-body {
-                flex: 1;
-            }
+            .file-drop-body { flex: 1; }
 
-            .file-drop-main {
-                font-size: .82rem;
-                font-weight: 500;
-                color: var(--t2);
-            }
+            .file-drop-main { font-size: .82rem; font-weight: 500; color: var(--t2); }
 
             .file-drop-sub {
                 font-size: .68rem;
@@ -1266,6 +1147,8 @@
                 margin-top: 5px;
                 display: none;
             }
+
+            .file-chosen.green { color: var(--green); }
 
             .existing-bill {
                 display: inline-flex;
@@ -1283,19 +1166,10 @@
                 transition: background .15s;
             }
 
-                .existing-bill:hover {
-                    background: #DBEAFE;
-                }
+                .existing-bill:hover { background: #DBEAFE; }
 
-                .existing-bill.amber {
-                    color: var(--amber);
-                    background: var(--amber-bg);
-                    border-color: var(--amber-bd);
-                }
-
-                    .existing-bill.amber:hover {
-                        background: #FFF0C4;
-                    }
+                .existing-bill.amber { color: var(--amber); background: var(--amber-bg); border-color: var(--amber-bd); }
+                    .existing-bill.amber:hover { background: #FFF0C4; }
 
             .upload-na {
                 display: none;
@@ -1310,9 +1184,7 @@
                 font-family: 'DM Mono', monospace;
             }
 
-                .upload-na.show {
-                    display: flex;
-                }
+                .upload-na.show { display: flex; }
 
             .info-panel {
                 padding: 12px 14px;
@@ -1326,12 +1198,7 @@
                 gap: 5px;
             }
 
-            .info-panel-title {
-                font-size: .82rem;
-                font-weight: 600;
-                color: var(--amber);
-                margin-bottom: 2px;
-            }
+            .info-panel-title { font-size: .82rem; font-weight: 600; color: var(--amber); margin-bottom: 2px; }
 
             .info-panel-item {
                 font-size: .72rem;
@@ -1369,26 +1236,11 @@
                 transition: background .18s;
             }
 
-                .km-calc.active {
-                    background: #DBEAFE;
-                    border-color: rgba(29,78,216,.3);
-                }
+                .km-calc.active { background: #DBEAFE; border-color: rgba(29,78,216,.3); }
 
-            .km-eq {
-                color: var(--t3);
-                margin: 0 2px;
-            }
-
-            .km-amt {
-                font-weight: 700;
-                color: var(--navy);
-                font-size: .78rem;
-            }
-
-            .km-zero {
-                color: var(--t3);
-                font-style: italic;
-            }
+            .km-eq  { color: var(--t3); margin: 0 2px; }
+            .km-amt { font-weight: 700; color: var(--navy); font-size: .78rem; }
+            .km-zero { color: var(--t3); font-style: italic; }
 
             /* ══════════════════ SUMMARY TABLE ══════════════════ */
             .summary-wrap {
@@ -1398,10 +1250,7 @@
                 margin-bottom: 18px;
             }
 
-            .summary-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
+            .summary-table { width: 100%; border-collapse: collapse; }
 
                 .summary-table thead th {
                     background: var(--navy);
@@ -1416,9 +1265,7 @@
                     border: 1px solid rgba(255,255,255,.06);
                 }
 
-                    .summary-table thead th.r {
-                        text-align: right;
-                    }
+                    .summary-table thead th.r { text-align: right; }
 
                 .summary-table td {
                     padding: 9px 14px;
@@ -1435,13 +1282,8 @@
                         color: var(--t1);
                     }
 
-                .summary-table tbody tr:nth-child(even) td {
-                    background: rgba(10,35,66,.015);
-                }
-
-                .summary-table tbody tr:hover td {
-                    background: rgba(10,35,66,.03);
-                }
+                .summary-table tbody tr:nth-child(even) td { background: rgba(10,35,66,.015); }
+                .summary-table tbody tr:hover td { background: rgba(10,35,66,.03); }
 
                 .summary-table tr.rule-row td {
                     background: var(--amber-bg) !important;
@@ -1493,18 +1335,11 @@
                     }
 
             @@keyframes flashVal {
-                0% {
-                    background: rgba(201,168,76,.25);
-                }
-
-                100% {
-                    background: transparent;
-                }
+                0%   { background: rgba(201,168,76,.25); }
+                100% { background: transparent; }
             }
 
-            .flash td {
-                animation: flashVal .4s ease;
-            }
+            .flash td { animation: flashVal .4s ease; }
 
             /* ══════════════════ DECLARATION ══════════════════ */
             .declaration {
@@ -1520,11 +1355,7 @@
                 margin-bottom: 18px;
             }
 
-                .declaration strong {
-                    font-style: normal;
-                    font-weight: 600;
-                    color: var(--navy);
-                }
+                .declaration strong { font-style: normal; font-weight: 600; color: var(--navy); }
 
             /* Submit row */
             .submit-row {
@@ -1579,15 +1410,9 @@
                 }
 
             /* ══════════════════ SAVED RECORDS TABLE ══════════════════ */
-            .saved-wrap {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
+            .saved-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-            .saved-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
+            .saved-table { width: 100%; border-collapse: collapse; }
 
                 .saved-table thead th {
                     background: var(--navy);
@@ -1603,9 +1428,7 @@
                     white-space: nowrap;
                 }
 
-                    .saved-table thead th.r {
-                        text-align: right;
-                    }
+                    .saved-table thead th.r { text-align: right; }
 
                 .saved-table td {
                     padding: 10px 12px;
@@ -1616,18 +1439,10 @@
                     font-size: .82rem;
                 }
 
-                .saved-table tbody tr:nth-child(even) td {
-                    background: rgba(10,35,66,.015);
-                }
+                .saved-table tbody tr:nth-child(even) td { background: rgba(10,35,66,.015); }
+                .saved-table tbody tr:hover td { background: rgba(10,35,66,.03); }
 
-                .saved-table tbody tr:hover td {
-                    background: rgba(10,35,66,.03);
-                }
-
-                .saved-table td.mono {
-                    font-family: 'DM Mono', monospace;
-                    font-size: .75rem;
-                }
+                .saved-table td.mono { font-family: 'DM Mono', monospace; font-size: .75rem; }
 
                 .saved-table td.amount {
                     font-family: 'DM Mono', monospace;
@@ -1676,11 +1491,7 @@
                 margin: 1px;
             }
 
-                .s-badge.gold {
-                    background: var(--gold-pale);
-                    color: var(--amber);
-                    border-color: var(--gold-bd);
-                }
+                .s-badge.gold { background: var(--gold-pale); color: var(--amber); border-color: var(--gold-bd); }
 
             .no-rec {
                 text-align: center;
@@ -1710,21 +1521,11 @@
                 text-transform: uppercase;
             }
 
-            .foot-sep {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
+            .foot-sep { display: flex; align-items: center; gap: 6px; }
 
-            .diamond {
-                width: 4px;
-                height: 4px;
-                background: var(--t3);
-                transform: rotate(45deg);
-            }
+            .diamond { width: 4px; height: 4px; background: var(--t3); transform: rotate(45deg); }
 
-            /* ══════════════════ MOBILE SUMMARY CARD ══════════════════ */
-            /* Sticky bottom grand total on mobile */
+            /* ══════════════════ MOBILE TOTAL BAR ══════════════════ */
             .mobile-total-bar {
                 display: none;
                 position: fixed;
@@ -1765,205 +1566,63 @@
                 color: var(--gold-lt);
             }
 
-            .mobile-total-left {
-                display: flex;
-                flex-direction: column;
-                gap: 1px;
-            }
+            .mobile-total-left { display: flex; flex-direction: column; gap: 1px; }
 
             /* ══════════════════ RESPONSIVE — TABLET ══════════════════ */
             @@media (min-width: 769px) and (max-width: 960px) {
-                : root {
-                    --sidebar-w: 200px;
-                }
-
-                .fg-3 {
-                    grid-template-columns: 1fr 1fr;
-                }
-
-                .member-band .mb-item:nth-child(n+4) {
-                    display: none;
-                }
-
-                .member-band .topbar-div:nth-child(n+4) {
-                    display: none;
-                }
+                :root { --sidebar-w: 200px; }
+                .fg-3 { grid-template-columns: 1fr 1fr; }
+                .member-band .mb-item:nth-child(n+4)  { display: none; }
+                .member-band .topbar-div:nth-child(n+4) { display: none; }
             }
 
             /* ══════════════════ RESPONSIVE — MOBILE ══════════════════ */
             @@media (max-width: 768px) {
-                html {
-                    font-size: 14px;
-                }
-                /* Layout shift: sidebar becomes off-canvas drawer */
-                .sidebar {
-                    transform: translateX(-100%);
-                    width: 280px;
-                }
+                html { font-size: 14px; }
 
-                    .sidebar.open {
-                        transform: translateX(0);
-                        box-shadow: 4px 0 24px rgba(0,0,0,.35);
-                    }
+                .sidebar { transform: translateX(-100%); width: 280px; }
+                    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,.35); }
 
-                .main {
-                    margin-left: 0;
-                }
-                /* Show hamburger */
-                .btn-hamburger {
-                    display: inline-flex;
-                }
-                /* Topbar adjustments */
-                .topbar {
-                    padding: 0 14px;
-                    gap: 10px;
-                }
+                .main { margin-left: 0; }
+                .btn-hamburger { display: inline-flex; }
+                .topbar { padding: 0 14px; gap: 10px; }
+                .member-band { display: none; }
+                .topbar-div { display: none; }
+                .page { padding: 14px 12px 72px; }
+                .page-blocks { gap: 14px; }
+                .sec-head { padding: 12px 14px; gap: 10px; flex-wrap: wrap; }
+                .sec-head-sub { font-size: .65rem; }
+                .sec-pill { font-size: .6rem; padding: 2px 7px; }
+                .sec-body { padding: 14px; }
+                .fg-2, .fg-3 { grid-template-columns: 1fr; }
 
-                .member-band {
-                    display: none;
-                }
+                .rate-banner { flex-direction: column; align-items: flex-start; gap: 8px; }
+                .rate-chips { width: 100%; }
+                .rate-chip { min-width: calc(50% - 4px); flex: 1; }
+                .rule-banner { padding: 8px 12px; }
+                .rule-tag { font-size: .67rem; }
+                .form-sec-hd { gap: 8px; }
+                .form-sec-title { font-size: .85rem; }
+                .form-sec-rule { min-width: 10px; }
 
-                .topbar-div {
-                    display: none;
-                }
-                /* Page padding */
-                .page {
-                    padding: 14px 12px 72px;
-                }
-                /* 72px for sticky bottom bar */
-                .page-blocks {
-                    gap: 14px;
-                }
-                /* Sec head – allow wrap */
-                .sec-head {
-                    padding: 12px 14px;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                }
+                .summary-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--r-sm); }
+                .summary-table { min-width: 560px; }
+                    .summary-table thead th, .summary-table td { padding: 8px 10px; font-size: .75rem; }
+                        .summary-table td.r { font-size: .75rem; }
+                    .summary-table tr.grand-row td.r { font-size: .88rem; }
 
-                .sec-head-sub {
-                    font-size: .65rem;
-                }
+                .declaration { font-size: .74rem; padding: 10px 12px; }
+                .submit-row { flex-direction: column-reverse; }
+                .btn-submit { width: 100%; justify-content: center; }
+                .submit-note { justify-content: center; }
+                .info-panel { height: auto; }
+                .file-drop { padding: 10px 12px; }
+                .file-drop-main { font-size: .78rem; }
 
-                .sec-pill {
-                    font-size: .6rem;
-                    padding: 2px 7px;
-                }
-                /* Sec body */
-                .sec-body {
-                    padding: 14px;
-                }
-                /* Form grids collapse to 1 col */
-                .fg-2, .fg-3 {
-                    grid-template-columns: 1fr;
-                }
-                /* Rate banner: stack nicely */
-                .rate-banner {
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 8px;
-                }
+                .ms-panel { position: fixed; top: auto; bottom: 0; left: 0; right: 0; border-radius: var(--r-md) var(--r-md) 0 0; box-shadow: 0 -8px 32px rgba(0,0,0,.2); }
+                .ms-options { max-height: 50vh; }
+                .ms-option { padding: 12px 16px; }
 
-                .rate-chips {
-                    width: 100%;
-                }
-
-                .rate-chip {
-                    min-width: calc(50% - 4px);
-                    flex: 1;
-                }
-                /* Rule banner: smaller text */
-                .rule-banner {
-                    padding: 8px 12px;
-                }
-
-                .rule-tag {
-                    font-size: .67rem;
-                }
-                /* Form section headers */
-                .form-sec-hd {
-                    gap: 8px;
-                }
-
-                .form-sec-title {
-                    font-size: .85rem;
-                }
-
-                .form-sec-rule {
-                    min-width: 10px;
-                }
-                /* Summary table: make it horizontally scrollable */
-                .summary-wrap {
-                    overflow-x: auto;
-                    -webkit-overflow-scrolling: touch;
-                    border-radius: var(--r-sm);
-                }
-
-                .summary-table {
-                    min-width: 560px;
-                }
-
-                    .summary-table thead th, .summary-table td {
-                        padding: 8px 10px;
-                        font-size: .75rem;
-                    }
-
-                        .summary-table td.r {
-                            font-size: .75rem;
-                        }
-
-                    .summary-table tr.grand-row td.r {
-                        font-size: .88rem;
-                    }
-                /* Declaration */
-                .declaration {
-                    font-size: .74rem;
-                    padding: 10px 12px;
-                }
-                /* Submit row */
-                .submit-row {
-                    flex-direction: column-reverse;
-                }
-
-                .btn-submit {
-                    width: 100%;
-                    justify-content: center;
-                }
-
-                .submit-note {
-                    justify-content: center;
-                }
-                /* Info panel: not fixed height on mobile */
-                .info-panel {
-                    height: auto;
-                }
-                /* File drop */
-                .file-drop {
-                    padding: 10px 12px;
-                }
-
-                .file-drop-main {
-                    font-size: .78rem;
-                }
-                /* Multi-select panel: full height on mobile */
-                .ms-panel {
-                    position: fixed;
-                    top: auto;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    border-radius: var(--r-md) var(--r-md) 0 0;
-                    box-shadow: 0 -8px 32px rgba(0,0,0,.2);
-                }
-
-                .ms-options {
-                    max-height: 50vh;
-                }
-
-                .ms-option {
-                    padding: 12px 16px;
-                }
-                /* Saved records table: scroll hint */
                 .saved-wrap::before {
                     content: '← Scroll to see all columns →';
                     display: block;
@@ -1976,66 +1635,24 @@
                     border-bottom: 1px solid var(--border);
                 }
 
-                .saved-table thead th, .saved-table td {
-                    padding: 8px 10px;
-                    font-size: .72rem;
-                }
+                .saved-table thead th, .saved-table td { padding: 8px 10px; font-size: .72rem; }
+                    .saved-table td.amount { font-size: .72rem; }
+                    .saved-table td.grand-amt { font-size: .78rem; }
 
-                    .saved-table td.amount {
-                        font-size: .72rem;
-                    }
-
-                    .saved-table td.grand-amt {
-                        font-size: .78rem;
-                    }
-                /* Card footer: simplify */
-                .card-foot {
-                    justify-content: center;
-                }
-
-                .foot-sep {
-                    display: none;
-                }
-                /* Sticky mobile total bar */
-                .mobile-total-bar {
-                    display: flex;
-                }
-                /* BNG banner: wrap text */
-                .bng-banner {
-                    font-size: .7rem;
-                }
-                /* No rec */
-                .no-rec {
-                    padding: 24px;
-                }
-                /* Topbar title size */
-                .topbar-title {
-                    font-size: .82rem;
-                }
+                .card-foot { justify-content: center; }
+                .foot-sep  { display: none; }
+                .mobile-total-bar { display: flex; }
+                .bng-banner { font-size: .7rem; }
+                .no-rec { padding: 24px; }
+                .topbar-title { font-size: .82rem; }
             }
 
-            /* Extra small (≤420px) */
             @@media (max-width: 420px) {
-                html {
-                    font-size: 13px;
-                }
-
-                .rate-chip {
-                    min-width: calc(50% - 4px);
-                }
-
-                .sec-head-title {
-                    font-size: .82rem;
-                }
-
-                .summary-table {
-                    min-width: 500px;
-                }
-
-                .rule-banner {
-                    flex-direction: column;
-                    gap: 4px;
-                }
+                html { font-size: 13px; }
+                .rate-chip { min-width: calc(50% - 4px); }
+                .sec-head-title { font-size: .82rem; }
+                .summary-table { min-width: 500px; }
+                .rule-banner { flex-direction: column; gap: 4px; }
             }
     </style>
 </head>
@@ -2043,7 +1660,6 @@
 
     <input type="hidden" id="urlGetCollegesByFaculty" value="@Url.Action("GetCollegesByFaculty", "LICInspection")" />
 
-    <!-- Mobile sidebar overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
     <!-- ══════════════════════════════════════════
@@ -2053,7 +1669,7 @@
         <div class="sidebar-logo">
             <img src="~/images/logo.jpg" alt="Logo" />
             <div>
-                <div class="sidebar-logo-text">LIC Portal</div>
+                <div class="sidebar-logo-text">LIC Inspection Claims Portal</div>
                 <div class="sidebar-logo-sub">Inspection Management</div>
             </div>
         </div>
@@ -2120,11 +1736,7 @@
     ══════════════════════════════════════════ -->
     <div class="main">
 
-        <!-- ══════════════════════════════════════════
-             TOPBAR
-        ══════════════════════════════════════════ -->
         <header class="topbar">
-            <!-- Hamburger – mobile only -->
             <button class="btn-hamburger" id="btnHamburger" onclick="openSidebar()" aria-label="Open navigation">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -2146,7 +1758,7 @@
                     </div>
                     <div class="topbar-div"></div>
                     <div class="mb-item">
-                        <span class="mb-lbl">Designation</span>
+                        <span class="mb-lbl">Role</span>
                         <span class="mb-val">@Model.TypeofMember</span>
                     </div>
                     <div class="topbar-div"></div>
@@ -2163,9 +1775,6 @@
             </div>
         </header>
 
-        <!-- ══════════════════════════════════════════
-             PAGE
-        ══════════════════════════════════════════ -->
         <div class="page">
             <div class="page-blocks">
 
@@ -2196,6 +1805,17 @@
                             </div>
                         }
 
+                        <!-- ── Validation Summary ── -->
+                        <div class="val-summary" id="valSummary">
+                            <div class="val-summary-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                Please fix the following errors before submitting:
+                            </div>
+                            <ul class="val-summary-list" id="valSummaryList"></ul>
+                        </div>
+
                         <!-- Rate Banner -->
                         <div class="rate-banner" id="rateBanner">
                             <span class="rate-banner-lbl" id="divisionLabel">Division: —</span>
@@ -2224,7 +1844,7 @@
                             <span class="rule-tag">Order copy &amp; attendance with seal &amp; signature compulsory</span>
                         </div>
 
-                        <form asp-action="ClaimDetails" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <form id="claimForm" asp-action="ClaimDetails" method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
                             @Html.AntiForgeryToken()
 
                             <!-- ── SECTION I — Inspection Details ── -->
@@ -2238,19 +1858,19 @@
 
                                 @{
                                     var submittedCollegeCodes = Model.SavedClaims
-                                    .Select(x => x.CollegeCode)
-                                    .Where(c => !string.IsNullOrWhiteSpace(c))
-                                    .ToHashSet();
+                                        .Select(x => x.CollegeCode)
+                                        .Where(c => !string.IsNullOrWhiteSpace(c))
+                                        .ToHashSet();
                                     var availableColleges = Model.CollegeOptions
-                                    .Where(x => x.Value != "" && !submittedCollegeCodes.Contains(x.Value))
-                                    .ToList();
+                                        .Where(x => x.Value != "" && !submittedCollegeCodes.Contains(x.Value))
+                                        .ToList();
                                 }
 
                                 <!-- Row 1: Faculty + College -->
                                 <div class="fg fg-2" style="margin-bottom:14px">
                                     <div class="field">
                                         <label asp-for="Faculty" class="field-lbl">Faculty <span class="req">*</span></label>
-                                        <select asp-for="Faculty" id="FacultySelect" class="form-select" onchange="onFacultyChange(this.value)">
+                                        <select asp-for="Faculty" id="FacultySelect" class="form-select" onchange="onFacultyChange(this.value); validateField(this, 'errFaculty', 'Please select a faculty')">
                                             @if (Model.FacultyOptions != null && Model.FacultyOptions.Any())
                                             {
                                                 @foreach (var f in Model.FacultyOptions)
@@ -2274,13 +1894,14 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             College list updates on selection
                                         </span>
-                                        <span asp-validation-for="Faculty" class="field-err"></span>
+                                        <span class="field-err" id="errFaculty"></span>
                                     </div>
 
                                     <div class="field">
                                         <label asp-for="CollegeCode" class="field-lbl">College <span class="req">*</span></label>
                                         <div class="select-wrap">
-                                            <select asp-for="CollegeCode" id="CollegeSelect" class="form-select">
+                                            <select asp-for="CollegeCode" id="CollegeSelect" class="form-select"
+                                                    onchange="validateField(this, 'errCollege', 'Please select a college')">
                                                 @if (!string.IsNullOrWhiteSpace(Model.Faculty) && availableColleges.Any())
                                                 {
                                                     <option value="">— Select College —</option>
@@ -2315,7 +1936,7 @@
                                         {
                                             <span class="field-hint">Filtered by the faculty selected above</span>
                                         }
-                                        <span asp-validation-for="CollegeCode" class="field-err"></span>
+                                        <span class="field-err" id="errCollege"></span>
                                     </div>
                                 </div>
 
@@ -2343,12 +1964,12 @@
                                                     @{
                                                         var selectedModes = Model.ModeOfTravel ?? new List<string>();
                                                         var modeSubs = new Dictionary<string, string> {
-                                                                                                        { "Road",  "Own vehicle / cab — TA ₹15/km" },
-                                                                                                        { "Train", "Rail travel — attach ticket" },
-                                                                                                        { "Air",   "Air travel — fare + road ₹750/₹2,000" },
-                                                                                                        { "Bus",   "Bus / KSRTC — attach ticket" },
-                                                                                                        { "Auto",  "Auto / local conveyance" }
-                                                                                                        };
+                                                            { "Road",  "Own vehicle / cab — TA ₹15/km" },
+                                                            { "Train", "Rail travel — attach ticket" },
+                                                            { "Air",   "Air travel — fare + road ₹750/₹2,000" },
+                                                            { "Bus",   "Bus / KSRTC — attach ticket" },
+                                                            { "Auto",  "Auto / local conveyance" }
+                                                        };
                                                     }
                                                     @foreach (var item in Model.ModeOfTravelOptions.Where(x => x.Value != ""))
                                                     {
@@ -2377,69 +1998,75 @@
                                         </div>
                                         <div id="msHiddenFields"></div>
                                         <span class="field-hint">Multiple modes allowed (e.g. Train, Auto, Etc)</span>
+                                        <span class="field-err" id="errMode"></span>
                                     </div>
 
                                     <div class="field">
                                         <label asp-for="InspectionDate" class="field-lbl">Inspection Date <span class="req">*</span></label>
-                                        <input asp-for="InspectionDate" type="date" class="form-input mono"
-                                               value="@(Model.InspectionDate.HasValue ? Model.InspectionDate.Value.ToString("yyyy-MM-dd") : "")" />
+                                        <input asp-for="InspectionDate" type="date" id="InspectionDate" class="form-input mono"
+                                               value="@(Model.InspectionDate.HasValue ? Model.InspectionDate.Value.ToString("yyyy-MM-dd") : "")"
+                                               onchange="validateDate(this, 'errDate')" />
                                         <span class="field-hint">Date of college inspection visit</span>
-                                        <span asp-validation-for="InspectionDate" class="field-err"></span>
+                                        <span class="field-err" id="errDate"></span>
                                     </div>
 
                                     <div class="field">
-                                        <label class="field-lbl">Upload Bills <span style="text-transform:none;color:var(--t3);font-size:.6rem">(PDF only)</span></label>
+                                        <label class="field-lbl" id="lblBills">
+                                            Upload Bills
+                                            <span style="text-transform:none;color:var(--t3);font-size:.6rem">(PDF only)</span>
+                                            <span class="req" id="billsReqMark" style="display:none">*</span>
+                                        </label>
                                         <div id="fileDropWrapper">
-                                            <div class="file-drop" onclick="document.getElementById('fileInput').click()">
+                                            <div class="file-drop" id="fileDropEl" onclick="document.getElementById('fileInput').click()">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                                                 <div class="file-drop-body">
                                                     <div class="file-drop-main">Click to upload PDF</div>
                                                     <div class="file-drop-sub">Max 5 MB · PDF only</div>
                                                 </div>
                                             </div>
-                                            <input type="file" id="fileInput" name="UploadBillsFile" accept=".pdf" onchange="showFileName(this,'fileChosen')" style="display:none" />
+                                            <input type="file" id="fileInput" name="UploadBillsFile" accept=".pdf"
+                                                   onchange="showFileName(this,'fileChosen'); validateBillFile()" style="display:none" />
                                             <span class="file-chosen" id="fileChosen"></span>
-                                            @if (Model.HasUploadedBill)
-                                            {
-                                                <a asp-action="DownloadBill" asp-controller="LICInspection" target="_blank" class="existing-bill">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                                                    View existing bill
-                                                </a>
-                                            }
                                         </div>
                                         <div class="upload-na" id="uploadNaNote">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
                                             Not required for Road-only travel
                                         </div>
+                                        <span class="field-err" id="errBills"></span>
                                     </div>
                                 </div>
 
                                 <!-- Row 3: Attendance + Checklist -->
                                 <div class="fg fg-2" style="margin-bottom:14px">
                                     <div class="field">
-                                        <label class="field-lbl">Attendance Document <span style="text-transform:none;color:var(--t3);font-size:.6rem">(PDF · order copy with seal)</span></label>
-                                        <div class="file-drop amber-drop" onclick="document.getElementById('attendenceInput').click()">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        <label class="field-lbl">
+                                            Attendance Document <span class="req">*</span>
+                                            <span style="text-transform:none;color:var(--t3);font-size:.6rem">
+                                                (PDF, JPG, PNG, DOC · order copy with seal)
+                                            </span>
+                                        </label>
+                                        <div class="file-drop amber-drop" id="attendDropEl" onclick="document.getElementById('attendenceInput').click()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
                                             <div class="file-drop-body">
                                                 <div class="file-drop-main">Upload Attendance Document</div>
-                                                <div class="file-drop-sub">Order copy · seal &amp; signature · Max 5 MB</div>
+                                                <div class="file-drop-sub">Order copy · seal &amp; signature · Max 5 MB · PDF, JPG, PNG, DOC, DOCX</div>
                                             </div>
                                         </div>
-                                        <input type="file" id="attendenceInput" name="AttendenceDocFile" accept=".pdf" onchange="showFileName(this,'attendenceChosen')" style="display:none" />
+                                        <input type="file" id="attendenceInput" name="AttendenceDocFile"
+                                               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                               onchange="showFileName(this,'attendenceChosen'); validateAttendFile()"
+                                               style="display:none" />
                                         <span class="file-chosen" id="attendenceChosen"></span>
-                                        @if (Model.HasUploadedAttendence)
-                                        {
-                                            <a asp-action="DownloadAttendenceDoc" asp-controller="LICInspection" target="_blank" class="existing-bill amber">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                                View existing attendance doc
-                                            </a>
-                                        }
+                                        <span class="field-err" id="errAttend"></span>
                                     </div>
 
                                     <div class="field">
                                         <div class="info-panel">
                                             <div class="info-panel-title">Document Checklist</div>
                                             <div class="info-panel-item">Attendance sheet with seal &amp; signature</div>
+                                            <div class="info-panel-item">Accepted formats: PDF, JPG, PNG, DOC, DOCX</div>
                                             <div class="info-panel-item">Air ticket copy (if Air mode selected)</div>
                                             <div class="info-panel-item">Train / Bus ticket (if applicable)</div>
                                         </div>
@@ -2453,8 +2080,10 @@
                                         <input type="number" name="NumberOfDays" id="numberOfDays"
                                                class="form-input mono" min="1" step="1"
                                                value="@(Model.NumberOfDays > 0 ? Model.NumberOfDays : 1)"
-                                               placeholder="1" oninput="recalc()"  />
+                                               placeholder="1"
+                                               oninput="recalc(); validateNumberField(this, 'errDays', 'Number of days must be at least 1', 1)" />
                                         <span class="field-hint">For DA / LCA calculation</span>
+                                        <span class="field-err" id="errDays"></span>
                                     </div>
 
                                     <div class="field">
@@ -2471,12 +2100,14 @@
                                     </div>
 
                                     <div class="field" id="airFareField" style="display:none">
-                                        <label class="field-lbl">Air Fare (₹)</label>
+                                        <label class="field-lbl">Air Fare (₹) <span class="req">*</span></label>
                                         <input type="number" id="airFareInput" name="AirFareActual"
                                                class="form-input mono" min="0" step="0.01"
                                                value="@(Model.AirFareCost.HasValue && Model.AirFareCost > 0 ? Model.AirFareCost.Value.ToString("F2") : "")"
-                                               placeholder="0.00" oninput="recalc()" />
+                                               placeholder="0.00"
+                                               oninput="recalc(); validateNumberField(this, 'errAirFare', 'Please enter the air fare amount', 0)" />
                                         <span class="field-hint">Actual ticket cost (attach bill)</span>
+                                        <span class="field-err" id="errAirFare"></span>
                                     </div>
                                 </div>
                             </div>
@@ -2492,20 +2123,22 @@
                                 <div class="fg fg-3">
                                     <div class="field">
                                         <label asp-for="FromPlace" class="field-lbl">From Place <span class="req">*</span></label>
-                                        <input asp-for="FromPlace" class="form-input" placeholder="e.g. Chennai" oninput="recalc()" />
-                                        <span asp-validation-for="FromPlace" class="field-err"></span>
+                                        <input asp-for="FromPlace" id="FromPlace" class="form-input" placeholder="e.g. Chennai"
+                                               oninput="recalc(); validateTextField(this, 'errFromPlace', 'From Place is required')" />
+                                        <span class="field-err" id="errFromPlace"></span>
                                     </div>
                                     <div class="field">
                                         <label asp-for="ToPlace" class="field-lbl">To Place <span class="req">*</span></label>
-                                        <input asp-for="ToPlace" class="form-input" placeholder="e.g. Bangalore"
-                                               oninput="recalc(); var rf=document.querySelector('[name=ReturnFromPlace]'); if(rf && !rf._touched) rf.value=this.value;" />
-                                        <span asp-validation-for="ToPlace" class="field-err"></span>
+                                        <input asp-for="ToPlace" id="ToPlace" class="form-input" placeholder="e.g. Bangalore"
+                                               oninput="recalc(); validateTextField(this, 'errToPlace', 'To Place is required'); var rf=document.querySelector('[name=ReturnFromPlace]'); if(rf && !rf._touched) rf.value=this.value;" />
+                                        <span class="field-err" id="errToPlace"></span>
                                     </div>
                                     <div class="field">
                                         <label asp-for="Kilometers" class="field-lbl">Distance (km) <span class="req">*</span></label>
-                                        <input asp-for="Kilometers" class="form-input mono" type="number" min="0" step="0.01" placeholder="0.00" oninput="recalc()" />
+                                        <input asp-for="Kilometers" id="Kilometers" class="form-input mono" type="number" min="0" step="0.01" placeholder="0.00"
+                                               oninput="recalc(); validateNumberField(this, 'errKm', 'Please enter distance in km', 0.01)" />
                                         <div class="km-calc" id="calc-fwd"><span class="km-zero">Enter km to calculate</span></div>
-                                        <span asp-validation-for="Kilometers" class="field-err"></span>
+                                        <span class="field-err" id="errKm"></span>
                                     </div>
                                 </div>
                             </div>
@@ -2513,7 +2146,6 @@
                             <!-- ── SECTION III — Return Journey ── -->
                             <div class="form-sec">
                                 <div class="form-sec-hd">
-                                    <span class="form-sec-num">Section III</span>
                                     <span class="form-sec-title">Return Journey</span>
                                     <div class="form-sec-rule"></div>
                                     <span class="form-sec-badge pill-blue">College → Base</span>
@@ -2521,20 +2153,22 @@
                                 <div class="fg fg-3">
                                     <div class="field">
                                         <label asp-for="ReturnFromPlace" class="field-lbl">Return From <span class="req">*</span></label>
-                                        <input asp-for="ReturnFromPlace" class="form-input" placeholder="e.g. Bangalore"
-                                               oninput="this._touched=true; recalc()" />
-                                        <span asp-validation-for="ReturnFromPlace" class="field-err"></span>
+                                        <input asp-for="ReturnFromPlace" id="ReturnFromPlace" class="form-input" placeholder="e.g. Bangalore"
+                                               oninput="this._touched=true; recalc(); validateTextField(this, 'errRetFromPlace', 'Return From Place is required')" />
+                                        <span class="field-err" id="errRetFromPlace"></span>
                                     </div>
                                     <div class="field">
                                         <label asp-for="ReturnToPlace" class="field-lbl">Return To <span class="req">*</span></label>
-                                        <input asp-for="ReturnToPlace" class="form-input" placeholder="e.g. Chennai" oninput="recalc()" />
-                                        <span asp-validation-for="ReturnToPlace" class="field-err"></span>
+                                        <input asp-for="ReturnToPlace" id="ReturnToPlace" class="form-input" placeholder="e.g. Chennai"
+                                               oninput="recalc(); validateTextField(this, 'errRetToPlace', 'Return To Place is required')" />
+                                        <span class="field-err" id="errRetToPlace"></span>
                                     </div>
                                     <div class="field">
                                         <label asp-for="ReturnKilometers" class="field-lbl">Distance (km) <span class="req">*</span></label>
-                                        <input asp-for="ReturnKilometers" class="form-input mono" type="number" min="0" step="0.01" placeholder="0.00" oninput="recalc()" />
+                                        <input asp-for="ReturnKilometers" id="ReturnKilometers" class="form-input mono" type="number" min="0" step="0.01" placeholder="0.00"
+                                               oninput="recalc(); validateNumberField(this, 'errRetKm', 'Please enter return distance in km', 0.01)" />
                                         <div class="km-calc" id="calc-ret"><span class="km-zero">Enter km to calculate</span></div>
-                                        <span asp-validation-for="ReturnKilometers" class="field-err"></span>
+                                        <span class="field-err" id="errRetKm"></span>
                                     </div>
                                 </div>
                             </div>
@@ -2542,7 +2176,7 @@
                             <!-- ── SECTION IV — Claim Summary ── -->
                             <div class="form-sec">
                                 <div class="form-sec-hd">
-                                    <span class="form-sec-num">Section IV</span>
+                                    <span class="form-sec-num">Section III</span>
                                     <span class="form-sec-title">Claim Summary</span>
                                     <div class="form-sec-rule"></div>
                                     <span class="form-sec-badge pill-gold" id="divBadge">Division: —</span>
@@ -2605,9 +2239,9 @@
                                             </tr>
                                             <tr>
                                                 <td>College Inspection Allowance</td>
-                                                <td>@Model.AssignedColleges.Count college(s) × ₹ 2,500</td>
+                                                <td>1 college × ₹ 2,500</td>
                                                 <td class="r" style="font-family:'DM Mono',monospace">₹ 2,500</td>
-                                                <td class="r" id="vCollege">₹ @((Model.AssignedColleges.Count * 2500).ToString("N2"))</td>
+                                                <td class="r" id="vCollege">₹ 2,500.00</td>
                                             </tr>
                                             <tr class="total-row">
                                                 <td colspan="3">Total Distance Travelled</td>
@@ -2631,17 +2265,17 @@
 
                                 <!-- Hidden fields -->
                                 <input asp-for="TotalCost" type="hidden" id="hidTotal" />
-                                <input name="TACost" type="hidden" id="hidTA" value="0" />
-                                <input name="DACost" type="hidden" id="hidDA" value="0" />
-                                <input name="LCACost" type="hidden" id="hidLCA" value="0" />
+                                <input name="TACost"      type="hidden" id="hidTA"      value="0" />
+                                <input name="DACost"      type="hidden" id="hidDA"      value="0" />
+                                <input name="LCACost"     type="hidden" id="hidLCA"     value="0" />
                                 <input name="AirFareCost" type="hidden" id="hidAirFare" value="0" />
                                 <input name="AirRoadCost" type="hidden" id="hidAirRoad" value="0" />
                                 <input name="CollegeCost" type="hidden" id="hidCollege" value="0" />
-                                <input name="Division" type="hidden" id="hidDivision" value="" />
-                                <input name="IsLCA" type="hidden" id="hidIsLCA" value="false" />
+                                <input name="Division"    type="hidden" id="hidDivision" value="" />
+                                <input name="IsLCA"       type="hidden" id="hidIsLCA"   value="false" />
 
                                 <div class="submit-row">
-                                    <button type="submit" class="btn-submit">
+                                    <button type="button" class="btn-submit" onclick="submitClaim()">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
@@ -2669,239 +2303,264 @@
                      BLOCK 2 — SAVED RECORDS
                 ═══════════════════════════════════ -->
                 <div class="block-card">
-                    <div class="sec-head green-accent">
-                        <div class="sec-icon i-green">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
-                        </div>
-                        <div class="sec-head-text">
-                            <div class="sec-head-title">Saved Claim Details</div>
-                            <div class="sec-head-sub">Submitted records per college</div>
-                        </div>
-                        <span class="sec-pill pill-green">@Model.SavedClaims.Count Submitted</span>
-                    </div>
+    <div class="sec-head green-accent">
+        <div class="sec-icon i-green">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+        </div>
+        <div class="sec-head-text">
+            <div class="sec-head-title">Saved Claim Details</div>
+            <div class="sec-head-sub">Submitted records per college</div>
+        </div>
+        <span class="sec-pill pill-green">@Model.SavedClaims.Count Submitted</span>
+    </div>
 
-                    <div class="sec-body" style="padding:0">
-                        <div class="saved-wrap">
-                            @if (!Model.SavedClaims.Any())
-                            {
-                                <div class="no-rec">— No claim submitted yet for this member —</div>
-                            }
-                            else
-                            {
-                                decimal footTravel = Model.SavedClaims.Sum(s => s.TravelCost ?? 0m);
-                                decimal footDALCA = Model.SavedClaims.Sum(s => (s.Dacost ?? 0m) + (s.Lcacost ?? 0m));
-                                decimal footCollege = Model.SavedClaims.Sum(s => s.CollegeCost ?? 0m);
-                                decimal footAirFare = Model.SavedClaims.Sum(s => s.AirFareCost ?? 0m);
-                                decimal footAirRoad = Model.SavedClaims.Sum(s => s.AirRoadCost ?? 0m);
-                                decimal footGrand = Model.SavedClaims.Sum(s => s.TotalCost ?? 0m);
+    <div class="sec-body" style="padding:0">
+        <div class="saved-wrap">
+            @if (!Model.SavedClaims.Any())
+            {
+                <div class="no-rec">— No claim submitted yet for this member —</div>
+            }
+            else
+            {
+                decimal footTravel  = Model.SavedClaims.Sum(s => s.TravelCost  ?? 0m);
+                decimal footDALCA   = Model.SavedClaims.Sum(s => (s.Dacost ?? 0m) + (s.Lcacost ?? 0m));
+                decimal footCollege = Model.SavedClaims.Sum(s => s.CollegeCost ?? 0m);
+                decimal footAirFare = Model.SavedClaims.Sum(s => s.AirFareCost ?? 0m);
+                decimal footAirRoad = Model.SavedClaims.Sum(s => s.AirRoadCost ?? 0m);
+                decimal footGrand   = Model.SavedClaims.Sum(s => s.TotalCost   ?? 0m);
 
-                                <table class="saved-table">
-                                    <thead>
-                                        <tr>
-                                            <th>SlNo</th>
-                                            <th>College</th>
-                                            <th>Faculty</th>
-                                            <th>Insp. Date</th>
-                                            <th>Div.</th>
-                                            <th>Mode</th>
-                                            <th>Journey</th>
-                                            <th>Days</th>
-                                            <th>Rule</th>
-                                            <th class="r">Travel TA (₹)</th>
-                                            <th class="r">DA / LCA (₹)</th>
-                                            <th class="r">College (₹)</th>
-                                            <th class="r">Air Fare (₹)</th>
-                                            <th class="r">Air Road (₹)</th>
-                                            <th class="r">Grand Total (₹)</th>
-                                            <th>Bills</th>
-                                            <th>Attendance</th>
-                                            <th>Updated</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @{
-                                            int rowNum = 1;
-                                        }
-                                        @foreach (var s in Model.SavedClaims)
-                                        {
-                                            double totKm = (double)((s.Kilometers ?? 0) + (s.ReturnKilometers ?? 0));
-                                            bool isLCA = s.IsLca ?? (totKm > 0 && totKm <= 40);
-                                            bool isBng = s.IsBanglore ?? false;
-                                            decimal daR = isBng ? 1500m : 900m;
-                                            decimal lcaR = isBng ? 500m : 300m;
-                                            decimal taCost = s.TravelCost ?? 0m;
-                                            decimal daCost = s.Dacost ?? 0m;
-                                            decimal lcaCost = s.Lcacost ?? 0m;
-                                            decimal collegeCost = s.CollegeCost ?? 0m;
-                                            decimal airFareCost = s.AirFareCost ?? 0m;
-                                            decimal airRoadCost = s.AirRoadCost ?? 0m;
-                                            decimal allowance = isLCA ? lcaCost : daCost;
-                                            string ruleLabel = isLCA ? $"TA+LCA ₹{lcaR:N0}/day" : $"TA+DA ₹{daR:N0}/day";
-                                            var collegeName = Model.CollegeOptions.FirstOrDefault(x => x.Value == s.CollegeCode)?.Text ?? s.CollegeCode ?? "—";
+                <table class="saved-table">
+                    <thead>
+                        <tr>
+                            <th>SlNo</th>
+                            <th>College</th>
+                            <th>Faculty</th>
+                            <th>Insp. Date</th>
+                            <th>Div.</th>
+                            <th>Mode</th>
+                            <th>Journey</th>
+                            <th>Days</th>
+                            <th>Rule</th>
+                            <th class="r">Travel TA (₹)</th>
+                            <th class="r">DA / LCA (₹)</th>
+                            <th class="r">College (₹)</th>
+                            <th class="r">Air Fare (₹)</th>
+                            <th class="r">Air Road (₹)</th>
+                            <th class="r">Grand Total (₹)</th>
+                            <th>Bills</th>
+                            <th>Attendance</th>
+                            <th>Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int rowNum = 1;
+                        }
+                        @foreach (var s in Model.SavedClaims)
+                        {
+                            double  totKm       = (double)((s.Kilometers ?? 0) + (s.ReturnKilometers ?? 0));
+                            bool    isLCA       = s.IsLca ?? (totKm > 0 && totKm <= 40);
+                            bool    isBng       = s.IsBanglore ?? false;
+                            decimal daR         = isBng ? 1500m : 900m;
+                            decimal lcaR        = isBng ? 500m  : 300m;
+                            decimal taCost      = s.TravelCost  ?? 0m;
+                            decimal daCost      = s.Dacost      ?? 0m;
+                            decimal lcaCost     = s.Lcacost     ?? 0m;
+                            decimal collegeCost = s.CollegeCost ?? 0m;
+                            decimal airFareCost = s.AirFareCost ?? 0m;
+                            decimal airRoadCost = s.AirRoadCost ?? 0m;
+                            decimal allowance   = isLCA ? lcaCost : daCost;
+                            string  ruleLabel   = isLCA ? $"TA+LCA ₹{lcaR:N0}/day" : $"TA+DA ₹{daR:N0}/day";
 
-                                            <tr>
-                                                <td class="mono" style="color:var(--t3);font-size:.7rem">@rowNum</td>
-                                                <td style="max-width:150px;white-space:normal;line-height:1.4;font-size:.82rem;font-weight:500;color:var(--navy)">@collegeName</td>
-                                                <td style="max-width:120px;white-space:normal;font-size:.8rem">
-                                                    @{
-                                                        var facultyName = Model.FacultyOptions
-                                                            .FirstOrDefault(x => x.Value == s.Faculty)?.Text
-                                                            ?? s.Faculty;
-                                                    }
-                                                    @if (!string.IsNullOrWhiteSpace(facultyName))
-                                                    {
-                                                        @facultyName
-                                                    }
-                                                    else
-                                                    {
-                                                        <span style="color:var(--t3);font-family:'DM Mono',monospace;font-size:.68rem">—</span>
-                                                    }
-                                                </td>
-                                                <td class="mono" style="font-size:.73rem;white-space:nowrap">
-                                                    @if (s.InspectionDate.HasValue)
-                                                    {
-                                                        @s.InspectionDate.Value.ToString("dd MMM yyyy")
-                                                    }
-                                                    else
-                                                    {
-                                                        <span style="color:var(--t3)">—</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (isBng)
-                                                    {
-                                                        <span class="s-badge gold">BLR</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="s-badge">Other</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @foreach (var m in (s.ModeOfTravel ?? "—").Split(','))
-                                                    {
-                                                        <span class="s-badge">@m.Trim()</span>
-                                                    }
-                                                </td>
-                                                <td style="font-size:.76rem;line-height:1.65;white-space:normal;min-width:140px">
-                                                    <span style="font-family:'DM Mono',monospace">@s.FromPlace → @s.ToPlace</span><br />
-                                                    <span style="color:var(--t3);font-family:'DM Mono',monospace;font-size:.7rem">↩ @s.ReturnFromPlace → @s.ReturnToPlace</span><br />
-                                                    <span style="color:var(--blue);font-family:'DM Mono',monospace;font-size:.66rem">
-                                                        @s.Kilometers?.ToString("N1") km + @s.ReturnKilometers?.ToString("N1") km = @totKm.ToString("N1") km
-                                                    </span>
-                                                </td>
-                                                <td class="mono" style="text-align:center">
-                                                    @(s.NumberOfDays.HasValue ? s.NumberOfDays.ToString() : (s.NoofDays ?? "—"))
-                                                </td>
-                                                <td><span class="s-badge @(isLCA ? "gold" : "")">@ruleLabel</span></td>
-                                                <td class="amount">@(taCost > 0 ? taCost.ToString("N2") : "—")</td>
-                                                <td class="amount">
-                                                    @if (allowance > 0)
-                                                    {
-                                                        @allowance.ToString("N2")
-                                                        <br />
-                                                        <span style="font-size:.58rem;color:var(--t3);font-weight:400">@(isLCA ? "LCA" : "DA")</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <text>—</text>
-                                                    }
-                                                </td>
-                                                <td class="amount">@(collegeCost > 0 ? collegeCost.ToString("N2") : "—")</td>
-                                                <td class="amount">@(airFareCost > 0 ? airFareCost.ToString("N2") : "—")</td>
-                                                <td class="amount">@(airRoadCost > 0 ? airRoadCost.ToString("N2") : "—")</td>
-                                                <td class="grand-amt">
-                                                    @if (s.TotalCost.HasValue)
-                                                    {
-                                                        <text>₹ @s.TotalCost.Value.ToString("N2")</text>
-                                                    }
-                                                    else
-                                                    {
-                                                        <text>—</text>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (s.UploadBills?.Length > 0)
-                                                    {
-                                                        <a asp-action="DownloadBill" asp-controller="LICInspection"
-                                                               asp-route-collegeCode="@s.CollegeCode"
-                                                               target="_blank" class="existing-bill">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                                                            View
-                                                        </a>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span style="color:var(--t3);font-size:.68rem;font-family:'DM Mono',monospace">—</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (s.AttendenceDoc?.Length > 0)
-                                                    {
-                                                        <a asp-action="DownloadAttendenceDoc" asp-controller="LICInspection"
-                                                               asp-route-collegeCode="@s.CollegeCode"
-                                                               target="_blank" class="existing-bill amber">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                                            View
-                                                        </a>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span style="color:var(--t3);font-size:.68rem;font-family:'DM Mono',monospace">—</span>
-                                                    }
-                                                </td>
-                                                <td class="mono" style="color:var(--t3);font-size:.7rem">
-                                                    @s.UpdatedDate?.ToString("dd MMM yyyy")<br />
-                                                    <span style="font-size:.65rem">@s.UpdatedDate?.ToString("HH:mm")</span>
-                                                </td>
-                                            </tr>
-                                            rowNum++;
-                                        }
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="9" style="font-size:.82rem;color:rgba(255,255,255,.75)">
-                                                Total across @Model.SavedClaims.Count college(s)
-                                            </td>
-                                            <td class="grand">@footTravel.ToString("N2")</td>
-                                            <td class="grand">@footDALCA.ToString("N2")</td>
-                                            <td class="grand">@footCollege.ToString("N2")</td>
-                                            <td class="grand">@(footAirFare > 0 ? footAirFare.ToString("N2") : "—")</td>
-                                            <td class="grand">@(footAirRoad > 0 ? footAirRoad.ToString("N2") : "—")</td>
-                                            <td class="grand" style="font-size:.95rem">₹ @footGrand.ToString("N2")</td>
-                                            <td colspan="3"></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            }
-                        </div>
-                    </div>
+                            var collegeName =
+                                Model.AllCollegeOptions
+                                     .FirstOrDefault(x => x.Value == s.CollegeCode)?.Text
+                                ?? Model.CollegeOptions
+                                     .FirstOrDefault(x => x.Value == s.CollegeCode)?.Text
+                                ?? "Unknown College";
 
-                    <div class="card-foot">
-                        <span class="foot-txt">Record reflects last saved submission per college</span>
-                        <div class="foot-sep">
-                            <div class="diamond"></div>
-                            <span class="foot-txt">Data as of last save</span>
-                            <div class="diamond"></div>
-                        </div>
-                        <span class="foot-txt">Totals in footer row</span>
-                    </div>
-                </div>
+                            <tr>
+                                <td class="mono" style="color:var(--t3);font-size:.7rem">@rowNum</td>
+
+                                <td style="max-width:150px;white-space:normal;line-height:1.4;font-size:.82rem;font-weight:500;color:var(--navy)">
+                                    @collegeName
+                                </td>
+
+                                <td style="max-width:120px;white-space:normal;font-size:.8rem">
+                                    @{
+                                        var facultyName = Model.FacultyOptions
+                                            .FirstOrDefault(x => x.Value == s.Faculty)?.Text
+                                            ?? s.Faculty;
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(facultyName))
+                                    {
+                                        @facultyName
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--t3);font-family:'DM Mono',monospace;font-size:.68rem">—</span>
+                                    }
+                                </td>
+
+                                <td class="mono" style="font-size:.73rem;white-space:nowrap">
+                                    @if (s.InspectionDate.HasValue)
+                                    {
+                                        @s.InspectionDate.Value.ToString("dd MMM yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--t3)">—</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (isBng)
+                                    {
+                                        <span class="s-badge gold">BLR</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="s-badge">Other</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @foreach (var m in (s.ModeOfTravel ?? "—").Split(','))
+                                    {
+                                        <span class="s-badge">@m.Trim()</span>
+                                    }
+                                </td>
+
+                                <td style="font-size:.76rem;line-height:1.65;white-space:normal;min-width:140px">
+                                    <span style="font-family:'DM Mono',monospace">@s.FromPlace → @s.ToPlace</span><br />
+                                    <span style="color:var(--t3);font-family:'DM Mono',monospace;font-size:.7rem">↩ @s.ReturnFromPlace → @s.ReturnToPlace</span><br />
+                                    <span style="color:var(--blue);font-family:'DM Mono',monospace;font-size:.66rem">
+                                        @s.Kilometers?.ToString("N1") km + @s.ReturnKilometers?.ToString("N1") km = @totKm.ToString("N1") km
+                                    </span>
+                                </td>
+
+                                <td class="mono" style="text-align:center">
+                                    @(s.NumberOfDays.HasValue ? s.NumberOfDays.ToString() : (s.NoofDays ?? "—"))
+                                </td>
+
+                                <td><span class="s-badge @(isLCA ? "gold" : "")">@ruleLabel</span></td>
+
+                                <td class="amount">@(taCost > 0 ? taCost.ToString("N2") : "—")</td>
+
+                                <td class="amount">
+                                    @if (allowance > 0)
+                                    {
+                                        @allowance.ToString("N2")
+                                        <br />
+                                        <span style="font-size:.58rem;color:var(--t3);font-weight:400">@(isLCA ? "LCA" : "DA")</span>
+                                    }
+                                    else
+                                    {
+                                        <text>—</text>
+                                    }
+                                </td>
+
+                                <td class="amount">@(collegeCost > 0 ? collegeCost.ToString("N2") : "—")</td>
+                                <td class="amount">@(airFareCost > 0 ? airFareCost.ToString("N2") : "—")</td>
+                                <td class="amount">@(airRoadCost > 0 ? airRoadCost.ToString("N2") : "—")</td>
+
+                                <td class="grand-amt">
+                                    @if (s.TotalCost.HasValue)
+                                    {
+                                        <text>₹ @s.TotalCost.Value.ToString("N2")</text>
+                                    }
+                                    else
+                                    {
+                                        <text>—</text>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (s.UploadBills?.Length > 0)
+                                    {
+                                        <a asp-action="DownloadBill" asp-controller="LICInspection"
+                                           asp-route-collegeCode="@s.CollegeCode"
+                                           target="_blank" class="existing-bill">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            View
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--t3);font-size:.68rem;font-family:'DM Mono',monospace">—</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (s.AttendenceDoc?.Length > 0)
+                                    {
+                                        <a asp-action="DownloadAttendenceDoc" asp-controller="LICInspection"
+                                           asp-route-collegeCode="@s.CollegeCode"
+                                           target="_blank" class="existing-bill amber">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            View
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--t3);font-size:.68rem;font-family:'DM Mono',monospace">—</span>
+                                    }
+                                </td>
+
+                                <td class="mono" style="color:var(--t3);font-size:.7rem">
+                                    @s.UpdatedDate?.ToString("dd MMM yyyy")<br />
+                                    <span style="font-size:.65rem">@s.UpdatedDate?.ToString("HH:mm")</span>
+                                </td>
+                            </tr>
+                            rowNum++;
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9" style="font-size:.82rem;color:rgba(255,255,255,.75)">
+                                Total across @Model.SavedClaims.Count college(s)
+                            </td>
+                            <td class="grand">@footTravel.ToString("N2")</td>
+                            <td class="grand">@footDALCA.ToString("N2")</td>
+                            <td class="grand">@footCollege.ToString("N2")</td>
+                            <td class="grand">@(footAirFare > 0 ? footAirFare.ToString("N2") : "—")</td>
+                            <td class="grand">@(footAirRoad > 0 ? footAirRoad.ToString("N2") : "—")</td>
+                            <td class="grand" style="font-size:.95rem">₹ @footGrand.ToString("N2")</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            }
+        </div>
+    </div>
+
+    <div class="card-foot">
+        <span class="foot-txt">Record reflects last saved submission per college</span>
+        <div class="foot-sep">
+            <div class="diamond"></div>
+            <span class="foot-txt">Data as of last save</span>
+            <div class="diamond"></div>
+        </div>
+        <span class="foot-txt">Totals in footer row</span>
+    </div>
+</div>
 
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════════
-             STICKY MOBILE GRAND TOTAL BAR
-        ══════════════════════════════════════════ -->
+        <!-- STICKY MOBILE GRAND TOTAL BAR -->
         <div class="mobile-total-bar" id="mobileTotalBar">
             <div class="mobile-total-left">
                 <span class="mobile-total-lbl">Grand Total</span>
                 <span class="mobile-total-amt" id="mobileTotalAmt">₹ 0.00</span>
             </div>
-            <button type="button" onclick="document.querySelector('.btn-submit').click()"
+            <button type="button" onclick="submitClaim()"
                     style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:var(--gold);color:var(--navy);border:none;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;letter-spacing:.01em;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -2915,391 +2574,621 @@
         <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
         <script>
-                    const ds    = document.getElementById('jsData').dataset;
-                    const RATE  = 15;
-                    const ALLOW = parseFloat(ds.allow) || 2500;
-                    const CNT   = parseInt(ds.cnt)     || 0;
-                    const URL_COLLEGES = document.getElementById('urlGetCollegesByFaculty').value;
-                    const RATES = {
-                        bangalore: { da: 1500, lca: 500,  airRoad: 2000, label: 'Bangalore Division' },
-                        other:     { da:  900, lca: 300,  airRoad:  750, label: 'Other Division'     }
-                    };
-                    const inr  = v => '₹ ' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    const inrR = v => '₹ ' + Math.round(v).toLocaleString('en-IN');
-                    const $    = id => document.getElementById(id);
+    const ds    = document.getElementById('jsData').dataset;
+    const RATE  = 15;
+    const ALLOW = 2500;
+    const CNT   = parseInt(ds.cnt) || 0;
+    const URL_COLLEGES = document.getElementById('urlGetCollegesByFaculty').value;
+    const RATES = {
+        bangalore: { da: 1500, lca: 500,  airRoad: 2000, label: 'Bangalore Division' },
+        other:     { da:  900, lca: 300,  airRoad:  750, label: 'Other Division'     }
+    };
+    const inr  = v => '₹ ' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const inrR = v => '₹ ' + Math.round(v).toLocaleString('en-IN');
+    const $    = id => document.getElementById(id);
 
-                    const submittedCodes = new Set([
-                        @Html.Raw(string.Join(",",
-                                        Model.SavedClaims
-                                                                        .Select(x => x.CollegeCode)
-                                                                        .Where(c => !string.IsNullOrWhiteSpace(c))
-                                                                        .Select(c => $"\"{c}\"")))
-                    ]);
+    const submittedCodes = new Set([
+        @Html.Raw(string.Join(",",
+            Model.SavedClaims
+                .Select(x => x.CollegeCode)
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Select(c => $"\"{c}\"")))
+    ]);
 
-                    /* ── Sidebar (mobile) ── */
-                    function openSidebar()  { $('sidebar').classList.add('open'); $('sidebarOverlay').classList.add('show'); document.body.style.overflow = 'hidden'; }
-                    function closeSidebar() { $('sidebar').classList.remove('open'); $('sidebarOverlay').classList.remove('show'); document.body.style.overflow = ''; }
+    /* ════════════════════════════════════════════════════════
+       VALIDATION HELPERS
+    ════════════════════════════════════════════════════════ */
 
-                    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+    function showErr(errId, msg) {
+        const el = $(errId);
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add('show');
+    }
 
-                    /* ── Flash ── */
-                    function flash(id) {
-                        const el = $(id); if (!el) return;
-                        const row = el.closest('tr'); if (!row) return;
-                        row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
+    function clearErr(errId) {
+        const el = $(errId);
+        if (!el) return;
+        el.textContent = '';
+        el.classList.remove('show');
+    }
+
+    function setInputState(el, isValid) {
+        if (!el) return;
+        el.classList.toggle('input-invalid', !isValid);
+        el.classList.toggle('input-valid',    isValid);
+    }
+
+    /* Validate a text/select field — returns true if valid */
+    function validateField(el, errId, msg) {
+        const val = el.value.trim();
+        const ok  = val !== '' && val !== '0';
+        setInputState(el, ok);
+        ok ? clearErr(errId) : showErr(errId, msg);
+        return ok;
+    }
+
+    /* Validate a plain text input */
+    function validateTextField(el, errId, msg) {
+        const ok = el.value.trim().length > 0;
+        setInputState(el, ok);
+        ok ? clearErr(errId) : showErr(errId, msg);
+        return ok;
+    }
+
+    /* Validate a numeric input — minVal is the minimum acceptable value */
+    function validateNumberField(el, errId, msg, minVal) {
+        const v  = parseFloat(el.value);
+        const ok = !isNaN(v) && v >= minVal;
+        setInputState(el, ok);
+        ok ? clearErr(errId) : showErr(errId, msg);
+        return ok;
+    }
+
+    /* Validate date field */
+    function validateDate(el, errId) {
+        const ok = el.value.trim() !== '';
+        setInputState(el, ok);
+        if (!ok) { showErr(errId, 'Please select an inspection date'); return false; }
+        const chosen = new Date(el.value);
+        const today  = new Date(); today.setHours(23,59,59,999);
+        if (chosen > today) {
+            setInputState(el, false);
+            showErr(errId, 'Inspection date cannot be a future date');
+            return false;
+        }
+        clearErr(errId);
+        return true;
+    }
+
+    /* Validate multi-select (mode of travel) */
+    function validateMode() {
+        const vals = getModeValues();
+        const ok   = vals.length > 0;
+        $('msTrigger').classList.toggle('ms-invalid', !ok);
+        $('msTrigger').classList.toggle('ms-valid',    ok);
+        ok ? clearErr('errMode') : showErr('errMode', 'Please select at least one mode of travel');
+        return ok;
+    }
+
+    /* ── Upload Bills: mandatory only when the drop-wrapper is visible ── */
+    function billsRequired() {
+        return $('fileDropWrapper') && $('fileDropWrapper').style.display !== 'none';
+    }
+
+    function validateBillFile() {
+        if (!billsRequired()) { clearErr('errBills'); return true; }
+        const inp  = $('fileInput');
+        const ok   = inp && inp.files && inp.files.length > 0;
+        $('fileDropEl').classList.toggle('drop-invalid', !ok);
+        ok ? clearErr('errBills') : showErr('errBills', 'Please upload the bills PDF (required for non-road travel)');
+        // file size / type guard
+        if (ok && inp.files[0]) {
+            const f = inp.files[0];
+            if (f.size > 5 * 1024 * 1024) {
+                $('fileDropEl').classList.add('drop-invalid');
+                showErr('errBills', 'File size exceeds 5 MB — please upload a smaller file');
+                return false;
+            }
+            if (!f.name.toLowerCase().endsWith('.pdf')) {
+                $('fileDropEl').classList.add('drop-invalid');
+                showErr('errBills', 'Only PDF files are accepted for bills');
+                return false;
+            }
+        }
+        return ok;
+    }
+
+    function validateAttendFile() {
+        const inp  = $('attendenceInput');
+        const ok   = inp && inp.files && inp.files.length > 0;
+        $('attendDropEl').classList.toggle('drop-invalid', !ok);
+        ok ? clearErr('errAttend') : showErr('errAttend', 'Attendance document is required');
+        if (ok && inp.files[0]) {
+            const f    = inp.files[0];
+            const ext  = f.name.toLowerCase().split('.').pop();
+            const allowed = ['pdf','jpg','jpeg','png','doc','docx'];
+            if (f.size > 5 * 1024 * 1024) {
+                $('attendDropEl').classList.add('drop-invalid');
+                showErr('errAttend', 'File size exceeds 5 MB — please upload a smaller file');
+                return false;
+            }
+            if (!allowed.includes(ext)) {
+                $('attendDropEl').classList.add('drop-invalid');
+                showErr('errAttend', 'Only PDF, JPG, PNG, DOC, DOCX formats are accepted');
+                return false;
+            }
+        }
+        return ok;
+    }
+
+    /* ── Master validation: runs all checks, builds summary ── */
+    function validateAll() {
+        const errors = [];
+
+        function chk(ok, label) { if (!ok) errors.push(label); return ok; }
+
+        // Section I
+        chk(validateField($('FacultySelect'),  'errFaculty', 'Please select a faculty'),   'Faculty is required');
+        chk(validateField($('CollegeSelect'),  'errCollege', 'Please select a college'),   'College is required');
+        chk(validateMode(),                                                                 'Mode of Travel is required');
+        chk(validateDate($('InspectionDate'),  'errDate'),                                 'Valid Inspection Date is required');
+        chk(validateBillFile(),                                                             'Bills upload is required (non-road travel)');
+        chk(validateAttendFile(),                                                           'Attendance Document is required');
+        chk(validateNumberField($('numberOfDays'), 'errDays',  'Number of days must be at least 1', 1), 'Number of Days must be ≥ 1');
+
+        // Air fare — only when air is selected
+        if (isAirSelected()) {
+            chk(validateNumberField($('airFareInput'), 'errAirFare', 'Please enter the air fare amount', 0.01), 'Air Fare amount is required');
+        }
+
+        // Section II — Onward
+        chk(validateTextField($('FromPlace'),       'errFromPlace',    'From Place is required'),          'From Place is required');
+        chk(validateTextField($('ToPlace'),         'errToPlace',      'To Place is required'),            'To Place is required');
+        chk(validateNumberField(document.querySelector('[name="Kilometers"]'), 'errKm',
+                'Please enter the onward distance (km)', 0.01), 'Onward distance (km) must be > 0');
+
+        // Section III — Return
+        chk(validateTextField($('ReturnFromPlace'), 'errRetFromPlace', 'Return From Place is required'),   'Return From Place is required');
+        chk(validateTextField($('ReturnToPlace'),   'errRetToPlace',   'Return To Place is required'),     'Return To Place is required');
+        chk(validateNumberField(document.querySelector('[name="ReturnKilometers"]'), 'errRetKm',
+                'Please enter the return distance (km)', 0.01), 'Return distance (km) must be > 0');
+
+        // Validation summary
+        const summary = $('valSummary');
+        const list    = $('valSummaryList');
+        if (errors.length > 0) {
+            list.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+            summary.classList.add('show');
+            summary.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            summary.classList.remove('show');
+            list.innerHTML = '';
+        }
+
+        return errors.length === 0;
+    }
+
+    /* Submit handler */
+    function submitClaim() {
+        if (validateAll()) {
+            $('claimForm').submit();
+        }
+    }
+
+    /* ── Sidebar (mobile) ── */
+    function openSidebar()  { $('sidebar').classList.add('open');    $('sidebarOverlay').classList.add('show');    document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { $('sidebar').classList.remove('open'); $('sidebarOverlay').classList.remove('show'); document.body.style.overflow = ''; }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+    /* ── Flash ── */
+    function flash(id) {
+        const el = $(id); if (!el) return;
+        const row = el.closest('tr'); if (!row) return;
+        row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
+    }
+
+    /* ── Multi-select ── */
+    function getModeValues() { return Array.from(document.querySelectorAll('.ms-option.selected')).map(el => el.dataset.value); }
+    function isAirSelected() { return getModeValues().some(v => /air/i.test(v)); }
+    function isRoadOnly()    { const v = getModeValues(); return v.length === 1 && /^road$/i.test(v[0]); }
+
+    function msToggle() { $('msPanel').classList.contains('open') ? msClose() : msOpen(); }
+    function msOpen()   { $('msTrigger').classList.add('open');    $('msTrigger').setAttribute('aria-expanded','true');  $('msPanel').classList.add('open'); }
+    function msClose()  { $('msTrigger').classList.remove('open'); $('msTrigger').setAttribute('aria-expanded','false'); $('msPanel').classList.remove('open'); }
+
+    function msToggleOption(el) {
+        el.classList.toggle('selected');
+        el.setAttribute('aria-selected', el.classList.contains('selected') ? 'true' : 'false');
+        msRefreshUI();
+        recalc();
+        validateMode();    // live validation
+    }
+
+    function msSelectAll() {
+        document.querySelectorAll('.ms-option').forEach(el => { el.classList.add('selected');    el.setAttribute('aria-selected','true');  });
+        msRefreshUI(); recalc(); validateMode();
+    }
+
+    function msClearAll() {
+        document.querySelectorAll('.ms-option').forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-selected','false'); });
+        msRefreshUI(); recalc(); validateMode();
+    }
+
+    function msRefreshUI() {
+        const selected    = Array.from(document.querySelectorAll('.ms-option.selected'));
+        const placeholder = $('msPlaceholder');
+        const tagsDiv     = $('msTags');
+        const countBadge  = $('msModeCount');
+        const hiddenCont  = $('msHiddenFields');
+
+        if (selected.length === 0) {
+            placeholder.style.display = ''; tagsDiv.style.display = 'none'; tagsDiv.innerHTML = '';
+            countBadge.classList.add('hidden'); countBadge.textContent = '';
+        } else {
+            placeholder.style.display = 'none'; tagsDiv.style.display = 'flex';
+            const visible = selected.slice(0, 2), extra = selected.length - visible.length;
+            tagsDiv.innerHTML = visible.map(el =>
+                `<span class="ms-tag">${el.dataset.label}<span class="ms-tag-x" onclick="event.stopPropagation();msRemoveOption('${el.dataset.value}')" title="Remove">×</span></span>`
+            ).join('') + (extra > 0 ? `<span class="ms-overflow">+${extra} more</span>` : '');
+            countBadge.textContent = selected.length;
+            countBadge.classList.remove('hidden');
+        }
+
+        hiddenCont.innerHTML = selected.map(el =>
+            `<input type="hidden" name="ModeOfTravel" value="${el.dataset.value}" />`
+        ).join('');
+    }
+
+    function msRemoveOption(value) {
+        const opt = document.querySelector(`.ms-option[data-value="${value}"]`);
+        if (opt) { opt.classList.remove('selected'); opt.setAttribute('aria-selected', 'false'); }
+        msRefreshUI(); recalc(); validateMode();
+    }
+
+    document.addEventListener('click', e => {
+        if (!$('msWrap').contains(e.target)) msClose();
+    });
+
+    function updateUploadVisibility() {
+        const roadOnly = isRoadOnly(), noSelect = getModeValues().length === 0;
+        const billsVisible = !(roadOnly || noSelect);
+
+        $('fileDropWrapper').style.display = billsVisible ? '' : 'none';
+        $('uploadNaNote').classList.toggle('show', !billsVisible);
+
+        // Show / hide the required asterisk on the Upload Bills label
+        const reqMark = $('billsReqMark');
+        if (reqMark) reqMark.style.display = billsVisible ? '' : 'none';
+
+        // Clear bill error + state when not required
+        if (!billsVisible) {
+            clearErr('errBills');
+            const fe = $('fileDropEl');
+            if (fe) fe.classList.remove('drop-invalid');
+        }
+    }
+
+    function toggleBangalore() {
+        const wrap = $('bngWrap');
+        const on   = !wrap.classList.contains('active');
+        wrap.classList.toggle('active', on);
+        $('hidIsBng').value = on ? 'true' : 'false';
+        recalc();
+    }
+
+    function isBangaloreActive() { return $('bngWrap') ? $('bngWrap').classList.contains('active') : false; }
+
+    function updateKmCalc(id, km) {
+        const el = $(id); if (!el) return;
+        if (km <= 0) {
+            el.classList.remove('active');
+            el.innerHTML = '<span class="km-zero">Enter km to calculate</span>';
+            return;
+        }
+        el.classList.add('active');
+        el.innerHTML =
+            `<span>${km.toFixed(2)} km</span>` +
+            `<span class="km-eq">×</span>` +
+            `<span>₹${RATE}/km</span>` +
+            `<span class="km-eq">=</span>` +
+            `<span class="km-amt">${inr(km * RATE)}</span>`;
+    }
+
+    function recalc() {
+        const fwdKm = Math.max(0, parseFloat(document.querySelector('[name="Kilometers"]')?.value)       || 0);
+        const retKm = Math.max(0, parseFloat(document.querySelector('[name="ReturnKilometers"]')?.value) || 0);
+        const totKm = fwdKm + retKm;
+        const days  = Math.max(1, parseInt($('numberOfDays')?.value) || 1);
+        const airAct = Math.max(0, parseFloat($('airFareInput')?.value) || 0);
+
+        const from  = document.querySelector('[name="FromPlace"]')?.value.trim()       || '—';
+        const to    = document.querySelector('[name="ToPlace"]')?.value.trim()         || '—';
+        const rFrom = document.querySelector('[name="ReturnFromPlace"]')?.value.trim() || '—';
+        const rTo   = document.querySelector('[name="ReturnToPlace"]')?.value.trim()   || '—';
+
+        const toBng    = isBangaloreActive();
+        const divKey   = toBng ? 'bangalore' : 'other';
+        const rates    = RATES[divKey];
+        const divLabel = rates.label;
+
+        // ── 40 km rule ────────────────────────────────────────────────────────
+        const useLCA = totKm > 0 && totKm <= 40;
+        const useDA  = totKm > 40;
+        const airSel = isAirSelected();
+
+        // ── TA ────────────────────────────────────────────────────────────────
+        const taFwd   = fwdKm * RATE;
+        const taRet   = retKm * RATE;
+        const taTotal = totKm * RATE;
+
+        // ── DA / LCA ──────────────────────────────────────────────────────────
+        const daCost  = useDA  ? days * rates.da  : 0;
+        const lcaCost = useLCA ? days * rates.lca : 0;
+
+        // ── College allowance ─────────────────────────────────────────────────
+        const collegeCost = ALLOW;
+
+        // ── Air road ──────────────────────────────────────────────────────────
+        const airRoadCost = airSel ? rates.airRoad : 0;
+
+        // ── Grand total ───────────────────────────────────────────────────────
+        let total = taTotal + collegeCost;
+        if (useDA)  total += daCost;
+        if (useLCA) total += lcaCost;
+        if (airSel) { total += airAct; total += airRoadCost; }
+
+        // ── Update banners ────────────────────────────────────────────────────
+        $('bngActiveBanner').classList.toggle('show', toBng);
+        $('row-bng').style.display = toBng ? '' : 'none';
+        $('rateBanner').classList.toggle('bng-active', toBng);
+        if (toBng) {
+            $('tBngNote').textContent =
+                `Bangalore Division — DA ₹${rates.da.toLocaleString('en-IN')}/day · LCA ₹${rates.lca.toLocaleString('en-IN')}/day · Air road ₹${rates.airRoad.toLocaleString('en-IN')}`;
+        }
+
+        // ── KM calc bars ──────────────────────────────────────────────────────
+        updateKmCalc('calc-fwd', fwdKm);
+        updateKmCalc('calc-ret', retKm);
+
+        // ── Summary table labels ──────────────────────────────────────────────
+        $('tFrom').textContent        = from;     $('tTo').textContent         = to;
+        $('tRFrom').textContent       = rFrom;    $('tRTo').textContent        = rTo;
+        $('tFwdKm').textContent       = fwdKm.toFixed(2);
+        $('tRetKm').textContent       = retKm.toFixed(2);
+        $('tDaysBasis').textContent   = days;     $('tDaysLCA').textContent    = days;
+        $('tDivDA').textContent       = divLabel; $('tDivLCA').textContent     = divLabel;
+        $('tDARateCell').textContent  = inrR(rates.da)  + '/day';
+        $('tLCARateCell').textContent = inrR(rates.lca) + '/day';
+
+        // ── DA / LCA rows ─────────────────────────────────────────────────────
+        $('row-da').style.display  = '';
+        $('row-lca').style.display = useLCA ? '' : 'none';
+        $('vFwd').textContent = inr(taFwd);
+        $('vRet').textContent = inr(taRet);
+        $('vDA').textContent  = inr(daCost);
+        $('vLCA').textContent = inr(lcaCost);
+
+        // ── Rule note ─────────────────────────────────────────────────────────
+        let note;
+        if      (totKm === 0) note = 'Enter journey distance — TA ₹15/km always applies. DA / LCA determined by 40 km rule.';
+        else if (useLCA)      note = `${totKm.toFixed(2)} km ≤ 40 km → TA ₹${RATE}/km + LCA ₹${rates.lca.toLocaleString('en-IN')}/day. DA not applicable.`;
+        else                  note = `${totKm.toFixed(2)} km > 40 km → TA ₹${RATE}/km + DA ₹${rates.da.toLocaleString('en-IN')}/day. LCA not applicable.`;
+        $('tRuleNote').textContent = note;
+
+        // ── Air fare / road rows ──────────────────────────────────────────────
+        $('row-airfare').style.display  = airSel ? '' : 'none';
+        $('row-airroad').style.display  = airSel ? '' : 'none';
+        $('airFareField').style.display = airSel ? '' : 'none';
+        $('rc-air-wrap').style.display  = airSel ? '' : 'none';
+        if (airSel) {
+            $('tAirRoadDiv').textContent  = divLabel;
+            $('tAirRoadRate').textContent = inrR(rates.airRoad);
+            $('vAirFare').textContent     = inr(airAct);
+            $('vAirRoad').textContent     = inr(rates.airRoad);
+            $('rc-air').textContent       = inrR(rates.airRoad);
+        } else {
+            clearErr('errAirFare');
+        }
+
+        // ── College row ───────────────────────────────────────────────────────
+        $('vCollege') && ($('vCollege').textContent = inr(collegeCost));
+
+        // ── Hidden fields for form POST ───────────────────────────────────────
+        $('hidTotal').value    = total.toFixed(2);
+        $('hidTA').value       = taTotal.toFixed(2);
+        $('hidDA').value       = daCost.toFixed(2);
+        $('hidLCA').value      = lcaCost.toFixed(2);
+        $('hidAirFare').value  = airSel ? airAct.toFixed(2)      : '0';
+        $('hidAirRoad').value  = airSel ? airRoadCost.toFixed(2) : '0';
+        $('hidCollege').value  = collegeCost.toFixed(2);
+        $('hidDivision').value = divKey;
+        $('hidIsLCA').value    = useLCA ? 'true' : 'false';
+
+        // ── Totals display ────────────────────────────────────────────────────
+        $('vKm').textContent    = totKm.toFixed(2) + ' km';
+        $('vTotal').textContent = inr(total);
+
+        const mobileAmt = $('mobileTotalAmt');
+        if (mobileAmt) mobileAmt.textContent = inr(total);
+
+        flash('vTotal');
+
+        // ── Rate banner ───────────────────────────────────────────────────────
+        $('divisionLabel').textContent = '⬤ ' + divLabel;
+        $('divBadge').textContent      = divLabel;
+        $('rc-da').textContent         = '₹' + rates.da.toLocaleString('en-IN');
+        $('rc-lca').textContent        = '₹' + rates.lca.toLocaleString('en-IN');
+
+        updateUploadVisibility();
+    }
+
+    function showFileName(input, targetId) {
+        const el = $(targetId); if (!el) return;
+        if (input.files?.[0]) {
+            el.textContent = '📎 ' + input.files[0].name;
+            el.style.display = 'block';
+            el.classList.add('green');
+            // clear invalid state on the drop zone
+            const dropId = (targetId === 'fileChosen') ? 'fileDropEl' : 'attendDropEl';
+            const dropEl = $(dropId);
+            if (dropEl) dropEl.classList.remove('drop-invalid');
+        } else {
+            el.textContent = '';
+            el.style.display = 'none';
+            el.classList.remove('green');
+        }
+    }
+
+    function onFacultyChange(facultyId) {
+        const sel     = $('CollegeSelect');
+        const spinner = $('collegeSpinner');
+        if (!sel) return;
+        sel.disabled = true;
+        if (spinner) spinner.classList.add('show');
+        sel.innerHTML = '<option value="">Loading colleges…</option>';
+        if (!facultyId) {
+            sel.innerHTML = '<option value="">— Select Faculty first —</option>';
+            sel.disabled  = false;
+            if (spinner) spinner.classList.remove('show');
+            return;
+        }
+        fetch(URL_COLLEGES + '?facultyId=' + encodeURIComponent(facultyId))
+            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(data => {
+                sel.innerHTML = '<option value="">— Select College —</option>';
+                if (!data || data.length === 0) {
+                    sel.innerHTML = '<option value="">— No colleges found —</option>';
+                    return;
+                }
+                let added = 0;
+                data.forEach(c => {
+                    if (submittedCodes.has(c.value)) return;
+                    const opt = document.createElement('option');
+                    opt.value = c.value; opt.textContent = c.text;
+                    sel.appendChild(opt);
+                    added++;
+                });
+                if (added === 0)
+                    sel.innerHTML = '<option value="">— All colleges already submitted —</option>';
+            })
+            .catch(err => {
+                console.error('GetCollegesByFaculty:', err);
+                sel.innerHTML = '<option value="">— Error loading, retry —</option>';
+            })
+            .finally(() => {
+                sel.disabled = false;
+                if (spinner) spinner.classList.remove('show');
+            });
+    }
+
+    /* ── Init ── */
+    msRefreshUI();
+    recalc();
+    updateUploadVisibility();
+
+    const justSaved = !!document.querySelector('.alert-ok');
+
+    if (justSaved) {
+        if (window.location.search) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        $('FacultySelect').value = '';
+        const colSelClear = $('CollegeSelect');
+        colSelClear.innerHTML = '<option value="">— Select Faculty first —</option>';
+        msClearAll();
+        document.querySelector('[name="InspectionDate"]').value   = '';
+        document.querySelector('[name="FromPlace"]').value        = '';
+        document.querySelector('[name="ToPlace"]').value          = '';
+        document.querySelector('[name="Kilometers"]').value       = '';
+        document.querySelector('[name="ReturnFromPlace"]').value  = '';
+        document.querySelector('[name="ReturnToPlace"]').value    = '';
+        document.querySelector('[name="ReturnKilometers"]').value = '';
+        $('numberOfDays').value = '1';
+        const bngWrap = $('bngWrap');
+        if (bngWrap && bngWrap.classList.contains('active')) {
+            bngWrap.classList.remove('active');
+            $('hidIsBng').value = 'false';
+        }
+        const airFareInput = $('airFareInput');
+        if (airFareInput) airFareInput.value = '';
+        $('fileInput').value                = '';
+        $('fileChosen').textContent         = '';
+        $('fileChosen').style.display       = 'none';
+        $('attendenceInput').value          = '';
+        $('attendenceChosen').textContent   = '';
+        $('attendenceChosen').style.display = 'none';
+        // Reset all validation states
+        document.querySelectorAll('.input-invalid,.input-valid').forEach(el => {
+            el.classList.remove('input-invalid','input-valid');
+        });
+        document.querySelectorAll('.field-err.show').forEach(el => el.classList.remove('show'));
+        $('valSummary').classList.remove('show');
+        recalc();
+        updateUploadVisibility();
+    }
+
+    (function autoPopulateFromUrl() {
+        if (justSaved) return;
+        const params     = new URLSearchParams(window.location.search);
+        const urlFaculty = params.get('faculty');
+        const urlCollege = params.get('collegeCode');
+        if (!urlFaculty && !urlCollege) return;
+        const facSel = $('FacultySelect');
+        const colSel = $('CollegeSelect');
+        if (!facSel) return;
+        if (urlFaculty) {
+            const facOpt = Array.from(facSel.options)
+                .find(o => o.value.toLowerCase() === urlFaculty.toLowerCase());
+            if (facOpt) { facSel.value = facOpt.value; }
+        }
+        const currentFaculty = facSel.value;
+        if (!currentFaculty) return;
+        const spinner = $('collegeSpinner');
+        colSel.disabled = true;
+        if (spinner) spinner.classList.add('show');
+        colSel.innerHTML = '<option value="">Loading colleges…</option>';
+        fetch(URL_COLLEGES + '?facultyId=' + encodeURIComponent(currentFaculty))
+            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(data => {
+                colSel.innerHTML = '<option value="">— Select College —</option>';
+                if (!data || data.length === 0) {
+                    colSel.innerHTML = '<option value="">— No colleges found —</option>';
+                    return;
+                }
+                let added = 0;
+                data.forEach(c => {
+                    if (submittedCodes.has(c.value)) return;
+                    const opt = document.createElement('option');
+                    opt.value = c.value; opt.textContent = c.text;
+                    colSel.appendChild(opt);
+                    added++;
+                });
+                if (added === 0) {
+                    colSel.innerHTML = '<option value="">— All colleges already submitted —</option>';
+                    return;
+                }
+                if (urlCollege) {
+                    const target = Array.from(colSel.options).find(o => o.value === urlCollege);
+                    if (target) {
+                        colSel.value = target.value;
+                        colSel.style.transition = 'box-shadow .3s';
+                        colSel.style.boxShadow  = '0 0 0 3px rgba(201,168,76,.4)';
+                        setTimeout(() => colSel.style.boxShadow = '', 1800);
                     }
-
-                    /* ── Multi-select ── */
-                    function getModeValues() { return Array.from(document.querySelectorAll('.ms-option.selected')).map(el => el.dataset.value); }
-                    function isAirSelected() { return getModeValues().some(v => /air/i.test(v)); }
-                    function isRoadOnly()    { const v = getModeValues(); return v.length === 1 && /^road$/i.test(v[0]); }
-
-                    function msToggle() { $('msPanel').classList.contains('open') ? msClose() : msOpen(); }
-                    function msOpen()   { $('msTrigger').classList.add('open');    $('msTrigger').setAttribute('aria-expanded','true');  $('msPanel').classList.add('open'); }
-                    function msClose()  { $('msTrigger').classList.remove('open'); $('msTrigger').setAttribute('aria-expanded','false'); $('msPanel').classList.remove('open'); }
-
-                    function msToggleOption(el) { el.classList.toggle('selected'); el.setAttribute('aria-selected', el.classList.contains('selected') ? 'true' : 'false'); msRefreshUI(); recalc(); }
-                    function msSelectAll() { document.querySelectorAll('.ms-option').forEach(el => { el.classList.add('selected');    el.setAttribute('aria-selected','true');  }); msRefreshUI(); recalc(); }
-                    function msClearAll()  { document.querySelectorAll('.ms-option').forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-selected','false'); }); msRefreshUI(); recalc(); }
-
-                    function msRefreshUI() {
-                        const selected    = Array.from(document.querySelectorAll('.ms-option.selected'));
-                        const placeholder = $('msPlaceholder');
-                        const tagsDiv     = $('msTags');
-                        const countBadge  = $('msModeCount');
-                        const hiddenCont  = $('msHiddenFields');
-                        if (selected.length === 0) {
-                            placeholder.style.display = ''; tagsDiv.style.display = 'none'; tagsDiv.innerHTML = '';
-                            countBadge.classList.add('hidden'); countBadge.textContent = '';
-                        } else {
-                            placeholder.style.display = 'none'; tagsDiv.style.display = 'flex';
-                            const visible = selected.slice(0,2), extra = selected.length - visible.length;
-                            tagsDiv.innerHTML = visible.map(el =>
-                                `<span class="ms-tag">${el.dataset.label}<span class="ms-tag-x" onclick="event.stopPropagation();msRemoveOption('${el.dataset.value}')" title="Remove">×</span></span>`
-                            ).join('') + (extra > 0 ? `<span class="ms-overflow">+${extra} more</span>` : '');
-                            countBadge.textContent = selected.length;
-                            countBadge.classList.remove('hidden');
-                        }
-                        hiddenCont.innerHTML = selected.map(el =>
-                            `<input type="hidden" name="ModeOfTravel" value="${el.dataset.value}" />`
-                        ).join('');
-                    }
-
-                    function msRemoveOption(value) {
-                        const opt = document.querySelector(`.ms-option[data-value="${value}"]`);
-                        if (opt) { opt.classList.remove('selected'); opt.setAttribute('aria-selected','false'); }
-                        msRefreshUI(); recalc();
-                    }
-
-                    /* Close ms-panel on outside click */
-                    document.addEventListener('click', e => {
-                        if (!$('msWrap').contains(e.target)) msClose();
-                    });
-
-                    function updateUploadVisibility() {
-                        const roadOnly = isRoadOnly(), noSelect = getModeValues().length === 0;
-                        $('fileDropWrapper').style.display = (roadOnly || noSelect) ? 'none' : '';
-                        $('uploadNaNote').classList.toggle('show', roadOnly || noSelect);
-                    }
-
-                    function toggleBangalore() {
-                        const wrap = $('bngWrap');
-                        const on   = !wrap.classList.contains('active');
-                        wrap.classList.toggle('active', on);
-                        $('hidIsBng').value = on ? 'true' : 'false';
-                        recalc();
-                    }
-
-                    function isBangaloreActive() { return $('bngWrap') ? $('bngWrap').classList.contains('active') : false; }
-
-                    function updateKmCalc(id, km) {
-                        const el = $(id); if (!el) return;
-                        if (km <= 0) {
-                            el.classList.remove('active');
-                            el.innerHTML = '<span class="km-zero">Enter km to calculate</span>';
-                            return;
-                        }
-                        el.classList.add('active');
-                        el.innerHTML =
-                            `<span>${km.toFixed(2)} km</span>` +
-                            `<span class="km-eq">×</span>` +
-                            `<span>₹${RATE}/km</span>` +
-                            `<span class="km-eq">=</span>` +
-                            `<span class="km-amt">${inr(km * RATE)}</span>`;
-                    }
-
-                    function recalc() {
-                        const fwdKm  = Math.max(0, parseFloat(document.querySelector('[name="Kilometers"]')?.value)       || 0);
-                        const retKm  = Math.max(0, parseFloat(document.querySelector('[name="ReturnKilometers"]')?.value) || 0);
-                        const totKm  = fwdKm + retKm;
-                        const days   = Math.max(1, parseInt($('numberOfDays')?.value) || 1);
-                        const airAct = Math.max(0, parseFloat($('airFareInput')?.value) || 0);
-                        const from   = document.querySelector('[name="FromPlace"]')?.value.trim()       || '—';
-                        const to     = document.querySelector('[name="ToPlace"]')?.value.trim()         || '—';
-                        const rFrom  = document.querySelector('[name="ReturnFromPlace"]')?.value.trim() || '—';
-                        const rTo    = document.querySelector('[name="ReturnToPlace"]')?.value.trim()   || '—';
-                        const toBng    = isBangaloreActive();
-                        const divKey   = toBng ? 'bangalore' : 'other';
-                        const rates    = RATES[divKey];
-                        const divLabel = rates.label;
-                        const useLCA = totKm > 0 && totKm <= 40;
-                        const useDA  = totKm > 40;
-                        const airSel = isAirSelected();
-                        const taTotal     = totKm * RATE;
-                        const taFwd       = fwdKm * RATE;
-                        const taRet       = retKm * RATE;
-                        const daCost      = useDA  ? days * rates.da  : 0;
-                        const lcaCost     = useLCA ? days * rates.lca : 0;
-                        const collegeCost = CNT * ALLOW;
-                        const airRoadCost = airSel ? rates.airRoad : 0;
-
-                        $('bngActiveBanner').classList.toggle('show', toBng);
-                        $('row-bng').style.display = toBng ? '' : 'none';
-                        $('rateBanner').classList.toggle('bng-active', toBng);
-                        if (toBng) {
-                            $('tBngNote').textContent =
-                                `Bangalore Division — DA ₹${rates.da.toLocaleString('en-IN')}/day · LCA ₹${rates.lca.toLocaleString('en-IN')}/day · Air road ₹${rates.airRoad.toLocaleString('en-IN')}`;
-                        }
-
-                        updateKmCalc('calc-fwd', fwdKm);
-                        updateKmCalc('calc-ret', retKm);
-
-                        $('tFrom').textContent        = from;     $('tTo').textContent         = to;
-                        $('tRFrom').textContent       = rFrom;    $('tRTo').textContent        = rTo;
-                        $('tFwdKm').textContent       = fwdKm.toFixed(2);
-                        $('tRetKm').textContent       = retKm.toFixed(2);
-                        $('tDaysBasis').textContent   = days;     $('tDaysLCA').textContent    = days;
-                        $('tDivDA').textContent       = divLabel; $('tDivLCA').textContent     = divLabel;
-                        $('tDARateCell').textContent  = inrR(rates.da)  + '/day';
-                        $('tLCARateCell').textContent = inrR(rates.lca) + '/day';
-                        $('row-da').classList.toggle('disabled-row', !useDA);
-                        $('row-da').style.display     = '';
-                        $('row-lca').style.display    = useLCA ? '' : 'none';
-                        $('vFwd').textContent = inr(taFwd);
-                        $('vRet').textContent = inr(taRet);
-                        $('vDA').textContent  = inr(daCost);
-                        $('vLCA').textContent = inr(lcaCost);
-
-                        let note;
-                        if      (totKm === 0) note = 'Enter journey distance — TA ₹15/km always applies. DA / LCA determined by 40km rule.';
-                        else if (useLCA)      note = `${totKm.toFixed(2)} km ≤ 40 km → TA ₹${RATE}/km + LCA ₹${rates.lca.toLocaleString('en-IN')}/day. DA not applicable.`;
-                        else                  note = `${totKm.toFixed(2)} km > 40 km → TA ₹${RATE}/km + DA ₹${rates.da.toLocaleString('en-IN')}/day. LCA not applicable.`;
-                        $('tRuleNote').textContent = note;
-
-                        $('row-airfare').style.display  = airSel ? '' : 'none';
-                        $('row-airroad').style.display  = airSel ? '' : 'none';
-                        $('airFareField').style.display = airSel ? '' : 'none';
-                        $('rc-air-wrap').style.display  = airSel ? '' : 'none';
-                        if (airSel) {
-                            $('tAirRoadDiv').textContent  = divLabel;
-                            $('tAirRoadRate').textContent = inrR(rates.airRoad);
-                            $('vAirFare').textContent     = inr(airAct);
-                            $('vAirRoad').textContent     = inr(rates.airRoad);
-                            $('rc-air').textContent       = inrR(rates.airRoad);
-                        }
-
-                        let total = collegeCost + taTotal;
-                        if (useDA)  total += daCost;
-                        if (useLCA) total += lcaCost;
-                        if (airSel) { total += airAct; total += airRoadCost; }
-
-                        $('hidTotal').value    = total.toFixed(2);
-                        $('hidTA').value       = taTotal.toFixed(2);
-                        $('hidDA').value       = daCost.toFixed(2);
-                        $('hidLCA').value      = lcaCost.toFixed(2);
-                        $('hidAirFare').value  = airSel ? airAct.toFixed(2)      : '0';
-                        $('hidAirRoad').value  = airSel ? airRoadCost.toFixed(2) : '0';
-                        $('hidCollege').value  = collegeCost.toFixed(2);
-                        $('hidDivision').value = divKey;
-                        $('hidIsLCA').value    = useLCA ? 'true' : 'false';
-                        $('vKm').textContent    = totKm.toFixed(2) + ' km';
-                        $('vTotal').textContent = inr(total);
-
-                        const mobileAmt = $('mobileTotalAmt');
-                        if (mobileAmt) mobileAmt.textContent = inr(total);
-
-                        flash('vTotal');
-
-                        $('divisionLabel').textContent = '⬤ ' + divLabel;
-                        $('divBadge').textContent      = divLabel;
-                        $('rc-da').textContent         = '₹' + rates.da.toLocaleString('en-IN');
-                        $('rc-lca').textContent        = '₹' + rates.lca.toLocaleString('en-IN');
-
-                        updateUploadVisibility();
-                    }
-
-                    function showFileName(input, targetId) {
-                        const el = $(targetId); if (!el) return;
-                        if (input.files?.[0]) { el.textContent = '📎 ' + input.files[0].name; el.style.display = 'block'; }
-                        else { el.textContent = ''; el.style.display = 'none'; }
-                    }
-
-                    function onFacultyChange(facultyId) {
-                        const sel     = $('CollegeSelect');
-                        const spinner = $('collegeSpinner');
-                        if (!sel) return;
-                        sel.disabled = true;
-                        if (spinner) spinner.classList.add('show');
-                        sel.innerHTML = '<option value="">Loading colleges…</option>';
-                        if (!facultyId) {
-                            sel.innerHTML = '<option value="">— Select Faculty first —</option>';
-                            sel.disabled  = false;
-                            if (spinner) spinner.classList.remove('show');
-                            return;
-                        }
-                        fetch(URL_COLLEGES + '?facultyId=' + encodeURIComponent(facultyId))
-                            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-                            .then(data => {
-                                sel.innerHTML = '<option value="">— Select College —</option>';
-                                if (!data || data.length === 0) {
-                                    sel.innerHTML = '<option value="">— No colleges found —</option>';
-                                    return;
-                                }
-                                let added = 0;
-                                data.forEach(c => {
-                                    if (submittedCodes.has(c.value)) return;
-                                    const opt = document.createElement('option');
-                                    opt.value = c.value; opt.textContent = c.text;
-                                    sel.appendChild(opt);
-                                    added++;
-                                });
-                                if (added === 0)
-                                    sel.innerHTML = '<option value="">— All colleges already submitted —</option>';
-                            })
-                            .catch(err => {
-                                console.error('GetCollegesByFaculty:', err);
-                                sel.innerHTML = '<option value="">— Error loading, retry —</option>';
-                            })
-                            .finally(() => {
-                                sel.disabled = false;
-                                if (spinner) spinner.classList.remove('show');
-                            });
-                    }
-
-                    /* ── Init ── */
-                    msRefreshUI();
-                    recalc();
-                    updateUploadVisibility();
-
-                    /* ── Determine if page loaded after a successful save ── */
-                    const justSaved = !!document.querySelector('.alert-ok');
-
-                    /* ── After save: clear form and strip URL params so they
-                       cannot be re-read by autoPopulateFromUrl              ── */
-                    if (justSaved) {
-
-                        // Remove ?faculty=...&collegeCode=... from the browser bar silently
-                        if (window.location.search) {
-                            window.history.replaceState({}, document.title, window.location.pathname);
-                        }
-
-                        document.getElementById('FacultySelect').value = '';
-
-                        const colSelClear = document.getElementById('CollegeSelect');
-                        colSelClear.innerHTML = '<option value="">— Select Faculty first —</option>';
-
-                        msClearAll();
-
-                        document.querySelector('[name="InspectionDate"]').value   = '';
-                        document.querySelector('[name="FromPlace"]').value        = '';
-                        document.querySelector('[name="ToPlace"]').value          = '';
-                        document.querySelector('[name="Kilometers"]').value       = '';
-                        document.querySelector('[name="ReturnFromPlace"]').value  = '';
-                        document.querySelector('[name="ReturnToPlace"]').value    = '';
-                        document.querySelector('[name="ReturnKilometers"]').value = '';
-                        document.getElementById('numberOfDays').value = '1';
-
-                        const bngWrap = document.getElementById('bngWrap');
-                        if (bngWrap && bngWrap.classList.contains('active')) {
-                            bngWrap.classList.remove('active');
-                            document.getElementById('hidIsBng').value = 'false';
-                        }
-
-                        const airFareInput = document.getElementById('airFareInput');
-                        if (airFareInput) airFareInput.value = '';
-
-                        document.getElementById('fileInput').value                = '';
-                        document.getElementById('fileChosen').textContent         = '';
-                        document.getElementById('fileChosen').style.display       = 'none';
-                        document.getElementById('attendenceInput').value          = '';
-                        document.getElementById('attendenceChosen').textContent   = '';
-                        document.getElementById('attendenceChosen').style.display = 'none';
-
-                        recalc();
-                        updateUploadVisibility();
-                    }
-
-                    /* ── Auto-populate Faculty + College from URL params (dashboard click) ──
-                       Guarded by justSaved — if a save just happened the URL params are
-                       already stripped above and this function exits immediately anyway,
-                       so the cleared form is never repopulated.                            ── */
-                    (function autoPopulateFromUrl() {
-                        if (justSaved) return;
-
-                        const params     = new URLSearchParams(window.location.search);
-                        const urlFaculty = params.get('faculty');
-                        const urlCollege = params.get('collegeCode');
-
-                        if (!urlFaculty && !urlCollege) return;
-
-                        const facSel = document.getElementById('FacultySelect');
-                        const colSel = document.getElementById('CollegeSelect');
-                        if (!facSel) return;
-
-                        if (urlFaculty) {
-                            const facOpt = Array.from(facSel.options)
-                                .find(o => o.value.toLowerCase() === urlFaculty.toLowerCase());
-                            if (facOpt) { facSel.value = facOpt.value; }
-                        }
-
-                        const currentFaculty = facSel.value;
-                        if (!currentFaculty) return;
-
-                        const spinner = document.getElementById('collegeSpinner');
-                        colSel.disabled = true;
-                        if (spinner) spinner.classList.add('show');
-                        colSel.innerHTML = '<option value="">Loading colleges…</option>';
-
-                        fetch(URL_COLLEGES + '?facultyId=' + encodeURIComponent(currentFaculty))
-                            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-                            .then(data => {
-                                colSel.innerHTML = '<option value="">— Select College —</option>';
-                                if (!data || data.length === 0) {
-                                    colSel.innerHTML = '<option value="">— No colleges found —</option>';
-                                    return;
-                                }
-                                let added = 0;
-                                data.forEach(c => {
-                                    if (submittedCodes.has(c.value)) return;
-                                    const opt = document.createElement('option');
-                                    opt.value = c.value; opt.textContent = c.text;
-                                    colSel.appendChild(opt);
-                                    added++;
-                                });
-                                if (added === 0) {
-                                    colSel.innerHTML = '<option value="">— All colleges already submitted —</option>';
-                                    return;
-                                }
-                                if (urlCollege) {
-                                    const target = Array.from(colSel.options).find(o => o.value === urlCollege);
-                                    if (target) {
-                                        colSel.value = target.value;
-                                        colSel.style.transition = 'box-shadow .3s';
-                                        colSel.style.boxShadow  = '0 0 0 3px rgba(201,168,76,.4)';
-                                        setTimeout(() => colSel.style.boxShadow = '', 1800);
-                                    }
-                                }
-                            })
-                            .catch(err => {
-                                console.error('AutoPopulate colleges:', err);
-                                colSel.innerHTML = '<option value="">— Error loading, retry —</option>';
-                            })
-                            .finally(() => {
-                                colSel.disabled = false;
-                                if (spinner) spinner.classList.remove('show');
-                            });
-                    })();
-        </script>
+                }
+            })
+            .catch(err => {
+                console.error('AutoPopulate colleges:', err);
+                colSel.innerHTML = '<option value="">— Error loading, retry —</option>';
+            })
+            .finally(() => {
+                colSel.disabled = false;
+                if (spinner) spinner.classList.remove('show');
+            });
+    })();
+</script>
     </div><!-- /.main -->
 </body>
 </html>
