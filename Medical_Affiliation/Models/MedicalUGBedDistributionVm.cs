@@ -4,6 +4,10 @@
     {
         public int Id { get; set; }
 
+        // =========================
+        // MEDICAL
+        // =========================
+
         public int? OralMaxillofacialSurgery { get; set; } 
         public int? GenMedicine { get; set; }
         public int? Paediatrics { get; set; }
@@ -29,5 +33,29 @@
         public int? SICU { get; set; }
         public int? TotalICUBeds { get; set; }
         public int? CasualtyBeds { get; set; }
+
+        // =========================
+        // DENTAL
+        // =========================
+
+        // =========================
+        // DENTAL
+        // =========================
+
+        public List<DentalWardBedDistributionVm> DentalWards { get; set; } = new();
     }
+
+    public class DentalWardBedDistributionVm
+    {
+        public int WardId { get; set; }
+
+        public string WardName { get; set; } = null!;
+
+        public int SeatSlab { get; set; }
+
+        public int BedsRequired { get; set; }
+
+        public int? BedsPresent { get; set; }
+    }
+
 }

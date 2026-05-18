@@ -1,5 +1,6 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Medical_Affiliation.Services.Interfaces;
 using Medical_Affiliation.Services.UserContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -15,7 +16,7 @@ namespace Medical_Affiliation.Controllers
     public class ContinuesAffiliation_FacultybasedController : BaseController
     {
         private readonly ApplicationDbContext _context;
-        private readonly SessionUserContext _userContext;
+        private readonly IUserContext _userContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
         public ContinuesAffiliation_FacultybasedController(ApplicationDbContext context)
         {
@@ -4749,40 +4750,75 @@ namespace Medical_Affiliation.Controllers
                         x.CourseLevel == courseLevel);
 
 
-            if (existing == null)
-                return View(new MedicalUGBedDistributionVm());
+            var vm = new MedicalUGBedDistributionVm();
 
-            var vm = new MedicalUGBedDistributionVm
+            // =========================================
+            // MEDICAL DATA
+            // =========================================
+
+            if (existing != null)
             {
-                Id = existing.Id,
-                GenMedicine = existing.GenMedicine,
-                Paediatrics = existing.Paediatrics,
-                SkinVD = existing.SkinVd,
-                Psychiatry = existing.Psychiatry,
+                vm.Id = existing.Id;
 
-                GenSurgery = existing.GenSurgery,
-                Orthopaedics = existing.Orthopaedics,
-                Ophthalmology = existing.Ophthalmology,
-                ENT = existing.Ent,
+                vm.GenMedicine = existing.GenMedicine;
+                vm.Paediatrics = existing.Paediatrics;
+                vm.SkinVD = existing.SkinVd;
+                vm.Psychiatry = existing.Psychiatry;
 
-                ObstetricsANC = existing.ObstetricsAnc,
-                Gynaecology = existing.Gynaecology,
-                Postpartum = existing.Postpartum,
+                vm.GenSurgery = existing.GenSurgery;
+                vm.Orthopaedics = existing.Orthopaedics;
+                vm.Ophthalmology = existing.Ophthalmology;
+                vm.ENT = existing.Ent;
 
-                MajorOT = existing.MajorOt,
-                MinorOT = existing.MinorOt,
+                vm.ObstetricsANC = existing.ObstetricsAnc;
+                vm.Gynaecology = existing.Gynaecology;
+                vm.Postpartum = existing.Postpartum;
 
-                ICCU = existing.Iccu,
-                ICU = existing.Icu,
-                PICU_NICU = existing.PicuNicu,
-                SICU = existing.Sicu,
-                TotalICUBeds = existing.TotalIcubeds,
-                CasualtyBeds = existing.CasualtyBeds,
-                OralMaxillofacialSurgery = existing.OralMaxillofacialSurgery,
-            };
+                vm.MajorOT = existing.MajorOt;
+                vm.MinorOT = existing.MinorOt;
+
+                vm.ICCU = existing.Iccu;
+                vm.ICU = existing.Icu;
+                vm.PICU_NICU = existing.PicuNicu;
+                vm.SICU = existing.Sicu;
+                vm.TotalICUBeds = existing.TotalIcubeds;
+                vm.CasualtyBeds = existing.CasualtyBeds;
+
+                vm.OralMaxillofacialSurgery =
+                    existing.OralMaxillofacialSurgery;
+            }
+
+            
+            // =========================================
+            // DENTAL DATA
+            // =========================================
+
+            vm.DentalWards = await (
+                from master in _context.MstDentalBedDistributions
+
+                join saved in _context.DentalWardBedDistributions
+                    .Where(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == Convert.ToInt32(facultyCode))
+                on master.Id equals saved.WardId into savedGroup
+
+                from saved in savedGroup.DefaultIfEmpty()
+
+                where master.FacultyCode == Convert.ToInt32(facultyCode)
+
+                select new DentalWardBedDistributionVm
+                {
+                    WardId = master.Id,
+                    WardName = master.WardName,
+                    SeatSlab = master.SeatSlab,
+                    BedsRequired = master.BedRequirement,
+                    BedsPresent = saved != null ? saved.BedsPresent : null
+                }
+            ).ToListAsync();
 
             return View(vm);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -4792,6 +4828,8 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
             var courseLevel = CourseLevel;
+
+
 
             if (!ModelState.IsValid)
                 return View(vm);
@@ -4824,6 +4862,55 @@ namespace Medical_Affiliation.Controllers
             {
                 entity.OralMaxillofacialSurgery =
                     vm.OralMaxillofacialSurgery;
+
+                var hospitalDetails = await _context.HospitalDetailsForAffiliations.Where(e => e.CollegeCode == collegeCode).FirstOrDefaultAsync(); ;
+                var typeOfAff = hospitalDetails.AffiliationTypeId;
+
+                var existingDentalRecords =
+                    await _context.DentalWardBedDistributions
+                        .Where(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == Convert.ToInt32(facultyCode) &&
+                            x.HospitalDetailsId == hospitalDetails.HospitalDetailsId &&
+                            x.AffiliationTypeId == typeOfAff)
+                        .ToListAsync();
+
+                foreach (var item in vm.DentalWards)
+                {
+                    var existingDental = existingDentalRecords.FirstOrDefault(x => x.WardId == item.WardId);
+
+                    if (existingDental != null)
+                    {
+                        // UPDATE
+
+                        existingDental.BedsPresent = item.BedsPresent ?? 0;
+
+                        existingDental.SeatSlab = item.SeatSlab;
+
+                        existingDental.WardName = item.WardName;
+
+                        existingDental.BedsRequired = item.BedsRequired;
+                    }
+                    else
+                    {
+                        // INSERT
+
+                        await _context.DentalWardBedDistributions
+                            .AddAsync(
+                                new DentalWardBedDistribution
+                                {
+                                    FacultyCode = Convert.ToInt32(facultyCode),
+                                    CollegeCode = collegeCode,
+                                    HospitalDetailsId = hospitalDetails.HospitalDetailsId,
+                                    AffiliationTypeId = typeOfAff,
+                                    WardId = item.WardId,
+                                    WardName = item.WardName,
+                                    SeatSlab = item.SeatSlab,
+                                    BedsRequired = item.BedsRequired,
+                                    BedsPresent = item.BedsPresent ?? 0
+                                });
+                    }
+                }
             }
             else
             {

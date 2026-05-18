@@ -214,6 +214,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DentalService> DentalServices { get; set; }
 
+    public virtual DbSet<DentalWardBedDistribution> DentalWardBedDistributions { get; set; }
+
     public virtual DbSet<DepartmentMaster> DepartmentMasters { get; set; }
 
     public virtual DbSet<DepartmentWiseFacultyMaster> DepartmentWiseFacultyMasters { get; set; }
@@ -317,6 +319,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<MstClassroomDetail> MstClassroomDetails { get; set; }
 
     public virtual DbSet<MstCourse> MstCourses { get; set; }
+
+    public virtual DbSet<MstDentalBedDistribution> MstDentalBedDistributions { get; set; }
 
     public virtual DbSet<MstDentalPreClinicalAndSkillsLaboratoryAreaReq> MstDentalPreClinicalAndSkillsLaboratoryAreaReqs { get; set; }
 
@@ -2627,6 +2631,38 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("Fk_DentalServices_reqId");
         });
 
+        modelBuilder.Entity<DentalWardBedDistribution>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__DentalWa__3214EC07A3809509");
+
+            entity.ToTable("DentalWardBedDistribution");
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.WardName)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalWardBedDistributions)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_DentalWard_ColCode");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.DentalWardBedDistributions)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_DentalWard_FacultyCode");
+
+            entity.HasOne(d => d.HospitalDetails).WithMany(p => p.DentalWardBedDistributions)
+                .HasForeignKey(d => d.HospitalDetailsId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalWard_HospitalDetailsId");
+
+            entity.HasOne(d => d.Ward).WithMany(p => p.DentalWardBedDistributions)
+                .HasForeignKey(d => d.WardId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalWard_WardId");
+        });
+
         modelBuilder.Entity<DepartmentMaster>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -4005,6 +4041,22 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CourseName).HasMaxLength(100);
             entity.Property(e => e.CoursePrefix).HasMaxLength(100);
             entity.Property(e => e.SubjectName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<MstDentalBedDistribution>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstDenta__3214EC07ED915C21");
+
+            entity.ToTable("MstDentalBedDistribution");
+
+            entity.Property(e => e.WardName)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.MstDentalBedDistributions)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_DentalBedDistribution_FacultyCode");
         });
 
         modelBuilder.Entity<MstDentalPreClinicalAndSkillsLaboratoryAreaReq>(entity =>

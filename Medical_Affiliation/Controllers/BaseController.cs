@@ -30,7 +30,7 @@ namespace Medical_Affiliation.Controllers
                     level = User.FindFirst("CourseLevel")?.Value;
                 }
 
-                return level ?? "UG";
+                return string.IsNullOrWhiteSpace(level) ? "UG" : level;
             }
         }
 

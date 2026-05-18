@@ -4056,3 +4056,74 @@ CREATE TABLE DentalServices
     REFERENCES MstDentalServices(Id)
         
 );
+
+
+-------------------------------------------------
+
+CREATE TABLE MstDentalBedDistribution
+(
+    Id int IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
+    FacultyCode INT NOT NULL,
+    SeatSlab INT NOT NULL,
+    WardName VARCHAR(200) NOT NULL,
+    BedRequirement INT NOT NULL,
+
+    CONSTRAINT Fk_DentalBedDistribution_FacultyCode 
+        FOREIGN KEY(FacultyCode)
+        REFERENCES Faculty(FacultyId)
+);
+
+
+INSERT INTO MstDentalBedDistribution
+(FacultyCode, SeatSlab, WardName, BedRequirement)
+VALUES
+-- Seat Slab 50
+(2, 50, 'General Medical Ward', 30),
+(2, 50, 'General Surgical Ward', 30),
+(2, 50, 'Private Ward (A/C & Non A/C)', 9),
+(2, 50, 'Maternity Ward', 15),
+(2, 50, 'Pediatric Ward', 6),
+(2, 50, 'Intensive Care Services', 4),
+(2, 50, 'Critical Care/Emergency Beds', 6),
+
+-- Seat Slab 100
+(2, 100, 'General Medical Ward', 30),
+(2, 100, 'General Surgical Ward', 30),
+(2, 100, 'Private Ward (A/C & Non A/C)', 9),
+(2, 100, 'Maternity Ward', 15),
+(2, 100, 'Pediatric Ward', 6),
+(2, 100, 'Intensive Care Services', 4),
+(2, 100, 'Critical Care/Emergency Beds', 6);
+
+------------------------------------------------
+
+CREATE TABLE DentalWardBedDistribution
+(
+    Id INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
+    FacultyCode INT NOT NULL,
+    CollegeCode NVARCHAR(100) NOT NULL,
+    HospitalDetailsId INT NOT NULL,
+    AffiliationTypeId INT NOT NULL,
+    SeatSlab INT NOT NULL,
+    WardId INT NOT NULL,
+    WardName VARCHAR(200) NULL,
+    BedsRequired INT NOT NULL,
+    BedsPresent INT NOT NULL,
+
+    CONSTRAINT Fk_DentalWard_FacultyCode 
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT Fk_DentalWard_ColCode
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_DentalWard_HospitalDetailsId
+        FOREIGN KEY (HospitalDetailsId)
+        REFERENCES HospitalDetailsForAffiliation(HospitalDetailsID),
+
+    CONSTRAINT FK_DentalWard_WardId
+        FOREIGN KEY (WardId)
+        REFERENCES MstDentalBedDistribution(Id)
+
+);
