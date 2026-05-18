@@ -1,0 +1,304 @@
+﻿@model Medical_Affiliation.Models.EngAlliedRequirementsPostVM
+
+<div class="form-section">
+
+    <div class="section-title required">
+        Engineering & Allied Services
+    </div>
+
+    <form id="EngAlliedForm" class="mt-3">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" id="CollegeCode" value="@Model.CollegeCode" />
+        <input type="hidden" id="FacultyCode" value="@Model.FacultyCode" />
+        <input type="hidden" id="AffiliationTypeId" value="@Model.AffiliationTypeId" />
+        <input type="hidden" id="HospitalDetailsId" value="@Model.HospitalDetailsId" />
+
+        @if (Model.Requirements != null && Model.Requirements.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th width="70%">
+                                Requirement Name
+                            </th>
+
+                            <th width="30%" class="text-center">
+
+                                Availability Status
+
+                                <label for="selectAllEngAllied" class="ms-1 ms-1 small" style="font-size:10px;">
+                                    (Select All)
+                                </label>
+
+                                <input type="checkbox" id="selectAllEngAllied" class="form-check-input " />
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @for (int i = 0; i < Model.Requirements.Count; i++)
+                        {
+                            <tr class="eng-requirement-row">
+
+                                <td>
+
+                                    @Model.Requirements[i].RequirementName
+
+                                    <input type="hidden"
+                                           class="requirement-id"
+                                           value="@Model.Requirements[i].RequirementId" />
+
+                                    <input type="hidden"
+                                           class="requirement-name"
+                                           value="@Model.Requirements[i].RequirementName" />
+
+                                    <input type="hidden"
+                                           class="section-code"
+                                           value="@Model.Requirements[i].SectionCode" />
+
+                                </td>
+
+                                <td class="text-center availability-cell"
+                                    style="cursor:pointer;">
+
+                                    <input type="checkbox"
+                                           class="form-check-input requirement-check"
+                                    @(Model.Requirements[i].IsAvailable == true ? "checked" : "") />
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">
+                No Requirements Available.
+            </p>
+        }
+
+        <div class="text-center mt-3">
+
+            <button type="button"
+                    id="SaveEngAlliedBtn"
+                    class="btn btn-primary">
+
+                Save Engineering & Allied Services
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+
+    // =========================
+    // SELECT ALL
+    // =========================
+
+    document.getElementById('selectAllEngAllied')
+        ?.addEventListener('change', function () {
+
+            const isChecked = this.checked;
+
+            document.querySelectorAll('.requirement-check')
+                .forEach(cb => {
+
+                    cb.checked = isChecked;
+                });
+        });
+
+    // =========================
+    // UPDATE SELECT ALL STATE
+    // =========================
+
+    document.querySelectorAll('.eng-requirement-check')
+        .forEach(cb => {
+
+            cb.addEventListener('change', function () {
+
+                const all =
+                    document.querySelectorAll('.requirement-check');
+
+                const checked =
+                    document.querySelectorAll('.requirement-check:checked');
+
+                document.getElementById('selectAllEngAllied').checked =
+                    all.length === checked.length;
+            });
+        });
+
+    // =========================
+    // CELL CLICK TOGGLE
+    // =========================
+
+    document.querySelectorAll('.availability-cell')
+        .forEach(cell => {
+
+            cell.addEventListener('click', function (e) {
+
+                if (e.target.classList.contains('requirement-check'))
+                    return;
+
+                const checkbox =
+                    this.querySelector('.requirement-check');
+
+                checkbox.checked = !checkbox.checked;
+
+                checkbox.dispatchEvent(new Event('change'));
+            });
+        });
+
+    // =========================
+    // INITIAL LOAD
+    // =========================
+
+    window.addEventListener('load', function () {
+
+        const all =
+            document.querySelectorAll('.requirement-check');
+
+        const checked =
+            document.querySelectorAll('.requirement-check:checked');
+
+        if (all.length > 0) {
+
+            document.getElementById('selectAllEngAllied').checked =
+                all.length === checked.length;
+        }
+    });
+
+    // =========================
+    // SAVE
+    // =========================
+
+    document.getElementById('SaveEngAlliedBtn')
+        .addEventListener('click', SaveEngAlliedServices);
+
+    function SaveEngAlliedServices() {
+
+        const token =
+            document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        const requirements = [];
+
+        document.querySelectorAll('.eng-requirement-row')
+            .forEach(row => {
+
+                requirements.push({
+
+                    requirementId:
+                        parseInt(
+                            row.querySelector('.requirement-id').value
+                        ),
+
+                    requirementName:
+                        row.querySelector('.requirement-name').value,
+
+                    sectionCode:
+                        parseInt(
+                            row.querySelector('.section-code').value
+                        ),
+
+                    isAvailable:
+                        row.querySelector('.requirement-check').checked
+                });
+            });
+
+        const payload = {
+
+            collegeCode:
+                document.getElementById('CollegeCode').value,
+
+            facultyCode:
+                parseInt(
+                    document.getElementById('FacultyCode').value
+                ),
+
+            affiliationTypeId:
+                parseInt(
+                    document.getElementById('AffiliationTypeId').value
+                ),
+
+            hospitalDetailsId:
+                parseInt(
+                    document.getElementById('HospitalDetailsId').value
+                ),
+
+            requirements: requirements
+        };
+
+        fetch('@Url.Action("SaveEngAlliedServices", "ContinuationAffiliationClinicalFacilities")', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+
+            body: JSON.stringify(payload)
+
+        })
+        .then(response => {
+
+            if (!response.ok)
+                throw new Error('Request Failed');
+
+            return response.json();
+        })
+        .then(result => {
+
+            if (result.success) {
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Saved",
+                    text: result.message || 'Engineering & Allied Services Saved Successfully',
+                    confirmButtonText: 'OK'
+                });
+
+            } else {
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed",
+                    text: result.message || 'Failed To Save Engineering & Allied Services',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: 'Error While Saving Engineering & Allied Services',
+                confirmButtonText: 'OK'
+            });
+        });
+    }
+
+</script>

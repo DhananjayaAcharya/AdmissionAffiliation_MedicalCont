@@ -49,7 +49,15 @@ public partial class HospitalDetailsForAffiliation
 
     public string? CourseLevel { get; set; }
 
+    public int? DentalChairsCount { get; set; }
+
+    public bool? Has24HourEmergency { get; set; }
+
+    public bool? HasCriticalCareServices { get; set; }
+
     public virtual TypeOfAffiliation AffiliationType { get; set; } = null!;
+
+    public virtual ICollection<DentalService> DentalServices { get; set; } = new List<DentalService>();
 
     public virtual DistrictMaster HospitalDistrict { get; set; } = null!;
 
@@ -58,6 +66,8 @@ public partial class HospitalDetailsForAffiliation
     public virtual ICollection<HospitalFacility> HospitalFacilities { get; set; } = new List<HospitalFacility>();
 
     public virtual ICollection<IndoorInfrastructureRequirementsCompliance> IndoorInfrastructureRequirementsCompliances { get; set; } = new List<IndoorInfrastructureRequirementsCompliance>();
+
+    public virtual ICollection<MedicalAlliedDisciplineDetail> MedicalAlliedDisciplineDetails { get; set; } = new List<MedicalAlliedDisciplineDetail>();
 
     public virtual ICollection<SuperVisionInFieldPracticeArea> SuperVisionInFieldPracticeAreas { get; set; } = new List<SuperVisionInFieldPracticeArea>();
 }

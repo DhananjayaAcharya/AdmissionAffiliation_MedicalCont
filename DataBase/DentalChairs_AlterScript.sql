@@ -3835,6 +3835,224 @@ SELECT * FROM TeachingStaffDepartmentWiseDetails;
 --DELETE  FROM TeachingStaffDepartmentWiseDetails;
 
 
-ALTER TABLE [dbo].[TeachingStaffDepartmentWiseDetails]
+--DELETE FROM FacultyDetails
+
+SELECT * FROM FacultyDetails
+
+
+ALTER TABLE [dbo].[FacultyDetails]
 ADD [From] DATE NULL, 
     [To] DATE NULL;
+
+ALTER TABLE [dbo].[HospitalDetailsForAffiliation]
+ADD DentalChairsCount INT NULL;
+
+
+ALTER TABLE [dbo].[HospitalDetailsForAffiliation]
+ADD Has24HourEmergency  BIT NULL,
+    HasCriticalCareServices BIT NULL;
+
+INSERT INTO [dbo].[MST_Hospital_Type]
+(FacultyCode, HospitalType)
+VALUES
+(2, 'Own'),
+(2, 'Parent');
+
+INSERT INTO [dbo].[MST_HospitalOwnedBy]
+(FacultyCode, OwnedBy)
+VALUES
+(2, 'Trust/Society/Missionary'),
+(2, 'Trust member with MOU'),
+(2, 'District Hospital'),
+(2, 'Taluk hospital/Community Health Center');
+
+
+
+CREATE TABLE MstMedicalAlliedDiscipline
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    DisciplineCode VARCHAR(20) NOT NULL,
+
+    DisciplineName VARCHAR(200) NOT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CONSTRAINT FK_MstMedicalAlliedDiscipline_FacultyMaster FOREIGN KEY (FacultyCode) REFERENCES Faculty(facultyid)
+);
+
+
+INSERT INTO MstMedicalAlliedDiscipline
+(
+    FacultyCode,
+    DisciplineCode,
+    DisciplineName
+)
+VALUES
+(2, 'MAD001', 'General Medicine'),
+(2, 'MAD002', 'General Surgery'),
+(2, 'MAD003', 'Obstetrics & Gynaecology'),
+(2, 'MAD004', 'Orthopaedics'),
+(2, 'MAD005', 'Critical Medicine'),
+(2, 'MAD006', 'Emergency Medicine'),
+(2, 'MAD007', 'Otorhinolaryngology'),
+(2, 'MAD008', 'Paediatrics'),
+(2, 'MAD009', 'Pathology'),
+(2, 'MAD010', 'Anaesthesiology'),
+(2, 'MAD011', 'Blood Bank & Transfusion'),
+(2, 'MAD012', 'Community Medicine'),
+(2, 'MAD013', 'Hospital Administration');
+
+CREATE TABLE MedicalAlliedDisciplineDetail
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    -- FK References
+    FacultyCode INT NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+
+    HospitalDetailsId INT NOT NULL,
+
+    AffiliationTypeId INT NOT NULL,
+
+    -- Discipline Details
+    DisciplineCode VARCHAR(20) NOT NULL,
+
+    DisciplineName VARCHAR(200) NOT NULL,
+
+    Intake INT NULL,
+
+    SeatSlab INT NOT NULL,
+
+    Remarks VARCHAR(500) NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedOn DATETIME NOT NULL DEFAULT GETDATE(),
+
+    UpdatedOn DATETIME NULL
+);
+
+
+
+ALTER TABLE MedicalAlliedDisciplineDetail
+ADD CONSTRAINT FK_MedicalAlliedDisciplineDetail_Faculty
+FOREIGN KEY (FacultyCode)
+REFERENCES Faculty(FacultyId);
+
+ALTER TABLE MedicalAlliedDisciplineDetail
+ADD CONSTRAINT FK_MedicalAlliedDisciplineDetail_College
+FOREIGN KEY (CollegeCode)
+REFERENCES [dbo].[Affiliation_College_Master](CollegeCode);
+
+ALTER TABLE MedicalAlliedDisciplineDetail
+ADD CONSTRAINT FK_MedicalAlliedDisciplineDetail_Hospital
+FOREIGN KEY (HospitalDetailsId)
+REFERENCES HospitalDetailsForAffiliation(HospitalDetailsId);
+
+ALTER TABLE MedicalAlliedDisciplineDetail
+ADD CONSTRAINT FK_MedicalAlliedDisciplineDetail_AffiliationType
+FOREIGN KEY (AffiliationTypeId)
+REFERENCES TypeOfAffiliation(TypeId);
+
+select * from [dbo].[Med_CA_AccountAndFeeDetails];
+
+SELECT * FROM [dbo].[MedicalAlliedDisciplineDetail];
+
+---------------------------------------
+
+CREATE TABLE MstDentalServices
+(Id int Identity(1, 1) primary key clustered,
+    FacultyCode INT NOT NULL,
+    SectionName VARCHAR(500) NULL,
+    RequirementName VARCHAR(500) NOT NULL,
+    IsActive bit NOT NULL default 1,
+    SectionCode int not null,
+    CreatedOn DATETIME NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT Fk_MstDentalServices_FacultyCode FOREIGN KEY (FacultyCode) REFERENCES Faculty(FacultyId)
+
+);
+
+
+INSERT INTO MstDentalServices
+(
+    FacultyCode,
+    SectionCode,
+    SectionName,
+    RequirementName,
+    IsActive
+)
+VALUES
+
+-- =========================================
+-- Nursing, Paramedical, Technical & Allied Services
+-- =========================================
+
+(2, 1, 'Nursing, Paramedical, Technical & Allied Services', 'Dietetics & Therapeutics', 1),
+(2, 1, 'Nursing, Paramedical, Technical & Allied Services', 'Drugs & Pharmacy', 1),
+(2, 1, 'Nursing, Paramedical, Technical & Allied Services', 'ECG Technology', 1),
+(2, 1, 'Nursing, Paramedical, Technical & Allied Services', 'Imaging Technology', 1),
+(2, 1, 'Nursing, Paramedical, Technical & Allied Services', 'CSSD', 1),
+(2, 1, 'Nursing, Paramedical, Technical & Allied Services', 'Physiotherapy', 1),
+(2, 1, 'Nursing, Paramedical, Technical & Allied Services', 'Medical Record Section', 1),
+
+-- =========================================
+-- Engineering & Allied Services
+-- =========================================
+
+(2, 2, 'Engineering & Allied Services', 'Fire protection', 1),
+(2, 2, 'Engineering & Allied Services', 'Electrical', 1),
+(2, 2, 'Engineering & Allied Services', 'Air conditioning/Central heating', 1),
+(2, 2, 'Engineering & Allied Services', 'Medical gases', 1),
+(2, 2, 'Engineering & Allied Services', 'Refrigeration', 1),
+(2, 2, 'Engineering & Allied Services', 'Central workshop', 1),
+(2, 2, 'Engineering & Allied Services', 'Ambulance', 1),
+(2, 2, 'Engineering & Allied Services', 'Water supply', 1),
+(2, 2, 'Engineering & Allied Services', 'Sewage & waste disposal', 1),
+
+-- =========================================
+-- Administration & Ancillary Services
+-- =========================================
+
+(2, 3, 'Administration & Ancillary Services', 'General administration', 1),
+(2, 3, 'Administration & Ancillary Services', 'Material management', 1),
+(2, 3, 'Administration & Ancillary Services', 'Medical social worker', 1),
+(2, 3, 'Administration & Ancillary Services', 'PRO', 1),
+(2, 3, 'Administration & Ancillary Services', 'Library', 1),
+(2, 3, 'Administration & Ancillary Services', 'Security', 1);
+
+-------------------------
+
+
+CREATE TABLE DentalServices
+(Id INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
+    FacultyCode INT NOT NULL,
+    AffiliationTypeId INT NOT NULL,
+    HospitalDetailsId INT NOT NULL,
+    CollegeCode NVARCHAR(100) NOT NULL,
+    RequirementId INT NOT NULL,
+    AvailabilityStatus BIT NULL,
+    CreatedOn DATETIME,
+    SectionCode INT NOT NULL,
+    UpdatedOn DATETIME,
+
+    CONSTRAINT FK_DentalServices_FacultyCode FOREIGN KEY (FacultyCode)
+    REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT Fk_DentalServices_AffType FOREIGN KEY (AffiliationTypeId)
+    REFERENCES TypeOfAffiliation(TypeId),
+
+    CONSTRAINT Fk_DentalServices_HospitalDetailsId FOREIGN KEY(HospitalDetailsId)
+    REFERENCES HospitalDetailsForAffiliation(HospitalDetailsId),
+
+    CONSTRAINT Fk_DentalServices_CollegeCode FOREIGN KEY(CollegeCode)
+    REFERENCES [dbo].[Affiliation_College_Master](CollegeCode),
+
+    CONSTRAINT Fk_DentalServices_reqId FOREIGN KEY(RequirementId)
+    REFERENCES MstDentalServices(Id)
+        
+);

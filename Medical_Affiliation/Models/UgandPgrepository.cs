@@ -36,4 +36,6 @@ public partial class UgandPgrepository
     public string? CourseName { get; set; }
 
     public byte[]? Ncisc { get; set; }
+
+    public string? CourseLevel { get; set; }
 }

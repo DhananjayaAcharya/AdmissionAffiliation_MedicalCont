@@ -46,4 +46,8 @@ public partial class AffiliationCollegeMaster
     public virtual ICollection<DentalChair> DentalChairs { get; set; } = new List<DentalChair>();
 
     public virtual ICollection<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; } = new List<DentalCollegeLandBuildingDetail>();
+
+    public virtual ICollection<DentalService> DentalServices { get; set; } = new List<DentalService>();
+
+    public virtual ICollection<MedicalAlliedDisciplineDetail> MedicalAlliedDisciplineDetails { get; set; } = new List<MedicalAlliedDisciplineDetail>();
 }

@@ -197,6 +197,14 @@ namespace Medical_Affiliation.Models
 
         public IndoorBedsOccupancyPostVM IndoorBedsOccupancy { get; set; }
         public SuperVisionInFieldPracticeAreaPostVm SuperVisionInFieldPracticeArea { get; set; }
+
+        public NPTARequirementsPostVM NptaRequirementPostvm { get; set; }
+
+        public EngAlliedRequirementsPostVM EngAlliedRequirementPostvm { get; set; }
+
+        public AdmAncRequirementsPostVM AdmAncRequirementPostvm { get; set; }
+
+        public DisciplinePostVM DisciplineVm { get; set; }
         public int FacultyCode { get; set; }
         public string CollegeCode { get; set; }
 
@@ -304,11 +312,48 @@ namespace Medical_Affiliation.Models
         // Capacity & Statistics
         public int? TotalBeds { get; set; }
         public int? OpdperDay { get; set; }
+        public int? DentalChairsCount { get; set; }
+        public bool? Has24HourEmergency { get; set; }
+        public bool? HasCriticalCareServices { get; set; }
         public decimal? IpdbedOccupancyPercent { get; set; }
         public int? AnnualOpdprevYear { get; set; }
         public int? AnnualIpdprevYear { get; set; }
         public decimal? DistanceBetweenCollegeAndHospitalKm { get; set; }
         public bool? IsOwnerAmemberOfTrust { get; set; }
+
+        public List<DropdownItem> IsOwnerAmemberOfTrustOptions { get; set; } = new();
+
+    }
+
+
+
+    public class DisciplineVm
+    {
+        public int HospitalDetailsId { get; set; }
+        public string CollegeCode { get; set; }
+        public string FacultyCode { get; set; }
+        public int AffiliationTypeId { get; set; }
+
+        public string DisciplineCode { get; set; }
+        public bool IsSelected { get; set; }
+        public string DisciplineName { get; set; }
+
+        public int SeatIntake { get; set; }
+        public int SeatSlab { get; set; }
+
+    }
+
+    public class DisciplinePostVM
+    {
+        public string CollegeCode { get; set; }
+
+        public string FacultyCode { get; set; }
+        public int SeatSlab { get; set; }
+
+        public int AffiliationTypeId { get; set; }
+
+        public int HospitalDetailsId { get; set; }
+        public List<DisciplineVm> Disciplines { get; set; }
     }
 
 
@@ -323,6 +368,22 @@ namespace Medical_Affiliation.Models
         public string RequirementName { get; set; } = string.Empty;
 
     }
+
+    public class RequirementDentalItemBaseVM
+    {
+        [Required]
+        public int RequirementId { get; set; }
+
+        public bool? IsAvailable { get; set; }
+
+        [Required]
+        public string RequirementName { get; set; }
+
+        public int SectionCode { get; set; }
+
+        public int HospitalDetailsId { get; set; }
+    }
+
     public abstract class RequirementsBasePostVM<TItem>
     {
         [Required]
@@ -414,6 +475,18 @@ namespace Medical_Affiliation.Models
     public class IndoorBedsUnitsItemVM : RequirementItemBaseVM { }
 
     public class IndoorBedsUnitsRequirementsPostVM : RequirementsBasePostVM<IndoorBedsUnitsItemVM> { }
+
+    public class NPTAServicesItemVM : RequirementDentalItemBaseVM { }
+    public class NPTARequirementsPostVM : RequirementsBasePostVM<NPTAServicesItemVM> { }
+
+    public class EngAlliedServicesItemVM : RequirementDentalItemBaseVM{ }
+    public class EngAlliedRequirementsPostVM : RequirementsBasePostVM<EngAlliedServicesItemVM> { }
+
+    public class AdmAncServicesItemVM : RequirementDentalItemBaseVM
+    {
+    }
+    public class AdmAncRequirementsPostVM : RequirementsBasePostVM<AdmAncServicesItemVM> { 
+    }
 
     public class IndoorBedsOccupancyPostVM
     {

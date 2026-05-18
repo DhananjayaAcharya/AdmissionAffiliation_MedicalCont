@@ -14,6 +14,7 @@
     string FacultyKey(int facultyCode) => facultyCode switch
     {
         3 => "Nursing",
+        2 => "Dental",
         1 => "Medical",
         _ => "Common"
     };
@@ -24,6 +25,9 @@
         "HospitalDetails" => Model.ClinicalHospitalDetails,
         "AffiliatedDocuments" => Model.AffiliatedDocumentsPostVM,
         "ClinicalCapacity" => Model.ClinicalCapacity,
+        "Discipline" => Model.DisciplineVm,
+        "NPTAservices" => Model.NptaRequirementPostvm,
+        "EngAlliedservices" => Model.EngAlliedRequirementPostvm,
         "FieldPracticeArea" => Model.FieldPracticeAreaPostVM,
         "Facilities" => Model.ClinicalHospitalDetails.HospitalFacilities,
         "IndoorBedsUnits" => Model.IndoorBedsUnitsRequirements,

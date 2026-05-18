@@ -41,11 +41,15 @@ public partial class MedicalInstituteDetail
 
     public string? OtherDegree { get; set; }
 
-    public byte[]? EshtablishmentDoc { get; set; }
-
-    public byte[]? TrustDoc { get; set; }
-
     public string? District { get; set; }
 
     public string? Taluk { get; set; }
+
+    public string? EstablishmentDocPath { get; set; }
+
+    public string? TrustDocPath { get; set; }
+
+    public byte[]? EshtablishmentDoc { get; set; }
+
+    public byte[]? TrustDoc { get; set; }
 }

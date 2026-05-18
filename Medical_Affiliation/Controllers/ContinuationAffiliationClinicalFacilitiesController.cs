@@ -178,12 +178,19 @@ namespace Medical_Affiliation.Controllers
 
             if (hospital == null)
             {
-                hospital = new HospitalDetailsForAffiliation();
-                _context.HospitalDetailsForAffiliations.Add(hospital);
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Please fill Basic Hospital Details (first section)."
+                });
+
             }
 
             hospital.TotalBeds = vm.Form.TotalBeds;
             hospital.OpdperDay = vm.Form.OpdperDay;
+            hospital.DentalChairsCount = vm.Form?.DentalChairsCount;
+            hospital.Has24HourEmergency = vm.Form?.Has24HourEmergency;
+            hospital.HasCriticalCareServices = vm.Form?.HasCriticalCareServices;
             hospital.IpdbedOccupancyPercent = vm.Form.IpdbedOccupancyPercent;
             hospital.AnnualOpdprevYear = vm.Form.AnnualOpdprevYear;
             hospital.AnnualIpdprevYear = vm.Form.AnnualIpdprevYear;
@@ -382,6 +389,343 @@ namespace Medical_Affiliation.Controllers
                 return Unauthorized();
             }
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveDisciplineDetails( [FromBody] DisciplinePostVM model)
+        {
+            try
+            {
+                if (model == null || model.Disciplines == null || !model.Disciplines.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No Discipline Details Found."
+                    });
+                }
+
+                foreach (var item in model.Disciplines)
+                {
+                    var existing = await _context.MedicalAlliedDisciplineDetails
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == model.CollegeCode &&
+                            x.FacultyCode.ToString() == model.FacultyCode &&
+                            x.AffiliationTypeId == model.AffiliationTypeId &&
+                            x.HospitalDetailsId == model.HospitalDetailsId &&
+                            x.DisciplineCode == item.DisciplineCode);
+
+                    if (existing != null)
+                    {
+                        // UPDATE
+                        existing.Intake = item.SeatIntake;
+                        existing.SeatSlab = model.SeatSlab;
+                        existing.UpdatedOn = DateTime.Now;
+                        existing.IsActive = item.IsSelected;
+                    }
+                    else
+                    {
+                        // INSERT
+                        var entity = new MedicalAlliedDisciplineDetail
+                        {
+                            CollegeCode = model.CollegeCode,
+                            FacultyCode = Convert.ToInt32(model.FacultyCode),
+                            AffiliationTypeId = model.AffiliationTypeId,
+                            HospitalDetailsId = model.HospitalDetailsId,
+
+                            DisciplineCode = item.DisciplineCode,
+                            DisciplineName = item.DisciplineName,
+                            IsActive = item.IsSelected,
+
+                            Intake = item.SeatIntake,
+                            SeatSlab = model.SeatSlab,
+
+                            CreatedOn = DateTime.Now
+                        };
+
+                        await _context.MedicalAlliedDisciplineDetails
+                            .AddAsync(entity);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Discipline Details Saved Successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveEngAlliedServices( [FromBody] EngAlliedRequirementsPostVM model)
+        {
+            try
+            {
+                if (model == null || model.Requirements == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid request."
+                    });
+                }
+
+                // Existing saved data
+                var existingRecords = await _context.DentalServices
+                    .Where(x =>
+                        x.CollegeCode == model.CollegeCode &&
+                        x.FacultyCode == model.FacultyCode &&
+                        x.AffiliationTypeId == model.AffiliationTypeId &&
+                        x.HospitalDetailsId == model.HospitalDetailsId &&
+                        x.SectionCode == 2)
+                    .ToListAsync();
+
+                foreach (var item in model.Requirements)
+                {
+                    var existing = existingRecords
+                        .FirstOrDefault(x => x.RequirementId == item.RequirementId);
+
+                    // =========================
+                    // UPDATE
+                    // =========================
+
+                    if (existing != null)
+                    {
+                        existing.AvailabilityStatus = item.IsAvailable;
+
+                        existing.SectionCode = item.SectionCode;
+
+                        existing.UpdatedOn = DateTime.Now;
+                    }
+
+                    // =========================
+                    // INSERT
+                    // =========================
+
+                    else
+                    {
+                        var entity = new DentalService
+                        {
+                            CollegeCode = model.CollegeCode,
+                            FacultyCode = model.FacultyCode,
+                            AffiliationTypeId = model.AffiliationTypeId,
+                            HospitalDetailsId = model.HospitalDetailsId,
+
+                            SectionCode = item.SectionCode,
+
+                            RequirementId = item.RequirementId,
+
+                            AvailabilityStatus = item.IsAvailable,
+
+                            CreatedOn = DateTime.Now
+                        };
+
+                        await _context.DentalServices.AddAsync(entity);
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Engineering & Allied Services Saved Successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveNPTAServices( [FromBody] NPTARequirementsPostVM model)
+        {
+            try
+            {
+                if (model == null || model.Requirements == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid request."
+                    });
+                }
+
+                // Existing saved data
+                var existingRecords = await _context.DentalServices
+                    .Where(x =>
+                        x.CollegeCode == model.CollegeCode &&
+                        x.FacultyCode == model.FacultyCode &&
+                        x.AffiliationTypeId == model.AffiliationTypeId &&
+                        x.HospitalDetailsId == model.HospitalDetailsId &&
+                        x.SectionCode == 1)
+                    .ToListAsync();
+
+                foreach (var item in model.Requirements)
+                {
+                    var existing = existingRecords
+                        .FirstOrDefault(x => x.RequirementId == item.RequirementId);
+
+                    // =========================
+                    // UPDATE
+                    // =========================
+
+                    if (existing != null)
+                    {
+                        existing.AvailabilityStatus = item.IsAvailable;
+
+                        existing.SectionCode = item.SectionCode;
+
+                        existing.UpdatedOn = DateTime.Now;
+                    }
+
+                    // =========================
+                    // INSERT
+                    // =========================
+
+                    else
+                    {
+                        var entity = new DentalService
+                        {
+                            CollegeCode = model.CollegeCode,
+                            FacultyCode = model.FacultyCode,
+                            AffiliationTypeId = model.AffiliationTypeId,
+                            HospitalDetailsId = model.HospitalDetailsId,
+
+                            SectionCode = item.SectionCode,
+
+                            RequirementId = item.RequirementId,
+
+                            AvailabilityStatus = item.IsAvailable,
+
+                            CreatedOn = DateTime.Now
+                        };
+
+                        await _context.DentalServices.AddAsync(entity);
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "NPTA Services Saved Successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveAdmAncServices( [FromBody] AdmAncRequirementsPostVM model)
+        {
+            try
+            {
+                if (model == null || model.Requirements == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid request."
+                    });
+                }
+
+                // Existing saved data
+                var existingRecords = await _context.DentalServices
+                    .Where(x =>
+                        x.CollegeCode == model.CollegeCode &&
+                        x.FacultyCode == model.FacultyCode &&
+                        x.AffiliationTypeId == model.AffiliationTypeId &&
+                        x.HospitalDetailsId == model.HospitalDetailsId &&
+                        x.SectionCode == 3)
+                    .ToListAsync();
+
+                foreach (var item in model.Requirements)
+                {
+                    var existing = existingRecords
+                        .FirstOrDefault(x => x.RequirementId == item.RequirementId);
+
+                    // =========================
+                    // UPDATE
+                    // =========================
+
+                    if (existing != null)
+                    {
+                        existing.AvailabilityStatus = item.IsAvailable;
+
+                        existing.SectionCode = item.SectionCode;
+
+                        existing.UpdatedOn = DateTime.Now;
+                    }
+
+                    // =========================
+                    // INSERT
+                    // =========================
+
+                    else
+                    {
+                        var entity = new DentalService
+                        {
+                            CollegeCode = model.CollegeCode,
+                            FacultyCode = model.FacultyCode,
+                            AffiliationTypeId = model.AffiliationTypeId,
+                            HospitalDetailsId = model.HospitalDetailsId,
+
+                            SectionCode = item.SectionCode,
+
+                            RequirementId = item.RequirementId,
+
+                            AvailabilityStatus = item.IsAvailable,
+
+                            CreatedOn = DateTime.Now
+                        };
+
+                        await _context.DentalServices.AddAsync(entity);
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Administration & Ancillary Services Saved Successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+
 
         private void ValidateAffiliatedHospitalDocuments(AffiliatedHospitalDocumentsPostVM model)
         {

@@ -48,5 +48,6 @@ public partial class FacultyDetail
     public string? LitigationDocPath { get; set; }
 
     public DateOnly? From { get; set; }
+
     public DateOnly? To { get; set; }
 }

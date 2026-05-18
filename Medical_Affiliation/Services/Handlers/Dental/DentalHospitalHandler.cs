@@ -9,12 +9,12 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace Medical_Affiliation.Services.Handlers.Medical
 {
-    public class MedicalHospitalHandler : IFacultyHospitalHandler
+    public class DentalHospitalHandler : IFacultyHospitalHandler
     {
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
 
-        public MedicalHospitalHandler(ApplicationDbContext context, IUserContext userContext)
+        public DentalHospitalHandler(ApplicationDbContext context, IUserContext userContext)
         {
             _context = context;
             _userContext = userContext;
@@ -81,7 +81,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             }).ToList();
         }
 
-        public int FacultyId => 1;
+        public int FacultyId => 2;
 
         private List<TItem> BuildRequirements<TItem>(List<MstIndoorInfrastructureRequirementsMaster> masters, List<IndoorInfrastructureRequirementsCompliance> existing) where TItem : RequirementItemBaseVM, new()
         {
@@ -93,6 +93,35 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             }).ToList();
         }
 
+        private List<TItem> BuildDentalRequirements<TItem>(
+    List<MstDentalService> masters,
+    List<DentalService> existing,
+    int hospitalDetailsId)
+    where TItem : RequirementDentalItemBaseVM, new()
+        {
+            return masters.Select(m =>
+            {
+                var existingItem =
+                    existing.FirstOrDefault(e => e.RequirementId == m.Id && e.AvailabilityStatus == true);
+
+                var item = new TItem
+                {
+                    RequirementId = m.Id,
+                    RequirementName = m.RequirementName,
+                    IsAvailable = existingItem?.AvailabilityStatus
+                };
+
+                // COMMON FOR ALL DENTAL REQUIREMENT TYPES
+                if (item is RequirementDentalItemBaseVM dentalItem)
+                {
+                    dentalItem.SectionCode = m.SectionCode;
+                    dentalItem.HospitalDetailsId = hospitalDetailsId;
+                }
+
+                return item;
+
+            }).ToList();
+        }
 
         public async Task<HospitalAffiliationCompositeViewModel> GetDetailsAsync(string collegeCode)
         {
@@ -347,10 +376,23 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     m.IsActive)
                 .ToListAsync();
 
+            var mastersDentalBySection = await _context.MstDentalServices
+                .Where(m =>
+                    m.FacultyCode == facultyCode &&
+                    m.IsActive)
+                .ToListAsync();
+
             var existingBySection = await _context.IndoorInfrastructureRequirementsCompliances
                 .Where(r =>
                     r.CollegeCode == collegeCode &&
                     r.FacultyCode == facultyCode &&
+                    r.AffiliationTypeId == typeOfAffiliation)
+                .ToListAsync();
+
+            var existingDentalBySection = await _context.DentalServices
+                .Where(r => 
+                    r.CollegeCode == collegeCode && 
+                    r.FacultyCode == facultyCode && 
                     r.AffiliationTypeId == typeOfAffiliation)
                 .ToListAsync();
 
@@ -384,6 +426,12 @@ namespace Medical_Affiliation.Services.Handlers.Medical
 
             var OutpatientAreaReqMaster = mastersBySection.Where(r => r.SectionCode == "15").ToList();
 
+            var NPTAReqMaster = mastersDentalBySection.Where(r => r.SectionCode == 1).OrderBy(e=>e.RequirementName).ToList();
+
+            var EngAlliedReqMaster = mastersDentalBySection.Where(r => r.SectionCode == 2).OrderBy(e => e.RequirementName).ToList();
+
+            var AdmAncReqMaster = mastersDentalBySection.Where(r => r.SectionCode == 3).OrderBy(e => e.RequirementName).ToList();
+
             var departmentsMaster = await _context.MstIndoorBedsDepartmentMasters
                 .Where(d => d.FacultyCode == facultyCode)
                 .ToListAsync();
@@ -393,12 +441,21 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 .OrderBy(s => s.SeatSlab)
                 .ToListAsync();
 
+            var seatSlab = seatSlabs.Where(e => e.SeatSlabId == seatSlabId).Select(e => e.SeatSlab).FirstOrDefault();
+
             var bedMasterRequirements = await _context.MstIndoorBedsOccupancyMasters
                 .Where(m =>
                     m.FacultyCode == facultyCode &&
                     m.SeatSlabId == seatSlabId &&
                     m.AffiliationTypeId == typeOfAffiliation)
                 .ToListAsync();
+
+            var disciplineMst = await _context.MstMedicalAlliedDisciplines
+                .Where(e => e.FacultyCode == facultyCode)
+                .OrderBy(e => e.DisciplineName)
+                .ToListAsync();
+
+            //var mstDentalServices = 
 
             var existingBeds = await _context.IndoorBedsOccupancies
                 .Where(o =>
@@ -439,6 +496,12 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             var existingIndoorBedsUnitsRequirement = existingBySection.Where(r => r.SectionCode == "14").ToList();
 
             var existingOutpatientAreaRequirement = existingBySection.Where(r => r.SectionCode == "15").ToList();
+
+            var existingNPTAServices = existingDentalBySection.Where(r => r.SectionCode == 1).OrderBy(e=>e.Requirement.RequirementName).ToList();
+            var existingEngAlliedServices = existingDentalBySection.Where(r => r.SectionCode == 2).ToList();
+            var existingAdmAncServices = existingDentalBySection.Where(r => r.SectionCode == 3).ToList();
+
+            var existingDiscipline = await _context.MedicalAlliedDisciplineDetails.Where(e=>e.FacultyCode == facultyCode && e.CollegeCode == collegeCode).ToListAsync();
 
             var indoorDeptVM = new IndoorDepartmentRequirementsPostVM
             {
@@ -505,7 +568,10 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                         IsOwnerAmemberOfTrust = hospital.IsOwnerAmemberOfTrust,
                         CollegeCode = hospital.CollegeCode,
                         FacultyCode = hospital.FacultyCode,
-                        AffiliationTypeId = typeOfAffiliation
+                        AffiliationTypeId = typeOfAffiliation,
+                        DentalChairsCount = hospital.DentalChairsCount,
+                        Has24HourEmergency = hospital.Has24HourEmergency,
+                        HasCriticalCareServices = hospital.HasCriticalCareServices
                     },
 
                 IsOwnerAmemberOfTrustOptions = new List<DropdownItem>
@@ -513,6 +579,39 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     new() { Text = "Yes", Value = "true" },
                     new() { Text = "No", Value = "false" }
                 }
+            };
+
+            var disciplines = disciplineMst.Select(e =>
+            {
+                var existing = existingDiscipline
+                    .FirstOrDefault(x => x.DisciplineCode == e.DisciplineCode);
+
+                return new DisciplineVm
+                {
+                    DisciplineCode = e.DisciplineCode,
+                    DisciplineName = e.DisciplineName,
+
+                    SeatIntake = existing?.Intake ?? 0,
+                    SeatSlab = existing?.SeatSlab ?? seatSlab,
+
+                    IsSelected = existing.IsActive,
+
+                    CollegeCode = collegeCode,
+                    FacultyCode = facultyCode.ToString(),
+                    AffiliationTypeId = typeOfAffiliation,
+                    HospitalDetailsId = existing?.HospitalDetailsId ?? 0
+                };
+            }).ToList();
+
+            var disciplineVm = new DisciplinePostVM
+            {
+                CollegeCode = collegeCode,
+                FacultyCode = facultyCode.ToString(),
+                AffiliationTypeId = typeOfAffiliation,
+                HospitalDetailsId = hospital?.HospitalDetailsId ?? 0,
+
+                Disciplines = disciplines,
+                SeatSlab = seatSlab
             };
 
             // Build composite VM
@@ -524,9 +623,40 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 FacultyCode = facultyCode,
                 CollegeCode = collegeCode,
                 IndoorDepartment = indoorDeptVM,
-                SuperVisionInFieldPracticeArea = supervisionVm
+                SuperVisionInFieldPracticeArea = supervisionVm,
+                DisciplineVm = disciplineVm
             };
 
+            compositeVM.NptaRequirementPostvm = new NPTARequirementsPostVM
+            {
+                CollegeCode = collegeCode,
+                FacultyCode = facultyCode,
+                AffiliationTypeId = typeOfAffiliation,
+                HospitalDetailsId = hospital?.HospitalDetailsId ?? 0,
+                Requirements = BuildDentalRequirements<NPTAServicesItemVM>(NPTAReqMaster, existingNPTAServices, hospital?.HospitalDetailsId ?? 0)
+
+            };
+
+            compositeVM.EngAlliedRequirementPostvm = new EngAlliedRequirementsPostVM
+            {
+                CollegeCode = collegeCode,
+                FacultyCode = facultyCode,
+                AffiliationTypeId = typeOfAffiliation,
+                HospitalDetailsId = hospital?.HospitalDetailsId ?? 0,
+                Requirements = BuildDentalRequirements<EngAlliedServicesItemVM>(EngAlliedReqMaster, existingEngAlliedServices, hospital?.HospitalDetailsId ?? 0)
+
+            };
+
+
+            compositeVM.AdmAncRequirementPostvm = new AdmAncRequirementsPostVM
+            {
+                CollegeCode = collegeCode,
+                FacultyCode = facultyCode,
+                AffiliationTypeId = typeOfAffiliation,
+                HospitalDetailsId = hospital?.HospitalDetailsId ?? 0,
+                Requirements = BuildDentalRequirements<AdmAncServicesItemVM>(AdmAncReqMaster, existingAdmAncServices, hospital?.HospitalDetailsId ?? 0)
+
+            };
 
             compositeVM.IndoorBedsOccupancy = new IndoorBedsOccupancyPostVM
             {
@@ -742,26 +872,29 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     "InstructionSet",
                     "HospitalDetails",
                     "ClinicalCapacity",
-                    "AffiliatedDocuments",
-                    "CasualityRequirements",
-                    "CSSDandLaundryRequirements",
-                    "RadioDiagnosis",
-                    "Anaesthesiology",
-                    "CentralLaboratory",
-                    "BloodBank",
-                    "Yoga",
-                    "RadiationOncology",
-                    "ArtCenter",
-                    "Pharmacy",
-                    "SuperVisionInFieldPracticeArea",
-                    "OutPatientArea",
+                    "Discipline",
+                    "NPTAservices",
+                    "EngAlliedservices",
+                    //"AffiliatedDocuments",
+                    //"CasualityRequirements",
+                    //"CSSDandLaundryRequirements",
+                    //"RadioDiagnosis",
+                    //"Anaesthesiology",
+                    //"CentralLaboratory",
+                    //"BloodBank",
+                    //"Yoga",
+                    //"RadiationOncology",
+                    //"ArtCenter",
+                    //"Pharmacy",
+                    //"SuperVisionInFieldPracticeArea",
+                    //"OutPatientArea",
                     //"FieldPracticeArea",
                     //"Facilities",
-                    "IndoorBedsOccupancy",
-                    "IndoorBedsUnits",
-                    "IndoorDepartment",
-                    "Utilities",
-                    "OT",
+                    //"IndoorBedsOccupancy",
+                    //"IndoorBedsUnits",
+                    //"IndoorDepartment",
+                    //"Utilities",
+                    //"OT",
                     //"HospitalDocumentsToBeUploaded"
                 }
             });

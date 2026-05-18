@@ -105,6 +105,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<LicTadaService>();
 builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();
 builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IFacultyHospitalHandler, DentalHospitalHandler>();
 builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
 builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
 builder.Services.AddScoped<ICALibraryService, CALibraryService>();
