@@ -68,4 +68,6 @@ public partial class LicInspection
     public string? DesignationCode { get; set; }
 
     public string? DepartmentCode { get; set; }
+
+    public string? Facultycode { get; set; }
 }

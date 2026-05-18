@@ -3466,6 +3466,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("designationCode");
             entity.Property(e => e.Dob).HasColumnName("DOB");
             entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.Facultycode).HasMaxLength(20);
             entity.Property(e => e.FromPlace).HasMaxLength(200);
             entity.Property(e => e.Ifsccode)
                 .HasMaxLength(11)

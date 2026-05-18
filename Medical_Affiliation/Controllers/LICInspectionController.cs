@@ -349,6 +349,7 @@ namespace Medical_Affiliation.Controllers
                 IsCompleted = member.IsCompleted ?? false,
 
                 // Professional
+                ProfessionalFacultyId = member.Facultycode,
                 ProfessionalCollegeCode = member.CollegeCode,
                 ProfessionalDesignation = member.DesignationCode,
                 ProfessionalDepartment = member.DepartmentCode,
@@ -371,61 +372,121 @@ namespace Medical_Affiliation.Controllers
                 .Prepend(new SelectListItem { Value = "", Text = "-- Select Mode of Travel --" })
                 .ToList();
 
-            // ── Colleges ──────────────────────────────────────────────────────────
-            var colleges = await _context.Database
-                .SqlQuery<CollegeDropdownItem>(
-                    $@"SELECT CollegeCode, CollegeName 
-                       FROM [Admission_Affiliation].[dbo].[Affiliation_College_Master]
-                       ORDER BY CollegeName"
+            // ── Faculty ───────────────────────────────────────────────────────────
+            var faculties = await _context.Database
+                .SqlQuery<FacultyDropdownItem>(
+                    $@"SELECT FacultyId, FacultyName 
+               FROM [Admission_Affiliation].[dbo].[Faculty]
+               WHERE Status = 'Active'
+               ORDER BY FacultyName"
                 )
                 .ToListAsync();
 
-            model.CollegeOptions = colleges
-                .Select(c => new SelectListItem
+            model.FacultyOptions = faculties
+                .Select(f => new SelectListItem
                 {
-                    Value = c.CollegeCode,
-                    Text = c.CollegeName,
-                    Selected = string.Equals(c.CollegeCode, model.ProfessionalCollegeCode, StringComparison.OrdinalIgnoreCase)
+                    Value = f.FacultyId.ToString(),
+                    Text = f.FacultyName,
+                    Selected = string.Equals(f.FacultyId.ToString(), model.ProfessionalFacultyId, StringComparison.OrdinalIgnoreCase)
                 })
-                .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
+                .Prepend(new SelectListItem { Value = "", Text = "-- Select Faculty --" })
                 .ToList();
 
-            // ── Designations ──────────────────────────────────────────────────────
-            var designations = await _context.Database
-                .SqlQuery<string>(
-                    $"SELECT DesignationName FROM [Admission_Affiliation].[dbo].[DesignationMaster] WHERE FacultyCode = 1 ORDER BY DesignationName"
-                )
-                .ToListAsync();
+            // ── Colleges (Faculty-based) ──────────────────────────────────────────
+            // ── Colleges (Faculty-based) ──────────────────────────────────────────
+            if (!string.IsNullOrEmpty(model.ProfessionalFacultyId))
+            {
+                var colleges = await _context.Database
+                    .SqlQuery<CollegeDropdownItem>(
+                        $@"SELECT DISTINCT CollegeCode, CollegeName 
+               FROM [Admission_Affiliation].[dbo].[Affiliation_College_Master]
+               WHERE FacultyCode = {model.ProfessionalFacultyId}
+               ORDER BY CollegeName"
+                    )
+                    .ToListAsync();
 
-            model.DesignationOptions = designations
-                .Select(d => new SelectListItem
-                {
-                    Value = d,
-                    Text = d,
-                    Selected = string.Equals(d, model.ProfessionalDesignation, StringComparison.OrdinalIgnoreCase)
-                })
-                .Prepend(new SelectListItem { Value = "", Text = "-- Select Designation --" })
-                .ToList();
+                model.CollegeOptions = colleges
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CollegeCode,
+                        Text = c.CollegeName,
+                        Selected = string.Equals(c.CollegeCode, model.ProfessionalCollegeCode, StringComparison.OrdinalIgnoreCase)
+                    })
+                    .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
+                    .ToList();
+            }
+            else
+            {
+                model.CollegeOptions = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- Select Faculty First --" }
+        };
+            }
 
-            // ── Departments ───────────────────────────────────────────────────────
-            var departments = await _context.Database
-                .SqlQuery<string>(
-                    $"SELECT SubjectName FROM [Admission_Affiliation].[dbo].[Mst_Course] ORDER BY SubjectName"
-                )
-                .ToListAsync();
+            // ── Designations (Faculty-based) ──────────────────────────────────────
+            if (!string.IsNullOrEmpty(model.ProfessionalFacultyId))
+            {
+                var designations = await _context.Database
+                    .SqlQuery<DesignationDropdownItem>(
+                        $@"SELECT DesignationCode, DesignationName 
+                   FROM [Admission_Affiliation].[dbo].[DesignationMaster] 
+                   WHERE FacultyCode = {model.ProfessionalFacultyId}
+                   ORDER BY DesignationOrder, DesignationName"
+                    )
+                    .ToListAsync();
 
-            model.DepartmentOptions = departments
-                .Select(d => new SelectListItem
-                {
-                    Value = d,
-                    Text = d,
-                    Selected = string.Equals(d, model.ProfessionalDepartment, StringComparison.OrdinalIgnoreCase)
-                })
-                .Prepend(new SelectListItem { Value = "", Text = "-- Select Department --" })
-                .ToList();
+                model.DesignationOptions = designations
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DesignationCode,
+                        Text = d.DesignationName,
+                        Selected = string.Equals(d.DesignationCode, model.ProfessionalDesignation, StringComparison.OrdinalIgnoreCase)
+                    })
+                    .Prepend(new SelectListItem { Value = "", Text = "-- Select Designation --" })
+                    .ToList();
+            }
+            else
+            {
+                model.DesignationOptions = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- Select Faculty First --" }
+        };
+            }
+
+            // ── Departments (Faculty-based) ───────────────────────────────────────
+            if (!string.IsNullOrEmpty(model.ProfessionalFacultyId))
+            {
+                var departments = await _context.Database
+                    .SqlQuery<string>(
+                        $@"SELECT DISTINCT SubjectName 
+                   FROM [Admission_Affiliation].[dbo].[Mst_Course] 
+                   WHERE FacultyCode = {model.ProfessionalFacultyId}
+                   ORDER BY SubjectName"
+                    )
+                    .ToListAsync();
+
+                model.DepartmentOptions = departments
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d,
+                        Text = d,
+                        Selected = string.Equals(d, model.ProfessionalDepartment, StringComparison.OrdinalIgnoreCase)
+                    })
+                    .Prepend(new SelectListItem { Value = "", Text = "-- Select Department --" })
+                    .ToList();
+            }
+            else
+            {
+                model.DepartmentOptions = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- Select Faculty First --" }
+        };
+            }
 
             return View(model);
         }
+
+
 
         public static async Task<byte[]> ConvertFileToBytes(IFormFile file)
         {
@@ -435,6 +496,92 @@ namespace Medical_Affiliation.Controllers
             using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
             return memoryStream.ToArray();
+        }
+
+        [HttpGet]
+        [Route("LICInspection/GetCollegesByFaculty1")]
+        public async Task<IActionResult> GetCollegesByFaculty1(string facultyId)
+        {
+            if (string.IsNullOrEmpty(facultyId))
+                return Json(new List<object>());
+
+            try
+            {
+                var colleges = await _context.Database
+                    .SqlQuery<CollegeDropdownItem>(
+                        $@"
+            SELECT DISTINCT
+                CollegeCode,
+                CollegeName
+            FROM [Admission_Affiliation].[dbo].[Affiliation_College_Master]
+            WHERE FacultyCode = {facultyId}
+            ORDER BY CollegeName
+            "
+                    )
+                    .ToListAsync();
+
+                return Json(colleges.Select(c => new
+                {
+                    value = c.CollegeCode,
+                    text = c.CollegeName
+                }));
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("LICInspection/GetDesignationsByFaculty")]
+        public async Task<IActionResult> GetDesignationsByFaculty(string facultyId)
+        {
+            if (string.IsNullOrEmpty(facultyId))
+                return Json(new List<object>());
+
+            try
+            {
+                var designations = await _context.Database
+                    .SqlQuery<DesignationDropdownItem>(
+                        $@"SELECT DesignationCode, DesignationName 
+                   FROM [Admission_Affiliation].[dbo].[DesignationMaster] 
+                   WHERE FacultyCode = {facultyId}
+                   ORDER BY DesignationOrder, DesignationName"
+                    )
+                    .ToListAsync();
+
+                return Json(designations.Select(d => new { value = d.DesignationCode, text = d.DesignationName }));
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("LICInspection/GetDepartmentsByFaculty")]
+        public async Task<IActionResult> GetDepartmentsByFaculty(string facultyId)
+        {
+            if (string.IsNullOrEmpty(facultyId))
+                return Json(new List<object>());
+
+            try
+            {
+                var departments = await _context.Database
+                    .SqlQuery<string>(
+                        $@"SELECT DISTINCT SubjectName 
+                   FROM [Admission_Affiliation].[dbo].[Mst_Course] 
+                   WHERE FacultyCode = {facultyId}
+                   ORDER BY SubjectName"
+                    )
+                    .ToListAsync();
+
+                return Json(departments.Select(d => new { value = d, text = d }));
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -477,6 +624,7 @@ namespace Medical_Affiliation.Controllers
                 member.CollegeCode = model.ProfessionalCollegeCode;
                 member.DesignationCode = model.ProfessionalDesignation;
                 member.DepartmentCode = model.ProfessionalDepartment;
+                member.Facultycode = model.ProfessionalFacultyId;
 
                 TempData["Message"] = "Professional details updated successfully.";
             }

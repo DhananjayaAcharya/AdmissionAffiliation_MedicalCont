@@ -715,17 +715,25 @@ public class LICInspectionDetailsViewModel
     public string PANNumber { get; set; }
     public string AadhaarNumber { get; set; }
 
+    // Add these to LICInspectionDetailsViewModel
+    public string ProfessionalFacultyId { get; set; }
+    public List<SelectListItem> FacultyOptions { get; set; }
 
+    // These should already exist — confirm:
+    public string ProfessionalCollegeCode { get; set; }
+    public string ProfessionalDepartment { get; set; }
+    public List<SelectListItem> CollegeOptions { get; set; }
+    public List<SelectListItem> DepartmentOptions { get; set; }
 
     // Professional Details
-public string? ProfessionalCollegeCode { get; set; }
+    //public string? ProfessionalCollegeCode { get; set; }
 public string? ProfessionalDesignation { get; set; }
-public string? ProfessionalDepartment { get; set; }
+//public string? ProfessionalDepartment { get; set; }
 
 // Dropdown options
-public List<SelectListItem> CollegeOptions { get; set; } = new();
+//public List<SelectListItem> CollegeOptions { get; set; } = new();
 public List<SelectListItem> DesignationOptions { get; set; } = new();
-public List<SelectListItem> DepartmentOptions { get; set; } = new();
+//public List<SelectListItem> DepartmentOptions { get; set; } = new();
     // Bank Details
     public string AccountHolderName { get; set; }   // ✅ KEEP THIS
     public string AccountNumber { get; set; }
@@ -757,11 +765,21 @@ public List<SelectListItem> DepartmentOptions { get; set; } = new();
     public List<LicinspectionDetail> SavedInspections { get; set; } = new();
 
 
-    public List<SelectListItem> FacultyOptions { get; set; } = new();
+    //public List<SelectListItem> FacultyOptions { get; set; } = new();
     public int? SelectedFacultyId { get; set; }
     public string SelectedFacultyName { get; set; }
 }
 
+public class FacultyDropdownItem
+{
+    public int FacultyId { get; set; }
+    public string FacultyName { get; set; }
+}
+public class DesignationDropdownItem
+{
+    public string DesignationCode { get; set; }
+    public string DesignationName { get; set; }
+}
 public class LICClaimDetailsViewModel
 {
     [Required(ErrorMessage = "Please select a mode of travel.")]
