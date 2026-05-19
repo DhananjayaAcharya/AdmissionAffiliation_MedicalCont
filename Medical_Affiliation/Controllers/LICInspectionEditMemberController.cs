@@ -575,5 +575,131 @@ namespace Medical_Affiliation.Controllers
             public LicInspectionFormVM Form { get; set; } = new();
             public List<LicInspectionListItemVM> Records { get; set; } = new();
         }
+
+
+
+
+
+
+        public class LICReportsViewModel
+        {
+            // Stats
+            public int TotalMembers { get; set; }
+            public int CompletedCount { get; set; }
+            public int PendingCount { get; set; }
+            public int TotalClaims { get; set; }
+            public int TotalColleges { get; set; }
+
+            // Filter options
+            public List<string> AcademicYears { get; set; }
+            public List<string> Faculties { get; set; }
+            public List<CollegeDropdownItem> Colleges { get; set; }
+            public List<string> TravelModes { get; set; }
+
+            // Table data
+            public List<LicInspection> Members { get; set; }
+            public List<LicInspectionCollegeDetail> CollegeAssignments { get; set; }
+            public List<LicclaimDetail> Claims { get; set; }
+
+            // Chart data
+            public Dictionary<string, int> MemberTypeCounts { get; set; }
+            public Dictionary<string, int> TravelModeCounts { get; set; }
+            public Dictionary<string, int> MonthlyInspectionCounts { get; set; }
+            public Dictionary<int, int> FacultyCollegeCounts { get; set; }
+            public CostSummaryData CostSummary { get; set; }
+        }
+
+        public class CostSummaryData
+        {
+            public decimal TravelCost { get; set; }
+            public decimal DACost { get; set; }
+            public decimal LCACost { get; set; }
+            public decimal AirFareCost { get; set; }
+            public decimal CollegeCost { get; set; }
+            public decimal TotalCost { get; set; }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Reports()
+        {
+            var members = await _context.LicInspections.AsNoTracking().ToListAsync();
+            var collegeAssignments = await _context.LicInspectionCollegeDetails.AsNoTracking().ToListAsync();
+            var claims = await _context.LicclaimDetails.AsNoTracking().ToListAsync();
+
+            var model = new LICReportsViewModel
+            {
+                // ── Stats ──
+                TotalMembers = members.Count,
+                CompletedCount = members.Count(x => x.IsCompleted == true),
+                PendingCount = members.Count(x => x.IsCompleted != true),
+                TotalClaims = claims.Count,
+                TotalColleges = collegeAssignments.Select(x => x.Collegecode).Distinct().Count(),
+
+                // ── Table data ──
+                Members = members,
+                CollegeAssignments = collegeAssignments,
+                Claims = claims,
+
+                // ── Filter dropdowns ──
+                AcademicYears = collegeAssignments
+                    .Where(x => !string.IsNullOrEmpty(x.AcademicYear))
+                    .Select(x => x.AcademicYear).Distinct().OrderBy(x => x).ToList(),
+
+                Faculties = members
+                    .Where(x => !string.IsNullOrEmpty(x.Facultycode))
+                    .Select(x => x.Facultycode).Distinct().OrderBy(x => x).ToList(),
+
+                Colleges = collegeAssignments
+                    .Where(x => !string.IsNullOrEmpty(x.Collegecode))
+                    .Select(x => new CollegeDropdownItem
+                    {
+                        CollegeCode = x.Collegecode,
+                        CollegeName = x.Collegename
+                    })
+                    .DistinctBy(x => x.CollegeCode)
+                    .OrderBy(x => x.CollegeName).ToList(),
+
+                TravelModes = claims
+                    .Where(x => !string.IsNullOrEmpty(x.ModeOfTravel))
+                    .Select(x => x.ModeOfTravel).Distinct().OrderBy(x => x).ToList(),
+
+                // ── Charts ──
+                MemberTypeCounts = members
+                    .GroupBy(x => x.TypeofMember ?? "Unknown")
+                    .ToDictionary(g => g.Key, g => g.Count()),
+
+                TravelModeCounts = claims
+                    .Where(x => !string.IsNullOrEmpty(x.ModeOfTravel))
+                    .GroupBy(x => x.ModeOfTravel)
+                    .ToDictionary(g => g.Key, g => g.Count()),
+
+                MonthlyInspectionCounts = claims
+                    .Where(x => x.InspectionDate.HasValue)
+                    .GroupBy(x => x.InspectionDate.Value.ToString("MMM yyyy"))
+                    .OrderBy(g => DateTime.ParseExact(g.Key, "MMM yyyy", null))
+                    .ToDictionary(g => g.Key, g => g.Count()),
+
+                    FacultyCollegeCounts = collegeAssignments
+                    .Where(x => x.Facultycode.HasValue)
+                    .GroupBy(x => x.Facultycode.Value)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => x.Collegecode).Distinct().Count()
+                    ),
+
+                CostSummary = new CostSummaryData
+                {
+                    TravelCost = claims.Sum(x => x.TravelCost ?? 0),
+                    DACost = claims.Sum(x => x.Dacost ?? 0),
+                    LCACost = claims.Sum(x => x.Lcacost ?? 0),
+                    AirFareCost = claims.Sum(x => x.AirFareCost ?? 0),
+                    CollegeCost = claims.Sum(x => x.CollegeCost ?? 0),
+                    TotalCost = claims.Sum(x => x.TotalCost ?? 0),
+                }
+            };
+
+            return View(model);
+        }
     }
 }

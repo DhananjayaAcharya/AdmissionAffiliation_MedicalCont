@@ -1288,313 +1288,327 @@
     </div>
 
     <script>
-        (function () {
-            'use strict';
+            // ✅ Pass server-side URLs into JS safely via Razor
+            const APP_URLS = {
+                getMembers: '@Url.Action("GetLICInspectionMembers", "LICInspectionEditMember")',
+                getCollegeDetails: '@Url.Action("GetCollegeDetails", "LICInspectionEditMember")',
+                downloadSERevisedOrder: '@Url.Action("DownloadSERevisedOrder", "LICInspectionEditMember")'
+            };
+    </script>
 
-            const collegeSelect    = document.getElementById('collegeSelect');
-            const detailsCard      = document.getElementById('collegeDetailsCard');
-            const uploadCard       = document.getElementById('uploadCard');
-            const detailsLoader    = document.getElementById('detailsLoader');
-            const expertTableBody  = document.getElementById('expertTableBody');
-            const noExpertRow      = document.getElementById('noExpertRow');
-            const existingFileSec  = document.getElementById('existingFileSection');
-            const submitBtn        = document.getElementById('submitBtn');
-            const dropZone         = document.getElementById('dropZone');
-            const fileInput        = document.getElementById('fileInput');
-            const fileSelectedInfo = document.getElementById('fileSelectedInfo');
-            const fileSelectedName = document.getElementById('fileSelectedName');
-            const fileSelectedSize = document.getElementById('fileSelectedSize');
-            const hdnAcId          = document.getElementById('hdnSelectedAcMemberId');
-            const hdnSenateId      = document.getElementById('hdnSelectedSenateMemberId');
+    <script>
+            (function () {
+                'use strict';
 
-            const memberCache = { ac: null, senate: null };
+                const collegeSelect    = document.getElementById('collegeSelect');
+                const detailsCard      = document.getElementById('collegeDetailsCard');
+                const uploadCard       = document.getElementById('uploadCard');
+                const detailsLoader    = document.getElementById('detailsLoader');
+                const expertTableBody  = document.getElementById('expertTableBody');
+                const noExpertRow      = document.getElementById('noExpertRow');
+                const existingFileSec  = document.getElementById('existingFileSection');
+                const submitBtn        = document.getElementById('submitBtn');
+                const dropZone         = document.getElementById('dropZone');
+                const fileInput        = document.getElementById('fileInput');
+                const fileSelectedInfo = document.getElementById('fileSelectedInfo');
+                const fileSelectedName = document.getElementById('fileSelectedName');
+                const fileSelectedSize = document.getElementById('fileSelectedSize');
+                const hdnAcId          = document.getElementById('hdnSelectedAcMemberId');
+                const hdnSenateId      = document.getElementById('hdnSelectedSenateMemberId');
 
-            function setText(id, value) {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (value) { el.textContent = value; el.classList.remove('empty'); }
-                else       { el.textContent = 'N/A'; el.classList.add('empty'); }
-            }
+                const memberCache = { ac: null, senate: null };
 
-            function formatBytes(bytes) {
-                if (bytes < 1024)    return bytes + ' B';
-                if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-                return (bytes / 1048576).toFixed(2) + ' MB';
-            }
-
-            function escHtml(str) {
-                return String(str)
-                    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-                    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-            }
-
-            function showPhonePreview(cfg) {
-                const opt = cfg.selectEl.options[cfg.selectEl.selectedIndex];
-                if (opt && opt.value && opt.dataset.phone) {
-                    cfg.phonePreviewVal.textContent = opt.dataset.phone;
-                    cfg.phonePreview.style.display  = 'flex';
-                } else {
-                    cfg.phonePreview.style.display  = 'none';
-                    cfg.phonePreviewVal.textContent = '—';
+                function setText(id, value) {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    if (value) { el.textContent = value; el.classList.remove('empty'); }
+                    else       { el.textContent = 'N/A'; el.classList.add('empty'); }
                 }
-            }
 
-            function wireEditPanel(cfg) {
-                let panelOpen = false;
+                function formatBytes(bytes) {
+                    if (bytes < 1024)    return bytes + ' B';
+                    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+                    return (bytes / 1048576).toFixed(2) + ' MB';
+                }
 
-                cfg.btnEdit.addEventListener('click', async function () {
-                    if (panelOpen) return;
-                    panelOpen = true;
-                    cfg.editPanel.classList.add('active');
-                    cfg.btnEdit.disabled = true;
+                function escHtml(str) {
+                    return String(str)
+                        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                }
 
-                    if (!memberCache[cfg.memberType]) {
-                        try {
-                            const typeLabel = cfg.memberType === 'ac' ? 'Academic Council' : 'Senate Members';
-                            const url = `/LICInspectionEditMember/GetLICInspectionMembers?type=${encodeURIComponent(typeLabel)}`;
-                            const res = await fetch(url);
-                            if (!res.ok) throw new Error('HTTP ' + res.status);
-                            const data = await res.json();
-                            if (!Array.isArray(data)) throw new Error('Invalid response format');
-                            memberCache[cfg.memberType] = data;
-                        } catch (e) {
-                            cfg.loadingRow.innerHTML =
-                                `<span style="color:var(--red);font-size:.78rem;">⚠ ${e.message}</span>`;
-                            panelOpen = false;
-                            cfg.btnEdit.disabled = false;
+                function showPhonePreview(cfg) {
+                    const opt = cfg.selectEl.options[cfg.selectEl.selectedIndex];
+                    if (opt && opt.value && opt.dataset.phone) {
+                        cfg.phonePreviewVal.textContent = opt.dataset.phone;
+                        cfg.phonePreview.style.display  = 'flex';
+                    } else {
+                        cfg.phonePreview.style.display  = 'none';
+                        cfg.phonePreviewVal.textContent = '—';
+                    }
+                }
+
+                function wireEditPanel(cfg) {
+                    let panelOpen = false;
+
+                    cfg.btnEdit.addEventListener('click', async function () {
+                        if (panelOpen) return;
+                        panelOpen = true;
+                        cfg.editPanel.classList.add('active');
+                        cfg.btnEdit.disabled = true;
+
+                        if (!memberCache[cfg.memberType]) {
+                            try {
+                                const typeLabel = cfg.memberType === 'ac' ? 'Academic Council' : 'Senate Members';
+
+                                // ✅ FIXED: Use Razor-generated URL instead of relative string
+                                const url = `${APP_URLS.getMembers}?type=${encodeURIComponent(typeLabel)}`;
+
+                                const res = await fetch(url);
+                                if (!res.ok) throw new Error('HTTP ' + res.status);
+                                const data = await res.json();
+                                if (!Array.isArray(data)) throw new Error('Invalid response format');
+                                memberCache[cfg.memberType] = data;
+                            } catch (e) {
+                                cfg.loadingRow.innerHTML =
+                                    `<span style="color:var(--red);font-size:.78rem;">⚠ ${e.message}</span>`;
+                                panelOpen = false;
+                                cfg.btnEdit.disabled = false;
+                                return;
+                            }
+                        }
+
+                        populateMemberSelect(cfg.selectEl, memberCache[cfg.memberType]);
+                        cfg.loadingRow.style.display = 'none';
+                        cfg.selectEl.style.display   = '';
+                        cfg.selectEl.classList.remove('edit-panel-select-loading');
+                        if (cfg.hdnId.value) {
+                            cfg.selectEl.value = cfg.hdnId.value;
+                            showPhonePreview(cfg);
+                        }
+                    });
+
+                    cfg.selectEl.addEventListener('change', function () { showPhonePreview(cfg); });
+
+                    cfg.btnCancel.addEventListener('click', closePanel);
+
+                    cfg.btnConfirm.addEventListener('click', function () {
+                        const selectedOpt = cfg.selectEl.options[cfg.selectEl.selectedIndex];
+                        if (!selectedOpt || !selectedOpt.value) {
+                            cfg.selectEl.style.borderColor = 'var(--red)';
+                            setTimeout(() => cfg.selectEl.style.borderColor = '', 1500);
                             return;
                         }
-                    }
+                        const id    = selectedOpt.value;
+                        const name  = selectedOpt.dataset.name  || selectedOpt.text;
+                        const phone = selectedOpt.dataset.phone || '';
+                        setText(cfg.dispName.id,  name);
+                        setText(cfg.dispPhone.id, phone || null);
+                        cfg.hdnId.value = id;
+                        closePanel();
+                    });
 
-                    populateMemberSelect(cfg.selectEl, memberCache[cfg.memberType]);
-                    cfg.loadingRow.style.display = 'none';
-                    cfg.selectEl.style.display   = '';
-                    cfg.selectEl.classList.remove('edit-panel-select-loading');
-                    if (cfg.hdnId.value) {
-                        cfg.selectEl.value = cfg.hdnId.value;
-                        showPhonePreview(cfg);
+                    function closePanel() {
+                        panelOpen = false;
+                        cfg.editPanel.classList.remove('active');
+                        cfg.btnEdit.disabled = false;
+                        cfg.phonePreview.style.display = 'none';
                     }
+                }
+
+                function populateMemberSelect(sel, members) {
+                    while (sel.options.length > 1) sel.remove(1);
+                    if (!members || members.length === 0) {
+                        const opt = document.createElement('option');
+                        opt.disabled = true; opt.text = 'No members found'; sel.add(opt); return;
+                    }
+                    members.forEach(function (m) {
+                        const opt = document.createElement('option');
+                        opt.value = m.id; opt.text = m.name;
+                        opt.dataset.name = m.name; opt.dataset.phone = m.phone || '';
+                        sel.add(opt);
+                    });
+                }
+
+                wireEditPanel({
+                    btnEdit: document.getElementById('btnEditAc'),
+                    editPanel: document.getElementById('editPanelAc'),
+                    loadingRow: document.getElementById('acLoadingRow'),
+                    selectEl: document.getElementById('selectAcMember'),
+                    btnConfirm: document.getElementById('btnConfirmAc'),
+                    btnCancel: document.getElementById('btnCancelAc'),
+                    dispName: document.getElementById('disp_acMember'),
+                    dispPhone: document.getElementById('disp_acPhone'),
+                    phonePreview: document.getElementById('phonePreviewAc'),
+                    phonePreviewVal: document.getElementById('phonePreviewAcVal'),
+                    hdnId: hdnAcId,
+                    memberType: 'ac'
                 });
 
-                cfg.selectEl.addEventListener('change', function () { showPhonePreview(cfg); });
+                wireEditPanel({
+                    btnEdit: document.getElementById('btnEditSenate'),
+                    editPanel: document.getElementById('editPanelSenate'),
+                    loadingRow: document.getElementById('senateLoadingRow'),
+                    selectEl: document.getElementById('selectSenateMember'),
+                    btnConfirm: document.getElementById('btnConfirmSenate'),
+                    btnCancel: document.getElementById('btnCancelSenate'),
+                    dispName: document.getElementById('disp_senateMember'),
+                    dispPhone: document.getElementById('disp_senatePhone'),
+                    phonePreview: document.getElementById('phonePreviewSenate'),
+                    phonePreviewVal: document.getElementById('phonePreviewSenateVal'),
+                    hdnId: hdnSenateId,
+                    memberType: 'senate'
+                });
 
-                cfg.btnCancel.addEventListener('click', closePanel);
+                function resetMemberCache() {
+                    memberCache.ac = null; memberCache.senate = null;
+                    hdnAcId.value = ''; hdnSenateId.value = '';
+                    ['editPanelAc','editPanelSenate'].forEach(id => {
+                        const p = document.getElementById(id);
+                        if (p) p.classList.remove('active');
+                    });
+                    ['btnEditAc','btnEditSenate'].forEach(id => {
+                        const b = document.getElementById(id);
+                        if (b) b.disabled = false;
+                    });
+                    ['selectAcMember','selectSenateMember'].forEach(id => {
+                        const s = document.getElementById(id);
+                        if (!s) return;
+                        s.style.display = 'none';
+                        s.classList.add('edit-panel-select-loading');
+                        while (s.options.length > 1) s.remove(1);
+                    });
+                    ['acLoadingRow','senateLoadingRow'].forEach(id => {
+                        const r = document.getElementById(id);
+                        if (r) {
+                            r.style.display = '';
+                            r.innerHTML = '<div class="spinner-sm"></div><span>Loading members…</span>';
+                        }
+                    });
+                }
 
-                cfg.btnConfirm.addEventListener('click', function () {
-                    const selectedOpt = cfg.selectEl.options[cfg.selectEl.selectedIndex];
-                    if (!selectedOpt || !selectedOpt.value) {
-                        cfg.selectEl.style.borderColor = 'var(--red)';
-                        setTimeout(() => cfg.selectEl.style.borderColor = '', 1500);
+                function renderExpertRow(index, expert) {
+                    const id    = expert ? escHtml(expert.id    || '') : '';
+                    const name  = expert ? escHtml(expert.name  || '') : '';
+                    const phone = expert ? escHtml(expert.phone || '') : '';
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-expert-row', '');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>
+                            ${id ? `<input type="hidden" name="SubjectExperts[${index}].Id" value="${id}">` : ''}
+                            <input type="text" class="expert-input"
+                                   name="SubjectExperts[${index}].Name"
+                                   value="${name}" placeholder="Enter expert name" maxlength="150">
+                        </td>
+                        <td>
+                            <input type="text" class="expert-input"
+                                   name="SubjectExperts[${index}].Phone"
+                                   value="${phone}" placeholder="Enter phone number" maxlength="20">
+                        </td>`;
+                    return tr;
+                }
+
+                function populateExperts(experts) {
+                    expertTableBody.querySelectorAll('[data-expert-row]').forEach(r => r.remove());
+                    if (experts && experts.length > 0) {
+                        noExpertRow.style.display = 'none';
+                        experts.forEach((e, i) => expertTableBody.appendChild(renderExpertRow(i, e)));
+                    } else {
+                        noExpertRow.style.display = '';
+                    }
+                }
+
+                collegeSelect.addEventListener('change', async function () {
+                    const collegeId = this.value;
+                    resetMemberCache();
+                    if (!collegeId) {
+                        detailsCard.style.display = 'none';
+                        uploadCard.style.display  = 'none';
+                        submitBtn.disabled        = true;
                         return;
                     }
-                    const id    = selectedOpt.value;
-                    const name  = selectedOpt.dataset.name  || selectedOpt.text;
-                    const phone = selectedOpt.dataset.phone || '';
-                    setText(cfg.dispName.id,  name);
-                    setText(cfg.dispPhone.id, phone || null);
-                    cfg.hdnId.value = id;
-                    closePanel();
-                });
 
-                function closePanel() {
-                    panelOpen = false;
-                    cfg.editPanel.classList.remove('active');
-                    cfg.btnEdit.disabled = false;
-                    cfg.phonePreview.style.display = 'none';
-                }
-            }
+                    detailsCard.style.display = 'block';
+                    uploadCard.style.display  = 'block';
+                    detailsLoader.classList.add('active');
+                    submitBtn.disabled = true;
 
-            function populateMemberSelect(sel, members) {
-                while (sel.options.length > 1) sel.remove(1);
-                if (!members || members.length === 0) {
-                    const opt = document.createElement('option');
-                    opt.disabled = true; opt.text = 'No members found'; sel.add(opt); return;
-                }
-                members.forEach(function (m) {
-                    const opt = document.createElement('option');
-                    opt.value = m.id; opt.text = m.name;
-                    opt.dataset.name = m.name; opt.dataset.phone = m.phone || '';
-                    sel.add(opt);
-                });
-            }
+                    try {
+                        // ✅ FIXED: Use Razor-generated URL
+                        const res = await fetch(`${APP_URLS.getCollegeDetails}?collegeId=${collegeId}`);
+                        if (!res.ok) throw new Error('Not found');
+                        const d = await res.json();
+                        setText('disp_collegename',  d.collegename);
+                        setText('disp_collegecode',  d.collegecode);
+                        setText('disp_place',        d.collegePlace);
+                        setText('disp_acMember',     d.acMember);
+                        setText('disp_acPhone',      d.acPhone);
+                        setText('disp_senateMember', d.senateMember);
+                        setText('disp_senatePhone',  d.senatePhone);
+                        populateExperts(d.subjectExperts);
 
-            wireEditPanel({
-                btnEdit: document.getElementById('btnEditAc'),
-                editPanel: document.getElementById('editPanelAc'),
-                loadingRow: document.getElementById('acLoadingRow'),
-                selectEl: document.getElementById('selectAcMember'),
-                btnConfirm: document.getElementById('btnConfirmAc'),
-                btnCancel: document.getElementById('btnCancelAc'),
-                dispName: document.getElementById('disp_acMember'),
-                dispPhone: document.getElementById('disp_acPhone'),
-                phonePreview: document.getElementById('phonePreviewAc'),
-                phonePreviewVal: document.getElementById('phonePreviewAcVal'),
-                hdnId: hdnAcId,
-                memberType: 'ac'
-            });
+                        if (d.hasExistingFile) {
+                            // ✅ FIXED: Use Razor-generated URL for download link
+                            existingFileSec.innerHTML = `
+                                <a href="${APP_URLS.downloadSERevisedOrder}?collegeId=${collegeId}"
+                                   class="existing-file-link" target="_blank" rel="noopener">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    Download Existing File
+                                </a>
+                                <span style="margin-left:10px;font-size:.75rem;color:var(--t3);">Uploading a new file will replace the existing one.</span>`;
+                        } else {
+                            existingFileSec.innerHTML = `<span style="font-size:.84rem;color:var(--t3);font-style:italic;">No file uploaded yet.</span>`;
+                        }
 
-            wireEditPanel({
-                btnEdit: document.getElementById('btnEditSenate'),
-                editPanel: document.getElementById('editPanelSenate'),
-                loadingRow: document.getElementById('senateLoadingRow'),
-                selectEl: document.getElementById('selectSenateMember'),
-                btnConfirm: document.getElementById('btnConfirmSenate'),
-                btnCancel: document.getElementById('btnCancelSenate'),
-                dispName: document.getElementById('disp_senateMember'),
-                dispPhone: document.getElementById('disp_senatePhone'),
-                phonePreview: document.getElementById('phonePreviewSenate'),
-                phonePreviewVal: document.getElementById('phonePreviewSenateVal'),
-                hdnId: hdnSenateId,
-                memberType: 'senate'
-            });
-
-            function resetMemberCache() {
-                memberCache.ac = null; memberCache.senate = null;
-                hdnAcId.value = ''; hdnSenateId.value = '';
-                ['editPanelAc','editPanelSenate'].forEach(id => {
-                    const p = document.getElementById(id);
-                    if (p) p.classList.remove('active');
-                });
-                ['btnEditAc','btnEditSenate'].forEach(id => {
-                    const b = document.getElementById(id);
-                    if (b) b.disabled = false;
-                });
-                ['selectAcMember','selectSenateMember'].forEach(id => {
-                    const s = document.getElementById(id);
-                    if (!s) return;
-                    s.style.display = 'none';
-                    s.classList.add('edit-panel-select-loading');
-                    while (s.options.length > 1) s.remove(1);
-                });
-                ['acLoadingRow','senateLoadingRow'].forEach(id => {
-                    const r = document.getElementById(id);
-                    if (r) {
-                        r.style.display = '';
-                        r.innerHTML = '<div class="spinner-sm"></div><span>Loading members…</span>';
+                        submitBtn.disabled = false;
+                    } catch (err) {
+                        detailsCard.style.display = 'none';
+                        uploadCard.style.display  = 'none';
+                        alert('Failed to load college details. Please try again.');
+                    } finally {
+                        detailsLoader.classList.remove('active');
                     }
                 });
-            }
 
-            function renderExpertRow(index, expert) {
-                const id    = expert ? escHtml(expert.id    || '') : '';
-                const name  = expert ? escHtml(expert.name  || '') : '';
-                const phone = expert ? escHtml(expert.phone || '') : '';
-                const tr = document.createElement('tr');
-                tr.setAttribute('data-expert-row', '');
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>
-                        ${id ? `<input type="hidden" name="SubjectExperts[${index}].Id" value="${id}">` : ''}
-                        <input type="text" class="expert-input"
-                               name="SubjectExperts[${index}].Name"
-                               value="${name}" placeholder="Enter expert name" maxlength="150">
-                    </td>
-                    <td>
-                        <input type="text" class="expert-input"
-                               name="SubjectExperts[${index}].Phone"
-                               value="${phone}" placeholder="Enter phone number" maxlength="20">
-                    </td>`;
-                return tr;
-            }
-
-            function populateExperts(experts) {
-                expertTableBody.querySelectorAll('[data-expert-row]').forEach(r => r.remove());
-                if (experts && experts.length > 0) {
-                    noExpertRow.style.display = 'none';
-                    experts.forEach((e, i) => expertTableBody.appendChild(renderExpertRow(i, e)));
-                } else {
-                    noExpertRow.style.display = '';
-                }
-            }
-
-            collegeSelect.addEventListener('change', async function () {
-                const collegeId = this.value;
-                resetMemberCache();
-                if (!collegeId) {
-                    detailsCard.style.display = 'none';
-                    uploadCard.style.display  = 'none';
-                    submitBtn.disabled        = true;
-                    return;
+                if (collegeSelect.value) {
+                    collegeSelect.dispatchEvent(new Event('change'));
                 }
 
-                detailsCard.style.display = 'block';
-                uploadCard.style.display  = 'block';
-                detailsLoader.classList.add('active');
-                submitBtn.disabled = true;
-
-                try {
-                    const res = await fetch(`/LICInspectionEditMember/GetCollegeDetails?collegeId=${collegeId}`);
-                    if (!res.ok) throw new Error('Not found');
-                    const d = await res.json();
-                    setText('disp_collegename',  d.collegename);
-                    setText('disp_collegecode',  d.collegecode);
-                    setText('disp_place',        d.collegePlace);
-                    setText('disp_acMember',     d.acMember);
-                    setText('disp_acPhone',      d.acPhone);
-                    setText('disp_senateMember', d.senateMember);
-                    setText('disp_senatePhone',  d.senatePhone);
-                    populateExperts(d.subjectExperts);
-
-                    if (d.hasExistingFile) {
-                        existingFileSec.innerHTML = `
-                            <a href="/LICInspectionEditMember/DownloadSERevisedOrder?collegeId=${collegeId}"
-                               class="existing-file-link" target="_blank" rel="noopener">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                Download Existing File
-                            </a>
-                            <span style="margin-left:10px;font-size:.75rem;color:var(--t3);">Uploading a new file will replace the existing one.</span>`;
+                fileInput.addEventListener('change', function () {
+                    const file = this.files[0];
+                    if (file) {
+                        fileSelectedName.textContent = file.name;
+                        fileSelectedSize.textContent = formatBytes(file.size);
+                        fileSelectedInfo.classList.add('visible');
+                        dropZone.style.borderColor = 'var(--navy)';
+                        dropZone.style.background  = '#EFF6FF';
                     } else {
-                        existingFileSec.innerHTML = `<span style="font-size:.84rem;color:var(--t3);font-style:italic;">No file uploaded yet.</span>`;
+                        fileSelectedInfo.classList.remove('visible');
+                        dropZone.style.borderColor = '';
+                        dropZone.style.background  = '';
                     }
+                });
 
-                    submitBtn.disabled = false;
-                } catch (err) {
-                    detailsCard.style.display = 'none';
-                    uploadCard.style.display  = 'none';
-                    alert('Failed to load college details. Please try again.');
-                } finally {
-                    detailsLoader.classList.remove('active');
-                }
-            });
+                dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+                dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+                dropZone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    dropZone.classList.remove('dragover');
+                    if (e.dataTransfer.files.length) {
+                        fileInput.files = e.dataTransfer.files;
+                        fileInput.dispatchEvent(new Event('change'));
+                    }
+                });
 
-            if (collegeSelect.value) {
-                collegeSelect.dispatchEvent(new Event('change'));
-            }
+                document.getElementById('mainForm').addEventListener('submit', function () {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<div class="spinner" style="border-top-color:#fff;width:14px;height:14px;"></div> Uploading…`;
+                });
 
-            fileInput.addEventListener('change', function () {
-                const file = this.files[0];
-                if (file) {
-                    fileSelectedName.textContent = file.name;
-                    fileSelectedSize.textContent = formatBytes(file.size);
-                    fileSelectedInfo.classList.add('visible');
-                    dropZone.style.borderColor = 'var(--navy)';
-                    dropZone.style.background  = '#EFF6FF';
-                } else {
-                    fileSelectedInfo.classList.remove('visible');
-                    dropZone.style.borderColor = '';
-                    dropZone.style.background  = '';
-                }
-            });
-
-            dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-            dropZone.addEventListener('drop', e => {
-                e.preventDefault();
-                dropZone.classList.remove('dragover');
-                if (e.dataTransfer.files.length) {
-                    fileInput.files = e.dataTransfer.files;
-                    fileInput.dispatchEvent(new Event('change'));
-                }
-            });
-
-            document.getElementById('mainForm').addEventListener('submit', function () {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `<div class="spinner" style="border-top-color:#fff;width:14px;height:14px;"></div> Uploading…`;
-            });
-
-        })();
+            })();
     </script>
 
 </body>
