@@ -235,7 +235,7 @@ namespace Admission_Affiliation.Controllers
             HttpContext.Session.SetString("logoutController", "Admin");
             HttpContext.Session.SetString("FacultyCode", user.Faculty.ToString());
             HttpContext.Session.SetString("FacultyId", user.Faculty.ToString());
-            HttpContext.Session.SetString("IsAdmin", user.IsAdmin?.ToString() ?? "false");
+            //HttpContext.Session.SetString("IsAdmin", user.IsAdmin?.ToString() ?? "false");
 
             // existing passwordCreds/coursesList logic...
             var passwordCreds = await _context.AffiliationCollegeMasters

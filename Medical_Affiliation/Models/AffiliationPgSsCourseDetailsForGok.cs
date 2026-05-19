@@ -25,11 +25,11 @@ public partial class AffiliationPgSsCourseDetailsForGok
 
     public DateOnly? Gokdate { get; set; }
 
+    public string? DocumentofGokpath { get; set; }
+
     public string AcademicYear { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
 
     public string CourseCode { get; set; } = null!;
-
-    public string? DocumentofGokpath { get; set; }
 }

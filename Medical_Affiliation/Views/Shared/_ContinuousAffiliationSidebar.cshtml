@@ -422,18 +422,18 @@
     if (facultyCode == "2")
     {
         var physicalOrder = new List<string>
-    {
-        "LandBuilding",
-        "DentalSkillsLab",
-        "ChairDistribution",
-        "ClinicalFacilities",
-        "BedDistribution",
-        "Hostel",
-        "DepartmentUnits",
-        "DentalEquipmentDetails",
-        "EquipmentMaster",
-        "Vehicle"
-    };
+        {
+            "ClinicalFacilities",
+            "LandBuilding",
+            "DentalSkillsLab",
+            "ChairDistribution",
+            "BedDistribution",
+            "Hostel",
+            "DepartmentUnits",
+            "DentalEquipmentDetails",
+            "EquipmentMaster",
+            "Vehicle"
+        };
 
         var physicalSteps = allSteps
             .Where(x => x.Group == "Physical Infrastructure")

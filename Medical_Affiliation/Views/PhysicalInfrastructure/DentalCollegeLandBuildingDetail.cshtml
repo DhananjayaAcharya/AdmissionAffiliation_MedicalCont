@@ -109,20 +109,22 @@
                             </td>
 
                             <td>
-                                <select asp-for="LandCategory"
-                                        class="form-select">
+                                <select name="LandCategory" class="form-select">
 
                                     <option value="">-- Select Category --</option>
 
-                                    <option value="Metro / Tier 1">
+                                    <option value="Metro / Tier 1"
+                                            selected="@(Model.LandCategory == "Metro / Tier 1")">
                                         Metro / Tier 1
                                     </option>
 
-                                    <option value="Tier 2 / Hilly / North Eastern States">
+                                    <option value="Tier 2 / Hilly / North Eastern States"
+                                            selected="@(Model.LandCategory == "Tier 2 / Hilly / North Eastern States")">
                                         Tier 2 / Hilly / North Eastern States
                                     </option>
 
-                                    <option value="Any Other Area">
+                                    <option value="Any Other Area"
+                                            selected="@(Model.LandCategory == "Any Other Area")">
                                         Any Other Area
                                     </option>
 
@@ -139,11 +141,19 @@
                             </td>
 
                             <td>
-                                <select asp-for="LandOwnershipType" class="form-select">
+                                <select name="LandOwnershipType" class="form-select">
 
                                     <option value="">-- Select --</option>
-                                    <option value="Owned">Owned</option>
-                                    <option value="Lease">Lease</option>
+
+                                    <option value="Owned"
+                                            selected="@(Model.LandOwnershipType == "Owned")">
+                                        Owned
+                                    </option>
+
+                                    <option value="Lease"
+                                            selected="@(Model.LandOwnershipType == "Lease")">
+                                        Lease
+                                    </option>
 
                                 </select>
                             </td>
@@ -157,11 +167,19 @@
                             </td>
 
                             <td>
-                                <select asp-for="HasFutureExpansionSpace" class="form-select">
+                                <<select name="HasFutureExpansionSpace" class="form-select">
 
                                     <option value="">-- Select --</option>
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
+
+                                    <option value="true"
+                                            selected="@(Model.HasFutureExpansionSpace == true)">
+                                        Yes
+                                    </option>
+
+                                    <option value="false"
+                                            selected="@(Model.HasFutureExpansionSpace == false)">
+                                        No
+                                    </option>
 
                                 </select>
                             </td>

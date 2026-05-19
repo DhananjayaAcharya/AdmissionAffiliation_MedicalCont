@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Medical Equipment Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <link rel="stylesheet" href="~/css/common-form.css" />
@@ -689,20 +690,38 @@
             </form>
         </div><!-- /.form-card -->
         <div class="form-footer">
-
+            @if(facultyCode == "2")
+            {
             <!-- 🔹 PREVIOUS -->
-            <a asp-controller="Medical_ContinuousAffiliation"
-               asp-action="Medical_SkillsLaboratory"
-               class="btn-prev">← Previous</a>
+                <a asp-controller="Medical_ContinuousAffiliation"
+                   asp-action="Medical_SkillsLaboratory"
+                   class="btn-prev">← Previous</a>
+
+            } else
+            {
+                <a asp-controller="Medical_ContinuousAffiliation"
+                   asp-action="Medical_SkillsLaboratory"
+                   class="btn-prev">← Previous</a>
+                
+            }
 
             @* <div class="footer-right"> *@
 
             @* <button type="submit" class="btn-save">&#128190; Save</button> *@
 
-            <!-- 🔹 NEXT -->
-            <a asp-controller="ContinuationAffiliationClinicalFacilities"
-               asp-action="ClinicalFacilities"
-               class="btn-next">Next →</a>
+            @if(facultyCode == "2")
+            {
+                <!-- 🔹 NEXT -->
+                <a asp-controller="ContinuationAffiliationClinicalFacilities"
+                   asp-action="ClinicalFacilities"
+                   class="btn-next">Next →</a>
+            } else
+            {
+                <!-- 🔹 NEXT -->
+                <a asp-controller="Aff_AHS_ContinuousApplication"
+                   asp-action="CA_VehicleDetails"
+                   class="btn-next">Next →</a>
+            }
 
             @* </div> *@
 

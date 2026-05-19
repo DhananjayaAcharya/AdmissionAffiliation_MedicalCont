@@ -17,7 +17,7 @@ public partial class CaSsOtherCoursesConducted
 
     public string? FileName { get; set; }
 
-    public string? CourseLevel { get; set; }
+    public string CourseLevel { get; set; } = null!;
 
     public string? CoursesApplied { get; set; }
 

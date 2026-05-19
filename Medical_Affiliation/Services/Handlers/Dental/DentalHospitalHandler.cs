@@ -399,8 +399,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     r.AffiliationTypeId == typeOfAffiliation)
                 .ToListAsync();
 
-            var existingDentalAffHospitalWardBedDistribution = await _context.DentalWardBedDistributions.Where(e => e.CollegeCode == collegeCode && e.HospitalDetailsId == hospital.HospitalDetailsId).ToListAsync();
-
+            
 
             var indoorDeptReqMaster = mastersBySection.Where(r => r.SectionCode == "1").ToList();
 
@@ -548,6 +547,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                         CollegeIntake = saved?.CollegeIntake ?? 0
                     }
                 ).ToList();
+            var existingDentalAffHospitalWardBedDistribution = await _context.DentalWardBedDistributions.Where(e => e.CollegeCode == collegeCode).ToListAsync();
 
 
             var clinicalCapacityVM = new ClinicalCapacityViewModel
@@ -598,7 +598,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     SeatIntake = existing?.Intake ?? 0,
                     SeatSlab = existing?.SeatSlab ?? seatSlab,
 
-                    IsSelected = existing.IsActive,
+                    IsSelected = existing?.IsActive ?? false,
 
                     CollegeCode = collegeCode,
                     FacultyCode = facultyCode.ToString(),
@@ -679,7 +679,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
 
                     FacultyCode = facultyCode,
                     CollegeCode = collegeCode,
-                    HospitalDetailsId = hospital.HospitalDetailsId
+                    HospitalDetailsId = hospital?.HospitalDetailsId ?? 0
                 };
             })
             .ToList();

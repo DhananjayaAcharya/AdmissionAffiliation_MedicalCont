@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "DepartmentOffices Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -784,19 +785,35 @@
         ════════════════════════════════════════════════════ -->
         <div class="dm-form-footer d-flex justify-content-between gap-2">
 
-            <button type="button" class="btn-dm btn-dm-ghost"
-                    onclick="window.location.href='@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")'">
-                <i class="fas fa-arrow-left"></i> Previous
-            </button>
+            @if(facultyCode == "2")
+            {
+                <button type="button" class="btn-dm btn-dm-ghost"
+                        onclick="window.location.href='@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")'">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+            } else {
+                <button type="button" class="btn-dm btn-dm-ghost"
+                        onclick="window.location.href='@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")'">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+            }
 
             <button type="submit" class="btn-dm btn-dm-primary" id="btnSave">
                 <i class="fas fa-floppy-disk"></i> Save
             </button>
 
-           <button type="button" class="btn btn-next" 
-                    onclick="window.location.href='@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")'">
-                Next <i class="fas fa-arrow-right"></i>
-            </button>
+            @if(facultyCode == "2")
+            {
+               <button type="button" class="btn btn-next" 
+                        onclick="window.location.href='@Url.Action("EquipmentList", "Dental")'">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            } else {
+               <button type="button" class="btn btn-next" 
+                        onclick="window.location.href='@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")'">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            }
 
         </div>
 

@@ -371,7 +371,7 @@ namespace Medical_Affiliation.Controllers
             if (academicIntake == null)
             {
                 TempData["Error"] = "Academic intake details not found.";
-                return RedirectToAction("Index");
+                return RedirectToAction("IncreaseIntake","ContinuousAffiliationIncreaseIntake");
             }
 
             // Seat Intake
@@ -798,6 +798,7 @@ namespace Medical_Affiliation.Controllers
             }
 
             var hospital = await _context.HospitalDetailsForAffiliations.FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString());
+
 
             // ==============================
             // SAVE DENTAL INFRASTRUCTURE

@@ -211,7 +211,7 @@ CREATE TABLE DentalCollegeLandBuildingDetail
     PreclinicalSkillLabAreaSqm DECIMAL(10,2) NULL,
     LandCategory VARCHAR(50) NULL,
     IsLandInTwoPieces BIT NULL,
-    DistanceBetweenCollegeAndHospitalKm DECIMAL(10,2) NULL
+    DistanceBetweenCollegeAndHospitalKm DECIMAL(10,2) NULL,
 
     Remarks NVARCHAR(MAX) NULL,
 
@@ -232,13 +232,13 @@ ALTER TABLE DentalCollegeLandBuildingDetail
 ADD CONSTRAINT UQ_DentalCollegeLandBuildingDetail
 UNIQUE (CollegeCode, FacultyCode);
 
-ALTER TABLE DentalCollegeLandBuildingDetail
-ADD
-    LandCategory VARCHAR(50) NULL,
+--ALTER TABLE DentalCollegeLandBuildingDetail
+--ADD
+--    LandCategory VARCHAR(50) NULL,
 
-    IsLandInTwoPieces BIT NULL,
+--    IsLandInTwoPieces BIT NULL,
 
-    DistanceBetweenCollegeAndHospitalKm DECIMAL(10,2) NULL;
+--    DistanceBetweenCollegeAndHospitalKm DECIMAL(10,2) NULL;
 
 
 --ALTER TABLE DentalCollegeLandBuildingDetail
@@ -4382,6 +4382,8 @@ VALUES
         REFERENCES [dbo].[TypeOfAffiliation](TypeId)
  );
 
+ ALTER TABLE Affiliation_College_Master
+ ADD Status bit NULL DEFAULT 0;
  
  --DELETE FROM MstDentalInfrastructure
 

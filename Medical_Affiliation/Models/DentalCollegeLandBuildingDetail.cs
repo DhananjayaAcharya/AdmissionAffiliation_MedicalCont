@@ -15,6 +15,8 @@ public partial class DentalCollegeLandBuildingDetail
 
     public int SeatIntake { get; set; }
 
+    public bool IsTier2OrHilly { get; set; }
+
     public decimal? TotalLandAreaAcres { get; set; }
 
     public string? LandOwnershipType { get; set; }
@@ -61,25 +63,25 @@ public partial class DentalCollegeLandBuildingDetail
 
     public decimal? LibraryAreaSqm { get; set; }
 
+    public decimal? HospitalAreaSqm { get; set; }
+
     public decimal? MuseumDemoRoomsAreaSqm { get; set; }
 
     public decimal? DepartmentWiseAreaSqm { get; set; }
 
     public decimal? PreclinicalSkillLabAreaSqm { get; set; }
 
-    public string? Remarks { get; set; }
-
-    public DateTime? CreatedOn { get; set; }
-
-    public DateTime? ModifiedOn { get; set; }
-
-    public decimal? HospitalAreaSqm { get; set; }
-
     public string? LandCategory { get; set; }
 
     public bool? IsLandInTwoPieces { get; set; }
 
     public decimal? DistanceBetweenCollegeAndHospitalKm { get; set; }
+
+    public string? Remarks { get; set; }
+
+    public DateTime? CreatedOn { get; set; }
+
+    public DateTime? ModifiedOn { get; set; }
 
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 

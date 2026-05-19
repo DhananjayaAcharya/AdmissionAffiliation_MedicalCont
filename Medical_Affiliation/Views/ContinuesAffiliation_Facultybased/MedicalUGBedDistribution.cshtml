@@ -536,9 +536,19 @@
                     <div class="form-footer">
 
                         <!-- 🔹 PREVIOUS -->
-                        <a asp-controller="Aff_AHS_ContinousApplication"
-                           asp-action="CA_VehicleDetails"
-                           class="btn-prev">← Previous</a>
+                        @if(facultyCode == "2")
+                        {
+                            <a asp-controller="PhysicalInfrastructure"
+                                asp-action="ChairDistribution"
+                                class="btn-prev">← Previous</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Aff_AHS_ContinousApplication"
+                               asp-action="CA_VehicleDetails"
+                               class="btn-prev">← Previous</a>
+                        }
+
 
                         @* <div class="footer-right"> *@
 
@@ -547,10 +557,21 @@
                                 <i class="bi bi-floppy me-2"></i> Save Distribution
                             </button>
 
+                             @if(facultyCode == "2")
+                            {
+
+                            <!-- 🔹 NEXT -->
+                            <a asp-controller="ContinuesAffiliation_Facultybased"
+                               asp-action="Aff_HostelDetails"
+                               class="btn-next">Next →</a>
+                            } 
+                            else
+                            {
                             <!-- 🔹 NEXT -->
                             <a asp-controller="Medical_ContinuousAffiliation"
                                asp-action="Medical_DepartmentOfficesAndEducationalUnit"
                                class="btn-next">Next →</a>
+                            }
 
                         @* </div> *@
 
