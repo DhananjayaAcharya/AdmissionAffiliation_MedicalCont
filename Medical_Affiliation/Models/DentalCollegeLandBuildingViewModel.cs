@@ -159,13 +159,40 @@ namespace Medical_Affiliation.ViewModels
         // REMARKS
         // =====================================================
 
-        // =====================================================
-        // PRE CLINICAL & SKILL LABORATORIES
-        // =====================================================
-
-        public List<DentalPreClinicalAndSkillsLabAreaReqVM> PreClinicalAndSkillsLabs { get; set; }
-            = new();
-
         public string? Remarks { get; set; }
+
+        public List<DentalInfrastructureVM> InfrastructureDetails { get; set; } = new();
     }
+
+    public class DentalInfrastructureVM
+    {
+        public int Id { get; set; }
+
+        public int FacultyCode { get; set; }
+
+        public int AffiliationTypeId { get; set; }
+
+        public string CollegeCode { get; set; } = string.Empty;
+
+        public int HospitalDetailsId { get; set; }
+
+        public int RequirementId { get; set; }
+
+        public int SlNo { get; set; }
+
+        public string RequirementName { get; set; } = string.Empty;
+
+        public string? RequirementDescription { get; set; }
+
+        public int SeatSlab { get; set; }
+
+        public decimal RequiredAreaSqFt { get; set; }
+
+        public decimal AvailableAreaSqFt { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
+        public DateTime? ModifiedOn { get; set; }
+    }
+
 }

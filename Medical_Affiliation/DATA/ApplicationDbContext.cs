@@ -210,6 +210,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; }
 
+    public virtual DbSet<DentalInfrastructure> DentalInfrastructures { get; set; }
+
     public virtual DbSet<DentalPreClinicalAndSkillsLabAreaReq> DentalPreClinicalAndSkillsLabAreaReqs { get; set; }
 
     public virtual DbSet<DentalService> DentalServices { get; set; }
@@ -321,6 +323,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<MstCourse> MstCourses { get; set; }
 
     public virtual DbSet<MstDentalBedDistribution> MstDentalBedDistributions { get; set; }
+
+    public virtual DbSet<MstDentalInfrastructure> MstDentalInfrastructures { get; set; }
 
     public virtual DbSet<MstDentalPreClinicalAndSkillsLaboratoryAreaReq> MstDentalPreClinicalAndSkillsLaboratoryAreaReqs { get; set; }
 
@@ -2575,6 +2579,46 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_DentalCollegeLandBuildingDetail_Faculty");
         });
 
+        modelBuilder.Entity<DentalInfrastructure>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__DentalIn__3214EC07C6410EC6");
+
+            entity.ToTable("DentalInfrastructure");
+
+            entity.Property(e => e.AvailableAreaSqFt).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
+            entity.Property(e => e.RequiredAreaSqFt).HasColumnType("decimal(10, 2)");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.DentalInfrastructures)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_DentalInfra_AffType");
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalInfrastructures)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_DentalInfra_ColCode");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.DentalInfrastructures)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_DentalInfra_FacCode");
+
+            entity.HasOne(d => d.HospitalDetails).WithMany(p => p.DentalInfrastructures)
+                .HasForeignKey(d => d.HospitalDetailsId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_DentalInfra_HospitalDetailsId");
+
+            entity.HasOne(d => d.Requirement).WithMany(p => p.DentalInfrastructures)
+                .HasForeignKey(d => d.RequirementId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_DentalInfra_ReqId");
+        });
+
         modelBuilder.Entity<DentalPreClinicalAndSkillsLabAreaReq>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__DentalPr__3214EC0713844BDA");
@@ -2585,10 +2629,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.ExistingAreaSqM).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ExistingAreaSqFt).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LabName).HasMaxLength(200);
-            entity.Property(e => e.RequiredAreaSqM).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.RequiredAreaSqFt).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
 
             entity.HasOne(d => d.Lab).WithMany(p => p.DentalPreClinicalAndSkillsLabAreaReqs)
@@ -4059,18 +4103,42 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("Fk_DentalBedDistribution_FacultyCode");
         });
 
+        modelBuilder.Entity<MstDentalInfrastructure>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstDenta__3214EC072D9FBB05");
+
+            entity.ToTable("MstDentalInfrastructure");
+
+            entity.Property(e => e.RequiredAreaSqFt).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.RequirementDescription).IsUnicode(false);
+            entity.Property(e => e.RequirementName)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.MstDentalInfrastructures)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Fk_MstDentalInfrastructre_FacCode");
+        });
+
         modelBuilder.Entity<MstDentalPreClinicalAndSkillsLaboratoryAreaReq>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__MstDenta__3214EC07D7572224");
 
             entity.ToTable("MstDentalPreClinicalAndSkillsLaboratoryAreaReq");
 
-            entity.Property(e => e.AreaRequiredSqM).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.AreaRequiredSqFt).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LaboratoryName).HasMaxLength(200);
+            entity.Property(e => e.LaboratorySection)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.SectionCode)
+                .HasMaxLength(10)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<MstDentalService>(entity =>

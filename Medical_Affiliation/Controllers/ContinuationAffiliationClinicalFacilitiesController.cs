@@ -390,61 +390,76 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveDisciplineDetails( [FromBody] DisciplinePostVM model)
+        public async Task<IActionResult> SaveDentalWardDistribution( [FromBody] List<DentalWardBedDistributionVm> dentalWards)
         {
             try
             {
-                if (model == null || model.Disciplines == null || !model.Disciplines.Any())
+                var facultyCode = FacultyCode;
+                var collegeCode = CollegeCode;
+
+                if (dentalWards == null || !dentalWards.Any())
                 {
                     return Json(new
                     {
                         success = false,
-                        message = "No Discipline Details Found."
+                        message = "No Dental Ward Details Found."
                     });
                 }
 
-                foreach (var item in model.Disciplines)
+                var hospital = await _context.HospitalDetailsForAffiliations
+                    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode);
+
+                if (hospital == null)
                 {
-                    var existing = await _context.MedicalAlliedDisciplineDetails
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Hospital Details Not Found."
+                    });
+                }
+
+                foreach (var item in dentalWards)
+                {
+                    var existing = await _context.DentalWardBedDistributions
                         .FirstOrDefaultAsync(x =>
-                            x.CollegeCode == model.CollegeCode &&
-                            x.FacultyCode.ToString() == model.FacultyCode &&
-                            x.AffiliationTypeId == model.AffiliationTypeId &&
-                            x.HospitalDetailsId == model.HospitalDetailsId &&
-                            x.DisciplineCode == item.DisciplineCode);
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == Convert.ToInt32(facultyCode) &&
+                            x.HospitalDetailsId == hospital.HospitalDetailsId &&
+                            x.AffiliationTypeId == hospital.AffiliationTypeId &&
+                            x.WardId == item.WardId);
 
                     if (existing != null)
                     {
                         // UPDATE
-                        existing.Intake = item.SeatIntake;
-                        existing.SeatSlab = model.SeatSlab;
-                        existing.UpdatedOn = DateTime.Now;
-                        existing.IsActive = item.IsSelected;
+
+                        existing.WardName = item.WardName;
+                        existing.SeatSlab = item.SeatSlab;
+                        existing.BedsRequired = item.BedsRequired;
+                        existing.BedsPresent = item.BedsPresent ?? 0;
                     }
                     else
                     {
                         // INSERT
-                        var entity = new MedicalAlliedDisciplineDetail
+
+                        var entity = new DentalWardBedDistribution
                         {
-                            CollegeCode = model.CollegeCode,
-                            FacultyCode = Convert.ToInt32(model.FacultyCode),
-                            AffiliationTypeId = model.AffiliationTypeId,
-                            HospitalDetailsId = model.HospitalDetailsId,
+                            FacultyCode = Convert.ToInt32(facultyCode),
+                            CollegeCode = collegeCode,
+                            HospitalDetailsId = hospital.HospitalDetailsId,
+                            AffiliationTypeId = hospital.AffiliationTypeId,
 
-                            DisciplineCode = item.DisciplineCode,
-                            DisciplineName = item.DisciplineName,
-                            IsActive = item.IsSelected,
-
-                            Intake = item.SeatIntake,
-                            SeatSlab = model.SeatSlab,
-
-                            CreatedOn = DateTime.Now
+                            WardId = item.WardId,
+                            WardName = item.WardName,
+                            SeatSlab = item.SeatSlab,
+                            BedsRequired = item.BedsRequired,
+                            BedsPresent = item.BedsPresent ?? 0
                         };
 
-                        await _context.MedicalAlliedDisciplineDetails
-                            .AddAsync(entity);
+                        await _context.DentalWardBedDistributions.AddAsync(entity);
                     }
                 }
 
@@ -453,7 +468,7 @@ namespace Medical_Affiliation.Controllers
                 return Json(new
                 {
                     success = true,
-                    message = "Discipline Details Saved Successfully."
+                    message = "Dental Ward Distribution Saved Successfully."
                 });
             }
             catch (Exception ex)

@@ -16,10 +16,14 @@ namespace Medical_Affiliation.ViewModels
 
         public string LabName { get; set; } = null!;
 
-        [Display(Name = "Required Area (Sq.m)")]
-        public decimal RequiredAreaSqM { get; set; }
+        [Display(Name = "Required Area (Sq.ft)")]
+        public decimal RequiredAreaSqFt { get; set; }
 
-        [Display(Name = "Existing Area (Sq.m)")]
-        public decimal? ExistingAreaSqM { get; set; }
+        [Display(Name = "Existing Area (Sq.ft)")]
+        public decimal? ExistingAreaSqFt { get; set; }
+
+        public string? SectionCode { get; set; }
+
+        public string? LaboratorySection { get; set; }
     }
 }

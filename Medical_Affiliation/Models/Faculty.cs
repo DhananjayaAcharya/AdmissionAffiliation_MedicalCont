@@ -23,6 +23,8 @@ public partial class Faculty
 
     public virtual ICollection<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; } = new List<DentalCollegeLandBuildingDetail>();
 
+    public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();
+
     public virtual ICollection<DentalService> DentalServices { get; set; } = new List<DentalService>();
 
     public virtual ICollection<DentalWardBedDistribution> DentalWardBedDistributions { get; set; } = new List<DentalWardBedDistribution>();
@@ -42,6 +44,8 @@ public partial class Faculty
     public virtual ICollection<MstAdministration> MstAdministrations { get; set; } = new List<MstAdministration>();
 
     public virtual ICollection<MstDentalBedDistribution> MstDentalBedDistributions { get; set; } = new List<MstDentalBedDistribution>();
+
+    public virtual ICollection<MstDentalInfrastructure> MstDentalInfrastructures { get; set; } = new List<MstDentalInfrastructure>();
 
     public virtual ICollection<MstDentalService> MstDentalServices { get; set; } = new List<MstDentalService>();
 

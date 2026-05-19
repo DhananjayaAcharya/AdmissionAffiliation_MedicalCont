@@ -382,6 +382,9 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     m.IsActive)
                 .ToListAsync();
 
+            var mstDentalAffHospitalWardBedDistribution = await _context.MstDentalBedDistributions.Where(e => e.FacultyCode == facultyCode).ToListAsync();
+
+
             var existingBySection = await _context.IndoorInfrastructureRequirementsCompliances
                 .Where(r =>
                     r.CollegeCode == collegeCode &&
@@ -395,6 +398,9 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     r.FacultyCode == facultyCode && 
                     r.AffiliationTypeId == typeOfAffiliation)
                 .ToListAsync();
+
+            var existingDentalAffHospitalWardBedDistribution = await _context.DentalWardBedDistributions.Where(e => e.CollegeCode == collegeCode && e.HospitalDetailsId == hospital.HospitalDetailsId).ToListAsync();
+
 
             var indoorDeptReqMaster = mastersBySection.Where(r => r.SectionCode == "1").ToList();
 
@@ -454,8 +460,6 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 .Where(e => e.FacultyCode == facultyCode)
                 .OrderBy(e => e.DisciplineName)
                 .ToListAsync();
-
-            //var mstDentalServices = 
 
             var existingBeds = await _context.IndoorBedsOccupancies
                 .Where(o =>
@@ -657,6 +661,28 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 Requirements = BuildDentalRequirements<AdmAncServicesItemVM>(AdmAncReqMaster, existingAdmAncServices, hospital?.HospitalDetailsId ?? 0)
 
             };
+
+            compositeVM.DentalWardBedDistribution = mstDentalAffHospitalWardBedDistribution
+            .Select(mst =>
+            {
+                var existing = existingDentalAffHospitalWardBedDistribution
+                    .FirstOrDefault(x => x.WardId == mst.Id);
+
+                return new DentalWardBedDistributionVm
+                {
+                    WardId = mst.Id,
+                    WardName = mst.WardName,
+                    SeatSlab = mst.SeatSlab,
+                    BedsRequired = mst.BedRequirement,
+
+                    BedsPresent = existing?.BedsPresent ?? 0,
+
+                    FacultyCode = facultyCode,
+                    CollegeCode = collegeCode,
+                    HospitalDetailsId = hospital.HospitalDetailsId
+                };
+            })
+            .ToList();
 
             compositeVM.IndoorBedsOccupancy = new IndoorBedsOccupancyPostVM
             {
@@ -875,6 +901,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     "Discipline",
                     "NPTAservices",
                     "EngAlliedservices",
+                    "WardWiseBedDistribution"
                     //"AffiliatedDocuments",
                     //"CasualityRequirements",
                     //"CSSDandLaundryRequirements",

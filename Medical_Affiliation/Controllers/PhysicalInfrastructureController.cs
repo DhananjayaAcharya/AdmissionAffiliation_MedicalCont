@@ -2,12 +2,13 @@
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
 using Medical_Affiliation.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class PhysicalInfrastructureController : Controller
+    public class PhysicalInfrastructureController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
@@ -419,6 +420,27 @@ namespace Medical_Affiliation.Controllers
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode);
 
+
+            // ======================================================
+            // DENTAL INFRASTRUCTURE
+            // ======================================================
+
+            // Master Infrastructure Requirements
+            var infraMasters = await _context.MstDentalInfrastructures
+                .Where(x =>
+                    x.FacultyCode == facultyCode &&
+                    x.SeatSlab == seatSlab)
+                .OrderBy(x => x.SlNo)
+                .ToListAsync();
+
+            // Existing Saved Infrastructure
+            var savedInfrastructure = await _context.DentalInfrastructures
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.SeatSlab == seatSlab)
+                .ToListAsync();
+
             // Build ViewModel
             var model = new DentalCollegeLandBuildingViewModel
             {
@@ -429,36 +451,34 @@ namespace Medical_Affiliation.Controllers
                 SeatIntake = seatIntake,
 
                 SeatSlab = seatSlab,
+                InfrastructureDetails = infraMasters.Select(m =>
+                {
+                    var saved = savedInfrastructure
+                        .FirstOrDefault(x => x.RequirementId == m.Id);
 
-               
+                    return new DentalInfrastructureVM
+                    {
+                        Id = saved?.Id ?? 0,
+
+                        RequirementId = m.Id,
+
+                        SlNo = m.SlNo,
+
+                        RequirementName = m.RequirementName,
+
+                        RequirementDescription = m.RequirementDescription,
+
+                        SeatSlab = m.SeatSlab,
+
+                        RequiredAreaSqFt = m.RequiredAreaSqFt,
+
+                        AvailableAreaSqFt = saved?.AvailableAreaSqFt ?? 0
+                    };
+                }).ToList(),
+
+
             };
 
-            model.PreClinicalAndSkillsLabs = labMasters
-                    .Select(lab =>
-                    {
-                        var saved = savedLabs
-                            .FirstOrDefault(x => x.LabId == lab.Id);
-
-                        return new DentalPreClinicalAndSkillsLabAreaReqVM
-                        {
-                            Id = saved?.Id ?? 0,
-
-                            CollegeCode = collegeCode,
-
-                            FacultyCode = facultyCode,
-
-                            SeatIntake = seatIntake,
-
-                            LabId = lab.Id,
-
-                            LabName = lab.LaboratoryName,
-
-                            RequiredAreaSqM = lab.AreaRequiredSqM,
-
-                            ExistingAreaSqM = saved?.ExistingAreaSqM
-                        };
-                    })
-                    .ToList();
 
             // Populate Existing Data
             if (existingData != null)
@@ -777,52 +797,59 @@ namespace Medical_Affiliation.Controllers
                 entity.SewageSanitationApprovalDocumentPath = sewageSanitationApprovalDocumentPath;
             }
 
+            var hospital = await _context.HospitalDetailsForAffiliations.FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString());
+
             // ==============================
-            // PRE CLINICAL & SKILL LABS
+            // SAVE DENTAL INFRASTRUCTURE
             // ==============================
 
-            if (model.PreClinicalAndSkillsLabs != null &&
-                model.PreClinicalAndSkillsLabs.Any())
+            if (model.InfrastructureDetails != null &&
+                model.InfrastructureDetails.Any())
             {
-                foreach (var item in model.PreClinicalAndSkillsLabs)
-                {
-                    var existingLab = await _context
-                        .DentalPreClinicalAndSkillsLabAreaReqs
-                        .FirstOrDefaultAsync(x =>
-                            x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            x.SeatIntake == seatIntake &&
-                            x.LabId == item.LabId);
+                var existingInfrastructure = await _context.DentalInfrastructures
+                    .Where(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode)
+                    .ToListAsync();
 
-                    if (existingLab == null)
+                foreach (var item in model.InfrastructureDetails)
+                {
+                    var existingInfra = existingInfrastructure
+                        .FirstOrDefault(x =>
+                            x.RequirementId == item.RequirementId &&
+                            x.SeatSlab == item.SeatSlab);
+
+                    if (existingInfra == null)
                     {
-                        existingLab = new DentalPreClinicalAndSkillsLabAreaReq
+                        existingInfra = new DentalInfrastructure
                         {
-                            CollegeCode = collegeCode,
                             FacultyCode = facultyCode,
-                            SeatIntake = seatIntake,
-                            LabId = item.LabId,
-                            LabName = item.LabName,
-                            RequiredAreaSqM = item.RequiredAreaSqM,
-                            CreatedOn = DateTime.Now,
-                            IsActive = true
+
+                            AffiliationTypeId = hospital.AffiliationTypeId, // update dynamically if needed
+
+                            CollegeCode = collegeCode,
+
+                            HospitalDetailsId = hospital.HospitalDetailsId, // update dynamically if needed
+
+                            RequirementId = item.RequirementId,
+
+                            SeatSlab = item.SeatSlab,
+
+                            CreatedOn = DateTime.Now
                         };
 
-                        _context.DentalPreClinicalAndSkillsLabAreaReqs
-                            .Add(existingLab);
+                        _context.DentalInfrastructures.Add(existingInfra);
                     }
 
-                    existingLab.ExistingAreaSqM =
-                        item.ExistingAreaSqM;
+                    existingInfra.RequiredAreaSqFt =
+                        item.RequiredAreaSqFt;
 
-                    existingLab.RequiredAreaSqM =
-                        item.RequiredAreaSqM;
+                    existingInfra.AvailableAreaSqFt =
+                        item.AvailableAreaSqFt;
 
-                    existingLab.CreatedOn =
-                        DateTime.Now;
+                    existingInfra.ModifiedOn = DateTime.Now;
                 }
             }
-
 
             // ==============================
             // SAVE
@@ -930,5 +957,323 @@ namespace Medical_Affiliation.Controllers
 
             return PhysicalFile(filePath, contentType);
         }
+
+
+
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpGet]
+        public async Task<IActionResult> DentalSkillsLaboratory()
+        {
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
+
+            if (string.IsNullOrEmpty(facultyCode))
+                return RedirectToAction("Login", "Account");
+
+            var lab = await _context.MedicalSkillsLaboratories
+                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
+
+            if (lab == null)
+            {
+                var emptyVm = new SkillsLabViewModel();
+
+                // =========================================
+                // DENTAL LAB MASTER DATA
+                // =========================================
+                if (facultyCode == "2")
+                {
+                    int intake = 50;
+
+                    var masterLabs = await _context
+                        .MstDentalPreClinicalAndSkillsLaboratoryAreaReqs
+                        .Where(x => x.FacultyCode == 2 &&
+                                    x.SeatIntake == intake &&
+                                    x.IsActive)
+                        .OrderBy(x => x.SectionCode)
+                        .ThenBy(x => x.LaboratoryName)
+                        .ToListAsync();
+
+                    emptyVm.PreClinicalAndSkillsLabs = masterLabs
+                        .Select(x => new DentalPreClinicalAndSkillsLabAreaReqVM
+                        {
+                            LabId = x.Id,
+                            FacultyCode = x.FacultyCode,
+                            SeatIntake = x.SeatIntake,
+
+                            LabName = x.LaboratoryName,
+
+                            SectionCode = x.SectionCode,
+                            LaboratorySection = x.LaboratorySection,
+
+                            RequiredAreaSqFt = x.AreaRequiredSqFt
+                        })
+                        .ToList();
+                }
+
+                return View(emptyVm);
+            }
+
+            var vm = new SkillsLabViewModel
+            {
+                AnnualMbbsIntake = lab.AnnualMbbsIntake,
+
+                TotalAreaAvailableSqm = lab.TotalAreaAvailableSqm,
+                TotalAreaRequiredSqm = lab.TotalAreaRequiredSqm,
+                TotalAreaDeficiencySqm = lab.TotalAreaDeficiencySqm,
+
+                SixWeeksTrainingCompletedBeforeClinical = lab.SixWeeksTrainingCompletedBeforeClinical,
+
+                NumberOfExaminationRooms = lab.NumberOfExaminationRooms,
+                HasMinFourExamRooms = lab.HasMinFourExamRooms,
+                HasDemoRoomSmallGroups = lab.HasDemoRoomSmallGroups,
+                HasDebriefArea = lab.HasDebriefArea,
+                HasFacultyCoordinatorRoom = lab.HasFacultyCoordinatorRoom,
+                HasSupportStaffRoom = lab.HasSupportStaffRoom,
+                HasStorageForMannequins = lab.HasStorageForMannequins,
+                HasVideoRecordingFacility = lab.HasVideoRecordingFacility,
+
+                NumberOfSkillStations = lab.NumberOfSkillStations,
+                HasGroupAndIndividualStations = lab.HasGroupAndIndividualStations,
+                HasRequiredTrainersAndMannequins = lab.HasRequiredTrainersAndMannequins,
+                HasDedicatedTechnicalOfficer = lab.HasDedicatedTechnicalOfficer,
+                HasAdequateSupportStaff = lab.HasAdequateSupportStaff,
+
+                TeachingAreasHaveAV = lab.TeachingAreasHaveAv,
+                TeachingAreasHaveInternet = lab.TeachingAreasHaveInternet,
+                SkillsLabEnabledForELearning = lab.SkillsLabEnabledForElearning
+            };
+
+            // =========================================
+            // DENTAL LAB SAVED DATA
+            // =========================================
+            if (facultyCode == "2")
+            {
+                var savedLabs = await (
+                    from t in _context.DentalPreClinicalAndSkillsLabAreaReqs
+
+                    join m in _context.MstDentalPreClinicalAndSkillsLaboratoryAreaReqs
+                        on t.LabId equals m.Id
+
+                    where t.CollegeCode == collegeCode
+                          && t.FacultyCode == 2
+
+                    orderby m.SectionCode, m.LaboratoryName
+
+                    select new DentalPreClinicalAndSkillsLabAreaReqVM
+                    {
+                        Id = t.Id,
+
+                        CollegeCode = t.CollegeCode,
+                        FacultyCode = t.FacultyCode,
+
+                        LabId = t.LabId,
+
+                        SeatIntake = m.SeatIntake,
+
+                        LabName = m.LaboratoryName,
+
+                        SectionCode = m.SectionCode,
+                        LaboratorySection = m.LaboratorySection,
+
+                        RequiredAreaSqFt = m.AreaRequiredSqFt,
+
+                        ExistingAreaSqFt = t.ExistingAreaSqFt
+                    }
+                ).ToListAsync();
+
+                // =========================================
+                // IF SAVED DATA EXISTS
+                // =========================================
+                if (savedLabs.Any())
+                {
+                    vm.PreClinicalAndSkillsLabs = savedLabs;
+                }
+                else
+                {
+                    // =========================================
+                    // LOAD MASTER DATA
+                    // =========================================
+
+                    int intake = lab.AnnualMbbsIntake;
+
+                    var masterLabs = await _context
+                        .MstDentalPreClinicalAndSkillsLaboratoryAreaReqs
+                        .Where(x => x.FacultyCode == 2 &&
+                                    x.SeatIntake == intake &&
+                                    x.IsActive)
+                        .OrderBy(x => x.SectionCode)
+                        .ThenBy(x => x.LaboratoryName)
+                        .ToListAsync();
+
+                    vm.PreClinicalAndSkillsLabs = masterLabs
+                        .Select(x => new DentalPreClinicalAndSkillsLabAreaReqVM
+                        {
+                            LabId = x.Id,
+
+                            FacultyCode = x.FacultyCode,
+
+                            SeatIntake = x.SeatIntake,
+
+                            LabName = x.LaboratoryName,
+
+                            SectionCode = x.SectionCode,
+
+                            LaboratorySection = x.LaboratorySection,
+
+                            RequiredAreaSqFt = x.AreaRequiredSqFt
+                        })
+                        .ToList();
+                }
+            }
+
+            return View(vm);
+        }
+
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DentalSkillsLaboratory(SkillsLabViewModel model)
+        {
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
+
+            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("Login", "Account");
+
+            //if (!ModelState.IsValid)
+            //    return View(model);
+
+            // ================================
+            // SERVER-SIDE CALCULATION
+            // ================================
+            model.TotalAreaRequiredSqm = model.AnnualMbbsIntake * 1.2m;
+            model.TotalAreaDeficiencySqm =
+                Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
+
+            var lab = await _context.MedicalSkillsLaboratories
+                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
+
+            if (lab == null)
+            {
+                lab = new MedicalSkillsLaboratory
+                {
+                    FacultyCode = facultyCode,
+                    CollegeCode = collegeCode,
+                };
+                _context.MedicalSkillsLaboratories.Add(lab);
+            }
+
+            // ================================
+            // UPDATE FIELDS
+            // ================================
+            lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
+            lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;
+            lab.TotalAreaRequiredSqm = model.TotalAreaRequiredSqm;
+            lab.TotalAreaDeficiencySqm = model.TotalAreaDeficiencySqm;
+
+            lab.SixWeeksTrainingCompletedBeforeClinical =
+                model.SixWeeksTrainingCompletedBeforeClinical ?? false;
+
+            lab.NumberOfExaminationRooms = model.NumberOfExaminationRooms;
+            lab.HasMinFourExamRooms = model.HasMinFourExamRooms ?? false;
+            lab.HasDemoRoomSmallGroups = model.HasDemoRoomSmallGroups ?? false;
+            lab.HasDebriefArea = model.HasDebriefArea ?? false;
+            lab.HasFacultyCoordinatorRoom = model.HasFacultyCoordinatorRoom ?? false;
+            lab.HasSupportStaffRoom = model.HasSupportStaffRoom ?? false;
+            lab.HasStorageForMannequins = model.HasStorageForMannequins ?? false;
+            lab.HasVideoRecordingFacility = model.HasVideoRecordingFacility ?? false;
+
+            lab.NumberOfSkillStations = model.NumberOfSkillStations;
+            lab.HasGroupAndIndividualStations = model.HasGroupAndIndividualStations ?? false;
+            lab.HasRequiredTrainersAndMannequins = model.HasRequiredTrainersAndMannequins ?? false;
+            lab.HasDedicatedTechnicalOfficer = model.HasDedicatedTechnicalOfficer ?? false;
+            lab.HasAdequateSupportStaff = model.HasAdequateSupportStaff ?? false;
+
+            lab.TeachingAreasHaveAv = model.TeachingAreasHaveAV ?? false;
+            lab.TeachingAreasHaveInternet = model.TeachingAreasHaveInternet ?? false;
+            lab.SkillsLabEnabledForElearning = model.SkillsLabEnabledForELearning ?? false;
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                // ============================================
+                // DENTAL LAB AREA TABLE
+                // ============================================
+
+                if (facultyCode == "2" &&
+                    model.PreClinicalAndSkillsLabs != null &&
+                    model.PreClinicalAndSkillsLabs.Any())
+                {
+                    var existingLabs = await _context
+                        .DentalPreClinicalAndSkillsLabAreaReqs
+                        .Where(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == 2)
+                        .ToListAsync();
+
+                    foreach (var item in model.PreClinicalAndSkillsLabs)
+                    {
+                        var existing = existingLabs
+                            .FirstOrDefault(x =>
+                                x.LabId == item.LabId);
+
+                        if (existing != null)
+                        {
+                            // UPDATE
+                            existing.ExistingAreaSqFt =
+                                item.ExistingAreaSqFt;
+
+                            existing.UpdatedOn = DateTime.Now;
+                        }
+                        else
+                        {
+                            // INSERT
+                            _context.DentalPreClinicalAndSkillsLabAreaReqs
+                                .Add(new DentalPreClinicalAndSkillsLabAreaReq
+                                {
+                                    CollegeCode = collegeCode,
+
+                                    FacultyCode = 2,
+
+                                    SeatIntake = item.SeatIntake,
+
+                                    LabId = item.LabId,
+
+                                    LabName = item.LabName,
+
+                                    RequiredAreaSqFt =
+                                        item.RequiredAreaSqFt,
+
+                                    ExistingAreaSqFt =
+                                        item.ExistingAreaSqFt,
+
+                                    IsActive = true,
+
+                                    CreatedOn = DateTime.Now
+                                });
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+
+                TempData["Success"] = "Saved successfully!";
+                return RedirectToAction(nameof(DentalSkillsLaboratory));
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                ModelState.AddModelError("", "Error while saving data");
+                return View(model);
+            }
+        }
+
+
     }
 }

@@ -4862,55 +4862,6 @@ namespace Medical_Affiliation.Controllers
             {
                 entity.OralMaxillofacialSurgery =
                     vm.OralMaxillofacialSurgery;
-
-                var hospitalDetails = await _context.HospitalDetailsForAffiliations.Where(e => e.CollegeCode == collegeCode).FirstOrDefaultAsync(); ;
-                var typeOfAff = hospitalDetails.AffiliationTypeId;
-
-                var existingDentalRecords =
-                    await _context.DentalWardBedDistributions
-                        .Where(x =>
-                            x.CollegeCode == collegeCode &&
-                            x.FacultyCode == Convert.ToInt32(facultyCode) &&
-                            x.HospitalDetailsId == hospitalDetails.HospitalDetailsId &&
-                            x.AffiliationTypeId == typeOfAff)
-                        .ToListAsync();
-
-                foreach (var item in vm.DentalWards)
-                {
-                    var existingDental = existingDentalRecords.FirstOrDefault(x => x.WardId == item.WardId);
-
-                    if (existingDental != null)
-                    {
-                        // UPDATE
-
-                        existingDental.BedsPresent = item.BedsPresent ?? 0;
-
-                        existingDental.SeatSlab = item.SeatSlab;
-
-                        existingDental.WardName = item.WardName;
-
-                        existingDental.BedsRequired = item.BedsRequired;
-                    }
-                    else
-                    {
-                        // INSERT
-
-                        await _context.DentalWardBedDistributions
-                            .AddAsync(
-                                new DentalWardBedDistribution
-                                {
-                                    FacultyCode = Convert.ToInt32(facultyCode),
-                                    CollegeCode = collegeCode,
-                                    HospitalDetailsId = hospitalDetails.HospitalDetailsId,
-                                    AffiliationTypeId = typeOfAff,
-                                    WardId = item.WardId,
-                                    WardName = item.WardName,
-                                    SeatSlab = item.SeatSlab,
-                                    BedsRequired = item.BedsRequired,
-                                    BedsPresent = item.BedsPresent ?? 0
-                                });
-                    }
-                }
             }
             else
             {

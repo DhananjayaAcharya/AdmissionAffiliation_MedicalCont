@@ -45,17 +45,6 @@
         public List<DentalWardBedDistributionVm> DentalWards { get; set; } = new();
     }
 
-    public class DentalWardBedDistributionVm
-    {
-        public int WardId { get; set; }
-
-        public string WardName { get; set; } = null!;
-
-        public int SeatSlab { get; set; }
-
-        public int BedsRequired { get; set; }
-
-        public int? BedsPresent { get; set; }
-    }
+    
 
 }

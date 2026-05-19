@@ -3729,7 +3729,7 @@ CREATE TABLE MstDentalPreClinicalAndSkillsLaboratoryAreaReq
 
     SeatIntake INT NOT NULL,
 
-    AreaRequiredSqM DECIMAL(10,2) NOT NULL,
+    AreaRequiredSqFt DECIMAL(10,2) NOT NULL,
 
     IsActive BIT NOT NULL DEFAULT 1,
 
@@ -3737,6 +3737,14 @@ CREATE TABLE MstDentalPreClinicalAndSkillsLaboratoryAreaReq
 );
 GO
 
+ALTER TABLE MstDentalPreClinicalAndSkillsLaboratoryAreaReq
+ADD
+    SectionCode VARCHAR(10) NULL,
+    LaboratorySection VARCHAR(500) NULL;
+
+--EXEC sp_rename 'MstDentalPreClinicalAndSkillsLaboratoryAreaReq.AreaRequiredSqM', 'AreaRequiredSqFt', 'COLUMN';
+
+--DELETE FROM MstDentalPreClinicalAndSkillsLaboratoryAreaReq
 
 -- =============================================
 -- Insert Master Data
@@ -3746,31 +3754,62 @@ GO
 INSERT INTO MstDentalPreClinicalAndSkillsLaboratoryAreaReq
 (
     FacultyCode,
+    SectionCode,
+    LaboratorySection,
     LaboratoryName,
     SeatIntake,
-    AreaRequiredSqM
+    AreaRequiredSqFt
 )
 VALUES
--- Pre Clinical Prosthodontics Lab
-(2, 'Pre Clinical Prosthodontics Lab', 50, 200),
-(2, 'Pre Clinical Prosthodontics Lab', 100, 250),
-(2, 'Pre Clinical Prosthodontics Lab', 150, 250),
 
--- Pre Clinical Conservative Lab
-(2, 'Pre Clinical Conservative Lab', 50, 200),
-(2, 'Pre Clinical Conservative Lab', 100, 250),
-(2, 'Pre Clinical Conservative Lab', 150, 250),
+-- =====================================================
+-- DENTAL SUBJECT LABORATORIES
+-- =====================================================
 
--- Dental Materials Lab
-(2, 'Dental Materials Lab', 50, 120),
-(2, 'Dental Materials Lab', 100, 150),
-(2, 'Dental Materials Lab', 150, 150),
+(2, 'DSL', 'Dental Subject Laboratories', 'Pre-clinical Prosthodontics & Dental Material Lab', 50, 1500),
+(2, 'DSL', 'Dental Subject Laboratories', 'Pre-clinical Prosthodontics & Dental Material Lab', 100, 3000),
 
--- Skill / Simulation Lab
-(2, 'Skill / Simulation Lab', 50, 200),
-(2, 'Skill / Simulation Lab', 100, 250),
-(2, 'Skill / Simulation Lab', 150, 250);
-GO
+(2, 'DSL', 'Dental Subject Laboratories', 'Pre-clinical Conservative Lab', 50, 1300),
+(2, 'DSL', 'Dental Subject Laboratories', 'Pre-clinical Conservative Lab', 100, 2500),
+
+(2, 'DSL', 'Dental Subject Laboratories', 'Oral Biology & Oral Pathology Lab', 50, 1300),
+(2, 'DSL', 'Dental Subject Laboratories', 'Oral Biology & Oral Pathology Lab', 100, 2500),
+
+(2, 'DSL', 'Dental Subject Laboratories', 'Orthodontics & Pedodontics Lab', 50, 800),
+(2, 'DSL', 'Dental Subject Laboratories', 'Orthodontics & Pedodontics Lab', 100, 1500),
+
+-- =====================================================
+-- MEDICAL SUBJECT LABORATORIES
+-- =====================================================
+
+(2, 'MSL', 'Medical Subject Laboratories', 'Medical Subject Laboratories (Independent Dental Colleges only)', 50, 4500),
+(2, 'MSL', 'Medical Subject Laboratories', 'Medical Subject Laboratories (Independent Dental Colleges only)', 100, 7500),
+
+(2, 'MSL', 'Medical Subject Laboratories', 'Anatomy Dissection Hall', 50, 1500),
+(2, 'MSL', 'Medical Subject Laboratories', 'Anatomy Dissection Hall', 100, 2500),
+
+(2, 'MSL', 'Medical Subject Laboratories', 'Physiology, Pathology & Microbiology Labs', 50, 1500),
+(2, 'MSL', 'Medical Subject Laboratories', 'Physiology, Pathology & Microbiology Labs', 100, 2500),
+
+(2, 'MSL', 'Medical Subject Laboratories', 'Biochemistry & Pharmacology Labs', 50, 1500),
+(2, 'MSL', 'Medical Subject Laboratories', 'Biochemistry & Pharmacology Labs', 100, 2500),
+
+-- =====================================================
+-- CLINICAL LABORATORIES
+-- =====================================================
+
+(2, 'CL', 'Clinical Laboratories', 'Prosthodontics Labs', 50, 1300),
+(2, 'CL', 'Clinical Laboratories', 'Prosthodontics Labs', 100, 2500),
+
+(2, 'CL', 'Clinical Laboratories', 'Conservative Dentistry Labs', 50, 300),
+(2, 'CL', 'Clinical Laboratories', 'Conservative Dentistry Labs', 100, 600),
+
+(2, 'CL', 'Clinical Laboratories', 'Oral Pathology Histopathology Lab', 50, 400),
+(2, 'CL', 'Clinical Laboratories', 'Oral Pathology Histopathology Lab', 100, 600),
+
+(2, 'CL', 'Clinical Laboratories', 'Haematology & Clinical Biochemistry Lab', 50, 200),
+(2, 'CL', 'Clinical Laboratories', 'Haematology & Clinical Biochemistry Lab', 100, 300);
+
 
 -- =============================================
 -- Table: DentalPreClinicalAndSkillsLabAreaReq
@@ -3790,9 +3829,9 @@ CREATE TABLE DentalPreClinicalAndSkillsLabAreaReq
 
     LabName NVARCHAR(200) NOT NULL,
 
-    RequiredAreaSqM DECIMAL(10,2) NOT NULL,
+    RequiredAreaSqFt DECIMAL(10,2) NOT NULL,
 
-    ExistingAreaSqM DECIMAL(10,2) NULL,
+    ExistingAreaSqFt DECIMAL(10,2) NULL,
 
     IsActive BIT NOT NULL DEFAULT 1,
 
@@ -3805,6 +3844,12 @@ CREATE TABLE DentalPreClinicalAndSkillsLabAreaReq
         REFERENCES MstDentalPreClinicalAndSkillsLaboratoryAreaReq(Id)
 );
 GO
+
+--EXEC sp_rename 'DentalPreClinicalAndSkillsLabAreaReq.RequiredAreaSqM', 'RequiredAreaSqFt', 'COLUMN';
+
+
+
+--EXEC sp_rename 'DentalPreClinicalAndSkillsLabAreaReq.ExistingAreaSqM', 'ExistingAreaSqFt', 'COLUMN';
 
 ALTER TABLE [dbo].[CA_MedicalDepartmentLibrary]
 ADD
@@ -4127,3 +4172,217 @@ CREATE TABLE DentalWardBedDistribution
         REFERENCES MstDentalBedDistribution(Id)
 
 );
+
+SELECT * FROM DentalWardBedDistribution;
+
+CREATE TABLE MstDentalInfrastructure
+(
+    Id INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
+    FacultyCode INT NOT NULL,
+    SlNo INT NOT NULL,
+    RequirementName VARCHAR(500) NOT NULL,
+    RequirementDescription VARCHAR(MAX) NULL,
+    SeatSlab INT NOT NULL,
+    RequiredAreaSqFt DECIMAL(10,2) NOT NULL,
+
+    CONSTRAINT Fk_MstDentalInfrastructre_FacCode
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId)
+);
+
+INSERT INTO MstDentalInfrastructure
+(
+    FacultyCode,
+    SlNo,
+    RequirementName,
+    RequirementDescription,
+    SeatSlab,
+    RequiredAreaSqFt
+)
+VALUES
+
+-- 1. Administrative Block
+(2, 1, 'Administrative Block',
+ 'Dean’s room, Administrative Officer’s room, Meeting room, Office, Office stores, Pantry etc.',
+ 50, 2000),
+
+(2, 1, 'Administrative Block',
+ 'Dean’s room, Administrative Officer’s room, Meeting room, Office, Office stores, Pantry etc.',
+ 100, 3000),
+
+-- 2. Library
+(2, 2, 'Library',
+ 'Reception & waiting, Property counter, Issue counter, Photocopying area, Reading room (50% students), PG & staff reading room, Journal room, Audio-visual room, Chief librarian room, Stores & stocking area',
+ 50, 4500),
+
+(2, 2, 'Library',
+ 'Reception & waiting, Property counter, Issue counter, Photocopying area, Reading room (50% students), PG & staff reading room, Journal room, Audio-visual room, Chief librarian room, Stores & stocking area, E-Consortium connected with National Medical Library',
+ 100, 8000),
+
+-- 3. Lecture Halls
+(2, 3, 'Lecture Halls',
+ '4 halls – Seating for 10% more than intake, blackboard, microphone, slide/OHP/multimedia facilities',
+ 50, 3200),
+
+(2, 3, 'Lecture Halls',
+ '4 halls – Seating for 10% more than intake, blackboard, microphone, slide/OHP/multimedia facilities',
+ 100, 6400),
+
+-- 4. Central Stores
+(2, 4, 'Central Stores',
+ NULL,
+ 50, 400),
+
+(2, 4, 'Central Stores',
+ NULL,
+ 100, 800),
+
+-- 5. Maintenance Room
+(2, 5, 'Maintenance Room',
+ NULL,
+ 50, 600),
+
+(2, 5, 'Maintenance Room',
+ NULL,
+ 100, 1000),
+
+-- 6. Photography & Artist Room
+(2, 6, 'Photography & Artist Room',
+ NULL,
+ 50, 250),
+
+(2, 6, 'Photography & Artist Room',
+ NULL,
+ 100, 400),
+
+-- 7. Medical Stores
+(2, 7, 'Medical Stores',
+ NULL,
+ 50, 200),
+
+(2, 7, 'Medical Stores',
+ NULL,
+ 100, 300),
+
+-- 8. Amenities Area
+(2, 8, 'Amenities Area',
+ 'Boys’ & Girls’ locker rooms, common rooms, teaching & non-teaching staff rooms, change rooms',
+ 50, 2000),
+
+(2, 8, 'Amenities Area',
+ 'Boys’ & Girls’ locker rooms, common rooms, teaching & non-teaching staff rooms, change rooms',
+ 100, 3200),
+
+-- 9. Compressor & Gas Plant Room
+(2, 9, 'Compressor & Gas Plant Room',
+ NULL,
+ 50, 200),
+
+(2, 9, 'Compressor & Gas Plant Room',
+ NULL,
+ 100, 300),
+
+-- 10. Pollution Control Measures
+(2, 10, 'Pollution Control Measures',
+ 'Incineration plant, sewage treatment plant, landscaping etc.',
+ 50, 300),
+
+(2, 10, 'Pollution Control Measures',
+ 'Incineration plant, sewage treatment plant, landscaping etc.',
+ 100, 300),
+
+-- 11. Cafeteria
+(2, 11, 'Cafeteria',
+ NULL,
+ 50, 800),
+
+(2, 11, 'Cafeteria',
+ NULL,
+ 100, 1500),
+
+-- 12. Examination Hall
+(2, 12, 'Examination Hall',
+ '125 students',
+ 50, 1800),
+
+(2, 12, 'Examination Hall',
+ '250 students',
+ 100, 3600),
+
+-- 13. Hostels
+(2, 13, 'Hostels',
+ 'For all boys & girls within campus',
+ 50, 3600),
+
+(2, 13, 'Hostels',
+ 'For all boys & girls within campus',
+ 100, 3600),
+
+-- 14. Staff Quarters
+(2, 14, 'Staff Quarters',
+ 'For all teaching & non-teaching staff',
+ 50, 3600),
+
+(2, 14, 'Staff Quarters',
+ 'For all teaching & non-teaching staff',
+ 100, 3600),
+
+-- 15. Play Ground
+(2, 15, 'Play Ground',
+ 'Indoor & outdoor facilities',
+ 50, 3600),
+
+(2, 15, 'Play Ground',
+ 'Indoor & outdoor facilities',
+ 100, 3600),
+
+-- 16. Auditorium
+(2, 16, 'Auditorium',
+ 'Capacity: 400 persons (This includes the seats, stage, lobby, and restrooms)',
+ 50, 7200),
+
+(2, 16, 'Auditorium',
+ 'Capacity: 500 persons (This includes the seats, stage, lobby, and restrooms)',
+ 100, 9000);
+
+ SELECT * FROM MstDentalInfrastructure;
+
+ CREATE TABLE DentalInfrastructure
+ (
+    Id INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
+    FacultyCode INT NOT NULL,
+    AffiliationTypeId INT NOT NULL,
+    CollegeCode NVARCHAR(100) NOT NULL,
+    HospitalDetailsId INT NOT NULL,
+    RequirementId INT NOT NULL,
+    SeatSlab INT NOT NULL,
+    RequiredAreaSqFt DECIMAL(10, 2) NOT NULL,
+    AvailableAreaSqFt DECIMAL(10, 2) NOT NULL,
+    CreatedOn DATETIME NOT NULL DEFAULT GETDATE(),
+    ModifiedOn DATETIME NULL,
+
+    CONSTRAINT Fk_DentalInfra_FacCode
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT Fk_DentalInfra_ColCode
+        FOREIGN KEY (Collegecode)
+        REFERENCES [dbo].[Affiliation_College_Master](CollegeCode),
+
+    CONSTRAINT Fk_DentalInfra_HospitalDetailsId
+        FOREIGN KEY (HospitalDetailsId)
+        REFERENCES [dbo].[HospitalDetailsForAffiliation]([HospitalDetailsID]),
+
+    CONSTRAINT Fk_DentalInfra_ReqId
+        FOREIGN KEY (RequirementId)
+        REFERENCES MstDentalInfrastructure(Id),
+
+    CONSTRAINT Fk_DentalInfra_AffType
+        FOREIGN KEY (AffiliationTypeId)
+        REFERENCES [dbo].[TypeOfAffiliation](TypeId)
+ );
+
+ 
+ --DELETE FROM MstDentalInfrastructure
+
+ SELECT * FROM DentalInfrastructure;

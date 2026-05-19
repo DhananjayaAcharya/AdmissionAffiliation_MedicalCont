@@ -101,11 +101,24 @@
                     </table>
             </div>
             <!-- Footer -->
-            <div class="table-footer">
+            <div class="table-footer" style="justify-content: space-between;">
+                <a asp-action="ChairDistribution" asp-controller="PhysicalInfrastructure"
+                   class="btn btn-outline-secondary">
+
+                    ← Previous
+
+                </a>
                 <button class="btn btn-primary save-btn px-4" type="button">
                     <i class="bi bi-save2 me-2"></i>
                     Save Chair Details
                 </button>
+                <a asp-controller="ContinuationAffiliationClinicalFacilities"
+                   asp-action="ClinicalFacilities"
+                   class="btn btn-success next-btn">
+
+                    Next →
+
+                </a>
             </div>
         </form>
 

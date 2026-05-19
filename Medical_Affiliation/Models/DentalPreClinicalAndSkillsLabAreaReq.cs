@@ -17,9 +17,9 @@ public partial class DentalPreClinicalAndSkillsLabAreaReq
 
     public string LabName { get; set; } = null!;
 
-    public decimal RequiredAreaSqM { get; set; }
+    public decimal RequiredAreaSqFt { get; set; }
 
-    public decimal? ExistingAreaSqM { get; set; }
+    public decimal? ExistingAreaSqFt { get; set; }
 
     public bool IsActive { get; set; }
 

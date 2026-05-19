@@ -57,6 +57,8 @@ public partial class HospitalDetailsForAffiliation
 
     public virtual TypeOfAffiliation AffiliationType { get; set; } = null!;
 
+    public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();
+
     public virtual ICollection<DentalService> DentalServices { get; set; } = new List<DentalService>();
 
     public virtual ICollection<DentalWardBedDistribution> DentalWardBedDistributions { get; set; } = new List<DentalWardBedDistribution>();

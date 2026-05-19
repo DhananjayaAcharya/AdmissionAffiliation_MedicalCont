@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Medical_Affiliation.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace Medical_Affiliation.Models
 {
@@ -87,6 +88,9 @@ namespace Medical_Affiliation.Models
 
         [Required(ErrorMessage = "Please specify if skills lab is enabled for e‑learning.")]
         public bool? SkillsLabEnabledForELearning { get; set; }
+
+        public List<DentalPreClinicalAndSkillsLabAreaReqVM> PreClinicalAndSkillsLabs { get; set; }
+            = new();
     }
 
 

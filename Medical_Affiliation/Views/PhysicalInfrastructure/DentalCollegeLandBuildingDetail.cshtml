@@ -1,7 +1,7 @@
 ﻿@model Medical_Affiliation.ViewModels.DentalCollegeLandBuildingViewModel
 
 @{
-    ViewData["Title"] = "Dental College Land & Building Details";
+    ViewData["Title"] = "Land & Building Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
@@ -325,12 +325,13 @@
 
             </div>
 
+
             <!-- ===================================================== -->
-            <!-- PRE CLINICAL & SKILL LABORATORIES -->
+            <!-- BUILDING INFRASTRUCTURE -->
             <!-- ===================================================== -->
 
             <div class="lb-section-title">
-                PRE CLINICAL & SKILL LABORATORIES
+                BUILDING INFRASTRUCTURE
             </div>
 
             <div class="table-responsive">
@@ -339,56 +340,91 @@
 
                     <thead>
                         <tr>
-                            <th style="width:40%">Laboratory</th>
-                            <th style="width:25%">Required Area as per DCI (Sq.m)</th>
-                            <th style="width:35%">Existing / Available Area (Sq.m)</th>
+                            <th style="width:5%">Sl. No.</th>
+
+                            <th style="width:30%">Infrastructure Requirement</th>
+
+                            <th style="width:35%">Requirement as per DCI</th>
+
+                            <th style="width:30%">Existing / Available</th>
                         </tr>
                     </thead>
 
                     <tbody>
 
-                        @if (Model.PreClinicalAndSkillsLabs != null &&
-                             Model.PreClinicalAndSkillsLabs.Any())
+                        @if (Model.InfrastructureDetails != null &&
+                             Model.InfrastructureDetails.Any())
                         {
-                            for (int i = 0; i < Model.PreClinicalAndSkillsLabs.Count; i++)
+                            for (int i = 0; i < Model.InfrastructureDetails.Count; i++)
                             {
                                 <tr>
 
+                                    <!-- Hidden Fields -->
+
+                                    <input type="hidden"
+                                           asp-for="InfrastructureDetails[@i].Id" />
+
+                                    <input type="hidden"
+                                           asp-for="InfrastructureDetails[@i].RequirementId" />
+
+                                    <input type="hidden"
+                                           asp-for="InfrastructureDetails[@i].SeatSlab" />
+
+                                    <input type="hidden"
+                                           asp-for="InfrastructureDetails[@i].RequiredAreaSqFt" />
+
+                                    <!-- Sl No -->
+
                                     <td>
-                                        @Model.PreClinicalAndSkillsLabs[i].LabName
-
-                                        <input type="hidden"
-                                               asp-for="PreClinicalAndSkillsLabs[@i].Id" />
-
-                                        <input type="hidden"
-                                               asp-for="PreClinicalAndSkillsLabs[@i].CollegeCode" />
-
-                                        <input type="hidden"
-                                               asp-for="PreClinicalAndSkillsLabs[@i].FacultyCode" />
-
-                                        <input type="hidden"
-                                               asp-for="PreClinicalAndSkillsLabs[@i].SeatIntake" />
-
-                                        <input type="hidden"
-                                               asp-for="PreClinicalAndSkillsLabs[@i].LabId" />
-
-                                        <input type="hidden"
-                                               asp-for="PreClinicalAndSkillsLabs[@i].LabName" />
-
-                                        <input type="hidden"
-                                               asp-for="PreClinicalAndSkillsLabs[@i].RequiredAreaSqM" />
+                                        @Model.InfrastructureDetails[i].SlNo
                                     </td>
+
+                                    <!-- Requirement Name -->
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @Model.InfrastructureDetails[i].RequirementName
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                       Model.InfrastructureDetails[i].RequirementDescription))
+                                        {
+                                            <small class="text-muted d-block mt-1">
+                                                @Model.InfrastructureDetails[i].RequirementDescription
+                                            </small>
+                                        }
+                                    </td>
+
+                                    <!-- DCI Requirement -->
 
                                     <td class="requirement-cell">
-                                        @Model.PreClinicalAndSkillsLabs[i].RequiredAreaSqM Sq.m
+
+                                        @if (Model.InfrastructureDetails[i].RequiredAreaSqFt > 0)
+                                        {
+                                            <span>
+                                                @Model.InfrastructureDetails[i].RequiredAreaSqFt Sq.ft.
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>N/A</span>
+                                        }
+
                                     </td>
 
-                                    <td>
-                                        <input asp-for="PreClinicalAndSkillsLabs[@i].ExistingAreaSqM"
-                                               class="form-control" />
+                                    <!-- Available Area -->
 
-                                        <span asp-validation-for="PreClinicalAndSkillsLabs[@i].ExistingAreaSqM"
-                                              class="text-danger"></span>
+                                    <td>
+
+                                        <input asp-for="InfrastructureDetails[@i].AvailableAreaSqFt"
+                                               class="form-control"
+                                               type="number"
+                                               step="0.01" />
+
+                                        <span asp-validation-for="InfrastructureDetails[@i].AvailableAreaSqFt"
+                                              class="text-danger">
+                                        </span>
+
                                     </td>
 
                                 </tr>
@@ -397,8 +433,8 @@
                         else
                         {
                             <tr>
-                                <td colspan="3" class="text-center text-muted">
-                                    No Pre Clinical / Skill Laboratory norms configured.
+                                <td colspan="4" class="text-center text-muted">
+                                    No infrastructure requirements configured.
                                 </td>
                             </tr>
                         }
@@ -1263,8 +1299,8 @@
 
                     </button>
 
-                    <a asp-controller="Test"
-                       asp-action="Test"
+                    <a asp-controller="PhysicalInfrastructure"
+                       asp-action="DentalSkillsLaboratory"
                        class="btn btn-success next-btn">
 
                         Next →

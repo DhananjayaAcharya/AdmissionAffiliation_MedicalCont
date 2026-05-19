@@ -210,8 +210,10 @@ namespace Medical_Affiliation.Models
 
         public string CourseLevel { get; set; }
         public List<SectionViewModel> Sections { get; set; } = new();
+        public List<DentalWardBedDistributionVm> DentalWardBedDistribution { get; set; }
 
     }
+
     public class HospitalFacilitiesViewModel
     {
         public int HospitalDetailsId { get; set; }
@@ -341,6 +343,22 @@ namespace Medical_Affiliation.Models
         public int SeatIntake { get; set; }
         public int SeatSlab { get; set; }
 
+    }
+
+    public class DentalWardBedDistributionVm
+    {
+        public int WardId { get; set; }
+
+        public string WardName { get; set; } = null!;
+
+        public int SeatSlab { get; set; }
+
+        public int BedsRequired { get; set; }
+
+        public int? BedsPresent { get; set; }
+        public int FacultyCode { get; set; }
+        public string CollegeCode { get; set; }
+        public int HospitalDetailsId { get; set; }
     }
 
     public class DisciplinePostVM
