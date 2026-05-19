@@ -1,0 +1,160 @@
+@model Medical_Affiliation.Models.MyApplicationStatusVM
+@{
+    ViewData["Title"] = "My Application Status";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";   // use your existing college layout
+}
+
+<style>
+:root{
+    --navy:#0c1f3f; --navy2:#1a3461; --gold:#c9903a;
+    --cream:#f7f4ef; --white:#fff; --border:#e2ddd5;
+    --green:#1a7a4a; --amber:#d97706; --red:#c0392b;
+    --text:#1a1a2e; --muted:#6b6880; --radius:10px;
+    --shadow:0 4px 24px rgba(12,31,63,.10);
+}
+*,*::before,*::after{box-sizing:border-box;}
+
+.ms-wrap{max-width:900px;margin:32px auto;padding:0 20px 60px;}
+
+/* Header card */
+.ms-hero{
+    background:linear-gradient(135deg,var(--navy),var(--navy2));
+    border-radius:var(--radius);padding:28px 32px;
+    display:flex;align-items:center;gap:24px;
+    margin-bottom:24px;color:#fff;
+    box-shadow:var(--shadow);
+}
+.ms-donut-wrap{position:relative;width:120px;height:120px;flex-shrink:0;}
+.ms-donut-wrap canvas{width:120px!important;height:120px!important;}
+.ms-donut-center{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    text-align:center;pointer-events:none;
+}
+.ms-donut-pct{font-size:1.5rem;font-weight:800;color:#fff;line-height:1;}
+.ms-donut-lbl{font-size:.6rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;}
+.ms-hero-text h2{font-size:1.4rem;font-weight:700;margin-bottom:4px;}
+.ms-hero-text p{font-size:.82rem;color:rgba(255,255,255,.6);}
+.ms-hero-stat{margin-top:10px;display:flex;gap:18px;}
+.ms-stat-item{text-align:center;}
+.ms-stat-val{font-size:1.4rem;font-weight:800;}
+.ms-stat-lbl{font-size:.62rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;}
+
+/* Step groups */
+.step-card{
+    background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+    margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden;
+}
+.step-card-header{
+    padding:13px 18px;background:linear-gradient(180deg,#f5f2ec,#ede8df);
+    border-bottom:1px solid var(--border);display:flex;align-items:center;
+    justify-content:space-between;
+}
+.step-card-title{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--navy);}
+.step-card-count{font-size:.7rem;color:var(--muted);font-weight:500;}
+.step-card-body{padding:14px 18px;}
+.step-row{
+    display:flex;align-items:center;gap:12px;
+    padding:8px 10px;border-radius:7px;margin-bottom:4px;
+    font-size:.83rem;transition:background .12s;
+}
+.step-row:hover{background:#f8f5ee;}
+.step-row.done{color:var(--green);}
+.step-row.pend{color:var(--muted);}
+.step-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;}
+.step-icon.done{background:#e6f4ee;color:var(--green);}
+.step-icon.pend{background:#f3f0e8;color:#aaa;}
+.step-label{flex:1;}
+.step-tag{font-size:.62rem;padding:2px 8px;border-radius:99px;font-weight:600;}
+.step-tag.done{background:#e6f4ee;color:var(--green);}
+.step-tag.pend{background:#fde8e8;color:var(--red);}
+
+/* Progress bar */
+.ms-prog-bar{height:6px;background:#ede8df;border-radius:99px;overflow:hidden;margin:8px 0 4px;}
+.ms-prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#e8b45a);transition:width .6s ease;}
+</style>
+
+<div class="ms-wrap">
+
+    <!-- Hero card with donut -->
+    <div class="ms-hero">
+        <div class="ms-donut-wrap">
+            <canvas id="myDonut"></canvas>
+            <div class="ms-donut-center">
+                <div class="ms-donut-pct">@Model.Percentage%</div>
+                <div class="ms-donut-lbl">Done</div>
+            </div>
+        </div>
+        <div class="ms-hero-text">
+            <h2>Your Application Status</h2>
+            <p>College Code: @Model.CollegeCode &nbsp;·&nbsp; Levels: @string.Join(", ", Model.Levels)</p>
+            <div class="ms-hero-stat">
+                <div class="ms-stat-item">
+                    <div class="ms-stat-val" style="color:#6dd49a;">@Model.DoneSteps</div>
+                    <div class="ms-stat-lbl">Filled</div>
+                </div>
+                <div class="ms-stat-item">
+                    <div class="ms-stat-val" style="color:#f0b8b8;">@(Model.TotalSteps - Model.DoneSteps)</div>
+                    <div class="ms-stat-lbl">Remaining</div>
+                </div>
+                <div class="ms-stat-item">
+                    <div class="ms-stat-val">@Model.TotalSteps</div>
+                    <div class="ms-stat-lbl">Total Pages</div>
+                </div>
+            </div>
+            <div class="ms-prog-bar" style="margin-top:14px;height:8px;">
+                <div class="ms-prog-fill" style="width:@Model.Percentage%"></div>
+            </div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.45);">@Model.DoneSteps of @Model.TotalSteps pages completed</div>
+        </div>
+    </div>
+
+    <!-- Step groups -->
+    @foreach (var grp in Model.StepGroups)
+    {
+        int grpDone  = grp.Steps.Count(s => s.Completed);
+        int grpTotal = grp.Steps.Count;
+
+        <div class="step-card">
+            <div class="step-card-header">
+                <span class="step-card-title">@grp.GroupName</span>
+                <span class="step-card-count">@grpDone / @grpTotal completed</span>
+            </div>
+            <div class="step-card-body">
+                @foreach (var step in grp.Steps)
+                {
+                    var cls = step.Completed ? "done" : "pend";
+                    <div class="step-row @cls">
+                        <div class="step-icon @cls">@(step.Completed ? "✓" : "○")</div>
+                        <span class="step-label">@step.Label</span>
+                        <span class="step-tag @cls">@(step.Completed ? "Filled" : "Pending")</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        new Chart(document.getElementById('myDonut'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Remaining'],
+                datasets: [{
+                    data: [@Model.DoneSteps, @(Model.TotalSteps - Model.DoneSteps)],
+                    backgroundColor: ['#1a7a4a', 'rgba(255,255,255,0.15)'],
+                    borderColor: ['transparent','transparent'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: false,
+                cutout: '72%',
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+    </script>
+}
