@@ -359,7 +359,9 @@
                 }
             </div>
         </div>
-        <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
+
+        @*code added by ram on 19-05-2026 , commented static code , added updated dyanmic code below *@
+       @*  <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
 
                 <!-- 🔙 PREVIOUS -->
                 <a href="@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")"
@@ -373,7 +375,73 @@
                     Next →
                 </a>
 
-            </div>
+            </div> *@
+
+        <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
+
+            @{
+                var rawLevels = Context.Session.GetString("ExistingCourseLevels");
+
+                List<string> levels;
+
+                if (string.IsNullOrWhiteSpace(rawLevels))
+                {
+                    levels = new List<string>();
+                }
+                else
+                {
+                    try
+                    {
+                        levels = System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(rawLevels)?
+                        .Select(x => x.Trim().ToUpper())
+                        .Distinct()
+                        .ToList()
+                        ?? new List<string>();
+                    }
+                    catch
+                    {
+                        levels = rawLevels.Split(',')
+                        .Select(x => x.Trim().ToUpper())
+                        .Distinct()
+                        .ToList();
+                    }
+                }
+
+                string prevController;
+                string prevAction;
+
+                if (levels.Contains("SS"))
+                {
+                    prevController = "Aff_CA_SS_CoursesAppliedSS";
+                    prevAction = "CA_SS_CoursesApplied";
+                }
+                else if (levels.Contains("PG"))
+                {
+                    prevController = "AffiliationPgCourse";
+                    prevAction = "PgCourses";
+                }
+                else
+                {
+                    prevController = "ContinuesAffiliation_Facultybased";
+                    prevAction = "Details_Of_MBBS";
+                }
+            }
+
+            <!-- PREVIOUS -->
+            <a asp-controller="@prevController"
+               asp-action="@prevAction"
+               class="btn btn-prev">
+                ← Previous
+            </a>
+
+            <!-- NEXT -->
+            <a href="@Url.Action("CoursesOffered", "AffiliationSS")"
+               class="btn btn-next">
+                Next →
+            </a>
+
+        </div>
     </div>
 </form>
 
@@ -431,8 +499,25 @@
                                     <input type="hidden" name="@(p).CourseName" value="@c.CourseName" />
                                 </td>
                                 @* 2024-25 *@
-                                <td class="cc"><input type="number" class="ni" name="@(p).AY2024_ExistingIntake" value="@c.AY2024_ExistingIntake" min="0" data-r="e24" /></td>
-                                <td class="cc"><input type="number" class="ni" name="@(p).AY2024_IncreaseIntake" value="@c.AY2024_IncreaseIntake" min="0" data-r="i24" /></td>
+                                @*below code added by ram - changes made : for the below 2 td, made it read only*@
+
+                                <td class="cc">
+                                    <input type="number" class="ni"
+                                           name="@(p).AY2024_ExistingIntake"
+                                           value="@c.AY2024_ExistingIntake"
+                                           min="0"
+                                           data-r="e24"
+                                           readonly />
+                                </td>
+
+                                <td class="cc">
+                                    <input type="number" class="ni"
+                                           name="@(p).AY2024_IncreaseIntake"
+                                           value="@c.AY2024_IncreaseIntake"
+                                           min="0"
+                                           data-r="i24"
+                                           readonly />
+                                </td>
                                 <td class="cc">
                                     <span class="cf2" data-r="t24">@c.AY2024_TotalIntake</span>
                                     <input type="hidden" name="@(p).AY2024_TotalIntake" data-h="t24" value="@c.AY2024_TotalIntake" />
@@ -484,22 +569,58 @@
         });
     });
 
-    // LIVE RECALC
-    function recalcRow(row) {
+    @* LIVE RECALC
+
+    //Karthik Code commented by ram on 19-05-26, replaced this with new logic code below 
+
+    // function recalcRow(row) {
+    //     const val = r => +(row.querySelector(`[data-r="${r}"]`)?.value
+    //                     ?? row.querySelector(`[data-r="${r}"]`)?.textContent
+    //                     ?? 0);
+    //     const set = (r, v) => {
+    //         const sp = row.querySelector(`[data-r="${r}"]`);
+    //         const hd = row.querySelector(`[data-h="${r}"]`);
+    //         if (sp) sp.textContent = v;
+    //         if (hd) hd.value = v;
+    //     };
+    //     const t24 = val('e24') + val('i24'); set('t24', t24);
+    //     const t25 = val('e25') + val('l25'); set('t25', t25);
+    //     set('e26', t25);
+    //     set('t26', t25 + val('r26'));
+    // }*@
+
+        function recalcRow(row) {
+
         const val = r => +(row.querySelector(`[data-r="${r}"]`)?.value
-                        ?? row.querySelector(`[data-r="${r}"]`)?.textContent
-                        ?? 0);
+            ?? row.querySelector(`[data-r="${r}"]`)?.textContent
+            ?? 0);
+
         const set = (r, v) => {
             const sp = row.querySelector(`[data-r="${r}"]`);
             const hd = row.querySelector(`[data-h="${r}"]`);
             if (sp) sp.textContent = v;
             if (hd) hd.value = v;
         };
-        const t24 = val('e24') + val('i24'); set('t24', t24);
-        const t25 = val('e25') + val('l25'); set('t25', t25);
+
+        // 2024 Total
+        const t24 = val('e24') + val('i24');
+        set('t24', t24);
+
+        // 2025 Existing = 2024 Total
+        const e25Input = row.querySelector('[data-r="e25"]');
+        if (e25Input) {
+            e25Input.value = t24;
+        }
+
+        // 2025 Total
+        const t25 = t24 + val('l25');
+        set('t25', t25);
+
+        // 2026
         set('e26', t25);
         set('t26', t25 + val('r26'));
     }
+
     document.querySelectorAll('table.t tbody tr').forEach(row => {
         row.querySelectorAll('input[type="number"]').forEach(i => i.addEventListener('input', () => recalcRow(row)));
         recalcRow(row);
