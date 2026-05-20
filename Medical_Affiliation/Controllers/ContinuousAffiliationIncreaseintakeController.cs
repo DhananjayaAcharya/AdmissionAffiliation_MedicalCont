@@ -318,5 +318,22 @@ namespace Medical_Affiliation.Controllers
             .OrderBy(x => x.CourseLevel == "UG" ? 1 : x.CourseLevel == "PG" ? 2 : 3)
             .ToList();
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ViewNmcDocument(int id)
+        {
+            var doc = await _context.AcademicIntakes
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (doc == null || doc.Ay2025NmcDocument == null)
+                return NotFound();
+
+            Response.Headers.Add("Content-Disposition", "inline");
+
+            return File(
+                doc.Ay2025NmcDocument,
+                "application/pdf");
+        }
     }
 }

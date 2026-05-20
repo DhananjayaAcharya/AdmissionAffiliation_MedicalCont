@@ -87,6 +87,7 @@ namespace Medical_Affiliation.Controllers
 
             //ModelState.Clear()/*;*/
             return View("Med_CA_FinanceDetails", vm);
+            //return View("Med_CA_FinanceDetails", new Med_CA_AccountAndFeeDetailsPageVM()); // Simplified for brevity, keep your full code
         }
 
         [HttpPost]
@@ -282,6 +283,7 @@ namespace Medical_Affiliation.Controllers
 
             ContinuousAffiliationController.MarkDone(HttpContext, "FinancialDetails");
 
+            //return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
             return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
         }
 
@@ -289,28 +291,36 @@ namespace Medical_Affiliation.Controllers
 
         // View PDF actions (keep these)
         [HttpGet]
-        public async Task<IActionResult> ViewGoverningCouncilPdf()
+        public async Task<IActionResult> ViewGoverningCouncilPdf(string courseLevel)
         {
-            return await GetPdf("GoverningCouncil");
+            return await GetPdf("GoverningCouncil", courseLevel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ViewAccountSummaryPdf()
+        public async Task<IActionResult> ViewAccountSummaryPdf(string courseLevel)
         {
-            return await GetPdf("AccountSummary");
+            return await GetPdf("AccountSummary", courseLevel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ViewAuditedStatementPdf()
+        public async Task<IActionResult> ViewAuditedStatementPdf(string courseLevel)
         {
-            return await GetPdf("AuditedStatement");
+            return await GetPdf("AuditedStatement", courseLevel);
         }
 
-        private async Task<IActionResult> GetPdf(string type)
+        [HttpGet]
+        public async Task<IActionResult> ViewDonationPdf(string courseLevel)
+        {
+            return await GetPdf("Donation", courseLevel);
+        }
+
+        private async Task<IActionResult> GetPdf(string type, string courseLevel)
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            if (string.IsNullOrEmpty(courseLevel))
+                return NotFound("Course level not specified.");
 
             var record = await _context.MedCaAccountAndFeeDetails
                 .FirstOrDefaultAsync(x =>
@@ -318,14 +328,14 @@ namespace Medical_Affiliation.Controllers
                     x.FacultyCode == facultyCode &&
                     x.CourseLevel == courseLevel);
 
-            if (record == null) return NotFound();
+            if (record == null) return NotFound("Record not found.");
 
-            // 🔥 Get file path
             string? filePath = type switch
             {
                 "GoverningCouncil" => record.GoverningCouncilPdfPath,
                 "AccountSummary" => record.AccountSummaryPdfPath,
                 "AuditedStatement" => record.AuditedStatementPdfPath,
+                "Donation" => record.DonationPdfPath,
                 _ => null
             };
 
@@ -334,25 +344,19 @@ namespace Medical_Affiliation.Controllers
                 "GoverningCouncil" => record.GoverningCouncilPdfName,
                 "AccountSummary" => record.AccountSummaryPdfName,
                 "AuditedStatement" => record.AuditedStatementPdfName,
+                "Donation" => record.DonationPdfName,
                 _ => null
             };
 
-            // 🔴 Validation
             if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
-                return NotFound("File not found");
+                return NotFound("File not found on server.");
 
             var fileName = string.IsNullOrEmpty(name) ? Path.GetFileName(filePath) : name;
-
-            // 🔥 Detect content type dynamically
             var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
             if (!provider.TryGetContentType(filePath, out string contentType))
-            {
                 contentType = "application/octet-stream";
-            }
 
-            // 👀 Inline preview
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
-
             return PhysicalFile(filePath, contentType);
         }
         private async Task<string?> SaveFinanceFileAsync(IFormFile file, string folder)
@@ -360,21 +364,71 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "FinanceDetails");
-            string fullFolder = Path.Combine(basePath, folder);
-
-            if (!Directory.Exists(fullFolder))
-                Directory.CreateDirectory(fullFolder);
-
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
-
-            using (var stream = new FileStream(fullPath, FileMode.Create))
+            try
             {
-                await file.CopyToAsync(stream);
+                // 1. Get a valid root path (handles E: -> D: -> C: -> Live Server)
+                string rootPath = GetDynamicRootPath();
+
+                // 2. Combine with "FinanceDetails" and the specific subfolder
+                // Result: E:\Affiliation_Medical\FinanceDetails\GoverningCouncil
+                string fullFolderPath = Path.Combine(rootPath, "FinanceDetails", folder);
+
+                // 3. Create all directories in the path if they don't exist
+                if (!Directory.Exists(fullFolderPath))
+                {
+                    Directory.CreateDirectory(fullFolderPath);
+                }
+
+                // 4. Generate unique filename
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string fullFilePath = Path.Combine(fullFolderPath, fileName);
+
+                // 5. Save the file
+                using (var stream = new FileStream(fullFilePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return fullFilePath;
+            }
+            catch (Exception ex)
+            {
+                // Log the error and return null so the application doesn't crash
+                Console.WriteLine($"File Upload Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        private string GetDynamicRootPath()
+        {
+            string folderName = "Affiliation_Medical";
+            string[] drivePriorities = { "E:\\", "D:\\", "C:\\" };
+
+            // 1. Try preferred local drives first
+            foreach (var drive in drivePriorities)
+            {
+                try
+                {
+                    // Check if drive exists and is accessible
+                    if (Directory.Exists(drive))
+                    {
+                        string targetPath = Path.Combine(drive, folderName);
+
+                        // Try to create the folder to check for write permissions
+                        if (!Directory.Exists(targetPath))
+                        {
+                            Directory.CreateDirectory(targetPath);
+                        }
+                        return targetPath;
+                    }
+                }
+                catch { /* Ignore and try next drive */ }
             }
 
-            return fullPath;
+            // 2. FALLBACK: If no specific drive is available (typical for Live Hosting),
+            //brainchild use the Application's base directory.
+    // This ensures the app works on any server without needing a specific drive letter.
+    return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads", folderName);
         }
 
     }

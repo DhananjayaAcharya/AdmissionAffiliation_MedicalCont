@@ -154,12 +154,14 @@ var authSchemes = new[]
           Cookie = "Finance.Cookie",        Login = "/Admin/AdminLogin",       Logout = "/Admin/FinanceLogout",   AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
 };
 
-var authBuilder = builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-});
+var authBuilder = builder.Services.AddAuthentication();
+
+//var authBuilder = builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//});
 
 foreach (var s in authSchemes)
 {
@@ -170,8 +172,8 @@ foreach (var s in authSchemes)
         options.AccessDeniedPath = s.AccessDenied;
         options.Cookie.Name = s.Cookie;
         options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.None;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.Cookie.Path = "/";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(s.ExpireMinutes);
         options.SlidingExpiration = true;
@@ -192,6 +194,22 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 52428800; // 50 MB
+});
+
+
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // =============================================
 // 🔹 Build App
@@ -257,7 +275,7 @@ app.UseAuthentication();
 
 // =============================================
 // 🔹 Custom Session Middlewares
-// =============================================b
+// =============================================
 app.UseMiddleware<Medical_Affiliation.Utilities.AdminSessionMiddleware>();
 app.UseMiddleware<Medical_Affiliation.Utilities.CollegeSessionMiddleware>();
 app.UseMiddleware<Medical_Affiliation.Utilities.SectionOfficerSessionMiddleware>();

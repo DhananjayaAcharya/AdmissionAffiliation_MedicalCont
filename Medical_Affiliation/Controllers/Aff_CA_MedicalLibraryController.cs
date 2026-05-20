@@ -658,9 +658,12 @@ namespace Medical_Affiliation.Controllers
             // saving UG/PG/SS separately.
             // Save only once using current course level.
 
+            //var courseLevel =
+            //    HttpContext.Session.GetString(
+            //        "CourseLevel");
+
             var courseLevel =
-                HttpContext.Session.GetString(
-                    "CourseLevel");
+        HttpContext.Session.GetString("CourseLevel") ?? "UG";
 
             foreach (var item in model.Equipments)
             {

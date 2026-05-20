@@ -577,7 +577,11 @@
 
                                             @if (!string.IsNullOrEmpty(item.GoverningCouncilPdfName))
                                             {
-                                                <a class="btn-view-pdf">📄 View — @item.GoverningCouncilPdfName</a>
+                                                @* FIX: Added asp-action, asp-route, and target="_blank" *@
+                                                <a asp-action="ViewGoverningCouncilPdf"
+                                                   asp-route-courseLevel="@item.CourseLevel"
+                                                   target="_blank"
+                                                   class="btn-view-pdf">📄 View — @item.GoverningCouncilPdfName</a>
                                             }
                                         </div>
                                     </div>
@@ -649,7 +653,10 @@
 
                                             @if (!string.IsNullOrEmpty(item.AccountSummaryPdfName))
                                             {
-                                                <a class="btn-view-pdf">📄 View — @item.AccountSummaryPdfName</a>
+                                                <a asp-action="ViewAccountSummaryPdf"
+                                                   asp-route-courseLevel="@item.CourseLevel"
+                                                   target="_blank"
+                                                   class="btn-view-pdf">📄 View — @item.AccountSummaryPdfName</a>
                                             }
                                         </div>
                                     </div>
@@ -671,7 +678,10 @@
 
                                             @if (!string.IsNullOrEmpty(item.AuditedStatementPdfName))
                                             {
-                                                <a class="btn-view-pdf">📄 View — @item.AuditedStatementPdfName</a>
+                                                <a asp-action="ViewAuditedStatementPdf"
+                                                   asp-route-courseLevel="@item.CourseLevel"
+                                                   target="_blank"
+                                                   class="btn-view-pdf">📄 View — @item.AuditedStatementPdfName</a>
                                             }
                                         </div>
                                     </div>
@@ -695,7 +705,10 @@
 
                                                 @if (!string.IsNullOrEmpty(item.DonationPdfName))
                                                 {
-                                                    <a class="btn-view-pdf">📄 View — @item.DonationPdfName</a>
+                                                    <a asp-action="ViewDonationPdf"
+                                                       asp-route-courseLevel="@item.CourseLevel"
+                                                       target="_blank"
+                                                       class="btn-view-pdf">📄 View — @item.DonationPdfName</a>
                                                 }
                                             </div>
                                         </div>
@@ -708,7 +721,76 @@
                 </div>   
             
                 <div class="form-footer">
-                    <button type="submit" class="btn-save">Save</button>
+
+                    @{
+                        var rawLevels = Context.Session.GetString("ExistingCourseLevels");
+
+                        List<string> levels;
+
+                        if (string.IsNullOrWhiteSpace(rawLevels))
+                        {
+                            levels = new List<string>();
+                        }
+                        else
+                        {
+                            try
+                            {
+                                levels = System.Text.Json.JsonSerializer
+                                .Deserialize<List<string>>(rawLevels)?
+                                .Select(x => x.Trim().ToUpper())
+                                .Distinct()
+                                .ToList()
+                                ?? new List<string>();
+                            }
+                            catch
+                            {
+                                levels = rawLevels.Split(',')
+                                .Select(x => x.Trim().ToUpper())
+                                .Distinct()
+                                .ToList();
+                            }
+                        }
+
+                        string prevController = "CA_Aff_AcademicMatters";
+                        string prevAction;
+
+                        // ONLY PG decides PG page
+                        if (levels.Contains("PG"))
+                        {
+                            prevAction = "AcademicMattersPG";
+                        }
+                        else
+                        {
+                            prevAction = "AcademicMatters";
+                        }
+                    }
+
+                    <!-- LEFT SIDE -->
+                    <div class="nav-controls">
+
+                        <!-- PREVIOUS -->
+                        <a asp-controller="@prevController"
+                           asp-action="@prevAction"
+                           class="btn-prev">
+                            ← Previous
+                        </a>
+
+                        <!-- RIGHT SIDE -->
+                        <button type="submit" class="btn-save">
+                            Save
+                        </button>
+
+                        <!-- NEXT -->
+                        <a asp-controller="CA_Med_StaffDetails"
+                           asp-action="CA_Med_StaffDetails"
+                           class="btn-next">
+                            Next →
+                        </a>
+
+                    </div>
+
+                   
+
                 </div>
             </form>
         </div>
