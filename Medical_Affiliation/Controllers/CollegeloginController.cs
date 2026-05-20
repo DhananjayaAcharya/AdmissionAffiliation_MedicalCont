@@ -109,7 +109,7 @@ namespace Admission_Affiliation.Controllers
             return RedirectToAction("Dashboard");
         }
 
-        [Authorize(Policy = "CollegeOnly")]
+        [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [HttpGet]
         public IActionResult Dashboard()
         {

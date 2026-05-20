@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -74,79 +75,7 @@ namespace Medical_Affiliation.Controllers
             return Json(new { newCaptcha });
         }
 
-        //[HttpPost]
-        //public IActionResult Login(AdmissionLoginViewModel model)
-        //{
-        //    model.Faculties = _context.Faculties
-        //        .Where(f => f.Status == "Active")
-        //        .OrderBy(f => f.FacultyName)
-        //        .Select(f => new SelectListItem
-        //        {
-        //            Value = f.FacultyId.ToString(),
-        //            Text = f.FacultyName ?? "Unnamed Faculty"
-        //        })
-        //        .ToList();
-
-
-        //    model.Colleges = _context.AffiliationCollegeMasters
-        //        .Where(c => c.FacultyCode == model.FacultyId)
-        //        .Select(c => new SelectListItem
-        //        {
-        //            Value = c.CollegeCode.ToString(),
-        //            Text = c.CollegeName
-        //        }).ToList();
-
-        //    if (!ModelState.IsValid)
-        //    {
-        //        model.CaptchaCode = GenerateCaptchaCode();
-        //        TempData["CaptchaCode"] = model.CaptchaCode;
-        //        return View(model);
-        //    }
-
-        //    if (model.Captcha != TempData["CaptchaCode"]?.ToString())
-        //    {
-        //        ModelState.AddModelError("Captcha", "Invalid Captcha.");
-        //        model.CaptchaCode = GenerateCaptchaCode();
-        //        TempData["CaptchaCode"] = model.CaptchaCode;
-        //        return View(model);
-        //    }
-
-        //    // Validate user from your DB
-        //    var user = _context.AffiliationCollegeMasters.FirstOrDefault(u =>
-        //        u.FacultyCode == model.FacultyId &&
-        //        u.CollegeCode == model.CollegeId &&
-        //        u.CollegeCode == model.Username &&
-        //        u.Password == model.Password);
-
-        //    if (user == null)
-        //    {
-        //        ModelState.AddModelError(string.Empty, "Invalid login credentials.");
-        //        model.CaptchaCode = GenerateCaptchaCode();
-        //        TempData["CaptchaCode"] = model.CaptchaCode;
-        //        return View(model);
-        //    }
-
-        //    if (string.IsNullOrEmpty(user.ChangedPassword))
-        //    {
-        //        TempData["ShowWelcomePopup"] = true;
-        //        TempData["CollegeName"] = user.CollegeName ?? "College";
-
-        //        // Store session if needed
-        //        HttpContext.Session.SetString("CollegeCode", user.CollegeCode);
-        //        HttpContext.Session.SetString("CollegeName", user.CollegeName ?? "");
-
-        //        return RedirectToAction("GetExpectedDetails", "Collegelogin", new
-        //        {
-        //            collegecode = user.CollegeCode,
-        //            showPasswordPopup = true
-        //        });
-
-        //    }
-        //    ViewBag.AffilitaionType = 2;
-        //    var FacultyName = _context.Faculties.Where(e=>e.FacultyId.ToString()==user.FacultyCode).Select(e=>e.FacultyName).FirstOrDefault();
-        //    // Redirect to dashboard
-        //    return RedirectToAction("GetExpectedDetails", "Collegelogin" , new { collegecode = model.Username});
-        //}
+     
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -884,6 +813,34 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> UpdatePassword(UpdatePassword model)
+        //{
+        //    if (model == null || string.IsNullOrEmpty(model.CollegeCode))
+        //        return BadRequest("Invalid request");
+
+        //    var college = await _context.AffiliationCollegeMasters.FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode);
+
+        //    if (college == null) return NotFound();
+
+        //    if (string.IsNullOrWhiteSpace(model.UpdatedPassword))
+        //        return BadRequest("Password required");
+
+        //    college.Password = model.UpdatedPassword;
+        //    college.ChangedPassword = model.UpdatedPassword;
+        //    var passwordHasher = new PasswordHasher<AffiliationCollegeMaster>();
+        //    college.HashedPassword = passwordHasher.HashPassword(college, college.Password);
+
+        //    await _context.SaveChangesAsync();
+
+        //    TempData["ChangedPassword"] = "Password updated successfully";
+
+        //    return RedirectToAction("Dashboard","CollegeLogin");
+
+        //}
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePassword(UpdatePassword model)
@@ -891,24 +848,60 @@ namespace Medical_Affiliation.Controllers
             if (model == null || string.IsNullOrEmpty(model.CollegeCode))
                 return BadRequest("Invalid request");
 
-            var college = await _context.AffiliationCollegeMasters.FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode);
+            var college = await _context.AffiliationCollegeMasters
+                .FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode);
 
-            if (college == null) return NotFound();
+            if (college == null)
+                return NotFound();
 
             if (string.IsNullOrWhiteSpace(model.UpdatedPassword))
-                return BadRequest("Password required");
+            {
+                TempData["Error"] = "Password is required";
+                return RedirectToAction("Dashboard", "CollegeLogin");
+            }
 
+            // Strong Password Validation
+            var passwordRegex = new Regex(
+                @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$"
+            );
+
+            if (!passwordRegex.IsMatch(model.UpdatedPassword))
+            {
+                TempData["Error"] =
+                    "Password must be 8-20 characters and include uppercase, lowercase, number, and special character.";
+
+                return RedirectToAction("Dashboard", "CollegeLogin");
+            }
+
+            // Optional: Prevent same password reuse
+            var passwordHasher = new PasswordHasher<AffiliationCollegeMaster>();
+
+            var passwordCheck = passwordHasher.VerifyHashedPassword(
+                college,
+                college.HashedPassword ?? "",
+                model.UpdatedPassword
+            );
+
+            if (passwordCheck == PasswordVerificationResult.Success)
+            {
+                TempData["Error"] =
+                    "New password cannot be same as old password.";
+
+                return RedirectToAction("Dashboard", "CollegeLogin");
+            }
+
+            // Save Password
             college.Password = model.UpdatedPassword;
             college.ChangedPassword = model.UpdatedPassword;
-            var passwordHasher = new PasswordHasher<AffiliationCollegeMaster>();
-            college.HashedPassword = passwordHasher.HashPassword(college, college.Password);
+
+            college.HashedPassword =
+                passwordHasher.HashPassword(college, model.UpdatedPassword);
 
             await _context.SaveChangesAsync();
 
             TempData["ChangedPassword"] = "Password updated successfully";
 
-            return RedirectToAction("Dashboard","CollegeLogin");
-
+            return RedirectToAction("Dashboard", "CollegeLogin");
         }
 
 

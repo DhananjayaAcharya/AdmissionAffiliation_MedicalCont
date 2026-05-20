@@ -773,9 +773,20 @@
             }
 
             <div class="sidebar-divider" style="margin-top:auto;"></div>
-            <a class="sidebar-link logout" href="#">
-                <i class="bi bi-box-arrow-right"></i> Sign Out
-            </a>
+            <form asp-controller="Admin"
+                  asp-action="Logout"
+                  method="post"
+                  style="margin:0;">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="sidebar-link logout border-0 bg-transparent w-100 text-start">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Sign Out
+                </button>
+            </form>
         </nav>
     </aside>
 
@@ -809,10 +820,10 @@
                 </div>
                 <a asp-action="AddCollege" class="action-btn"><i class="bi bi-building-add"></i> Add New College</a>
                 <a asp-action="AddCourse" class="action-btn"><i class="bi bi-journal-plus"></i> Add Course to College</a>
-                <a asp-action="AddCourseToMstCourse" class="action-btn"><i class="bi bi-book"></i> Add to Course Master</a>
+              @*   <a asp-action="AddCourseToMstCourse" class="action-btn"><i class="bi bi-book"></i> Add to Course Master</a>
                 <a asp-action="AddDepartmentToDepartmentMaster" class="action-btn"><i class="bi bi-diagram-3"></i> Add Department</a>
                 <a asp-action="NodalOfficersForAdmin" class="action-btn"><i class="bi bi-person-badge-fill"></i> Manage Nodal Officers</a>
-                <a asp-action="TabsToggle" class="action-btn"><i class="bi bi-layout-sidebar-inset"></i> Sidebar Settings</a>
+                <a asp-action="TabsToggle" class="action-btn"><i class="bi bi-layout-sidebar-inset"></i> Sidebar Settings</a> *@
             </div>
 
             <!-- Reports -->
@@ -821,12 +832,12 @@
                     <div class="panel-icon teal"><i class="bi bi-bar-chart-steps"></i></div>
                     <div class="panel-title">Reports &amp; Approvals</div>
                 </div>
-                <a asp-action="Dashboard" asp-route-facultyId="@ViewBag.FacultyId" class="action-btn"><i class="bi bi-bar-chart-line"></i> College Intake Report</a>
+               @*  <a asp-action="Dashboard" asp-route-facultyId="@ViewBag.FacultyId" class="action-btn"><i class="bi bi-bar-chart-line"></i> College Intake Report</a>
                 <a asp-action="AdminDocumentReport" class="action-btn"><i class="bi bi-file-earmark-check"></i> College Documents Report</a>
                 <a asp-action="AdminDocumentIncompleteReport" class="action-btn"><i class="bi bi-exclamation-triangle"></i> Incomplete Intake Report</a>
                 <a asp-action="CollegeWiseReport" class="action-btn"><i class="bi bi-building-check"></i> College-Wise Summary</a>
                 <a asp-action="NodalOfficerReport" class="action-btn"><i class="bi bi-people"></i> Nodal Officer Report</a>
-                <a asp-action="AdminGetUpdatedRGUHSIntakeBySectionOfficer" class="action-btn"><i class="bi bi-check2-square"></i> Approve Section Intake</a>
+                <a asp-action="AdminGetUpdatedRGUHSIntakeBySectionOfficer" class="action-btn"><i class="bi bi-check2-square"></i> Approve Section Intake</a> *@
                
                 @* below Code added by ram  *@
 

@@ -335,11 +335,17 @@
                                     <td style="text-align:center">
                                         @if (row.HasNmcDocument)
                                         {
-                                            <span class="pill py">&#10003; Uploaded</span>
+                                            <a asp-action="ViewNmcDocument"
+                                               asp-controller="ContinuousAffiliationIncreaseintake"
+                                               asp-route-id="@row.Id"
+                                               target="_blank"
+                                               class="pill py"
+                                               style="text-decoration:none;">
+                                                View PDF
+                                            </a>
                                         }
                                         else
                                         {
-
                                             <span class="pill pn">— None</span>
                                         }
                                     </td>

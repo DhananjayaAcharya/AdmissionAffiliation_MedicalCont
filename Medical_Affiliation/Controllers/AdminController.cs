@@ -515,7 +515,7 @@ namespace Admission_Affiliation.Controllers
 
                 await HttpContext.SignInAsync("AdminAuth", principalAdmin, new AuthenticationProperties
                 {
-                    IsPersistent = true,
+                    IsPersistent = false,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
                 });
 
@@ -534,7 +534,7 @@ namespace Admission_Affiliation.Controllers
             var claimsDefault = new List<Claim>
     {
         new Claim(ClaimTypes.Name, user.UserName),
-        new Claim(ClaimTypes.Role, "SectionOfficer"),
+       new Claim(ClaimTypes.Role, "Admin"),
         new Claim("FacultyId", user.Faculty.ToString()),
         new Claim("UserIP", userIP ?? string.Empty),
         new Claim("UserAgent", userAgent ?? string.Empty)
@@ -962,22 +962,38 @@ namespace Admission_Affiliation.Controllers
         }
 
         [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [ResponseCache(Location = ResponseCacheLocation.None,NoStore = true)]
         public IActionResult AdminDashboard()
         {
-            var facultyId = HttpContext.Session.GetString("FacultyId");
-            ViewBag.IsAdmin = Convert.ToInt32(facultyId) > 98;
-
-            if (string.IsNullOrEmpty(facultyId))
+            // 1. Authentication check
+            if (!User.Identity.IsAuthenticated)
             {
-                // Session expired or not set; redirect to login
                 return RedirectToAction("AdminLogin");
             }
 
+            // 2. Session validation
+            var facultyId = HttpContext.Session.GetString("FacultyId");
+
+            if (string.IsNullOrEmpty(facultyId))
+            {
+                HttpContext.SignOutAsync("AdminAuth");
+                return RedirectToAction("AdminLogin");
+            }
+
+            // 3. Role validation
+            if (!User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
+            ViewBag.IsAdmin = Convert.ToInt32(facultyId) > 98;
             ViewBag.FacultyId = facultyId;
-            ViewBag.Faculties = _context.Faculties.OrderBy(e => e.FacultyName).ToList();
+            ViewBag.Faculties = _context.Faculties
+                .OrderBy(e => e.FacultyName)
+                .ToList();
+
             return View();
         }
-
 
 
         [HttpPost]
@@ -1590,7 +1606,20 @@ namespace Admission_Affiliation.Controllers
             return File(fileBytes, "application/pdf");
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("AdminAuth");
+            await HttpContext.SignOutAsync("SectionOfficerAuth");
+            await HttpContext.SignOutAsync("DirectorAuth");
+            await HttpContext.SignOutAsync("FinanceAuth");
+            await HttpContext.SignOutAsync("LICSectionAuth");
+
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("MultiLogin", "MainDashboard");
+        }
     }
-
-
 }
