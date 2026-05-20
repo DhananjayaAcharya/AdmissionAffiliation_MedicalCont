@@ -3911,7 +3911,7 @@ VALUES
 (2, 'District Hospital'),
 (2, 'Taluk hospital/Community Health Center');
 
-
+SELECT * FROM DesignationMaster WHERE FacultyCode=2;
 
 CREATE TABLE MstMedicalAlliedDiscipline
 (

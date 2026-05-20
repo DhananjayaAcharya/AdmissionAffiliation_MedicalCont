@@ -591,6 +591,9 @@
                         <!-- Separate UG Specific Section -->
                         <!-- ===================================================== -->
 
+                        @if (Model.ExistingCourseLevels.Contains("UG"))
+                        {
+                        
                         <div class="section-block">
                             <div class="section-block-header"
                                  style="background:linear-gradient(180deg,#dbeafe 0%,#bfdbfe 100%);
@@ -599,67 +602,64 @@
                             </div>
 
                             <div class="section-block-body">
-
-                                @if (Model.ExistingCourseLevels.Contains("UG"))
+                                
+                                @if (Model.CourseLevel == "UG" ||
+                                string.IsNullOrEmpty(Model.CourseLevel))
                                 {
-                                    if (Model.CourseLevel == "UG" ||
-                                    string.IsNullOrEmpty(Model.CourseLevel))
-                                    {
-                                        <!-- UG editable block -->
-                                        <div class="form-item">
-                                            <label class="long-label">
-                                                h. Whether ESI benefits are provided (Give Details)
-                                            </label>
+                                    <!-- UG editable block -->
+                                    <div class="form-item">
+                                        <label class="long-label">
+                                            h. Whether ESI benefits are provided (Give Details)
+                                        </label>
 
-                                            <div class="file-upload-area">
-                                                <input asp-for="ESIPdf"
-                                                       type="file"
-                                                       class="file-validate"
-                                                       accept="application/pdf" />
-                                            </div>
-
-                                            <span asp-validation-for="ESIPdf"
-                                                  class="text-danger"></span>
-
-                                            @if (!string.IsNullOrEmpty(Model.StaffOther.ESIPdfName))
-                                            {
-                                                <a href="@Url.Action(
-                                                                                 "ViewStaffOtherPdf",
-                                                                                 "CA_Med_StaffDetails",
-                                                                                 new { type = "ESI" })"
-                                       target="_blank"
-                                       class="view-btn">
-
-                                                    <i class="fas fa-eye"></i>
-                                                    View ESI Document
-                                                </a>
-                                                                        }
+                                        <div class="file-upload-area">
+                                            <input asp-for="ESIPdf"
+                                                    type="file"
+                                                    class="file-validate"
+                                                    accept="application/pdf" />
                                         </div>
-                                    }
-                                    else
-                                    {
-                                        <!-- PG / SS show no -->
-                                        <div class="form-item">
-                                            <label class="long-label">
-                                                h. Whether ESI benefits are provided
-                                            </label>
 
-                                            <select class="form-select" disabled>
-                                                <option selected>No</option>
-                                            </select>
+                                        <span asp-validation-for="ESIPdf"
+                                                class="text-danger"></span>
 
-                                            <small style="display:block;
-                                          margin-top:10px;
-                                          color:#6b6358;">
-                                                Not applicable for this course level.
-                                            </small>
-                                        </div>
-                                    }
+                                        @if (!string.IsNullOrEmpty(Model.StaffOther.ESIPdfName))
+                                        {
+                                            <a href="@Url.Action(
+                                                                                "ViewStaffOtherPdf",
+                                                                                "CA_Med_StaffDetails",
+                                                                                new { type = "ESI" })"
+                                    target="_blank"
+                                    class="view-btn">
+
+                                                <i class="fas fa-eye"></i>
+                                                View ESI Document
+                                            </a>
+                                                                    }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- PG / SS show no -->
+                                    <div class="form-item">
+                                        <label class="long-label">
+                                            h. Whether ESI benefits are provided
+                                        </label>
+
+                                        <select class="form-select" disabled>
+                                            <option selected>No</option>
+                                        </select>
+
+                                        <small style="display:block;
+                                        margin-top:10px;
+                                        color:#6b6358;">
+                                            Not applicable for this course level.
+                                        </small>
+                                    </div>
                                 }
 
                             </div>
                         </div>
-
+                        }
                         <div class="text-end mt-4">
                             <button type="submit" class="btn-save">Save Staff Particulars (Other)</button>
                         </div>

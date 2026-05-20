@@ -257,6 +257,14 @@ namespace Medical_Affiliation.Controllers
                                      select cm.CourseLevel)
                                      .FirstOrDefaultAsync();
 
+            var ExistingCourseLevels = await (
+                                        from cc in _context.CollegeCourseIntakeDetails
+                                        join cm in _context.MstCourses
+                                            on cc.CourseCode equals cm.CourseCode.ToString()
+                                        where cc.CollegeCode == user.CollegeCode
+                                        select cm.CourseLevel
+                                    ).Distinct().ToListAsync();
+
             var userIP = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
 
@@ -295,6 +303,7 @@ namespace Medical_Affiliation.Controllers
 
             HttpContext.Session.SetString("CollegeCode", user.CollegeCode ?? "");
             HttpContext.Session.SetString("FacultyCode", user.FacultyCode ?? "");
+            HttpContext.Session.SetString("ExistingCourseLevels", string.Join(",", ExistingCourseLevels ?? new List<string>()));
 
             return RedirectToAction("Dashboard", "CollegeLogin");
         }

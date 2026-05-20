@@ -520,189 +520,197 @@
                 @* <div class="accordion" id="courseAccordion"> *@
                 <div class="course-sections">
 
-                @for (int i = 0; i < Model.Sections.Count; i++)
+                @if (Model.Sections != null && Model.Sections.Any())
                 {
-                    var item = Model.Sections[i];
+                    @for (int i = 0; i < Model.Sections.Count; i++)
+                    {
+                        var item = Model.Sections[i];
 
-                    <div class="accordion-item mb-3 border rounded">
+                        <div class="accordion-item mb-3 border rounded">
 
-                        <!-- HEADER -->
-                        <h2 class="accordion-header">
-                            @* <button class="accordion-button @(i != 0 ? "collapsed" : "")"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#collapse_@i">
+                            <!-- HEADER -->
+                            <h2 class="accordion-header">
+                                @* <button class="accordion-button @(i != 0 ? "collapsed" : "")"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse_@i">
 
-                                <strong class="course-badge">@item.CourseLevel</strong> &nbsp; Account & Fee Details
-                            </button> *@
-                                <div class="section-header">
-                                    <strong class="course-badge">@item.CourseLevel</strong>
-                                    Account & Fee Details
-                                </div>
-                        </h2>
-
-                        <!-- BODY -->
-                        @* <div id="collapse_@i"
-                             class="accordion-collapse collapse @(i == 0 ? "show" : "")"> *@
-                            <div class="section-body">
-
-                                <div class="accordion-body">
-
-                                    <!-- COPY FROM UG -->
-                                    @if (item.CourseLevel != "UG")
-                                    {
-                                        <div class="copy-box mb-3">
-                                            <input type="checkbox" class="copyFromUG" data-index="@i" />
-                                            <span>Use UG Details</span>
-                                        </div>
-                                    }
-
-                                    <!-- HIDDEN -->
-                                    <input type="hidden" name="Sections[@i].CourseLevel" value="@item.CourseLevel" />
-                                    <input type="hidden" name="Sections[@i].CollegeCode" value="@item.CollegeCode" />
-                                    <input type="hidden" name="Sections[@i].FacultyCode" value="@item.FacultyCode" />
-
-                                    <!-- ================= a. GOVERNING COUNCIL ================= -->
-                                    <div class="section-block">
-                                        <div class="section-block-title">a. College Governing Council Members</div>
-                                        <div class="section-block-instruction">
-                                            Enclose the list (Private colleges to mention details of TWO university officers included in the council)
-                                        </div>
-
-                                        <div class="field-group">
-                                            <label class="form-label-text">Upload Council List (PDF)</label>
-                                            <input type="file"
-                                                   name="Sections[@i].GoverningCouncilPdf"
-                                                   class="form-control pdf-file" />
-
-                                            @if (!string.IsNullOrEmpty(item.GoverningCouncilPdfName))
-                                            {
-                                                <a class="btn-view-pdf">📄 View — @item.GoverningCouncilPdfName</a>
-                                            }
-                                        </div>
+                                    <strong class="course-badge">@item.CourseLevel</strong> &nbsp; Account & Fee Details
+                                </button> *@
+                                    <div class="section-header">
+                                        <strong class="course-badge">@item.CourseLevel</strong>
+                                        Account & Fee Details
                                     </div>
+                            </h2>
 
-                                    <!-- ================= b. AUTHORITY ================= -->
-                                    <div class="section-block">
-                                        <div class="section-block-title">b. Authority / Body Managing College Funds</div>
+                            <!-- BODY -->
+                            @* <div id="collapse_@i"
+                                 class="accordion-collapse collapse @(i == 0 ? "show" : "")"> *@
+                                <div class="section-body">
 
-                                        <div class="field-row cols-2">
-                                            <div class="field-group">
-                                                <label class="form-label-text">Name & Address</label>
-                                                <textarea name="Sections[@i].AuthorityNameAddress"
-                                                          class="form-control">@item.AuthorityNameAddress</textarea>
+                                    <div class="accordion-body">
+
+                                        <!-- COPY FROM UG -->
+                                        @if (item.CourseLevel != "UG")
+                                        {
+                                            <div class="copy-box mb-3">
+                                                <input type="checkbox" class="copyFromUG" data-index="@i" />
+                                                <span>Use UG Details</span>
                                             </div>
+                                        }
 
-                                            <div class="field-group">
-                                                <label class="form-label-text">Contact</label>
-                                                <input name="Sections[@i].AuthorityContact"
-                                                       value="@item.AuthorityContact"
-                                                       class="form-control" />
-                                            </div>
-                                        </div>
-                                    </div>
+                                        <!-- HIDDEN -->
+                                        <input type="hidden" name="Sections[@i].CourseLevel" value="@item.CourseLevel" />
+                                        <input type="hidden" name="Sections[@i].CollegeCode" value="@item.CollegeCode" />
+                                        <input type="hidden" name="Sections[@i].FacultyCode" value="@item.FacultyCode" />
 
-                                    <!-- ================= c. BUDGET ================= -->
-                                    <div class="section-block">
-                                        <div class="section-block-title">c. Budget and Deposit</div>
-
-                                        <div class="field-row cols-3">
-                                            <input name="Sections[@i].RecurrentAnnual" value="@item.RecurrentAnnual" class="form-control fee-input" placeholder="Recurrent" />
-                                            <input name="Sections[@i].NonRecurrentAnnual" value="@item.NonRecurrentAnnual" class="form-control fee-input" placeholder="Non-Recurrent" />
-                                            <input name="Sections[@i].Deposits" value="@item.Deposits" class="form-control fee-input" placeholder="Deposits" />
-                                        </div>
-                                    </div>
-
-                                    <!-- ================= d. FEES ================= -->
-                                    <div class="section-block">
-                                        <div class="section-block-title">d. Fees Collected</div>
-
-                                        <div class="field-row cols-5">
-                                            <input name="Sections[@i].TuitionFee" value="@item.TuitionFee" class="form-control fee-input" placeholder="Tuition" />
-                                            <input name="Sections[@i].SportsFee" value="@item.SportsFee" class="form-control fee-input" placeholder="Sports" />
-                                            <input name="Sections[@i].UnionFee" value="@item.UnionFee" class="form-control fee-input" placeholder="Union" />
-                                            <input name="Sections[@i].LibraryFee" value="@item.LibraryFee" class="form-control fee-input" placeholder="Library" />
-                                            <input name="Sections[@i].OtherFee" value="@item.OtherFee" class="form-control fee-input" placeholder="Other" />
-                                        </div>
-
-                                        <div class="total-fee-wrap mt-2">
-                                            <div class="total-fee-label">Total Fee</div>
-                                            <input readonly class="form-control totalFeeDisplay" />
-                                            <input type="hidden" name="Sections[@i].TotalFee" class="totalFeeHidden" value="@item.TotalFee" />
-                                        </div>
-                                    </div>
-
-                                    <!-- ================= e. ACCOUNT BOOK ================= -->
-                                    <div class="section-block">
-                                        <div class="section-block-title">e. Account Books Maintained?</div>
-
-                                        <select name="Sections[@i].AccountBooksMaintained" class="form-control">
-                                            <option value="">Select</option>
-                                            <option value="Y" selected="@(item.AccountBooksMaintained == "Y")">YES</option>
-                                            <option value="N" selected="@(item.AccountBooksMaintained == "N")">NO</option>
-                                        </select>
-
-                                        <div class="pdf-upload-area AccountBooksPdfDiv mt-2"
-                                             style="display:@(item.AccountBooksMaintained == "Y" ? "block" : "none")">
-
-                                            <input type="file" name="Sections[@i].AccountSummaryPdf" class="form-control pdf-file" />
-
-                                            @if (!string.IsNullOrEmpty(item.AccountSummaryPdfName))
-                                            {
-                                                <a class="btn-view-pdf">📄 View — @item.AccountSummaryPdfName</a>
-                                            }
-                                        </div>
-                                    </div>
-
-                                    <!-- ================= f. AUDIT ================= -->
-                                    <div class="section-block">
-                                        <div class="section-block-title">f. Accounts Audited?</div>
-
-                                        <select name="Sections[@i].AccountsAudited" class="form-control">
-                                            <option value="">Select</option>
-                                            <option value="Y" selected="@(item.AccountsAudited == "Y")">YES</option>
-                                            <option value="N" selected="@(item.AccountsAudited == "N")">NO</option>
-                                        </select>
-
-                                        <div class="pdf-upload-area AuditedPdfDiv mt-2"
-                                             style="display:@(item.AccountsAudited == "Y" ? "block" : "none")">
-
-                                            <input type="file" name="Sections[@i].AuditedStatementPdf" class="form-control pdf-file" />
-
-                                            @if (!string.IsNullOrEmpty(item.AuditedStatementPdfName))
-                                            {
-                                                <a class="btn-view-pdf">📄 View — @item.AuditedStatementPdfName</a>
-                                            }
-                                        </div>
-                                    </div>
-
-                                    <!-- ================= g. DONATION (PG) ================= -->
-                                    @if (item.CourseLevel == "PG")
-                                    {
+                                        <!-- ================= a. GOVERNING COUNCIL ================= -->
                                         <div class="section-block">
-                                            <div class="section-block-title">g. Donation / Capitation Fee</div>
+                                            <div class="section-block-title">a. College Governing Council Members</div>
+                                            <div class="section-block-instruction">
+                                                Enclose the list (Private colleges to mention details of TWO university officers included in the council)
+                                            </div>
 
-                                            <select name="Sections[@i].DonationLevied" class="form-control">
-                                                <option value="">Select</option>
-                                                <option value="Y" selected="@(item.DonationLevied == "Y")">YES</option>
-                                                <option value="N" selected="@(item.DonationLevied == "N")">NO</option>
-                                            </select>
+                                            <div class="field-group">
+                                                <label class="form-label-text">Upload Council List (PDF)</label>
+                                                <input type="file"
+                                                       name="Sections[@i].GoverningCouncilPdf"
+                                                       class="form-control pdf-file" />
 
-                                            <div class="pdf-upload-area DonationPdfDiv mt-2"
-                                                 style="display:@(item.DonationLevied == "Y" ? "block" : "none")">
-
-                                                <input type="file" name="Sections[@i].DonationPdf" class="form-control pdf-file" />
-
-                                                @if (!string.IsNullOrEmpty(item.DonationPdfName))
+                                                @if (!string.IsNullOrEmpty(item.GoverningCouncilPdfName))
                                                 {
-                                                    <a class="btn-view-pdf">📄 View — @item.DonationPdfName</a>
+                                                    <a class="btn-view-pdf">📄 View — @item.GoverningCouncilPdfName</a>
                                                 }
                                             </div>
                                         </div>
-                                    }
 
+                                        <!-- ================= b. AUTHORITY ================= -->
+                                        <div class="section-block">
+                                            <div class="section-block-title">b. Authority / Body Managing College Funds</div>
+
+                                            <div class="field-row cols-2">
+                                                <div class="field-group">
+                                                    <label class="form-label-text">Name & Address</label>
+                                                    <textarea name="Sections[@i].AuthorityNameAddress"
+                                                              class="form-control">@item.AuthorityNameAddress</textarea>
+                                                </div>
+
+                                                <div class="field-group">
+                                                    <label class="form-label-text">Contact</label>
+                                                    <input name="Sections[@i].AuthorityContact"
+                                                           value="@item.AuthorityContact"
+                                                           class="form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ================= c. BUDGET ================= -->
+                                        <div class="section-block">
+                                            <div class="section-block-title">c. Budget and Deposit</div>
+
+                                            <div class="field-row cols-3">
+                                                <input name="Sections[@i].RecurrentAnnual" value="@item.RecurrentAnnual" class="form-control fee-input" placeholder="Recurrent" />
+                                                <input name="Sections[@i].NonRecurrentAnnual" value="@item.NonRecurrentAnnual" class="form-control fee-input" placeholder="Non-Recurrent" />
+                                                <input name="Sections[@i].Deposits" value="@item.Deposits" class="form-control fee-input" placeholder="Deposits" />
+                                            </div>
+                                        </div>
+
+                                        <!-- ================= d. FEES ================= -->
+                                        <div class="section-block">
+                                            <div class="section-block-title">d. Fees Collected</div>
+
+                                            <div class="field-row cols-5">
+                                                <input name="Sections[@i].TuitionFee" value="@item.TuitionFee" class="form-control fee-input" placeholder="Tuition" />
+                                                <input name="Sections[@i].SportsFee" value="@item.SportsFee" class="form-control fee-input" placeholder="Sports" />
+                                                <input name="Sections[@i].UnionFee" value="@item.UnionFee" class="form-control fee-input" placeholder="Union" />
+                                                <input name="Sections[@i].LibraryFee" value="@item.LibraryFee" class="form-control fee-input" placeholder="Library" />
+                                                <input name="Sections[@i].OtherFee" value="@item.OtherFee" class="form-control fee-input" placeholder="Other" />
+                                            </div>
+
+                                            <div class="total-fee-wrap mt-2">
+                                                <div class="total-fee-label">Total Fee</div>
+                                                <input readonly class="form-control totalFeeDisplay" />
+                                                <input type="hidden" name="Sections[@i].TotalFee" class="totalFeeHidden" value="@item.TotalFee" />
+                                            </div>
+                                        </div>
+
+                                        <!-- ================= e. ACCOUNT BOOK ================= -->
+                                        <div class="section-block">
+                                            <div class="section-block-title">e. Account Books Maintained?</div>
+
+                                            <select name="Sections[@i].AccountBooksMaintained" class="form-control">
+                                                <option value="">Select</option>
+                                                <option value="Y" selected="@(item.AccountBooksMaintained == "Y")">YES</option>
+                                                <option value="N" selected="@(item.AccountBooksMaintained == "N")">NO</option>
+                                            </select>
+
+                                            <div class="pdf-upload-area AccountBooksPdfDiv mt-2"
+                                                 style="display:@(item.AccountBooksMaintained == "Y" ? "block" : "none")">
+
+                                                <input type="file" name="Sections[@i].AccountSummaryPdf" class="form-control pdf-file" />
+
+                                                @if (!string.IsNullOrEmpty(item.AccountSummaryPdfName))
+                                                {
+                                                    <a class="btn-view-pdf">📄 View — @item.AccountSummaryPdfName</a>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- ================= f. AUDIT ================= -->
+                                        <div class="section-block">
+                                            <div class="section-block-title">f. Accounts Audited?</div>
+
+                                            <select name="Sections[@i].AccountsAudited" class="form-control">
+                                                <option value="">Select</option>
+                                                <option value="Y" selected="@(item.AccountsAudited == "Y")">YES</option>
+                                                <option value="N" selected="@(item.AccountsAudited == "N")">NO</option>
+                                            </select>
+
+                                            <div class="pdf-upload-area AuditedPdfDiv mt-2"
+                                                 style="display:@(item.AccountsAudited == "Y" ? "block" : "none")">
+
+                                                <input type="file" name="Sections[@i].AuditedStatementPdf" class="form-control pdf-file" />
+
+                                                @if (!string.IsNullOrEmpty(item.AuditedStatementPdfName))
+                                                {
+                                                    <a class="btn-view-pdf">📄 View — @item.AuditedStatementPdfName</a>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- ================= g. DONATION (PG) ================= -->
+                                        @if (item.CourseLevel == "PG")
+                                        {
+                                            <div class="section-block">
+                                                <div class="section-block-title">g. Donation / Capitation Fee</div>
+
+                                                <select name="Sections[@i].DonationLevied" class="form-control">
+                                                    <option value="">Select</option>
+                                                    <option value="Y" selected="@(item.DonationLevied == "Y")">YES</option>
+                                                    <option value="N" selected="@(item.DonationLevied == "N")">NO</option>
+                                                </select>
+
+                                                <div class="pdf-upload-area DonationPdfDiv mt-2"
+                                                     style="display:@(item.DonationLevied == "Y" ? "block" : "none")">
+
+                                                    <input type="file" name="Sections[@i].DonationPdf" class="form-control pdf-file" />
+
+                                                    @if (!string.IsNullOrEmpty(item.DonationPdfName))
+                                                    {
+                                                        <a class="btn-view-pdf">📄 View — @item.DonationPdfName</a>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
                                 </div>
-                            </div>
+                        </div>
+                    }
+                } else
+                {
+                    <div class="alert alert-warning text-center mt-4">
+                        Courses are yet to be submitted by the college.
                     </div>
                 }
                 </div>   

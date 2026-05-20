@@ -29,7 +29,7 @@
         --pg-text: #1a3a6b;
         --pg-border: #b8cef0;
         --radius: 6px;
-        --fs: 1rem;
+        --fs: 0.9rem;
     }
 
     *, *::before, *::after {
@@ -613,7 +613,7 @@
                 <i class="fas fa-book-medical"></i>
             </div>
             <div class="page-header-text">
-                <h1>Faculty Details</h1>
+                <h1>Dental Teaching Faculty Details</h1>
                 @* <p>Enter UG and PG teaching experience for each designation in every department</p> *@
             </div>
         </div>
@@ -630,208 +630,216 @@
             </div>
 
             <form asp-action="TeachingStaffDepartmentWise" method="post">
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr class="main-row">
+                @if (Model.FacultyRows != null && Model.FacultyRows.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr class="main-row">
 
-                                <th rowspan="2">#</th>
+                                    <th rowspan="2">#</th>
 
-                                <th rowspan="2" style="min-width:220px;">
-                                    Faculty Name
-                                </th>
-
-                                @foreach (var des in designationHeaders)
-                                {
-                                    <th colspan="5">
-                                        @des.DesignationName
+                                    <th rowspan="2" style="min-width:220px;">
+                                        Faculty Name
                                     </th>
-                                }
 
-                                <th rowspan="2">
-                                    Total Experience
-                                </th>
-
-                            </tr>
-
-                            <tr class="sub-row">
-
-                                @foreach (var des in designationHeaders)
-                                {
-                                    <th>Course Level</th>
-                                    <th>College</th>
-                                    <th>Department</th>
-                                    <th>From</th>
-                                    <th>To</th>
-                                }
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (int i = 0; i < Model.FacultyRows.Count; i++)
-                            {
-                                var faculty = Model.FacultyRows[i];
-                                var totalExp = faculty.Designations
-                                    .Where(x => x.TotalExperience.HasValue)
-                                    .Sum(x => x.TotalExperience.Value);
-
-                                <tr>
-
-                                    <!-- SL NO -->
-                                    <td class="td-slno">
-                                        @(i + 1)
-                                    </td>
-
-                                    <!-- FACULTY NAME -->
-                                    <td>
-
-                                        <input asp-for="FacultyRows[i].NameOfFaculty" class="form-control"  readonly />
-
-                                    </td>
-
-                                    <!-- DESIGNATION MATRIX -->
-                                    @for (int j = 0; j < faculty.Designations.Count; j++)
+                                    @foreach (var des in designationHeaders)
                                     {
-                                        var des = faculty.Designations[j];
-
-                                        <!-- COURSE LEVEL -->
-                                        <td>
-
-                                            <select asp-for="FacultyRows[i].Designations[j].CourseLevel"
-                                                    class="form-select course-level-dropdown">
-
-                                                <option value="">-- Select --</option>
-
-                                                @if (des.CourseLevel == "UG")
-                                                {
-                                                    <option value="UG" selected>UG</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="UG">UG</option>
-                                                }
-
-                                                @if (des.CourseLevel == "PG")
-                                                {
-                                                    <option value="PG" selected>PG</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="PG">PG</option>
-                                                }
-
-                                            </select>
-
-                                        </td>
-
-                                        <!-- COLLEGE -->
-                                        <td>
-
-                                            <select asp-for="FacultyRows[i].Designations[j].CollegeCode"
-                                                    class="form-select college-dropdown">
-
-                                                <option value="">-- Select College --</option>
-
-                                                @foreach (var college in Model.Colleges)
-                                                {
-                                                    if (des.CollegeCode == college.Value)
-                                                    {
-                                                        <option value="@college.Value" selected>
-                                                            @college.Text
-                                                        </option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@college.Value">
-                                                            @college.Text
-                                                        </option>
-                                                    }
-                                                }
-
-                                            </select>
-
-                                        </td>
-
-                                        <!-- DEPARTMENT -->
-                                        <td>
-
-                                            <select asp-for="FacultyRows[i].Designations[j].DepartmentCode"
-                                                    class="form-select department-dropdown">
-
-                                                <option value="">-- Select Department --</option>
-
-                                                @foreach (var dept in Model.Departments)
-                                                {
-                                                    if (dept.Value == des.DepartmentCode)
-                                                    {
-                                                        <option value="@dept.Value"
-                                                                selected
-                                                                data-courselevel="@dept.Group?.Name">
-
-                                                            @dept.Text
-
-                                                        </option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@dept.Value"
-                                                                data-courselevel="@dept.Group?.Name">
-
-                                                            @dept.Text
-
-                                                        </option>
-                                                    }
-                                                }
-
-                                            </select>
-
-                                        </td>
-
-                                        <!-- FROM -->
-                                        <td>
-
-                                            <input asp-for="FacultyRows[i].Designations[j].FromDate"
-                                                   type="date"
-                                                   class="form-control date-input" />
-
-                                        </td>
-
-                                        <!-- TO -->
-                                        <td>
-
-                                            <input asp-for="FacultyRows[i].Designations[j].ToDate"
-                                                   type="date"
-                                                   class="form-control date-input" />
-
-                                        </td>
-
-                                        <!-- HIDDEN -->
-
-                                        <input asp-for="FacultyRows[i].Designations[j].DesignationCode"
-                                               type="hidden" />
-
-                                        <input asp-for="FacultyRows[i].Designations[j].DesignationName"
-                                               type="hidden" />
+                                        <th colspan="5">
+                                            @des.DesignationName
+                                        </th>
                                     }
 
-                                    <!-- TOTAL EXPERIENCE -->
-                                    <td>
-
-                                        <input value="@totalExp.ToString("0.00")"
-                                               class="form-control total-exp"
-                                               readonly />
-
-                                    </td>
+                                    <th rowspan="2">
+                                        Total Experience
+                                    </th>
 
                                 </tr>
-                            }
 
-                        </tbody>
+                                <tr class="sub-row">
 
-                    </table>
+                                    @foreach (var des in designationHeaders)
+                                    {
+                                        <th>Course Level</th>
+                                        <th>College</th>
+                                        <th>Department</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                    }
 
-                </div>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.FacultyRows.Count; i++)
+                                {
+                                    var faculty = Model.FacultyRows[i];
+                                    var totalExp = faculty.Designations
+                                        .Where(x => x.TotalExperience.HasValue)
+                                        .Sum(x => x.TotalExperience.Value);
 
+                                    <tr>
+
+                                        <!-- SL NO -->
+                                        <td class="td-slno">
+                                            @(i + 1)
+                                        </td>
+
+                                        <!-- FACULTY NAME -->
+                                        <td>
+
+                                            <input asp-for="FacultyRows[i].NameOfFaculty" class="form-control"  readonly />
+
+                                        </td>
+
+                                        <!-- DESIGNATION MATRIX -->
+                                        @for (int j = 0; j < faculty.Designations.Count; j++)
+                                        {
+                                            var des = faculty.Designations[j];
+
+                                            <!-- COURSE LEVEL -->
+                                            <td>
+
+                                                <select asp-for="FacultyRows[i].Designations[j].CourseLevel"
+                                                        class="form-select course-level-dropdown">
+
+                                                    <option value="">-- Select --</option>
+
+                                                    @if (des.CourseLevel == "UG")
+                                                    {
+                                                        <option value="UG" selected>UG</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="UG">UG</option>
+                                                    }
+
+                                                    @if (des.CourseLevel == "PG")
+                                                    {
+                                                        <option value="PG" selected>PG</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="PG">PG</option>
+                                                    }
+
+                                                </select>
+
+                                            </td>
+
+                                            <!-- COLLEGE -->
+                                            <td>
+
+                                                <select asp-for="FacultyRows[i].Designations[j].CollegeCode"
+                                                        class="form-select college-dropdown">
+
+                                                    <option value="">-- Select College --</option>
+
+                                                    @foreach (var college in Model.Colleges)
+                                                    {
+                                                        if (des.CollegeCode == college.Value)
+                                                        {
+                                                            <option value="@college.Value" selected>
+                                                                @college.Text
+                                                            </option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@college.Value">
+                                                                @college.Text
+                                                            </option>
+                                                        }
+                                                    }
+
+                                                </select>
+
+                                            </td>
+
+                                            <!-- DEPARTMENT -->
+                                            <td>
+
+                                                <select asp-for="FacultyRows[i].Designations[j].DepartmentCode"
+                                                        class="form-select department-dropdown">
+
+                                                    <option value="">-- Select Department --</option>
+
+                                                    @foreach (var dept in Model.Departments)
+                                                    {
+                                                        if (dept.Value == des.DepartmentCode)
+                                                        {
+                                                            <option value="@dept.Value"
+                                                                    selected
+                                                                    data-courselevel="@dept.Group?.Name">
+
+                                                                @dept.Text
+
+                                                            </option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@dept.Value"
+                                                                    data-courselevel="@dept.Group?.Name">
+
+                                                                @dept.Text
+
+                                                            </option>
+                                                        }
+                                                    }
+
+                                                </select>
+
+                                            </td>
+
+                                            <!-- FROM -->
+                                            <td>
+
+                                                <input asp-for="FacultyRows[i].Designations[j].FromDate"
+                                                       type="date"
+                                                       class="form-control date-input" />
+
+                                            </td>
+
+                                            <!-- TO -->
+                                            <td>
+
+                                                <input asp-for="FacultyRows[i].Designations[j].ToDate"
+                                                       type="date"
+                                                       class="form-control date-input" />
+
+                                            </td>
+
+                                            <!-- HIDDEN -->
+
+                                            <input asp-for="FacultyRows[i].Designations[j].DesignationCode"
+                                                   type="hidden" />
+
+                                            <input asp-for="FacultyRows[i].Designations[j].DesignationName"
+                                                   type="hidden" />
+                                        }
+
+                                        <!-- TOTAL EXPERIENCE -->
+                                        <td>
+
+                                            <input value="@totalExp.ToString("0.00")"
+                                                   class="form-control total-exp"
+                                                   readonly />
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning text-center mt-4">
+                        Please fill the Faculty Details.
+                    </div>
+                }
                 <!-- FOOTER -->
                 <div class="form-footer">
 

@@ -70,12 +70,12 @@
                 <select asp-for="Form.Has24HourEmergency" class="form-select">
                     <option value="">Select</option>
 
-                    @if (Model.Form.Has24HourEmergency == true)
+                    @if (Model?.Form?.Has24HourEmergency == true)
                     {
                         <option value="true" selected>Yes</option>
                         <option value="false">No</option>
                     }
-                    else if (Model.Form.Has24HourEmergency == false)
+                    else if (Model?.Form?.Has24HourEmergency == false)
                     {
                         <option value="true">Yes</option>
                         <option value="false" selected>No</option>
@@ -93,12 +93,12 @@
 
                 <select asp-for="Form.HasCriticalCareServices" class="form-select">
                     <option value="">Select</option>
-                    @if(Model.Form.HasCriticalCareServices == true)
+                    @if(Model?.Form?.HasCriticalCareServices == true)
                     {
                         <option value="true" selected>Yes</option>
                         <option value="false">No</option>
                     }
-                    else if (Model.Form.HasCriticalCareServices == false)
+                    else if (Model?.Form?.HasCriticalCareServices == false)
                     {
                         <option value="true">Yes</option>
                         <option value="false" selected>No</option>
@@ -127,7 +127,7 @@
             method: 'POST',
             body: formData,
             headers: {
-                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
             }
         })
         .then(res => {

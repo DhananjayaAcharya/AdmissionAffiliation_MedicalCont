@@ -73,7 +73,7 @@
                                     style="cursor:pointer;">
 
                                     <input type="checkbox"
-                                           class="form-check-input requirement-check"
+                                           class="form-check-input eng-requirement-check"
                                     @(Model.Requirements[i].IsAvailable == true ? "checked" : "") />
 
                                 </td>
@@ -121,7 +121,7 @@
 
             const isChecked = this.checked;
 
-            document.querySelectorAll('.requirement-check')
+            document.querySelectorAll('.eng-requirement-check')
                 .forEach(cb => {
 
                     cb.checked = isChecked;
@@ -138,10 +138,10 @@
             cb.addEventListener('change', function () {
 
                 const all =
-                    document.querySelectorAll('.requirement-check');
+                    document.querySelectorAll('.eng-requirement-check');
 
                 const checked =
-                    document.querySelectorAll('.requirement-check:checked');
+                    document.querySelectorAll('.eng-requirement-check:checked');
 
                 document.getElementById('selectAllEngAllied').checked =
                     all.length === checked.length;
@@ -161,7 +161,7 @@
                     return;
 
                 const checkbox =
-                    this.querySelector('.requirement-check');
+                    this.querySelector('.eng-requirement-check');
 
                 checkbox.checked = !checkbox.checked;
 
@@ -176,10 +176,10 @@
     window.addEventListener('load', function () {
 
         const all =
-            document.querySelectorAll('.requirement-check');
+            document.querySelectorAll('.eng-requirement-check');
 
         const checked =
-            document.querySelectorAll('.requirement-check:checked');
+            document.querySelectorAll('.eng-requirement-check:checked');
 
         if (all.length > 0) {
 
@@ -221,7 +221,7 @@
                         ),
 
                     isAvailable:
-                        row.querySelector('.requirement-check').checked
+                        row.querySelector('.eng-requirement-check').checked
                 });
             });
 

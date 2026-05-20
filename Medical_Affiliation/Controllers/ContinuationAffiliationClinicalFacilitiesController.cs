@@ -50,6 +50,31 @@ namespace Medical_Affiliation.Controllers
                 _userContext.CourseLevel
             );
 
+            if (model == null)
+            {
+                throw new Exception("Composite VM is NULL");
+            }
+
+            if (model.ClinicalHospitalDetails == null)
+            {
+                throw new Exception("ClinicalHospitalDetails is NULL");
+            }
+
+            if (model.NptaRequirementPostvm == null)
+            {
+                throw new Exception("NptaRequirementPostvm is NULL");
+            }
+
+            if (model.EngAlliedRequirementPostvm == null)
+            {
+                throw new Exception("EngAlliedRequirementPostvm is NULL");
+            }
+
+            if (model.DisciplineVm == null)
+            {
+                throw new Exception("DisciplineVm is NULL");
+            }
+
             return View("HospitalDetailsForAffiliation", model);
         }
 

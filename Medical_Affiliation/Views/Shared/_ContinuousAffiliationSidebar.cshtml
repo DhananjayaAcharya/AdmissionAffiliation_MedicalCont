@@ -72,9 +72,9 @@
         new StepItem{ Key="StaffDetails", Label="Staff Particular Details", Group="Academic & Admin", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
 
         // ================= RESEARCH & LIBRARY =================
+        new StepItem{ Key="LibraryServices", Label="Library Services", Group="Research & Library", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
         new StepItem{ Key="Research", Label="Research & Publications", Group="Research & Library", Ctrl="CA_Med_ResearchPublications", Act="CA_Med_ResearchPublicationsDetails" },
         new StepItem{ Key="Library", Label="Library Details", Group="Research & Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
-        new StepItem{ Key="LibraryServices", Label="Library Services", Group="Research & Library", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
 
         // ================= STUDENT & STAFF =================
         new StepItem{ Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
@@ -214,9 +214,16 @@
             });
     }
 
+    var nonTeachingIndex = allSteps.FindIndex(x => x.Key == "NonTeachingStaff");
+
+    if (nonTeachingIndex < 0)
+    {
+        nonTeachingIndex = allSteps.Count;
+    }
+
     if (facultyCode == "2")
     {
-        allSteps.Add(new StepItem
+        allSteps.Insert(nonTeachingIndex, new StepItem
         {
             Key = "TeachingStaff",
             Label = "Teaching Staff Dept Wise",
@@ -227,7 +234,7 @@
     }
     else
     {
-        allSteps.Add(new StepItem
+        allSteps.Insert(nonTeachingIndex, new StepItem
         {
             Key = "TeachingStaff",
             Label = "Teaching Staff Dept Wise",
