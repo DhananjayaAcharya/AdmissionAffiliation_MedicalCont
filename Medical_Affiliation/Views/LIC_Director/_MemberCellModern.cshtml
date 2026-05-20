@@ -1,43 +1,37 @@
 ﻿@model LICMemberCellViewModel
 
-
 <style>
     .member-cell {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem; /* ← was missing proper spacing */
+        gap: 0.5rem;
         min-width: 180px;
         max-width: 260px;
     }
 
-        .member-cell a.fw-bold {
-            font-size: 0.95rem;
-            line-height: 1.2;
-        }
-
-        .member-cell .mt-1.small { /* inspection date block */
-            line-height: 1.4;
-            margin-top: 0.35rem !important;
-        }
-
-        .member-cell .badge-date {
-            padding: 0.35em 0.6em;
-            font-size: 0.78rem;
-            margin: 0.15rem 0.25rem 0.15rem 0;
-        }
-
-    .text-danger.small.fw-semibold { /* Date Mismatch flag */
-        margin-top: 0.6rem !important;
-        padding: 0.35rem 0.65rem;
-        background: #fef2f4;
-        border-radius: 6px;
-        border: 1px solid #fca5a5;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.82rem;
+    .member-link {
+        font-size: 0.95rem;
+        line-height: 1.2;
+        font-weight: 700;
+        color: #2563eb;
+        text-decoration: none;
+        cursor: pointer;
     }
 
+    .member-link:hover {
+        text-decoration: underline;
+    }
+
+    .inspection-dates {
+        line-height: 1.4;
+        margin-top: 0.35rem;
+    }
+
+    .badge-date {
+        padding: 0.35em 0.6em;
+        font-size: 0.78rem;
+        margin: 0.15rem 0.25rem 0.15rem 0;
+    }
 
     .dates-group {
         display: inline-flex;
@@ -56,17 +50,8 @@
         font-weight: 600;
         margin-top: 0.4rem;
     }
-
-    .text-muted:where(.ms-1, .fw-semibold) {
-        opacity: 0.75;
-        font-style: italic;
-    }
-
-    .fw-semibold:where(:contains("₹0.00"), :contains("₹ 0.00")) {
-        color: var(--text-muted);
-        font-weight: 500 !important;
-    }
 </style>
+
 @if (Model?.Member == null)
 {
     <span class="text-muted">Not Assigned</span>
@@ -76,20 +61,18 @@ else
     <div class="member-cell">
 
         <!-- Member Name -->
-        <a asp-controller="LIC_Director"
-           asp-action="MemberReport"
-           asp-route-memberName="@Model.Member.MemberName"
-           asp-route-collegeCode="@Model.CollegeCode"
-           class="fw-bold text-decoration-none text-primary">
+        <a href="javascript:void(0);"
+           class="member-link"
+           onclick="openMemberReport('@Model.Member.MemberName', '@Model.CollegeCode')">
             @Model.Member.MemberName
         </a>
 
-        <!-- Inspection Date Section -->
-        <!-- Inside _MemberCellModern.cshtml -->
-        <div class="inspection-dates mt-1 small">
+        <!-- Inspection Dates -->
+        <div class="inspection-dates small">
             <span class="text-muted fw-semibold me-1">
-                <i class="bi bi-calendar-event me-1"></i>Inspection:
+                Inspection:
             </span>
+
             @if (Model.Member?.InspectionDates?.Any() == true)
             {
                 <span class="dates-group">
@@ -108,11 +91,41 @@ else
 
             @if (Model.Member?.DateMismatchFlag == true)
             {
-                <div class="mismatch-pill mt-2">
-                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                <div class="mismatch-pill">
                     Date mismatch
                 </div>
             }
         </div>
     </div>
 }
+
+<script>
+    async function openMemberReport(memberName, collegeCode) {
+        try {
+            const checkUrl =
+                `/LIC_Director/CheckMemberReportExists?memberName=${encodeURIComponent(memberName)}&collegeCode=${encodeURIComponent(collegeCode)}`;
+
+            const response = await fetch(checkUrl);
+            const result = await response.json();
+
+            if (!result.success) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Data Not Found',
+                    text: 'No details available for this member.'
+                });
+                return;
+            }
+
+            window.location.href =
+                `/LIC_Director/MemberReport?memberName=${encodeURIComponent(memberName)}&collegeCode=${encodeURIComponent(collegeCode)}`;
+
+        } catch {
+            Swal.fire({
+                icon: 'info',
+                title: 'Data Not Found',
+                text: 'No details available for this member.'
+            });
+        }
+    }
+</script>

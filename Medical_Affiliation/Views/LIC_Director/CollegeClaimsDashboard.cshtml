@@ -67,10 +67,7 @@
             --ease: cubic-bezier(.4,0,.2,1);
         }
 
-        html {
-            font-size: 15px;
-            height: 100%;
-        }
+        html { font-size: 15px; height: 100%; }
 
         body {
             font-family: 'DM Sans', sans-serif;
@@ -93,16 +90,14 @@
             overflow: hidden;
         }
 
-            .sidebar::before {
-                content: '';
-                position: absolute;
-                top: -80px;
-                right: -80px;
-                width: 240px;
-                height: 240px;
-                background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 70%);
-                pointer-events: none;
-            }
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 240px; height: 240px;
+            background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
 
         .sidebar-logo {
             display: flex;
@@ -112,388 +107,225 @@
             border-bottom: 1px solid rgba(255,255,255,.07);
         }
 
-            .sidebar-logo img {
-                width: 38px;
-                height: 38px;
-                border-radius: 8px;
-                object-fit: cover;
-                border: 2px solid rgba(201,168,76,.4);
-            }
+        .sidebar-logo img {
+            width: 38px; height: 38px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid rgba(201,168,76,.4);
+        }
 
         .sidebar-logo-text {
-            font-size: .78rem;
-            font-weight: 600;
+            font-size: .78rem; font-weight: 600;
             color: var(--gold-lt);
-            letter-spacing: .03em;
-            line-height: 1.3;
+            letter-spacing: .03em; line-height: 1.3;
         }
 
-        .sidebar-logo-sub {
-            font-size: .65rem;
-            color: rgba(255,255,255,.35);
-            font-weight: 400;
-        }
+        .sidebar-logo-sub { font-size: .65rem; color: rgba(255,255,255,.35); font-weight: 400; }
 
         .sidebar-nav {
             flex: 1;
             padding: 14px 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+            display: flex; flex-direction: column; gap: 2px;
             overflow-y: auto;
         }
 
         .nav-section-lbl {
-            font-size: .6rem;
-            font-weight: 700;
-            letter-spacing: .1em;
-            text-transform: uppercase;
+            font-size: .6rem; font-weight: 700;
+            letter-spacing: .1em; text-transform: uppercase;
             color: rgba(255,255,255,.22);
-            padding: 10px 10px 5px;
-            margin-top: 6px;
+            padding: 10px 10px 5px; margin-top: 6px;
         }
 
         .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
             padding: 9px 12px;
             border-radius: var(--r-sm);
             color: rgba(255,255,255,.55);
             text-decoration: none;
-            font-size: .84rem;
-            font-weight: 500;
+            font-size: .84rem; font-weight: 500;
             transition: all .18s var(--ease);
             position: relative;
         }
 
-            .nav-link:hover {
-                background: rgba(255,255,255,.06);
-                color: rgba(255,255,255,.9);
-            }
+        .nav-link:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.9); }
 
-            .nav-link.active {
-                background: rgba(201,168,76,.14);
-                color: var(--gold-lt);
-                font-weight: 600;
-            }
+        .nav-link.active {
+            background: rgba(201,168,76,.14);
+            color: var(--gold-lt); font-weight: 600;
+        }
 
-                .nav-link.active::before {
-                    content: '';
-                    position: absolute;
-                    left: 0;
-                    top: 20%;
-                    bottom: 20%;
-                    width: 3px;
-                    background: var(--gold);
-                    border-radius: 0 3px 3px 0;
-                }
+        .nav-link.active::before {
+            content: '';
+            position: absolute; left: 0; top: 20%; bottom: 20%;
+            width: 3px; background: var(--gold);
+            border-radius: 0 3px 3px 0;
+        }
 
-            .nav-link svg {
-                width: 17px;
-                height: 17px;
-                flex-shrink: 0;
-                opacity: .7;
-            }
-
-            .nav-link.active svg, .nav-link:hover svg {
-                opacity: 1;
-            }
+        .nav-link svg { width: 17px; height: 17px; flex-shrink: 0; opacity: .7; }
+        .nav-link.active svg, .nav-link:hover svg { opacity: 1; }
 
         .nav-badge {
             margin-left: auto;
-            background: var(--gold);
-            color: var(--navy);
-            font-size: .6rem;
-            font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 99px;
+            background: var(--gold); color: var(--navy);
+            font-size: .6rem; font-weight: 800;
+            padding: 2px 7px; border-radius: 99px;
             font-family: 'DM Mono', monospace;
         }
 
-        .nav-divider {
-            height: 1px;
-            background: rgba(255,255,255,.07);
-            margin: 8px 14px;
-        }
+        .nav-divider { height: 1px; background: rgba(255,255,255,.07); margin: 8px 14px; }
 
-        .sidebar-footer {
-            padding: 10px 10px 14px;
-            border-top: 1px solid rgba(255,255,255,.07);
-        }
+        .sidebar-footer { padding: 10px 10px 14px; border-top: 1px solid rgba(255,255,255,.07); }
 
         .sidebar-user {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 7px 12px;
-            margin-bottom: 6px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 12px; margin-bottom: 6px;
         }
 
         .user-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+            width: 30px; height: 30px; border-radius: 50%;
             background: linear-gradient(135deg, var(--gold) 0%, var(--navy-lt) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .66rem;
-            font-weight: 700;
-            color: white;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .66rem; font-weight: 700; color: white; flex-shrink: 0;
         }
 
         .user-name {
-            font-size: .78rem;
-            font-weight: 600;
+            font-size: .78rem; font-weight: 600;
             color: rgba(255,255,255,.8);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .user-role {
-            font-size: .65rem;
-            color: rgba(255,255,255,.35);
-        }
+        .user-role { font-size: .65rem; color: rgba(255,255,255,.35); }
 
         .btn-logout {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            padding: 8px 12px;
+            display: flex; align-items: center; gap: 8px;
+            width: 100%; padding: 8px 12px;
             background: rgba(255,255,255,.04);
             border: 1px solid rgba(255,255,255,.08);
             border-radius: var(--r-sm);
             color: rgba(255,255,255,.45);
-            font-size: .8rem;
-            font-weight: 500;
+            font-size: .8rem; font-weight: 500;
             font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            transition: all .18s var(--ease);
-            text-align: left;
+            cursor: pointer; transition: all .18s var(--ease); text-align: left;
         }
 
-            .btn-logout:hover {
-                background: rgba(220,38,38,.1);
-                border-color: rgba(220,38,38,.22);
-                color: #FCA5A5;
-            }
+        .btn-logout:hover {
+            background: rgba(220,38,38,.1);
+            border-color: rgba(220,38,38,.22);
+            color: #FCA5A5;
+        }
 
         /* ══════════════════ MAIN ══════════════════ */
-        .main {
-            margin-left: var(--sidebar-w);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+        .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
         /* ══════════════════ TOPBAR ══════════════════ */
         .topbar {
             background: var(--navy);
             height: var(--header-h);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            gap: 14px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            display: flex; align-items: center;
+            padding: 0 24px; gap: 14px;
+            position: sticky; top: 0; z-index: 100;
             box-shadow: 0 2px 12px rgba(0,0,0,.25);
         }
 
-            .topbar::after {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 2px;
-                background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 40%, transparent 100%);
-            }
-
-        .topbar-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--gold);
+        .topbar::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 40%, transparent 100%);
         }
 
-        .topbar-title {
-            font-size: .88rem;
-            font-weight: 600;
-            color: rgba(255,255,255,.9);
-        }
-
-        .topbar-sep {
-            width: 1px;
-            height: 22px;
-            background: rgba(255,255,255,.12);
-        }
-
-        .topbar-sub {
-            font-size: .72rem;
-            color: rgba(255,255,255,.4);
-        }
-
-        .topbar-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .topbar-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+        .topbar-title { font-size: .88rem; font-weight: 600; color: rgba(255,255,255,.9); }
+        .topbar-sep { width: 1px; height: 22px; background: rgba(255,255,255,.12); }
+        .topbar-sub { font-size: .72rem; color: rgba(255,255,255,.4); }
+        .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 
         .topbar-date {
-            display: flex;
-            align-items: center;
-            gap: 7px;
+            display: flex; align-items: center; gap: 7px;
             padding: 5px 12px;
             background: rgba(255,255,255,.06);
             border: 1px solid rgba(255,255,255,.1);
             border-radius: var(--r-sm);
-            font-size: .72rem;
-            font-family: 'DM Mono', monospace;
+            font-size: .72rem; font-family: 'DM Mono', monospace;
             color: rgba(255,255,255,.5);
         }
 
         .btn-back-topbar {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
+            display: inline-flex; align-items: center; gap: 7px;
             padding: 7px 16px;
             background: rgba(255,255,255,.07);
             border: 1px solid rgba(255,255,255,.12);
             border-radius: var(--r-sm);
             color: rgba(255,255,255,.75);
-            font-size: .8rem;
-            font-weight: 600;
+            font-size: .8rem; font-weight: 600;
             font-family: 'DM Sans', sans-serif;
             text-decoration: none;
-            transition: all .18s var(--ease);
-            white-space: nowrap;
+            transition: all .18s var(--ease); white-space: nowrap;
         }
 
-            .btn-back-topbar:hover {
-                background: rgba(255,255,255,.14);
-                color: #fff;
-            }
+        .btn-back-topbar:hover { background: rgba(255,255,255,.14); color: #fff; }
 
         .ham-btn {
-            display: none;
-            width: 34px;
-            height: 34px;
+            display: none; width: 34px; height: 34px;
             border-radius: var(--r-sm);
             background: rgba(255,255,255,.06);
             border: 1px solid rgba(255,255,255,.1);
-            align-items: center;
-            justify-content: center;
-            color: rgba(255,255,255,.7);
-            cursor: pointer;
+            align-items: center; justify-content: center;
+            color: rgba(255,255,255,.7); cursor: pointer;
         }
 
         .sidebar-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,.5);
-            z-index: 150;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.5); z-index: 150;
         }
 
-            .sidebar-backdrop.open {
-                display: block;
-            }
+        .sidebar-backdrop.open { display: block; }
 
         /* ══════════════════ PAGE CONTENT ══════════════════ */
-        .content {
-            flex: 1;
-            padding: 24px 24px 48px;
-        }
+        .content { flex: 1; padding: 24px 24px 48px; }
 
-        .rise {
-            opacity: 0;
-            transform: translateY(10px);
-            animation: rise .42s var(--ease) forwards;
-        }
+        .rise { opacity: 0; transform: translateY(10px); animation: rise .42s var(--ease) forwards; }
+        .d1 { animation-delay: .05s; }
+        .d2 { animation-delay: .10s; }
+        .d3 { animation-delay: .15s; }
+        .d4 { animation-delay: .20s; }
 
-        .d1 {
-            animation-delay: .05s;
-        }
-
-        .d2 {
-            animation-delay: .10s;
-        }
-
-        .d3 {
-            animation-delay: .15s;
-        }
-
-        .d4 {
-            animation-delay: .20s;
-        }
-
-        @@keyframes rise {
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
+        @@keyframes rise { to { opacity: 1; transform: none; } }
 
         .page-hd {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 14px;
-            flex-wrap: wrap;
-            margin-bottom: 22px;
+            display: flex; align-items: flex-start;
+            justify-content: space-between; gap: 14px;
+            flex-wrap: wrap; margin-bottom: 22px;
         }
 
         .page-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
             padding: 3px 12px;
             background: rgba(10,35,66,.06);
             border: 1px solid var(--border);
             border-radius: 99px;
-            font-size: .64rem;
-            font-weight: 700;
-            letter-spacing: .1em;
-            text-transform: uppercase;
-            color: var(--navy);
-            margin-bottom: 6px;
+            font-size: .64rem; font-weight: 700;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: var(--navy); margin-bottom: 6px;
         }
 
         .page-title {
             font-size: clamp(1.15rem, 2.5vw, 1.65rem);
-            font-weight: 700;
-            color: var(--navy);
-            letter-spacing: -.025em;
-            line-height: 1.15;
+            font-weight: 700; color: var(--navy);
+            letter-spacing: -.025em; line-height: 1.15;
         }
 
-            .page-title em {
-                font-style: normal;
-                color: var(--gold);
-            }
+        .page-title em { font-style: normal; color: var(--gold); }
 
         .page-sub {
-            font-size: .78rem;
-            color: var(--t3);
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            font-size: .78rem; color: var(--t3); margin-top: 4px;
+            display: flex; align-items: center; gap: 5px;
         }
 
         /* ══════════════════ STAT CARDS ══════════════════ */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-            margin-bottom: 18px;
+            gap: 12px; margin-bottom: 18px;
         }
 
         .stat-card {
@@ -501,100 +333,31 @@
             border: 1px solid var(--border);
             border-radius: var(--r-lg);
             padding: 16px 18px 13px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
+            display: flex; align-items: center; gap: 12px;
+            position: relative; overflow: hidden;
             box-shadow: var(--shadow-sm);
             transition: transform .2s var(--ease), box-shadow .2s;
         }
 
-            .stat-card::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 3px;
-            }
+        .stat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 
-            .stat-card:hover {
-                transform: translateY(-2px);
-                box-shadow: var(--shadow);
-            }
+        .stat-card.s-navy::after  { background: linear-gradient(90deg, var(--navy), var(--navy-lt)); }
+        .stat-card.s-amber::after { background: linear-gradient(90deg, var(--amber), #F59E0B); }
+        .stat-card.s-green::after { background: linear-gradient(90deg, var(--green), #34D399); }
+        .stat-card.s-red::after   { background: linear-gradient(90deg, var(--red), #F87171); }
+        .stat-card.s-blue::after  { background: linear-gradient(90deg, var(--blue), #60A5FA); }
 
-            .stat-card.s-navy::after {
-                background: linear-gradient(90deg, var(--navy), var(--navy-lt));
-            }
+        .stat-ico { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .si-navy  { background: rgba(10,35,66,.07); }
+        .si-amber { background: var(--amber-bg); }
+        .si-green { background: var(--green-bg); }
+        .si-red   { background: var(--red-bg); }
+        .si-blue  { background: var(--blue-bg); }
 
-            .stat-card.s-amber::after {
-                background: linear-gradient(90deg, var(--amber), #F59E0B);
-            }
-
-            .stat-card.s-green::after {
-                background: linear-gradient(90deg, var(--green), #34D399);
-            }
-
-            .stat-card.s-red::after {
-                background: linear-gradient(90deg, var(--red), #F87171);
-            }
-
-            .stat-card.s-blue::after {
-                background: linear-gradient(90deg, var(--blue), #60A5FA);
-            }
-
-        .stat-ico {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .si-navy {
-            background: rgba(10,35,66,.07);
-        }
-
-        .si-amber {
-            background: var(--amber-bg);
-        }
-
-        .si-green {
-            background: var(--green-bg);
-        }
-
-        .si-red {
-            background: var(--red-bg);
-        }
-
-        .si-blue {
-            background: var(--blue-bg);
-        }
-
-        .stat-num {
-            font-family: 'DM Mono', monospace;
-            font-size: 1.65rem;
-            font-weight: 700;
-            color: var(--navy);
-            letter-spacing: -.04em;
-            line-height: 1;
-        }
-
-            .stat-num.sm {
-                font-size: 1.25rem;
-            }
-
-        .stat-lbl {
-            font-size: .62rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: var(--t3);
-            margin-top: 3px;
-        }
+        .stat-num { font-family: 'DM Mono', monospace; font-size: 1.65rem; font-weight: 700; color: var(--navy); letter-spacing: -.04em; line-height: 1; }
+        .stat-num.sm { font-size: 1.25rem; }
+        .stat-lbl { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--t3); margin-top: 3px; }
 
         /* ══════════════════ FILTER PANEL ══════════════════ */
         .filter-panel {
@@ -602,75 +365,52 @@
             border: 1px solid var(--border);
             border-radius: var(--r-md);
             padding: 12px 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
+            display: flex; align-items: center; gap: 12px;
+            flex-wrap: wrap; margin-bottom: 14px;
             box-shadow: var(--shadow-sm);
         }
 
         .filter-lbl {
-            font-size: .68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: var(--t3);
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            font-size: .68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .08em;
+            color: var(--t3); white-space: nowrap;
+            display: flex; align-items: center; gap: 5px;
         }
 
-        .filter-select-wrap {
-            position: relative;
-            flex: 1;
-            min-width: 200px;
-        }
+        .filter-select-wrap { position: relative; flex: 1; min-width: 200px; }
 
         .filter-select-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            color: var(--navy);
+            position: absolute; left: 10px; top: 50%;
+            transform: translateY(-50%); pointer-events: none; color: var(--navy);
         }
 
         .filter-panel select {
-            width: 100%;
-            appearance: none;
+            width: 100%; appearance: none;
             background: var(--surface);
             border: 1px solid var(--border-dk);
             border-radius: var(--r-sm);
             padding: 8px 32px 8px 34px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: .84rem;
-            color: var(--t1);
-            outline: none;
-            cursor: pointer;
+            font-family: 'DM Sans', sans-serif; font-size: .84rem;
+            color: var(--t1); outline: none; cursor: pointer;
             transition: border-color .18s, box-shadow .18s;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394A3B8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 10px center;
         }
 
-            .filter-panel select:focus {
-                border-color: var(--navy);
-                box-shadow: 0 0 0 3px rgba(10,35,66,.08);
-            }
+        .filter-panel select:focus {
+            border-color: var(--navy);
+            box-shadow: 0 0 0 3px rgba(10,35,66,.08);
+        }
 
         .mismatch-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            display: inline-flex; align-items: center; gap: 5px;
             background: var(--amber-bg);
             border: 1px solid var(--amber-bd);
             color: var(--amber);
             border-radius: var(--r-sm);
             padding: 5px 12px;
-            font-size: .7rem;
-            font-weight: 700;
+            font-size: .7rem; font-weight: 700;
         }
 
         /* ══════════════════ TABLE CARDS ══════════════════ */
@@ -679,568 +419,261 @@
             border: 1px solid var(--border);
             border-radius: var(--r-lg);
             box-shadow: var(--shadow);
-            overflow: hidden;
-            margin-bottom: 14px;
+            overflow: hidden; margin-bottom: 14px;
         }
 
         .table-card-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            padding: 13px 20px;
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 12px;
+            flex-wrap: wrap; padding: 13px 20px;
             border-bottom: 1px solid var(--border);
+            transition: background .18s var(--ease);
         }
 
-            .table-card-head.pending-head {
-                background: #FAFBFC;
-                border-left: 3px solid var(--amber);
-            }
-
-            .table-card-head.history-head {
-                background: #FAFBFC;
-                border-left: 3px solid var(--green);
-            }
-
-        .tch-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .table-card-head.pending-head {
+            background: #FAFBFC;
+            border-left: 3px solid var(--amber);
+            cursor: pointer;
+            user-select: none;
         }
 
-        .tch-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 7px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+        .table-card-head.pending-head:hover { background: #FFF8EE; }
+
+        .table-card-head.history-head {
+            background: #FAFBFC;
+            border-left: 3px solid var(--green);
         }
 
-        .tchi-amber {
-            background: var(--amber-bg);
-        }
+        .tch-left { display: flex; align-items: center; gap: 10px; }
 
-        .tchi-green {
-            background: var(--green-bg);
-        }
+        .tch-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .tchi-amber { background: var(--amber-bg); }
+        .tchi-green { background: var(--green-bg); }
 
-        .tch-title {
-            font-size: .88rem;
-            font-weight: 600;
-            color: var(--navy);
-            letter-spacing: -.01em;
-        }
+        .tch-title { font-size: .88rem; font-weight: 600; color: var(--navy); letter-spacing: -.01em; }
+        .tch-sub { font-size: .68rem; color: var(--t3); margin-top: 1px; }
 
-        .tch-sub {
-            font-size: .68rem;
-            color: var(--t3);
-            margin-top: 1px;
-        }
+        .tch-right { display: flex; align-items: center; gap: 10px; }
 
         .record-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 3px 10px;
-            border-radius: 99px;
-            font-size: .66rem;
-            font-weight: 700;
+            display: inline-flex; align-items: center;
+            padding: 3px 10px; border-radius: 99px;
+            font-size: .66rem; font-weight: 700;
             font-family: 'DM Mono', monospace;
         }
 
-        .rp-amber {
-            background: var(--amber-bg);
-            color: var(--amber);
+        .rp-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
+        .rp-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+
+        /* Chevron toggle */
+        .pending-chevron {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(180,83,9,.08);
             border: 1px solid var(--amber-bd);
+            transition: background .18s var(--ease);
+            flex-shrink: 0;
         }
 
-        .rp-green {
-            background: var(--green-bg);
-            color: var(--green);
-            border: 1px solid var(--green-bd);
+        .table-card-head.pending-head:hover .pending-chevron {
+            background: rgba(180,83,9,.15);
+        }
+
+        .pending-chevron svg {
+            transition: transform .3s var(--ease);
+            flex-shrink: 0;
+        }
+
+        .pending-chevron svg.open { transform: rotate(180deg); }
+
+        /* Collapsible body */
+        .pending-body {
+            overflow: hidden;
+            transition: max-height .35s var(--ease);
+            max-height: 0;
         }
 
         /* Table */
-        .table-wrap {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        table { width: 100%; border-collapse: collapse; }
 
         thead th {
             background: #F8FAFC;
             border-bottom: 1px solid var(--border);
-            padding: 9px 16px;
-            text-align: left;
-            font-size: .64rem;
-            font-weight: 700;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: var(--t3);
-            white-space: nowrap;
+            padding: 9px 16px; text-align: left;
+            font-size: .64rem; font-weight: 700;
+            letter-spacing: .08em; text-transform: uppercase;
+            color: var(--t3); white-space: nowrap;
         }
 
-        .th-inner {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .th-inner { display: flex; align-items: center; gap: 5px; }
 
-        tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background .12s;
-        }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover td { background: #F8FAFC; }
+        tbody tr.mm-row { background: rgba(180,83,9,.025); }
+        tbody tr.mm-row:hover td { background: rgba(180,83,9,.05); }
+        tbody tr.hist-apv:hover td { background: rgba(5,150,105,.03); }
+        tbody tr.hist-rjt:hover td { background: rgba(220,38,38,.03); }
 
-            tbody tr:last-child {
-                border-bottom: none;
-            }
-
-            tbody tr:hover td {
-                background: #F8FAFC;
-            }
-
-            tbody tr.mm-row {
-                background: rgba(180,83,9,.025);
-            }
-
-                tbody tr.mm-row:hover td {
-                    background: rgba(180,83,9,.05);
-                }
-
-            tbody tr.hist-apv:hover td {
-                background: rgba(5,150,105,.03);
-            }
-
-            tbody tr.hist-rjt:hover td {
-                background: rgba(220,38,38,.03);
-            }
-
-        td {
-            padding: 12px 16px;
-            vertical-align: middle;
-            font-size: .84rem;
-            color: var(--t2);
-        }
+        td { padding: 12px 16px; vertical-align: middle; font-size: .84rem; color: var(--t2); }
 
         /* College cell */
-        .college-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .college-cell { display: flex; align-items: center; gap: 10px; }
 
         .col-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .7rem;
-            font-weight: 700;
-            font-family: 'DM Mono', monospace;
-            flex-shrink: 0;
+            width: 34px; height: 34px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .7rem; font-weight: 700;
+            font-family: 'DM Mono', monospace; flex-shrink: 0;
         }
 
-        .ca-default {
-            background: rgba(10,35,66,.07);
-            color: var(--navy);
-            border: 1px solid var(--border);
-        }
+        .ca-default  { background: rgba(10,35,66,.07); color: var(--navy); border: 1px solid var(--border); }
+        .ca-approved { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+        .ca-rejected { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd); }
 
-        .ca-approved {
-            background: var(--green-bg);
-            color: var(--green);
-            border: 1px solid var(--green-bd);
-        }
-
-        .ca-rejected {
-            background: var(--red-bg);
-            color: var(--red);
-            border: 1px solid var(--red-bd);
-        }
-
-        .col-name {
-            font-weight: 600;
-            color: var(--t1);
-            font-size: .84rem;
-        }
+        .col-name { font-weight: 600; color: var(--t1); font-size: .84rem; }
 
         /* Amount cell */
-        .amount-cell {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
+        .amount-cell { display: flex; align-items: center; gap: 7px; }
 
         .amt-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 5px;
+            width: 24px; height: 24px; border-radius: 5px;
             background: var(--amber-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
-        .amt-val {
-            font-family: 'DM Mono', monospace;
-            font-size: .85rem;
-            font-weight: 600;
-            color: var(--t1);
-        }
+        .amt-val { font-family: 'DM Mono', monospace; font-size: .85rem; font-weight: 600; color: var(--t1); }
 
         /* Action buttons */
-        .action-row {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
+        .action-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
         .btn-approve, .btn-reject {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            display: inline-flex; align-items: center; gap: 5px;
             font-family: 'DM Sans', sans-serif;
-            font-size: .76rem;
-            font-weight: 700;
-            padding: 7px 14px;
-            border-radius: var(--r-sm);
-            border: none;
-            cursor: pointer;
+            font-size: .76rem; font-weight: 700;
+            padding: 7px 14px; border-radius: var(--r-sm);
+            border: none; cursor: pointer;
             transition: all .18s var(--ease);
-            white-space: nowrap;
-            min-height: 34px;
+            white-space: nowrap; min-height: 34px;
         }
 
-        .btn-approve {
-            background: var(--green);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(5,150,105,.2);
-        }
+        .btn-approve { background: var(--green); color: #fff; box-shadow: 0 2px 8px rgba(5,150,105,.2); }
+        .btn-approve:hover:not(:disabled) { background: #047857; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(5,150,105,.3); }
 
-            .btn-approve:hover:not(:disabled) {
-                background: #047857;
-                transform: translateY(-1px);
-                box-shadow: 0 4px 14px rgba(5,150,105,.3);
-            }
+        .btn-reject { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd); }
+        .btn-reject:hover:not(:disabled) { background: var(--red); color: #fff; border-color: var(--red); transform: translateY(-1px); box-shadow: 0 3px 12px rgba(220,38,38,.25); }
 
-        .btn-reject {
-            background: var(--red-bg);
-            color: var(--red);
-            border: 1px solid var(--red-bd);
-        }
-
-            .btn-reject:hover:not(:disabled) {
-                background: var(--red);
-                color: #fff;
-                border-color: var(--red);
-                transform: translateY(-1px);
-                box-shadow: 0 3px 12px rgba(220,38,38,.25);
-            }
-
-            .btn-approve:disabled, .btn-reject:disabled {
-                opacity: .3;
-                cursor: not-allowed;
-                transform: none !important;
-                box-shadow: none !important;
-            }
+        .btn-approve:disabled, .btn-reject:disabled { opacity: .3; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
         .mm-inline {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--amber-bg);
-            color: var(--amber);
+            display: inline-flex; align-items: center; gap: 4px;
+            background: var(--amber-bg); color: var(--amber);
             border: 1px solid var(--amber-bd);
             border-radius: var(--r-sm);
             padding: 3px 9px;
-            font-size: .66rem;
-            font-weight: 700;
-            margin-top: 5px;
+            font-size: .66rem; font-weight: 700; margin-top: 5px;
         }
 
         /* Status badges */
-        .s-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 99px;
-            font-size: .68rem;
-            font-weight: 700;
-            letter-spacing: .03em;
-        }
+        .s-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px; font-size: .68rem; font-weight: 700; letter-spacing: .03em; }
+        .s-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+        .s-dot.blink { animation: blink 1.5s ease infinite; }
 
-        .s-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: currentColor;
-        }
+        @@keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: .2 } }
 
-            .s-dot.blink {
-                animation: blink 1.5s ease infinite;
-            }
-
-        @@keyframes blink {
-            0%, 100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: .2
-            }
-        }
-
-        .badge-approved {
-            background: var(--green-bg);
-            color: var(--green);
-            border: 1px solid var(--green-bd);
-        }
-
-        .badge-rejected {
-            background: var(--red-bg);
-            color: var(--red);
-            border: 1px solid var(--red-bd);
-        }
-
-        .badge-pending {
-            background: var(--amber-bg);
-            color: var(--amber);
-            border: 1px solid var(--amber-bd);
-        }
+        .badge-approved { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+        .badge-rejected { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd); }
+        .badge-pending  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
 
         /* Remarks cell */
-        .remarks-cell {
-            font-size: .76rem;
-            color: var(--t2);
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-            .remarks-cell.empty {
-                color: var(--t3);
-                font-style: italic;
-            }
+        .remarks-cell { font-size: .76rem; color: var(--t2); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .remarks-cell.empty { color: var(--t3); font-style: italic; }
 
         /* Empty state */
-        .empty-state {
-            padding: 56px 24px;
-            text-align: center;
-        }
+        .empty-state { padding: 56px 24px; text-align: center; }
 
         .empty-icon {
-            width: 52px;
-            height: 52px;
-            background: var(--green-bg);
+            width: 52px; height: 52px; background: var(--green-bg);
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             margin: 0 auto 12px;
         }
 
-        .empty-state p {
-            font-weight: 600;
-            color: var(--navy);
-            margin-bottom: 4px;
-        }
-
-        .empty-state span {
-            font-size: .78rem;
-            color: var(--t3);
-        }
+        .empty-state p { font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+        .empty-state span { font-size: .78rem; color: var(--t3); }
 
         /* History divider */
-        .history-divider {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin: 22px 0 14px;
-        }
-
-        .hdiv-line {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
+        .history-divider { display: flex; align-items: center; gap: 14px; margin: 22px 0 14px; }
+        .hdiv-line { flex: 1; height: 1px; background: var(--border); }
 
         .hdiv-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: .66rem;
-            font-weight: 700;
-            letter-spacing: .1em;
-            text-transform: uppercase;
+            display: flex; align-items: center; gap: 6px;
+            font-size: .66rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
             color: var(--t3);
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 5px 14px;
-            border-radius: 99px;
-            white-space: nowrap;
+            background: var(--card); border: 1px solid var(--border);
+            padding: 5px 14px; border-radius: 99px; white-space: nowrap;
         }
 
         /* ══════════════════ LIC FILE UPLOAD CELL ══════════════════ */
         .lic-upload-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: .75rem;
-            font-weight: 700;
-            padding: 6px 12px;
-            border-radius: var(--r-sm);
+            display: inline-flex; align-items: center; gap: 5px;
+            font-family: 'DM Sans', sans-serif; font-size: .75rem; font-weight: 700;
+            padding: 6px 12px; border-radius: var(--r-sm);
             border: 1px dashed rgba(220,38,38,.4);
-            background: var(--red-bg);
-            color: var(--red);
-            cursor: pointer;
-            transition: all .18s var(--ease);
-            white-space: nowrap;
+            background: var(--red-bg); color: var(--red);
+            cursor: pointer; transition: all .18s var(--ease); white-space: nowrap;
         }
 
-            .lic-upload-btn:hover {
-                background: var(--red);
-                color: #fff;
-                border-style: solid;
-                border-color: var(--red);
-                transform: translateY(-1px);
-                box-shadow: 0 3px 12px rgba(220,38,38,.22);
-            }
-
-        .lic-file-info {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        .lic-upload-btn:hover {
+            background: var(--red); color: #fff;
+            border-style: solid; border-color: var(--red);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 12px rgba(220,38,38,.22);
         }
+
+        .lic-file-info { display: flex; flex-direction: column; gap: 5px; }
 
         .lic-file-name {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: var(--green-bg);
-            border: 1px solid var(--green-bd);
-            color: var(--green);
-            border-radius: var(--r-sm);
-            padding: 3px 9px;
-            font-size: .68rem;
-            font-weight: 700;
-            max-width: 160px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 5px;
+            background: var(--green-bg); border: 1px solid var(--green-bd);
+            color: var(--green); border-radius: var(--r-sm);
+            padding: 3px 9px; font-size: .68rem; font-weight: 700;
+            max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
 
-        .lic-file-actions {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
+        .lic-file-actions { display: flex; gap: 5px; flex-wrap: wrap; }
 
         .lic-action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: .7rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: var(--r-sm);
+            display: inline-flex; align-items: center; gap: 4px;
+            font-family: 'DM Sans', sans-serif; font-size: .7rem; font-weight: 600;
+            padding: 4px 10px; border-radius: var(--r-sm);
             border: 1px solid var(--border-dk);
-            background: var(--card);
-            color: var(--t2);
-            cursor: pointer;
-            transition: all .16s var(--ease);
-            white-space: nowrap;
+            background: var(--card); color: var(--t2);
+            cursor: pointer; transition: all .16s var(--ease); white-space: nowrap;
         }
 
-            .lic-action-btn.view-btn:hover {
-                background: var(--blue-bg);
-                border-color: rgba(29,78,216,.25);
-                color: var(--blue);
-            }
-
-            .lic-action-btn.replace-btn:hover {
-                background: var(--amber-bg);
-                border-color: var(--amber-bd);
-                color: var(--amber);
-            }
+        .lic-action-btn.view-btn:hover    { background: var(--blue-bg); border-color: rgba(29,78,216,.25); color: var(--blue); }
+        .lic-action-btn.replace-btn:hover { background: var(--amber-bg); border-color: var(--amber-bd); color: var(--amber); }
 
         /* SweetAlert2 overrides */
-        .sa-popup {
-            font-family: 'DM Sans',sans-serif !important;
-            border-radius: var(--r-lg) !important;
-            border: 1px solid var(--border) !important;
-            box-shadow: 0 20px 60px rgba(0,0,0,.12) !important;
-        }
-
-        .sa-title {
-            font-weight: 700 !important;
-            font-size: 1rem !important;
-            color: var(--navy) !important;
-        }
-
-        .sa-html {
-            font-size: .84rem !important;
-            color: var(--t2) !important;
-        }
-
-        .sa-input {
-            font-family: 'DM Sans',sans-serif !important;
-            font-size: .84rem !important;
-            border: 1px solid var(--border-dk) !important;
-            border-radius: var(--r-sm) !important;
-            color: var(--t1) !important;
-        }
-
-            .sa-input:focus {
-                border-color: var(--navy) !important;
-                box-shadow: 0 0 0 3px rgba(10,35,66,.08) !important;
-            }
-
-        .sa-lbl {
-            font-size: .65rem !important;
-            font-weight: 700 !important;
-            text-transform: uppercase !important;
-            letter-spacing: .06em !important;
-            color: var(--t3) !important;
-        }
-
-        .sa-conf, .sa-cancel {
-            font-family: 'DM Sans',sans-serif !important;
-            font-weight: 700 !important;
-            font-size: .84rem !important;
-            border-radius: var(--r-sm) !important;
-        }
+        .sa-popup    { font-family: 'DM Sans',sans-serif !important; border-radius: var(--r-lg) !important; border: 1px solid var(--border) !important; box-shadow: 0 20px 60px rgba(0,0,0,.12) !important; }
+        .sa-title    { font-weight: 700 !important; font-size: 1rem !important; color: var(--navy) !important; }
+        .sa-html     { font-size: .84rem !important; color: var(--t2) !important; }
+        .sa-input    { font-family: 'DM Sans',sans-serif !important; font-size: .84rem !important; border: 1px solid var(--border-dk) !important; border-radius: var(--r-sm) !important; color: var(--t1) !important; }
+        .sa-input:focus { border-color: var(--navy) !important; box-shadow: 0 0 0 3px rgba(10,35,66,.08) !important; }
+        .sa-lbl      { font-size: .65rem !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: .06em !important; color: var(--t3) !important; }
+        .sa-conf, .sa-cancel { font-family: 'DM Sans',sans-serif !important; font-weight: 700 !important; font-size: .84rem !important; border-radius: var(--r-sm) !important; }
 
         /* ══════════════════ RESPONSIVE ══════════════════ */
-        @@media (max-width: 1280px) {
-            .stats-grid {
-                grid-template-columns: repeat(3,1fr);
-            }
-        }
+        @@media (max-width: 1280px) { .stats-grid { grid-template-columns: repeat(3,1fr); } }
 
-        @@media (max-width: 1100px) {
-            .hide-md {
-                display: none;
-            }
-        }
+        @@media (max-width: 1100px) { .hide-md { display: none; } }
 
         @@media (max-width: 991px) {
-            body {
-                flex-direction: column;
-            }
+            body { flex-direction: column; }
 
             .sidebar {
                 position: fixed;
@@ -1252,125 +685,58 @@
                 box-shadow: 4px 0 24px rgba(0,0,0,.3);
             }
 
-                .sidebar.open {
-                    transform: translateX(0);
-                }
-
-                .sidebar::before {
-                    display: none;
-                }
-
-            .main {
-                margin-left: 0;
-            }
-
-            .ham-btn {
-                display: flex;
-            }
-
-            .topbar-date, .topbar-sub {
-                display: none;
-            }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar::before { display: none; }
+            .main { margin-left: 0; }
+            .ham-btn { display: flex; }
+            .topbar-date, .topbar-sub { display: none; }
         }
 
         @@media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2,1fr);
-            }
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .stats-grid .stat-card:nth-child(5) { grid-column: 1 / -1; }
+            .content { padding: 16px 14px 40px; }
 
-                .stats-grid .stat-card:nth-child(5) {
-                    grid-column: 1 / -1;
-                }
-
-            .content {
-                padding: 16px 14px 40px;
-            }
-
-            thead {
-                display: none;
-            }
+            thead { display: none; }
 
             tbody tr {
-                display: block;
-                margin: 8px 0;
+                display: block; margin: 8px 0;
                 border: 1px solid var(--border);
-                border-radius: var(--r-md);
-                overflow: hidden;
+                border-radius: var(--r-md); overflow: hidden;
             }
 
-                tbody tr:last-child {
-                    border-bottom: 1px solid var(--border);
-                }
-
-                tbody tr.mm-row {
-                    border-color: var(--amber-bd);
-                }
+            tbody tr:last-child { border-bottom: 1px solid var(--border); }
+            tbody tr.mm-row { border-color: var(--amber-bd); }
 
             td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 10px;
+                display: flex; justify-content: space-between;
+                align-items: center; gap: 10px;
                 border-bottom: 1px solid var(--border);
                 padding: 10px 14px;
             }
 
-                td:last-child {
-                    border-bottom: none;
-                }
+            td:last-child { border-bottom: none; }
 
-                td::before {
-                    content: attr(data-label);
-                    font-size: .6rem;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: .08em;
-                    color: var(--t3);
-                    flex-shrink: 0;
-                    min-width: 100px;
-                }
-
-                td[data-label="Action"] {
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 7px;
-                }
-
-                    td[data-label="Action"]::before {
-                        padding-top: 0;
-                    }
-
-            .action-row {
-                width: 100%;
+            td::before {
+                content: attr(data-label);
+                font-size: .6rem; font-weight: 700;
+                text-transform: uppercase; letter-spacing: .08em;
+                color: var(--t3); flex-shrink: 0; min-width: 100px;
             }
 
-            .btn-approve, .btn-reject {
-                flex: 1;
-                justify-content: center;
-            }
+            td[data-label="Action"] { flex-direction: column; align-items: flex-start; gap: 7px; }
+            td[data-label="Action"]::before { padding-top: 0; }
+
+            .action-row { width: 100%; }
+            .btn-approve, .btn-reject { flex: 1; justify-content: center; }
         }
 
         @@media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-
-                .stats-grid .stat-card:nth-child(5) {
-                    grid-column: 1 / -1;
-                }
-
-            .stat-num {
-                font-size: 1.4rem;
-            }
-
-                .stat-num.sm {
-                    font-size: 1.1rem;
-                }
-
-            .content {
-                padding: 12px 10px 32px;
-            }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stats-grid .stat-card:nth-child(5) { grid-column: 1 / -1; }
+            .stat-num { font-size: 1.4rem; }
+            .stat-num.sm { font-size: 1.1rem; }
+            .content { padding: 12px 10px 32px; }
         }
     </style>
 </head>
@@ -1386,7 +752,7 @@
         <div class="sidebar-logo">
             <img src="~/images/logo.jpg" alt="Logo" />
             <div>
-                <div class="sidebar-logo-text">LIC Director</div>
+                <div class="sidebar-logo-text">Director</div>
                 <div class="sidebar-logo-sub">Command Centre</div>
             </div>
         </div>
@@ -1419,11 +785,11 @@
                 College Claims
             </a>
 
-            <a class="nav-link" asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard">
+            <a class="nav-link" asp-controller="LICInspectionEditMember" asp-action="Reports">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
-                All Claims
+                LIC Claims Reports
             </a>
         </nav>
 
@@ -1581,161 +947,178 @@
             </div>
 
             <!-- ═══════════════════════════════════════
-                 PENDING TABLE
+                 PENDING TABLE  (collapsible)
             ═══════════════════════════════════════ -->
             <div class="table-card rise d3">
-                <div class="table-card-head pending-head">
+
+                <!-- Clickable header -->
+                <div class="table-card-head pending-head" id="pendingHead" onclick="togglePending()">
                     <div class="tch-left">
                         <div class="tch-icon tchi-amber">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
                         <div>
                             <div class="tch-title">Pending Approval</div>
-                            <div class="tch-sub">Review each record carefully before taking action</div>
+                            <div class="tch-sub">Click to expand / collapse — review records before taking action</div>
                         </div>
                     </div>
-                    <span class="record-pill rp-amber">@pendingColleges.Count @(pendingColleges.Count == 1 ? "Record" : "Records")</span>
+                    <div class="tch-right">
+                        <span class="record-pill rp-amber">@pendingColleges.Count @(pendingColleges.Count == 1 ? "Record" : "Records")</span>
+                        <div class="pending-chevron" id="pendingChevronWrap">
+                            <svg id="pendingChevronSvg"
+                                 xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                 fill="none" viewBox="0 0 24 24"
+                                 stroke="#B45309" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div class="th-inner">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" /></svg>
-                                        College
-                                    </div>
-                                </th>
-                                <th class="hide-md"><div class="th-inner">Senate Member</div></th>
-                                <th class="hide-md"><div class="th-inner">AC Member</div></th>
-                                <th class="hide-md"><div class="th-inner">Subject Expert</div></th>
-                                <th>
-                                    <div class="th-inner">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                        LIC Approval File
-                                    </div>
-                                </th>
-                                <th><div class="th-inner">Total Claim</div></th>
-                                <th><div class="th-inner">Action</div></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!pendingColleges.Any())
-                            {
+                <!-- Collapsible body -->
+                <div class="pending-body" id="pendingBody">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td colspan="7" style="padding:0;border:none;">
-                                        <div class="empty-state">
-                                            <div class="empty-icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                            </div>
-                                            <p>All Caught Up!</p>
-                                            <span>No pending approvals at this time.</span>
+                                    <th>
+                                        <div class="th-inner">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" /></svg>
+                                            College
                                         </div>
-                                    </td>
+                                    </th>
+                                    <th class="hide-md"><div class="th-inner">Senate Member</div></th>
+                                    <th class="hide-md"><div class="th-inner">AC Member</div></th>
+                                    <th class="hide-md"><div class="th-inner">Subject Expert</div></th>
+                                    <th>
+                                        <div class="th-inner">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                            LIC Approval File
+                                        </div>
+                                    </th>
+                                    <th><div class="th-inner">Total Claim</div></th>
+                                    <th><div class="th-inner">Action</div></th>
                                 </tr>
-                            }
-                            else
-                            {
-                                @foreach (var college in pendingColleges)
+                            </thead>
+                            <tbody>
+                                @if (!pendingColleges.Any())
                                 {
-                                    bool hasMM =
-                                    (college.SenateMember?.DateMismatchFlag ?? false) ||
-                                    (college.ACMember?.DateMismatchFlag ?? false) ||
-                                    (college.SubjectExpert?.DateMismatchFlag ?? false);
-                                    string ini = college.CollegeName?.Length > 0
-                                    ? college.CollegeName.Substring(0, Math.Min(2, college.CollegeName.Length)).ToUpper() : "C";
-
-                                    <tr class="@(hasMM ? "mm-row" : "")">
-                                        <td data-label="College">
-                                            <div class="college-cell">
-                                                <div class="col-avatar ca-default">@ini</div>
-                                                <span class="col-name">@college.CollegeName</span>
-                                            </div>
-                                        </td>
-                                        <td data-label="Senate Member" class="hide-md">
-                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.SenateMember, CollegeCode = college.CollegeCode })
-                                        </td>
-                                        <td data-label="AC Member" class="hide-md">
-                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.ACMember, CollegeCode = college.CollegeCode })
-                                        </td>
-                                        <td data-label="Subject Expert" class="hide-md">
-                                            @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.SubjectExpert, CollegeCode = college.CollegeCode })
-                                        </td>
-
-                                        <td data-label="LIC Approval File">
-                                            @if (!string.IsNullOrEmpty(college.LicApprovalFileName))
-                                            {
-                                                <div class="lic-file-info">
-                                                    <span class="lic-file-name" title="@college.LicApprovalFileName">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                                                        @college.LicApprovalFileName
-                                                    </span>
-                                                    <div class="lic-file-actions">
-                                                        <button type="button" class="lic-action-btn view-btn"
-                                                                onclick="viewLicFile('@college.CollegeCode')">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                                            View
-                                                        </button>
-                                                        <button type="button" class="lic-action-btn replace-btn"
-                                                                onclick="triggerLicUpload('@college.CollegeCode')">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                                            Replace
-                                                        </button>
-                                                    </div>
+                                    <tr>
+                                        <td colspan="7" style="padding:0;border:none;">
+                                            <div class="empty-state">
+                                                <div class="empty-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                 </div>
-                                            }
-                                            else
-                                            {
-                                                <button type="button" class="lic-upload-btn"
-                                                        onclick="triggerLicUpload('@college.CollegeCode')">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                                    Upload PDF
-                                                </button>
-                                            }
-                                            <input type="file"
-                                                   id="licFile_@college.CollegeCode"
-                                                   accept=".pdf"
-                                                   style="display:none"
-                                                   onchange="uploadLicFile(this, '@college.CollegeCode')" />
-                                        </td>
-
-                                        <td data-label="Total Claim">
-                                            <div class="amount-cell">
-                                                <div class="amt-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                </div>
-                                                <span class="amt-val">₹@college.TotalCollegeClaim.ToString("N2")</span>
-                                            </div>
-                                        </td>
-                                        <td data-label="Action">
-                                            <div>
-                                                <div class="action-row">
-                                                    <button class="btn-approve" onclick="approveCollege('@college.CollegeCode', @hasMM.ToString().ToLower())">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                                        Approve
-                                                    </button>
-                                                    <button class="btn-reject" onclick="rejectCollege('@college.CollegeCode')">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                                                        Reject
-                                                    </button>
-                                                </div>
-                                                @if (hasMM)
-                                                {
-                                                    <div class="mm-inline">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                                        Date mismatch detected
-                                                    </div>
-                                                }
+                                                <p>All Caught Up!</p>
+                                                <span>No pending approvals at this time.</span>
                                             </div>
                                         </td>
                                     </tr>
                                 }
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                else
+                                {
+                                    @foreach (var college in pendingColleges)
+                                    {
+                                        bool hasMM =
+                                            (college.SenateMember?.DateMismatchFlag ?? false) ||
+                                            (college.ACMember?.DateMismatchFlag ?? false) ||
+                                            (college.SubjectExpert?.DateMismatchFlag ?? false);
+                                        string ini = college.CollegeName?.Length > 0
+                                            ? college.CollegeName.Substring(0, Math.Min(2, college.CollegeName.Length)).ToUpper() : "C";
+
+                                        <tr class="@(hasMM ? "mm-row" : "")">
+                                            <td data-label="College">
+                                                <div class="college-cell">
+                                                    <div class="col-avatar ca-default">@ini</div>
+                                                    <span class="col-name">@college.CollegeName</span>
+                                                </div>
+                                            </td>
+                                            <td data-label="Senate Member" class="hide-md">
+                                                @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.SenateMember, CollegeCode = college.CollegeCode })
+                                            </td>
+                                            <td data-label="AC Member" class="hide-md">
+                                                @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.ACMember, CollegeCode = college.CollegeCode })
+                                            </td>
+                                            <td data-label="Subject Expert" class="hide-md">
+                                                @Html.Partial("_MemberCellModern", new LICMemberCellViewModel { Member = college.SubjectExpert, CollegeCode = college.CollegeCode })
+                                            </td>
+
+                                            <td data-label="LIC Approval File">
+                                                @if (!string.IsNullOrEmpty(college.LicApprovalFileName))
+                                                {
+                                                    <div class="lic-file-info">
+                                                        <span class="lic-file-name" title="@college.LicApprovalFileName">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                                            @college.LicApprovalFileName
+                                                        </span>
+                                                        <div class="lic-file-actions">
+                                                            <button type="button" class="lic-action-btn view-btn"
+                                                                    onclick="viewLicFile('@college.CollegeCode')">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                                View
+                                                            </button>
+                                                            <button type="button" class="lic-action-btn replace-btn"
+                                                                    onclick="triggerLicUpload('@college.CollegeCode')">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                                Replace
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="lic-upload-btn"
+                                                            onclick="triggerLicUpload('@college.CollegeCode')">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                                        Upload PDF
+                                                    </button>
+                                                }
+                                                <input type="file"
+                                                       id="licFile_@college.CollegeCode"
+                                                       accept=".pdf"
+                                                       style="display:none"
+                                                       onchange="uploadLicFile(this, '@college.CollegeCode')" />
+                                            </td>
+
+                                            <td data-label="Total Claim">
+                                                <div class="amount-cell">
+                                                    <div class="amt-icon">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                    </div>
+                                                    <span class="amt-val">₹@college.TotalCollegeClaim.ToString("N2")</span>
+                                                </div>
+                                            </td>
+
+                                            <td data-label="Action">
+                                                <div>
+                                                    <div class="action-row">
+                                                        <button class="btn-approve" onclick="approveCollege('@college.CollegeCode', @hasMM.ToString().ToLower())">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                                            Approve
+                                                        </button>
+                                                        <button class="btn-reject" onclick="rejectCollege('@college.CollegeCode')">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                            Reject
+                                                        </button>
+                                                    </div>
+                                                    @if (hasMM)
+                                                    {
+                                                        <div class="mm-inline">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                                            Date mismatch detected
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div><!-- /pendingBody -->
+
+            </div><!-- /table-card -->
 
             <!-- ═══════════════════════════════════════
                  HISTORY TABLE
@@ -1783,8 +1166,8 @@
                                 {
                                     bool isApproved = college.ApprovalStatus == "Approved";
                                     string ini = college.CollegeName?.Length > 0
-                                    ? college.CollegeName.Substring(0, Math.Min(2, college.CollegeName.Length)).ToUpper() : "C";
-                                    string rowClass = isApproved ? "hist-apv" : "hist-rjt";
+                                        ? college.CollegeName.Substring(0, Math.Min(2, college.CollegeName.Length)).ToUpper() : "C";
+                                    string rowClass   = isApproved ? "hist-apv" : "hist-rjt";
                                     string avatarClass = isApproved ? "ca-approved" : "ca-rejected";
 
                                     <tr class="@rowClass">
@@ -1869,6 +1252,27 @@
                 cancelButton:  'sa-cancel'
             }
         };
+
+        // ── Pending Collapse ──────────────────────────────────────────────────
+        const pendingBody    = document.getElementById('pendingBody');
+        const pendingChevron = document.getElementById('pendingChevronSvg');
+        let   pendingOpen    = false;
+
+        function togglePending() {
+            pendingOpen = !pendingOpen;
+            if (pendingOpen) {
+                pendingBody.style.maxHeight = pendingBody.scrollHeight + 'px';
+                pendingChevron.style.transform = 'rotate(180deg)';
+            } else {
+                pendingBody.style.maxHeight = '0';
+                pendingChevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Auto-expand on load if there are pending records
+        if (@pendingColleges.Count > 0) {
+            togglePending();
+        }
 
         // ── Approve / Reject ─────────────────────────────────────────────────
         function approveCollege(code, mm) {

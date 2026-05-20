@@ -21,6 +21,10 @@ namespace Medical_Affiliation.Controllers
             _context = context;
         }
 
+        // ─────────────────────────────────────────────────────────────────────
+        // HELPERS  (shared)
+        // ─────────────────────────────────────────────────────────────────────
+
         private async Task BuildMemberListsAsync(LicInspectionViewModel vm)
         {
             var acMembers = await _context.LicInspections
@@ -45,213 +49,6 @@ namespace Medical_Affiliation.Controllers
             vm.ACMemberList = acMembers;
             vm.SenateMemberList = senateMembers;
         }
-
-        [HttpGet]
-        public async Task<IActionResult> GetExpertPhone(int id)
-        {
-            var expert = await _context.LicInspections
-                .Where(e => e.Id == id)
-                .Select(e => new { phone = e.PhoneNumber })
-                .FirstOrDefaultAsync();
-
-            if (expert == null) return NotFound();
-            return Json(expert);
-        }
-
-        [HttpGet]
-        public IActionResult GetLICInspectionMembers(string type)
-        {
-            // type = "AC Member" or "Senate Member" — matches TypeofMember column exactly
-            var members = _context.LicInspections
-                .Where(x => x.TypeofMember == type)
-                .Select(x => new {
-                    id = x.Id,
-                    name = x.Name,
-                    phone = x.PhoneNumber
-                })
-                .Distinct()
-                .OrderBy(x => x.name)
-                .ToList();
-
-            return Json(members);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> SEedit(int? collegeId)
-        {
-            var vm = new LicInspectionViewModel
-            {
-                CollegeList = await BuildCollegeListAsync(),
-                SelectedCollegeId = collegeId
-            };
-
-            if (collegeId.HasValue)
-                await PopulateCollegeDetailsAsync(vm, collegeId.Value);
-
-            if (TempData["Success"] != null)
-                vm.SuccessMessage = TempData["Success"]!.ToString();
-
-            return View(vm);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetCollegeDetails(int collegeId)
-        {
-            var college = await _context.LicInspectionCollegeDetails
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == collegeId);
-
-            if (college == null)
-                return NotFound();
-
-            var experts = ParseExperts(college.SubjectExpertise, college.SubjectExpertisePhNo.ToString());
-
-            return Json(new
-            {
-                collegename = college.Collegename,
-                collegePlace = college.CollegePlace,
-                collegecode = college.Collegecode,
-                acMember = college.Acmember,
-                acPhone = college.AcMemberPhno,
-                senateMember = college.SenetMember,
-                senatePhone = college.SenetMemberPhNo,
-                hasExistingFile = college.SeRevisedOrder != null && college.SeRevisedOrder.Length > 0,
-                subjectExperts = experts
-            });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> DownloadSERevisedOrder(int collegeId)
-        {
-            var college = await _context.LicInspectionCollegeDetails
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == collegeId);
-
-            if (college == null || college.SeRevisedOrder == null || college.SeRevisedOrder.Length == 0)
-                return NotFound("No SE Revised Order file found for this college.");
-
-            // Use a generic default filename since we don't store the original name
-            var fileName = $"SERevisedOrder_{college.Collegecode}.pdf";
-            return File(college.SeRevisedOrder, "application/octet-stream", fileName);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SEedit([FromForm] LicInspectionViewModel vm)
-        {
-            // ── Capture submitted values FIRST, before anything overwrites them ──
-            var submittedName = vm.SubjectExperts?.FirstOrDefault()?.Name?.Trim();
-            var submittedPhone = vm.SubjectExperts?.FirstOrDefault()?.Phone?.Trim();
-
-            // ── Capture selected member IDs from hidden fields ──
-            var selectedAcMemberId = vm.SelectedAcMemberId;
-            var selectedSenateMemberId = vm.SelectedSenateMemberId;
-
-            vm.CollegeList = await BuildCollegeListAsync();
-
-            if (!vm.SelectedCollegeId.HasValue)
-            {
-                ModelState.AddModelError(nameof(vm.SelectedCollegeId), "Please select a college.");
-                return View(vm);
-            }
-
-            var college = await _context.LicInspectionCollegeDetails
-                .AsTracking()
-                .FirstOrDefaultAsync(c => c.Id == vm.SelectedCollegeId.Value);
-
-            if (college == null)
-            {
-                ModelState.AddModelError(string.Empty, "Selected college was not found.");
-                return View(vm);
-            }
-
-            await PopulateCollegeDetailsAsync(vm, college.Id);
-
-            // ── File validation ──────────────────────────────────────────────────────
-            bool hasNewFile = vm.SE_RevisedOrderFile != null && vm.SE_RevisedOrderFile.Length > 0;
-            bool hasExistingFile = college.SeRevisedOrder != null && college.SeRevisedOrder.Length > 0;
-
-            if (!hasNewFile && !hasExistingFile)
-            {
-                ModelState.AddModelError(nameof(vm.SE_RevisedOrderFile),
-                    "Please upload the SE Revised Order document.");
-                return View(vm);
-            }
-
-            if (hasNewFile)
-            {
-                var ext = Path.GetExtension(vm.SE_RevisedOrderFile.FileName).ToLowerInvariant();
-                if (!AllowedExtensions.Contains(ext))
-                {
-                    ModelState.AddModelError(nameof(vm.SE_RevisedOrderFile),
-                        $"Invalid file type. Allowed types: {string.Join(", ", AllowedExtensions)}");
-                    return View(vm);
-                }
-
-                if (vm.SE_RevisedOrderFile.Length > MaxFileSizeBytes)
-                {
-                    ModelState.AddModelError(nameof(vm.SE_RevisedOrderFile),
-                        "File size must not exceed 10 MB.");
-                    return View(vm);
-                }
-
-                await using var memoryStream = new MemoryStream();
-                await vm.SE_RevisedOrderFile.CopyToAsync(memoryStream);
-                college.SeRevisedOrder = memoryStream.ToArray();
-            }
-
-            // ── Apply Subject Expert values ──────────────────────────────────────────
-            college.SubjectExpertise = submittedName;
-            college.SubjectExpertisePhNo = long.TryParse(submittedPhone, out var phNo) ? phNo : (long?)null;
-
-            _context.Entry(college).Property(c => c.SubjectExpertise).IsModified = true;
-            _context.Entry(college).Property(c => c.SubjectExpertisePhNo).IsModified = true;
-
-            // ── Apply AC Member if a new one was selected ────────────────────────────
-            if (selectedAcMemberId.HasValue)
-            {
-                var acMember = await _context.LicInspections
-                    .FirstOrDefaultAsync(m => m.Id == selectedAcMemberId.Value
-                                           && m.TypeofMember == "Academic Council");
-
-                if (acMember != null)
-                {
-                    college.Acmember = acMember.Name;         // ← adjust property name if needed
-                    college.AcMemberPhno = long.TryParse(acMember.PhoneNumber, out var acPhNo) ? acPhNo : (long?)null;
-
-                    _context.Entry(college).Property(c => c.Acmember).IsModified = true;
-                    _context.Entry(college).Property(c => c.AcMemberPhno).IsModified = true;
-                }
-            }
-
-            // ── Apply Senate Member if a new one was selected ────────────────────────
-            if (selectedSenateMemberId.HasValue)
-            {
-                var senateMember = await _context.LicInspections
-                    .FirstOrDefaultAsync(m => m.Id == selectedSenateMemberId.Value
-                                           && m.TypeofMember == "Senate Members");
-
-                if (senateMember != null)
-                {
-                    // TODO: replace the property names below with the exact column names
-                    //       on your LicInspectionCollegeDetails entity for the Senate member.
-                    //       Common names: SenateMember, SenateMemberPhone
-                    college.SenetMember = senateMember.Name;         // ← adjust property name if needed
-                    college.SenetMemberPhNo = long.TryParse(senateMember.PhoneNumber, out var senatePhNo) ? senatePhNo : (long?)null;
-
-                    _context.Entry(college).Property(c => c.SenetMember).IsModified = true;
-                    _context.Entry(college).Property(c => c.SenetMemberPhNo).IsModified = true;
-                }
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = $"Details updated successfully for {college.Collegename}.";
-            return RedirectToAction(nameof(SEedit), new { collegeId = college.Id });
-        }
-
-
-        // Helpers
 
         private async Task<List<SelectListItem>> BuildCollegeListAsync()
         {
@@ -315,63 +112,218 @@ namespace Medical_Affiliation.Controllers
         };
 
         // ─────────────────────────────────────────────────────────────────────
-        // Nested types
+        // API ENDPOINTS
         // ─────────────────────────────────────────────────────────────────────
 
-        public class SubjectExpertItem
+        [HttpGet]
+        public async Task<IActionResult> GetExpertPhone(int id)
         {
-            public string? Name { get; set; }
-            public string? Phone { get; set; }
+            var expert = await _context.LicInspections
+                .Where(e => e.Id == id)
+                .Select(e => new { phone = e.PhoneNumber })
+                .FirstOrDefaultAsync();
+
+            if (expert == null) return NotFound();
+            return Json(expert);
         }
 
-        public class LicInspectionViewModel
+        [HttpGet]
+        public IActionResult GetLICInspectionMembers(string type)
         {
-            // ── Dropdown ──────────────────────────────────────────────────────
-            public List<SelectListItem> CollegeList { get; set; } = new();
+            var members = _context.LicInspections
+                .Where(x => x.TypeofMember == type)
+                .Select(x => new {
+                    id = x.Id,
+                    name = x.Name,
+                    phone = x.PhoneNumber
+                })
+                .Distinct()
+                .OrderBy(x => x.name)
+                .ToList();
 
-            [Required(ErrorMessage = "Please select a college.")]
-            [Display(Name = "College")]
-            public int? SelectedCollegeId { get; set; }
-
-            // ── Selected College Info ─────────────────────────────────────────
-            public string? Collegename { get; set; }
-            public string? CollegePlace { get; set; }
-            public string? Collegecode { get; set; }
-            public string? ACMember { get; set; }
-            public long? AcMember_Phno { get; set; }
-            public string? SenetMember { get; set; }
-            public int? SelectedAcMemberId { get; set; }
-            public long? SenetMember_PhNo { get; set; }
-            public string? SeRevisedOrderFileName { get; set; }
-
-            // ── Subject Expertise ─────────────────────────────────────────────
-            public List<SubjectExpertItem> SubjectExperts { get; set; } = new();
-
-            // ── Upload ────────────────────────────────────────────────────────
-            [Display(Name = "SE Revised Order Document")]
-            public IFormFile? SE_RevisedOrderFile { get; set; }
-
-            /// <summary>True when a file is already stored as bytes in the DB.</summary>
-            public bool HasExistingFile { get; set; }
-
-            /// <summary>Original filename stored alongside the byte[] in the DB.</summary>
-            public string? ExistingFileName { get; set; }
-
-            // ── Success message ───────────────────────────────────────────────
-            public string? SuccessMessage { get; set; }
-            // AC Member
-            public int? SelectedACMemberId { get; set; }
-            public string? ACMemberPhone { get; set; }
-
-            // Senate Member
-            public int? SelectedSenateMemberId { get; set; }
-            public string? SenateMemberPhone { get; set; }
-
-            // Dropdowns (populated from SubjectExperts filtered by type)
-            public List<SelectListItem> ACMemberList { get; set; } = new();
-            public List<SelectListItem> SenateMemberList { get; set; } = new();
+            return Json(members);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetCollegeDetails(int collegeId)
+        {
+            var college = await _context.LicInspectionCollegeDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == collegeId);
+
+            if (college == null) return NotFound();
+
+            var experts = ParseExperts(college.SubjectExpertise, college.SubjectExpertisePhNo.ToString());
+
+            return Json(new
+            {
+                collegename = college.Collegename,
+                collegePlace = college.CollegePlace,
+                collegecode = college.Collegecode,
+                acMember = college.Acmember,
+                acPhone = college.AcMemberPhno,
+                senateMember = college.SenetMember,
+                senatePhone = college.SenetMemberPhNo,
+                hasExistingFile = college.SeRevisedOrder != null && college.SeRevisedOrder.Length > 0,
+                subjectExperts = experts
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadSERevisedOrder(int collegeId)
+        {
+            var college = await _context.LicInspectionCollegeDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == collegeId);
+
+            if (college == null || college.SeRevisedOrder == null || college.SeRevisedOrder.Length == 0)
+                return NotFound("No SE Revised Order file found for this college.");
+
+            var fileName = $"SERevisedOrder_{college.Collegecode}.pdf";
+            return File(college.SeRevisedOrder, "application/octet-stream", fileName);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // SE EDIT  (GET)
+        // ─────────────────────────────────────────────────────────────────────
+
+        [HttpGet]
+        public async Task<IActionResult> SEedit(int? collegeId)
+        {
+            var vm = new LicInspectionViewModel
+            {
+                CollegeList = await BuildCollegeListAsync(),
+                SelectedCollegeId = collegeId
+            };
+
+            if (collegeId.HasValue)
+                await PopulateCollegeDetailsAsync(vm, collegeId.Value);
+
+            if (TempData["Success"] != null)
+                vm.SuccessMessage = TempData["Success"]!.ToString();
+
+            return View(vm);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // SE EDIT  (POST)
+        // ─────────────────────────────────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SEedit([FromForm] LicInspectionViewModel vm)
+        {
+            // Capture submitted values FIRST, before anything overwrites them
+            var submittedName = vm.SubjectExperts?.FirstOrDefault()?.Name?.Trim();
+            var submittedPhone = vm.SubjectExperts?.FirstOrDefault()?.Phone?.Trim();
+
+            // Capture selected member IDs from hidden fields
+            var selectedAcMemberId = vm.SelectedAcMemberId;
+            var selectedSenateMemberId = vm.SelectedSenateMemberId;
+
+            vm.CollegeList = await BuildCollegeListAsync();
+
+            if (!vm.SelectedCollegeId.HasValue)
+            {
+                ModelState.AddModelError(nameof(vm.SelectedCollegeId), "Please select a college.");
+                return View(vm);
+            }
+
+            var college = await _context.LicInspectionCollegeDetails
+                .AsTracking()
+                .FirstOrDefaultAsync(c => c.Id == vm.SelectedCollegeId.Value);
+
+            if (college == null)
+            {
+                ModelState.AddModelError(string.Empty, "Selected college was not found.");
+                return View(vm);
+            }
+
+            await PopulateCollegeDetailsAsync(vm, college.Id);
+
+            // ── File validation ──────────────────────────────────────────────
+            bool hasNewFile = vm.SE_RevisedOrderFile != null && vm.SE_RevisedOrderFile.Length > 0;
+            bool hasExistingFile = college.SeRevisedOrder != null && college.SeRevisedOrder.Length > 0;
+
+            if (!hasNewFile && !hasExistingFile)
+            {
+                ModelState.AddModelError(nameof(vm.SE_RevisedOrderFile),
+                    "Please upload the SE Revised Order document.");
+                return View(vm);
+            }
+
+            if (hasNewFile)
+            {
+                var ext = Path.GetExtension(vm.SE_RevisedOrderFile!.FileName).ToLowerInvariant();
+                if (!AllowedExtensions.Contains(ext))
+                {
+                    ModelState.AddModelError(nameof(vm.SE_RevisedOrderFile),
+                        $"Invalid file type. Allowed types: {string.Join(", ", AllowedExtensions)}");
+                    return View(vm);
+                }
+
+                if (vm.SE_RevisedOrderFile.Length > MaxFileSizeBytes)
+                {
+                    ModelState.AddModelError(nameof(vm.SE_RevisedOrderFile),
+                        "File size must not exceed 10 MB.");
+                    return View(vm);
+                }
+
+                await using var memoryStream = new MemoryStream();
+                await vm.SE_RevisedOrderFile.CopyToAsync(memoryStream);
+                college.SeRevisedOrder = memoryStream.ToArray();
+            }
+
+            // ── Apply Subject Expert values ──────────────────────────────────
+            college.SubjectExpertise = submittedName;
+            college.SubjectExpertisePhNo = long.TryParse(submittedPhone, out var phNo) ? phNo : (long?)null;
+
+            _context.Entry(college).Property(c => c.SubjectExpertise).IsModified = true;
+            _context.Entry(college).Property(c => c.SubjectExpertisePhNo).IsModified = true;
+
+            // ── Apply AC Member if a new one was selected ────────────────────
+            if (selectedAcMemberId.HasValue)
+            {
+                var acMember = await _context.LicInspections
+                    .FirstOrDefaultAsync(m => m.Id == selectedAcMemberId.Value
+                                           && m.TypeofMember == "Academic Council");
+
+                if (acMember != null)
+                {
+                    college.Acmember = acMember.Name;
+                    college.AcMemberPhno = long.TryParse(acMember.PhoneNumber, out var acPhNo) ? acPhNo : (long?)null;
+
+                    _context.Entry(college).Property(c => c.Acmember).IsModified = true;
+                    _context.Entry(college).Property(c => c.AcMemberPhno).IsModified = true;
+                }
+            }
+
+            // ── Apply Senate Member if a new one was selected ────────────────
+            if (selectedSenateMemberId.HasValue)
+            {
+                var senateMember = await _context.LicInspections
+                    .FirstOrDefaultAsync(m => m.Id == selectedSenateMemberId.Value
+                                           && m.TypeofMember == "Senate Members");
+
+                if (senateMember != null)
+                {
+                    college.SenetMember = senateMember.Name;
+                    college.SenetMemberPhNo = long.TryParse(senateMember.PhoneNumber, out var senPhNo) ? senPhNo : (long?)null;
+
+                    _context.Entry(college).Property(c => c.SenetMember).IsModified = true;
+                    _context.Entry(college).Property(c => c.SenetMemberPhNo).IsModified = true;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Details updated successfully for {college.Collegename}.";
+            return RedirectToAction(nameof(SEedit), new { collegeId = college.Id });
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // LIC SE ADMIN  (subject expertise member form + list)
+        // ─────────────────────────────────────────────────────────────────────
 
         [HttpGet]
         public async Task<IActionResult> LICSEADMIN()
@@ -425,7 +377,6 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction(nameof(LICSEADMIN));
         }
 
-        /// <summary>Fetch member type dropdown options from DB.</summary>
         private async Task<List<SelectListItem>> GetMemberTypeOptionsAsync()
         {
             return await _context.MstLicInspectionMembers
@@ -439,7 +390,6 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
         }
 
-        /// <summary>Build a blank form VM with dropdown populated.</summary>
         private async Task<LicInspectionFormVM> BuildFormVM()
         {
             return new LicInspectionFormVM
@@ -448,7 +398,6 @@ namespace Medical_Affiliation.Controllers
             };
         }
 
-        /// <summary>Fetch all saved records for the table, newest first.</summary>
         private async Task<List<LicInspectionListItemVM>> GetRecordsAsync()
         {
             var records = await _context.LicInspections
@@ -459,7 +408,7 @@ namespace Medical_Affiliation.Controllers
                     Id = r.Id,
                     TypeofMember = r.TypeofMember,
                     Name = r.Name,
-                    DOB = r.Dob.ToString(),   // formatted in-memory below
+                    DOB = r.Dob.ToString(),
                     PhoneNumber = r.PhoneNumber,
                     Email = r.Email,
                     PANNumber = r.Pannumber,
@@ -472,7 +421,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .ToListAsync();
 
-            // Format date in-memory — EF can't translate custom format strings to SQL
+            // Format date in-memory — EF cannot translate custom format strings to SQL
             records.ForEach(r =>
             {
                 if (DateTime.TryParse(r.DOB, out var dt))
@@ -482,6 +431,174 @@ namespace Medical_Affiliation.Controllers
             return records;
         }
 
+        // ─────────────────────────────────────────────────────────────────────
+        // REPORTS
+        // ─────────────────────────────────────────────────────────────────────
+
+        [HttpGet]
+        public async Task<IActionResult> Reports()
+        {
+            var members = await _context.LicInspections.AsNoTracking().ToListAsync();
+            var collegeAssignments = await _context.LicInspectionCollegeDetails.AsNoTracking().ToListAsync();
+            var claims = await _context.LicclaimDetails.AsNoTracking().ToListAsync();
+
+            // Build faculty name lookup from master table
+            var facultyLookup = await _context.Faculties
+                .AsNoTracking()
+                .ToDictionaryAsync(
+                    f => f.FacultyId.ToString(),
+                    f => f.FacultyName ?? f.FacultyId.ToString()
+                );
+
+            // Safely resolve faculty name from code
+            string FacultyName(string? code) =>
+                !string.IsNullOrEmpty(code) && facultyLookup.TryGetValue(code, out var name)
+                    ? name
+                    : (code ?? "Unknown");
+
+            var model = new LICReportsViewModel
+            {
+                // ── Stats ──────────────────────────────────────────────────
+                TotalMembers = members.Count,
+                CompletedCount = members.Count(x => x.IsCompleted == true),
+                PendingCount = members.Count(x => x.IsCompleted != true),
+                TotalClaims = claims.Count,
+                TotalColleges = collegeAssignments.Select(x => x.Collegecode).Distinct().Count(),
+
+                // ── Table data ─────────────────────────────────────────────
+                Members = members,
+                CollegeAssignments = collegeAssignments,
+                Claims = claims,
+
+                // ── Filter dropdowns ───────────────────────────────────────
+                AcademicYears = collegeAssignments
+                    .Where(x => !string.IsNullOrEmpty(x.AcademicYear))
+                    .Select(x => x.AcademicYear!)
+                    .Distinct().OrderBy(x => x).ToList(),
+
+                FacultyList = members
+                    .Where(x => !string.IsNullOrEmpty(x.Facultycode))
+                    .Select(x => x.Facultycode!)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .Select(code => new LICReportsViewModel.FacultyItem
+                    {
+                        FacultyCode = code,
+                        FacultyName = FacultyName(code)
+                    })
+                    .ToList(),
+
+                Colleges = collegeAssignments
+                    .Where(x => !string.IsNullOrEmpty(x.Collegecode))
+                    .Select(x => new CollegeDropdownItem
+                    {
+                        CollegeCode = x.Collegecode!,
+                        CollegeName = x.Collegename!
+                    })
+                    .DistinctBy(x => x.CollegeCode)
+                    .OrderBy(x => x.CollegeName).ToList(),
+
+                TravelModes = claims
+                    .Where(x => !string.IsNullOrEmpty(x.ModeOfTravel))
+                    .Select(x => x.ModeOfTravel!)
+                    .Distinct().OrderBy(x => x).ToList(),
+
+                // ── Charts ─────────────────────────────────────────────────
+                MemberTypeCounts = members
+                    .GroupBy(x => x.TypeofMember ?? "Unknown")
+                    .ToDictionary(g => g.Key, g => g.Count()),
+
+                TravelModeCounts = claims
+                    .Where(x => !string.IsNullOrEmpty(x.ModeOfTravel))
+                    .GroupBy(x => x.ModeOfTravel!)
+                    .ToDictionary(g => g.Key, g => g.Count()),
+
+                MonthlyInspectionCounts = claims
+                    .Where(x => x.InspectionDate.HasValue)
+                    .GroupBy(x => x.InspectionDate!.Value.ToString("MMM yyyy"))
+                    .OrderBy(g => DateTime.ParseExact(g.Key, "MMM yyyy", null))
+                    .ToDictionary(g => g.Key, g => g.Count()),
+
+                // Faculty name as chart label key
+                FacultyCollegeCounts = collegeAssignments
+                    .Where(x => x.Facultycode.HasValue)
+                    .GroupBy(x => x.Facultycode!.Value)
+                    .ToDictionary(
+                        g => FacultyName(g.Key.ToString()),
+                        g => g.Select(x => x.Collegecode).Distinct().Count()
+                    ),
+
+                CostSummary = new CostSummaryData
+                {
+                    TravelCost = claims.Sum(x => x.TravelCost ?? 0),
+                    DACost = claims.Sum(x => x.Dacost ?? 0),
+                    LCACost = claims.Sum(x => x.Lcacost ?? 0),
+                    AirFareCost = claims.Sum(x => x.AirFareCost ?? 0),
+                    CollegeCost = claims.Sum(x => x.CollegeCost ?? 0),
+                    TotalCost = claims.Sum(x => x.TotalCost ?? 0),
+                }
+            };
+
+            return View(model);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // NESTED TYPES
+        // ─────────────────────────────────────────────────────────────────────
+
+        public class SubjectExpertItem
+        {
+            public string? Name { get; set; }
+            public string? Phone { get; set; }
+        }
+
+        // ── LicInspectionViewModel ────────────────────────────────────────────
+        public class LicInspectionViewModel
+        {
+            public List<SelectListItem> CollegeList { get; set; } = new();
+
+            [Required(ErrorMessage = "Please select a college.")]
+            [Display(Name = "College")]
+            public int? SelectedCollegeId { get; set; }
+
+            // Selected college info
+            public string? Collegename { get; set; }
+            public string? CollegePlace { get; set; }
+            public string? Collegecode { get; set; }
+            public string? ACMember { get; set; }
+            public long? AcMember_Phno { get; set; }
+            public string? SenetMember { get; set; }
+            public long? SenetMember_PhNo { get; set; }
+            public string? SeRevisedOrderFileName { get; set; }
+
+            // Subject expertise
+            public List<SubjectExpertItem> SubjectExperts { get; set; } = new();
+
+            // Upload
+            [Display(Name = "SE Revised Order Document")]
+            public IFormFile? SE_RevisedOrderFile { get; set; }
+
+            public bool HasExistingFile { get; set; }
+            public string? ExistingFileName { get; set; }
+
+            // Success message
+            public string? SuccessMessage { get; set; }
+
+            // AC Member
+            public int? SelectedAcMemberId { get; set; }
+            public int? SelectedACMemberId { get; set; }   // alias kept for view compatibility
+            public string? ACMemberPhone { get; set; }
+
+            // Senate Member
+            public int? SelectedSenateMemberId { get; set; }
+            public string? SenateMemberPhone { get; set; }
+
+            // Dropdowns
+            public List<SelectListItem> ACMemberList { get; set; } = new();
+            public List<SelectListItem> SenateMemberList { get; set; } = new();
+        }
+
+        // ── LicInspectionFormVM ───────────────────────────────────────────────
         public class LicInspectionFormVM
         {
             [Required(ErrorMessage = "Please select a Member Type.")]
@@ -543,13 +660,10 @@ namespace Medical_Affiliation.Controllers
             [Display(Name = "Branch Name")]
             public string? BranchName { get; set; }
 
-            // Populated by controller before rendering the form
             public List<SelectListItem> MemberTypeOptions { get; set; } = new();
         }
 
-        // ─────────────────────────────────────────────
-        // Used for displaying the saved records table
-        // ─────────────────────────────────────────────
+        // ── LicInspectionListItemVM ───────────────────────────────────────────
         public class LicInspectionListItemVM
         {
             public int Id { get; set; }
@@ -567,20 +681,14 @@ namespace Medical_Affiliation.Controllers
             public string? BranchName { get; set; }
         }
 
-        // ─────────────────────────────────────────────
-        // Page ViewModel: form + table together
-        // ─────────────────────────────────────────────
+        // ── LicInspectionPageVM ───────────────────────────────────────────────
         public class LicInspectionPageVM
         {
             public LicInspectionFormVM Form { get; set; } = new();
             public List<LicInspectionListItemVM> Records { get; set; } = new();
         }
 
-
-
-
-
-
+        // ── LICReportsViewModel ───────────────────────────────────────────────
         public class LICReportsViewModel
         {
             // Stats
@@ -591,24 +699,31 @@ namespace Medical_Affiliation.Controllers
             public int TotalColleges { get; set; }
 
             // Filter options
-            public List<string> AcademicYears { get; set; }
-            public List<string> Faculties { get; set; }
-            public List<CollegeDropdownItem> Colleges { get; set; }
-            public List<string> TravelModes { get; set; }
+            public List<string> AcademicYears { get; set; } = new();
+            public List<FacultyItem> FacultyList { get; set; } = new();
+            public List<CollegeDropdownItem> Colleges { get; set; } = new();
+            public List<string> TravelModes { get; set; } = new();
 
             // Table data
-            public List<LicInspection> Members { get; set; }
-            public List<LicInspectionCollegeDetail> CollegeAssignments { get; set; }
-            public List<LicclaimDetail> Claims { get; set; }
+            public List<LicInspection> Members { get; set; } = new();
+            public List<LicInspectionCollegeDetail> CollegeAssignments { get; set; } = new();
+            public List<LicclaimDetail> Claims { get; set; } = new();
 
             // Chart data
-            public Dictionary<string, int> MemberTypeCounts { get; set; }
-            public Dictionary<string, int> TravelModeCounts { get; set; }
-            public Dictionary<string, int> MonthlyInspectionCounts { get; set; }
-            public Dictionary<int, int> FacultyCollegeCounts { get; set; }
-            public CostSummaryData CostSummary { get; set; }
+            public Dictionary<string, int> MemberTypeCounts { get; set; } = new();
+            public Dictionary<string, int> TravelModeCounts { get; set; } = new();
+            public Dictionary<string, int> MonthlyInspectionCounts { get; set; } = new();
+            public Dictionary<string, int> FacultyCollegeCounts { get; set; } = new();
+            public CostSummaryData CostSummary { get; set; } = new();
+
+            public class FacultyItem
+            {
+                public string FacultyCode { get; set; } = string.Empty;
+                public string FacultyName { get; set; } = string.Empty;
+            }
         }
 
+        // ── CostSummaryData ───────────────────────────────────────────────────
         public class CostSummaryData
         {
             public decimal TravelCost { get; set; }
@@ -617,89 +732,6 @@ namespace Medical_Affiliation.Controllers
             public decimal AirFareCost { get; set; }
             public decimal CollegeCost { get; set; }
             public decimal TotalCost { get; set; }
-        }
-
-
-        [HttpGet]
-        public async Task<IActionResult> Reports()
-        {
-            var members = await _context.LicInspections.AsNoTracking().ToListAsync();
-            var collegeAssignments = await _context.LicInspectionCollegeDetails.AsNoTracking().ToListAsync();
-            var claims = await _context.LicclaimDetails.AsNoTracking().ToListAsync();
-
-            var model = new LICReportsViewModel
-            {
-                // ── Stats ──
-                TotalMembers = members.Count,
-                CompletedCount = members.Count(x => x.IsCompleted == true),
-                PendingCount = members.Count(x => x.IsCompleted != true),
-                TotalClaims = claims.Count,
-                TotalColleges = collegeAssignments.Select(x => x.Collegecode).Distinct().Count(),
-
-                // ── Table data ──
-                Members = members,
-                CollegeAssignments = collegeAssignments,
-                Claims = claims,
-
-                // ── Filter dropdowns ──
-                AcademicYears = collegeAssignments
-                    .Where(x => !string.IsNullOrEmpty(x.AcademicYear))
-                    .Select(x => x.AcademicYear).Distinct().OrderBy(x => x).ToList(),
-
-                Faculties = members
-                    .Where(x => !string.IsNullOrEmpty(x.Facultycode))
-                    .Select(x => x.Facultycode).Distinct().OrderBy(x => x).ToList(),
-
-                Colleges = collegeAssignments
-                    .Where(x => !string.IsNullOrEmpty(x.Collegecode))
-                    .Select(x => new CollegeDropdownItem
-                    {
-                        CollegeCode = x.Collegecode,
-                        CollegeName = x.Collegename
-                    })
-                    .DistinctBy(x => x.CollegeCode)
-                    .OrderBy(x => x.CollegeName).ToList(),
-
-                TravelModes = claims
-                    .Where(x => !string.IsNullOrEmpty(x.ModeOfTravel))
-                    .Select(x => x.ModeOfTravel).Distinct().OrderBy(x => x).ToList(),
-
-                // ── Charts ──
-                MemberTypeCounts = members
-                    .GroupBy(x => x.TypeofMember ?? "Unknown")
-                    .ToDictionary(g => g.Key, g => g.Count()),
-
-                TravelModeCounts = claims
-                    .Where(x => !string.IsNullOrEmpty(x.ModeOfTravel))
-                    .GroupBy(x => x.ModeOfTravel)
-                    .ToDictionary(g => g.Key, g => g.Count()),
-
-                MonthlyInspectionCounts = claims
-                    .Where(x => x.InspectionDate.HasValue)
-                    .GroupBy(x => x.InspectionDate.Value.ToString("MMM yyyy"))
-                    .OrderBy(g => DateTime.ParseExact(g.Key, "MMM yyyy", null))
-                    .ToDictionary(g => g.Key, g => g.Count()),
-
-                    FacultyCollegeCounts = collegeAssignments
-                    .Where(x => x.Facultycode.HasValue)
-                    .GroupBy(x => x.Facultycode.Value)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(x => x.Collegecode).Distinct().Count()
-                    ),
-
-                CostSummary = new CostSummaryData
-                {
-                    TravelCost = claims.Sum(x => x.TravelCost ?? 0),
-                    DACost = claims.Sum(x => x.Dacost ?? 0),
-                    LCACost = claims.Sum(x => x.Lcacost ?? 0),
-                    AirFareCost = claims.Sum(x => x.AirFareCost ?? 0),
-                    CollegeCost = claims.Sum(x => x.CollegeCost ?? 0),
-                    TotalCost = claims.Sum(x => x.TotalCost ?? 0),
-                }
-            };
-
-            return View(model);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@model LICMemberReportViewModel
 @{
     ViewData["Title"] = "LIC Inspection Report";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
@@ -1546,120 +1546,7 @@
             </div>
 
             <!-- ── LIC Approval Document Upload ── -->
-            <div class="upload-section">
-                <div class="sec-head">
-                    <div class="sec-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
-                    <span class="sec-title">LIC Approval Document</span>
-                </div>
 
-                @* TempData alerts *@
-                @if (TempData["Success"] != null)
-                {
-                    <div class="alert-banner alert-ok">
-                        <i class="bi bi-check-circle-fill"></i>
-                        @TempData["Success"]
-                    </div>
-                }
-                @if (TempData["Error"] != null)
-                {
-                    <div class="alert-banner alert-err">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        @TempData["Error"]
-                    </div>
-                }
-
-                <div class="upload-card">
-                    <div class="upload-card-header">
-                        <div class="upload-card-header-icon"><i class="bi bi-paperclip"></i></div>
-                        <div>
-                            <div class="upload-card-header-text">Upload Approval File — Per Member</div>
-                            <div class="upload-card-header-sub">PDF only · Max 5 MB · One document per person</div>
-                        </div>
-                    </div>
-
-                    <div class="upload-card-body">
-                        <form asp-controller="LIC_Director"
-                              asp-action="UploadMemberLicApproval"
-                              method="post"
-                              enctype="multipart/form-data"
-                              id="uploadForm">
-
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="memberName" value="@Model.MemberName" />
-                            <input type="hidden" name="collegeCode" value="@Model.CollegeCode" />
-                            <input type="hidden" name="typeOfMember" value="@Model.TypeOfMember" />
-
-                            <div class="upload-info-row">
-
-                                <!-- Member identity -->
-                                <div class="upload-member-info">
-                                    <div class="upload-member-name">
-                                        <i class="bi bi-person-badge-fill"></i>
-                                        @Model.MemberName
-                                    </div>
-                                    <div class="upload-member-meta">
-                                        <span class="upload-meta-item">
-                                            <i class="bi bi-building"></i> @Model.CollegeName
-                                        </span>
-                                        <span class="upload-meta-item">
-                                            <i class="bi bi-award"></i> @Model.TypeOfMember
-                                        </span>
-                                        <span class="upload-meta-item">
-                                            <i class="bi bi-telephone"></i> @Model.PhoneNumber
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Upload control -->
-                                <div class="upload-field-wrap">
-
-                                    @if (!string.IsNullOrEmpty(Model.LicApprovalFileName))
-                                    {
-                                        @* File already exists — show View + Replace *@
-                                        <a class="upload-existing"
-                                           asp-controller="LIC_Director"
-                                           asp-action="ViewMemberLicApproval"
-                                           asp-route-memberName="@Model.MemberName"
-                                           asp-route-collegeCode="@Model.CollegeCode"
-                                           asp-route-typeOfMember="@Model.TypeOfMember"
-                                           target="_blank">
-                                            <i class="bi bi-eye-fill"></i> View Document
-                                        </a>
-                                        <label class="upload-file-label" for="licFile" style="background:var(--gov-mid);">
-                                            <i class="bi bi-arrow-repeat"></i> Replace
-                                        </label>
-                                    }
-                                    else
-                                    {
-                                        @* No file yet *@
-                                        <label class="upload-file-label" for="licFile">
-                                            <i class="bi bi-cloud-upload-fill"></i> Choose PDF
-                                        </label>
-                                    }
-
-                                    <input class="upload-file-input"
-                                           type="file"
-                                           id="licFile"
-                                           name="licFile"
-                                           accept="application/pdf"
-                                           onchange="handleFileChange(this)" />
-
-                                    <span class="upload-file-name" id="fileNameDisplay">
-                                        @(string.IsNullOrEmpty(Model.LicApprovalFileName)
-                                                                                ? "No file chosen"
-                                                                                : Model.LicApprovalFileName)
-                                    </span>
-
-                                    <button type="submit" class="upload-save-btn" id="saveBtn" style="display:none;">
-                                        <i class="bi bi-floppy-fill"></i> Save
-                                    </button>
-
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div><!-- /upload-section -->
 
         </div><!-- /r-body -->
         <!-- Footer -->
