@@ -46,7 +46,7 @@
     html { font-size: 15px; }
     body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--t1); min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased; }
 
-    /* ══════════════════ SIDEBAR ══════════════════ */
+    /* ══ SIDEBAR ══ */
     .sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; z-index: 200; overflow: hidden; }
     .sidebar::before { content: ''; position: absolute; top: -80px; right: -80px; width: 240px; height: 240px; background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 70%); pointer-events: none; }
     .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.07); }
@@ -71,7 +71,7 @@
     .btn-logout { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: var(--r-sm); color: rgba(255,255,255,.45); font-size: .8rem; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .18s var(--ease); text-align: left; text-decoration: none; }
     .btn-logout:hover { background: rgba(220,38,38,.1); border-color: rgba(220,38,38,.22); color: #FCA5A5; }
 
-    /* ══════════════════ MAIN ══════════════════ */
+    /* ══ MAIN ══ */
     .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
     /* ══ TOPBAR ══ */
@@ -92,7 +92,13 @@
 
     /* ══ STAT CARDS ══ */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px 20px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px 20px; box-shadow: var(--shadow); position: relative; overflow: hidden; opacity: 0; transform: translateY(18px); animation: fadeUp .45s var(--ease) forwards; }
+    .stat-card:nth-child(1) { animation-delay: .05s; }
+    .stat-card:nth-child(2) { animation-delay: .12s; }
+    .stat-card:nth-child(3) { animation-delay: .19s; }
+    .stat-card:nth-child(4) { animation-delay: .26s; }
+    .stat-card:nth-child(5) { animation-delay: .33s; }
+    @@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
     .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
     .stat-card.blue::before   { background: #3B82F6; }
     .stat-card.green::before  { background: var(--green); }
@@ -104,6 +110,23 @@
     .stat-sub { font-size: .72rem; color: var(--t3); margin-top: 6px; }
     .stat-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); opacity: .08; }
     .stat-icon svg { width: 48px; height: 48px; }
+
+    /* ══ CHARTS GRID ══ */
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; opacity: 0; transform: translateY(14px); animation: fadeUp .5s var(--ease) forwards; }
+    .chart-card:nth-child(1) { animation-delay: .15s; }
+    .chart-card:nth-child(2) { animation-delay: .22s; }
+    .chart-card:nth-child(3) { animation-delay: .29s; }
+    .chart-card:nth-child(4) { animation-delay: .36s; }
+    .chart-card:nth-child(5) { animation-delay: .43s; }
+    .chart-card:nth-child(6) { animation-delay: .50s; }
+    .chart-head { padding: 10px 16px; border-bottom: 1px solid var(--border); background: #FAFBFC; }
+    .chart-head-title { font-size: .84rem; font-weight: 600; color: var(--navy); }
+    .chart-head-sub { font-size: .68rem; color: var(--t3); margin-top: 2px; }
+    .chart-body { padding: 12px 16px; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: .7rem; color: var(--t2); }
+    .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
 
     /* ══ FILTER CARD ══ */
     .filter-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow); margin-bottom: 24px; overflow: hidden; }
@@ -124,25 +147,12 @@
     .btn-outline:hover { background: var(--surface); }
     .btn-green { background: var(--green); color: #fff; }
     .btn-green:hover { background: #047857; transform: translateY(-1px); }
-    .btn-gold { background: var(--gold); color: var(--navy); }
-    .btn-gold:hover { background: var(--gold-lt); transform: translateY(-1px); }
     .btn-red { background: var(--red); color: #fff; }
     .btn-red:hover { background: #b91c1c; transform: translateY(-1px); }
     .btn-purple { background: #7C3AED; color: #fff; }
     .btn-purple:hover { background: #6D28D9; transform: translateY(-1px); }
     .download-group { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
     .download-label { font-size: .75rem; color: var(--t3); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
-
-    /* ══ CHARTS GRID (smaller) ══ */
-    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px; }
-    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; }
-    .chart-head { padding: 10px 16px; border-bottom: 1px solid var(--border); background: #FAFBFC; }
-    .chart-head-title { font-size: .84rem; font-weight: 600; color: var(--navy); }
-    .chart-head-sub { font-size: .68rem; color: var(--t3); margin-top: 2px; }
-    .chart-body { padding: 12px 16px; }
-    .chart-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
-    .legend-item { display: flex; align-items: center; gap: 5px; font-size: .7rem; color: var(--t2); }
-    .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
 
     /* ══ TABLE CARD ══ */
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 24px; }
@@ -163,7 +173,29 @@
     .badge-red    { background: var(--red-bg); color: #991B1B; border: 1px solid rgba(220,38,38,.15); }
     .badge-purple { background: #F5F3FF; color: #5B21B6; border: 1px solid rgba(124,58,237,.2); }
 
-    /* ══ COLLAPSIBLE TABLE SECTIONS ══ */
+    /* ══ CHART DATE BAR ══ */
+    .chart-date-bar { display:flex; align-items:center; gap:14px; background:var(--card); border:1px solid var(--border); border-radius:var(--r-lg); padding:12px 20px; margin-bottom:16px; box-shadow:var(--shadow); flex-wrap:wrap; }
+    .chart-date-label { font-size:.75rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--t3); display:flex; align-items:center; gap:6px; white-space:nowrap; }
+    .chart-date-inputs { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .chart-date-badge { display:flex; align-items:center; gap:4px; padding:4px 12px; background:rgba(201,168,76,.12); border:1px solid rgba(201,168,76,.3); border-radius:99px; font-size:.72rem; font-weight:600; color:var(--navy); margin-left:auto; }
+
+    /* ══ THREE CHARTS GRID ══ */
+    .three-charts-grid { display:grid; grid-template-columns:1fr 1fr 1.6fr; gap:14px; margin-bottom:24px; }
+    .chart-card-tall { min-height:360px; }
+    .chart-card-wide { grid-column: span 1; }
+    @@media (max-width:1200px) { .three-charts-grid { grid-template-columns:1fr 1fr; } .chart-card-wide { grid-column:1/-1; } }
+    @@media (max-width:768px)  { .three-charts-grid { grid-template-columns:1fr; } .chart-card-wide { grid-column:span 1; } }
+
+    /* ══ TOGGLE PILLS ══ */
+    .toggle-pill-group { display:flex; flex-wrap:wrap; gap:5px; }
+    .toggle-pill { padding:4px 11px; border-radius:99px; font-size:.72rem; font-weight:600; font-family:'DM Sans',sans-serif; cursor:pointer; border:1px solid var(--border-dk); background:var(--surface); color:var(--t2); transition:all .18s var(--ease); white-space:nowrap; }
+    .toggle-pill:hover { background:var(--border); }
+    .toggle-pill.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+
+    /* ══ DOUGHNUT CENTER STAT ══ */
+    .doughnut-center-stat { text-align:center; margin-top:6px; font-size:.78rem; color:var(--t2); min-height:20px; }
+
+    /* ══ COLLAPSIBLE ══ */
     .collapsible-body { overflow: hidden; transition: max-height 0.35s var(--ease), opacity 0.3s var(--ease); max-height: 0; opacity: 0; }
     .collapsible-body.open { max-height: 9999px; opacity: 1; }
     .collapsible-trigger { cursor: pointer; display: flex !important; align-items: center; gap: 8px; user-select: none; }
@@ -174,9 +206,6 @@
     .collapsed-hint { font-size: .7rem; color: var(--t3); font-weight: 400; margin-left: 4px; }
     .collapsible-trigger.open .collapsed-hint { display: none; }
 
-    /* ══ EMPTY STATE ══ */
-    .empty-row td { text-align: center; padding: 32px; color: var(--t3); font-size: .85rem; }
-
     /* ══ PAGINATION ══ */
     .pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px; border-top: 1px solid var(--border); background: #FAFBFC; flex-wrap: wrap; gap: 10px; }
     .page-info { font-size: .78rem; color: var(--t3); }
@@ -185,11 +214,6 @@
     .page-btn:hover:not(:disabled) { background: var(--surface); }
     .page-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
     .page-btn:disabled { opacity: .4; cursor: not-allowed; }
-
-    /* ══ SECTION DIVIDER ══ */
-    .section-divider { display: flex; align-items: center; gap: 14px; margin: 8px 0 24px; }
-    .section-divider-line { flex: 1; height: 1px; background: var(--border); }
-    .section-divider-label { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); white-space: nowrap; }
 
     /* ══ RESPONSIVE ══ */
     @@media (max-width: 768px) {
@@ -205,10 +229,8 @@
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     SIDEBAR
-══════════════════════════════════════════ -->
-<aside class="sidebar" id="sidebar">
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar">
     <div class="sidebar-logo">
         <img src="~/images/logo.jpg" alt="Logo" />
         <div>
@@ -278,48 +300,48 @@
         <div class="topbar-left">
             <div class="page-badge">
                 <div class="page-badge-dot"></div>
-                <span class="page-title">Reports &amp; Analytics</span>
+                <span class="page-title">Claims Reports &amp; Analytics</span>
             </div>
             <div class="breadcrumb">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-                <span>Inspection Overview</span>
+                <span>Claims Overview</span>
             </div>
         </div>
         <div class="topbar-right">
             <div class="welcome-chip">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                Reports &amp; Analytics
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                Claims Analytics
             </div>
         </div>
     </header>
 
     <div class="content">
 
-        <!-- ══ STAT CARDS ══ -->
+        <!-- ══ STAT CARDS — all from Claims ══ -->
         <div class="stats-grid">
-            <div class="stat-card blue">
-                <div class="stat-label">Total Members</div>
-                <div class="stat-value">@Model.TotalMembers</div>
-                <div class="stat-sub">All registered inspection members</div>
-                <div class="stat-icon"><svg fill="none" viewBox="0 0 24 24" stroke="#3B82F6" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div>
-            </div>
-            <div class="stat-card green">
-                <div class="stat-label">Completed</div>
-                <div class="stat-value">@Model.CompletedCount</div>
-                <div class="stat-sub">Inspections fully completed</div>
-                <div class="stat-icon"><svg fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-            </div>
-            <div class="stat-card red">
-                <div class="stat-label">Pending</div>
-                <div class="stat-value">@Model.PendingCount</div>
-                <div class="stat-sub">Inspections not yet completed</div>
-                <div class="stat-icon"><svg fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-            </div>
             <div class="stat-card gold">
                 <div class="stat-label">Total Claims</div>
                 <div class="stat-value">@Model.TotalClaims</div>
                 <div class="stat-sub">Claim records submitted</div>
                 <div class="stat-icon"><svg fill="none" viewBox="0 0 24 24" stroke="#C9A84C" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-label">Total Travel Cost</div>
+                <div class="stat-value">&#8377;@(Model.CostSummary.TravelCost.ToString("N0"))</div>
+                <div class="stat-sub">Sum of all travel claims</div>
+                <div class="stat-icon"><svg fill="none" viewBox="0 0 24 24" stroke="#3B82F6" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-label">Total DA Cost</div>
+                <div class="stat-value">&#8377;@(Model.CostSummary.DACost.ToString("N0"))</div>
+                <div class="stat-sub">Daily allowance total</div>
+                <div class="stat-icon"><svg fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-label">Total Grand Cost</div>
+                <div class="stat-value">&#8377;@(Model.CostSummary.TotalCost.ToString("N0"))</div>
+                <div class="stat-sub">All cost components combined</div>
+                <div class="stat-icon"><svg fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div>
             </div>
             <div class="stat-card purple">
                 <div class="stat-label">Total Colleges</div>
@@ -329,297 +351,105 @@
             </div>
         </div>
 
-        <!-- ══ MEMBER FILTERS ══ -->
-        <div class="filter-card">
-            <div class="filter-head">
-                <div class="filter-head-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" /></svg>
-                    Member Filters &amp; Search
-                </div>
+        <!-- ══ CHART DATE RANGE FILTER ══ -->
+        <div class="chart-date-bar">
+            <div class="chart-date-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                Chart Date Range
             </div>
-            <div class="filter-body">
-                <div class="filter-grid">
-                    <div class="filter-group">
-                        <label class="filter-label">Academic Year</label>
-                        <select class="filter-input" id="filterAcYear">
-                            <option value="">All Years</option>
-                            @foreach (var year in Model.AcademicYears)
-                            {
-                                <option value="@year">@year</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Member Type</label>
-                        <select class="filter-input" id="filterMemberType">
-                            <option value="">All Types</option>
-                            <option value="academic council">Academic Council</option>
-                            <option value="senate">Senate Members</option>
-                            <option value="subject expert">Subject Expertise</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Faculty</label>
-                        <select class="filter-input" id="filterFaculty">
-                            <option value="">All Faculties</option>
-                            @foreach (var f in Model.FacultyList)
-                            {
-                                <option value="@f.FacultyCode.ToLower()">@f.FacultyName</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">College</label>
-                        <select class="filter-input" id="filterCollege">
-                            <option value="">All Colleges</option>
-                            @foreach (var c in Model.Colleges)
-                            {
-                                <option value="@c.CollegeCode.ToLower()">@c.CollegeName</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Completion Status</label>
-                        <select class="filter-input" id="filterStatus">
-                            <option value="">All</option>
-                            <option value="completed">Completed</option>
-                            <option value="pending">Pending</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Mode of Travel</label>
-                        <select class="filter-input" id="filterTravel">
-                            <option value="">All Modes</option>
-                            @foreach (var t in Model.TravelModes)
-                            {
-                                <option value="@t">@t</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Inspection Date From</label>
-                        <input type="date" class="filter-input" id="filterDateFrom" />
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Inspection Date To</label>
-                        <input type="date" class="filter-input" id="filterDateTo" />
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Search Member / Phone</label>
-                        <input type="text" class="filter-input" id="filterSearch" placeholder="Name or phone number..." />
-                    </div>
-                </div>
-
-                <div class="filter-actions">
-                    <button class="btn btn-primary" onclick="applyFilters()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        Apply Filters
-                    </button>
-                    <button class="btn btn-outline" onclick="resetFilters()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                        Reset
-                    </button>
-                    <div class="download-group">
-                        <span class="download-label">Download:</span>
-                        <button class="btn btn-green" onclick="downloadCSV()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            CSV
-                        </button>
-                        <button class="btn btn-red" onclick="downloadPDF()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                            PDF
-                        </button>
-                        <button class="btn btn-purple" onclick="downloadExcel()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                            Excel
-                        </button>
-                    </div>
-                </div>
+            <div class="chart-date-inputs">
+                <input type="date" id="chartDateFrom" class="filter-input" style="width:150px;" />
+                <span style="color:var(--t3);font-size:.8rem;">to</span>
+                <input type="date" id="chartDateTo" class="filter-input" style="width:150px;" />
+                <button class="btn btn-primary" onclick="applyChartDateFilter()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    Apply
+                </button>
+                <button class="btn btn-outline" onclick="resetChartDateFilter()">Reset</button>
+            </div>
+            <div id="chartDateBadge" class="chart-date-badge" style="display:none;">
+                Filtered: <span id="chartDateBadgeText"></span>
+                <span onclick="resetChartDateFilter()" style="cursor:pointer;margin-left:6px;opacity:.6;">✕</span>
             </div>
         </div>
 
-        <!-- ══ CHARTS ROW (smaller) ══ -->
-        <div class="charts-grid">
+        <!-- ══ 3 CHARTS ══ -->
+        <div class="three-charts-grid">
 
-            <div class="chart-card">
+            <!-- CHART A: BAR — multi-toggle: Member Type / Travel Mode / Bangalore / Faculty -->
+            <div class="chart-card chart-card-tall">
                 <div class="chart-head">
-                    <div class="chart-head-title">Completion Status</div>
-                    <div class="chart-head-sub">Completed vs Pending</div>
-                </div>
-                <div class="chart-body">
-                    <div class="chart-legend">
-                        <div class="legend-item"><div class="legend-dot" style="background:#059669;"></div> Completed (@Model.CompletedCount)</div>
-                        <div class="legend-item"><div class="legend-dot" style="background:#DC2626;"></div> Pending (@Model.PendingCount)</div>
-                    </div>
-                    <div style="position:relative;height:160px;"><canvas id="chartCompletion"></canvas></div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-head">
-                    <div class="chart-head-title">Members by Type</div>
-                    <div class="chart-head-sub">Distribution across categories</div>
-                </div>
-                <div class="chart-body">
-                    <div class="chart-legend">
-                        <div class="legend-item"><div class="legend-dot" style="background:#3B82F6;"></div> Academic</div>
-                        <div class="legend-item"><div class="legend-dot" style="background:#7C3AED;"></div> Senate</div>
-                        <div class="legend-item"><div class="legend-dot" style="background:#C9A84C;"></div> Subject</div>
-                    </div>
-                    <div style="position:relative;height:160px;"><canvas id="chartMemberType"></canvas></div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-head">
-                    <div class="chart-head-title">Claims by Travel Mode</div>
-                    <div class="chart-head-sub">Travel mode breakdown</div>
-                </div>
-                <div class="chart-body">
-                    <div style="position:relative;height:180px;"><canvas id="chartTravel"></canvas></div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-head">
-                    <div class="chart-head-title">Monthly Inspection Trend</div>
-                    <div class="chart-head-sub">Inspections per month</div>
-                </div>
-                <div class="chart-body">
-                    <div style="position:relative;height:180px;"><canvas id="chartMonthly"></canvas></div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-head">
-                    <div class="chart-head-title">Colleges by Faculty</div>
-                    <div class="chart-head-sub">Assignments per faculty</div>
-                </div>
-                <div class="chart-body">
-                    <div style="position:relative;height:180px;">
-                        <canvas id="chartFaculty"></canvas>
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div class="chart-head-title" id="barChartTitle">Claims by Member Type</div>
+                            <div class="chart-head-sub" id="barChartSub">Count of claims per member category</div>
+                        </div>
+                        <div class="toggle-pill-group" id="barToggleGroup">
+                            <button class="toggle-pill active" onclick="switchBar('memberType')">Member Type</button>
+                            <button class="toggle-pill" onclick="switchBar('travelMode')">Travel Mode</button>
+                            <button class="toggle-pill" onclick="switchBar('bangalore')">Bangalore</button>
+                            <button class="toggle-pill" onclick="switchBar('faculty')">Faculty</button>
+                        </div>
                     </div>
                 </div>
+                <div class="chart-body">
+                    <div id="barDrillBack" style="display:none;margin-bottom:8px;">
+                        <button class="btn btn-outline" style="font-size:.75rem;padding:4px 12px;" onclick="barDrillBack()">← Back</button>
+                        <span id="barDrillLabel" style="font-size:.78rem;color:var(--t2);margin-left:8px;"></span>
+                    </div>
+                    <div style="position:relative;height:240px;"><canvas id="chartBar"></canvas></div>
+                </div>
             </div>
 
-            <div class="chart-card">
+            <!-- CHART B: DOUGHNUT — multi-toggle: Travel Mode / Bangalore / Member Type -->
+            <div class="chart-card chart-card-tall">
                 <div class="chart-head">
-                    <div class="chart-head-title">Cost Distribution</div>
-                    <div class="chart-head-sub">Claim cost by category</div>
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div class="chart-head-title" id="doughnutChartTitle">Travel Mode Distribution</div>
+                            <div class="chart-head-sub" id="doughnutChartSub">Claims split by mode of travel</div>
+                        </div>
+                        <div class="toggle-pill-group" id="doughnutToggleGroup">
+                            <button class="toggle-pill active" onclick="switchDoughnut('travelMode')">Travel Mode</button>
+                            <button class="toggle-pill" onclick="switchDoughnut('bangalore')">Bangalore</button>
+                            <button class="toggle-pill" onclick="switchDoughnut('memberType')">Member Type</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="chart-body">
-                    <div style="position:relative;height:180px;"><canvas id="chartCost"></canvas></div>
+                    <div id="doughnutDrillBack" style="display:none;margin-bottom:8px;">
+                        <button class="btn btn-outline" style="font-size:.75rem;padding:4px 12px;" onclick="doughnutDrillBack()">← Back</button>
+                        <span id="doughnutDrillLabel" style="font-size:.78rem;color:var(--t2);margin-left:8px;"></span>
+                    </div>
+                    <div style="position:relative;height:200px;"><canvas id="chartDoughnut"></canvas></div>
+                    <div id="doughnutCenterStat" class="doughnut-center-stat"></div>
                 </div>
             </div>
 
-        </div>
+            <!-- CHART C: STACKED BAR — multi-toggle: Monthly Cost / Monthly Count / Cost Breakdown -->
+            <div class="chart-card chart-card-tall chart-card-wide">
+                <div class="chart-head">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <div class="chart-head-title" id="stackedChartTitle">Monthly Claims Trend</div>
+                            <div class="chart-head-sub" id="stackedChartSub">Claims count stacked by member type per month</div>
+                        </div>
+                        <div class="toggle-pill-group" id="stackedToggleGroup">
+                            <button class="toggle-pill active" onclick="switchStacked('monthlyCount')">Monthly Count</button>
+                            <button class="toggle-pill" onclick="switchStacked('monthlyCost')">Monthly Cost</button>
+                            <button class="toggle-pill" onclick="switchStacked('costBreakdown')">Cost Breakdown</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div id="stackedDrillBack" style="display:none;margin-bottom:8px;">
+                        <button class="btn btn-outline" style="font-size:.75rem;padding:4px 12px;" onclick="stackedDrillBack()">← Back</button>
+                        <span id="stackedDrillLabel" style="font-size:.78rem;color:var(--t2);margin-left:8px;"></span>
+                    </div>
+                    <div style="position:relative;height:240px;"><canvas id="chartStacked"></canvas></div>
+                </div>
+            </div>
 
-        <!-- ══ MEMBER TABLE (collapsible) ══ -->
-        <div class="table-card" id="reportTable">
-            <div class="table-head">
-                <div style="width:100%;">
-                    <div class="table-head-title collapsible-trigger" id="memberTrigger" onclick="toggleSection('memberBody', 'memberTrigger')">
-                        <span class="toggle-arrow">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-                        </span>
-                        Member Inspection Records
-                        <span class="collapsed-hint">— click to expand</span>
-                    </div>
-                    <div class="table-head-sub" style="margin-top:4px;padding-left:28px;">
-                        Showing <span id="rowCount">@Model.Members.Count</span> of <span id="rowTotal">@Model.Members.Count</span> records
-                    </div>
-                </div>
-            </div>
-            <div class="collapsible-body" id="memberBody">
-                <div class="table-wrap">
-                    <table id="mainTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Phone</th>
-                                <th>Faculty</th>
-                                <th>College</th>
-                                <th>Designation</th>
-                                <th>Department</th>
-                                <th>PAN</th>
-                                <th>Bank</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            @{ int sno = 1; }
-                            @foreach (var m in Model.Members)
-                            {
-                                <tr data-filtered="1"
-                                    data-name="@m.Name?.ToLower()"
-                                    data-email="@m.Email?.ToLower()"
-                                    data-type="@m.TypeofMember?.ToLower()"
-                                    data-phone="@m.PhoneNumber?.ToLower()"
-                                    data-faculty="@m.Facultycode?.ToLower()"
-                                    data-college="@m.CollegeCode?.ToLower()"
-                                    data-status="@(m.IsCompleted == true ? "completed" : "pending")">
-                                    <td>@sno</td>
-                                    <td>
-                                        <strong>@m.Name</strong>
-                                        <br /><span style="font-size:.72rem;color:var(--t3);">@m.Email</span>
-                                    </td>
-                                    <td>
-                                        @if (m.TypeofMember == "Academic Council")
-                                        {
-                                            <span class="badge badge-blue">Academic Council</span>
-                                        }
-                                        else if (m.TypeofMember == "Senate Members")
-                                        {
-                                            <span class="badge badge-purple">Senate</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-yellow">Subject Expert</span>
-                                        }
-                                    </td>
-                                    <td style="font-family:'DM Mono',monospace;font-size:.8rem;">@m.PhoneNumber</td>
-                                    <td>@(m.Facultycode ?? "-")</td>
-                                    <td>@(m.CollegeCode ?? "-")</td>
-                                    <td>@(m.DesignationCode ?? "-")</td>
-                                    <td>@(m.DepartmentCode ?? "-")</td>
-                                    <td style="font-family:'DM Mono',monospace;font-size:.8rem;">@(m.Pannumber ?? "-")</td>
-                                    <td>
-                                        @if (!string.IsNullOrEmpty(m.BankName))
-                                        {
-                                            <span>@m.BankName</span>
-                                        }
-                                        else
-                                        {
-                                            <span style="color:var(--t3);">Not set</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @if (m.IsCompleted == true)
-                                        {
-                                            <span class="badge badge-green">Completed</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-red">Pending</span>
-                                        }
-                                    </td>
-                                </tr>
-                                sno++;
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                <div class="pagination">
-                    <div class="page-info" id="pageInfo">Showing 1–20 of @Model.Members.Count records</div>
-                    <div class="page-btns">
-                        <button class="page-btn" onclick="changePage(-1)" id="btnPrev" disabled>&#8592; Prev</button>
-                        <button class="page-btn active" id="pageNum">1</button>
-                        <button class="page-btn" onclick="changePage(1)" id="btnNext">Next &#8594;</button>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- ══ COLLEGE ASSIGNMENTS TABLE (collapsible) ══ -->
@@ -777,6 +607,7 @@
                             <th>#</th>
                             <th>Member Name</th>
                             <th>Type</th>
+                            <th>College</th>
                             <th>Travel Mode</th>
                             <th>From</th>
                             <th>To</th>
@@ -793,6 +624,10 @@
                         @{ int clsno = 1; }
                         @foreach (var cl in Model.Claims)
                         {
+                            var _collegeName = (!string.IsNullOrWhiteSpace(cl.CollegeCode) &&
+                                               Model.CollegeNameLookup != null &&
+                                               Model.CollegeNameLookup.TryGetValue(cl.CollegeCode.Trim(), out var _cn))
+                                              ? _cn : (cl.CollegeCode ?? "-");
                             <tr data-filtered="1"
                                 data-name="@cl.MemberName?.ToLower()"
                                 data-type="@cl.TypeofMember?.ToLower()"
@@ -814,6 +649,10 @@
                                     {
                                         <span class="badge badge-yellow">SE</span>
                                     }
+                                </td>
+                                <td>
+                                    <span style="font-size:.82rem;font-weight:500;">@_collegeName</span>
+                                    <br /><span style="font-size:.7rem;color:var(--t3);font-family:'DM Mono',monospace;">@(cl.CollegeCode ?? "")</span>
                                 </td>
                                 <td>@(cl.ModeOfTravel ?? "-")</td>
                                 <td>@(cl.FromPlace ?? "-")</td>
@@ -840,7 +679,6 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Claims Pagination -->
             <div class="pagination">
                 <div class="page-info" id="claimsPageInfo">Showing 1–20 of @Model.Claims.Count records</div>
                 <div class="page-btns">
@@ -867,328 +705,418 @@ function toggleSection(bodyId, triggerId) {
 }
 
 // ══════════════════════════════════════════════
-// CHART DATA FROM MODEL
+// RAW CLAIM DATA — serialised from server
 // ══════════════════════════════════════════════
-const completedCount   = @Model.CompletedCount;
-const pendingCount     = @Model.PendingCount;
-const memberTypeCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MemberTypeCounts));
-const travelModeCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TravelModeCounts));
-const monthlyData      = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyInspectionCounts));
-const facultyData      = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FacultyCollegeCounts));
-const costData         = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CostSummary));
+const RAW_CLAIMS = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+    Model.Claims.Select(x => new {
+        memberType  = x.TypeofMember   ?? "",
+        travel      = x.ModeOfTravel   ?? "",
+        bangalore   = x.IsBanglore == true ? "Yes" : "No",
+        faculty     = x.Faculty        ?? "",
+        month       = x.InspectionDate.HasValue ? x.InspectionDate.Value.ToString("MMM yyyy") : "",
+        monthSort   = x.InspectionDate.HasValue ? x.InspectionDate.Value.ToString("yyyy-MM")  : "",
+        travelCost  = x.TravelCost  ?? 0,
+        daCost      = x.Dacost      ?? 0,
+        lcaCost     = x.Lcacost     ?? 0,
+        airFare     = x.AirFareCost ?? 0,
+        collegeCost = x.CollegeCost ?? 0,
+        totalCost   = x.TotalCost   ?? 0,
+        date        = x.InspectionDate.HasValue ? x.InspectionDate.Value.ToString("yyyy-MM-dd") : ""
+    })
+));
 
-// ══ CHART 1: Completion Pie ══
-new Chart(document.getElementById('chartCompletion'), {
-    type: 'pie',
-    data: {
-        labels: ['Completed', 'Pending'],
-        datasets: [{
-            data: [completedCount, pendingCount],
-            backgroundColor: ['#059669', '#DC2626'],
-            borderColor: ['#fff', '#fff'],
-            borderWidth: 3
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: ctx => {
-                        const total = completedCount + pendingCount;
-                        const pct   = total > 0 ? Math.round((ctx.parsed / total) * 100) : 0;
-                        return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+const PALETTE = [
+    '#3B82F6','#7C3AED','#C9A84C','#059669',
+    '#DC2626','#0A2342','#F59E0B','#06B6D4','#EC4899','#84CC16'
+];
+
+// ──────────────────────────────────────────────
+// DATE FILTER STATE
+// ──────────────────────────────────────────────
+let chartDateFrom = '', chartDateTo = '';
+
+function getFilteredClaims() {
+    if (!chartDateFrom && !chartDateTo) return RAW_CLAIMS;
+    return RAW_CLAIMS.filter(c => {
+        if (!c.date) return true;
+        return (!chartDateFrom || c.date >= chartDateFrom) &&
+               (!chartDateTo   || c.date <= chartDateTo);
+    });
+}
+
+function applyChartDateFilter() {
+    chartDateFrom = document.getElementById('chartDateFrom').value;
+    chartDateTo   = document.getElementById('chartDateTo').value;
+    const badge   = document.getElementById('chartDateBadge');
+    if (chartDateFrom || chartDateTo) {
+        badge.style.display = 'flex';
+        document.getElementById('chartDateBadgeText').textContent =
+            (chartDateFrom || '…') + '  →  ' + (chartDateTo || '…');
+    } else {
+        badge.style.display = 'none';
+    }
+    rebuildAllCharts();
+}
+
+function resetChartDateFilter() {
+    chartDateFrom = ''; chartDateTo = '';
+    document.getElementById('chartDateFrom').value = '';
+    document.getElementById('chartDateTo').value   = '';
+    document.getElementById('chartDateBadge').style.display = 'none';
+    rebuildAllCharts();
+}
+
+function rebuildAllCharts() {
+    buildBar(currentBarMode);
+    buildDoughnut(currentDoughnutMode);
+    buildStacked(currentStackedMode);
+}
+
+// ──────────────────────────────────────────────
+// SHARED HELPERS
+// ──────────────────────────────────────────────
+function groupCount(claims, key) {
+    const map = {};
+    claims.forEach(c => { const k = c[key] || 'Unknown'; map[k] = (map[k]||0) + 1; });
+    return map;
+}
+
+function sortedMonths(claims) {
+    const unique = [...new Set(claims.filter(c => c.month).map(c => c.month))];
+    return unique.sort((a, b) => {
+        const sa = claims.find(c => c.month === a)?.monthSort || '';
+        const sb = claims.find(c => c.month === b)?.monthSort || '';
+        return sa.localeCompare(sb);
+    });
+}
+
+function setActivePill(groupSelector, activeIndex) {
+    document.querySelectorAll(groupSelector + ' .toggle-pill')
+        .forEach((b, i) => b.classList.toggle('active', i === activeIndex));
+}
+
+// ══════════════════════════════════════════════
+// CHART A — BAR  (4 toggles + drill-down)
+// ══════════════════════════════════════════════
+let barChart = null;
+let currentBarMode  = 'memberType';
+let barDrillActive  = false;
+
+const BAR_MODES = ['memberType','travelMode','bangalore','faculty'];
+const barMeta = {
+    memberType: { title:'Claims by Member Type',    sub:'Count of claims per member category', key:'memberType' },
+    travelMode: { title:'Claims by Travel Mode',    sub:'Count of claims per travel mode',     key:'travel'     },
+    bangalore:  { title:'Claims — Bangalore Split', sub:'Bangalore vs non-Bangalore',          key:'bangalore'  },
+    faculty:    { title:'Claims by Faculty',        sub:'Count of claims per faculty',         key:'faculty'    }
+};
+
+function buildBar(mode, drillFilter) {
+    const base    = getFilteredClaims();
+    const claims  = drillFilter ? base.filter(c => c[drillFilter.key] === drillFilter.val) : base;
+    const meta    = barMeta[mode];
+
+    document.getElementById('barChartTitle').textContent =
+        drillFilter ? `${meta.title} — ${drillFilter.val}` : meta.title;
+    document.getElementById('barChartSub').textContent =
+        drillFilter ? `Showing only: ${drillFilter.val}` : meta.sub;
+    setActivePill('#barToggleGroup', BAR_MODES.indexOf(mode));
+
+    const grouped  = groupCount(claims, meta.key);
+    const labels   = Object.keys(grouped);
+    const data     = Object.values(grouped);
+    const grandTot = data.reduce((a,b)=>a+b,0);
+
+    if (barChart) barChart.destroy();
+    barChart = new Chart(document.getElementById('chartBar'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Claims',
+                data,
+                backgroundColor: labels.map((_,i) => PALETTE[i % PALETTE.length]),
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: { duration: 650, easing: 'easeInOutQuart' },
+            onClick: (evt, els) => {
+                if (!els.length || drillFilter) return;
+                const lbl      = labels[els[0].index];
+                const nextMode = BAR_MODES[(BAR_MODES.indexOf(mode) + 1) % BAR_MODES.length];
+                barDrillActive = true;
+                currentBarMode = nextMode;
+                document.getElementById('barDrillBack').style.display = 'flex';
+                document.getElementById('barDrillLabel').textContent  = `Drilling into: ${lbl}`;
+                buildBar(nextMode, { key: meta.key, val: lbl });
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#0A2342',
+                    titleFont: { size: 11 },
+                    bodyFont:  { size: 11 },
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => ` Claims: ${ctx.parsed.y}`,
+                        afterLabel: ctx => {
+                            const pct = grandTot > 0 ? Math.round(ctx.parsed.y / grandTot * 100) : 0;
+                            return ` Share: ${pct}%`;
+                        },
+                        footer: () => drillFilter ? '' : '  Click bar to drill down →'
+                    }
+                }
+            },
+            scales: {
+                y: { beginAtZero:true, grid:{ color:'#E2E8F0' }, ticks:{ font:{ size:10 }, stepSize:1 } },
+                x: { grid:{ display:false }, ticks:{ font:{ size:10 }, maxRotation:30 } }
+            }
+        }
+    });
+}
+
+function switchBar(mode) {
+    currentBarMode = mode; barDrillActive = false;
+    document.getElementById('barDrillBack').style.display = 'none';
+    buildBar(mode);
+}
+
+function barDrillBack() {
+    barDrillActive = false;
+    document.getElementById('barDrillBack').style.display = 'none';
+    buildBar(currentBarMode);
+}
+
+// ══════════════════════════════════════════════
+// CHART B — DOUGHNUT  (3 toggles + drill-down)
+// ══════════════════════════════════════════════
+let doughnutChart        = null;
+let currentDoughnutMode  = 'travelMode';
+let doughnutDrillActive  = false;
+
+const DOUGHNUT_MODES = ['travelMode','bangalore','memberType'];
+const doughnutMeta = {
+    travelMode: { title:'Travel Mode Distribution', sub:'Claims split by mode of travel',    key:'travel'     },
+    bangalore:  { title:'Bangalore Split',          sub:'Bangalore vs non-Bangalore claims', key:'bangalore'  },
+    memberType: { title:'Member Type Distribution', sub:'Claims split by member category',   key:'memberType' }
+};
+
+function buildDoughnut(mode, drillFilter) {
+    const base   = getFilteredClaims();
+    const claims = drillFilter ? base.filter(c => c[doughnutMeta[currentDoughnutMode]?.key||'travel'] === drillFilter.val) : base;
+    const meta   = doughnutMeta[mode];
+
+    document.getElementById('doughnutChartTitle').textContent =
+        drillFilter ? `${meta.title} — ${drillFilter.val}` : meta.title;
+    document.getElementById('doughnutChartSub').textContent = meta.sub;
+    setActivePill('#doughnutToggleGroup', DOUGHNUT_MODES.indexOf(mode));
+
+    const grouped = groupCount(claims, meta.key);
+    const labels  = Object.keys(grouped);
+    const data    = Object.values(grouped);
+    const total   = data.reduce((a,b)=>a+b, 0);
+
+    if (doughnutChart) doughnutChart.destroy();
+    doughnutChart = new Chart(document.getElementById('chartDoughnut'), {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                data,
+                backgroundColor: labels.map((_,i) => PALETTE[i % PALETTE.length]),
+                borderWidth: 3,
+                borderColor: '#fff',
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false, cutout: '64%',
+            animation: { animateRotate:true, animateScale:true, duration: 750 },
+            onClick: (evt, els) => {
+                if (!els.length || drillFilter) return;
+                const lbl      = labels[els[0].index];
+                const nextMode = DOUGHNUT_MODES[(DOUGHNUT_MODES.indexOf(mode) + 1) % DOUGHNUT_MODES.length];
+                doughnutDrillActive = true;
+                currentDoughnutMode = nextMode;
+                document.getElementById('doughnutDrillBack').style.display = 'flex';
+                document.getElementById('doughnutDrillLabel').textContent  = `Drilling into: ${lbl}`;
+                buildDoughnut(nextMode, { key: meta.key, val: lbl });
+            },
+            plugins: {
+                legend: {
+                    display: true, position: 'bottom',
+                    labels: { padding:8, font:{ size:10 }, boxWidth:10, boxHeight:10 }
+                },
+                tooltip: {
+                    backgroundColor: '#0A2342',
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => {
+                            const pct = total > 0 ? Math.round(ctx.parsed / total * 100) : 0;
+                            return ` ${ctx.label}: ${ctx.parsed}  (${pct}%)`;
+                        },
+                        footer: () => drillFilter ? '' : '  Click slice to drill down →'
                     }
                 }
             }
         }
-    }
-});
+    });
 
-// ══ CHART 2: Member Type Bar ══
-new Chart(document.getElementById('chartMemberType'), {
-    type: 'bar',
-    data: {
-        labels: Object.keys(memberTypeCounts),
-        datasets: [{
-            label: 'Members',
-            data: Object.values(memberTypeCounts),
-            backgroundColor: ['#3B82F6', '#7C3AED', '#C9A84C'],
-            borderRadius: 6,
-            borderSkipped: false
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: { beginAtZero: true, grid: { color: '#E2E8F0' }, ticks: { stepSize: 1, font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-        }
-    }
-});
+    document.getElementById('doughnutCenterStat').textContent =
+        `Total: ${total.toLocaleString('en-IN')} claim${total !== 1 ? 's' : ''}`;
+}
 
-// ══ CHART 3: Travel Mode Doughnut ══
-new Chart(document.getElementById('chartTravel'), {
-    type: 'doughnut',
-    data: {
-        labels: Object.keys(travelModeCounts),
-        datasets: [{
-            data: Object.values(travelModeCounts),
-            backgroundColor: ['#3B82F6', '#059669', '#C9A84C', '#DC2626', '#7C3AED', '#0F172A'],
-            borderWidth: 3,
-            borderColor: '#fff'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '60%',
-        plugins: {
-            legend: {
-                display: true,
-                position: 'bottom',
-                labels: { padding: 8, font: { size: 10 }, boxWidth: 10, boxHeight: 10 }
+function switchDoughnut(mode) {
+    currentDoughnutMode = mode; doughnutDrillActive = false;
+    document.getElementById('doughnutDrillBack').style.display = 'none';
+    buildDoughnut(mode);
+}
+
+function doughnutDrillBack() {
+    doughnutDrillActive = false;
+    document.getElementById('doughnutDrillBack').style.display = 'none';
+    buildDoughnut(currentDoughnutMode);
+}
+
+// ══════════════════════════════════════════════
+// CHART C — STACKED BAR  (3 toggles + drill-down)
+// ══════════════════════════════════════════════
+let stackedChart       = null;
+let currentStackedMode = 'monthlyCount';
+let stackedDrillActive = false;
+
+const STACKED_MODES = ['monthlyCount','monthlyCost','costBreakdown'];
+
+function buildStacked(mode, drillMonth) {
+    const base     = getFilteredClaims();
+    const filtered = drillMonth ? base.filter(c => c.month === drillMonth) : base;
+
+    // titles
+    const titles = {
+        monthlyCount:  ['Monthly Claims Trend',   'Claims stacked by member type · click a bar to drill into that month\'s cost'],
+        monthlyCost:   ['Monthly Cost Trend (₹)', 'Total cost stacked by member type per month (₹) · click to drill'],
+        costBreakdown: ['Overall Cost Breakdown',  'Travel · DA · LCA · Air Fare · College · Total cost components']
+    };
+    document.getElementById('stackedChartTitle').textContent = drillMonth
+        ? `${titles[mode][0]} — ${drillMonth}` : titles[mode][0];
+    document.getElementById('stackedChartSub').textContent   = titles[mode][1];
+    setActivePill('#stackedToggleGroup', STACKED_MODES.indexOf(mode));
+
+    let chartCfgData, isStacked = true;
+
+    if (mode === 'monthlyCount' || mode === 'monthlyCost') {
+        const months   = sortedMonths(filtered);
+        const types    = [...new Set(filtered.map(c => c.memberType).filter(Boolean))];
+        const datasets = types.map((t, i) => ({
+            label: t,
+            data: months.map(m => {
+                const sub = filtered.filter(c => c.month === m && c.memberType === t);
+                return mode === 'monthlyCount'
+                    ? sub.length
+                    : sub.reduce((s,c) => s + c.totalCost, 0);
+            }),
+            backgroundColor: PALETTE[i % PALETTE.length],
+            borderRadius: 4, borderSkipped: false
+        }));
+        chartCfgData = { labels: months, datasets };
+
+    } else {
+        isStacked = false;
+        const sum = k => filtered.reduce((s,c) => s + (c[k]||0), 0);
+        chartCfgData = {
+            labels: ['Travel','DA','LCA','Air Fare','College','Total'],
+            datasets: [{
+                label: '₹ Amount',
+                data: [
+                    sum('travelCost'), sum('daCost'),  sum('lcaCost'),
+                    sum('airFare'),    sum('collegeCost'), sum('totalCost')
+                ],
+                backgroundColor: ['#3B82F6','#7C3AED','#C9A84C','#059669','#0A2342','#DC2626'],
+                borderRadius: 6, borderSkipped: false
+            }]
+        };
+    }
+
+    if (stackedChart) stackedChart.destroy();
+    stackedChart = new Chart(document.getElementById('chartStacked'), {
+        type: 'bar',
+        data: chartCfgData,
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: { duration: 700, easing: 'easeInOutQuart' },
+            onClick: (evt, els) => {
+                if (!els.length || drillMonth || mode === 'costBreakdown') return;
+                const lbl = chartCfgData.labels[els[0].index];
+                stackedDrillActive = true;
+                document.getElementById('stackedDrillBack').style.display = 'flex';
+                document.getElementById('stackedDrillLabel').textContent  = `Month: ${lbl}`;
+                // clicking a monthly-count bar drills to cost breakdown for that month
+                buildStacked('costBreakdown', lbl);
+            },
+            plugins: {
+                legend: {
+                    display: isStacked, position: 'bottom',
+                    labels: { padding:8, font:{ size:10 }, boxWidth:10, boxHeight:10 }
+                },
+                tooltip: {
+                    backgroundColor: '#0A2342',
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => {
+                            const v = ctx.parsed.y ?? ctx.parsed;
+                            return (mode === 'costBreakdown' || mode === 'monthlyCost')
+                                ? ` ${ctx.dataset.label}: ₹${Number(v).toLocaleString('en-IN')}`
+                                : ` ${ctx.dataset.label}: ${v} claim${v!==1?'s':''}`;
+                        },
+                        footer: () => (mode === 'costBreakdown' || drillMonth)
+                            ? '' : '  Click bar to see month\'s cost breakdown →'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true, stacked: isStacked,
+                    grid: { color: '#E2E8F0' },
+                    ticks: {
+                        font: { size:10 },
+                        callback: v => (mode === 'costBreakdown' || mode === 'monthlyCost')
+                            ? '₹' + Number(v).toLocaleString('en-IN') : v
+                    }
+                },
+                x: {
+                    stacked: isStacked, grid: { display:false },
+                    ticks: { font:{ size:10 }, maxRotation:35 }
+                }
             }
         }
-    }
-});
-
-// ══ CHART 4: Monthly Trend Line ══
-new Chart(document.getElementById('chartMonthly'), {
-    type: 'line',
-    data: {
-        labels: Object.keys(monthlyData),
-        datasets: [{
-            label: 'Inspections',
-            data: Object.values(monthlyData),
-            borderColor: '#0A2342',
-            backgroundColor: 'rgba(10,35,66,.08)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#C9A84C',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: { beginAtZero: true, grid: { color: '#E2E8F0' }, ticks: { stepSize: 1, font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 45, font: { size: 10 } } }
-        }
-    }
-});
-
-// ══ CHART 5: Faculty / College Horizontal Bar ══
-new Chart(document.getElementById('chartFaculty'), {
-    type: 'bar',
-    data: {
-        labels: Object.keys(facultyData),
-        datasets: [{
-            label: 'Colleges',
-            data: Object.values(facultyData),
-            backgroundColor: '#1A4A7A',
-            borderRadius: 4,
-            borderSkipped: false
-        }]
-    },
-    options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            x: { beginAtZero: true, grid: { color: '#E2E8F0' }, ticks: { stepSize: 1, font: { size: 10 } } },
-            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-        }
-    }
-});
-
-// ══ CHART 6: Cost Distribution ══
-new Chart(document.getElementById('chartCost'), {
-    type: 'bar',
-    data: {
-        labels: ['Travel', 'DA', 'LCA', 'Air Fare', 'College', 'Total'],
-        datasets: [{
-            label: '₹ Amount',
-            data: [
-                costData.TravelCost  || 0,
-                costData.DACost      || 0,
-                costData.LCACost     || 0,
-                costData.AirFareCost || 0,
-                costData.CollegeCost || 0,
-                costData.TotalCost   || 0
-            ],
-            backgroundColor: ['#3B82F6','#7C3AED','#C9A84C','#059669','#0A2342','#DC2626'],
-            borderRadius: 6,
-            borderSkipped: false
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: {
-                beginAtZero: true,
-                grid: { color: '#E2E8F0' },
-                ticks: { font: { size: 10 }, callback: v => '₹' + v.toLocaleString('en-IN') }
-            },
-            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-        }
-    }
-});
-
-// ══════════════════════════════════════════════
-// MEMBERS TABLE — PAGINATION
-// ══════════════════════════════════════════════
-let currentPage = 1;
-const PAGE_SIZE = 20;
-
-function renderPage() {
-    const allRows  = Array.from(document.querySelectorAll('#tableBody tr'));
-    const filtered = allRows.filter(r => r.dataset.filtered === '1');
-    const total    = filtered.length;
-    const maxPage  = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-    if (currentPage > maxPage) currentPage = maxPage;
-    if (currentPage < 1)       currentPage = 1;
-
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end   = start + PAGE_SIZE;
-
-    allRows.forEach(r => r.style.display = 'none');
-    filtered.slice(start, end).forEach(r => r.style.display = '');
-
-    const showStart = total === 0 ? 0 : start + 1;
-    const showEnd   = Math.min(end, total);
-    document.getElementById('pageInfo').textContent    = `Showing ${showStart}–${showEnd} of ${total} records`;
-    document.getElementById('rowCount').textContent    = total;
-    document.getElementById('pageNum').textContent     = currentPage;
-    document.getElementById('btnPrev').disabled        = currentPage === 1;
-    document.getElementById('btnNext').disabled        = currentPage === maxPage;
-}
-
-function changePage(dir) {
-    currentPage += dir;
-    renderPage();
-}
-
-// ══════════════════════════════════════════════
-// MEMBERS TABLE — FILTERS
-// ══════════════════════════════════════════════
-function applyFilters() {
-    const memType = document.getElementById('filterMemberType').value.trim().toLowerCase();
-    const faculty = document.getElementById('filterFaculty').value.trim().toLowerCase();
-    const college = document.getElementById('filterCollege').value.trim().toLowerCase();
-    const status  = document.getElementById('filterStatus').value.trim().toLowerCase();
-    const search  = document.getElementById('filterSearch').value.trim().toLowerCase();
-
-    Array.from(document.querySelectorAll('#tableBody tr')).forEach(row => {
-        const rName    = row.dataset.name    || '';
-        const rEmail   = row.dataset.email   || '';
-        const rType    = row.dataset.type    || '';
-        const rPhone   = row.dataset.phone   || '';
-        const rFaculty = row.dataset.faculty || '';
-        const rCollege = row.dataset.college || '';
-        const rStatus  = row.dataset.status  || '';
-
-        const matchSearch = !search || rName.includes(search) || rPhone.includes(search) || rEmail.includes(search);
-
-        let matchType = true;
-        if (memType) {
-            if (memType === 'senate')              matchType = rType.includes('senate');
-            else if (memType === 'subject expert') matchType = rType.includes('subject');
-            else                                   matchType = rType.includes(memType);
-        }
-
-        const matchFaculty = !faculty || rFaculty === faculty || rFaculty.includes(faculty);
-        const matchCollege = !college || rCollege === college;
-        const matchStatus  = !status  || rStatus  === status;
-
-        row.dataset.filtered = (matchSearch && matchType && matchFaculty && matchCollege && matchStatus) ? '1' : '0';
     });
-
-    currentPage = 1;
-    renderPage();
 }
 
-function resetFilters() {
-    ['filterAcYear','filterMemberType','filterFaculty','filterCollege',
-     'filterStatus','filterTravel','filterDateFrom','filterDateTo','filterSearch']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    document.querySelectorAll('#tableBody tr').forEach(r => r.dataset.filtered = '1');
-    currentPage = 1;
-    renderPage();
+function switchStacked(mode) {
+    currentStackedMode = mode; stackedDrillActive = false;
+    document.getElementById('stackedDrillBack').style.display = 'none';
+    buildStacked(mode);
+}
+
+function stackedDrillBack() {
+    stackedDrillActive = false;
+    document.getElementById('stackedDrillBack').style.display = 'none';
+    buildStacked(currentStackedMode);
 }
 
 // ══════════════════════════════════════════════
-// MEMBERS TABLE — DOWNLOADS
+// INIT ALL 3 CHARTS
 // ══════════════════════════════════════════════
-function downloadCSV() {
-    const table   = document.getElementById('mainTable');
-    const headers = Array.from(table.querySelectorAll('thead th'))
-                         .map(th => '"' + th.innerText.replace(/"/g,'""') + '"');
-    const rows    = Array.from(document.querySelectorAll('#tableBody tr'))
-                         .filter(r => r.dataset.filtered === '1')
-                         .map(r => Array.from(r.querySelectorAll('td'))
-                              .map(td => '"' + td.innerText.replace(/"/g,'""').replace(/\n/g,' ') + '"')
-                              .join(','));
-    const blob = new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv' });
-    triggerDownload(blob, 'LIC_Members_Report_' + today() + '.csv');
-}
-
-function downloadPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    doc.setFontSize(14); doc.setTextColor(10, 35, 66);
-    doc.text('LIC Inspection Member Report', 14, 15);
-    doc.setFontSize(9); doc.setTextColor(100);
-    doc.text('Generated: ' + new Date().toLocaleString('en-IN'), 14, 22);
-    doc.setFontSize(10); doc.setTextColor(10, 35, 66);
-    doc.text(`Total: ${completedCount + pendingCount}  |  Completed: ${completedCount}  |  Pending: ${pendingCount}`, 14, 29);
-
-    const table   = document.getElementById('mainTable');
-    const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.innerText);
-    const rows    = Array.from(document.querySelectorAll('#tableBody tr'))
-                         .filter(r => r.dataset.filtered === '1')
-                         .map(r => Array.from(r.querySelectorAll('td')).map(td => td.innerText.replace(/\n/g,' ')));
-
-    doc.autoTable({
-        head: [headers], body: rows, startY: 34,
-        styles: { fontSize: 7, cellPadding: 2 },
-        headStyles: { fillColor: [10, 35, 66], textColor: 255, fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [244, 246, 250] },
-        margin: { left: 14, right: 14 }
-    });
-    doc.save('LIC_Members_Report_' + today() + '.pdf');
-}
-
-function downloadExcel() {
-    const table   = document.getElementById('mainTable');
-    const headers = Array.from(table.querySelectorAll('thead th'))
-                         .map(th => '"' + th.innerText.replace(/"/g,'""') + '"');
-    const rows    = Array.from(document.querySelectorAll('#tableBody tr'))
-                         .filter(r => r.dataset.filtered === '1')
-                         .map(r => Array.from(r.querySelectorAll('td'))
-                              .map(td => '"' + td.innerText.replace(/"/g,'""').replace(/\n/g,' ') + '"')
-                              .join('\t'));
-    const blob = new Blob(['\uFEFF' + [headers.join('\t'), ...rows].join('\n')],
-                          { type: 'application/vnd.ms-excel;charset=utf-8' });
-    triggerDownload(blob, 'LIC_Members_Report_' + today() + '.xls');
-}
+buildBar('memberType');
+buildDoughnut('travelMode');
+buildStacked('monthlyCount');
 
 // ══════════════════════════════════════════════
 // CLAIMS TABLE — PAGINATION
 // ══════════════════════════════════════════════
+const PAGE_SIZE = 20;
 let claimsCurrentPage = 1;
 
 function renderClaimsPage() {
@@ -1243,9 +1171,8 @@ function applyClaimFilters() {
         const matchBangalore = !bangalore || rBangalore === bangalore;
         const matchDateFrom  = !dateFrom  || rDate >= dateFrom;
         const matchDateTo    = !dateTo    || rDate <= dateTo;
-
-        let matchType = true;
-        if (type) matchType = rType.includes(type);
+        let   matchType      = true;
+        if (type) matchType  = rType.includes(type);
 
         row.dataset.filtered = (matchSearch && matchType && matchTravel && matchBangalore && matchDateFrom && matchDateTo) ? '1' : '0';
     });
@@ -1344,17 +1271,14 @@ function triggerDownload(blob, filename) {
 }
 
 // ══════════════════════════════════════════════
-// LIVE SEARCH BINDINGS
+// LIVE SEARCH BINDING
 // ══════════════════════════════════════════════
-document.getElementById('filterSearch').addEventListener('input', applyFilters);
 document.getElementById('claimFilterSearch').addEventListener('input', applyClaimFilters);
 
 // ══════════════════════════════════════════════
-// INIT — mark all rows visible, render page 1
+// INIT
 // ══════════════════════════════════════════════
-document.querySelectorAll('#tableBody tr').forEach(r => r.dataset.filtered = '1');
 document.querySelectorAll('#claimsTableBody tr').forEach(r => r.dataset.filtered = '1');
-renderPage();
 renderClaimsPage();
 </script>
 

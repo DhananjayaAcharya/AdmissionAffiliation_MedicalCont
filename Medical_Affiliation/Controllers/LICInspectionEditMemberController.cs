@@ -438,11 +438,27 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> Reports()
         {
-            var members = await _context.LicInspections.AsNoTracking().ToListAsync();
-            var collegeAssignments = await _context.LicInspectionCollegeDetails.AsNoTracking().ToListAsync();
-            var claims = await _context.LicclaimDetails.AsNoTracking().ToListAsync();
+            var sessionFacultyCode = HttpContext.Session.GetString("FacultyCode");
+            bool isSuperUser = sessionFacultyCode == "300";
 
-            // Build faculty name lookup from master table
+            // ── Load all data ──────────────────────────────────────────────
+            var allMembers = await _context.LicInspections
+                .AsNoTracking()
+                .ToListAsync();
+
+            var allCollegeAssignments = await _context.LicInspectionCollegeDetails
+                .AsNoTracking()
+                .ToListAsync();
+
+            var allClaims = await _context.LicclaimDetails
+                .AsNoTracking()
+                .ToListAsync();
+
+            var memberTypesMaster = await _context.LicModeofTravels
+                .AsNoTracking()
+                .ToListAsync();
+
+            // ── Faculty name lookup ────────────────────────────────────────
             var facultyLookup = await _context.Faculties
                 .AsNoTracking()
                 .ToDictionaryAsync(
@@ -450,77 +466,122 @@ namespace Medical_Affiliation.Controllers
                     f => f.FacultyName ?? f.FacultyId.ToString()
                 );
 
-            // Safely resolve faculty name from code
             string FacultyName(string? code) =>
-                !string.IsNullOrEmpty(code) && facultyLookup.TryGetValue(code, out var name)
+                !string.IsNullOrWhiteSpace(code) &&
+                facultyLookup.TryGetValue(code.Trim(), out var name)
                     ? name
                     : (code ?? "Unknown");
 
+            // ── College name lookup (code → name) ──────────────────────────
+            var collegeNameLookup = allCollegeAssignments
+                .Where(x => !string.IsNullOrWhiteSpace(x.Collegecode) &&
+                            !string.IsNullOrWhiteSpace(x.Collegename))
+                .GroupBy(x => x.Collegecode!.Trim())
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.First().Collegename!
+                );
+
+            // ── Filtered sets (show all) ───────────────────────────────────
+            var filteredMembers = allMembers.ToList();
+            var filteredClaims = allClaims.ToList();
+            var filteredCollegeAssignments = allCollegeAssignments.ToList();
+
+            // ── College dropdown ───────────────────────────────────────────
+            var filteredColleges = filteredCollegeAssignments
+                .Where(x =>
+                    !string.IsNullOrWhiteSpace(x.Collegecode) &&
+                    !string.IsNullOrWhiteSpace(x.Collegename))
+                .Select(x => new CollegeDropdownItem
+                {
+                    CollegeCode = x.Collegecode!,
+                    CollegeName = x.Collegename!
+                })
+                .DistinctBy(x => x.CollegeCode)
+                .OrderBy(x => x.CollegeName)
+                .ToList();
+
+            // ── Faculty dropdown ───────────────────────────────────────────
+            List<LICReportsViewModel.FacultyItem> facultyList = allCollegeAssignments
+                .Where(x => x.Facultycode.HasValue)
+                .Select(x => x.Facultycode!.Value.ToString())
+                .Distinct()
+                .OrderBy(x => x)
+                .Select(code => new LICReportsViewModel.FacultyItem
+                {
+                    FacultyCode = code,
+                    FacultyName = FacultyName(code)
+                })
+                .ToList();
+
+            // ── Build model ────────────────────────────────────────────────
             var model = new LICReportsViewModel
             {
-                // ── Stats ──────────────────────────────────────────────────
-                TotalMembers = members.Count,
-                CompletedCount = members.Count(x => x.IsCompleted == true),
-                PendingCount = members.Count(x => x.IsCompleted != true),
-                TotalClaims = claims.Count,
-                TotalColleges = collegeAssignments.Select(x => x.Collegecode).Distinct().Count(),
+                TotalMembers = filteredMembers.Count,
 
-                // ── Table data ─────────────────────────────────────────────
-                Members = members,
-                CollegeAssignments = collegeAssignments,
-                Claims = claims,
+                CompletedCount = filteredMembers.Count(x => x.IsCompleted == true),
 
-                // ── Filter dropdowns ───────────────────────────────────────
-                AcademicYears = collegeAssignments
-                    .Where(x => !string.IsNullOrEmpty(x.AcademicYear))
+                PendingCount = filteredMembers.Count(x => x.IsCompleted != true),
+
+                TotalClaims = filteredClaims.Count,
+
+                TotalColleges = filteredCollegeAssignments
+                    .Select(x => x.Collegecode)
+                    .Distinct()
+                    .Count(),
+
+                Members = filteredMembers,
+
+                CollegeAssignments = filteredCollegeAssignments,
+
+                Claims = filteredClaims,
+
+                CollegeNameLookup = collegeNameLookup,
+
+                AcademicYears = filteredCollegeAssignments
+                    .Where(x => !string.IsNullOrWhiteSpace(x.AcademicYear))
                     .Select(x => x.AcademicYear!)
-                    .Distinct().OrderBy(x => x).ToList(),
-
-                FacultyList = members
-                    .Where(x => !string.IsNullOrEmpty(x.Facultycode))
-                    .Select(x => x.Facultycode!)
                     .Distinct()
                     .OrderBy(x => x)
-                    .Select(code => new LICReportsViewModel.FacultyItem
-                    {
-                        FacultyCode = code,
-                        FacultyName = FacultyName(code)
-                    })
                     .ToList(),
 
-                Colleges = collegeAssignments
-                    .Where(x => !string.IsNullOrEmpty(x.Collegecode))
-                    .Select(x => new CollegeDropdownItem
-                    {
-                        CollegeCode = x.Collegecode!,
-                        CollegeName = x.Collegename!
-                    })
-                    .DistinctBy(x => x.CollegeCode)
-                    .OrderBy(x => x.CollegeName).ToList(),
+                FacultyList = facultyList,
 
-                TravelModes = claims
-                    .Where(x => !string.IsNullOrEmpty(x.ModeOfTravel))
-                    .Select(x => x.ModeOfTravel!)
-                    .Distinct().OrderBy(x => x).ToList(),
+                Colleges = filteredColleges,
 
-                // ── Charts ─────────────────────────────────────────────────
-                MemberTypeCounts = members
-                    .GroupBy(x => x.TypeofMember ?? "Unknown")
-                    .ToDictionary(g => g.Key, g => g.Count()),
+                TravelModes = memberTypesMaster
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Modeoftravel))
+                    .Select(x => x.Modeoftravel!)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList(),
 
-                TravelModeCounts = claims
-                    .Where(x => !string.IsNullOrEmpty(x.ModeOfTravel))
+                MemberTypeCounts = filteredClaims
+                    .Where(x => !string.IsNullOrWhiteSpace(x.TypeofMember))
+                    .GroupBy(x => x.TypeofMember!)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Count()
+                    ),
+
+                TravelModeCounts = filteredClaims
+                    .Where(x => !string.IsNullOrWhiteSpace(x.ModeOfTravel))
                     .GroupBy(x => x.ModeOfTravel!)
-                    .ToDictionary(g => g.Key, g => g.Count()),
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Count()
+                    ),
 
-                MonthlyInspectionCounts = claims
+                MonthlyInspectionCounts = filteredClaims
                     .Where(x => x.InspectionDate.HasValue)
                     .GroupBy(x => x.InspectionDate!.Value.ToString("MMM yyyy"))
                     .OrderBy(g => DateTime.ParseExact(g.Key, "MMM yyyy", null))
-                    .ToDictionary(g => g.Key, g => g.Count()),
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Count()
+                    ),
 
-                // Faculty name as chart label key
-                FacultyCollegeCounts = collegeAssignments
+                FacultyCollegeCounts = filteredCollegeAssignments
                     .Where(x => x.Facultycode.HasValue)
                     .GroupBy(x => x.Facultycode!.Value)
                     .ToDictionary(
@@ -530,13 +591,16 @@ namespace Medical_Affiliation.Controllers
 
                 CostSummary = new CostSummaryData
                 {
-                    TravelCost = claims.Sum(x => x.TravelCost ?? 0),
-                    DACost = claims.Sum(x => x.Dacost ?? 0),
-                    LCACost = claims.Sum(x => x.Lcacost ?? 0),
-                    AirFareCost = claims.Sum(x => x.AirFareCost ?? 0),
-                    CollegeCost = claims.Sum(x => x.CollegeCost ?? 0),
-                    TotalCost = claims.Sum(x => x.TotalCost ?? 0),
-                }
+                    TravelCost = filteredClaims.Sum(x => x.TravelCost ?? 0),
+                    DACost = filteredClaims.Sum(x => x.Dacost ?? 0),
+                    LCACost = filteredClaims.Sum(x => x.Lcacost ?? 0),
+                    AirFareCost = filteredClaims.Sum(x => x.AirFareCost ?? 0),
+                    CollegeCost = filteredClaims.Sum(x => x.CollegeCost ?? 0),
+                    TotalCost = filteredClaims.Sum(x => x.TotalCost ?? 0)
+                },
+
+                SelectedFacultyCode = sessionFacultyCode,
+                IsSuperUser = isSuperUser
             };
 
             return View(model);
@@ -699,6 +763,8 @@ namespace Medical_Affiliation.Controllers
             public int TotalColleges { get; set; }
 
             // Filter options
+            public Dictionary<string, string> CollegeNameLookup { get; set; } = new();
+            public string? SelectedFacultyCode { get; set; }
             public List<string> AcademicYears { get; set; } = new();
             public List<FacultyItem> FacultyList { get; set; } = new();
             public List<CollegeDropdownItem> Colleges { get; set; } = new();
@@ -715,6 +781,7 @@ namespace Medical_Affiliation.Controllers
             public Dictionary<string, int> MonthlyInspectionCounts { get; set; } = new();
             public Dictionary<string, int> FacultyCollegeCounts { get; set; } = new();
             public CostSummaryData CostSummary { get; set; } = new();
+            public bool IsSuperUser { get; set; }
 
             public class FacultyItem
             {
