@@ -4388,3 +4388,78 @@ VALUES
  --DELETE FROM MstDentalInfrastructure
 
  SELECT * FROM DentalInfrastructure;
+
+ -----------------------20 MAY 2026 - REVIEWED -------------
+
+ SELECT * FROM [dbo].[TypeOfOrganizationMaster]
+ 
+ select * from [dbo].[Mst_InstitutionType]
+
+ INSERT INTO [dbo].[Mst_InstitutionType]
+ (InstitutionType, OrganizationCategory, FacultyId)
+ VALUES
+ ('Government/Autonomous','G', 2),
+ ('Private','P',2),
+ ('Trust/Society','P',2),
+ ('Defence','G',2),
+ ('Missionary','p',2),
+ ('N.G.O','P',2),
+ ('Voluntary','P',2),
+ ('Municipal Corporation','P',2),
+ ('Others','P',2);
+
+
+ SELECT * FROM [dbo].[MST_MedicalCourseType]
+
+ ALTER TABLE [dbo].[MST_MedicalCourseType]
+ ADD FacultyCode INT NOT NULL DEFAULT 1;
+
+ EXEC sp_helpindex 'MST_MedicalCourseType';
+
+ -- Drop existing unique constraint
+--ALTER TABLE MST_MedicalCourseType
+--DROP CONSTRAINT UQ__MST_Medi__3CFBF772322C04E5;
+
+--ALTER TABLE MST_MedicalCourseType
+--DROP CONSTRAINT UQ__MST_Medi__3CFBF77269336811;
+
+ALTER TABLE MST_MedicalCourseType
+ADD CONSTRAINT UQ_MST_MedicalCourseType_CourseTypeName_FacultyCode
+UNIQUE (CourseTypeName, FacultyCode);
+ 
+INSERT INTO [MST_MedicalCourseType]
+(
+    CourseTypeName, Description, IsUG, IsPG, IsSS, Status, CreatedDate, ModifiedDate, FacultyCode
+)
+VALUES
+('UG', 'Under Graduate courses only', 1, 0, 0, 'Active', GETDATE(), GETDATE(), 2),
+('PG', 'Post Graduate courses only', 0, 1, 0, 'Active', GETDATE(), GETDATE(), 2),
+('SS', 'Super Specialty courses only', 0, 0, 1, 'Active', GETDATE(), GETDATE(), 2),
+('UG and PG', 'Under Graduate and Post Graduate courses', 1, 1, 0, 'Active', GETDATE(), GETDATE(), 2),
+('UG, PG and SS', 'All course types - UG, PG and Super Specialty', 1, 1, 1, 'Active', GETDATE(), GETDATE(), 2),
+('PG and SS', 'Post Graduate and Super Specialty courses', 0, 1, 1, 'Active', GETDATE(), GETDATE(), 2),
+('Diploma', 'Diploma courses', 0, 1, 1, 'Active', GETDATE(), GETDATE(), 2),
+('PhD', 'PhD courses', 0, 1, 1, 'Active', GETDATE(), GETDATE(), 2);
+
+SELECT * FROM [dbo].[InstitutionBasicDetails];
+
+ALTER TABLE [dbo].[InstitutionBasicDetails]
+ADD DCIcertificateFilePath VARCHAR(500) NULL;
+
+ALTER TABLE [dbo].[InstitutionBasicDetails]
+ADD KSDCcertificateFilePath VARCHAR(500) NULL;
+
+ALTER TABLE [dbo].[InstitutionBasicDetails]
+ADD OtherDentalCollegeInCity bit NULL;
+
+ALTER TABLE [dbo].[Aff_DeanOrDirectorDetails]
+ADD RecognizedByDCI BIT NULL;
+
+ALTER TABLE [dbo].[Aff_PrincipalDetails]
+ADD RecognizedByDCI BIT NULL;
+
+ALTER TABLE [dbo].[Medical_DepartmentOfficesMeu]
+ADD HasDentalEducationUnit BIT NULL,
+    DentalEducationUnitAreaSqm BIT NULL,
+    DentalEducationUnitHasAudioVisual BIT NULL,
+    DentalEducationUnitHasInternet BIT NULL;

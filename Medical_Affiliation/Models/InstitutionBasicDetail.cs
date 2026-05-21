@@ -78,6 +78,7 @@ public partial class InstitutionBasicDetail
     public string? ContactPersonMobile { get; set; }
 
     public bool? OtherPhysiotherapyCollegeInCity { get; set; }
+    public bool? OtherDentalCollegeInCity { get; set; }
 
     public string? CoursesAppliedText { get; set; }
 
@@ -118,6 +119,9 @@ public partial class InstitutionBasicDetail
     public string? RegistrationCertificateFilePath { get; set; }
 
     public string? RegisteredTrustMemberDetailsPath { get; set; }
+
+    public string? DCIcertificateFilePath { get; set; }
+    public string? KSDCcertificateFilePath { get; set; }
 
     public string? AuditStatementFilePath { get; set; }
 }

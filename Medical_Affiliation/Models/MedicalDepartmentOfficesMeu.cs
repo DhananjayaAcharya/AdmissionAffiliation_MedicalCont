@@ -23,6 +23,14 @@ public partial class MedicalDepartmentOfficesMeu
 
     public bool? MedicalEducationUnitHasInternet { get; set; }
 
+    public bool HasDentalEducationUnit { get; set; }
+
+    public decimal? DentalEducationUnitAreaSqm { get; set; }
+
+    public bool? DentalEducationUnitHasAudioVisual { get; set; }
+
+    public bool? DentalEducationUnitHasInternet { get; set; }
+
     public DateTime CreatedOn { get; set; }
 
     public DateTime? UpdatedOn { get; set; }
@@ -40,6 +48,19 @@ public partial class MedicalDepartmentOfficesMeu
     public string? MeuActivitiesLastAcademicYear { get; set; }
 
     public string? MeuMembersListFilePath { get; set; }
+    public string? DeuCoordinatorName { get; set; }
+
+    public string? DeuCoordinatorDesignationDepartment { get; set; }
+
+    public string? DeuCoordinatorPhone { get; set; }
+
+    public string? DeuCoordinatorEmail { get; set; }
+
+    public string? DeuMembersListDescription { get; set; }
+
+    public string? DeuActivitiesLastAcademicYear { get; set; }
+
+    public string? DeuMembersListFilePath { get; set; }
 
     public string? CollegeCode { get; set; }
 

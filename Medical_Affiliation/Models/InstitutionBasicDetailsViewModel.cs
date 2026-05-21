@@ -512,6 +512,7 @@ namespace Medical_Affiliation.Models
         public string DeanUniversity { get; set; }
         public string DeanStateCouncilNumber { get; set; }
         public bool RecognizedByMCI { get; set; }
+        public bool RecognizedByDCI { get; set; }
         public string UGYears { get; set; }
 
         // Child: Teaching

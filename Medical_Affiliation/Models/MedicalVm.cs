@@ -63,6 +63,7 @@ namespace Medical_Affiliation.Models
             // MUST be non-nullable for checkboxes
             public bool ChangesInTrustName { get; set; }
             public bool OtherNursingCollegeInCity { get; set; }
+            public bool OtherDentalCollegeInCity { get; set; }
 
             public string CategoryOfOrganisation { get; set; }
             public string ContactPersonName { get; set; }
@@ -90,12 +91,14 @@ namespace Medical_Affiliation.Models
             public IFormFile FirstAffiliationNotifFile { get; set; }
             public IFormFile ContinuationAffiliationFile { get; set; }
             public IFormFile KncCertificateFile { get; set; }
+            public IFormFile KSDCcertificateFile { get; set; }
             public IFormFile AmendedDoc { get; set; }
             public IFormFile AadhaarFile { get; set; }
             public IFormFile PANFile { get; set; }
             public IFormFile BankStatementFile { get; set; }
             public IFormFile RegistrationCertificateFile { get; set; }
             public IFormFile RegisteredTrustMemberDetails { get; set; }
+        public IFormFile DCIcertificateFile { get; set; }
             public IFormFile AuditStatementFile { get; set; }
     }
     public class Medical_TrustMemberDetailsRowVM

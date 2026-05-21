@@ -22,6 +22,7 @@ public partial class AffPrincipalDetail
     public string? DeanStateCouncilNumber { get; set; }
 
     public bool? RecognizedByMci { get; set; }
+    public bool? RecognizedByDCI { get; set; }
 
     public string? CourseLevel { get; set; }
 }

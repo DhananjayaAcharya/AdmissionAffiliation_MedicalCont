@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Trust Institution Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <!DOCTYPE html>
@@ -624,6 +625,10 @@
                 text-decoration: none;
                 transition: opacity 0.15s, box-shadow 0.15s;
             }
+
+            .dci-cert{
+                margin-block: 0.8rem;
+            }
     </style>
 </head>
 <body>
@@ -702,22 +707,45 @@
                         </div>
                     </div>
 
-                    <div class="fg fg-2" style="margin-top:14px;">
-                        <div>
-                            <label asp-for="GovAutonomousCertNumber">
-                                <i class="fas fa-certificate"></i>Gov Autonomous Cert Number
-                            </label>
-                            <input asp-for="GovAutonomousCertNumber" maxlength="50" />
-                            <span asp-validation-for="GovAutonomousCertNumber" class="text-danger"></span>
+                    @if(facultyCode == "1"){
+                        <div class="fg fg-2" style="margin-top:14px;">
+                            <div>
+                                <label asp-for="GovAutonomousCertNumber">
+                                    <i class="fas fa-certificate"></i>Gov Autonomous Cert Number
+                                </label>
+                                <input asp-for="GovAutonomousCertNumber" maxlength="50" />
+                                <span asp-validation-for="GovAutonomousCertNumber" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label asp-for="KncCertificateNumber">
+                                    <i class="fas fa-award"></i>KMC Certificate Number
+                                </label>
+                                <input asp-for="KncCertificateNumber" maxlength="50" />
+                                <span asp-validation-for="KncCertificateNumber" class="text-danger"></span>
+                            </div>
                         </div>
-                        <div>
-                            <label asp-for="KncCertificateNumber">
-                                <i class="fas fa-award"></i>KMC Certificate Number
-                            </label>
-                            <input asp-for="KncCertificateNumber" maxlength="50" />
-                            <span asp-validation-for="KncCertificateNumber" class="text-danger"></span>
+                    } else if(facultyCode == "2"){
+                        <div class="dci-cert">
+                            <label><i class="fas fa-file-shield"></i>Approved / Permission certificate issued by DCI <span class="req">*</span></label>
+                            <div class="file-row">
+                                <input id="DCIcertificateFile" name="DCIcertificateFile" type="file" accept=".pdf" />
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <a asp-action="DownloadDCIcertificateFile"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                }
+                            </div>
                         </div>
-                    </div>
+
+                    }
                 </div>
             </div>
 
@@ -888,27 +916,35 @@
                             <label class="check-label">
                                 <input asp-for="IsRuralInstitution" type="checkbox" /> Rural Institution
                             </label>
-                            <label class="check-label">
-                                <input asp-for="OtherNursingCollegeInCity" type="checkbox" /> Other Nursing College in City
-                            </label>
+                            @if(facultyCode != "2"){
+                                <label class="check-label">
+                                    <input asp-for="OtherNursingCollegeInCity" type="checkbox" /> Other Nursing College in City
+                                </label>
+                            } else if(facultyCode == "2"){
+                                <label class="check-label">
+                                    <input asp-for="OtherDentalCollegeInCity" type="checkbox" /> Other Dental College in City
+                                </label>
+                            }
                         </div>
                     </div>
-
-                    <!-- Physiotherapy Radio -->
-                    <div style="margin-top:14px;">
-                        <label style="margin-bottom:8px;">
-                            <i class="fas fa-wheelchair"></i>Other Physiotherapy College in City <span class="req">*</span>
-                        </label>
-                        <div class="check-group">
-                            <label class="check-label">
-                                <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="true" id="OtherPhysioYes" required /> Yes
+                    @if (facultyCode != "2")
+                    {
+                        <!-- Physiotherapy Radio -->
+                        <div style="margin-top:14px;">
+                            <label style="margin-bottom:8px;">
+                                <i class="fas fa-wheelchair"></i>Other Physiotherapy College in City <span class="req">*</span>
                             </label>
-                            <label class="check-label">
-                                <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="false" id="OtherPhysioNo" required /> No
-                            </label>
+                            <div class="check-group">
+                                <label class="check-label">
+                                    <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="true" id="OtherPhysioYes" required /> Yes
+                                </label>
+                                <label class="check-label">
+                                    <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="false" id="OtherPhysioNo" required /> No
+                                </label>
+                            </div>
+                            <span asp-validation-for="OtherPhysiotherapyCollegeInCity" class="text-danger"></span>
                         </div>
-                        <span asp-validation-for="OtherPhysiotherapyCollegeInCity" class="text-danger"></span>
-                    </div>
+                    }
                 </div>
             </div>
 
@@ -1091,26 +1127,47 @@
                         </div>
 
                         @* KNC Certificate *@
-                        <div>
-                            <label><i class="fas fa-medal"></i>KMC Certificate</label>
-                            <div class="file-row">
-                                <input id="KncCertificateFile" name="KncCertificateFile" type="file" accept=".pdf" />
+                        @if(facultyCode != "2"){
+                            <div>
+                                <label><i class="fas fa-medal"></i>KMC Certificate</label>
+                                <div class="file-row">
+                                    <input id="KncCertificateFile" name="KncCertificateFile" type="file" accept=".pdf" />
+                                    @if (Model.InstitutionId > 0)
+                                    {
+                                        <a asp-action="DownloadKncCertificate"
+                                           asp-controller="ContinuesAffiliation_Facultybased"
+                                           asp-route-id="@Model.InstitutionId"
+                                           class="btn-view" target="_blank">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    }
+                                </div>
                                 @if (Model.InstitutionId > 0)
                                 {
-                                    <a asp-action="DownloadKncCertificate"
-                                       asp-controller="ContinuesAffiliation_Facultybased"
-                                       asp-route-id="@Model.InstitutionId"
-                                       class="btn-view" target="_blank">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
-                            {
-                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
-                            }
-                        </div>
-
+                        }else if(facultyCode == "2"){
+                            <div>
+                                <label><i class="fas fa-medal"></i>KSDC Certificate</label>
+                                <div class="file-row">
+                                    <input id="KSDCcertificateFile" name="KSDCcertificateFile" type="file" accept=".pdf" />
+                                    @if (Model.InstitutionId > 0)
+                                    {
+                                        <a asp-action="DownloadKSDCcertificateFile"
+                                           asp-controller="ContinuesAffiliation_Facultybased"
+                                           asp-route-id="@Model.InstitutionId"
+                                           class="btn-view" target="_blank">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    }
+                                </div>
+                                @if (Model.InstitutionId > 0)
+                                {
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                }
+                            </div>
+                        }
                         @* Amended Document *@
                         <div>
                             <label><i class="fas fa-file-pen"></i>Amended Document</label>

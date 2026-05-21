@@ -18,13 +18,17 @@ namespace Medical_Affiliation.Models
         [Required]
         public bool? HasRoomsForNonTeachingStaff { get; set; }
 
-        [Required]
+        //[Required]
         public bool? HasMedicalEducationUnit { get; set; }
+        public bool? HasDentalEducationUnit { get; set; }
 
         public decimal? MedicalEducationUnitAreaSqm { get; set; }
+        public decimal? DentalEducationUnitAreaSqm { get; set; }
 
         public bool? MedicalEducationUnitHasAudioVisual { get; set; }
+        public bool? DentalEducationUnitHasAudioVisual { get; set; }
         public bool? MedicalEducationUnitHasInternet { get; set; }
+        public bool? DentalEducationUnitHasInternet { get; set; }
 
         public string? MeuCoordinatorName { get; set; }
         public string? MeuCoordinatorDesignationDepartment { get; set; }

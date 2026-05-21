@@ -786,11 +786,11 @@ namespace Medical_Affiliation.Controllers
                 HasRoomsForFacultyAndResidents = entity.HasRoomsForFacultyAndResidents,
                 FacultyRoomsHaveCommunicationComputerInternet = entity.FacultyRoomsHaveCommunicationComputerInternet,
                 HasRoomsForNonTeachingStaff = entity.HasRoomsForNonTeachingStaff,
-
-                HasMedicalEducationUnit = entity.HasMedicalEducationUnit,
-                MedicalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm,
-                MedicalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual,
-                MedicalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet,
+                
+                //HasMedicalEducationUnit = entity.HasMedicalEducationUnit,
+                //MedicalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm,
+                //MedicalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual,
+                //MedicalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet,
                 MeuCoordinatorName = entity.MeuCoordinatorName,
                 MeuCoordinatorPhone = entity.MeuCoordinatorPhone,
                 MeuCoordinatorEmail = entity.MeuCoordinatorEmail,
@@ -798,6 +798,19 @@ namespace Medical_Affiliation.Controllers
                 MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear,
                 HasMeuMembersListFile = entity.MeuMembersListFilePath != null
             };
+            if(facultyCode != "2")
+            {
+                vm.HasMedicalEducationUnit = entity.HasMedicalEducationUnit;
+                vm.MedicalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm;
+                vm.MedicalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual;
+                vm.MedicalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet;
+            } else if(facultyCode == "2")
+            {
+                vm.HasDentalEducationUnit = entity.HasMedicalEducationUnit;
+                vm.DentalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm;
+                vm.DentalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual;
+                vm.DentalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet;
+            }
 
             return View(vm);
         }
@@ -882,40 +895,43 @@ namespace Medical_Affiliation.Controllers
             entity.HasRoomsForNonTeachingStaff = vm.HasRoomsForNonTeachingStaff ?? false;
             entity.HasMedicalEducationUnit = vm.HasMedicalEducationUnit ?? false;
 
-            if (vm.HasMedicalEducationUnit == false)
+            if (facultyCode == "1")
             {
-                entity.MedicalEducationUnitAreaSqm = null;
-                entity.MedicalEducationUnitHasAudioVisual = null;
-                entity.MedicalEducationUnitHasInternet = null;
-                entity.MeuCoordinatorName = null;
-                entity.MeuCoordinatorPhone = null;
-                entity.MeuCoordinatorEmail = null;
-                entity.MeuCoordinatorDesignationDepartment = null;
-                entity.MeuActivitiesLastAcademicYear = null;
-            }
-            else
-            {
-                entity.MedicalEducationUnitAreaSqm = vm.MedicalEducationUnitAreaSqm;
-                entity.MedicalEducationUnitHasAudioVisual = vm.MedicalEducationUnitHasAudioVisual ?? false;
-                entity.MedicalEducationUnitHasInternet = vm.MedicalEducationUnitHasInternet ?? false;
-                entity.MeuCoordinatorName = vm.MeuCoordinatorName;
-                entity.MeuCoordinatorPhone = vm.MeuCoordinatorPhone;
-                entity.MeuCoordinatorEmail = vm.MeuCoordinatorEmail;
-                entity.MeuCoordinatorDesignationDepartment = vm.MeuCoordinatorDesignationDepartment;
-                entity.MeuActivitiesLastAcademicYear = vm.MeuActivitiesLastAcademicYear;
-
-                // 🔥 UPDATE FILE
-                if (filePath != null)
+                if(vm.HasMedicalEducationUnit == false)
                 {
-                    // 🔥 DELETE OLD FILE
-                    if (!string.IsNullOrEmpty(entity.MeuMembersListFilePath) &&
-                        System.IO.File.Exists(entity.MeuMembersListFilePath))
-                    {
-                        System.IO.File.Delete(entity.MeuMembersListFilePath);
-                    }
+                    entity.MedicalEducationUnitAreaSqm = null;
+                    entity.MedicalEducationUnitHasAudioVisual = null;
+                    entity.MedicalEducationUnitHasInternet = null;
+                    entity.MeuCoordinatorName = null;
+                    entity.MeuCoordinatorPhone = null;
+                    entity.MeuCoordinatorEmail = null;
+                    entity.MeuCoordinatorDesignationDepartment = null;
+                    entity.MeuActivitiesLastAcademicYear = null;
+                }
+                else
+                {
+                    entity.MedicalEducationUnitAreaSqm = vm.MedicalEducationUnitAreaSqm;
+                    entity.MedicalEducationUnitHasAudioVisual = vm.MedicalEducationUnitHasAudioVisual ?? false;
+                    entity.MedicalEducationUnitHasInternet = vm.MedicalEducationUnitHasInternet ?? false;
+                    entity.MeuCoordinatorName = vm.MeuCoordinatorName;
+                    entity.MeuCoordinatorPhone = vm.MeuCoordinatorPhone;
+                    entity.MeuCoordinatorEmail = vm.MeuCoordinatorEmail;
+                    entity.MeuCoordinatorDesignationDepartment = vm.MeuCoordinatorDesignationDepartment;
+                    entity.MeuActivitiesLastAcademicYear = vm.MeuActivitiesLastAcademicYear;
 
-                    // ✅ SAVE NEW PATH
-                    entity.MeuMembersListFilePath = filePath;
+                    // 🔥 UPDATE FILE
+                    if (filePath != null)
+                    {
+                        // 🔥 DELETE OLD FILE
+                        if (!string.IsNullOrEmpty(entity.MeuMembersListFilePath) &&
+                            System.IO.File.Exists(entity.MeuMembersListFilePath))
+                        {
+                            System.IO.File.Delete(entity.MeuMembersListFilePath);
+                        }
+
+                        // ✅ SAVE NEW PATH
+                        entity.MeuMembersListFilePath = filePath;
+                    }
                 }
             }
 
