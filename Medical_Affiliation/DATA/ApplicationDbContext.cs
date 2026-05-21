@@ -639,6 +639,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DeanStateCouncilNumber).HasMaxLength(250);
             entity.Property(e => e.DeanUniversity).HasMaxLength(225);
             entity.Property(e => e.FacultyCode).HasMaxLength(100);
+            entity.Property(e => e.RecognizedByDci).HasColumnName("RecognizedByDCI");
             entity.Property(e => e.RecognizedByMci).HasColumnName("RecognizedByMCI");
         });
 
@@ -893,6 +894,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DeanStateCouncilNumber).HasMaxLength(250);
             entity.Property(e => e.DeanUniversity).HasMaxLength(225);
             entity.Property(e => e.FacultyCode).HasMaxLength(100);
+            entity.Property(e => e.RecognizedByDci).HasColumnName("RecognizedByDCI");
             entity.Property(e => e.RecognizedByMci).HasColumnName("RecognizedByMCI");
         });
 
@@ -3531,6 +3533,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.DcicertificateFilePath)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("DCIcertificateFilePath");
             entity.Property(e => e.District).HasMaxLength(100);
             entity.Property(e => e.EmailId).HasMaxLength(150);
             entity.Property(e => e.ExistingTrustName).HasMaxLength(200);
@@ -3549,6 +3555,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.HeadOfInstitutionName).HasMaxLength(150);
             entity.Property(e => e.KncCertificateFilePath).HasMaxLength(500);
             entity.Property(e => e.KncCertificateNumber).HasMaxLength(100);
+            entity.Property(e => e.KsdccertificateFilePath)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("KSDCcertificateFilePath");
             entity.Property(e => e.MobileNumber).HasMaxLength(20);
             entity.Property(e => e.NameOfInstitution).HasMaxLength(200);
             entity.Property(e => e.PanfilePath).HasMaxLength(500);
@@ -4216,6 +4226,12 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.DentalEducationUnitAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.DeuCoordinatorDesignationDepartment).HasMaxLength(300);
+            entity.Property(e => e.DeuCoordinatorEmail).HasMaxLength(150);
+            entity.Property(e => e.DeuCoordinatorName).HasMaxLength(200);
+            entity.Property(e => e.DeuCoordinatorPhone).HasMaxLength(50);
+            entity.Property(e => e.DeuMembersListFilePath).HasMaxLength(500);
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -5061,25 +5077,12 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("MST_MedicalCourseType");
 
-            entity.HasIndex(e => e.CourseTypeName, "UQ__MST_Medi__3CFBF772322C04E5")
-                .IsUnique()
-                .HasFillFactor(80);
-
-            entity.HasIndex(e => e.CourseTypeName, "UQ__MST_Medi__3CFBF77269336811")
-                .IsUnique()
-                .HasFillFactor(80);
-
-            entity.HasIndex(e => e.CourseTypeName, "UQ__MST_Medi__3CFBF7726D5766A0")
-                .IsUnique()
-                .HasFillFactor(80);
-
-            entity.HasIndex(e => e.CourseTypeName, "UQ__MST_Medi__3CFBF772D6C791D9")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => new { e.CourseTypeName, e.FacultyCode }, "UQ_MST_MedicalCourseType_CourseTypeName_FacultyCode").IsUnique();
 
             entity.Property(e => e.CourseTypeName).HasMaxLength(50);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Description).HasMaxLength(200);
+            entity.Property(e => e.FacultyCode).HasDefaultValue(1);
             entity.Property(e => e.IsPg).HasColumnName("IsPG");
             entity.Property(e => e.IsSs).HasColumnName("IsSS");
             entity.Property(e => e.IsUg).HasColumnName("IsUG");

@@ -4460,9 +4460,12 @@ ADD RecognizedByDCI BIT NULL;
 
 ALTER TABLE [dbo].[Medical_DepartmentOfficesMeu]
 ADD HasDentalEducationUnit BIT NULL,
-    DentalEducationUnitAreaSqm BIT NULL,
+    DentalEducationUnitAreaSqm DECIMAL(10, 2) NULL,
     DentalEducationUnitHasAudioVisual BIT NULL,
     DentalEducationUnitHasInternet BIT NULL;
+
+--ALTER TABLE [dbo].[Medical_DepartmentOfficesMeu]
+--ALTER COLUMN DentalEducationUnitAreaSqm DECIMAL(10, 2) NULL;
 
 ALTER TABLE [dbo].[Medical_DepartmentOfficesMeu]
 ADD DeuCoordinatorName NVARCHAR(200) NULL,

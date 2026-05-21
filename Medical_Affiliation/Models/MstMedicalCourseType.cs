@@ -18,9 +18,10 @@ public partial class MstMedicalCourseType
     public bool IsSs { get; set; }
 
     public string? Status { get; set; }
-    public int FacultyCode { get; set; }
 
     public DateTime? CreatedDate { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
+
+    public int FacultyCode { get; set; }
 }

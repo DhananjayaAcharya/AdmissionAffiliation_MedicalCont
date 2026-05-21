@@ -229,7 +229,7 @@ namespace Medical_Affiliation.Controllers
                     vm.GovAutonomousCertNumber = entity.GovAutonomousCertNumber;
                     vm.KncCertificateNumber = entity.KncCertificateNumber;
                 }
-                vm.hasDCIfile = !string.IsNullOrWhiteSpace(entity.DCIcertificateFilePath);
+                vm.hasDCIfile = !string.IsNullOrWhiteSpace(entity.DcicertificateFilePath);
                 vm.hasGovAutoCertFile = !string.IsNullOrWhiteSpace(entity.GovAutonomousCertFilePath);
                 vm.hasGovCouncilMembershipFile = !string.IsNullOrWhiteSpace(entity.GovCouncilMembershipFilePath); 
                 vm.hasGokOrderExistingCoursesFile = !string.IsNullOrWhiteSpace(entity.GokOrderExistingCoursesFilePath);
@@ -561,16 +561,16 @@ namespace Medical_Affiliation.Controllers
             var dci = await SaveFileAsync(DCIcertificateFile, "Audit");
             if (facultyCode=="2" && dci.path != null)
             {
-                DeleteOldFile(entity.DCIcertificateFilePath);
-                entity.DCIcertificateFilePath = dci.path;
+                DeleteOldFile(entity.DcicertificateFilePath);
+                entity.DcicertificateFilePath = dci.path;
 
             }
 
             var ksdc = await SaveFileAsync(KSDCcertificateFile, "Audit");
             if (facultyCode=="2" && ksdc.path != null)
             {
-                DeleteOldFile(entity.KSDCcertificateFilePath);
-                entity.KSDCcertificateFilePath = dci.path;
+                DeleteOldFile(entity.KsdccertificateFilePath);
+                entity.KsdccertificateFilePath = dci.path;
 
             }
 
@@ -682,10 +682,10 @@ namespace Medical_Affiliation.Controllers
         public Task<IActionResult> DownloadGovAutonomousCert(int id)   => ServeFileFromPath(id, e => e.GovAutonomousCertFilePath);
         
         [HttpGet]
-        public Task<IActionResult> DownloadDCIcertificateFile(int id)   => ServeFileFromPath(id, e => e.DCIcertificateFilePath);
+        public Task<IActionResult> DownloadDCIcertificateFile(int id)   => ServeFileFromPath(id, e => e.DcicertificateFilePath);
         
         [HttpGet]
-        public Task<IActionResult> DownloadKSDCcertificateFile(int id)   => ServeFileFromPath(id, e => e.KSDCcertificateFilePath);
+        public Task<IActionResult> DownloadKSDCcertificateFile(int id)   => ServeFileFromPath(id, e => e.KsdccertificateFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadGovCouncilMembership(int id)
@@ -3124,7 +3124,7 @@ namespace Medical_Affiliation.Controllers
                 }
                 else if(facultyCode == "2")
                 {
-                    vm.RecognizedByDCI = (bool)(dean.RecognizedByDCI);
+                    vm.RecognizedByDCI = (bool)(dean.RecognizedByDci);
                 }
 
                 // 📘 Teaching Experience
@@ -3237,7 +3237,7 @@ namespace Medical_Affiliation.Controllers
                     }
                     else if(facultyCode == "2")
                     {
-                        existingDean.RecognizedByDCI = model.RecognizedByDCI;
+                        existingDean.RecognizedByDci = model.RecognizedByDCI;
                     }
                     _context.AffDeanOrDirectorDetails.Add(existingDean);
                     _context.SaveChanges(); // 🔥 REQUIRED to generate Id
@@ -3257,7 +3257,7 @@ namespace Medical_Affiliation.Controllers
                     }
                     else if (facultyCode == "2")
                     {
-                        existingDean.RecognizedByDCI = model.RecognizedByDCI;
+                        existingDean.RecognizedByDci = model.RecognizedByDCI;
                     }
                 }
 
@@ -3473,7 +3473,7 @@ namespace Medical_Affiliation.Controllers
                 }
                 else if(facultyCode == "2")
                 {
-                    vm.RecognizedByDCI = (bool)(dean.RecognizedByDCI);
+                    vm.RecognizedByDCI = (bool)(dean.RecognizedByDci);
                 }
 
                 // 📘 Teaching Experience
@@ -3597,7 +3597,7 @@ namespace Medical_Affiliation.Controllers
                     existingDean.RecognizedByMci = model.RecognizedByMCI;
                 } else if(facultyCode == "2")
                 {
-                    existingDean.RecognizedByDCI = model.RecognizedByDCI;
+                    existingDean.RecognizedByDci = model.RecognizedByDCI;
                 }
 
                 _context.SaveChanges(); // 🔥 REQUIRED to generate Id
