@@ -4463,3 +4463,73 @@ ADD HasDentalEducationUnit BIT NULL,
     DentalEducationUnitAreaSqm BIT NULL,
     DentalEducationUnitHasAudioVisual BIT NULL,
     DentalEducationUnitHasInternet BIT NULL;
+
+ALTER TABLE [dbo].[Medical_DepartmentOfficesMeu]
+ADD DeuCoordinatorName NVARCHAR(200) NULL,
+    DeuCoordinatorDesignationDepartment NVARCHAR(300) NULL,
+    DeuCoordinatorPhone NVARCHAR(50) NULL,
+    DeuCoordinatorEmail NVARCHAR(150) NULL,
+    DeuMembersListDescription NVARCHAR(MAX) NULL,
+    DeuActivitiesLastAcademicYear NVARCHAR(MAX) NULL,
+    DeuMembersListFilePath NVARCHAR(500) NULL;
+
+INSERT INTO Mst_Course
+(
+    Id,
+    CourseCode,
+    CourseName,
+    FacultyCode,
+    CourseLevel,
+    CoursePrefix,
+    SubjectName
+)
+VALUES
+(
+    437,
+    2014,
+    'Phd',
+    2,
+    'Phd',
+    'Phd',
+    'Phd'
+);
+INSERT INTO Mst_Course
+(
+    Id,
+    CourseCode,
+    CourseName,
+    FacultyCode,
+    CourseLevel,
+    CoursePrefix,
+    SubjectName
+)
+VALUES
+(
+    438,
+    2015,
+    'Fellowship',
+    2,
+    'Fellowship',
+    'Fellowship',
+    'Fellowship'
+);
+INSERT INTO Mst_Course
+(
+    Id,
+    CourseCode,
+    CourseName,
+    FacultyCode,
+    CourseLevel,
+    CoursePrefix,
+    SubjectName
+)
+VALUES
+(
+    439,
+    2016,
+    'Phd and Fellowship',
+    2,
+    'Phd and Fellowship',
+    'Phd and Fellowship',
+    'Phd and Fellowship'
+);

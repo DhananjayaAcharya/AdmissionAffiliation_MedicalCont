@@ -229,6 +229,20 @@ namespace Medical_Affiliation.Controllers
                     vm.GovAutonomousCertNumber = entity.GovAutonomousCertNumber;
                     vm.KncCertificateNumber = entity.KncCertificateNumber;
                 }
+                vm.hasDCIfile = !string.IsNullOrWhiteSpace(entity.DCIcertificateFilePath);
+                vm.hasGovAutoCertFile = !string.IsNullOrWhiteSpace(entity.GovAutonomousCertFilePath);
+                vm.hasGovCouncilMembershipFile = !string.IsNullOrWhiteSpace(entity.GovCouncilMembershipFilePath); 
+                vm.hasGokOrderExistingCoursesFile = !string.IsNullOrWhiteSpace(entity.GokOrderExistingCoursesFilePath);
+                vm.hasFirstAffiliationNotifFile = !string.IsNullOrWhiteSpace(entity.FirstAffiliationNotifFilePath);
+                vm.hasContinuationAffiliationFile = !string.IsNullOrWhiteSpace(entity.ContinuationAffiliationFilePath);
+                vm.hasKncCertificateFile = !string.IsNullOrWhiteSpace(entity.KncCertificateFilePath);
+                vm.hasAmendedDoc = !string.IsNullOrWhiteSpace(entity.AmendedDocPath); 
+                vm.hasAadhaarFile = !string.IsNullOrWhiteSpace(entity.AadhaarFilePath);
+                vm.hasPANFile = !string.IsNullOrWhiteSpace(entity.PanfilePath);
+                vm.hasBankStatementFile = !string.IsNullOrWhiteSpace(entity.BankStatementFilePath);
+                vm.hasRegistrationCertificateFile = !string.IsNullOrWhiteSpace(entity.RegistrationCertificateFilePath);
+                vm.hasRegisteredTrustMemberDetails = !string.IsNullOrWhiteSpace(entity.RegisteredTrustMemberDetailsPath);
+                vm.hasAuditStatementFile = !string.IsNullOrWhiteSpace(entity.AuditStatementFilePath);
 
                 // ✓ Convert int? → string? so it matches SelectListItem.Value format
                 vm.TypeOfInstitution = entity.TypeOfInstitution?.ToString();
@@ -347,7 +361,7 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.AuditStatementFile));
             ModelState.Remove(nameof(vm.DCIcertificateFile));
             ModelState.Remove(nameof(vm.KSDCcertificateFile));
-
+            ModelState.Remove(nameof(vm.KncCertificateNumber));
 
             if (!ModelState.IsValid)
             {
