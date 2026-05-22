@@ -1,5 +1,6 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +14,13 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
-        
+
         // ════════════════════════════════════════════════════════════
         //  GET
         // ════════════════════════════════════════════════════════════
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
-        public IActionResult IncreaseIntake()
+        public async Task<IActionResult> IncreaseIntake()
         {
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -38,7 +40,7 @@ namespace Medical_Affiliation.Controllers
                 FacultyId = facultyId
             };
 
-            BuildModelData(model, facultyCode, collegeCode, facultyId);
+            await BuildModelData(model, facultyCode, collegeCode, facultyId);
             return View(model);
         }
 

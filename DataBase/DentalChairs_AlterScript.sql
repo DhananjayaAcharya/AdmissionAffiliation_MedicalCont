@@ -1,4 +1,6 @@
 
+ALTER TABLE AFF_InstitutionsDetails
+ALTER COLUMN [CourseApplied] NVARCHAR(500) NULL;
 
 CREATE TABLE DentalChairs
 (

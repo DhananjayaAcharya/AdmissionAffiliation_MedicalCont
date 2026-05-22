@@ -23,7 +23,7 @@
         Discipline Details
     </div>
 
-    @if (seatSlab == null)
+    @if (seatSlab == null || seatSlab == "0")
     {
         <div class="empty-state">
             <p>Please fill <a asp-action="IncreaseIntake" asp-controller="ContinuousAffiliationIncreaseintake">Course Intake</a>  details first.</p>

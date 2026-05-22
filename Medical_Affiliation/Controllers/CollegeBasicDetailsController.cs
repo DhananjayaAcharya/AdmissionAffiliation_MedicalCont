@@ -235,7 +235,7 @@ namespace Medical_Affiliation.Controllers
             }
 
             // 8. Success – redirect
-            TempData["SuccessMessage"] = "Institution details saved successfully.";
+            //TempData["SuccessMessage"] = "Institution details saved successfully.";
             return RedirectToAction("aff_institutedetails");
         }
 

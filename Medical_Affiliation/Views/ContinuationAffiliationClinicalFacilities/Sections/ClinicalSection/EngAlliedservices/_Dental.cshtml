@@ -1,6 +1,7 @@
 ﻿@model Medical_Affiliation.Models.EngAlliedRequirementsPostVM
 @{
     var seatSlab = Context.Session.GetString("SeatSlab");
+    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId");
 }
 <style>
     .empty-state p {
@@ -22,115 +23,123 @@
         Engineering & Allied Services
     </div>
 
-    @if (seatSlab != null)
-    {
-        <form id="EngAlliedForm" class="mt-3">
-
-        @Html.AntiForgeryToken()
-
-        <input type="hidden" id="CollegeCode" value="@Model.CollegeCode" />
-        <input type="hidden" id="FacultyCode" value="@Model.FacultyCode" />
-        <input type="hidden" id="AffiliationTypeId" value="@Model.AffiliationTypeId" />
-        <input type="hidden" id="HospitalDetailsId" value="@Model.HospitalDetailsId" />
-
-        @if (Model.Requirements != null && Model.Requirements.Any())
-        {
-            <div class="table-responsive">
-
-                <table class="table table-bordered align-middle">
-
-                    <thead class="table-light">
-
-                        <tr>
-
-                            <th width="70%">
-                                Requirement Name
-                            </th>
-
-                            <th width="30%" class="text-center">
-
-                                Availability Status
-
-                                <label for="selectAllEngAllied" class="ms-1 ms-1 small" style="font-size:10px;">
-                                    (Select All)
-                                </label>
-
-                                <input type="checkbox" id="selectAllEngAllied" class="form-check-input " />
-
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        @for (int i = 0; i < Model.Requirements.Count; i++)
-                        {
-                            <tr class="eng-requirement-row">
-
-                                <td>
-
-                                    @Model.Requirements[i].RequirementName
-
-                                    <input type="hidden"
-                                           class="requirement-id"
-                                           value="@Model.Requirements[i].RequirementId" />
-
-                                    <input type="hidden"
-                                           class="requirement-name"
-                                           value="@Model.Requirements[i].RequirementName" />
-
-                                    <input type="hidden"
-                                           class="section-code"
-                                           value="@Model.Requirements[i].SectionCode" />
-
-                                </td>
-
-                                <td class="text-center availability-cell"
-                                    style="cursor:pointer;">
-
-                                    <input type="checkbox"
-                                           class="form-check-input eng-requirement-check"
-                                    @(Model.Requirements[i].IsAvailable == true ? "checked" : "") />
-
-                                </td>
-
-                            </tr>
-                        }
-
-                    </tbody>
-
-                </table>
-
-            </div>
-        }
-        else
-        {
-            <p class="text-muted">
-                No Requirements Available.
-            </p>
-        }
-
-        <div class="text-center mt-3">
-
-            <button type="button"
-                    id="SaveEngAlliedBtn"
-                    class="btn btn-primary">
-
-                Save Engineering & Allied Services
-
-            </button>
-
-        </div>
-
-    </form>
-    }
-    else
+    @if (seatSlab == null || seatSlab == "0")
     {
         <div class="empty-state">
             <p>Please fill <a asp-action="IncreaseIntake" asp-controller="ContinuousAffiliationIncreaseintake">Course Intake</a>  details first.</p>
         </div>
+    }
+    else if (hospitalDetailsId != null)
+    {
+        <div class="empty-state">
+            <p>Please fill Affiliated Hospital Information details first.</p>
+        </div>
+    }
+    else
+    {
+        
+        <form id="EngAlliedForm" class="mt-3">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" id="CollegeCode" value="@Model.CollegeCode" />
+            <input type="hidden" id="FacultyCode" value="@Model.FacultyCode" />
+            <input type="hidden" id="AffiliationTypeId" value="@Model.AffiliationTypeId" />
+            <input type="hidden" id="HospitalDetailsId" value="@Model.HospitalDetailsId" />
+
+            @if (Model.Requirements != null && Model.Requirements.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered align-middle">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th width="70%">
+                                    Requirement Name
+                                </th>
+
+                                <th width="30%" class="text-center">
+
+                                    Availability Status
+
+                                    <label for="selectAllEngAllied" class="ms-1 ms-1 small" style="font-size:10px;">
+                                        (Select All)
+                                    </label>
+
+                                    <input type="checkbox" id="selectAllEngAllied" class="form-check-input " />
+
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @for (int i = 0; i < Model.Requirements.Count; i++)
+                            {
+                                <tr class="eng-requirement-row">
+
+                                    <td>
+
+                                        @Model.Requirements[i].RequirementName
+
+                                        <input type="hidden"
+                                               class="requirement-id"
+                                               value="@Model.Requirements[i].RequirementId" />
+
+                                        <input type="hidden"
+                                               class="requirement-name"
+                                               value="@Model.Requirements[i].RequirementName" />
+
+                                        <input type="hidden"
+                                               class="section-code"
+                                               value="@Model.Requirements[i].SectionCode" />
+
+                                    </td>
+
+                                    <td class="text-center availability-cell"
+                                        style="cursor:pointer;">
+
+                                        <input type="checkbox"
+                                               class="form-check-input eng-requirement-check"
+                                        @(Model.Requirements[i].IsAvailable == true ? "checked" : "") />
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">
+                    No Requirements Available.
+                </p>
+            }
+
+            <div class="text-center mt-3">
+
+                <button type="button"
+                        id="SaveEngAlliedBtn"
+                        class="btn btn-primary">
+
+                    Save Engineering & Allied Services
+
+                </button>
+
+            </div>
+
+        </form>
+
     }
 
 </div>
