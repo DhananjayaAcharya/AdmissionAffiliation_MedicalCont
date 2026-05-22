@@ -1,12 +1,30 @@
 ﻿@model Medical_Affiliation.Models.EngAlliedRequirementsPostVM
+@{
+    var seatSlab = Context.Session.GetString("SeatSlab");
+}
+<style>
+    .empty-state p {
+        text-align: center;
+        padding: 56px 20px;
+        color: #6b7490;
+        background-color: #f5f5f5;
+        font-style: italic;
+        border-radius: 10px;
+    }
 
+    .table-light th {
+        background-color: lightgray;
+    }
+</style>
 <div class="form-section">
 
     <div class="section-title required">
         Engineering & Allied Services
     </div>
 
-    <form id="EngAlliedForm" class="mt-3">
+    @if (seatSlab != null)
+    {
+        <form id="EngAlliedForm" class="mt-3">
 
         @Html.AntiForgeryToken()
 
@@ -107,6 +125,13 @@
         </div>
 
     </form>
+    }
+    else
+    {
+        <div class="empty-state">
+            <p>Please fill <a asp-action="IncreaseIntake" asp-controller="ContinuousAffiliationIncreaseintake">Course Intake</a>  details first.</p>
+        </div>
+    }
 
 </div>
 

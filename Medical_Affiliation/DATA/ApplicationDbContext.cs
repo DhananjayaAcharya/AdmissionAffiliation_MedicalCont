@@ -88,8 +88,6 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<CaAcademicMatter> CaAcademicMatters { get; set; }
 
-    public virtual DbSet<CaAcademicMatter> CaAcademicMatters { get; set; }
-
     public virtual DbSet<CaAcademicPerformance> CaAcademicPerformances { get; set; }
 
     public virtual DbSet<CaCourseCurriculum> CaCourseCurricula { get; set; }

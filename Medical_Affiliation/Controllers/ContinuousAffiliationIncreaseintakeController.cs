@@ -379,7 +379,7 @@ namespace Medical_Affiliation.Controllers
         /// Populates all ViewModel collections from the database.
         /// Shared between GET and POST (post-save redisplay) so data is always fresh.
         /// </summary>
-        private void BuildModelData(
+        private async Task BuildModelData(
             AcademicIntakePageViewModel1 model,
             string facultyCode,
             string collegeCode,
@@ -390,6 +390,13 @@ namespace Medical_Affiliation.Controllers
             model.CollegeCode = collegeCode;
             model.FacultyId = facultyId;
             model.CollegeName ??= HttpContext.Session.GetString("CollegeName");
+            var seatSlab = await _context.AcademicIntakes.Where(e => e.CollegeCode == collegeCode).Select(e => e.Ay2025TotalIntake).FirstOrDefaultAsync();
+            
+            if(seatSlab.ToString() != null) HttpContext.Session.SetString("SeatSlab", seatSlab.ToString());
+
+            var hospitalDetailsId = await _context.HospitalDetailsForAffiliations.Where(e => e.CollegeCode == collegeCode).Select(e => e.HospitalDetailsId).FirstOrDefaultAsync();
+
+            if (hospitalDetailsId.ToString() != null) HttpContext.Session.SetString("HospitalDetailsId", hospitalDetailsId.ToString());
 
             var intakeDetails = _context.CollegeCourseIntakeDetails
                 .Where(d => d.FacultyCode == facultyId && d.CollegeCode == collegeCode)

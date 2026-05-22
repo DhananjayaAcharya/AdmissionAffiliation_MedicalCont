@@ -4,6 +4,24 @@
     ViewData["Title"] = "Dental Chair Distribution";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
+@{
+    var seatSlab = Context.Session.GetString("SeatSlab");
+    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId");
+}
+<style>
+    .empty-state p {
+        text-align: center;
+        padding: 56px 20px;
+        color: #6b7490;
+        background-color: #f5f5f5;
+        font-style: italic;
+        border-radius: 10px;
+    }
+
+    .table-light th {
+        background-color: lightgray;
+    }
+</style>
 
 <link rel="stylesheet" href="~/css/chair-distribution.css" />
 <link rel="stylesheet"
@@ -32,8 +50,19 @@
         <div class="table-header">
             <h5 class="mb-0">Chair Distribution Details</h5>
         </div>
+        @if (seatSlab == null)
+        {
+            <div class="empty-state">
+                <p>Please fill <a asp-action="IncreaseIntake" asp-controller="ContinuousAffiliationIncreaseintake">Course Intake</a>  details first.</p>
+            </div>
 
-        <form asp-action="ChairDistribution" method="post" id="chairForm">
+        } else if (hospitalDetailsId != null)
+        {
+            <div class="empty-state">
+                <p>Please fill <a asp-action="ClinicalFacilities" asp-controller="ContinuationAffiliationClinicalFacilities">Affiliated Hospital Information details</a> first. </p>
+            </div>
+        } else{
+            <form asp-action="ChairDistribution" method="post" id="chairForm">
             <div class="table-responsive">
                     @Html.AntiForgeryToken()
                     <table class="table align-middle custom-chair-table mb-0">
@@ -121,8 +150,7 @@
                 </a>
             </div>
         </form>
-
-
+        }
     </div>
 
 </div>

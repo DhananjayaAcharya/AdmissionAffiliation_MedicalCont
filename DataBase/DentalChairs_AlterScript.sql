@@ -430,7 +430,7 @@ INSERT INTO MstEquipmentDepartments
 VALUES
 (2, 'EQDEPT001', 'Prosthodontics and Crown & Bridge'),
 (2, 'EQDEPT002', 'Clinical Lab for Prosthetics'),
-(2, 'EQDEPT003', 'Chrome � Cobalt Lab Equipment'),
+(2, 'EQDEPT003', 'Chrome - Cobalt Lab Equipment'),
 (2, 'EQDEPT004', 'Ceramic Lab Equipment'),
 (2, 'EQDEPT005', 'Implant Equipment'),
 (2, 'EQDEPT006', 'Periodontology'),
@@ -445,7 +445,12 @@ VALUES
 (2, 'EQDEPT015', 'Paedodontics and Preventive Dentistry'),
 (2, 'EQDEPT016', 'Oral Medicine and Radiology');
 
+--UPDATE MstEquipmentDepartments
+--SET DepartmentName = 'Chrome - Cobalt Lab Equipment'
+--WHERE DepartmentCode = 'EQDEPT003' AND DepartmentName LIKE '%Chrome%'
+--;
 
+select * from MstEquipmentDepartments
 -----------------MASTER FOR EQUIPMENTS DEPT WISE ------------------------
 
 CREATE TABLE MstEquipmentDeptWise
@@ -476,6 +481,8 @@ CREATE TABLE MstEquipmentDeptWise
         FOREIGN KEY (DepartmentCode)
         REFERENCES MstEquipmentDepartments(DepartmentCode)
 );
+
+
 
 -------------INSERT QUERIES FOR EQUIPMENT MASTER ------------
 
@@ -4394,6 +4401,11 @@ VALUES
  SELECT * FROM [dbo].[TypeOfOrganizationMaster]
  
  select * from [dbo].[Mst_InstitutionType]
+ WHERE FacultyId IS NULL;
+
+ UPDATE [Mst_InstitutionType]
+ SET FacultyId = 1
+ WHERE FacultyId IS NULL;
 
  INSERT INTO [dbo].[Mst_InstitutionType]
  (InstitutionType, OrganizationCategory, FacultyId)
@@ -4418,10 +4430,10 @@ VALUES
 
  -- Drop existing unique constraint
 --ALTER TABLE MST_MedicalCourseType
---DROP CONSTRAINT UQ__MST_Medi__3CFBF772322C04E5;
+--DROP CONSTRAINT UQ__MST_Medi__3CFBF7726D5766A0;
 
 --ALTER TABLE MST_MedicalCourseType
---DROP CONSTRAINT UQ__MST_Medi__3CFBF77269336811;
+--DROP CONSTRAINT UQ__MST_Medi__3CFBF772D6C791D9;
 
 ALTER TABLE MST_MedicalCourseType
 ADD CONSTRAINT UQ_MST_MedicalCourseType_CourseTypeName_FacultyCode
@@ -4496,6 +4508,8 @@ VALUES
     'Phd',
     'Phd'
 );
+
+
 INSERT INTO Mst_Course
 (
     Id,
@@ -4516,6 +4530,8 @@ VALUES
     'Fellowship',
     'Fellowship'
 );
+
+
 INSERT INTO Mst_Course
 (
     Id,
@@ -4536,3 +4552,18 @@ VALUES
     'Phd and Fellowship',
     'Phd and Fellowship'
 );
+
+---------22 - MAY - 2026------
+
+CREATE TABLE [dbo].[UGDesignationMaster](
+    [ID] [int] NOT NULL,
+    [DesignationID] [varchar](10) NOT NULL,
+    [DesignationName] [varchar](100) NOT NULL,
+    [Order] [int] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+    [ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+
+select * from DesignationMaster

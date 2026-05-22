@@ -3157,11 +3157,20 @@ namespace Medical_Affiliation.Controllers
             // 🧱 If no teaching rows → add defaults
             if (!vm.TeachingExperiences.Any())
             {
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "JR (If Applicable)" });
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "SR (If Applicable)" });
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Assistant Professor" });
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Associate Professor" });
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
+                if(facultyCode == "1")
+                {
+                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "JR (If Applicable)" });
+                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "SR (If Applicable)" });
+                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Assistant Professor" });
+                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Associate Professor" });
+                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
+                }
+                if(facultyCode == "2")
+                {
+                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Reader/Associate" });
+                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Lecturer/Assistant Professor" });
+                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
+                }
             }
 
             // 🧱 If no admin rows → add one empty row
