@@ -36,54 +36,52 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> Dashboard()
         {
-            var sessionFacultyCode = SessionFacultyCode;  // ← fetch from session
+            var sessionFacultyCode = SessionFacultyCode;
             if (string.IsNullOrEmpty(sessionFacultyCode))
                 return RedirectToAction("Login", "Account");
 
             ViewBag.UserName = SessionUserName;
-            ViewBag.SessionFacultyCode = sessionFacultyCode;  // ← pass to view if needed
+            ViewBag.SessionFacultyCode = sessionFacultyCode;
 
-            // Base college codes filtered by faculty from session
-            var collegeCodesQuery = _context.LicInspectionCollegeDetails.AsQueryable();
-            if (sessionFacultyCode != "300")
-                collegeCodesQuery = collegeCodesQuery
-                    .Where(c => c.Facultycode.ToString() == sessionFacultyCode);
+            bool isAdmin = sessionFacultyCode == "300";
 
-            var allowedCollegeCodes = await collegeCodesQuery
-                .Select(c => c.Collegecode)
-                .ToListAsync();
+            // ── 1. Allowed college codes (only needed for non-admin) ──────────────
+            List<string> allowedCollegeCodes = new();
+            if (!isAdmin)
+            {
+                allowedCollegeCodes = await _context.LicInspectionCollegeDetails
+                    .Where(c => c.Facultycode.ToString() == sessionFacultyCode)
+                    .Select(c => c.Collegecode)
+                    .ToListAsync();
+            }
 
-            // Filter approvals by allowed college codes
-            var approvalsQuery = _context.LiccollegeApprovals.AsQueryable();
-            if (sessionFacultyCode != "300")
+            // ── 2. Base queries ───────────────────────────────────────────────────
+            IQueryable<LiccollegeApproval> approvalsQuery = _context.LiccollegeApprovals;
+            IQueryable<LicclaimDetail> claimsQuery = _context.LicclaimDetails;
+
+            if (!isAdmin)
+            {
                 approvalsQuery = approvalsQuery
                     .Where(x => allowedCollegeCodes.Contains(x.CollegeCode));
+                claimsQuery = claimsQuery
+                    .Where(x => allowedCollegeCodes.Contains(x.CollegeCode));
+            }
 
+            // ── 3. Approval counts ────────────────────────────────────────────────
             var pendingCount = await approvalsQuery
                 .CountAsync(x => x.DrApprovalStatus == "Pending"
                               || x.DrApprovalStatus == null
                               || x.DrApprovalStatus == "");
 
-            var approvedCount = await approvalsQuery
-                .CountAsync(x => x.DrApprovalStatus == "Approved");
-
-            var rejectedCount = await approvalsQuery
-                .CountAsync(x => x.DrApprovalStatus == "Rejected");
-
+            var approvedCount = await approvalsQuery.CountAsync(x => x.DrApprovalStatus == "Approved");
+            var rejectedCount = await approvalsQuery.CountAsync(x => x.DrApprovalStatus == "Rejected");
             var totalApprovals = await approvalsQuery.CountAsync();
 
             var approvalRate = totalApprovals > 0
                 ? Math.Round((approvedCount * 100m) / totalApprovals, 1)
                 : 0m;
 
-            // Filter claims by allowed college codes
-            var claimsQuery = _context.LicclaimDetails.AsQueryable();
-            if (sessionFacultyCode != "300")
-                claimsQuery = claimsQuery
-                    .Where(x => allowedCollegeCodes.Contains(x.CollegeCode));
-
-            var totalClaimAmount = await claimsQuery
-                .SumAsync(x => (decimal?)x.TotalCost) ?? 0m;
+            var totalClaimAmount = await claimsQuery.SumAsync(x => (decimal?)x.TotalCost) ?? 0m;
 
             ViewBag.PendingCount = pendingCount;
             ViewBag.ApprovedCount = approvedCount;
@@ -91,33 +89,47 @@ namespace Medical_Affiliation.Controllers
             ViewBag.ApprovalRate = approvalRate;
             ViewBag.TotalClaimAmount = totalClaimAmount;
 
-            // Filter recent claims by allowed college codes
-            var recentClaimsQuery =
+            // ── 4. Recent claims — use LEFT JOIN but de-duplicate with GroupJoin ──
+            //
+            //  ROOT CAUSE FIX: A claim with multiple approval rows produced multiple
+            //  result rows. Use GroupJoin → FirstOrDefault to keep exactly one row
+            //  per claim, taking the latest/most relevant approval.
+            //
+            var recentClaims = await (
                 from claim in claimsQuery
-                join approval in approvalsQuery
-                    on claim.CollegeCode equals approval.CollegeCode into apprGroup
-                from appr in apprGroup.DefaultIfEmpty()
-                join college in _context.LicInspectionCollegeDetails
-                    on claim.CollegeCode equals college.Collegecode into collegeGroup
-                from coll in collegeGroup.DefaultIfEmpty()
+
+                    // Left-join colleges
+                join coll in _context.LicInspectionCollegeDetails
+                    on claim.CollegeCode equals coll.Collegecode into collGroup
+                from college in collGroup.DefaultIfEmpty()
+
+                    // Left-join approvals — take only ONE approval per claim
+                    // (picks the most recently approved/updated record)
+                let approval = _context.LiccollegeApprovals
+                    .Where(a => a.CollegeCode == claim.CollegeCode)
+                    // If !isAdmin, also scope approvals to the same faculty
+                    // (already handled above via approvalsQuery, so just filter CollegeCode)
+                    .OrderByDescending(a => a.DrapprovedDate)
+                    .FirstOrDefault()
+
                 orderby claim.CreatedDate descending
+
                 select new RecentClaimViewModel
                 {
                     MemberName = claim.MemberName,
                     CollegeCode = claim.CollegeCode,
-                    CollegeName = coll != null ? coll.Collegename : claim.CollegeCode,
+                    CollegeName = college != null ? college.Collegename : claim.CollegeCode,
                     ModeOfTravel = claim.ModeOfTravel,
                     TotalCost = claim.TotalCost,
                     CreatedDate = claim.CreatedDate,
-                    ApprovalStatus = appr != null ? appr.DrApprovalStatus ?? "Pending" : "Pending",
-                    Remarks = appr != null ? appr.DrRemarks : null,
-                    ApprovedBy = appr != null ? appr.DrapprovedBy : null,
-                    ApprovedDate = appr != null ? appr.DrapprovedDate : null
-                };
-
-            var recentClaims = await recentClaimsQuery
-                .Take(5)
-                .ToListAsync();
+                    ApprovalStatus = approval != null ? (approval.DrApprovalStatus ?? "Pending") : "Pending",
+                    Remarks = approval != null ? approval.DrRemarks : null,
+                    ApprovedBy = approval != null ? approval.DrapprovedBy : null,
+                    ApprovedDate = approval != null ? approval.DrapprovedDate : null
+                }
+            )
+            .Take(5)
+            .ToListAsync();
 
             return View(recentClaims);
         }
@@ -132,6 +144,19 @@ namespace Medical_Affiliation.Controllers
         }
 
         // ── CollegeClaimsDashboard ────────────────────────────────────────────
+
+        [HttpGet]
+        public async Task<IActionResult> CheckMemberReportExists(string memberName, string collegeCode)
+        {
+            memberName = memberName?.Trim();
+            collegeCode = collegeCode?.Trim();
+
+            var exists = await _context.LicclaimDetails
+                .AnyAsync(x => x.MemberName.Trim() == memberName &&
+                               x.CollegeCode.Trim() == collegeCode);
+
+            return Json(new { success = exists });
+        }
         [HttpGet]
         public async Task<IActionResult> CollegeClaimsDashboard(string? collegeCode)
         {
@@ -222,15 +247,20 @@ namespace Medical_Affiliation.Controllers
         {
             if (string.IsNullOrEmpty(memberName)) return null;
 
+            // Trim both sides to handle any DB whitespace issues
+            memberName = memberName.Trim();
+            collegeCode = collegeCode.Trim();
+
             var inspectionDates = await _context.LicinspectionDetails
-                .Where(x => x.Name == memberName &&
-                            x.SelectedCollegeCode == collegeCode &&
+                .Where(x => x.Name.Trim() == memberName &&
+                            x.SelectedCollegeCode.Trim() == collegeCode &&
                             x.DateOfInspection.HasValue)
                 .Select(x => x.DateOfInspection.Value)
                 .ToListAsync();
 
             var claims = await _context.LicclaimDetails
-                .Where(x => x.MemberName == memberName && x.CollegeCode == collegeCode)
+                .Where(x => x.MemberName.Trim() == memberName &&
+                            x.CollegeCode.Trim() == collegeCode)
                 .ToListAsync();
 
             return new LICMemberSummary
@@ -238,85 +268,147 @@ namespace Medical_Affiliation.Controllers
                 MemberName = memberName,
                 InspectionDates = inspectionDates,
                 TotalClaim = claims.Sum(x => x.TotalCost ?? 0),
-                DateMismatchFlag = false
+                DateMismatchFlag = false,
+
             };
         }
 
         // ── ApproveCollege ────────────────────────────────────────────────────
         [HttpPost]
-        public async Task<IActionResult> ApproveCollege(string collegeCode, IFormFile licFile, string remarks)
+        public async Task<IActionResult> ApproveCollege(string collegeCode, string remarks)
         {
-            var sessionFacultyCode = SessionFacultyCode;  // ← fetch from session
+            var sessionFacultyCode = SessionFacultyCode;
             if (string.IsNullOrEmpty(sessionFacultyCode))
                 return RedirectToAction("Login", "Account");
 
-            if (licFile != null && licFile.Length > 0)
-            {
-                if (Path.GetExtension(licFile.FileName).ToLower() != ".pdf")
-                    return BadRequest("Only PDF allowed.");
-                using var reader = new BinaryReader(licFile.OpenReadStream());
-                if (Encoding.ASCII.GetString(reader.ReadBytes(4)) != "%PDF")
-                    return BadRequest("Invalid PDF file.");
-            }
+            var approvedBy = SessionUserName ?? User.Identity?.Name;
 
-            var claims = await _context.LicclaimDetails
+            var college = await _context.LicInspectionCollegeDetails
+                .FirstOrDefaultAsync(x => x.Collegecode == collegeCode);
+
+            if (college == null)
+                return RedirectToAction("CollegeClaimsDashboard");
+
+            var memberRoles = new[]
+            {
+        new { Name = college.SenetMember,      Role = "Senate Member"  },
+        new { Name = college.Acmember,         Role = "AC Member"      },
+        new { Name = college.SubjectExpertise, Role = "Subject Expert" }
+    };
+
+            // ── Fetch ALL claims for this college into memory once ──────────────
+            var allCollegeClaims = await _context.LicclaimDetails
                 .Where(x => x.CollegeCode == collegeCode)
                 .ToListAsync();
 
-            // ✅ Approver resolved from session constant, falls back to identity
-            var approvedBy = SessionUserName ?? User.Identity?.Name;
+            // ── DEBUG: check Output window in Visual Studio ──────────────────────
+            foreach (var c in allCollegeClaims)
+                System.Diagnostics.Debug.WriteLine(
+                    $"CLAIM ROW → MemberName: '{c.MemberName}' | College: '{c.CollegeCode}'");
 
-            foreach (var claim in claims)
+            System.Diagnostics.Debug.WriteLine(
+                $"COLLEGE → Senate: '{college.SenetMember}' | AC: '{college.Acmember}' | Subject: '{college.SubjectExpertise}'");
+            // ────────────────────────────────────────────────────────────────────
+
+            foreach (var memberRole in memberRoles)
             {
-                var approval = new LiccollegeApproval
-                {
-                    FacultyCode = Convert.ToInt32(sessionFacultyCode),
-                    MemberName = claim.MemberName,
-                    CollegeCode = claim.CollegeCode,
-                    TypeOfMembers = claim.TypeofMember,
-                    MobileNo = claim.PhoneNumber,
-                    FromPlace = claim.FromPlace,
-                    ToPlace = claim.ToPlace,
-                    Kilometers = claim.Kilometers,
-                    ReturnFromPlace = claim.ReturnFromPlace,
-                    ReturnToPlace = claim.ReturnToPlace,
-                    ReturnKilometers = claim.ReturnKilometers,
-                    TravelCost = claim.TravelCost,
-                    Dacost = claim.Dacost,
-                    Lcacost = claim.Lcacost,
-                    CollegeCost = claim.CollegeCost,
-                    AirFair = claim.AirFareCost,
-                    AirRoadCost = claim.AirRoadCost,
-                    TotalClaimAmount = claim.TotalCost ?? 0,
-                    IsBanglore = claim.IsBanglore,
-                    NoOfDays = claim.NoofDays,
-                    Division = claim.Division,
-                    IsLca = claim.IsLca,
-                    DrApprovalStatus = "Approved",
-                    DrapprovedBy = approvedBy,
-                    DrapprovedDate = DateTime.Now,
-                    DrRemarks = remarks
-                };
-                _context.LiccollegeApprovals.Add(approval);
-            }
+                if (string.IsNullOrWhiteSpace(memberRole.Name)) continue;
 
-            await _context.SaveChangesAsync();
+                var memberName = memberRole.Name.Trim();
 
-            if (licFile != null && licFile.Length > 0)
-            {
-                var firstApproval = await _context.LiccollegeApprovals
-                    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode);
-                if (firstApproval != null)
+                // Match in memory so .Trim() works reliably
+                var claim = allCollegeClaims
+                    .FirstOrDefault(x => x.MemberName?.Trim() == memberName);
+
+                if (claim == null)
                 {
-                    using var ms = new MemoryStream();
-                    await licFile.CopyToAsync(ms);
-                    firstApproval.LicApprovalFile = ms.ToArray();
-                    firstApproval.LicApprovalFileName = licFile.FileName;
-                    firstApproval.LicApprovalUploadedOn = DateTime.Now;
-                    await _context.SaveChangesAsync();
+                    System.Diagnostics.Debug.WriteLine(
+                        $"⚠ No claim found for member: '{memberName}'");
+                    foreach (var c in allCollegeClaims)
+                        System.Diagnostics.Debug.WriteLine(
+                            $"   DB has: '{c.MemberName}'");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"✔ Claim found for member: '{memberName}'");
+                }
+
+                var existing = await _context.LiccollegeApprovals
+                    .FirstOrDefaultAsync(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.MemberName == memberName);
+
+                if (existing != null)
+                {
+                    existing.DrApprovalStatus = "Approved";
+                    existing.DrapprovedBy = approvedBy;
+                    existing.DrapprovedDate = DateTime.Now;
+                    existing.DrRemarks = remarks;
+                    existing.UpdatedDate = DateTime.Now;
+                    existing.AcademicYear = "2026-27";
+
+                    if (claim != null)
+                    {
+                        existing.TypeOfMembers = memberRole.Role;
+                        existing.MobileNo = claim.PhoneNumber;
+                        existing.FromPlace = claim.FromPlace;
+                        existing.ToPlace = claim.ToPlace;
+                        existing.Kilometers = claim.Kilometers;
+                        existing.ReturnFromPlace = claim.ReturnFromPlace;
+                        existing.ReturnToPlace = claim.ReturnToPlace;
+                        existing.ReturnKilometers = claim.ReturnKilometers;
+                        existing.TravelCost = claim.TravelCost;
+                        existing.Dacost = claim.Dacost;
+                        existing.Lcacost = claim.Lcacost;
+                        existing.CollegeCost = claim.CollegeCost;
+                        existing.AirFair = claim.AirFareCost;
+                        existing.AirRoadCost = claim.AirRoadCost;
+                        existing.TotalClaimAmount = claim.TotalCost ?? 0;
+                        existing.IsBanglore = claim.IsBanglore;
+                        existing.NoOfDays = claim.NoofDays;
+                        existing.Division = claim.Division;
+                        existing.IsLca = claim.IsLca;
+                    }
+                }
+                else
+                {
+                    var approval = new LiccollegeApproval
+                    {
+                        FacultyCode = Convert.ToInt32(sessionFacultyCode),
+                        MemberName = memberName,
+                        CollegeCode = collegeCode,
+                        TypeOfMembers = memberRole.Role,
+                        DrApprovalStatus = "Approved",
+                        DrapprovedBy = approvedBy,
+                        DrapprovedDate = DateTime.Now,
+                        DrRemarks = remarks,
+                        AcademicYear = "2026-27",
+                        TotalClaimAmount = claim?.TotalCost ?? 0,
+
+                        MobileNo = claim?.PhoneNumber,
+                        FromPlace = claim?.FromPlace,
+                        ToPlace = claim?.ToPlace,
+                        Kilometers = claim?.Kilometers,
+                        ReturnFromPlace = claim?.ReturnFromPlace,
+                        ReturnToPlace = claim?.ReturnToPlace,
+                        ReturnKilometers = claim?.ReturnKilometers,
+                        TravelCost = claim?.TravelCost,
+                        Dacost = claim?.Dacost,
+                        Lcacost = claim?.Lcacost,
+                        CollegeCost = claim?.CollegeCost,
+                        AirFair = claim?.AirFareCost,
+                        AirRoadCost = claim?.AirRoadCost,
+                        IsBanglore = claim?.IsBanglore,
+                        NoOfDays = claim?.NoofDays,
+                        Division = claim?.Division,
+                        IsLca = claim?.IsLca,
+                    };
+                    _context.LiccollegeApprovals.Add(approval);
                 }
             }
 
+            await _context.SaveChangesAsync();
             return RedirectToAction("CollegeClaimsDashboard");
         }
 
@@ -362,16 +454,24 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> MemberReport(string memberName, string collegeCode)
         {
+            // Trim to avoid whitespace mismatches in the DB
+            memberName = memberName?.Trim();
+            collegeCode = collegeCode?.Trim();
+
+            if (string.IsNullOrEmpty(memberName) || string.IsNullOrEmpty(collegeCode))
+                return BadRequest("Member name and college code are required.");
+
             var college = await _context.LicInspectionCollegeDetails
-                .FirstOrDefaultAsync(c => c.Collegecode == collegeCode);
+                .FirstOrDefaultAsync(c => c.Collegecode.Trim() == collegeCode);
 
             var claims = await _context.LicclaimDetails
-                .Where(c => c.MemberName == memberName && c.CollegeCode == collegeCode)
+                .Where(c => c.MemberName.Trim() == memberName &&
+                            c.CollegeCode.Trim() == collegeCode)
                 .ToListAsync();
 
             var inspectionDates = await _context.LicinspectionDetails
-                .Where(i => i.Name == memberName &&
-                            i.SelectedCollegeCode == collegeCode &&
+                .Where(i => i.Name.Trim() == memberName &&
+                            i.SelectedCollegeCode.Trim() == collegeCode &&
                             i.DateOfInspection.HasValue)
                 .Select(i => i.DateOfInspection.Value)
                 .ToListAsync();
@@ -379,11 +479,16 @@ namespace Medical_Affiliation.Controllers
             var total = claims.Sum(c => c.TotalCost ?? 0);
             var firstClaim = claims.FirstOrDefault();
 
-            var approval = await _context.LiccollegeApprovals
-                .FirstOrDefaultAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.MemberName == memberName &&
-                    x.TypeOfMembers == firstClaim.TypeofMember);
+            // Guard: approval lookup only if firstClaim exists
+            LiccollegeApproval approval = null;
+            if (firstClaim != null)
+            {
+                approval = await _context.LiccollegeApprovals
+                    .FirstOrDefaultAsync(x =>
+                        x.CollegeCode.Trim() == collegeCode &&
+                        x.MemberName.Trim() == memberName);
+                // Removed TypeOfMembers filter — it was too strict and caused misses
+            }
 
             var model = new LICMemberReportViewModel
             {
@@ -413,15 +518,21 @@ namespace Medical_Affiliation.Controllers
         [RequestSizeLimit(5 * 1024 * 1024)]
         public async Task<IActionResult> UploadLicApprovalOnly(string collegeCode, IFormFile licFile)
         {
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return BadRequest("College code is required.");
+
             if (licFile == null || licFile.Length == 0)
                 return BadRequest("No file selected.");
 
             if (Path.GetExtension(licFile.FileName).ToLower() != ".pdf")
-                return BadRequest("Only PDF allowed.");
+                return BadRequest("Only PDF files are allowed.");
 
-            using (var reader = new BinaryReader(licFile.OpenReadStream()))
+            // Validate PDF header
+            using (var stream = licFile.OpenReadStream())
             {
-                if (Encoding.ASCII.GetString(reader.ReadBytes(4)) != "%PDF")
+                byte[] header = new byte[4];
+                await stream.ReadAsync(header, 0, 4);
+                if (Encoding.ASCII.GetString(header) != "%PDF")
                     return BadRequest("Invalid PDF file.");
             }
 
@@ -433,37 +544,68 @@ namespace Medical_Affiliation.Controllers
                 fileBytes = ms.ToArray();
             }
 
-            // Get ALL member rows for this college
-            var approvals = await _context.LiccollegeApprovals
-                .Where(x => x.CollegeCode == collegeCode)
+            // Get the college to know the 3 team members
+            var college = await _context.LicInspectionCollegeDetails
+                .FirstOrDefaultAsync(x => x.Collegecode == collegeCode);
+
+            if (college == null)
+                return BadRequest("College not found.");
+
+            var memberNames = new[]
+            {
+        college.SenetMember?.Trim(),
+        college.Acmember?.Trim(),
+        college.SubjectExpertise?.Trim()
+    }
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+
+            if (!memberNames.Any())
+                return BadRequest("No team members found for this college.");
+
+            // Get existing approval rows for these 3 members
+            var existingApprovals = await _context.LiccollegeApprovals
+                .Where(x => x.CollegeCode == collegeCode &&
+                            memberNames.Contains(x.MemberName.Trim()))
                 .ToListAsync();
 
-            if (approvals.Count == 0)
+            foreach (var memberName in memberNames)
             {
-                // No rows exist yet — create a single placeholder row
-                var newApproval = new LiccollegeApproval
+                var approval = existingApprovals
+                    .FirstOrDefault(x => x.MemberName.Trim() == memberName);
+
+                if (approval != null)
                 {
-                    CollegeCode = collegeCode,
-                    DrApprovalStatus = "Pending",
-                    LicApprovalFile = fileBytes,
-                    LicApprovalFileName = licFile.FileName,
-                    LicApprovalUploadedOn = DateTime.Now
-                };
-                _context.LiccollegeApprovals.Add(newApproval);
-            }
-            else
-            {
-                // ✅ Save LIC file data to EVERY member row for this college
-                foreach (var approval in approvals)
-                {
+                    // Update file on existing row
                     approval.LicApprovalFile = fileBytes;
                     approval.LicApprovalFileName = licFile.FileName;
                     approval.LicApprovalUploadedOn = DateTime.Now;
                 }
+                else
+                {
+                    // Create a placeholder row with just the file
+                    // (will be fully populated on approval)
+                    _context.LiccollegeApprovals.Add(new LiccollegeApproval
+                    {
+                        CollegeCode = collegeCode,
+                        MemberName = memberName,
+                        DrApprovalStatus = "Pending",
+                        LicApprovalFile = fileBytes,
+                        LicApprovalFileName = licFile.FileName,
+                        LicApprovalUploadedOn = DateTime.Now
+   
+                    });
+                }
             }
 
             await _context.SaveChangesAsync();
-            return Ok(new { fileName = licFile.FileName, updatedRows = approvals.Count });
+
+            return Ok(new
+            {
+                fileName = licFile.FileName,
+                totalMembers = memberNames.Count,
+                message = $"PDF saved for {memberNames.Count} team members."
+            });
         }
 
         // ── GetLicApprovalFile ────────────────────────────────────────────────

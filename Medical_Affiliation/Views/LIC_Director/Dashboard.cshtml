@@ -1,6 +1,6 @@
 ﻿@model List<RecentClaimViewModel>
 @{
-    ViewData["Title"] = "LIC Director — Command Centre";
+    ViewData["Title"] = "Director — Command Centre";
     Layout = null;
 }
 <!DOCTYPE html>
@@ -1339,7 +1339,7 @@
             <div class="topbar-brand">
                 <img src="~/images/logo.jpg" alt="Logo" class="brand-logo" />
                 <div>
-                    <div class="brand-text-name">LIC Director</div>
+                    <div class="brand-text-name">Director</div>
                     <div class="brand-text-tag">Command Centre</div>
                 </div>
             </div>
@@ -1632,13 +1632,13 @@
                                 </div>
                                 College Claims
                             </a>
-                            <a asp-controller="LIC_Director" asp-action="List" class="qa-btn">
+                            <a asp-controller="LIC_Director" asp-action="CollegeClaimsDashboard" class="qa-btn">
                                 <div class="qa-ico qa-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#B45309" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
                                 </div>
                                 All Claims
                             </a>
-                            <a href="#" class="qa-btn">
+                            <a asp-controller="LICInspectionEditMember" asp-action="Reports" class="qa-btn">
                                 <div class="qa-ico qa-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1D4ED8" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                 </div>
@@ -1755,7 +1755,7 @@
             document.body.style.overflow = open ? 'hidden' : '';
         }
 
-        function closeSidebar() {
+        function closeSidebar() {s
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sideBackdrop').classList.remove('open');
             document.getElementById('hamIcon').innerHTML =
