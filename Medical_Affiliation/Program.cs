@@ -153,6 +153,16 @@ var authSchemes = new[]
 
     new { Scheme = "FinanceAuth",
           Cookie = "Finance.Cookie",        Login = "/Admin/AdminLogin",       Logout = "/Admin/FinanceLogout",   AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+    
+    new
+{
+    Scheme = "VCAuth",
+    Cookie = ".VCAuth",
+    Login = "/MainDashboard/MultiLogin",
+    Logout = "/MainDashboard/Logout",
+    AccessDenied = "/MainDashboard/MultiLogin",
+    ExpireMinutes = 60
+},
 };
 
 var authBuilder = builder.Services.AddAuthentication();
