@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Net.Mail;
 using System.Net;
 using Admission_Affiliation.Models;
+using BCrypt.Net;
 
 namespace Admission_Affiliation.Controllers
 {
@@ -31,6 +32,9 @@ namespace Admission_Affiliation.Controllers
         {
             return RedirectToAction("MultiLogin", "MainDashboard");
         }
+
+
+        
 
         public IActionResult AdminLogin()
         {
@@ -232,6 +236,88 @@ namespace Admission_Affiliation.Controllers
                 return View(model);
             }
 
+            //code added by ram to add VCLogin 
+
+            var userIP = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+
+
+                //    public IActionResult GenerateVCHash()
+                //{
+                //    string hash = BCrypt.Net.BCrypt.HashPassword("AdminVC@123");
+                //    return Content(hash);
+                //}
+                if (user.IsAdmin == true && user.Faculty == 100)
+                {
+                    bool isVCPasswordValid = false;
+
+                    if (!string.IsNullOrEmpty(user.PasswordHash) &&
+                        (user.PasswordHash.StartsWith("$2a$") ||
+                         user.PasswordHash.StartsWith("$2b$") ||
+                         user.PasswordHash.StartsWith("$2y$")))
+                    {
+                        try
+                        {
+                            string storedHash = user.PasswordHash.Replace("$2y$", "$2a$");
+
+                            Console.WriteLine($"Password entered: [{model.Password}]");
+                            Console.WriteLine($"Length: {model.Password.Length}");
+
+                            bool test = BCrypt.Net.BCrypt.Verify("AdminVC@123", storedHash);
+                            Console.WriteLine($"Hash test result: {test}");
+
+                            isVCPasswordValid = BCrypt.Net.BCrypt.Verify(model.Password, storedHash);
+                        }
+                        catch
+                        {
+                            isVCPasswordValid = false;
+                        }
+                    }
+                    else
+                    {
+                        var ph = new PasswordHasher<TblRguhsFacultyUser>();
+                        var result = ph.VerifyHashedPassword(user, user.PasswordHash, model.Password);
+
+                        isVCPasswordValid =
+                            result == PasswordVerificationResult.Success ||
+                            result == PasswordVerificationResult.SuccessRehashNeeded;
+                    }
+
+                    if (!isVCPasswordValid)
+                    {
+                        ModelState.AddModelError("Password", "Incorrect password.");
+                        return View(model);
+                    }
+
+                    await HttpContext.SignOutAsync("VCAuth");
+
+                    var claimsVC = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.Role, "Admin"),
+                        new Claim("FacultyId", user.Faculty.ToString()),
+                        new Claim("UserIP", userIP ?? string.Empty),
+                        new Claim("UserAgent", userAgent ?? string.Empty)
+                    };
+
+                    var identityVC = new ClaimsIdentity(claimsVC, "VCAuth");
+                    var principalVC = new ClaimsPrincipal(identityVC);
+
+                    await HttpContext.SignInAsync("VCAuth", principalVC,
+                        new AuthenticationProperties
+                        {
+                            IsPersistent = true,
+                            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
+                        });
+
+                    HttpContext.Session.SetString("FacultyId", user.Faculty.ToString());
+                    HttpContext.Session.SetString("IsAdmin", "true");
+
+                    return RedirectToAction("ApplicationStatusReport", "CA_ApplicationStatusReport");
+                }
+
+
+
             HttpContext.Session.SetString("logoutController", "Admin");
             HttpContext.Session.SetString("FacultyCode", user.Faculty.ToString());
             HttpContext.Session.SetString("FacultyId", user.Faculty.ToString());
@@ -276,8 +362,7 @@ namespace Admission_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            var userIP = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+            
 
             // ----- SPECIAL CASE: Fellowship Director (Faculty == 12) -----
             // If the authenticated user belongs to faculty 12, validate credentials and sign in using DirectorAuth,

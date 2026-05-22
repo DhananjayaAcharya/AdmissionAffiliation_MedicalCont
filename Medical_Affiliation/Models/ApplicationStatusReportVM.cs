@@ -1,4 +1,6 @@
-﻿namespace Medical_Affiliation.Models
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace Medical_Affiliation.Models
 {
     public class ApplicationStatusReportVM
     {
@@ -15,6 +17,14 @@
 
         // NEW
         public string? SelectedCollegeCode { get; set; }
+
+        //NEW - changes by ram on 21/05/2026
+
+        public string? SelectedFaculty { get; set; }
+        public string? SelectedCollege { get; set; }
+
+        public List<SelectListItem> Faculties { get; set; } = new();
+        public List<SelectListItem> CollegesDropdown { get; set; } = new();
     }
 
     public class CollegeStatusRowVM
@@ -26,6 +36,8 @@
         public int DoneSteps { get; set; }
         public int Percentage { get; set; }
         public List<StepGroupVM> StepGroups { get; set; } = new();
+
+        public string PhoneNumber { get; set; } = "";
     }
 
     public class StepGroupVM
