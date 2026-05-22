@@ -322,31 +322,42 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-        private async Task<string?> SaveCurriculumFileAsync(IFormFile file)
+        private async Task<string?> SaveCurriculumFileAsync(
+    IFormFile? file,
+    string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            // 🔥 USE BASE CONTROLLER PATH
-            string basePath = Path.Combine(BasePath, "AcademicCurriculum");
+            // Select base path based on faculty
+            string basePath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
-            // 🔹 Ensure directory exists
-            if (!Directory.Exists(basePath))
-                Directory.CreateDirectory(basePath);
+            // AcademicCurriculum folder
+            string folderPath =
+                Path.Combine(basePath, "AcademicCurriculum");
 
-            // 🔹 Generate GUID file name
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            // Ensure directory exists
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
 
-            // 🔥 FULL PATH (NOW CORRECT)
-            string fullPath = Path.Combine(basePath, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
-            // 🔹 Save file
+            // Full path
+            string fullPath =
+                Path.Combine(folderPath, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            return fullPath; // ✅ D:\Affiliation_Medical\AcademicCurriculum\GUID.pdf
+            return fullPath;
         }
 
         [HttpPost]
@@ -454,7 +465,7 @@ namespace Medical_Affiliation.Controllers
 
                             if (file != null && file.Length > 0)
                             {
-                                var filePath = await SaveCurriculumFileAsync(file);
+                                var filePath = await SaveCurriculumFileAsync(file, FacultyCode);
 
                                 if (filePath != null)
                                 {

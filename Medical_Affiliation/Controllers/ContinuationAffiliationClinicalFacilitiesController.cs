@@ -21,20 +21,41 @@ namespace Medical_Affiliation.Controllers
             _userContext = userContext;
             _context = context;
         }
-        private async Task<string?> SaveHospitalFileAsync(IFormFile? file, string folder)
+        private async Task<string?> SaveHospitalFileAsync(
+     IFormFile? file,
+     string folder,
+     string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine("D:\\Affiliation_Medical", "HospitalDetails");
-            string fullFolder = Path.Combine(basePath, folder);
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // HospitalDetails folder
+            string basePath =
+                Path.Combine(rootPath, "HospitalDetails");
+
+            // Dynamic subfolder
+            string fullFolder =
+                Path.Combine(basePath, folder);
+
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -272,18 +293,36 @@ namespace Medical_Affiliation.Controllers
             await file.CopyToAsync(ms);
             return ms.ToArray();
         }
-        private async Task<string?> SaveAffiliatedHospitalFileAsync(IFormFile? file)
+        private async Task<string?> SaveAffiliatedHospitalFileAsync(
+    IFormFile? file,
+    string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine("D:\\Affiliation_Medical", "AffiliatedHospitalDocs");
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
+
+            // AffiliatedHospitalDocs folder
+            string basePath =
+                Path.Combine(rootPath, "AffiliatedHospitalDocs");
+
+            // Create folder if not exists
             if (!Directory.Exists(basePath))
                 Directory.CreateDirectory(basePath);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(basePath, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(basePath, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -291,6 +330,7 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveAffiliatedHospitalDocuments(AffiliatedHospitalDocumentsPostVM model)
@@ -362,7 +402,7 @@ namespace Medical_Affiliation.Controllers
 
                         if (doc.DocumentFile != null && doc.DocumentFile.Length > 0)
                         {
-                            var filePath = await SaveAffiliatedHospitalFileAsync(doc.DocumentFile);
+                            var filePath = await SaveAffiliatedHospitalFileAsync(doc.DocumentFile, FacultyCode);
 
                             if (filePath != null)
                             {
@@ -384,7 +424,7 @@ namespace Medical_Affiliation.Controllers
                         if (doc.DocumentFile == null || doc.DocumentFile.Length == 0)
                             continue;
 
-                        var filePath = await SaveAffiliatedHospitalFileAsync(doc.DocumentFile);
+                        var filePath = await SaveAffiliatedHospitalFileAsync(doc.DocumentFile, FacultyCode);
 
                         _context.AffiliatedHospitalDocuments.Add(
                             new AffiliatedHospitalDocument

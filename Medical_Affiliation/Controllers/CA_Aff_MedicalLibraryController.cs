@@ -234,20 +234,41 @@ namespace Medical_Affiliation.Controllers
 
             return View("MedicalLibrary", model);
         }
-        private async Task<string?> SaveLibraryFileAsync(IFormFile file, string folder)
+        private async Task<string?> SaveLibraryFileAsync(
+    IFormFile? file,
+    string folder,
+    string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "MedicalLibrary");
-            string fullFolder = Path.Combine(basePath, folder);
+            // Select base path
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // MedicalLibrary folder
+            string basePath =
+                Path.Combine(rootPath, "MedicalLibrary");
+
+            // Dynamic subfolder
+            string fullFolder =
+                Path.Combine(basePath, folder);
+
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -542,7 +563,8 @@ namespace Medical_Affiliation.Controllers
                     {
                         var path = await SaveLibraryFileAsync(
                             row.UploadedPdf,
-                            "LibraryServices"
+                            "LibraryServices",
+                            FacultyCode
                         );
 
                         if (path != null)
@@ -591,7 +613,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     var path = await SaveLibraryFileAsync(
                         model.UsageReportPdf,
-                        "UsageReports"
+                        "UsageReports",
+                        FacultyCode
                     );
 
                     if (path != null)
@@ -754,7 +777,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     var path = await SaveLibraryFileAsync(
                         model.OtherDetails.SpecialFeaturesPdf,
-                        "SpecialFeatures"
+                        "SpecialFeatures",
+                        FacultyCode
                     );
 
                     if (path != null)
@@ -831,7 +855,8 @@ namespace Medical_Affiliation.Controllers
                             var path =
                                 await SaveLibraryFileAsync(
                                     row.UploadFile,
-                                    "DentalLibraryRecords"
+                                    "DentalLibraryRecords",
+                                    FacultyCode
                                 );
 
                             if (path != null)

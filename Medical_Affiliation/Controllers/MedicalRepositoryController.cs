@@ -399,12 +399,13 @@ namespace Medical_Affiliation.Controllers
 
             return View(vmList);
         }
-        private async Task<string?> SaveFacultyFileAsync(IFormFile? file, string folder)
+        private async Task<string?> SaveFacultyFileAsync(IFormFile? file, string folder, string facutlyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "FacultyDetails");
+            string rootPath = FacultyCode == "1" ? BaseMedicalPath : BaseDentalPath;
+            string basePath = Path.Combine(rootPath, "FacultyDetails");
             string fullFolder = Path.Combine(basePath, folder);
 
             if (!Directory.Exists(fullFolder))
@@ -508,7 +509,7 @@ namespace Medical_Affiliation.Controllers
 
                         if (m.GuideRecognitionDoc != null && m.GuideRecognitionDoc.Length > 0)
                         {
-                            guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs");
+                            guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs", FacultyCode);
                         }
 
                         var existing = existingFaculty.FirstOrDefault(f => f.Id == m.FacultyDetailId);

@@ -13,20 +13,41 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
-        private async Task<string?> SaveStaffFileAsync(IFormFile? file, string folder)
+        private async Task<string?> SaveStaffFileAsync(
+    IFormFile? file,
+    string folder,
+    string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "StaffDetails");
-            string fullFolder = Path.Combine(basePath, folder);
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // StaffDetails folder
+            string basePath =
+                Path.Combine(rootPath, "StaffDetails");
+
+            // Dynamic subfolder
+            string fullFolder =
+                Path.Combine(basePath, folder);
+
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -34,6 +55,7 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
+
         // ✅ GET
         [HttpGet]
         public async Task<IActionResult> CA_Med_StaffDetails()
@@ -281,7 +303,7 @@ namespace Medical_Affiliation.Controllers
                     var path =
                      await SaveStaffFileAsync(
                         ExaminerDetailsPdf,
-                        "ExaminerDocs");
+                        "ExaminerDocs", FacultyCode);
 
                     entity.ExaminerDetailsPdfPath = path;
                     entity.ExaminerDetailsPdfName =
@@ -294,7 +316,7 @@ namespace Medical_Affiliation.Controllers
                     var path =
                      await SaveStaffFileAsync(
                         AEBASLastThreeMonthsPdf,
-                        "AEBAS3Months");
+                        "AEBAS3Months", FacultyCode);
 
                     entity.AebaslastThreeMonthsPdfPath = path;
                     entity.AebaslastThreeMonthsPdfName =
@@ -307,7 +329,7 @@ namespace Medical_Affiliation.Controllers
                     var path =
                      await SaveStaffFileAsync(
                         AEBASInspectionDayPdf,
-                        "AEBASInspection");
+                        "AEBASInspection", facultyCode);
 
                     entity.AebasinspectionDayPdfPath = path;
                     entity.AebasinspectionDayPdfName =
@@ -320,7 +342,8 @@ namespace Medical_Affiliation.Controllers
                     var path =
                      await SaveStaffFileAsync(
                         ProvidentFundPdf,
-                        "PFDocs");
+                        "PFDocs",
+                        FacultyCode);
 
                     entity.ProvidentFundPdfPath = path;
                     entity.ProvidentFundPdfName =
@@ -337,7 +360,8 @@ namespace Medical_Affiliation.Controllers
                     var path =
                       await SaveStaffFileAsync(
                         ESIPdf,
-                        "ESIDocs");
+                        "ESIDocs",
+                        FacultyCode);
 
                     entity.EsipdfPath = path;
                     entity.EsipdfName = ESIPdf.FileName;

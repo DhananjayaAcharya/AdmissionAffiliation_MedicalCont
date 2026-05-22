@@ -221,20 +221,41 @@ namespace Medical_Affiliation.Controllers
             return View(vmList);
         }
 
-        private async Task<string?> SaveFacultyFileAsync(IFormFile? file, string subFolder)
+        private async Task<string?> SaveFacultyFileAsync(
+    IFormFile? file,
+    string subFolder,
+    string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "FacultyDetails");
-            string fullFolder = Path.Combine(basePath, subFolder);
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // FacultyDetails folder
+            string basePath =
+                Path.Combine(rootPath, "FacultyDetails");
+
+            // Dynamic subfolder
+            string fullFolder =
+                Path.Combine(basePath, subFolder);
+
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -300,9 +321,9 @@ namespace Medical_Affiliation.Controllers
                     DateOnly? from = m?.From;
                     DateOnly? to = m?.To;
 
-                    var guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs");
-                    var phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs");
-                    var litigPath = await SaveFacultyFileAsync(m.LitigationDoc, "LitigationDocs");
+                    var guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs", FacultyCode);
+                    var phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs", FacultyCode);
+                    var litigPath = await SaveFacultyFileAsync(m.LitigationDoc, "LitigationDocs", FacultyCode);
                     string examinerFor = m.ExaminerForList != null && m.ExaminerForList.Any()
                                             ? string.Join(",", m.ExaminerForList)
                                             : null;

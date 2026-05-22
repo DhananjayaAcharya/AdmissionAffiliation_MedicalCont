@@ -636,7 +636,9 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "PgCourseDetails", subFolder);
+            var path = BaseMedicalPath;
+            if (FacultyCode == "2") path = BaseDentalPath;
+            string basePath = Path.Combine(path, "PgCourseDetails", subFolder);
 
             if (!Directory.Exists(basePath))
                 Directory.CreateDirectory(basePath);

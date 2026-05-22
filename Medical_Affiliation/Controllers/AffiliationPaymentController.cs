@@ -116,7 +116,11 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 // ✅ Folder path
-                var basePath = Path.Combine(BasePath, "Payment");
+                var basePath = Path.Combine(BaseMedicalPath, "Payment");
+                if(FacultyCode == "2")
+                {
+                    basePath = Path.Combine(BaseDentalPath, "Payment");
+                }
                 var folderPath = basePath;
 
                 if (!Directory.Exists(folderPath))
@@ -170,8 +174,12 @@ namespace Medical_Affiliation.Controllers
         {
             if (string.IsNullOrEmpty(fileName))
                 return NotFound();
-
-            var folderPath = Path.Combine(BasePath, "Payment");
+            var basePath = BaseMedicalPath;
+            if(FacultyCode == "2")
+            {
+                basePath = BaseDentalPath;
+            }
+            var folderPath = Path.Combine(basePath, "Payment");
             var fullPath = Path.Combine(folderPath, fileName);
 
             if (!System.IO.File.Exists(fullPath))

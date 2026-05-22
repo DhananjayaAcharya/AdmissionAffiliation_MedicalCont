@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class Aff_CA_SS_CoursesAppliedSSController : Controller
+    public class Aff_CA_SS_CoursesAppliedSSController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -17,38 +17,39 @@ namespace Medical_Affiliation.Controllers
 
         private const long MaxFileSize = 2 * 1024 * 1024;
 
-        private async Task<string?> SaveSSFileAsync(
-        IFormFile? file,
-        string folder)
+        private async Task<string?> SaveSSFileAsync(  IFormFile? file, string folder, string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath =
-                @"D:\Affiliation_Medical\SSCoursesApplied";
+            // Decide base path based on faculty
+            string basePath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
-            string fullFolder =
-                Path.Combine(basePath, folder);
+            // Final folder path
+            string fullFolder = Path.Combine(basePath, folder);
 
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
+            // Generate unique file name
             string savedName =
                 Guid.NewGuid().ToString() +
                 Path.GetExtension(file.FileName);
 
+            // Full file path
             string fullPath =
                 Path.Combine(fullFolder, savedName);
 
-            using (var stream =
-               new FileStream(
-                   fullPath,
-                   FileMode.Create))
+            // Save file
+            using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            return fullPath;   // returns D:\....pdf
+            return fullPath;
         }
 
         private bool FileTooLarge(IFormFile file)
@@ -913,7 +914,8 @@ namespace Medical_Affiliation.Controllers
                     var path =
                         await SaveSSFileAsync(
                             row.PermissionFile,
-                            "ParticularsDocs");
+                            "ParticularsDocs",
+                            FacultyCode);
 
                     filePath = path;
                     fileName =
@@ -1033,7 +1035,8 @@ namespace Medical_Affiliation.Controllers
                     var path =
                       await SaveSSFileAsync(
                          row.SupportingDoc,
-                         "AffiliationDocs");
+                         "AffiliationDocs",
+                         FacultyCode);
 
                     filePath = path;
                     fileName = row.SupportingDoc.FileName;
@@ -1173,7 +1176,8 @@ namespace Medical_Affiliation.Controllers
                         var path =
                            await SaveSSFileAsync(
                                row.SupportingDoc,
-                               "OtherCoursesDocs");
+                               "OtherCoursesDocs",
+                               FacultyCode);
 
                         existing.DocumentPath = path;
                         existing.FileName =
@@ -1189,7 +1193,8 @@ namespace Medical_Affiliation.Controllers
                     var path =
                        await SaveSSFileAsync(
                           row.SupportingDoc,
-                          "OtherCoursesDocs");
+                          "OtherCoursesDocs",
+                          FacultyCode);
 
                     _context.CaSsOtherCoursesConducteds.Add(
                       new CaSsOtherCoursesConducted

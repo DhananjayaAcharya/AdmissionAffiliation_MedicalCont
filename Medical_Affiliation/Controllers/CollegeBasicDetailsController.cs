@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class CollegeBasicDetailsController : Controller
+    public class CollegeBasicDetailsController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly SessionUserContext _userContext;
@@ -20,20 +20,41 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
-        private async Task<string?> SaveFileAsync(IFormFile? file, string folder)
+        private async Task<string?> SaveFileAsync(
+            IFormFile? file,
+            string folder,
+            string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine("D:\\Affiliation_Medical", "InstitutionDetails");
-            string fullFolder = Path.Combine(basePath, folder);
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // InstitutionDetails folder
+            string basePath =
+                Path.Combine(rootPath, "InstitutionDetails");
+
+            // Dynamic subfolder
+            string fullFolder =
+                Path.Combine(basePath, folder);
+
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -41,6 +62,7 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
+
         private (string? FacultyCode, string? CollegeCode) GetSessionCodes()
         {
             return (
@@ -207,7 +229,7 @@ namespace Medical_Affiliation.Controllers
             //    Only overwrite the stored document when a new file is actually submitted.
             if (documentFile != null && documentFile.Length > 0)
             {
-                var path = await SaveFileAsync(documentFile, "InstitutionDocs");
+                var path = await SaveFileAsync(documentFile, "InstitutionDocs", FacultyCode);
 
                 if (path != null)
                 {
@@ -581,43 +603,43 @@ namespace Medical_Affiliation.Controllers
             entity.KncCertificateNumber = vm.KncCertificateNumber;
 
             // ★ AssignFileIfProvided skips null/empty uploads — existing DB bytes are untouched
-            var govAuto = await SaveFileAsync(GovAutonomousCertFile, "GovAutonomous");
+            var govAuto = await SaveFileAsync(GovAutonomousCertFile, "GovAutonomous", FacultyCode);
             if (govAuto != null) entity.GovAutonomousCertFilePath = govAuto;
 
-            var council = await SaveFileAsync(GovCouncilMembershipFile, "Council");
+            var council = await SaveFileAsync(GovCouncilMembershipFile, "Council", FacultyCode);
             if (council != null) entity.GovCouncilMembershipFilePath = council;
 
-            var gok = await SaveFileAsync(GokOrderExistingCoursesFile, "GOK");
+            var gok = await SaveFileAsync(GokOrderExistingCoursesFile, "GOK", FacultyCode);
             if (gok != null) entity.GokOrderExistingCoursesFilePath = gok;
 
-            var first = await SaveFileAsync(FirstAffiliationNotifFile, "FirstAffiliation");
+            var first = await SaveFileAsync(FirstAffiliationNotifFile, "FirstAffiliation", FacultyCode);
             if (first != null) entity.FirstAffiliationNotifFilePath = first;
 
-            var cont = await SaveFileAsync(ContinuationAffiliationFile, "Continuation");
+            var cont = await SaveFileAsync(ContinuationAffiliationFile, "Continuation", FacultyCode);
             if (cont != null) entity.ContinuationAffiliationFilePath = cont;
 
-            var knc = await SaveFileAsync(KncCertificateFile, "KNC");
+            var knc = await SaveFileAsync(KncCertificateFile, "KNC", FacultyCode);
             if (knc != null) entity.KncCertificateFilePath = knc;
 
-            var amend = await SaveFileAsync(AmendedDoc, "Amendments");
+            var amend = await SaveFileAsync(AmendedDoc, "Amendments", FacultyCode);
             if (amend != null) entity.AmendedDocPath = amend;
 
-            var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar");
+            var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar", FacultyCode);
             if (aadhaar != null) entity.AadhaarFilePath = aadhaar;
 
-            var pan = await SaveFileAsync(PANFile, "PAN");
+            var pan = await SaveFileAsync(PANFile, "PAN", FacultyCode);
             if (pan != null) entity.PanfilePath = pan;
 
-            var bank = await SaveFileAsync(BankStatementFile, "Bank");
+            var bank = await SaveFileAsync(BankStatementFile, "Bank", FacultyCode);
             if (bank != null) entity.BankStatementFilePath = bank;
 
-            var reg = await SaveFileAsync(RegistrationCertificateFile, "Registration");
+            var reg = await SaveFileAsync(RegistrationCertificateFile, "Registration", FacultyCode);
             if (reg != null) entity.RegistrationCertificateFilePath = reg;
 
-            var trust = await SaveFileAsync(RegisteredTrustMemberDetails, "TrustMembers");
+            var trust = await SaveFileAsync(RegisteredTrustMemberDetails, "TrustMembers", FacultyCode);
             if (trust != null) entity.RegisteredTrustMemberDetailsPath = trust;
 
-            var audit = await SaveFileAsync(AuditStatementFile, "Audit");
+            var audit = await SaveFileAsync(AuditStatementFile, "Audit", FacultyCode);
             if (audit != null) entity.AuditStatementFilePath = audit;
 
             try

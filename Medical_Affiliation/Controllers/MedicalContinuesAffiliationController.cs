@@ -213,12 +213,14 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 // 🔥 COMMON FILE SAVE FUNCTION
-                async Task<string> SaveFile(IFormFile file, string folder)
+                async Task<string> SaveFile(IFormFile file, string folder, string facultyCode)
                 {
                     if (file == null || file.Length == 0)
                         return null;
 
-                    string basePath = Path.Combine(BasePath, "InstitutionDetails");
+                    string rootPath = FacultyCode == "2" ? BaseDentalPath : BaseMedicalPath;
+
+                    string basePath = Path.Combine(rootPath, "InstitutionDetails");
                     string fullFolder = Path.Combine(basePath, folder);
 
                     if (!Directory.Exists(fullFolder))
@@ -236,19 +238,19 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 // 🔥 SAVE FILES (REPLACED byte[])
-                var govAutoPath = await SaveFile(vm.GovAutonomousCertFile, "GovAutonomous");
-                var councilPath = await SaveFile(vm.GovCouncilMembershipFile, "Council");
-                var gokPath = await SaveFile(vm.GokOrderExistingCoursesFile, "GOK");
-                var firstPath = await SaveFile(vm.FirstAffiliationNotifFile, "FirstAffiliation");
-                var contPath = await SaveFile(vm.ContinuationAffiliationFile, "Continuation");
-                var kncPath = await SaveFile(vm.KncCertificateFile, "KNC");
-                var amendPath = await SaveFile(vm.AmendedDoc, "Amendments");
-                var aadhaarPath = await SaveFile(vm.AadhaarFile, "Aadhaar");
-                var panPath = await SaveFile(vm.PANFile, "PAN");
-                var bankPath = await SaveFile(vm.BankStatementFile, "Bank");
-                var regPath = await SaveFile(vm.RegistrationCertificateFile, "Registration");
-                var trustPath = await SaveFile(vm.RegisteredTrustMemberDetails, "TrustMembers");
-                var auditPath = await SaveFile(vm.AuditStatementFile, "Audit");
+                var govAutoPath = await SaveFile(vm.GovAutonomousCertFile, "GovAutonomous", FacultyCode);
+                var councilPath = await SaveFile(vm.GovCouncilMembershipFile, "Council", FacultyCode);
+                var gokPath = await SaveFile(vm.GokOrderExistingCoursesFile, "GOK", FacultyCode);
+                var firstPath = await SaveFile(vm.FirstAffiliationNotifFile, "FirstAffiliation", FacultyCode);
+                var contPath = await SaveFile(vm.ContinuationAffiliationFile, "Continuation", FacultyCode);
+                var kncPath = await SaveFile(vm.KncCertificateFile, "KNC", FacultyCode);
+                var amendPath = await SaveFile(vm.AmendedDoc, "Amendments", FacultyCode);
+                var aadhaarPath = await SaveFile(vm.AadhaarFile, "Aadhaar", FacultyCode);
+                var panPath = await SaveFile(vm.PANFile, "PAN", FacultyCode);
+                var bankPath = await SaveFile(vm.BankStatementFile, "Bank", FacultyCode);
+                var regPath = await SaveFile(vm.RegistrationCertificateFile, "Registration", FacultyCode);
+                var trustPath = await SaveFile(vm.RegisteredTrustMemberDetails, "TrustMembers", FacultyCode);
+                var auditPath = await SaveFile(vm.AuditStatementFile, "Audit", FacultyCode);
 
                 // 🔥 MAP FILE PATHS
                 if (govAutoPath != null) existingInstitution.GovAutonomousCertFilePath = govAutoPath;

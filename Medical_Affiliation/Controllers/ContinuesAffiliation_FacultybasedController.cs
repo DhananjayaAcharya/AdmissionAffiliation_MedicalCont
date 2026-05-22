@@ -127,36 +127,63 @@ namespace Medical_Affiliation.Controllers
         // GET: /Institution/Create
 
         private async Task<(string? path, string? name, string? type)> SaveFileAsync(
-    IFormFile? file, string folder)
+    IFormFile? file,
+    string folder,
+    string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return (null, null, null);
 
-            // ✅ Validate extension
+            // Validate extension
             var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png" };
+
             var ext = Path.GetExtension(file.FileName).ToLower();
+
             if (!allowedExtensions.Contains(ext))
                 return (null, null, null);
 
-            string basePath = Path.Combine(BasePath, "TrustDocuments");
-            string fullFolder = Path.Combine(basePath, folder);
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // TrustDocuments folder
+            string basePath =
+                Path.Combine(rootPath, "TrustDocuments");
+
+            // Dynamic subfolder
+            string fullFolder =
+                Path.Combine(basePath, folder);
+
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + ext;
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() + ext;
 
+            // Full physical path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
                 await file.CopyToAsync(stream);
+            }
 
-            // ✅ Store RELATIVE path only → "TrustDocuments/folder/guid.pdf"
-            string relativePath = Path.Combine("TrustDocuments", folder, fileName)
-                                      .Replace("\\", "/"); // forward slashes in DB
+            // Store relative path only
+            string relativePath =
+                Path.Combine("TrustDocuments", folder, fileName)
+                    .Replace("\\", "/");
 
-            return (relativePath, file.FileName, file.ContentType);
+            return (
+                relativePath,
+                file.FileName,
+                file.ContentType
+            );
         }
-
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
@@ -283,25 +310,43 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-        private void DeleteOldFile(string? storedPath)
+        private void DeleteOldFile(
+    string? storedPath,
+    string facultyCode)
         {
-            if (string.IsNullOrWhiteSpace(storedPath)) return;
+            if (string.IsNullOrWhiteSpace(storedPath))
+                return;
 
             try
             {
                 string absolutePath;
 
+                // Legacy absolute path support
                 if (Path.IsPathRooted(storedPath.Trim()))
-                    absolutePath = storedPath.Trim(); // legacy absolute
+                {
+                    absolutePath = storedPath.Trim();
+                }
                 else
                 {
+                    // Select root path based on faculty
+                    string rootPath = facultyCode == "2"
+                        ? BaseDentalPath
+                        : BaseMedicalPath;
+
+                    // Normalize slashes
                     var normalized = storedPath.Trim()
                         .Replace("/", Path.DirectorySeparatorChar.ToString());
-                    absolutePath = Path.Combine(BasePath, normalized);
+
+                    // Build full path
+                    absolutePath =
+                        Path.Combine(rootPath, normalized);
                 }
 
+                // Delete if exists
                 if (System.IO.File.Exists(absolutePath))
+                {
                     System.IO.File.Delete(absolutePath);
+                }
             }
             catch
             {
@@ -453,123 +498,123 @@ namespace Medical_Affiliation.Controllers
             //await AssignFileIfProvided(AuditStatementFile, b => entity.AuditStatementFile = b);
             // 🔥 FILE STORAGE USING GUID
 
-            var govAuto = await SaveFileAsync(GovAutonomousCertFile, "GovAutonomous");
+            var govAuto = await SaveFileAsync(GovAutonomousCertFile, "GovAutonomous", FacultyCode);
             if (govAuto.path != null)
             {
-                DeleteOldFile(entity.GovAutonomousCertFilePath);
+                DeleteOldFile(entity.GovAutonomousCertFilePath, FacultyCode);
 
                 entity.GovAutonomousCertFilePath = govAuto.path;
 
             }
 
-            var council = await SaveFileAsync(GovCouncilMembershipFile, "Council");
+            var council = await SaveFileAsync(GovCouncilMembershipFile, "Council", FacultyCode);
             if (council.path != null)
             {
-                DeleteOldFile(entity.GovCouncilMembershipFilePath);
+                DeleteOldFile(entity.GovCouncilMembershipFilePath, FacultyCode);
                 entity.GovCouncilMembershipFilePath = council.path;
 
             }
 
-            var gok = await SaveFileAsync(GokOrderExistingCoursesFile, "GOK");
+            var gok = await SaveFileAsync(GokOrderExistingCoursesFile, "GOK", FacultyCode);
             if (gok.path != null)
             {
-                DeleteOldFile(entity.GokOrderExistingCoursesFilePath);
+                DeleteOldFile(entity.GokOrderExistingCoursesFilePath, FacultyCode);
                 entity.GokOrderExistingCoursesFilePath = gok.path;
 
             }
 
-            var first = await SaveFileAsync(FirstAffiliationNotifFile, "FirstAffiliation");
+            var first = await SaveFileAsync(FirstAffiliationNotifFile, "FirstAffiliation", FacultyCode);
             if (first.path != null)
             {
-                DeleteOldFile(entity.FirstAffiliationNotifFilePath);
+                DeleteOldFile(entity.FirstAffiliationNotifFilePath, FacultyCode);
                 entity.FirstAffiliationNotifFilePath = first.path;
 
             }
 
-            var cont = await SaveFileAsync(ContinuationAffiliationFile, "Continuation");
+            var cont = await SaveFileAsync(ContinuationAffiliationFile, "Continuation", FacultyCode);
             if (cont.path != null)
             {
-                DeleteOldFile(entity.ContinuationAffiliationFilePath);
+                DeleteOldFile(entity.ContinuationAffiliationFilePath, FacultyCode);
                 entity.ContinuationAffiliationFilePath = cont.path;
 
             }
 
-            var knc = await SaveFileAsync(KncCertificateFile, "KNC");
+            var knc = await SaveFileAsync(KncCertificateFile, "KNC", FacultyCode);
             if (knc.path != null)
             {
-                DeleteOldFile(entity.KncCertificateFilePath);
+                DeleteOldFile(entity.KncCertificateFilePath, FacultyCode);
                 entity.KncCertificateFilePath = knc.path;
 
             }
 
-            var amend = await SaveFileAsync(AmendedDoc, "Amendments");
+            var amend = await SaveFileAsync(AmendedDoc, "Amendments", FacultyCode);
             if (amend.path != null)
             {
-                DeleteOldFile(entity.AmendedDocPath);
+                DeleteOldFile(entity.AmendedDocPath, FacultyCode);
                 entity.AmendedDocPath = amend.path;
 
             }
 
-            var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar");
+            var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar", FacultyCode);
             if (aadhaar.path != null)
             {
-                DeleteOldFile(entity.AadhaarFilePath);
+                DeleteOldFile(entity.AadhaarFilePath, FacultyCode);
                 entity.AadhaarFilePath = aadhaar.path;
 
             }
 
-            var pan = await SaveFileAsync(PANFile, "PAN");
+            var pan = await SaveFileAsync(PANFile, "PAN", FacultyCode);
             if (pan.path != null)
             {
-                DeleteOldFile(entity.PanfilePath);
+                DeleteOldFile(entity.PanfilePath, FacultyCode);
                 entity.PanfilePath = pan.path;
 
             }
 
-            var bank = await SaveFileAsync(BankStatementFile, "Bank");
+            var bank = await SaveFileAsync(BankStatementFile, "Bank", FacultyCode);
             if (bank.path != null)
             {
-                DeleteOldFile(entity.BankStatementFilePath);
+                DeleteOldFile(entity.BankStatementFilePath, FacultyCode);
                 entity.BankStatementFilePath = bank.path;
 
             }
 
-            var reg = await SaveFileAsync(RegistrationCertificateFile, "Registration");
+            var reg = await SaveFileAsync(RegistrationCertificateFile, "Registration", FacultyCode);
             if (reg.path != null)
             {
-                DeleteOldFile(entity.RegistrationCertificateFilePath);
+                DeleteOldFile(entity.RegistrationCertificateFilePath, FacultyCode);
                 entity.RegistrationCertificateFilePath = reg.path;
 
             }
 
-            var trust = await SaveFileAsync(RegisteredTrustMemberDetails, "TrustMembers");
+            var trust = await SaveFileAsync(RegisteredTrustMemberDetails, "TrustMembers", FacultyCode);
             if (trust.path != null)
             {
-                DeleteOldFile(entity.RegisteredTrustMemberDetailsPath);
+                DeleteOldFile(entity.RegisteredTrustMemberDetailsPath, FacultyCode);
                 entity.RegisteredTrustMemberDetailsPath = trust.path;
 
             }
 
-            var audit = await SaveFileAsync(AuditStatementFile, "Audit");
+            var audit = await SaveFileAsync(AuditStatementFile, "Audit", FacultyCode);
             if (audit.path != null)
             {
-                DeleteOldFile(entity.AuditStatementFilePath);
+                DeleteOldFile(entity.AuditStatementFilePath, FacultyCode);
                 entity.AuditStatementFilePath = audit.path;
 
             }
 
-            var dci = await SaveFileAsync(DCIcertificateFile, "Audit");
+            var dci = await SaveFileAsync(DCIcertificateFile, "Audit", FacultyCode);
             if (facultyCode=="2" && dci.path != null)
             {
-                DeleteOldFile(entity.DcicertificateFilePath);
+                DeleteOldFile(entity.DcicertificateFilePath, FacultyCode);
                 entity.DcicertificateFilePath = dci.path;
 
             }
 
-            var ksdc = await SaveFileAsync(KSDCcertificateFile, "Audit");
+            var ksdc = await SaveFileAsync(KSDCcertificateFile, "Audit", FacultyCode);
             if (facultyCode=="2" && ksdc.path != null)
             {
-                DeleteOldFile(entity.KsdccertificateFilePath);
+                DeleteOldFile(entity.KsdccertificateFilePath, FacultyCode);
                 entity.KsdccertificateFilePath = dci.path;
 
             }
@@ -627,8 +672,9 @@ namespace Medical_Affiliation.Controllers
 
 
         private async Task<IActionResult> ServeFileFromPath(
-       int id,
-       Func<InstitutionBasicDetail, string?> pathSelector)
+      int id,
+      string facultyCode,
+      Func<InstitutionBasicDetail, string?> pathSelector)
         {
             var entity = await _context.InstitutionBasicDetails
                 .FirstOrDefaultAsync(x => x.InstitutionId == id);
@@ -645,21 +691,35 @@ namespace Medical_Affiliation.Controllers
 
             if (Path.IsPathRooted(rawPath.Trim()))
             {
-                // 🔁 Legacy: old records still have absolute path stored
+                // Legacy absolute path support
                 absolutePath = rawPath.Trim();
             }
             else
             {
-                // ✅ New records: relative path → resolve using BasePath
-                var normalized = rawPath.Trim().Replace("/", Path.DirectorySeparatorChar.ToString());
-                absolutePath = Path.Combine(BasePath, normalized);
+                // Select root path based on faculty
+                string rootPath = facultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
+
+                // Normalize slashes
+                var normalized = rawPath.Trim()
+                    .Replace("/", Path.DirectorySeparatorChar.ToString());
+
+                // Build full path
+                absolutePath =
+                    Path.Combine(rootPath, normalized);
             }
 
+            // File existence check
             if (!System.IO.File.Exists(absolutePath))
-                return NotFound($"File not found. Checked: {absolutePath}");
+            {
+                return NotFound(
+                    $"File not found. Checked: {absolutePath}");
+            }
 
-            // ✅ Detect content type
+            // Detect content type
             var ext = Path.GetExtension(absolutePath).ToLower();
+
             var contentType = ext switch
             {
                 ".jpg" or ".jpeg" => "image/jpeg",
@@ -667,9 +727,12 @@ namespace Medical_Affiliation.Controllers
                 _ => "application/pdf"
             };
 
-            // ✅ Stream inline (no download prompt)
+            // Stream inline
             var stream = new FileStream(
-                absolutePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                absolutePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read);
 
             return new FileStreamResult(stream, contentType)
             {
@@ -679,61 +742,61 @@ namespace Medical_Affiliation.Controllers
 
         // ── Individual download endpoints ────────────────────────────────────────────
         [HttpGet]
-        public Task<IActionResult> DownloadGovAutonomousCert(int id)   => ServeFileFromPath(id, e => e.GovAutonomousCertFilePath);
+        public Task<IActionResult> DownloadGovAutonomousCert(int id)   => ServeFileFromPath(id,FacultyCode, e => e.GovAutonomousCertFilePath);
         
         [HttpGet]
-        public Task<IActionResult> DownloadDCIcertificateFile(int id)   => ServeFileFromPath(id, e => e.DcicertificateFilePath);
+        public Task<IActionResult> DownloadDCIcertificateFile(int id)   => ServeFileFromPath(id, FacultyCode, e => e.DcicertificateFilePath);
         
         [HttpGet]
-        public Task<IActionResult> DownloadKSDCcertificateFile(int id)   => ServeFileFromPath(id, e => e.KsdccertificateFilePath);
+        public Task<IActionResult> DownloadKSDCcertificateFile(int id)   => ServeFileFromPath(id, FacultyCode, e => e.KsdccertificateFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadGovCouncilMembership(int id)
-            => ServeFileFromPath(id, e => e.GovCouncilMembershipFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.GovCouncilMembershipFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadGokOrderExistingCourses(int id)
-            => ServeFileFromPath(id, e => e.GokOrderExistingCoursesFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.GokOrderExistingCoursesFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadFirstAffiliationNotif(int id)
-            => ServeFileFromPath(id, e => e.FirstAffiliationNotifFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.FirstAffiliationNotifFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadContinuationAffiliation(int id)
-            => ServeFileFromPath(id, e => e.ContinuationAffiliationFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.ContinuationAffiliationFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadKncCertificate(int id)
-            => ServeFileFromPath(id, e => e.KncCertificateFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.KncCertificateFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAmendedDoc(int id)
-            => ServeFileFromPath(id, e => e.AmendedDocPath);
+            => ServeFileFromPath(id, FacultyCode, e => e.AmendedDocPath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAadhaarFile(int id)
-            => ServeFileFromPath(id, e => e.AadhaarFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.AadhaarFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadPANFile(int id)
-            => ServeFileFromPath(id, e => e.PanfilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.PanfilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadBankStatement(int id)
-            => ServeFileFromPath(id, e => e.BankStatementFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.BankStatementFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadRegistrationCertificate(int id)
-            => ServeFileFromPath(id, e => e.RegistrationCertificateFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.RegistrationCertificateFilePath);
 
         [HttpGet]
         public Task<IActionResult> DownloadRegisteredTrustMemberDetails(int id)
-            => ServeFileFromPath(id, e => e.RegisteredTrustMemberDetailsPath);
+            => ServeFileFromPath(id, FacultyCode, e => e.RegisteredTrustMemberDetailsPath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAuditStatement(int id)
-            => ServeFileFromPath(id, e => e.AuditStatementFilePath);
+            => ServeFileFromPath(id, FacultyCode, e => e.AuditStatementFilePath);
         private async Task<List<SelectListItem>> LoadInstitutionTypeList(string facultyCode)
         {
             // Trim and parse safely
@@ -1334,19 +1397,36 @@ namespace Medical_Affiliation.Controllers
 
             return File(row.DocumentData, contentType, fileName);
         }
-        private async Task<string?> SaveHostelFileAsync(IFormFile file)
+        private async Task<string?> SaveHostelFileAsync(
+     IFormFile? file,
+     string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "HostelDetails");
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // HostelDetails folder
+            string basePath =
+                Path.Combine(rootPath, "HostelDetails");
+
+            // Create folder if not exists
             if (!Directory.Exists(basePath))
                 Directory.CreateDirectory(basePath);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(basePath, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(basePath, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -1354,6 +1434,7 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
+
         [HttpGet]
         public IActionResult Aff_HostelDetails()
         {
@@ -1432,7 +1513,7 @@ namespace Medical_Affiliation.Controllers
             // 📄 File upload
             if (possessionFile != null && possessionFile.Length > 0)
             {
-                filePath = await SaveHostelFileAsync(possessionFile);
+                filePath = await SaveHostelFileAsync(possessionFile, FacultyCode);
             }
 
             if (!ModelState.IsValid)
@@ -2149,20 +2230,35 @@ namespace Medical_Affiliation.Controllers
 
             if (vm.DocumentFile != null && vm.DocumentFile.Length > 0)
             {
-                //string basePath = @"D:\Affiliation_Medical\InstitutionDetails";
-                string basePath = Path.Combine(BasePath, "InstitutionDetails");
+                // Select root path based on faculty
+                string rootPath = vm.FacultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
 
+                // InstitutionDetails folder
+                string basePath =
+                    Path.Combine(rootPath, "InstitutionDetails");
+
+                // Create folder if not exists
                 if (!Directory.Exists(basePath))
                     Directory.CreateDirectory(basePath);
 
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(vm.DocumentFile.FileName);
-                string fullPath = Path.Combine(basePath, fileName);
+                // Generate unique file name
+                string fileName =
+                    Guid.NewGuid().ToString() +
+                    Path.GetExtension(vm.DocumentFile.FileName);
 
+                // Full file path
+                string fullPath =
+                    Path.Combine(basePath, fileName);
+
+                // Save file
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     await vm.DocumentFile.CopyToAsync(stream);
                 }
 
+                // Store values
                 filePath = fullPath;
                 docName = vm.DocumentFile.FileName;
                 docContentType = vm.DocumentFile.ContentType;
@@ -2626,7 +2722,7 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueCountLimit = 100000)]
-        public IActionResult Institution_Details(InstitutionViewModel vm, IFormFile? documentFile)
+        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile)
         {
             // 1. Re-apply session codes (never trust hidden fields for security)
             var courseLevel = CourseLevel;
@@ -2687,8 +2783,16 @@ namespace Medical_Affiliation.Controllers
             // 5. Handle document upload
             if (documentFile != null && documentFile.Length > 0)
             {
-                string basePath = Path.Combine(BasePath, "InstitutionDetails");
+                // Select root path based on faculty
+                string rootPath = entity.FacultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
 
+                // InstitutionDetails folder
+                string basePath =
+                    Path.Combine(rootPath, "InstitutionDetails");
+
+                // Create folder if not exists
                 if (!Directory.Exists(basePath))
                     Directory.CreateDirectory(basePath);
 
@@ -2699,14 +2803,22 @@ namespace Medical_Affiliation.Controllers
                     System.IO.File.Delete(entity.DocumentDataPath);
                 }
 
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(documentFile.FileName);
-                string fullPath = Path.Combine(basePath, fileName);
+                // Generate unique file name
+                string fileName =
+                    Guid.NewGuid().ToString() +
+                    Path.GetExtension(documentFile.FileName);
 
+                // Full file path
+                string fullPath =
+                    Path.Combine(basePath, fileName);
+
+                // Save file
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
-                    documentFile.CopyTo(stream);
+                    await documentFile.CopyToAsync(stream);
                 }
 
+                // Store values
                 entity.DocumentDataPath = fullPath;
                 entity.DocumentName = documentFile.FileName;
                 entity.DocumentContentType = documentFile.ContentType;
@@ -2869,20 +2981,41 @@ namespace Medical_Affiliation.Controllers
             e.RunningCourse = vm.RunningCourse;
         }
 
-        private async Task<string?> SaveCourseFileAsync(IFormFile? file, string folder)
+        private async Task<string?> SaveCourseFileAsync(
+    IFormFile? file,
+    string folder,
+    string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "CourseDetails");
-            string fullFolder = Path.Combine(basePath, folder);
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // CourseDetails folder
+            string basePath =
+                Path.Combine(rootPath, "CourseDetails");
+
+            // Dynamic subfolder
+            string fullFolder =
+                Path.Combine(basePath, folder);
+
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -2890,6 +3023,7 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
+
         // GET: Load existing data
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         public async Task<IActionResult> Details_Of_MBBS()
@@ -2986,7 +3120,7 @@ namespace Medical_Affiliation.Controllers
                 // 🔥 File: GOK Order (EC & FC)
                 if (model.GOKorder != null && model.GOKorder.Length > 0)
                 {
-                    var gokPath = await SaveCourseFileAsync(model.GOKorder, "GOKOrders");
+                    var gokPath = await SaveCourseFileAsync(model.GOKorder, "GOKOrders", FacultyCode);
 
                     if (gokPath != null)
                     {
@@ -3004,7 +3138,7 @@ namespace Medical_Affiliation.Controllers
                 // 🔥 File: Last Affiliation by RGUHS
                 if (model.LastAffiliationRGUHSFile != null && model.LastAffiliationRGUHSFile.Length > 0)
                 {
-                    var rguhsPath = await SaveCourseFileAsync(model.LastAffiliationRGUHSFile, "RGUHS");
+                    var rguhsPath = await SaveCourseFileAsync(model.LastAffiliationRGUHSFile, "RGUHS", FacultyCode);
 
                     if (rguhsPath != null)
                     {
@@ -3021,7 +3155,7 @@ namespace Medical_Affiliation.Controllers
 
                 if (model.PreviousNotificationFiles != null && model.PreviousNotificationFiles.Length > 0)
                 {
-                    var notificationPath = await SaveCourseFileAsync(model.PreviousNotificationFiles, "PreviousNotification");
+                    var notificationPath = await SaveCourseFileAsync(model.PreviousNotificationFiles, "PreviousNotification", FacultyCode);
 
                     if (notificationPath != null)
                     {
@@ -4184,20 +4318,41 @@ namespace Medical_Affiliation.Controllers
 
             return View(vmList);
         }
-        private async Task<string?> SaveFacultyFileAsync(IFormFile? file, string folder)
+        private async Task<string?> SaveFacultyFileAsync(
+     IFormFile? file,
+     string folder,
+     string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = Path.Combine(BasePath, "FacultyDetails");
-            string fullFolder = Path.Combine(basePath, folder);
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // FacultyDetails folder
+            string basePath =
+                Path.Combine(rootPath, "FacultyDetails");
+
+            // Dynamic subfolder
+            string fullFolder =
+                Path.Combine(basePath, folder);
+
+            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -4205,6 +4360,7 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> aff_FacultyDetails(IList<FacultyDetailsViewModel> model)
@@ -4296,13 +4452,13 @@ namespace Medical_Affiliation.Controllers
                         string litigPath = null;
 
                         if (m.GuideRecognitionDoc != null && m.GuideRecognitionDoc.Length > 0)
-                            guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs");
+                            guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs", FacultyCode);
 
                         if (m.PhDRecognitionDoc != null && m.PhDRecognitionDoc.Length > 0)
-                            phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs");
+                            phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs", FacultyCode);
 
                         if (m.LitigationDoc != null && m.LitigationDoc.Length > 0)
-                            litigPath = await SaveFacultyFileAsync(m.LitigationDoc, "LitigationDocs");
+                            litigPath = await SaveFacultyFileAsync(m.LitigationDoc, "LitigationDocs", FacultyCode);
 
                         var existing = existingFaculty.FirstOrDefault(f => f.Id == m.FacultyDetailId);
 

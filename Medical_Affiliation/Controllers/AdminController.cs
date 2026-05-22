@@ -247,7 +247,7 @@ namespace Admission_Affiliation.Controllers
                 //    string hash = BCrypt.Net.BCrypt.HashPassword("AdminVC@123");
                 //    return Content(hash);
                 //}
-                if (user.IsAdmin == true && user.Faculty == 100)
+                if (user.Faculty == 100)
                 {
                     bool isVCPasswordValid = false;
 

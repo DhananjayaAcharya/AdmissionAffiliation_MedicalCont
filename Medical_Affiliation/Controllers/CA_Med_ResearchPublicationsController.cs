@@ -278,7 +278,7 @@ namespace Medical_Affiliation.Controllers
         {
             if (file == null || file.Length == 0) return;
 
-            var path = await SaveResearchFileAsync(file, folder);
+            var path = await SaveResearchFileAsync(file, folder, FacultyCode);
             if (path == null) return;
 
             var oldPath = getOldPath();
@@ -289,20 +289,41 @@ namespace Medical_Affiliation.Controllers
             setName(file.FileName);
         }
 
-        private async Task<string?> SaveResearchFileAsync(IFormFile file, string folder)
+        private async Task<string?> SaveResearchFileAsync(
+    IFormFile? file,
+    string folder,
+    string facultyCode)
         {
-            if (file == null || file.Length == 0) return null;
+            if (file == null || file.Length == 0)
+                return null;
 
-            string fullFolder = Path.Combine(BasePath, "ResearchPublications", folder);
+            // Select root path based on faculty
+            string rootPath = facultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
 
+            // ResearchPublications folder
+            string fullFolder =
+                Path.Combine(rootPath, "ResearchPublications", folder);
+
+            // Create directory if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(fullFolder, fileName);
+            // Generate unique file name
+            string fileName =
+                Guid.NewGuid().ToString() +
+                Path.GetExtension(file.FileName);
 
+            // Full file path
+            string fullPath =
+                Path.Combine(fullFolder, fileName);
+
+            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
                 await file.CopyToAsync(stream);
+            }
 
             return fullPath;
         }
@@ -431,15 +452,35 @@ namespace Medical_Affiliation.Controllers
 
             if (model.ActivityPdf != null && model.ActivityPdf.Length > 0)
             {
-                string basePath = Path.Combine(BasePath, "OtherAcademicActivities");
-                if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
+                // Select base path based on faculty
+                string rootPath = FacultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
 
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ActivityPdf.FileName);
-                string fullPath = Path.Combine(basePath, fileName);
+                // OtherAcademicActivities folder
+                string basePath =
+                    Path.Combine(rootPath, "OtherAcademicActivities");
 
+                // Create folder if not exists
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+
+                // Generate unique file name
+                string fileName =
+                    Guid.NewGuid().ToString() +
+                    Path.GetExtension(model.ActivityPdf.FileName);
+
+                // Full file path
+                string fullPath =
+                    Path.Combine(basePath, fileName);
+
+                // Save file
                 using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
                     await model.ActivityPdf.CopyToAsync(stream);
+                }
 
+                // Save DB values
                 dbEntity.ActivityPdfPath = fullPath;
                 dbEntity.ActivityPdfName = model.ActivityPdf.FileName;
             }
@@ -580,12 +621,42 @@ namespace Medical_Affiliation.Controllers
                 {
                     if (item.CommitteePdf != null && item.CommitteePdf.Length > 0)
                     {
-                        string basePath = Path.Combine(BasePath, "CommitteeDocs");
-                        if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
-                        string fileName = Guid.NewGuid() + Path.GetExtension(item.CommitteePdf.FileName);
-                        string fullPath = Path.Combine(basePath, fileName);
-                        using (var stream = new FileStream(fullPath, FileMode.Create)) await item.CommitteePdf.CopyToAsync(stream);
-                        if (!string.IsNullOrEmpty(db.CommitteePdfPath) && System.IO.File.Exists(db.CommitteePdfPath)) System.IO.File.Delete(db.CommitteePdfPath);
+                        // Select root path based on faculty
+                        string rootPath = FacultyCode == "2"
+                            ? BaseDentalPath
+                            : BaseMedicalPath;
+
+                        // CommitteeDocs folder
+                        string basePath =
+                            Path.Combine(rootPath, "CommitteeDocs");
+
+                        // Create directory if not exists
+                        if (!Directory.Exists(basePath))
+                            Directory.CreateDirectory(basePath);
+
+                        // Generate unique file name
+                        string fileName =
+                            Guid.NewGuid().ToString() +
+                            Path.GetExtension(item.CommitteePdf.FileName);
+
+                        // Full file path
+                        string fullPath =
+                            Path.Combine(basePath, fileName);
+
+                        // Save file
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await item.CommitteePdf.CopyToAsync(stream);
+                        }
+
+                        // Delete old file if exists
+                        if (!string.IsNullOrEmpty(db.CommitteePdfPath)
+                            && System.IO.File.Exists(db.CommitteePdfPath))
+                        {
+                            System.IO.File.Delete(db.CommitteePdfPath);
+                        }
+
+                        // Save new values
                         db.CommitteePdfPath = fullPath;
                         db.CommitteePdfName = item.CommitteePdf.FileName;
                     }
