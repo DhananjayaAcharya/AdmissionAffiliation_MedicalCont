@@ -105,6 +105,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<LicTadaService>();
 builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();
 builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IFacultyHospitalHandler, DentalHospitalHandler>();
 builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
 builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
 builder.Services.AddScoped<ICALibraryService, CALibraryService>();
@@ -229,9 +230,14 @@ app.Use(async (context, next) =>
 });
 
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseDeveloperExceptionPage(); // TEMPORARY
+    // app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 

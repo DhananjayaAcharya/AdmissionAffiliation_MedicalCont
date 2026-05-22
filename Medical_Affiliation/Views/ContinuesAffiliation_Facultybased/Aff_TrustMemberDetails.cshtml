@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Trust Member Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <style>
@@ -564,13 +565,21 @@
                                             @Html.ValidationMessageFor(m => m.Rows[i].DesignationCode, "", new { @class = "field-validation-error" })
                                         </td>
 
+                                        @{
+                                            var qualificationPlaceholder = facultyCode == "2"
+                                                ? "e.g. BDS, MDS, PhD"
+                                                : "e.g. MBBS, MD, PhD";
+                                        }
+
                                         <td>
                                             @Html.TextBoxFor(m => m.Rows[i].Qualification,
-                                                new {
+                                                new
+                                                {
                                                     @class = "form-control",
-                                                    placeholder = "e.g. MBBS, MD, PhD",
+                                                    placeholder = qualificationPlaceholder,
                                                     maxlength = "80"
                                                 })
+
                                             @Html.ValidationMessageFor(m => m.Rows[i].Qualification, "", new { @class = "field-validation-error" })
                                         </td>
 

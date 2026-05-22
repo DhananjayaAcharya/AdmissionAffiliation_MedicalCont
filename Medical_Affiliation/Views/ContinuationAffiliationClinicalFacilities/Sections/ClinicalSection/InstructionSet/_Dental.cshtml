@@ -1,0 +1,131 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+}
+
+<style>
+    li {
+        font-weight: normal;
+    }
+</style>
+
+<div class="alert alert-info mb-3" role="alert">
+
+    <h4 class="mb-2 text-center text-decoration-underline">
+        Instructions
+    </h4>
+
+    @* ========================= DENTAL ========================= *@
+    @if (facultyCode == "2")
+    {
+        <ol class="mb-0 ps-3">
+
+            <li class="mb-1">
+                Dental Colleges established prior to the academic year 2013-14 shall comply with the then existing Dental Council of India (DCI) norms regarding attached teaching hospitals.
+            </li>
+
+            <li class="mb-1">
+                Dental Colleges established from 2013-14 onwards shall have a fully functional teaching dental hospital attached to the institution as per the norms prescribed by the Dental Council of India (DCI). The institution shall also have affiliation with a General Hospital for medical training and clinical exposure in General Medicine, General Surgery, Emergency Care, and allied specialties as required under BDS Regulations, 2007.
+            </li>
+
+            <li class="mb-1">
+                Dental Colleges established from 2021-22 onwards shall have an attached/own teaching dental hospital and the college and hospital shall be owned and managed by the same Trust/Society/Company. The ownership and management documents shall clearly establish the relationship between the dental college and the teaching hospital.
+            </li>
+
+            <li class="mb-1">
+                The Dental College and Teaching Dental Hospital shall be under the same Trust/Society/Company. Necessary documentary proof regarding ownership and management shall be produced at the time of inspection and affiliation.
+            </li>
+
+            <li class="mb-1">
+                In addition to the attached Dental Hospital, the institution shall have tie-up/affiliation with a General Hospital for clinical training in General Medicine, General Surgery, Medical Emergencies, ICU facilities, and other medical specialties required under DCI Regulations.
+            </li>
+
+            <li class="mb-1">
+                The institution shall comply with the minimum infrastructure, equipment, clinical material, and staffing requirements prescribed under the Dental Council of India Revised BDS Course Regulations, 2007.
+            </li>
+
+            <li class="mb-1">
+                For all fresh Dental Colleges, the maximum sanctioned intake shall be as prescribed by the Dental Council of India/National Dental Commission from time to time.
+            </li>
+
+            <li class="mb-1">
+                The institution shall attach original KPMEA documents, Pollution Control Board Certificate, Fire Safety Certificate, Occupancy Certificate, and other statutory approvals relating to the Dental Hospital and General Hospital to establish ownership, functionality, and bed strength wherever applicable.
+            </li>
+
+            <li class="mb-1">
+                The hospital details, infrastructure details, and bed strength shall be reflected in the official records/websites of the competent authorities. If deficiencies are found during any academic year inspection, affiliation may be withdrawn as per norms.
+            </li>
+
+            <li class="mb-1">
+                The distance between the Dental College and attached Teaching Hospital/General Hospital shall be as prescribed by DCI/NDCI norms and shall ordinarily not exceed 30 kilometers (50 kilometers in hilly/tribal areas, if specifically permitted by the competent authority).
+            </li>
+
+            <li class="mb-1">
+                The institution shall furnish an undertaking/MOU executed between the Trust/Society/Company and the hospital management, duly signed by all trustees/members/directors, stating that the hospital shall continue to function as the attached teaching hospital for the Dental College and shall not be diverted for any other institution in violation of DCI/NDCI norms.
+            </li>
+
+            <li class="mb-1">
+                The Dental College shall provide adequate clinical exposure in all dental specialties including:
+                <ul class="mt-2">
+                    <li>Oral Medicine & Radiology</li>
+                    <li>Oral & Maxillofacial Surgery</li>
+                    <li>Conservative Dentistry & Endodontics</li>
+                    <li>Prosthodontics and Crown & Bridge</li>
+                    <li>Periodontology</li>
+                    <li>Orthodontics & Dentofacial Orthopaedics</li>
+                    <li>Paediatric & Preventive Dentistry</li>
+                    <li>Public Health Dentistry</li>
+                    <li>Oral Pathology & Oral Microbiology</li>
+                </ul>
+                as prescribed under the DCI Revised BDS Course Regulations, 2007.
+            </li>
+
+        </ol>
+    }
+
+    @* ========================= COMMON / NURSING ========================= *@
+    else
+    {
+        <ol class="mb-0 ps-3">
+
+            <li class="mb-1">
+                If the college established, i.e., 2012-13 and before (before 2013-14) parent hospital rule is not applicable (F.NO.1-5/2014-INC).
+            </li>
+
+            <li class="mb-1">
+                Colleges established since 2013-14 shall have 100 bed parent hospital for opening new B.Sc Nursing Programme. But central/state govt institutions can have clinical affiliation with govt hospitals and having parent hospital is not applicable. Other specialties / facilities for clinical experience required are:-OT, Eye/ENT, Burns & Plastic, Neonatology, Communicable disease, cardiology, oncology, Neuro, Nephro, ICU/ICCU (Ref: F.NO.1-5/2014-INC dtd 29/10/2014 and F.NO.1-6/2018-INC dtd 20/04/2018)
+            </li>
+
+            <li class="mb-1">
+                Colleges established 2021-22 onwards should have 100 bedded (Unitary/Single Hospital) parent/own hospital. Parent Hospital for a nursing institution having the same Trust/Society/Company which has established the nursing institution and has also established the hospital.hospital either owned and OR a controlled by the Trust/Society/Company or managed and controlled by a trustee/member/director of the Trust/Society/Company. In case the owner of the hospital is a trustee/member/director of the Trust/Society/Company, then the hospital would continue to function as a Parent Hospital' till the life of the nursing institution and not allow the hospital to be treated as Parent/Affiliated Hospital to any other nursing institution and will be for minimum 30 years.
+            </li>
+
+            <li class="mb-1">
+                College and hospital should be owned by same trust.
+            </li>
+
+            <li class="mb-1">
+                In addition to parent hospital of 100 beds, to offer clinical experience/specialties the students should be sent to affiliated hospital/agencies/institutions where it is available with minimum of 50 beds.
+            </li>
+
+            <li class="mb-1">
+                For All the Fresh Colleges Maximum Sanctioned intake shall be 40.
+            </li>
+
+            <li class="mb-1">
+                Attach the original KPMEA documents, pollution control certificate of the hospitals to prove the ownership of the hospital and the number of beds.
+            </li>
+
+            <li class="mb-1">
+                Distance between Hospital & college will be maximum 30 kilometer 50 kilometer radius in hilly/tribal areas.
+            </li>
+
+            <li class="mb-1">
+                Attach the MOU (undertaking) between trust member (owner of the hospital) and the trust.
+            </li>
+
+        </ol>
+    }
+
+</div>

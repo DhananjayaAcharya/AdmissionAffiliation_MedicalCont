@@ -1,0 +1,166 @@
+﻿@model List<DentalWardBedDistributionVm>
+
+<form asp-action="SaveDentalWardDistribution"
+      method="post"
+      id="dentalWardForm">
+
+    @Html.AntiForgeryToken()
+
+    <div class="form-section field-form">
+
+        <div class="section-title">
+            Ward-wise Bed Distribution in Attached Hospital
+        </div>
+
+        <!-- TABLE HEADER -->
+        <div class="table-responsive">
+
+            <table class="table table-bordered align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Ward Name</th>
+                        <th>Seat Slab</th>
+                        <th>Beds Required</th>
+                        <th>Beds Present</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+
+                            <!-- Hidden Fields -->
+                            <input type="hidden"
+                                   name="[@i].WardId"
+                                   value="@Model[i].WardId" />
+
+                            <input type="hidden"
+                                   name="[@i].WardName"
+                                   value="@Model[i].WardName" />
+
+                            <input type="hidden"
+                                   name="[@i].SeatSlab"
+                                   value="@Model[i].SeatSlab" />
+
+                            <input type="hidden"
+                                   name="[@i].BedsRequired"
+                                   value="@Model[i].BedsRequired" />
+
+                            <!-- Ward Name -->
+                            <td>
+                                @Model[i].WardName
+                            </td>
+
+                            <!-- Seat Slab -->
+                            <td>
+                                @Model[i].SeatSlab
+                            </td>
+
+                            <!-- Beds Required -->
+                            <td>
+                                @Model[i].BedsRequired
+                            </td>
+
+                            <!-- Beds Present -->
+                            <td>
+                                <input class="form-control"
+                                       type="number"
+                                       name="[@i].BedsPresent"
+                                       value="@Model[i].BedsPresent"
+                                       placeholder="Enter Beds Present" />
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="text-center mt-4">
+            <button type="submit"
+                    class="btn btn-primary px-4">
+                Save Dental Ward Distribution
+            </button>
+        </div>
+
+    </div>
+
+</form>
+
+<script>
+    document.getElementById("dentalWardForm")
+        .addEventListener("submit", function (e) {
+
+        e.preventDefault();
+
+        const form = e.target;
+
+        const formData = new FormData(form);
+
+        const data = [];
+
+        for (let pair of formData.entries()) {
+
+            const match = pair[0].match(/\[(\d+)\]\.(.+)/);
+
+            if (!match) continue;
+
+            const index = match[1];
+            const property = match[2];
+
+            if (!data[index]) {
+                data[index] = {};
+            }
+
+            data[index][property] = pair[1];
+        }
+
+        fetch(form.action, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken":
+                    form.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.success) {
+
+                Swal.fire(
+                    "Success",
+                    data.message,
+                    "success"
+                );
+            }
+            else {
+
+                Swal.fire(
+                    "Error",
+                    data.message,
+                    "error"
+                );
+            }
+        })
+        .catch(err => {
+
+            Swal.fire(
+                "Error",
+                "Something went wrong",
+                "error"
+            );
+
+            console.error(err);
+        });
+
+    });
+</script>

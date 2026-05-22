@@ -120,4 +120,10 @@ public partial class InstitutionBasicDetail
     public string? RegisteredTrustMemberDetailsPath { get; set; }
 
     public string? AuditStatementFilePath { get; set; }
+
+    public string? DcicertificateFilePath { get; set; }
+
+    public bool? OtherDentalCollegeInCity { get; set; }
+
+    public string? KsdccertificateFilePath { get; set; }
 }

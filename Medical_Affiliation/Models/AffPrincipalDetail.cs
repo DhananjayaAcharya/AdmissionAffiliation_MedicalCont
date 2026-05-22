@@ -24,4 +24,6 @@ public partial class AffPrincipalDetail
     public bool? RecognizedByMci { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public bool? RecognizedByDci { get; set; }
 }

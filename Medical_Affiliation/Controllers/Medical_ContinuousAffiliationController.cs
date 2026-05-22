@@ -786,18 +786,43 @@ namespace Medical_Affiliation.Controllers
                 HasRoomsForFacultyAndResidents = entity.HasRoomsForFacultyAndResidents,
                 FacultyRoomsHaveCommunicationComputerInternet = entity.FacultyRoomsHaveCommunicationComputerInternet,
                 HasRoomsForNonTeachingStaff = entity.HasRoomsForNonTeachingStaff,
-
-                HasMedicalEducationUnit = entity.HasMedicalEducationUnit,
-                MedicalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm,
-                MedicalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual,
-                MedicalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet,
-                MeuCoordinatorName = entity.MeuCoordinatorName,
-                MeuCoordinatorPhone = entity.MeuCoordinatorPhone,
-                MeuCoordinatorEmail = entity.MeuCoordinatorEmail,
-                MeuCoordinatorDesignationDepartment = entity.MeuCoordinatorDesignationDepartment,
-                MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear,
-                HasMeuMembersListFile = entity.MeuMembersListFilePath != null
+                
+                //HasMedicalEducationUnit = entity.HasMedicalEducationUnit,
+                //MedicalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm,
+                //MedicalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual,
+                //MedicalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet,
+                //MeuCoordinatorName = entity.MeuCoordinatorName,
+                //MeuCoordinatorPhone = entity.MeuCoordinatorPhone,
+                //MeuCoordinatorEmail = entity.MeuCoordinatorEmail,
+                //MeuCoordinatorDesignationDepartment = entity.MeuCoordinatorDesignationDepartment,
+                //MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear,
+                //HasMeuMembersListFile = entity.MeuMembersListFilePath != null
             };
+            if(facultyCode != "2")
+            {
+                vm.HasMedicalEducationUnit = entity.HasMedicalEducationUnit;
+                vm.MedicalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm;
+                vm.MedicalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual;
+                vm.MedicalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet;
+                vm.MeuCoordinatorName = entity.MeuCoordinatorName;
+                vm.MeuCoordinatorPhone = entity.MeuCoordinatorPhone;
+                vm.MeuCoordinatorEmail = entity.MeuCoordinatorEmail;
+                vm.MeuCoordinatorDesignationDepartment = entity.MeuCoordinatorDesignationDepartment;
+                vm.MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear;
+                vm.HasMeuMembersListFile = entity.MeuMembersListFilePath != null;
+            } else if(facultyCode == "2")
+            {
+                vm.HasDentalEducationUnit = entity.HasMedicalEducationUnit;
+                vm.DentalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm;
+                vm.DentalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual;
+                vm.DentalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet;
+                vm.DeuCoordinatorName = entity.DeuCoordinatorName;
+                vm.DeuCoordinatorPhone = entity.DeuCoordinatorPhone;
+                vm.DeuCoordinatorEmail = entity.DeuCoordinatorEmail;
+                vm.DeuCoordinatorDesignationDepartment = entity.DeuCoordinatorDesignationDepartment;
+                vm.DeuActivitiesLastAcademicYear = entity.DeuActivitiesLastAcademicYear;
+                vm.HasDeuMembersListFile = entity.DeuMembersListFilePath != null;
+            }
 
             return View(vm);
         }
@@ -882,40 +907,81 @@ namespace Medical_Affiliation.Controllers
             entity.HasRoomsForNonTeachingStaff = vm.HasRoomsForNonTeachingStaff ?? false;
             entity.HasMedicalEducationUnit = vm.HasMedicalEducationUnit ?? false;
 
-            if (vm.HasMedicalEducationUnit == false)
+            if (facultyCode == "1")
             {
-                entity.MedicalEducationUnitAreaSqm = null;
-                entity.MedicalEducationUnitHasAudioVisual = null;
-                entity.MedicalEducationUnitHasInternet = null;
-                entity.MeuCoordinatorName = null;
-                entity.MeuCoordinatorPhone = null;
-                entity.MeuCoordinatorEmail = null;
-                entity.MeuCoordinatorDesignationDepartment = null;
-                entity.MeuActivitiesLastAcademicYear = null;
-            }
-            else
-            {
-                entity.MedicalEducationUnitAreaSqm = vm.MedicalEducationUnitAreaSqm;
-                entity.MedicalEducationUnitHasAudioVisual = vm.MedicalEducationUnitHasAudioVisual ?? false;
-                entity.MedicalEducationUnitHasInternet = vm.MedicalEducationUnitHasInternet ?? false;
-                entity.MeuCoordinatorName = vm.MeuCoordinatorName;
-                entity.MeuCoordinatorPhone = vm.MeuCoordinatorPhone;
-                entity.MeuCoordinatorEmail = vm.MeuCoordinatorEmail;
-                entity.MeuCoordinatorDesignationDepartment = vm.MeuCoordinatorDesignationDepartment;
-                entity.MeuActivitiesLastAcademicYear = vm.MeuActivitiesLastAcademicYear;
-
-                // 🔥 UPDATE FILE
-                if (filePath != null)
+                if(vm.HasMedicalEducationUnit == false)
                 {
-                    // 🔥 DELETE OLD FILE
-                    if (!string.IsNullOrEmpty(entity.MeuMembersListFilePath) &&
-                        System.IO.File.Exists(entity.MeuMembersListFilePath))
-                    {
-                        System.IO.File.Delete(entity.MeuMembersListFilePath);
-                    }
+                    entity.MedicalEducationUnitAreaSqm = null;
+                    entity.MedicalEducationUnitHasAudioVisual = null;
+                    entity.MedicalEducationUnitHasInternet = null;
+                    entity.MeuCoordinatorName = null;
+                    entity.MeuCoordinatorPhone = null;
+                    entity.MeuCoordinatorEmail = null;
+                    entity.MeuCoordinatorDesignationDepartment = null;
+                    entity.MeuActivitiesLastAcademicYear = null;
+                }
+                else
+                {
+                    entity.MedicalEducationUnitAreaSqm = vm.MedicalEducationUnitAreaSqm;
+                    entity.MedicalEducationUnitHasAudioVisual = vm.MedicalEducationUnitHasAudioVisual ?? false;
+                    entity.MedicalEducationUnitHasInternet = vm.MedicalEducationUnitHasInternet ?? false;
+                    entity.MeuCoordinatorName = vm.MeuCoordinatorName;
+                    entity.MeuCoordinatorPhone = vm.MeuCoordinatorPhone;
+                    entity.MeuCoordinatorEmail = vm.MeuCoordinatorEmail;
+                    entity.MeuCoordinatorDesignationDepartment = vm.MeuCoordinatorDesignationDepartment;
+                    entity.MeuActivitiesLastAcademicYear = vm.MeuActivitiesLastAcademicYear;
 
-                    // ✅ SAVE NEW PATH
-                    entity.MeuMembersListFilePath = filePath;
+                    // 🔥 UPDATE FILE
+                    if (filePath != null)
+                    {
+                        // 🔥 DELETE OLD FILE
+                        if (!string.IsNullOrEmpty(entity.MeuMembersListFilePath) &&
+                            System.IO.File.Exists(entity.MeuMembersListFilePath))
+                        {
+                            System.IO.File.Delete(entity.MeuMembersListFilePath);
+                        }
+
+                        // ✅ SAVE NEW PATH
+                        entity.MeuMembersListFilePath = filePath;
+                    }
+                }
+            } else if(facultyCode == "2")
+            {
+                if (vm.HasDentalEducationUnit == false)
+                {
+                    entity.DentalEducationUnitAreaSqm = null;
+                    entity.DentalEducationUnitHasAudioVisual = null;
+                    entity.DentalEducationUnitHasInternet = null;
+                    entity.DeuCoordinatorName = null;
+                    entity.DeuCoordinatorPhone = null;
+                    entity.DeuCoordinatorEmail = null;
+                    entity.DeuCoordinatorDesignationDepartment = null;
+                    entity.DeuActivitiesLastAcademicYear = null;
+                }
+                else
+                {
+                    entity.DentalEducationUnitAreaSqm = vm.DentalEducationUnitAreaSqm;
+                    entity.DentalEducationUnitHasAudioVisual = vm.DentalEducationUnitHasAudioVisual ?? false;
+                    entity.DentalEducationUnitHasInternet = vm.DentalEducationUnitHasInternet ?? false;
+                    entity.DeuCoordinatorName = vm.DeuCoordinatorName;
+                    entity.DeuCoordinatorPhone = vm.DeuCoordinatorPhone;
+                    entity.DeuCoordinatorEmail = vm.DeuCoordinatorEmail;
+                    entity.DeuCoordinatorDesignationDepartment = vm.DeuCoordinatorDesignationDepartment;
+                    entity.DeuActivitiesLastAcademicYear = vm.DeuActivitiesLastAcademicYear;
+
+                    // 🔥 UPDATE FILE
+                    if (filePath != null)
+                    {
+                        // 🔥 DELETE OLD FILE
+                        if (!string.IsNullOrEmpty(entity.DeuMembersListFilePath) &&
+                            System.IO.File.Exists(entity.DeuMembersListFilePath))
+                        {
+                            System.IO.File.Delete(entity.DeuMembersListFilePath);
+                        }
+
+                        // ✅ SAVE NEW PATH
+                        entity.DeuMembersListFilePath = filePath;
+                    }
                 }
             }
 

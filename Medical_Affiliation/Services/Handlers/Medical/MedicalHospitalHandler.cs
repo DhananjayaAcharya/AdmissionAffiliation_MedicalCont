@@ -81,7 +81,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             }).ToList();
         }
 
-        public int FacultyId => _userContext.FacultyId;
+        public int FacultyId => 1;
 
         private List<TItem> BuildRequirements<TItem>(List<MstIndoorInfrastructureRequirementsMaster> masters, List<IndoorInfrastructureRequirementsCompliance> existing) where TItem : RequirementItemBaseVM, new()
         {

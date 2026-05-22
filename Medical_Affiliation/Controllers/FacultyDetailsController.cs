@@ -173,6 +173,9 @@ namespace Medical_Affiliation.Controllers
                           ExaminerForList = !string.IsNullOrEmpty(f1.ExaminerFor)
                                                     ? f1.ExaminerFor.Split(',').ToList()
                                                     : new List<string>(),
+
+                          From = f1.From,
+                          To = f1.To,
                           RemoveRemarks = f1.RemoveRemarks
                       }).ToList();
 
@@ -197,7 +200,8 @@ namespace Medical_Affiliation.Controllers
                         PAN = f2.Pannumber,
                         Subjects = subjectsList,
                         Designations = designationsList,
-                        DepartmentDetails = departmentsList
+                        DepartmentDetails = departmentsList,
+
                     };
                 })
                 .ToList();
@@ -293,6 +297,8 @@ namespace Medical_Affiliation.Controllers
                     string recognizedPG = m.RecognizedPGTeacher?.Trim() ?? "";
                     string recognizedPhD = m.RecognizedPhDTeacher?.Trim() ?? "";
                     string litigation = m.LitigationPending?.Trim() ?? "";
+                    DateOnly? from = m?.From;
+                    DateOnly? to = m?.To;
 
                     var guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs");
                     var phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs");
@@ -319,6 +325,8 @@ namespace Medical_Affiliation.Controllers
                         existing.ExaminerFor = examinerFor;
                         existing.IsRemoved = false;
                         existing.RemoveRemarks = null;
+                        existing.From = from;
+                        existing.To = to;
 
                         // 🔥 GUIDE DOC
                         if (guidePath != null)
@@ -372,6 +380,8 @@ namespace Medical_Affiliation.Controllers
                             Mobile = mobile,
                             Email = email,
                             Pan = pan,
+                            From = from,
+                            To = to,
                             Aadhaar = aadhaar,
                             DepartmentDetails = dept,
                             GuideRecognitionDocPath = guidePath,

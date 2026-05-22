@@ -393,10 +393,9 @@ namespace Medical_Affiliation.Controllers
 
 
             string commonLevel =
-               levels.Contains("UG")
-               ? "UG"
-               : levels.First();
-
+                levels.Contains("UG")
+                ? "UG"
+                : levels.FirstOrDefault() ?? "UG";
 
             var designations =
                 await _context.MedCaMstStaffDesignations

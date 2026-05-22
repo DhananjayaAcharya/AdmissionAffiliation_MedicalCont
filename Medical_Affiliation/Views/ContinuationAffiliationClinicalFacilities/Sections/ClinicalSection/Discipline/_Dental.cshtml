@@ -1,0 +1,300 @@
+﻿@model Medical_Affiliation.Models.DisciplinePostVM
+
+<div class="form-section">
+
+    <div class="section-title required">
+        Discipline Details
+    </div>
+
+    <form id="DisciplineForm" class="mt-3">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" id="CollegeCode" value="@Model.CollegeCode" />
+        <input type="hidden" id="FacultyCode" value="@Model.FacultyCode" />
+        <input type="hidden" id="AffiliationTypeId" value="@Model.AffiliationTypeId" />
+        <input type="hidden" id="HospitalDetailsId" value="@Model.HospitalDetailsId" />
+        <input type="hidden" id="SeatSlab" value="@Model.SeatSlab" />
+
+        @if (Model.Disciplines != null && Model.Disciplines.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th width="60%">
+                                Discipline Name
+                            </th>
+
+                            <th width="40%" class="text-center">
+
+                                Availability Status
+
+                                @* <div class="mt-1"> *@
+
+
+                                    <label for="selectAllDisciplines" class="ms-1 small" style="font-size:10px;">
+                                        (Select All)
+                                    </label>
+                                    <input type="checkbox"
+                                           id="selectAllDisciplines"
+                                           class="form-check-input" />
+
+                                @* </div> *@
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @for (int i = 0; i < Model.Disciplines.Count; i++)
+                        {
+                            <tr class="discipline-row">
+
+                                <td>
+
+                                    @Model.Disciplines[i].DisciplineName
+
+                                    <input type="hidden"
+                                           class="discipline-code"
+                                           value="@Model.Disciplines[i].DisciplineCode" />
+
+                                    <input type="hidden"
+                                           class="discipline-name"
+                                           value="@Model.Disciplines[i].DisciplineName" />
+
+                                </td>
+
+                                <td class="text-center availability-cell">
+
+                                    <input type="checkbox"
+                                           class="form-check-input discipline-check"
+                                    @(Model.Disciplines[i].IsSelected ? "checked" : "") />
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">
+                No Discipline Details Available.
+            </p>
+        }
+
+        <div class="text-center mt-3">
+
+            <button type="button"
+                    id="SaveDisciplineBtn"
+                    class="btn btn-primary">
+
+                Save Discipline Details
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+
+    // =========================
+    // SELECT ALL
+    // =========================
+
+    document.getElementById('selectAllDisciplines')
+        ?.addEventListener('change', function () {
+
+            const isChecked = this.checked;
+
+            document.querySelectorAll('.discipline-check')
+                .forEach(cb => {
+
+                    cb.checked = isChecked;
+                });
+        });
+
+    // =========================
+    // UPDATE SELECT ALL STATE
+    // =========================
+
+    document.querySelectorAll('.discipline-check')
+        .forEach(cb => {
+
+            cb.addEventListener('change', function () {
+
+                const all =
+                    document.querySelectorAll('.discipline-check');
+
+                const checked =
+                    document.querySelectorAll('.discipline-check:checked');
+
+                document.getElementById('selectAllDisciplines').checked =
+                    all.length === checked.length;
+            });
+        });
+
+    // =========================
+    // INITIAL LOAD
+    // =========================
+
+    window.addEventListener('load', function () {
+
+        const all =
+            document.querySelectorAll('.discipline-check');
+
+        const checked =
+            document.querySelectorAll('.discipline-check:checked');
+
+        if (all.length > 0) {
+
+            document.getElementById('selectAllDisciplines').checked =
+                all.length === checked.length;
+        }
+    });
+
+    // =========================
+    // CHECKBOX TOGGLE ON CELL CLICK
+    // =========================
+
+    document.querySelectorAll('.availability-cell')
+        .forEach(cell => {
+
+            cell.addEventListener('click', function (e) {
+
+                // Prevent double toggle
+                if (e.target.classList.contains('discipline-check'))
+                    return;
+
+                const checkbox =
+                    this.querySelector('.discipline-check');
+
+                checkbox.checked = !checkbox.checked;
+
+                checkbox.dispatchEvent(new Event('change'));
+            });
+        });
+
+    // =========================
+    // SAVE
+    // =========================
+
+    document.getElementById('SaveDisciplineBtn')
+        .addEventListener('click', saveDisciplineDetails);
+
+    function saveDisciplineDetails() {
+
+        const token =
+            document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        const disciplines = [];
+
+        document.querySelectorAll('.discipline-row')
+            .forEach(row => {
+
+                disciplines.push({
+
+                    disciplineCode:
+                        row.querySelector('.discipline-code').value,
+
+                    disciplineName:
+                        row.querySelector('.discipline-name').value,
+
+                    isSelected:
+                        row.querySelector('.discipline-check').checked
+                });
+            });
+
+        const payload = {
+
+            collegeCode:
+                document.getElementById('CollegeCode').value,
+
+            facultyCode:
+                document.getElementById('FacultyCode').value,
+
+            seatSlab: document.getElementById('SeatSlab').value,
+
+            affiliationTypeId:
+                parseInt(
+                    document.getElementById('AffiliationTypeId').value
+                ),
+
+            hospitalDetailsId:
+                parseInt(
+                    document.getElementById('HospitalDetailsId').value
+                ),
+
+            disciplines: disciplines
+        };
+
+        fetch('@Url.Action("SaveDisciplineDetails", "ContinuationAffiliationClinicalFacilities")', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+
+            body: JSON.stringify(payload)
+
+        })
+        .then(response => {
+
+            if (!response.ok)
+                throw new Error('Request Failed');
+
+            return response.json();
+        })
+        .then(result => {
+
+            if (result.success) {
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Saved",
+                    text: result.message || 'Discipline Details Saved Successfully',
+                    confirmButtonText: 'OK'
+                });
+
+            } else {
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed",
+                    text: result.message || 'Failed To Save Discipline Details',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: 'Error While Saving Discipline Details',
+                confirmButtonText: 'OK'
+            });
+        });
+    }
+
+</script>

@@ -36,4 +36,22 @@ public partial class AcademicIntake
     public int Ay2026TotalIntake { get; set; }
 
     public string? Courses { get; set; }
+
+    public byte[]? Ay2025Dcidocument { get; set; }
+
+    public byte[]? Ay2025Ksdcdocument { get; set; }
+
+    public byte[]? Ay2026Dcidocument { get; set; }
+
+    public byte[]? Ay2026Ksdcdocument { get; set; }
+
+    public byte[]? Ay2027Dcidocument { get; set; }
+
+    public byte[]? Ay2027Ksdcdocument { get; set; }
+
+    public int Ay2027ExistingIntake { get; set; }
+
+    public int Ay2027AddRequestedIntake { get; set; }
+
+    public int Ay2027TotalIntake { get; set; }
 }

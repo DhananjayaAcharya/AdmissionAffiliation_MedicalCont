@@ -1,7 +1,7 @@
 ﻿@model AcademicIntakePageViewModel1
 
 @{
-    ViewData["Title"] = "Increase Intake – Continuous Affiliation";
+    ViewData["Title"] = "Academic Intake – Continuous Affiliation";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 }
 
@@ -199,7 +199,7 @@
 <div class="ph">
     <div class="phi">
         @* <div class="ph-tag">Continuous Affiliation</div> *@
-        <h4> Increase Intake</h4>
+        <h4> Academic Year-wise Intake Details</h4>
         <div class="ph-meta">
             @* <span><span class="dot"></span>College:&nbsp;<strong>@Model.CollegeName</strong></span> *@
 @*             <span><span class="dot"></span>College Code:&nbsp;<strong>@Model.CollegeCode</strong></span>
@@ -260,9 +260,15 @@
                 <button type="button" class="tb" data-t="pg">
                     PG Courses <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
                 </button>
-                <button type="button" class="tb" data-t="ss">
+              @*   <button type="button" class="tb" data-t="ss">
                     SS Courses <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
-                </button>
+                </button> *@
+                @if (Model.FacultyId != 2)
+                {
+                    <button type="button" class="tb" data-t="ss">
+                        SS Courses <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
+                    </button>
+                }
             </div>
 
             <div id="tp-ug" class="tp on">@{
@@ -273,9 +279,14 @@
                         RenderTable(Model.PgCourses, "PgCourses");
                         }
 </div>
-            <div id="tp-ss" class="tp">@{
+            @if (Model.FacultyId != 2)
+            {
+                <div id="tp-ss" class="tp">
+                    @{
                         RenderTable(Model.SsCourses, "SsCourses");
-                        }
+                    }
+                </div>
+            }
 </div>
 
             <div class="cf">
@@ -291,83 +302,229 @@
         </div>
 
         @* ─── SAVED RECORDS CARD ─── *@
-        <div class="card">
-            <div class="ch">
-                <h2>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" /></svg>
-                    Saved Intake Records
-                </h2>
-                <span class="bg sv">@(Model.SavedIntakes?.Count ?? 0) records</span>
-            </div>
-            <div class="tw">
-                @if (Model.SavedIntakes != null && Model.SavedIntakes.Any())
-                {
-                    <table class="t st" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Level</th>
-                                <th>Course Code</th>
-                                <th>Course Name</th>
-                                <th style="text-align:center">AY 2024-25 Total</th>
-                                <th style="text-align:center">AY 2025-26 Total</th>
-                                <th style="text-align:center">AY 2026-27 Total</th>
-                                <th style="text-align:center">NMC Document</th>
-                                <th style="text-align:center">Recorded On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                int si = 1;
-                            }
-                            @foreach (var row in Model.SavedIntakes)
+    <div class="card">
+        <div class="ch">
+            <h2>
+                <svg width="16" height="16" fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     viewBox="0 0 24 24">
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                </svg>
+
+                Saved Intake Records
+            </h2>
+
+            <span class="bg sv">
+                @(Model.SavedIntakes?.Count ?? 0) records
+            </span>
+        </div>
+
+        <div class="tw">
+            @if (Model.SavedIntakes != null && Model.SavedIntakes.Any())
+            {
+                <table class="t st" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Level</th>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+
+                            @if (Model.FacultyId != 2)
                             {
-                                <tr>
-                                    <td style="color:var(--muted);text-align:center">@si</td>
-                                    <td>
-                                        <span class="bg @(row.CourseLevel == "UG" ? "ug" : row.CourseLevel == "PG" ? "pg" : "ss")">@row.CourseLevel</span>
+                                <th style="text-align:center">
+                                    AY 2024-25 Total
+                                </th>
+                            }
+
+                        <th style="text-align:center">
+                            AY 2025-26 Total
+                        </th>
+
+                        <th style="text-align:center">
+                            AY 2026-27 Total
+                        </th>
+
+                        <th style="text-align:center">
+                            AY 2027-28 Total
+                        </th>
+
+                            @if (Model.FacultyId == 2)
+                            {
+                                <th style="text-align:center">LOP Document</th>
+                                <th style="text-align:center">DCI Document</th>
+                                @* <th style="text-align:center">KSDC Document</th> *@
+                            }
+                            else
+                            {
+                                <th style="text-align:center">NMC Document</th>
+                            }
+
+                            <th style="text-align:center">
+                                Recorded On
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    @{
+                            int si = 1;
+                        }
+
+                        @foreach (var row in Model.SavedIntakes)
+                        {
+                            <tr>
+                                <td style="color:var(--muted);text-align:center">
+                                    @si
+                                </td>
+
+                                <td>
+                                    <span class="bg @(row.CourseLevel == "UG"
+                                                                              ? "ug"
+                                                                              : row.CourseLevel == "PG"
+                                                                                  ? "pg"
+                                                                                  : "ss")">
+                                @row.CourseLevel
+                            </span>
+                        </td>
+
+                                <td style="font-family:monospace;font-size:.82rem">
+                                    @row.CourseCode
+                                </td>
+
+                                <td style="font-weight:600;color:var(--navy)">
+                                    @row.CourseName
+                                </td>
+
+                        @if (Model.FacultyId != 2)
+                                {
+                                    <td style="text-align:center;font-weight:600">
+                                        @row.AY2024_TotalIntake
                                     </td>
-                                    <td style="font-family:monospace;font-size:.82rem">@row.CourseCode</td>
-                                    <td style="font-weight:600;color:var(--navy)">@row.CourseName</td>
-                                    <td style="text-align:center;font-weight:600">@row.AY2024_TotalIntake</td>
-                                    <td style="text-align:center;font-weight:600">@row.AY2025_TotalIntake</td>
-                                    <td style="text-align:center;font-weight:700;color:var(--blue)">@row.AY2026_TotalIntake</td>
+                                }
+
+                                <td style="text-align:center;font-weight:600">
+                                    @row.AY2025_TotalIntake
+                                </td>
+
+                                <td style="text-align:center;font-weight:700;color:var(--blue)">
+                                    @row.AY2026_TotalIntake
+                                </td>
+
+                                <td style="text-align:center;font-weight:700;color:var(--blue)">
+                                    @row.AY2027_TotalIntake
+                                </td>
+
+                                @if (Model.FacultyId == 2)
+                                {
+
                                     <td style="text-align:center">
-                                        @if (row.HasNmcDocument)
+                                        @if (row.HasLopDocument)
                                         {
-                                            <a asp-action="ViewNmcDocument"
-                                               asp-controller="ContinuousAffiliationIncreaseintake"
-                                               asp-route-id="@row.Id"
-                                               target="_blank"
-                                               class="pill py"
-                                               style="text-decoration:none;">
-                                                View PDF
-                                            </a>
+                                            <span class="pill py">
+                                                &#10003; Uploaded
+                                            </span>
                                         }
                                         else
                                         {
-                                            <span class="pill pn">— None</span>
+                                            <span class="pill pn">
+                                                — None
+                                            </span>
                                         }
                                     </td>
-                                    <td style="text-align:center;color:var(--muted);font-size:.79rem">@row.CreatedOn.ToString("dd MMM yyyy")</td>
-                                </tr>
-                                si++;
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div class="empty">
-                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="9" y1="9" x2="15" y2="9" /><line x1="9" y1="13" x2="15" y2="13" /><line x1="9" y1="17" x2="13" y2="17" /></svg>
-                        <p>No saved records yet. Fill in the intake details above and click <strong>Save</strong>.</p>
-                    </div>
-                }
-            </div>
-        </div>
+                                    <td style="text-align:center">
+                                        @if (row.HasDciDocument)
+                                        {
+                                            <span class="pill py">
+                                                &#10003; Uploaded
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="pill pn">
+                                                — None
+                                            </span>
+                                        }
+                                    </td>
 
-        @*code added by ram on 19-05-2026 , commented static code , added updated dyanmic code below *@
-       @*  <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
+                                  @*   <td style="text-align:center">
+                                        @if (row.HasKsdcDocument)
+                                        {
+                                            <span class="pill py">
+                                                &#10003; Uploaded
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="pill pn">
+                                                — None
+                                            </span>
+                                        }
+                                    </td> *@
+                                }
+                                else
+                                {
+                                    <td style="text-align:center">
+                                        @if (row.HasNmcDocument)
+                                        {
+                                            <span class="pill py">
+                                                &#10003; Uploaded
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="pill pn">
+                                                — None
+                                            </span>
+                                        }
+                                    </td>
+                                }
+
+                                <td style="text-align:center;color:var(--muted);font-size:.79rem">
+                                    @row.CreatedOn.ToString("dd MMM yyyy")
+                                </td>
+                            </tr>
+
+                            si++;
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty">
+                    <svg width="48"
+                         height="48"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.3"
+                         viewBox="0 0 24 24">
+
+                        <rect x="3"
+                              y="3"
+                              width="18"
+                              height="18"
+                              rx="2" />
+
+                        <line x1="9" y1="9" x2="15" y2="9" />
+
+                        <line x1="9" y1="13" x2="15" y2="13" />
+
+                        <line x1="9" y1="17" x2="13" y2="17" />
+                    </svg>
+
+                    <p>
+                        No saved records yet.
+                        Fill in the intake details above and click
+                        <strong>Save</strong>.
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+        <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
 
                 <!-- 🔙 PREVIOUS -->
                 <a href="@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")"
@@ -472,22 +629,63 @@
                     <tr>
                         <th rowspan="2" style="text-align:left;min-width:36px">#</th>
                         <th rowspan="2" style="text-align:left;min-width:200px">Course Name</th>
-                        <th colspan="3" class="g24" style="text-align:center">AY 2024 – 25</th>
-                        <th colspan="5" class="g25" style="text-align:center">AY 2025 – 26</th>
-                        <th colspan="3" class="g26" style="text-align:center">AY 2026 – 27</th>
+                        @if (Model.FacultyId != 2)
+                        {
+                            <th colspan="3" class="g24" style="text-align:center">
+                                AY 2024 – 25
+                            </th>
+                        }
+                        <th colspan="@(Model.FacultyId == 2 ? 7 : 5)" class="g25" style="text-align:center">AY 2025 – 26</th>
+                        <th colspan="@(Model.FacultyId == 2 ? 5 : 3)" class="g26" style="text-align:center">AY 2026 – 27</th>
+                        <th colspan="@(Model.FacultyId == 2 ? 5 : 3)" class="g26" style="text-align:center">AY 2027 – 28</th>
                     </tr>
                     <tr>
-                        <th class="g24">Existing</th>
-                        <th class="g24">Increase</th>
-                        <th class="g24">Total</th>
+                        @if (Model.FacultyId != 2)
+                        {
+                            <th class="g24">Existing</th>
+                            <th class="g24">Increase</th>
+                            <th class="g24">Total</th>
+                        }
                         <th class="g25">Existing</th>
-                        <th class="g25">LOP / NMC</th>
+                        @if (Model.FacultyId == 2)
+                        {
+                            <th class="g25">LOP</th>
+                        }
+                        else
+                        {
+                            <th class="g25">LOP / NMC</th>
+                        }
+                        
                         <th class="g25">Total</th>
                         <th class="g25">LOP Date</th>
-                        <th class="g25">NMC Document</th>
+                      
+                        @if (Model.FacultyId == 2)
+                        {
+                            <th class="g25">LOP Document</th>
+                            <th class="g25">DCI Document</th>
+                            // <th class="g25">KSDC Document</th>
+                        }
+                        else
+                        {
+                            <th class="g25">NMC Document</th>
+                        }
                         <th class="g26">Existing</th>
                         <th class="g26">Add. Requested</th>
                         <th class="g26">Total</th>
+                        @if (Model.FacultyId == 2)
+                        {
+                            <th class="g26">DCI Document</th>
+                            // <th class="g26">KSDC Document</th>
+                        }
+                        <th class="g26">Existing</th>
+                        <th class="g26">Add. Requested</th>
+                        <th class="g26">Total</th>
+                        @if (Model.FacultyId == 2)
+                        {
+                            <th class="g26">DCI Document</th>
+                            // <th class="g26">KSDC Document</th>
+                        }
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -505,29 +703,35 @@
                                     <input type="hidden" name="@(p).CourseName" value="@c.CourseName" />
                                 </td>
                                 @* 2024-25 *@
-                                @*below code added by ram - changes made : for the below 2 td, made it read only*@
+                                @if (Model.FacultyId != 2)
+                                {
+                                    <td class="cc">
+                                        <input type="number"
+                                               class="ni"
+                                               name="@(p).AY2024_ExistingIntake"
+                                               value="@c.AY2024_ExistingIntake"
+                                               data-r="e24" />
+                                    </td>
 
-                                <td class="cc">
-                                    <input type="number" class="ni"
-                                           name="@(p).AY2024_ExistingIntake"
-                                           value="@c.AY2024_ExistingIntake"
-                                           min="0"
-                                           data-r="e24"
-                                           readonly />
-                                </td>
+                                    <td class="cc">
+                                        <input type="number"
+                                               class="ni"
+                                               name="@(p).AY2024_IncreaseIntake"
+                                               value="@c.AY2024_IncreaseIntake"
+                                               data-r="i24" />
+                                    </td>
 
-                                <td class="cc">
-                                    <input type="number" class="ni"
-                                           name="@(p).AY2024_IncreaseIntake"
-                                           value="@c.AY2024_IncreaseIntake"
-                                           min="0"
-                                           data-r="i24"
-                                           readonly />
-                                </td>
-                                <td class="cc">
-                                    <span class="cf2" data-r="t24">@c.AY2024_TotalIntake</span>
-                                    <input type="hidden" name="@(p).AY2024_TotalIntake" data-h="t24" value="@c.AY2024_TotalIntake" />
-                                </td>
+                                    <td class="cc">
+                                        <span class="cf2" data-r="t24">
+                                            @c.AY2024_TotalIntake
+                                        </span>
+
+                                        <input type="hidden"
+                                               name="@(p).AY2024_TotalIntake"
+                                               data-h="t24"
+                                               value="@c.AY2024_TotalIntake" />
+                                    </td>
+                                }
                                 @* 2025-26 *@
                                 <td class="cc"><input type="number" class="ni" name="@(p).AY2025_ExistingIntake" value="@c.AY2025_ExistingIntake" min="0" data-r="e25" /></td>
                                 <td class="cc"><input type="number" class="ni" name="@(p).AY2025_LopNmcIntake" value="@c.AY2025_LopNmcIntake" min="0" data-r="l25" /></td>
@@ -536,13 +740,97 @@
                                     <input type="hidden" name="@(p).AY2025_TotalIntake" data-h="t25" value="@c.AY2025_TotalIntake" />
                                 </td>
                                 <td><input type="date" class="di" name="@(p).AY2025_LopDate" value="@lop" /></td>
-                                <td style="min-width:170px">
-                                    <label class="fl">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-                                        <span class="fn">Choose file</span>
-                                        <input type="file" name="@(p).AY2025_NmcDocument" class="file-validate" accept=".pdf" />
-                                    </label>
-                                </td>
+                                
+                                @if (Model.FacultyId == 2)
+                                {
+
+                                    <td style="min-width:170px">
+                                        <label class="fl">
+                                            <svg width="12"
+                                                 height="12"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="2.2"
+                                                 viewBox="0 0 24 24">
+
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+
+                                                <polyline points="17 8 12 3 7 8" />
+
+                                                <line x1="12" y1="3" x2="12" y2="15" />
+                                            </svg>
+
+                                            <span class="fn">LOP File</span>
+
+                                            <input type="file"
+                                                   name="@(p).AY2025_LopDocument"
+                                                   class="file-validate"
+                                                   accept=".pdf" />
+                                        </label>
+                                    </td>
+                                    <td style="min-width:170px">
+                                        <label class="fl">
+                                            <svg width="12" height="12" fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="2.2"
+                                                 viewBox="0 0 24 24">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                                <polyline points="17 8 12 3 7 8" />
+                                                <line x1="12" y1="3" x2="12" y2="15" />
+                                            </svg>
+
+                                            <span class="fn">DCI File</span>
+
+                                            <input type="file"
+                                                   name="@(p).AY2025_DCIDocument"
+                                                   class="file-validate"
+                                                   accept=".pdf" />
+                                        </label>
+                                    </td>
+
+                                    // <td style="min-width:170px">
+                                    //     <label class="fl">
+                                    //         <svg width="12" height="12" fill="none"
+                                    //              stroke="currentColor"
+                                    //              stroke-width="2.2"
+                                    //              viewBox="0 0 24 24">
+                                    //             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                    //             <polyline points="17 8 12 3 7 8" />
+                                    //             <line x1="12" y1="3" x2="12" y2="15" />
+                                    //         </svg>
+
+                                    //         <span class="fn">KSDC File</span>
+
+                                    //         <input type="file"
+                                    //                name="@(p).AY2025_KSDCDocument"
+                                    //                class="file-validate"
+                                    //                accept=".pdf" />
+                                    //     </label>
+                                    // </td>
+                                }
+                                else
+                                {
+                                    <td style="min-width:170px">
+                                        <label class="fl">
+                                            <svg width="12" height="12" fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="2.2"
+                                                 viewBox="0 0 24 24">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                                <polyline points="17 8 12 3 7 8" />
+                                                <line x1="12" y1="3" x2="12" y2="15" />
+                                            </svg>
+
+                                            <span class="fn">Choose file</span>
+
+                                            <input type="file"
+                                                   name="@(p).AY2025_NmcDocument"
+                                                   class="file-validate"
+                                                   accept=".pdf" />
+                                        </label>
+                                    </td>
+                                }
+
                                 @* 2026-27 *@
                                 <td class="cc">
                                     <span class="cf2" data-r="e26">@c.AY2026_ExistingIntake</span>
@@ -553,6 +841,122 @@
                                     <span class="cf2 hi" data-r="t26">@c.AY2026_TotalIntake</span>
                                     <input type="hidden" name="@(p).AY2026_TotalIntake" data-h="t26" value="@c.AY2026_TotalIntake" />
                                 </td>
+                                @if (Model.FacultyId == 2)
+                                {
+                                    <td style="min-width:170px">
+                                        <label class="fl">
+                                            <svg width="12" height="12" fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="2.2"
+                                                 viewBox="0 0 24 24">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                                <polyline points="17 8 12 3 7 8" />
+                                                <line x1="12" y1="3" x2="12" y2="15" />
+                                            </svg>
+
+                                            <span class="fn">DCI File</span>
+
+                                            <input type="file"
+                                                   name="@(p).AY2026_DCIDocument"
+                                                   class="file-validate"
+                                                   accept=".pdf" />
+                                        </label>
+                                    </td>
+
+                                    // <td style="min-width:170px">
+                                    //     <label class="fl">
+                                    //         <svg width="12" height="12" fill="none"
+                                    //              stroke="currentColor"
+                                    //              stroke-width="2.2"
+                                    //              viewBox="0 0 24 24">
+                                    //             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                    //             <polyline points="17 8 12 3 7 8" />
+                                    //             <line x1="12" y1="3" x2="12" y2="15" />
+                                    //         </svg>
+
+                                    //         <span class="fn">KSDC File</span>
+
+                                    //         <input type="file"
+                                    //                name="@(p).AY2026_KSDCDocument"
+                                    //                class="file-validate"
+                                    //                accept=".pdf" />
+                                    //     </label>
+                                    //</td>
+                                }
+
+                               
+                                @* 2027-28 *@
+                                <td class="cc">
+                                    <input type="number"
+                                           class="ni"
+                                           name="@(p).AY2027_ExistingIntake"
+                                           value="@c.AY2027_ExistingIntake"
+                                           data-r="e27"
+                                           readonly />
+                                </td>
+
+                                <td class="cc">
+                                    <input type="number"
+                                           class="ni"
+                                           name="@(p).AY2027_AddRequestedIntake"
+                                           value="@c.AY2027_AddRequestedIntake"
+                                           min="0"
+                                           step="1"
+                                           data-r="r27" />
+                                </td>
+
+                                <td class="cc">
+                                    <span class="cf2 hi" data-r="t27">
+                                        @c.AY2027_TotalIntake
+                                    </span>
+
+                                    <input type="hidden"
+                                           name="@(p).AY2027_TotalIntake"
+                                           data-h="t27"
+                                           value="@c.AY2027_TotalIntake" />
+                                </td>
+                                @if (Model.FacultyId == 2)
+                                {
+                                    <td style="min-width:170px">
+                                        <label class="fl">
+                                            <svg width="12" height="12" fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="2.2"
+                                                 viewBox="0 0 24 24">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                                <polyline points="17 8 12 3 7 8" />
+                                                <line x1="12" y1="3" x2="12" y2="15" />
+                                            </svg>
+
+                                            <span class="fn">DCI File</span>
+
+                                            <input type="file"
+                                                   name="@(p).AY2027_DCIDocument"
+                                                   class="file-validate"
+                                                   accept=".pdf" />
+                                        </label>
+                                    </td>
+
+                                    // <td style="min-width:170px">
+                                    //     <label class="fl">
+                                    //         <svg width="12" height="12" fill="none"
+                                    //              stroke="currentColor"
+                                    //              stroke-width="2.2"
+                                    //              viewBox="0 0 24 24">
+                                    //             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                    //             <polyline points="17 8 12 3 7 8" />
+                                    //             <line x1="12" y1="3" x2="12" y2="15" />
+                                    //         </svg>
+
+                                    //         <span class="fn">KSDC File</span>
+
+                                    //         <input type="file"
+                                    //                name="@(p).AY2027_KSDCDocument"
+                                    //                class="file-validate"
+                                    //                accept=".pdf" />
+                                    //     </label>
+                                    // </td>
+                                }
                             </tr>
                             ri++;
                         }
@@ -575,61 +979,126 @@
         });
     });
 
-    @* LIVE RECALC
+    
 
-    //Karthik Code commented by ram on 19-05-26, replaced this with new logic code below 
-
+        // LIVE RECALC
     // function recalcRow(row) {
-    //     const val = r => +(row.querySelector(`[data-r="${r}"]`)?.value
-    //                     ?? row.querySelector(`[data-r="${r}"]`)?.textContent
-    //                     ?? 0);
-    //     const set = (r, v) => {
-    //         const sp = row.querySelector(`[data-r="${r}"]`);
-    //         const hd = row.querySelector(`[data-h="${r}"]`);
-    //         if (sp) sp.textContent = v;
-    //         if (hd) hd.value = v;
-    //     };
-    //     const t24 = val('e24') + val('i24'); set('t24', t24);
-    //     const t25 = val('e25') + val('l25'); set('t25', t25);
+
+    //     const val = r => +(
+    //         row.querySelector(`[data-r="${r}"]`)?.value
+    //         ?? row.querySelector(`[data-r="${r}"]`)?.textContent
+    //         ?? 0
+    //     );
+
+    //         const set = (r, v) => {
+
+    //     const sp = row.querySelector(`[data-r="${r}"]`);
+    //     const hd = row.querySelector(`[data-h="${r}"]`);
+
+    //     if (sp) {
+
+    //         if (
+    //             sp.tagName === "INPUT" ||
+    //             sp.tagName === "TEXTAREA"
+    //         ) {
+    //             sp.value = v;
+    //         }
+    //         else {
+    //             sp.textContent = v;
+    //         }
+    //     }
+
+    //     if (hd)
+    //         hd.value = v;
+    // };
+
+    //     // AY 2024-25
+    //     const t24 = val('e24') + val('i24');
+    //     set('t24', t24);
+
+    //     // AY 2025-26
+    //     const t25 = val('e25') + val('l25');
+    //     set('t25', t25);
+
+    //     // AY 2026-27
     //     set('e26', t25);
-    //     set('t26', t25 + val('r26'));
-    // }*@
 
-        function recalcRow(row) {
+    //     const t26 = t25 + val('r26');
+    //     set('t26', t26);
 
+    //         // AY 2027-28
+
+    //     const existing27Input =
+    //         row.querySelector('[data-r="e27"]');
+
+    //     const requested27Input =
+    //         row.querySelector('[data-r="r27"]');
+
+    //     // preserve DB-loaded value
+    //     const existing27 =
+    //         +(existing27Input?.value || 0);
+
+    //     const requested27 =
+    //         +(requested27Input?.value || 0);
+
+    //     // only auto-fill if empty and no DB value
+    //     if (existing27 === 0 && requested27 === 0) {
+
+    //         set('e27', t26);
+
+    //         const autoTotal27 = t26;
+
+    //         set('t27', autoTotal27);
+    //     }
+    //     else {
+
+    //         const total27 =
+    //             existing27 + requested27;
+
+    //         set('t27', total27);
+    //     }
+    // }
+
+
+         function recalcRow(row) {
         const val = r => +(row.querySelector(`[data-r="${r}"]`)?.value
-            ?? row.querySelector(`[data-r="${r}"]`)?.textContent
-            ?? 0);
+                         ?? row.querySelector(`[data-r="${r}"]`)?.textContent
+                         ?? 0);
 
         const set = (r, v) => {
             const sp = row.querySelector(`[data-r="${r}"]`);
             const hd = row.querySelector(`[data-h="${r}"]`);
-            if (sp) sp.textContent = v;
+            if (sp) {
+                if (sp.tagName === "INPUT") {
+                    sp.value = Math.max(0, v);   // prevent negative
+                } else {
+                    sp.textContent = v;
+                }
+            }
             if (hd) hd.value = v;
         };
 
-        // 2024 Total
-        const t24 = val('e24') + val('i24');
-        set('t24', t24);
-
-        // 2025 Existing = 2024 Total
-        const e25Input = row.querySelector('[data-r="e25"]');
-        if (e25Input) {
-            e25Input.value = t24;
-        }
-
-        // 2025 Total
-        const t25 = t24 + val('l25');
+        // 2025-26
+        const t25 = val('e25') + val('l25');
         set('t25', t25);
 
-        // 2026
+        // 2026-27
         set('e26', t25);
-        set('t26', t25 + val('r26'));
+        const t26 = t25 + val('r26');
+        set('t26', t26);
+
+        // 2027-28 - FIXED
+        set('e27', t26);
+        const requested27 = val('r27');
+        const total27 = t26 + requested27;
+        set('t27', total27);
     }
 
-    document.querySelectorAll('table.t tbody tr').forEach(row => {
-        row.querySelectorAll('input[type="number"]').forEach(i => i.addEventListener('input', () => recalcRow(row)));
-        recalcRow(row);
+       document.querySelectorAll('table.t tbody tr').forEach(row => {
+        row.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => recalcRow(row));
+        });
+        recalcRow(row);   // Run once on load
     });
 
     // FILE LABELS

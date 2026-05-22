@@ -26,7 +26,10 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
-            var levels = ParseLevels(raw);
+            var levels = string.IsNullOrEmpty(raw)
+                ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(raw).Select(l => l.Trim().ToUpper()).Distinct().ToList();
+
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
@@ -399,7 +402,9 @@ namespace Medical_Affiliation.Controllers
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
                 x.DepartmentCode == model.DepartmentCode &&
-                x.ActivityId == model.ActivityId);
+                x.ActivityId == model.ActivityId &&
+                x.CourseLevel != null &&
+                x.CourseLevel.ToUpper() == "UG");
 
             if (alreadyExists)
             {

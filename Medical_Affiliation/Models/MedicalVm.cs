@@ -63,6 +63,7 @@ namespace Medical_Affiliation.Models
             // MUST be non-nullable for checkboxes
             public bool ChangesInTrustName { get; set; }
             public bool OtherNursingCollegeInCity { get; set; }
+            public bool OtherDentalCollegeInCity { get; set; }
 
             public string CategoryOfOrganisation { get; set; }
             public string ContactPersonName { get; set; }
@@ -79,24 +80,42 @@ namespace Medical_Affiliation.Models
             public string FinancingAuthorityName { get; set; }
             public string CollegeStatus { get; set; }
 
-            // Document numbers
+        // Document numbers
+            [ValidateNever]
             public string GovAutonomousCertNumber { get; set; }
             public string KncCertificateNumber { get; set; }
 
             // Files (IFormFile)
             public IFormFile GovAutonomousCertFile { get; set; }
+        public bool hasGovAutoCertFile { get; set; }
             public IFormFile GovCouncilMembershipFile { get; set; }
+        public bool hasGovCouncilMembershipFile { get; set; }
             public IFormFile GokOrderExistingCoursesFile { get; set; }
+        public bool hasGokOrderExistingCoursesFile { get; set; }
             public IFormFile FirstAffiliationNotifFile { get; set; }
+        public bool hasFirstAffiliationNotifFile { get; set; }
             public IFormFile ContinuationAffiliationFile { get; set; }
+        public bool hasContinuationAffiliationFile { get; set; }
             public IFormFile KncCertificateFile { get; set; }
+        public bool hasKncCertificateFile { get; set; }
+            public IFormFile KSDCcertificateFile { get; set; }
+        public bool hasKSDCcertificateFile { get; set; }
             public IFormFile AmendedDoc { get; set; }
+        public bool hasAmendedDoc { get; set; }
             public IFormFile AadhaarFile { get; set; }
+        public bool hasAadhaarFile { get; set; }
             public IFormFile PANFile { get; set; }
+        public bool hasPANFile { get; set; }
             public IFormFile BankStatementFile { get; set; }
+        public bool hasBankStatementFile { get; set; } 
             public IFormFile RegistrationCertificateFile { get; set; }
+        public bool hasRegistrationCertificateFile { get; set; } 
             public IFormFile RegisteredTrustMemberDetails { get; set; }
+        public bool hasRegisteredTrustMemberDetails { get; set; } 
+        public IFormFile DCIcertificateFile { get; set; }
+        public bool hasDCIfile { get; set; }
             public IFormFile AuditStatementFile { get; set; }
+        public bool hasAuditStatementFile { get; set; }
     }
     public class Medical_TrustMemberDetailsRowVM
     {

@@ -14,6 +14,7 @@
     string FacultyKey(int facultyCode) => facultyCode switch
     {
         3 => "Nursing",
+        2 => "Dental",
         1 => "Medical",
         _ => "Common"
     };
@@ -24,8 +25,12 @@
         "HospitalDetails" => Model.ClinicalHospitalDetails,
         "AffiliatedDocuments" => Model.AffiliatedDocumentsPostVM,
         "ClinicalCapacity" => Model.ClinicalCapacity,
+        "Discipline" => Model.DisciplineVm,
+        "NPTAservices" => Model.NptaRequirementPostvm,
+        "EngAlliedservices" => Model.EngAlliedRequirementPostvm,
+        "WardWiseBedDistribution" => Model.DentalWardBedDistribution,
         "FieldPracticeArea" => Model.FieldPracticeAreaPostVM,
-        "Facilities" => Model.ClinicalHospitalDetails.HospitalFacilities,
+        "Facilities" => Model.ClinicalHospitalDetails?.HospitalFacilities,
         "IndoorBedsUnits" => Model.IndoorBedsUnitsRequirements,
         "IndoorBedsOccupancy" => Model.IndoorBedsOccupancy,
         "HospitalDocumentsToBeUploaded" => new HospitalDocumentsToBeUploadedPostModel
@@ -59,7 +64,10 @@
     <title>Clinical Facilities</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"  crossorigin="anonymous">
 
     <style>
         *, *::before, *::after {
@@ -309,9 +317,22 @@
                     @foreach (var section in Model.Sections.FirstOrDefault(s => s.Name == "ClinicalSection")?.SubSections ?? Enumerable.Empty<string>())
                     {
                         var facultyKey = FacultyKey(Model.FacultyCode);
+
                         var partialPath = $"Sections/ClinicalSection/{section}/_{facultyKey}";
 
+                        var viewEngine = Context.RequestServices
+                            .GetService(typeof(Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine))
+                            as Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine;
+
+                        var viewResult = viewEngine?.FindView(ViewContext, partialPath, false);
+
+                        if (viewResult == null || !viewResult.Success)
+                        {
+                            continue;
+                        }
+
                         var sectionModel = ResolveSectionModel(section);
+
                         <div class="sub-section" id="@(section)">
                             @if (sectionModel == null)
                             {

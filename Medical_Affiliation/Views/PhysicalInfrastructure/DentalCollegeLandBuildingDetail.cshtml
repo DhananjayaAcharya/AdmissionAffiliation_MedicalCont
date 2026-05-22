@@ -1,0 +1,1434 @@
+﻿@model Medical_Affiliation.ViewModels.DentalCollegeLandBuildingViewModel
+
+@{
+    ViewData["Title"] = "Land & Building Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/dental-landbuilding.css" />
+
+<div class="lb-page">
+
+    <div class="lb-header">
+
+        <div>
+            @* <div class="lb-header-eyebrow">
+                Dental Council Infrastructure Compliance
+            </div> *@
+
+            <div class="lb-header-title">
+                Dental College Land & Building Details
+            </div>
+
+            <div class="lb-header-subtitle">
+                Infrastructure compliance details as per DCI norms
+            </div>
+        </div>
+
+        <div class="lb-header-badge">
+            Seat Intake : @Model.SeatIntake
+        </div>
+
+    </div>
+
+    <div class="lb-card">
+
+        <form asp-action="DentalCollegeLandBuildingDetail" method="post" enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="SeatSlab" />
+            <input type="hidden" asp-for="SeatIntake" />
+            <input type="hidden" asp-for="CollegeCode" />
+            <input type="hidden" asp-for="FacultyCode" />
+            <input type="hidden" asp-for="LandUseCertificateDocumentPath" />
+            <input type="hidden" asp-for="ApprovedLayoutPlanDocumentPath" />
+            <input type="hidden" asp-for="LandSketchDocumentPath" />
+            <input type="hidden" asp-for="DistanceCertificateDocumentPath" />
+            <input type="hidden" asp-for="CompletionCertificateDocumentPath" />
+            <input type="hidden" asp-for="StructuralStabilityCertificateDocumentPath" />
+            <input type="hidden" asp-for="LiftLicenseDocumentPath" />
+            <input type="hidden" asp-for="ElectricalSafetyCertificateDocumentPath" />
+            <input type="hidden" asp-for="WaterSupplyCertificateDocumentPath" />
+            <input type="hidden" asp-for="SewageSanitationApprovalDocumentPath" />
+
+            <!-- LAND DETAILS -->
+
+            <div class="lb-section-title">
+                LAND DETAILS
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table lb-table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th style="width:35%">Element</th>
+                            <th style="width:25%">Requirement as per DCI</th>
+                            <th style="width:40%">Existing / Available</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Total Land Area</td>
+
+                            <td class="requirement-cell">
+
+                                @if (!string.IsNullOrEmpty(Model.RequiredLandRequirementText))
+                                {
+                                    <span>
+                                        @Model.RequiredLandRequirementText
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        @Model.RequiredLandAcres Acres
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+                                <input asp-for="TotalLandAreaAcres"
+                                       class="form-control" />
+
+                                <span asp-validation-for="TotalLandAreaAcres"
+                                      class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Land Category</td>
+
+                            <td class="requirement-cell">
+                                As per MSSR
+                            </td>
+
+                            <td>
+                                <select name="LandCategory" class="form-select">
+
+                                    <option value="">-- Select Category --</option>
+
+                                    <option value="Metro / Tier 1"
+                                            selected="@(Model.LandCategory == "Metro / Tier 1")">
+                                        Metro / Tier 1
+                                    </option>
+
+                                    <option value="Tier 2 / Hilly / North Eastern States"
+                                            selected="@(Model.LandCategory == "Tier 2 / Hilly / North Eastern States")">
+                                        Tier 2 / Hilly / North Eastern States
+                                    </option>
+
+                                    <option value="Any Other Area"
+                                            selected="@(Model.LandCategory == "Any Other Area")">
+                                        Any Other Area
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="LandCategory" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Land Ownership</td>
+
+                            <td class="requirement-cell">
+                                Owned / 30 Year Lease
+                            </td>
+
+                            <td>
+                                <select name="LandOwnershipType" class="form-select">
+
+                                    <option value="">-- Select --</option>
+
+                                    <option value="Owned"
+                                            selected="@(Model.LandOwnershipType == "Owned")">
+                                        Owned
+                                    </option>
+
+                                    <option value="Lease"
+                                            selected="@(Model.LandOwnershipType == "Lease")">
+                                        Lease
+                                    </option>
+
+                                </select>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Space for Future Expansion</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <<select name="HasFutureExpansionSpace" class="form-select">
+
+                                    <option value="">-- Select --</option>
+
+                                    <option value="true"
+                                            selected="@(Model.HasFutureExpansionSpace == true)">
+                                        Yes
+                                    </option>
+
+                                    <option value="false"
+                                            selected="@(Model.HasFutureExpansionSpace == false)">
+                                        No
+                                    </option>
+
+                                </select>
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- BUILDING DETAILS -->
+
+            <div class="lb-section-title">
+                BUILDING INFRASTRUCTURE
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table lb-table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th style="width:35%">Element</th>
+                            <th style="width:25%">Requirement as per DCI</th>
+                            <th style="width:40%">Existing / Available</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Total Constructed Area (in Sq.m)</td>
+
+                            <td class="requirement-cell">
+                                @Model.RequiredBuiltupAreaSqm Sq.m
+                            </td>
+
+                            <td>
+                                <input asp-for="TotalBuiltupAreaSqm" class="form-control" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Area Per Lecture Hall (in Sq.m)</td>
+
+                            <td class="requirement-cell">
+                                @Model.RequiredLectureHallAreaSqm Sq.m
+                            </td>
+
+                            <td>
+                                <input asp-for="LectureHallAreaSqm" class="form-control" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Number of students one lecture hall can accommodate</td>
+
+                            <td class="requirement-cell">
+                                @Model.RequiredLectureHallCapacity
+                            </td>
+
+                            <td>
+                                <input asp-for="LectureHallSeatingCapacity" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Number of lecture halls available in the College</td>
+
+                            <td class="requirement-cell">
+                                @Model.RequiredLectureHallCount
+                            </td>
+
+                            <td>
+                                <input asp-for="LectureHallCount" class="form-control" />
+
+                                <span asp-validation-for="LectureHallCount" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Area of Museum & Demonstration Rooms (in Sq.m)</td>
+
+                            <td class="requirement-cell">
+                                As per DCI Norms
+                            </td>
+
+                            <td>
+                                <input asp-for="MuseumDemoRoomsAreaSqm" class="form-control" />
+
+                                <span asp-validation-for="MuseumDemoRoomsAreaSqm" class="text-danger"></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Area of Departmental Areas (in Sq.m)</td>
+
+                            <td class="requirement-cell">
+                                As per DCI Norms
+                            </td>
+
+                            <td>
+                                <input asp-for="DepartmentWiseAreaSqm" class="form-control" />
+
+                                <span asp-validation-for="DepartmentWiseAreaSqm" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Area of Preclinical Labs & Skill Labs (in Sq.m)</td>
+
+                            <td class="requirement-cell">
+                                As per DCI Norms
+                            </td>
+
+                            <td>
+                                <input asp-for="PreclinicalSkillLabAreaSqm" class="form-control" />
+
+                                <span asp-validation-for="PreclinicalSkillLabAreaSqm" class="text-danger"></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Area of Examination Hall (in Sq.m)</td>
+
+                            <td class="requirement-cell">
+                                @Model.RequiredExamHallAreaSqm Sq.m
+                            </td>
+
+                            <td>
+                                <input asp-for="ExaminationHallAreaSqm"class="form-control" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Area of Library Including Reading Room (in Sq.m)</td>
+
+                            <td class="requirement-cell">
+                                @Model.RequiredLibraryAreaSqm Sq.m
+                            </td>
+
+                            <td>
+                                <input asp-for="LibraryAreaSqm" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Area of Dental Hospital (in Sq.m)</td>
+
+                            <td class="requirement-cell">
+                                @Model.RequiredHospitalAreaSqm Sq.m
+                            </td>
+
+                            <td>
+                                <input asp-for="HospitalAreaSqm" class="form-control" />
+
+                                <span asp-validation-for="HospitalAreaSqm" class="text-danger"></span>
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- BUILDING INFRASTRUCTURE -->
+            <!-- ===================================================== -->
+
+            <div class="lb-section-title">
+                BUILDING INFRASTRUCTURE
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table lb-table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th style="width:5%">Sl. No.</th>
+
+                            <th style="width:30%">Infrastructure Requirement</th>
+
+                            <th style="width:35%">Requirement as per DCI</th>
+
+                            <th style="width:30%">Existing / Available</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (Model.InfrastructureDetails != null &&
+                             Model.InfrastructureDetails.Any())
+                        {
+                            for (int i = 0; i < Model.InfrastructureDetails.Count; i++)
+                            {
+                                <tr>
+
+                                    <!-- Hidden Fields -->
+
+                                    <input type="hidden"
+                                           asp-for="InfrastructureDetails[@i].Id" />
+
+                                    <input type="hidden"
+                                           asp-for="InfrastructureDetails[@i].RequirementId" />
+
+                                    <input type="hidden"
+                                           asp-for="InfrastructureDetails[@i].SeatSlab" />
+
+                                    <input type="hidden"
+                                           asp-for="InfrastructureDetails[@i].RequiredAreaSqFt" />
+
+                                    <!-- Sl No -->
+
+                                    <td>
+                                        @Model.InfrastructureDetails[i].SlNo
+                                    </td>
+
+                                    <!-- Requirement Name -->
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @Model.InfrastructureDetails[i].RequirementName
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                       Model.InfrastructureDetails[i].RequirementDescription))
+                                        {
+                                            <small class="text-muted d-block mt-1">
+                                                @Model.InfrastructureDetails[i].RequirementDescription
+                                            </small>
+                                        }
+                                    </td>
+
+                                    <!-- DCI Requirement -->
+
+                                    <td class="requirement-cell">
+
+                                        @if (Model.InfrastructureDetails[i].RequiredAreaSqFt > 0)
+                                        {
+                                            <span>
+                                                @Model.InfrastructureDetails[i].RequiredAreaSqFt Sq.ft.
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>N/A</span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Available Area -->
+
+                                    <td>
+
+                                        <input asp-for="InfrastructureDetails[@i].AvailableAreaSqFt"
+                                               class="form-control"
+                                               type="number"
+                                               step="0.01" />
+
+                                        <span asp-validation-for="InfrastructureDetails[@i].AvailableAreaSqFt"
+                                              class="text-danger">
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">
+                                    No infrastructure requirements configured.
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- LAND DOCUMENTS -->
+
+            <div class="lb-section-title">
+                LAND DOCUMENTS
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table lb-table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th style="width:35%">Document</th>
+                            <th style="width:25%">Requirement</th>
+                            <th style="width:40%">Upload</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Registered Sale Deed Document</td>
+                            <td class="requirement-cell">Mandatory</td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="SaleDeedDocument" type="file" class="hidden-upload"  onchange="showFileName(this, 'saleDeedFileName')" />
+                                    </label>
+
+                                   @if (string.IsNullOrEmpty(Model.SaleDeedDocumentPath))
+                                    {
+                                        <span id="saleDeedFileName" class="file-name">
+                                            No file selected
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege", new { filePath = Model.SaleDeedDocumentPath })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="saleDeedFileName" class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(Model.SaleDeedDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Encumbrance Certificate</td>
+                            <td class="requirement-cell">Mandatory</td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="EncumbranceCertificateDocument" type="file" class="hidden-upload" onchange="showFileName(this, 'encumbranceFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.EncumbranceCertificateDocumentPath))
+                                    {
+                                        <span id="encumbranceFileName" class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege", new {
+                                                filePath = Model.EncumbranceCertificateDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="encumbranceFileName" class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(Model.EncumbranceCertificateDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Land Use Certificate</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="LandUseCertificateDocument"
+                                               type="file"
+                                               class="hidden-upload"
+                                               accept=".pdf"
+                                               onchange="showFileName(this, 'landUseFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.LandUseCertificateDocumentPath))
+                                    {
+                                        <span id="landUseFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.LandUseCertificateDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="landUseFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.LandUseCertificateDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Approved Layout Plan Document</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="ApprovedLayoutPlanDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'layoutPlanFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.ApprovedLayoutPlanDocumentPath))
+                                    {
+                                        <span id="layoutPlanFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.ApprovedLayoutPlanDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="layoutPlanFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.ApprovedLayoutPlanDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Land Sketch Document</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="LandSketchDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'landSketchFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.LandSketchDocumentPath))
+                                    {
+                                        <span id="landSketchFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.LandSketchDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="landSketchFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.LandSketchDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Distance Certificate</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="DistanceCertificateDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'distanceFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.DistanceCertificateDocumentPath))
+                                    {
+                                        <span id="distanceFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.DistanceCertificateDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="distanceFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.DistanceCertificateDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- BUILDING DOCUMENTS -->
+
+            <div class="lb-section-title">
+                BUILDING DOCUMENTS
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table lb-table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th style="width:35%">Document</th>
+                            <th style="width:25%">Requirement</th>
+                            <th style="width:40%">Upload</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Approved Building Plan Document</td>
+                            <td class="requirement-cell">Mandatory</td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="ApprovedBuildingPlanDocument"
+                                               type="file"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'buildingPlanFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.ApprovedBuildingPlanDocumentPath))
+                                    {
+                                        <span id="buildingPlanFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege", new {
+                                                filePath = Model.ApprovedBuildingPlanDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="buildingPlanFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(Model.ApprovedBuildingPlanDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Completion Certificate</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="CompletionCertificateDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'completionFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.CompletionCertificateDocumentPath))
+                                    {
+                                        <span id="completionFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.CompletionCertificateDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="completionFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.CompletionCertificateDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td>Structural Stability Certificate</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="StructuralStabilityCertificateDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'structuralFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.StructuralStabilityCertificateDocumentPath))
+                                    {
+                                        <span id="structuralFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.StructuralStabilityCertificateDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="structuralFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.StructuralStabilityCertificateDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Fire Safety NOC Document</td>
+                            <td class="requirement-cell">Mandatory</td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="FireSafetyNocDocument"
+                                               type="file"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'fireNocFileName')" />
+                                    </label>
+
+
+                                    @if (string.IsNullOrEmpty(Model.FireSafetyNocDocumentPath))
+                                    {
+                                        <span id="fireNocFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege", new {
+                                                filePath = Model.FireSafetyNocDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="fireNocFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(Model.FireSafetyNocDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Lift License</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="LiftLicenseDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'liftFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.LiftLicenseDocumentPath))
+                                    {
+                                        <span id="liftFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.LiftLicenseDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="liftFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.LiftLicenseDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Electrical Safety Certificate</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="ElectricalSafetyCertificateDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'electricalFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.ElectricalSafetyCertificateDocumentPath))
+                                    {
+                                        <span id="electricalFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.ElectricalSafetyCertificateDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="electricalFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.ElectricalSafetyCertificateDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Water Supply Certificate</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="WaterSupplyCertificateDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'waterSupplyFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.WaterSupplyCertificateDocumentPath))
+                                    {
+                                        <span id="waterSupplyFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.WaterSupplyCertificateDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="waterSupplyFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.WaterSupplyCertificateDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Sewage / Sanitation Approval</td>
+
+                            <td class="requirement-cell">
+                                Mandatory
+                            </td>
+
+                            <td>
+                                <div class="custom-upload-wrapper">
+
+                                    <label class="upload-btn">
+                                        Upload File
+
+                                        <input asp-for="SewageSanitationApprovalDocument"
+                                               type="file"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               class="hidden-upload"
+                                               onchange="showFileName(this, 'sewageFileName')" />
+                                    </label>
+
+                                    @if (string.IsNullOrEmpty(Model.SewageSanitationApprovalDocumentPath))
+                                    {
+                                        <span id="sewageFileName"
+                                              class="file-name">
+
+                                            No file selected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "DentalCollege",
+                                            new {
+                                                filePath = Model.SewageSanitationApprovalDocumentPath
+                                            })"
+                                           target="_blank"
+                                           class="document-link">
+
+                                            <span id="sewageFileName"
+                                                  class="file-name linked-file">
+
+                                                @System.IO.Path.GetFileName(
+                                                    Model.SewageSanitationApprovalDocumentPath)
+
+                                            </span>
+
+                                            <span class="view-btn">
+                                                View
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+
+
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- REMARKS -->
+
+            <div class="lb-section-title">
+                REMARKS
+            </div>
+
+            <div class="remarks-card">
+
+                <textarea asp-for="Remarks"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Enter remarks if any..."></textarea>
+
+            </div>
+
+            <!-- FOOTER -->
+
+            <div class="lb-footer">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    ← Previous
+
+                </a>
+
+                <div class="d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-primary save-btn">
+
+                        Save
+
+                    </button>
+
+                    <a asp-controller="PhysicalInfrastructure"
+                       asp-action="DentalSkillsLaboratory"
+                       class="btn btn-success next-btn">
+
+                        Next →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+        function showFileName(input, elementId) {
+
+            const file = input.files[0];
+
+            const fileNameElement = document.getElementById(elementId);
+
+            if (!file) {
+                return;
+            }
+
+            // ==========================
+            // 2 MB VALIDATION
+            // ==========================
+
+            const maxSize = 2 * 1024 * 1024;
+
+            if (file.size > maxSize) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Too Large',
+                    text: 'File size must not exceed 2 MB.',
+                    confirmButtonColor: '#0f2545'
+                });
+
+                input.value = "";
+
+                if (fileNameElement) {
+                    fileNameElement.textContent = "No file selected";
+                }
+
+                return;
+            }
+
+            const allowedExtensions = "pdf";
+
+            const extension =
+                file.name.split('.').pop().toLowerCase();
+
+            if (allowedExtensions != extension) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File',
+                    text: 'Only PDF files are allowed.',
+                    confirmButtonColor: '#0f2545'
+                });
+
+                input.value = "";
+
+                if (fileNameElement) {
+                    fileNameElement.textContent =
+                        "No file selected";
+                }
+
+                return;
+            }
+
+            // ==========================
+            // FILE NAME DISPLAY
+            // ==========================
+
+            if (fileNameElement) {
+                fileNameElement.textContent = file.name;
+            }
+        }
+
+    </script>
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["Success"]',
+                confirmButtonColor: '#0f2545'
+            });
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '@TempData["Error"]',
+                confirmButtonColor: '#b8882a'
+            });
+        </script>
+    }
+}

@@ -348,7 +348,7 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath; // ✅ D:\Affiliation_Medical\AcademicCurriculum\GUID.pdf
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcademicMatters(CA_Aff_AcademicMattersViewModel model)

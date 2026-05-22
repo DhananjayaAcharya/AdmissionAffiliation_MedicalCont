@@ -429,6 +429,7 @@ public class BuildingDetailsViewModel
     public string? ExistingSaleDeedCertificate { get; set; }
 
 }
+
 public class TeachingFacultyViewModel
 {
     public string FacultyCode { get; set; } = null!;
@@ -449,6 +450,36 @@ public class TeachingFacultyViewModel
     public string PresentSeatIntake { get; set; } = null!;
 
 }
+
+
+public class DentalTeachingFacultyVm
+{
+    public string FacultyCode { get; set; } = null!;
+
+    public string Faculty { get; set; } = null!;
+
+    public string CollegeCode { get; set; } = null!;
+
+    public string DepartmentCode { get; set; } = null!;
+
+    public string DepartmentName { get; set; } = null!;
+
+    public string DesignationCode { get; set; } = null!;
+
+    public string DesignationName { get; set; } = null!;
+
+    public string CourseLevel { get; set; } = "UG";
+
+    public string SeatSlabId { get; set; } = null!;
+
+    // Required faculty count
+    public string ExistingSeatIntake { get; set; } = "0";
+
+    // Available faculty entered by college
+    public string PresentSeatIntake { get; set; } = "0";
+}
+
+
 public class YearwiseMaterialViewModel
 {
     public int Id { get; set; }
@@ -560,7 +591,7 @@ public class AcademicIntakePageViewModel1
 {
     public string CollegeCode { get; set; }
     public string FacultyCode { get; set; }
-    public string CollegeName { get; set; }
+    public string? CollegeName { get; set; }
     public int FacultyId { get; set; }
 
     // UG, PG, SS Courses - populated from CollegeCourseIntakeDetails + MstCourses
@@ -613,6 +644,9 @@ public class IntakeByLevelViewModel1
     [Display(Name = "AY2025 LoP Date")]
     public DateOnly? AY2025_LopDate { get; set; }  // Matches controller
 
+    [Display(Name = "AY2025 LoP Document")]
+    public IFormFile? AY2025_LopDocument { get; set; }
+
     [Display(Name = "Current LoP Document")]
     public string? AY2025_LopDocumentUrl { get; set; }
 
@@ -627,6 +661,28 @@ public class IntakeByLevelViewModel1
     [Display(Name = "AY2026 Total Intake")]
     [Range(0, int.MaxValue, ErrorMessage = "Total intake must be 0 or positive")]
     public int? AY2026_TotalIntake { get; set; }
+    // 2027-28 Data - NULLABLE INTS ✅
+    [Display(Name = "AY2027 Existing Intake")]
+    public int? AY2027_ExistingIntake { get; set; }
+
+    [Display(Name = "AY2027 Add Requested Intake")]
+    [Range(0, int.MaxValue, ErrorMessage = "Requested intake must be 0 or positive")]
+    public int? AY2027_AddRequestedIntake { get; set; }
+
+    [Display(Name = "AY2027 Total Intake")]
+    [Range(0, int.MaxValue, ErrorMessage = "Total intake must be 0 or positive")]
+    public int? AY2027_TotalIntake { get; set; }
+    public IFormFile? AY2025_DCIDocument { get; set; }
+
+    public IFormFile? AY2025_KSDCDocument { get; set; }
+
+    public IFormFile? AY2026_DCIDocument { get; set; }
+
+    public IFormFile? AY2026_KSDCDocument { get; set; }
+
+    public IFormFile? AY2027_DCIDocument { get; set; }
+
+    public IFormFile? AY2027_KSDCDocument { get; set; }
 }
 
 // Saved data display row (ENHANCED)
@@ -646,8 +702,16 @@ public class SavedAcademicIntakeRowViewModel1
     [Display(Name = "AY2026 Total")]
     public int AY2026_TotalIntake { get; set; }
 
+    [Display(Name = "AY2027 Total")]
+    public int AY2027_TotalIntake { get; set; }
+
+
     public string PrincipalName { get; set; }
     public bool HasNmcDocument { get; set; }
+
+    public bool HasKsdcDocument { get; set; }
+
+    public bool HasDciDocument { get; set; }
     public bool HasLopDocument { get; set; }
     public DateTime CreatedOn { get; set; }
 

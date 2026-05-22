@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Trust Institution Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <!DOCTYPE html>
@@ -624,6 +625,10 @@
                 text-decoration: none;
                 transition: opacity 0.15s, box-shadow 0.15s;
             }
+
+            .dci-cert{
+                margin-block: 0.8rem;
+            }
     </style>
 </head>
 <body>
@@ -702,22 +707,45 @@
                         </div>
                     </div>
 
-                    <div class="fg fg-2" style="margin-top:14px;">
-                        <div>
-                            <label asp-for="GovAutonomousCertNumber">
-                                <i class="fas fa-certificate"></i>Gov Autonomous Cert Number
-                            </label>
-                            <input asp-for="GovAutonomousCertNumber" maxlength="50" />
-                            <span asp-validation-for="GovAutonomousCertNumber" class="text-danger"></span>
+                    @if(facultyCode == "1"){
+                        <div class="fg fg-2" style="margin-top:14px;">
+                            <div>
+                                <label asp-for="GovAutonomousCertNumber">
+                                    <i class="fas fa-certificate"></i>Gov Autonomous Cert Number
+                                </label>
+                                <input asp-for="GovAutonomousCertNumber" maxlength="50" />
+                                <span asp-validation-for="GovAutonomousCertNumber" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label asp-for="KncCertificateNumber">
+                                    <i class="fas fa-award"></i>KMC Certificate Number
+                                </label>
+                                <input asp-for="KncCertificateNumber" maxlength="50" />
+                                <span asp-validation-for="KncCertificateNumber" class="text-danger"></span>
+                            </div>
                         </div>
-                        <div>
-                            <label asp-for="KncCertificateNumber">
-                                <i class="fas fa-award"></i>KMC Certificate Number
-                            </label>
-                            <input asp-for="KncCertificateNumber" maxlength="50" />
-                            <span asp-validation-for="KncCertificateNumber" class="text-danger"></span>
+                    } else if(facultyCode == "2"){
+                        <div class="dci-cert">
+                            <label><i class="fas fa-file-shield"></i>Approved / Permission certificate issued by DCI <span class="req">*</span></label>
+                            <div class="file-row">
+                                <input id="DCIcertificateFile" name="DCIcertificateFile" type="file" accept=".pdf" />
+                                @if (Model.hasDCIfile)
+                                {
+                                    <a asp-action="DownloadDCIcertificateFile"
+                                       asp-controller="ContinuesAffiliation_Facultybased"
+                                       asp-route-id="@Model.InstitutionId"
+                                       class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                                @if (Model.hasDCIfile)
+                                {
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                }
+                            </div>
                         </div>
-                    </div>
+
+                    }
                 </div>
             </div>
 
@@ -888,27 +916,35 @@
                             <label class="check-label">
                                 <input asp-for="IsRuralInstitution" type="checkbox" /> Rural Institution
                             </label>
-                            <label class="check-label">
-                                <input asp-for="OtherNursingCollegeInCity" type="checkbox" /> Other Nursing College in City
-                            </label>
+                            @if(facultyCode != "2"){
+                                <label class="check-label">
+                                    <input asp-for="OtherNursingCollegeInCity" type="checkbox" /> Other Nursing College in City
+                                </label>
+                            } else if(facultyCode == "2"){
+                                <label class="check-label">
+                                    <input asp-for="OtherDentalCollegeInCity" type="checkbox" /> Other Dental College in City
+                                </label>
+                            }
                         </div>
                     </div>
-
-                    <!-- Physiotherapy Radio -->
-                    <div style="margin-top:14px;">
-                        <label style="margin-bottom:8px;">
-                            <i class="fas fa-wheelchair"></i>Other Physiotherapy College in City <span class="req">*</span>
-                        </label>
-                        <div class="check-group">
-                            <label class="check-label">
-                                <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="true" id="OtherPhysioYes" required /> Yes
+                    @if (facultyCode != "2")
+                    {
+                        <!-- Physiotherapy Radio -->
+                        <div style="margin-top:14px;">
+                            <label style="margin-bottom:8px;">
+                                <i class="fas fa-wheelchair"></i>Other Physiotherapy College in City <span class="req">*</span>
                             </label>
-                            <label class="check-label">
-                                <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="false" id="OtherPhysioNo" required /> No
-                            </label>
+                            <div class="check-group">
+                                <label class="check-label">
+                                    <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="true" id="OtherPhysioYes" required /> Yes
+                                </label>
+                                <label class="check-label">
+                                    <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="false" id="OtherPhysioNo" required /> No
+                                </label>
+                            </div>
+                            <span asp-validation-for="OtherPhysiotherapyCollegeInCity" class="text-danger"></span>
                         </div>
-                        <span asp-validation-for="OtherPhysiotherapyCollegeInCity" class="text-danger"></span>
-                    </div>
+                    }
                 </div>
             </div>
 
@@ -990,7 +1026,7 @@
                             <label><i class="fas fa-file-shield"></i>Gov Autonomous Certificate</label>
                             <div class="file-row">
                                 <input id="GovAutonomousCertFile" name="GovAutonomousCertFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasGovAutoCertFile)
                                 {
                                     <a asp-action="DownloadGovAutonomousCert"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1000,7 +1036,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasGovAutoCertFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1011,7 +1047,7 @@
                             <label><i class="fas fa-users-gear"></i>Gov Council Membership</label>
                             <div class="file-row">
                                 <input id="GovCouncilMembershipFile" name="GovCouncilMembershipFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasGovCouncilMembershipFile)
                                 {
                                     <a asp-action="DownloadGovCouncilMembership"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1021,7 +1057,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasGovCouncilMembershipFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1032,7 +1068,7 @@
                             <label><i class="fas fa-file-lines"></i>GOK Order — Existing Courses</label>
                             <div class="file-row">
                                 <input id="GokOrderExistingCoursesFile" name="GokOrderExistingCoursesFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasGokOrderExistingCoursesFile)
                                 {
                                     <a asp-action="DownloadGokOrderExistingCourses"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1042,7 +1078,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasGokOrderExistingCoursesFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1053,7 +1089,7 @@
                             <label><i class="fas fa-file-signature"></i>First Affiliation Notification</label>
                             <div class="file-row">
                                 <input id="FirstAffiliationNotifFile" name="FirstAffiliationNotifFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasFirstAffiliationNotifFile)
                                 {
                                     <a asp-action="DownloadFirstAffiliationNotif"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1063,7 +1099,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasFirstAffiliationNotifFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1074,7 +1110,7 @@
                             <label><i class="fas fa-rotate"></i>Continuation Affiliation</label>
                             <div class="file-row">
                                 <input id="ContinuationAffiliationFile" name="ContinuationAffiliationFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasContinuationAffiliationFile)
                                 {
                                     <a asp-action="DownloadContinuationAffiliation"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1084,39 +1120,60 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasContinuationAffiliationFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
                         </div>
 
                         @* KNC Certificate *@
-                        <div>
-                            <label><i class="fas fa-medal"></i>KMC Certificate</label>
-                            <div class="file-row">
-                                <input id="KncCertificateFile" name="KncCertificateFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                        @if(facultyCode != "2"){
+                            <div>
+                                <label><i class="fas fa-medal"></i>KMC Certificate</label>
+                                <div class="file-row">
+                                    <input id="KncCertificateFile" name="KncCertificateFile" type="file" accept=".pdf" />
+                                    @if (Model.hasKncCertificateFile)
+                                    {
+                                        <a asp-action="DownloadKncCertificate"
+                                           asp-controller="ContinuesAffiliation_Facultybased"
+                                           asp-route-id="@Model.InstitutionId"
+                                           class="btn-view" target="_blank">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    }
+                                </div>
+                                @if (Model.hasKncCertificateFile)
                                 {
-                                    <a asp-action="DownloadKncCertificate"
-                                       asp-controller="ContinuesAffiliation_Facultybased"
-                                       asp-route-id="@Model.InstitutionId"
-                                       class="btn-view" target="_blank">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
-                            {
-                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
-                            }
-                        </div>
-
+                        }else if(facultyCode == "2"){
+                            <div>
+                                <label><i class="fas fa-medal"></i>KSDC Certificate</label>
+                                <div class="file-row">
+                                    <input id="KSDCcertificateFile" name="KSDCcertificateFile" type="file" accept=".pdf" />
+                                    @if (Model.hasKSDCcertificateFile)
+                                    {
+                                        <a asp-action="DownloadKSDCcertificateFile"
+                                           asp-controller="ContinuesAffiliation_Facultybased"
+                                           asp-route-id="@Model.InstitutionId"
+                                           class="btn-view" target="_blank">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    }
+                                </div>
+                                @if (Model.hasKSDCcertificateFile)
+                                {
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                }
+                            </div>
+                        }
                         @* Amended Document *@
                         <div>
                             <label><i class="fas fa-file-pen"></i>Amended Document</label>
                             <div class="file-row">
                                 <input id="AmendedDoc" name="AmendedDoc" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasAmendedDoc)
                                 {
                                     <a asp-action="DownloadAmendedDoc"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1126,7 +1183,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasAmendedDoc)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1137,7 +1194,7 @@
                             <label><i class="fas fa-id-card-clip"></i>Aadhaar File</label>
                             <div class="file-row">
                                 <input id="AadhaarFile" name="AadhaarFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasAadhaarFile)
                                 {
                                     <a asp-action="DownloadAadhaarFile"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1147,7 +1204,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasAadhaarFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1158,7 +1215,7 @@
                             <label><i class="fas fa-credit-card"></i>PAN File</label>
                             <div class="file-row">
                                 <input id="PANFile" name="PANFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasPANFile)
                                 {
                                     <a asp-action="DownloadPANFile"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1168,7 +1225,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasPANFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1179,7 +1236,7 @@
                             <label><i class="fas fa-file-invoice-dollar"></i>Bank Statement</label>
                             <div class="file-row">
                                 <input id="BankStatementFile" name="BankStatementFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasBankStatementFile)
                                 {
                                     <a asp-action="DownloadBankStatement"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1189,7 +1246,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasBankStatementFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1200,7 +1257,7 @@
                             <label><i class="fas fa-file-circle-check"></i>Registration Certificate</label>
                             <div class="file-row">
                                 <input id="RegistrationCertificateFile" name="RegistrationCertificateFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasRegistrationCertificateFile)
                                 {
                                     <a asp-action="DownloadRegistrationCertificate"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1210,7 +1267,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasRegistrationCertificateFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1221,7 +1278,7 @@
                             <label><i class="fas fa-people-group"></i>Registered Trust Member Details</label>
                             <div class="file-row">
                                 <input id="RegisteredTrustMemberDetails" name="RegisteredTrustMemberDetails" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasRegisteredTrustMemberDetails)
                                 {
                                     <a asp-action="DownloadRegisteredTrustMemberDetails"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1231,7 +1288,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasRegisteredTrustMemberDetails)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
@@ -1242,7 +1299,7 @@
                             <label><i class="fas fa-chart-line"></i>Audit Statement</label>
                             <div class="file-row">
                                 <input id="AuditStatementFile" name="AuditStatementFile" type="file" accept=".pdf" />
-                                @if (Model.InstitutionId > 0)
+                                @if (Model.hasAuditStatementFile)
                                 {
                                     <a asp-action="DownloadAuditStatement"
                                        asp-controller="ContinuesAffiliation_Facultybased"
@@ -1252,7 +1309,7 @@
                                     </a>
                                 }
                             </div>
-                            @if (Model.InstitutionId > 0)
+                            @if (Model.hasAuditStatementFile)
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }

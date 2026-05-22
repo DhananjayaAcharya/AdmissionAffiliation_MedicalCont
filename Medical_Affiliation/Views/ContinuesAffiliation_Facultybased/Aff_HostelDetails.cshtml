@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Affiliation Hostel Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <style>
@@ -448,12 +449,28 @@
 
                 <!-- Footer -->
                 <div class="d-flex align-items-center justify-content-between gap-3 mt-4">
-                    <a asp-action="Medical_DepartmentOfficesAndEducationalUnit" asp-controller="Medical_ContinuousAffiliation"
+                    @if(facultyCode == "2")
+                    {
+                        <a asp-action="ContinuesAffiliation_Facultybased" asp-controller="MedicalUGBedDistribution"
+                           class="btn btn-outline-secondary px-4">← Previous</a>
+                    } else
+                    {
+                        <a asp-action="Medical_DepartmentOfficesAndEducationalUnit" asp-controller="Medical_ContinuousAffiliation"
                        class="btn btn-outline-secondary px-4">← Previous</a>
+                            
+                    }
                     <button type="submit" class="btn btn-primary px-4">Save &amp; Proceed →</button>
-                    <a asp-controller="AffiliationSS"
-                       asp-action="AssociatedInstitutions"
-                       class="btn-next">Next →</a>
+                    @if(facultyCode == "2")
+                    {
+                        <a asp-controller="Medical_ContinuousAffiliation"
+                           asp-action="Medical_DepartmentOfficesAndEducationalUnit"
+                            class="btn-next">Next →</a>
+                    } else {
+
+                        <a asp-controller="AffiliationSS"
+                           asp-action="AssociatedInstitutions"
+                           class="btn-next">Next →</a>
+                    }
                 </div>
 
                 <div class="form-footer-note mt-3">

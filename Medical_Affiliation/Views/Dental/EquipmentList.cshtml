@@ -1,0 +1,846 @@
+﻿@model EquipmentPageVM
+
+@{
+    ViewData["Title"] = "Medical Equipment Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
+}
+
+<link rel="stylesheet" href="~/css/common-form.css" />
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 6px;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+    }
+
+    /* ── Page Shell ── */
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+        padding: 0;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    /* ── Header ── */
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border-radius: 10px 10px 0 0;
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+    .header-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        margin-bottom: 6px;
+        position: relative;
+    }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+        position: relative;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.55);
+        margin-top: 6px;
+        font-weight: 300;
+        position: relative;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: 28px;
+        right: 36px;
+        background: rgba(184,136,42,0.15);
+        border: 1px solid rgba(184,136,42,0.4);
+        border-radius: 4px;
+        padding: 5px 14px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--gold-light);
+        text-transform: uppercase;
+    }
+
+    /* ── Main Card ── */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 40px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    /* ── Section Label ── */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ── Course Selector Block ── */
+    .selector-block {
+        background: #faf8f4;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-end;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+        .selector-block .field-group {
+            flex: 1;
+            min-width: 240px;
+        }
+
+    .form-label-text {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+    }
+
+    .form-select {
+        width: 100%;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 7px 32px 7px 10px;
+        font-size: 0.85rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--white);
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+    /* ── Table Wrap ── */
+    .table-wrap {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow-x: auto;
+        margin-bottom: 20px;
+        width: 100%;
+        display: none;
+        padding: 0 !important;
+    }
+
+    /* ── Table ── */
+    .data-table {
+        width: 100%;
+        min-width: 1200px;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        table-layout: fixed;
+    }
+
+    /* Fixed Header */
+    .data-table thead {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    /* Scrollable Body */
+    .data-table tbody {
+        display: block;
+        max-height: 400px; /* adjust as needed */
+        overflow-y: auto;
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+    /* Body rows */
+    .data-table tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    /* Optional */
+    .data-table th,
+    .data-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .data-table th:nth-child(1),
+    .data-table td:nth-child(1) {
+        width: 60px;
+    }
+
+    .data-table th:nth-child(2),
+    .data-table td:nth-child(2) {
+        width: 280px;
+        text-align: left;
+    }
+
+    .data-table th:nth-child(3),
+    .data-table td:nth-child(3) {
+        width: 260px;
+        text-align: left;
+    }
+
+    .data-table th:nth-child(4),
+    .data-table td:nth-child(4),
+    .data-table th:nth-child(5),
+    .data-table td:nth-child(5) {
+        width: 120px;
+    }
+
+    .data-table th:nth-child(6),
+    .data-table td:nth-child(6),
+    .data-table th:nth-child(7),
+    .data-table td:nth-child(7) {
+        width: 150px;
+    }
+
+    .table-meta-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .table-meta-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 13px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+    .table-count-badge {
+        background: rgba(15,37,69,0.12);
+        border: 1px solid rgba(15,37,69,0.18);
+        border-radius: 99px;
+        padding: 3px 12px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        color: var(--navy);
+    }
+
+    /* ── Data Table ── */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        table-layout: fixed;
+    }
+
+        .data-table thead {
+            background: linear-gradient(180deg, #f5f2ec 0%, #ede8df 100%);
+        }
+
+            .data-table thead th {
+                padding: 9px 12px;
+                font-size: 0.66rem;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--navy);
+                border-bottom: 2px solid var(--border);
+                border-right: 1px solid var(--border);
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+            }
+
+                .data-table thead th:first-child {
+                    border-left: 3px solid var(--gold);
+                }
+
+                .data-table thead th:last-child {
+                    border-right: none;
+                }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #f0ece4;
+            transition: background 0.15s;
+        }
+
+            .data-table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .data-table tbody tr:nth-child(even) {
+                background: #faf8f4;
+            }
+
+            .data-table tbody tr:hover {
+                background: #f3eed8 !important;
+            }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-right: 1px solid #f0ece4;
+            vertical-align: middle;
+        }
+
+            .data-table td:last-child {
+                border-right: none;
+            }
+
+    .td-slno {
+        width: 56px;
+        text-align: center;
+        font-family: 'EB Garamond', serif;
+        font-size: 0.95rem;
+        color: var(--navy-mid);
+        font-weight: 600;
+    }
+
+    .td-name {
+        text-align: left;
+        font-weight: 500;
+        color: var(--text);
+    }
+
+    .td-qty {
+        width: 160px;
+        text-align: center;
+    }
+
+    /* ── Qty Input ── */
+    .qty-input {
+        width: 120px;
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 7px 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--white);
+        transition: border-color 0.15s, box-shadow 0.15s;
+        display: block;
+        margin: 0 auto;
+    }
+
+        .qty-input:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
+
+        .qty-input::placeholder {
+            color: #c0bab2;
+            font-weight: 400;
+        }
+
+    /* ── Empty / Warning state ── */
+    .empty-notice {
+        background: #fffbeb;
+        border: 1px solid #f3e0a8;
+        border-radius: var(--radius);
+        padding: 20px;
+        text-align: center;
+        font-size: 0.82rem;
+        color: #92400e;
+        margin-top: 16px;
+    }
+
+    /* ── Footer ── */
+    .form-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+        padding-inline: 1rem;
+    }
+
+    .btn-prev {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+        .btn-prev:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+            background: #f3f0e8;
+        }
+
+    .footer-right {
+        display: flex;
+        gap: 10px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.15s, box-shadow 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-save::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--gold);
+    }
+
+    .btn-save:hover {
+        opacity: 0.9;
+        box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+    }
+
+    .btn-next {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 9px 26px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: opacity 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-next:hover {
+        opacity: 0.9;
+    }
+
+    /* ── Table Wrap ── */
+    .table-wrap {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow-x: auto;
+        margin-bottom: 20px;
+        width: 100%;
+        display: none; /* hidden initially */
+    }
+
+    /* ── Data Table ── */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        table-layout: auto;
+    }
+
+    .data-table td {
+        font-size: 0.82rem;
+    }
+
+    .data-table td:nth-child(3) {
+        color: #6b6358;
+        line-height: 1.45;
+    }
+
+    .loading-notice {
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: #f8f9fa;
+        text-align: center;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 15px;
+    }
+</style>
+
+
+<div class="page-shell">
+    <div class="page-container">
+
+        <div class="page-header">
+            <div class="emblem">
+                <i class="fas fa-book-medical"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Dental Equipment Details</h1>
+                @* <p>Continuous Affiliation · Physical Facilities</p> *@
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+
+            <!-- ── Course Selector ── -->
+            <div class="section-label">
+                <span class="section-label-text">Course Selection</span>
+                <span class="section-label-line"></span>
+            </div>
+
+            <form method="get" asp-action="EquipmentList">
+
+                <input type="hidden"
+                       name="collegeCode"
+                       value="@Model.CollegeCode" />
+
+                <input type="hidden"
+                       name="facultyCode"
+                       value="@Model.FacultyCode" />
+
+                <div class="selector-block">
+                    <div class="field-group">
+
+                        <label class="form-label-text">
+                            Select Department
+                        </label>
+
+                        <select class="form-select" id="departmentSelect">
+                            <option value="">
+                                — Select Department —
+                            </option>
+
+                            @foreach (var dept in Model.Departments)
+                            {
+                                <option value="@dept.Code" @(Model.SelectedDepartmentCode == dept.Code ? "selected" : "")>
+                                    @dept.Name
+                                </option>
+                            }
+
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <!-- ── Equipment Table ── -->
+            <div class="section-label">
+                <span class="section-label-text">
+                    Equipment List 
+                    <span class="table-count-badge"
+                                     id="equipmentCount">
+                        Total: 0 items
+                    </span>
+                </span>
+
+                <span class="section-label-line"></span>
+            </div>
+
+            <form method="post"
+                  asp-action="SaveEquipment"
+                  id="equipmentForm">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       id="deptCode"
+                       name="deptCode" />
+                <div id="equipmentMessage" class="empty-notice">
+                    Please select a department to view equipment details.
+                </div>
+
+                <div id="loadingMessage" class="loading-notice" style="display:none;">
+                    Loading equipment details...
+                </div>
+
+                <div class="table-wrap">
+
+                    <table class="data-table">
+
+                        <thead>
+                            <tr>
+
+                                <th>#</th>
+                                <th>Equipment Name</th>
+                                <th>Specification</th>
+                                <th>1 Unit Req</th>
+                                <th>2 Unit Req</th>
+                                <th>1 Unit Existing</th>
+                                <th>2 Unit Existing</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody id="equipmentTableBody">
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div class="footer-right" id="saveSection" style="display:none; text-align: center;">
+
+                    <button type="submit"
+                            class="btn-save">
+
+                        &#128190; Save
+
+                    </button>
+
+                </div>
+
+            </form>
+        </div><!-- /.form-card -->
+        <div class="form-footer">
+            @if(facultyCode == "2")
+            {
+            <!-- 🔹 PREVIOUS -->
+                <a asp-controller="Medical_ContinuousAffiliation"
+                   asp-action="Medical_SkillsLaboratory"
+                   class="btn-prev">← Previous</a>
+
+            } else
+            {
+                <a asp-controller="Medical_ContinuousAffiliation"
+                   asp-action="Medical_SkillsLaboratory"
+                   class="btn-prev">← Previous</a>
+                
+            }
+
+            @* <div class="footer-right"> *@
+
+            @* <button type="submit" class="btn-save">&#128190; Save</button> *@
+
+            @if(facultyCode == "2")
+            {
+                <!-- 🔹 NEXT -->
+                <a asp-controller="ContinuationAffiliationClinicalFacilities"
+                   asp-action="ClinicalFacilities"
+                   class="btn-next">Next →</a>
+            } else
+            {
+                <!-- 🔹 NEXT -->
+                <a asp-controller="Aff_AHS_ContinuousApplication"
+                   asp-action="CA_VehicleDetails"
+                   class="btn-next">Next →</a>
+            }
+
+            @* </div> *@
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const departmentSelect = document.getElementById('departmentSelect');
+
+        const equipmentTableBody = document.getElementById('equipmentTableBody');
+
+        const equipmentCount = document.getElementById('equipmentCount');
+        const loadingMessage = document.getElementById('loadingMessage');
+
+        const deptCodeInput = document.getElementById('deptCode');
+        const tableWrap = document.querySelector('.table-wrap');
+        const equipmentMessage = document.getElementById('equipmentMessage');
+        const saveSection = document.getElementById('saveSection');
+
+        departmentSelect.addEventListener('change', async function () {
+            const deptCode = this.value;
+            deptCodeInput.value = deptCode;
+            if (!deptCode) {
+                equipmentTableBody.innerHTML = '';
+                equipmentCount.textContent = 'Total: 0 items';
+                tableWrap.style.display = 'none';
+                saveSection.style.display = 'none';
+                equipmentMessage.style.display = 'block';
+                loadingMessage.style.display = 'none';
+                equipmentMessage.innerHTML = 'Please select a department to view equipment details.';
+
+                return;
+            }
+
+            try {
+                loadingMessage.style.display = 'block';
+                loadingMessage.innerHTML = 'Loading equipment details...';
+                const response = await fetch(
+                `@Url.Action("GetDentalDepartmentEquipment")?deptCode=${deptCode}`
+                );
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch equipment');
+                }
+
+                const data = await response.json();
+
+                equipmentCount.textContent =`Total: ${data.length} items`;
+
+                let rows = '';
+
+                data.forEach((item, i) => {
+                    rows += `
+                        <tr>
+                            <td class="td-slno">
+                                ${i + 1}
+                            </td>
+
+                            <td class="td-name">
+                                ${item.equipmentName}
+                                <input type="hidden" name="data[${i}].EquipmentId" value="${item.equipmentId}" />
+                                <input type="hidden" name="data[${i}].EquipmentName" value="${item.equipmentName}" />
+                            </td>
+
+                            <td>
+                                ${item.specification ?? '-'}
+                            </td>
+
+                            <td class="td-qty">
+                                ${item.oneUnitReq ?? '-'}
+                            </td>
+
+                            <td class="td-qty">
+                                ${item.twoUnitReq ?? '-'}
+                            </td>
+
+                            <td class="td-qty">
+                                <input type="number" class="qty-input" min="0" name="data[${i}].OneUnitExisting" value="${item.oneUnitExisting ?? ''}" />
+                            </td>
+
+                            <td class="td-qty">
+                                <input type="number" class="qty-input" min="0" name="data[${i}].TwoUnitExisting" value="${item.twoUnitExisting ?? ''}" />
+                            </td>
+
+                        </tr>
+                    `;
+                });
+
+                equipmentTableBody.innerHTML = rows;
+                tableWrap.style.display = 'block';
+                equipmentMessage.style.display = 'none';
+                loadingMessage.style.display = 'none';
+                saveSection.style.display = 'flex';
+            } catch (error) {
+                console.error(error);
+                equipmentTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:red;">
+                            Failed to load equipment details.
+                        </td>
+                    </tr>
+                `;
+                tableWrap.style.display = 'none';
+                saveSection.style.display = 'none';
+                loadingMessage.style.display = 'none';
+                equipmentMessage.style.display = 'block';
+                equipmentMessage.innerHTML = 'Failed to load equipment details.';
+            }
+        });
+
+        // AUTO LOAD
+        if (departmentSelect.value) {
+            departmentSelect.dispatchEvent( new Event('change') );
+        }
+    });
+
+</script>

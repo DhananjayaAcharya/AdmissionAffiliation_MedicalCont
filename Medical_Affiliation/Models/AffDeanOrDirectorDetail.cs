@@ -25,6 +25,8 @@ public partial class AffDeanOrDirectorDetail
 
     public string? CourseLevel { get; set; }
 
+    public bool? RecognizedByDci { get; set; }
+
     public virtual ICollection<AffDeanAdministrativeExperience> AffDeanAdministrativeExperiences { get; set; } = new List<AffDeanAdministrativeExperience>();
 
     public virtual ICollection<AffDeanTeachingExperience> AffDeanTeachingExperiences { get; set; } = new List<AffDeanTeachingExperience>();

@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "DepartmentOffices Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -462,8 +463,22 @@
         }
 
     /* meu hidden block transition */
-    #meu-details-block {
+    #meu-details-block, #deu-details-block {
         transition: opacity .25s;
+    }
+
+    #deu-details-block {
+        display: none;
+        opacity: 0;
+        transition: opacity .22s ease;
+    }
+
+    .deu-display{
+        display: none;
+    }
+
+    .deu-display.active{
+        display: block;
     }
 
     @@media (max-width: 768px) {
@@ -497,7 +512,7 @@
         <i class="fas fa-building"></i>
     </div>
     <div class="dm-page-header-text">
-        <h1>Department Offices &amp; Medical Education Unit</h1>
+        <h1>Department Offices &amp; @(facultyCode == "1" ? "Medical" : "Dental") Education Unit</h1>
         <p>RGUHS · Affiliation Portal · Continuous Affiliation</p>
     </div>
 </div>
@@ -524,7 +539,7 @@
                     <i class="fas fa-circle-info"></i>
                     Every teaching department shall have dedicated rooms for the Head of Department with attached
                     department office and record storage, rooms for teaching faculty and residents, faculty rooms with IT
-                    facilities, and rooms for non-teaching staff as per NMC Minimum Standard Requirements.
+                    facilities, and rooms for non-teaching staff as per @(facultyCode == "1" ? "NMC": "DCI") Minimum Standard Requirements.
                 </div>
 
                 <div class="row g-3">
@@ -611,192 +626,379 @@
         <div class="section-card">
             <div class="section-header sh-teal">
                 <div class="icon-wrap"><i class="fas fa-microscope"></i></div>
-                <h2>Medical Education Unit</h2>
+                @if(facultyCode == "1"){
+                    <h2>Medical Education Unit</h2>
+                }
+                @if(facultyCode == "2"){
+                    <h2>Dental Education Unit</h2>
+                }
                 <span class="sh-sub">Availability &amp; infrastructure</span>
             </div>
             <div class="section-body">
 
                 <div class="info-box">
                     <i class="fas fa-circle-info"></i>
-                    There shall be a Medical Education Unit for faculty development and providing teaching and learning
+                    There shall be a @(facultyCode == "1" ? "Medical Education Unit" : "Dental Education Unit") for faculty development and providing teaching and learning
                     resource material, with audio-visual and internet facilities and an area of at least 150–160 Sq.m.
                 </div>
 
-                <div class="row g-3">
+                @if(facultyCode != "2"){
+                    <div class="row g-3">
 
-                    <!-- MEU Available -->
-                    <div class="col-lg-6">
-                        <div class="q-block">
-                            <p class="q-text">
-                                <i class="fas fa-building-columns" style="color:var(--ink-muted);margin-right:5px;"></i>
-                                Medical Education Unit Available
-                            </p>
-                            <div class="yn-group">
-                                <input class="btn-check" type="radio" asp-for="HasMedicalEducationUnit" value="true" id="meuAvailableYes" />
-                                <label class="yn-label" for="meuAvailableYes"><i class="fas fa-check"></i> Yes</label>
+                        <!-- MEU Available -->
+                        <div class="col-lg-6">
+                            <div class="q-block">
+                                <p class="q-text">
+                                    <i class="fas fa-building-columns" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                    Mendical Education Unit Available
+                                </p>
+                                <div class="yn-group">
+                                    <input class="btn-check" type="radio" asp-for="HasMedicalEducationUnit" value="true" id="meuAvailableYes" />
+                                    <label class="yn-label" for="meuAvailableYes"><i class="fas fa-check"></i> Yes</label>
 
-                                <input class="btn-check" type="radio" asp-for="HasMedicalEducationUnit" value="false" id="meuAvailableNo" />
-                                <label class="yn-label yn-no" for="meuAvailableNo"><i class="fas fa-xmark"></i> No</label>
+                                    <input class="btn-check" type="radio" asp-for="HasMedicalEducationUnit" value="false" id="meuAvailableNo" />
+                                    <label class="yn-label yn-no" for="meuAvailableNo"><i class="fas fa-xmark"></i> No</label>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.HasMedicalEducationUnit, "", new { @class = "text-danger small" })
                             </div>
-                            @Html.ValidationMessageFor(m => m.HasMedicalEducationUnit, "", new { @class = "text-danger small" })
                         </div>
-                    </div>
 
-                    <!-- MEU Area -->
-                    <div class="col-lg-6">
-                        <label>
-                            <i class="fas fa-ruler-combined"></i>
-                            Medical Education Unit Area (Sq.m)
-                            <span style="font-size:.68rem;color:var(--ink-muted);font-weight:400;text-transform:none;margin-left:4px;">Minimum 150–160 Sq.m</span>
-                        </label>
-                        <input type="number" step="0.01" class="meu-field" id="meuArea"
-                               asp-for="MedicalEducationUnitAreaSqm"
-                               placeholder="Enter MEU total area" />
-                    </div>
+                        <!-- MEU Area -->
+                        <div class="col-lg-6">
+                            <label>
+                                <i class="fas fa-ruler-combined"></i>
+                                Medical Education Unit Area (Sq.m)
+                                <span style="font-size:.68rem;color:var(--ink-muted);font-weight:400;text-transform:none;margin-left:4px;">Minimum 150–160 Sq.m</span>
+                            </label>
+                            <input type="number" step="0.01" class="meu-field" id="meuArea"
+                                   asp-for="MedicalEducationUnitAreaSqm"
+                                   placeholder="Enter MEU total area" />
+                        </div>
 
-                    <!-- AV Facilities -->
-                    <div class="col-lg-6">
-                        <div class="q-block">
-                            <p class="q-text">
-                                <i class="fas fa-tv" style="color:var(--ink-muted);margin-right:5px;"></i>
-                                MEU has Audio-Visual Facilities
-                            </p>
-                            <div class="yn-group">
-                                <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasAudioVisual" value="true" id="meuAvYes" />
-                                <label class="yn-label" for="meuAvYes"><i class="fas fa-check"></i> Yes</label>
+                        <!-- AV Facilities -->
+                        <div class="col-lg-6">
+                            <div class="q-block">
+                                <p class="q-text">
+                                    <i class="fas fa-tv" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                    MEU has Audio-Visual Facilities
+                                </p>
+                                <div class="yn-group">
+                                    <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasAudioVisual" value="true" id="meuAvYes" />
+                                    <label class="yn-label" for="meuAvYes"><i class="fas fa-check"></i> Yes</label>
 
-                                <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasAudioVisual" value="false" id="meuAvNo" />
-                                <label class="yn-label yn-no" for="meuAvNo"><i class="fas fa-xmark"></i> No</label>
+                                    <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasAudioVisual" value="false" id="meuAvNo" />
+                                    <label class="yn-label yn-no" for="meuAvNo"><i class="fas fa-xmark"></i> No</label>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.MedicalEducationUnitHasAudioVisual, "", new { @class = "text-danger small" })
                             </div>
-                            @Html.ValidationMessageFor(m => m.MedicalEducationUnitHasAudioVisual, "", new { @class = "text-danger small" })
                         </div>
-                    </div>
 
-                    <!-- Internet Facilities -->
-                    <div class="col-lg-6">
-                        <div class="q-block">
-                            <p class="q-text">
-                                <i class="fas fa-globe" style="color:var(--ink-muted);margin-right:5px;"></i>
-                                MEU has Internet Facilities
-                            </p>
-                            <div class="yn-group">
-                                <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasInternet" value="true" id="meuInternetYes" />
-                                <label class="yn-label" for="meuInternetYes"><i class="fas fa-check"></i> Yes</label>
+                        <!-- Internet Facilities -->
+                        <div class="col-lg-6">
+                            <div class="q-block">
+                                <p class="q-text">
+                                    <i class="fas fa-globe" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                    MEU has Internet Facilities
+                                </p>
+                                <div class="yn-group">
+                                    <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasInternet" value="true" id="meuInternetYes" />
+                                    <label class="yn-label" for="meuInternetYes"><i class="fas fa-check"></i> Yes</label>
 
-                                <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasInternet" value="false" id="meuInternetNo" />
-                                <label class="yn-label yn-no" for="meuInternetNo"><i class="fas fa-xmark"></i> No</label>
+                                    <input class="btn-check meu-field" type="radio" asp-for="MedicalEducationUnitHasInternet" value="false" id="meuInternetNo" />
+                                    <label class="yn-label yn-no" for="meuInternetNo"><i class="fas fa-xmark"></i> No</label>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.MedicalEducationUnitHasInternet, "", new { @class = "text-danger small" })
                             </div>
-                            @Html.ValidationMessageFor(m => m.MedicalEducationUnitHasInternet, "", new { @class = "text-danger small" })
-                        </div>
-                    </div>
+                        </div>  
 
-                </div>
+                    </div>
+                } else if (facultyCode == "2")
+                {
+                    <div class="row g-3">
+
+                        <!-- DEU Available -->
+                        <div class="col-lg-6">
+                            <div class="q-block">
+                                <p class="q-text">
+                                    <i class="fas fa-building-columns" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                    Dental Education Unit Available
+                                </p>
+                                <div class="yn-group">
+                                    <input class="btn-check" type="radio" asp-for="HasDentalEducationUnit" value="true" id="deuAvailableYes" />
+                                    <label class="yn-label" for="deuAvailableYes"><i class="fas fa-check"></i> Yes</label>
+
+                                    <input class="btn-check" type="radio" asp-for="HasDentalEducationUnit" value="false" id="deuAvailableNo" />
+                                    <label class="yn-label yn-no" for="deuAvailableNo"><i class="fas fa-xmark"></i> No</label>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.HasDentalEducationUnit, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+
+                        <!-- DEU Area -->
+                        <div class="col-lg-6 deu-display">
+                            <label>
+                                <i class="fas fa-ruler-combined"></i>
+                                Dental Education Unit Area (Sq.m)
+                                <span style="font-size:.68rem;color:var(--ink-muted);font-weight:400;text-transform:none;margin-left:4px;">Minimum 150–160 Sq.m</span>
+                            </label>
+                            <input type="number" step="0.01" class="deu-field" id="deuArea"
+                                   asp-for="DentalEducationUnitAreaSqm"
+                                   placeholder="Enter DEU total area" />
+                        </div>
+
+                        <!-- AV Facilities -->
+                        <div class="col-lg-6 deu-display">
+                            <div class="q-block">
+                                <p class="q-text">
+                                    <i class="fas fa-tv" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                    DEU has Audio-Visual Facilities
+                                </p>
+                                <div class="yn-group">
+                                    <input class="btn-check deu-field" type="radio" asp-for="DentalEducationUnitHasAudioVisual" value="true" id="meuAvYes" />
+                                    <label class="yn-label" for="meuAvYes"><i class="fas fa-check"></i> Yes</label>
+
+                                    <input class="btn-check deu-field" type="radio" asp-for="DentalEducationUnitHasAudioVisual" value="false" id="meuAvNo" />
+                                    <label class="yn-label yn-no" for="meuAvNo"><i class="fas fa-xmark"></i> No</label>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.DentalEducationUnitHasAudioVisual, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+
+                        <!-- Internet Facilities -->
+                        <div class="col-lg-6 deu-display">
+                            <div class="q-block">
+                                <p class="q-text">
+                                    <i class="fas fa-globe" style="color:var(--ink-muted);margin-right:5px;"></i>
+                                    DEU has Internet Facilities
+                                </p>
+                                <div class="yn-group">
+                                    <input class="btn-check deu-field" type="radio" asp-for="DentalEducationUnitHasInternet" value="true" id="meuInternetYes" />
+                                    <label class="yn-label" for="meuInternetYes"><i class="fas fa-check"></i> Yes</label>
+
+                                    <input class="btn-check deu-field" type="radio" asp-for="DentalEducationUnitHasInternet" value="false" id="meuInternetNo" />
+                                    <label class="yn-label yn-no" for="meuInternetNo"><i class="fas fa-xmark"></i> No</label>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.DentalEducationUnitHasInternet, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>  
+
+                    </div>
+                        
+                }
             </div>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════
+        @if(facultyCode == "1"){
+            <!-- ═══════════════════════════════════════════════════
              SECTION — MEU Coordinator Details (conditional)
         ════════════════════════════════════════════════════ -->
-        <div id="meu-details-block">
+            <div id="meu-details-block">
 
-            <div class="section-card">
-                <div class="section-header sh-indigo">
-                    <div class="icon-wrap"><i class="fas fa-user-doctor"></i></div>
-                    <h2>MEU Coordinator Details</h2>
-                    <span class="sh-sub">Designated liaison for Medical Education Unit</span>
-                </div>
-                <div class="section-body">
-                    <div class="row g-3">
+                <div class="section-card">
+                    <div class="section-header sh-indigo">
+                        <div class="icon-wrap"><i class="fas fa-user-doctor"></i></div>
+                        <h2>MEU Coordinator Details</h2>
+                        <span class="sh-sub">Designated liaison for Medical Education Unit</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="row g-3">
 
-                        <div class="col-lg-6">
-                            <label><i class="fas fa-user"></i> MEU Coordinator Name</label>
-                            <input type="text" class="meu-field" asp-for="MeuCoordinatorName" placeholder="Enter coordinator name" />
-                            @Html.ValidationMessageFor(m => m.MeuCoordinatorName, "", new { @class = "text-danger small" })
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-user"></i> MEU Coordinator Name</label>
+                                <input type="text" class="meu-field" asp-for="MeuCoordinatorName" placeholder="Enter coordinator name" />
+                                @Html.ValidationMessageFor(m => m.MeuCoordinatorName, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-briefcase"></i> Designation and Department</label>
+                                <input type="text" class="meu-field" asp-for="MeuCoordinatorDesignationDepartment" placeholder="e.g., Professor, Dept. of Medicine" />
+                                @Html.ValidationMessageFor(m => m.MeuCoordinatorDesignationDepartment, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-phone"></i> Phone</label>
+                                <input type="text" class="meu-field" asp-for="MeuCoordinatorPhone" placeholder="Phone number" />
+                                @Html.ValidationMessageFor(m => m.MeuCoordinatorPhone, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-envelope"></i> Email ID</label>
+                                <input type="email" class="meu-field" asp-for="MeuCoordinatorEmail" placeholder="Email ID" />
+                                @Html.ValidationMessageFor(m => m.MeuCoordinatorEmail, "", new { @class = "text-danger small" })
+                            </div>
+
                         </div>
-
-                        <div class="col-lg-6">
-                            <label><i class="fas fa-briefcase"></i> Designation and Department</label>
-                            <input type="text" class="meu-field" asp-for="MeuCoordinatorDesignationDepartment" placeholder="e.g., Professor, Dept. of Medicine" />
-                            @Html.ValidationMessageFor(m => m.MeuCoordinatorDesignationDepartment, "", new { @class = "text-danger small" })
-                        </div>
-
-                        <div class="col-lg-6">
-                            <label><i class="fas fa-phone"></i> Phone</label>
-                            <input type="text" class="meu-field" asp-for="MeuCoordinatorPhone" placeholder="Phone number" />
-                            @Html.ValidationMessageFor(m => m.MeuCoordinatorPhone, "", new { @class = "text-danger small" })
-                        </div>
-
-                        <div class="col-lg-6">
-                            <label><i class="fas fa-envelope"></i> Email ID</label>
-                            <input type="email" class="meu-field" asp-for="MeuCoordinatorEmail" placeholder="Email ID" />
-                            @Html.ValidationMessageFor(m => m.MeuCoordinatorEmail, "", new { @class = "text-danger small" })
-                        </div>
-
                     </div>
                 </div>
-            </div>
 
-            <!-- ═══════════════════════════════════════════════════
+                <!-- ═══════════════════════════════════════════════════
                  SECTION — MEU Members & Activities
             ════════════════════════════════════════════════════ -->
-            <div class="section-card">
-                <div class="section-header sh-amber">
-                    <div class="icon-wrap"><i class="fas fa-people-group"></i></div>
-                    <h2>MEU Members &amp; Activities</h2>
-                    <span class="sh-sub">Member list and last academic year activities</span>
-                </div>
-                <div class="section-body">
-                    <div class="row g-3">
+                <div class="section-card">
+                    <div class="section-header sh-amber">
+                        <div class="icon-wrap"><i class="fas fa-people-group"></i></div>
+                        <h2>MEU Members &amp; Activities</h2>
+                        <span class="sh-sub">Member list and last academic year activities</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="row g-3">
 
-                        <div class="col-lg-6">
-                            <label>
-                                <i class="fas fa-file-pdf"></i> MEU Members List
-                                <span style="font-size:.68rem;color:var(--danger);font-weight:400;text-transform:none;margin-left:4px;">PDF upload mandatory</span>
-                            </label>
-                            <input type="file" class="meu-field file-validate" asp-for="MeuMembersListFile" accept=".pdf" />
-                            <input type="hidden" asp-for="HasMeuMembersListFile" />
-                            @Html.ValidationMessageFor(m => m.MeuMembersListFile, "", new { @class = "text-danger small" })
+                            <div class="col-lg-6">
+                                <label>
+                                    <i class="fas fa-file-pdf"></i> MEU Members List
+                                    <span style="font-size:.68rem;color:var(--danger);font-weight:400;text-transform:none;margin-left:4px;">PDF upload mandatory</span>
+                                </label>
+                                <input type="file" class="meu-field file-validate" asp-for="MeuMembersListFile" accept=".pdf" />
+                                <input type="hidden" asp-for="HasMeuMembersListFile" />
+                                @Html.ValidationMessageFor(m => m.MeuMembersListFile, "", new { @class = "text-danger small" })
 
-                            @if (Model != null && Model.HasMeuMembersListFile)
-                            {
-                                <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
-                                <br />
-                                <a asp-action="ViewMeuMembersList" target="_blank" class="btn-view-pdf">
-                                    <i class="fas fa-eye"></i> View Uploaded PDF
-                                </a>
-                            }
+                                @if (Model != null && Model.HasMeuMembersListFile)
+                                {
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                    <br />
+                                    <a asp-action="ViewMeuMembersList" target="_blank" class="btn-view-pdf">
+                                        <i class="fas fa-eye"></i> View Uploaded PDF
+                                    </a>
+                                }
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-list-check"></i> List of MEU Activities – Last Academic Year</label>
+                                <textarea class="meu-field" asp-for="MeuActivitiesLastAcademicYear" rows="4"
+                                          placeholder="Summarize key activities conducted in last A.Y."></textarea>
+                                @Html.ValidationMessageFor(m => m.MeuActivitiesLastAcademicYear, "", new { @class = "text-danger small" })
+                            </div>
+
                         </div>
-
-                        <div class="col-lg-6">
-                            <label><i class="fas fa-list-check"></i> List of MEU Activities – Last Academic Year</label>
-                            <textarea class="meu-field" asp-for="MeuActivitiesLastAcademicYear" rows="4"
-                                      placeholder="Summarize key activities conducted in last A.Y."></textarea>
-                            @Html.ValidationMessageFor(m => m.MeuActivitiesLastAcademicYear, "", new { @class = "text-danger small" })
-                        </div>
-
                     </div>
                 </div>
-            </div>
 
-        </div><!-- /#meu-details-block -->
+            </div><!-- /#meu-details-block -->
+        }
+        @if(facultyCode == "2")
+        {
+            <!-- ═══════════════════════════════════════════════════
+             SECTION — DEU Coordinator Details (conditional)
+        ════════════════════════════════════════════════════ -->
+            <div id="deu-details-block">
+
+                <div class="section-card">
+                    <div class="section-header sh-indigo">
+                        <div class="icon-wrap"><i class="fas fa-user-doctor"></i></div>
+                        <h2>DEU Coordinator Details</h2>
+                        <span class="sh-sub">Designated liaison for Dental Education Unit</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="row g-3">
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-user"></i> DEU Coordinator Name</label>
+                                <input type="text" class="deu-field" asp-for="DeuCoordinatorName" placeholder="Enter coordinator name" />
+                                @Html.ValidationMessageFor(m => m.DeuCoordinatorName, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-briefcase"></i> Designation and Department</label>
+                                <input type="text" class="deu-field" asp-for="DeuCoordinatorDesignationDepartment" placeholder="e.g., Professor, Dept. of Medicine" />
+                                @Html.ValidationMessageFor(m => m.DeuCoordinatorDesignationDepartment, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-phone"></i> Phone</label>
+                                <input type="text" class="deu-field" asp-for="DeuCoordinatorPhone" placeholder="Phone number" />
+                                @Html.ValidationMessageFor(m => m.DeuCoordinatorPhone, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-envelope"></i> Email ID</label>
+                                <input type="email" class="deu-field" asp-for="DeuCoordinatorEmail" placeholder="Email ID" />
+                                @Html.ValidationMessageFor(m => m.DeuCoordinatorEmail, "", new { @class = "text-danger small" })
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════
+                 SECTION — DEU Members & Activities
+            ════════════════════════════════════════════════════ -->
+                <div class="section-card">
+                    <div class="section-header sh-amber">
+                        <div class="icon-wrap"><i class="fas fa-people-group"></i></div>
+                        <h2>DEU Members &amp; Activities</h2>
+                        <span class="sh-sub">Member list and last academic year activities</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="row g-3">
+
+                            <div class="col-lg-6">
+                                <label>
+                                    <i class="fas fa-file-pdf"></i> DEU Members List
+                                    <span style="font-size:.68rem;color:var(--danger);font-weight:400;text-transform:none;margin-left:1px;">*</span>
+                                </label>
+                                <input type="file" class="deu-field file-validate" asp-for="DeuMembersListFile" accept=".pdf" />
+                                <input type="hidden" asp-for="HasDeuMembersListFile" />
+                                @Html.ValidationMessageFor(m => m.DeuMembersListFile, "", new { @class = "text-danger small" })
+
+                                @if (Model != null && Model.HasDeuMembersListFile)
+                                {
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                    <br />
+                                    <a asp-action="ViewDeuMembersList" target="_blank" class="btn-view-pdf">
+                                        <i class="fas fa-eye"></i> View Uploaded PDF
+                                    </a>
+                                }
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label><i class="fas fa-list-check"></i> List of Deu Activities – Last Academic Year</label>
+                                <textarea class="deu-field" asp-for="DeuActivitiesLastAcademicYear" rows="4"
+                                          placeholder="Summarize key activities conducted in last A.Y."></textarea>
+                                @Html.ValidationMessageFor(m => m.DeuActivitiesLastAcademicYear, "", new { @class = "text-danger small" })
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /#Deu-details-block -->
+        }
+
+       
         <!-- ═══════════════════════════════════════════════════
              FOOTER ACTIONS
         ════════════════════════════════════════════════════ -->
         <div class="dm-form-footer d-flex justify-content-between gap-2">
 
-            <button type="button" class="btn-dm btn-dm-ghost"
-                    onclick="window.location.href='@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")'">
-                <i class="fas fa-arrow-left"></i> Previous
-            </button>
+            @if(facultyCode == "2")
+            {
+                <button type="button" class="btn-dm btn-dm-ghost"
+                        onclick="window.location.href='@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")'">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+            } else {
+                <button type="button" class="btn-dm btn-dm-ghost"
+                        onclick="window.location.href='@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")'">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+            }
 
             <button type="submit" class="btn-dm btn-dm-primary" id="btnSave">
                 <i class="fas fa-floppy-disk"></i> Save
             </button>
 
-           <button type="button" class="btn btn-next" 
-                    onclick="window.location.href='@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")'">
-                Next <i class="fas fa-arrow-right"></i>
-            </button>
+            @if(facultyCode == "2")
+            {
+               <button type="button" class="btn btn-next" 
+                        onclick="window.location.href='@Url.Action("EquipmentList", "Dental")'">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            } else {
+               <button type="button" class="btn btn-next" 
+                        onclick="window.location.href='@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")'">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            }
 
         </div>
 
@@ -833,6 +1035,14 @@
             const fileInput = document.querySelector('[name="MeuMembersListFile"]');
             const hasFile   = document.querySelector('[name="HasMeuMembersListFile"]');
 
+            const deuYes    = document.getElementById('deuAvailableYes');
+            const deuNo     = document.getElementById('deuAvailableNo');
+            const deuBlock  = document.getElementById('deu-details-block');
+            const deuFields = document.querySelectorAll('.deu-field');
+            const deuArea      = document.getElementById('deuArea');
+            const deuFileInput = document.querySelector('[name="DeuMembersListFile"]');
+            const hasDeuFile   = document.querySelector('[name="HasDeuMembersListFile"]');
+
             function clearValidation(field) {
                 if (!field) return;
                 field.classList.remove('input-validation-error');
@@ -842,6 +1052,13 @@
 
             function enableMeuFields(enable) {
                 meuFields.forEach(field => {
+                    field.disabled = !enable;
+                    if (!enable) clearValidation(field);
+                });
+            }
+
+            function enableDeuFields(enable) {
+                deuFields.forEach(field => {
                     field.disabled = !enable;
                     if (!enable) clearValidation(field);
                 });
@@ -867,10 +1084,40 @@
                 }
             }
 
+            function handleDeuToggle() {
+                const deuDisplays = document.querySelectorAll('.deu-display');
+                if (deuYes && deuYes.checked) {
+                    deuBlock.style.display = 'block';
+                    deuBlock.style.opacity = '1';
+                    enableDeuFields(true);
+                    deuArea.setAttribute('required', 'required');
+                    deuArea.setAttribute('min', '150');
+                    deuDisplays.forEach(el => el.classList.add("active"));
+
+                    if (deuFileInput && hasDeuFile && hasDeuFile.value !== 'True') {
+                        deuFileInput.setAttribute('required', 'required');
+                    }
+                } else {
+                    deuBlock.style.opacity = '0';
+                    deuDisplays.forEach(el => el.classList.remove("active"));
+                    document.querySelectorAll('.deu-display').classList.remove("active");
+                    setTimeout(() => { deuBlock.style.display = 'none'; }, 220);
+                    enableDeuFields(false);
+                    deuArea.removeAttribute('required');
+                    deuArea.removeAttribute('min');
+                    if (deuFileInput) deuFileInput.removeAttribute('required');
+                }
+            }
+
             if (meuYes) meuYes.addEventListener('change', handleMeuToggle);
             if (meuNo)  meuNo.addEventListener('change', handleMeuToggle);
 
+            if (deuYes) deuYes.addEventListener('change', handleDeuToggle);
+            if (deuNo)  deuNo.addEventListener('change', handleDeuToggle);
+
             handleMeuToggle();
+
+            handleDeuToggle();
             document.addEventListener("change", function (e) {
 
                 if (e.target.classList.contains("file-validate")) {

@@ -1,0 +1,191 @@
+﻿@model List<DentalChairVm>
+
+@{
+    ViewData["Title"] = "Dental Chair Distribution";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/chair-distribution.css" />
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<div class="chair-page-container">
+
+    <!-- Header -->
+    <div class="chair-header shadow-sm">
+        <div>
+            <h2 class="mb-1">Dental Chair Distribution</h2>
+            <p class="mb-0 text-light-subtle">
+                Course-wise dental chair requirement and availability details
+            </p>
+        </div>
+
+        <div class="chair-badge">
+            <span>Total Courses</span>
+            <h4>@Model.Count</h4>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card shadow-lg mt-2 mb-4">
+
+        <div class="table-header">
+            <h5 class="mb-0">Chair Distribution Details</h5>
+        </div>
+
+        <form asp-action="ChairDistribution" method="post" id="chairForm">
+            <div class="table-responsive">
+                    @Html.AntiForgeryToken()
+                    <table class="table align-middle custom-chair-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Course Name</th>
+                                <th>Course Level</th>
+                                <th>Seat Slab</th>
+                                <th>Chairs Required</th>
+                                <th>Existing Chairs</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="serial-badge">@(i + 1)</span>
+                                    </td>
+
+                                    <td>
+                                        <div class="course-name">
+                                            @Model[i].CourseName
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="level-badge">
+                                            @Model[i].CourseLevel
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="slab-chip">
+                                            @Model[i].SeatSlab
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="required-count">
+                                            @Model[i].ChairsRequired
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <input type="number"
+                                           class="form-control chair-input chair-existing"
+                                               asp-for="@Model[i].ChairsExisting"
+                                               min="0" />
+                                    </td>
+                                    <input type="hidden" asp-for="@Model[i].CourseCode" />
+                                    <input type="hidden" asp-for="@Model[i].CourseName" />
+                                    <input type="hidden" asp-for="@Model[i].CourseLevel" />
+                                    <input type="hidden" asp-for="@Model[i].SeatSlab" />
+                                    <input type="hidden" asp-for="@Model[i].SeatSlabId" />
+                                    <input type="hidden" asp-for="@Model[i].ChairsRequired" />
+
+                                    
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+            </div>
+            <!-- Footer -->
+            <div class="table-footer" style="justify-content: space-between;">
+                <a asp-action="DentalSkillsLaboratory" asp-controller="PhysicalInfrastructure"
+                   class="btn btn-outline-secondary">
+
+                    ← Previous
+
+                </a>
+                <button class="btn btn-primary save-btn px-4" type="button">
+                    <i class="bi bi-save2 me-2"></i>
+                    Save Chair Details
+                </button>
+                <a asp-controller="ContinuesAffiliation_Facultybased"
+                   asp-action="MedicalUGBedDistribution"
+                   class="btn btn-success next-btn">
+
+                    Next →
+
+                </a>
+            </div>
+        </form>
+
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelector(".save-btn").addEventListener("click", function(){
+            const inputs = document.querySelectorAll(".chair-existing");
+            let hasError = false;
+            let errorMsg = "";
+            inputs.forEach((input,idx) => {
+                const value = input.value;
+
+                if(value === ""){
+                    hasError = true;
+                    errorMsg = `Please enter chair count for ${idx+1}`;
+                    return;
+                }
+
+                if(parseInt(value)<0){
+                    hasError = true;
+                    errorMsg = `Chair count cannot be negative in row ${row+1}`;
+                    return;
+                }
+            })
+
+            if(hasError){
+                Swal.fire({
+                    icon: "error",
+                    title: "Check Again",
+                    text: errorMsg,
+                    confirmButtonColor: '#d33';
+                });
+                return;
+            }
+
+            document.querySelector("#chairForm").submit();
+        })
+    </script>
+
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["Success"]',
+                timer: 2000
+                showConfirmationButton:false
+            });
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '@TempData["Error"]',
+            confirmButtonColor: '#d33'
+            });
+        </script>
+    }
+}

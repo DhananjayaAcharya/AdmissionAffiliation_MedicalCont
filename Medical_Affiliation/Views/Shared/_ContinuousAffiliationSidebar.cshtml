@@ -7,6 +7,7 @@
 @{
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
     var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
+    var facultyCode = Context.Session.GetString("FacultyCode");
 
     var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
 
@@ -44,15 +45,22 @@
         new StepItem{ Key="DeanDetails", Label="Dean / Director Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
         new StepItem{ Key="PrincipalDetails", Label="Principal Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
 
+        // ================= STUDENT AMENITIES =================
+        new StepItem{ Key="IntakeDetails", Label="Course-wise Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
+        new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered", Levels = new List<string>{ "SS" } },
+
+
         // ================= PHYSICAL INFRASTRUCTURE =================
-        new StepItem{ Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
-        new StepItem{ Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
-        new StepItem{ Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
+        // new StepItem{ Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
+        // new StepItem{ Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
+        // new StepItem{ Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
         new StepItem{ Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
         new StepItem{ Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
-        new StepItem{ Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
+        // new StepItem{ Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
         new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
-        new StepItem{ Key="DepartmentUnits", Label="Department / Units", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
+        // new StepItem{ Key="ChairDistribution", Label="Chair Distribution", Group="Physical Infrastructure", Ctrl="PhysicalInfrastructure", Act="ChairDistribution" },
+        // new StepItem{ Key="DepartmentUnits", Label="Department / Units", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
+        new StepItem{ Key="DepartmentUnits", Label="Department / Clinics/ Labs", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
         new StepItem{ Key="Hostel", Label="Hostel Details", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
         new StepItem{ Key = "AssociatedInstitutions", Label = "Associated Institutions",   Group = "Physical Infrastructure", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
@@ -65,23 +73,18 @@
         new StepItem{ Key="StaffDetails", Label="Staff Particular Details", Group="Academic & Admin", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
 
         // ================= RESEARCH & LIBRARY =================
+        new StepItem{ Key="LibraryServices", Label="Library Services", Group="Research & Library", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
         new StepItem{ Key="Research", Label="Research & Publications", Group="Research & Library", Ctrl="CA_Med_ResearchPublications", Act="CA_Med_ResearchPublicationsDetails" },
         new StepItem{ Key="Library", Label="Library Details", Group="Research & Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
-        new StepItem{ Key="LibraryServices", Label="Library Services", Group="Research & Library", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
 
         // ================= STUDENT & STAFF =================
         new StepItem{ Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
-        new StepItem{ Key="TeachingStaff", Label="Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
+        // new StepItem{ Key="TeachingStaff", Label="Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
         new StepItem{ Key="NonTeachingStaff", Label="Non-Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
 
         // ================= STUDENT AMENITIES =================
         // new StepItem{ Key="Hostel", Label="Hostel Details", Group="Student Amenities", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
-
-        // ================= STUDENT AMENITIES =================
-        new StepItem{ Key="IntakeDetails", Label="Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
-        new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered", Levels = new List<string>{ "SS" } },
-
 
         // new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
         // new { Key="Declaration", Label="Declaration", Group="Final Submission", Ctrl="AffiliationDeclaration", Act="Declaration" },
@@ -89,6 +92,194 @@
         new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
 
+    // ======================================================
+    // SKILLS / LAB STEP BASED ON FACULTY
+    // ======================================================
+
+    var skillsIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+
+    if (skillsIndex < 0)
+    {
+        skillsIndex = allSteps.Count;
+    }
+
+    if (facultyCode == "2")
+    {
+        // Dental
+        allSteps.Insert(skillsIndex,
+
+            new StepItem
+            {
+                Key = "DentalSkillsLab",
+                Label = "Classroom & Laboratory",
+                Group = "Physical Infrastructure",
+                Ctrl = "PhysicalInfrastructure",
+                Act = "DentalSkillsLaboratory"
+            });
+    }
+    else
+    {
+        // Medical / Others
+        allSteps.Insert(skillsIndex,
+
+            new StepItem
+            {
+                Key = "SkillsLab",
+                Label = "Classroom & Laboratory",
+                Group = "Physical Infrastructure",
+                Ctrl = "Medical_ContinuousAffiliation",
+                Act = "Medical_SkillsLaboratory"
+            });
+    }
+
+    // ======================================================
+    // VEHICLE POSITION FOR DENTAL
+    // ======================================================
+
+    if (facultyCode == "2")
+    {
+        // place after Additional Equipment Details
+        var vehicleIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+
+        if (vehicleIndex >= 0)
+        {
+            allSteps.Insert(vehicleIndex + 1, new StepItem
+            {
+                Key = "Vehicle",
+                Label = "Vehicle Details",
+                Group = "Physical Infrastructure",
+                Ctrl = "Aff_AHS_ContinousApplication",
+                Act = "CA_VehicleDetails"
+            });
+        }
+    }
+    else
+    {
+        // existing order for all other faculties
+        allSteps.Add(new StepItem
+        {
+            Key = "Vehicle",
+            Label = "Vehicle Details",
+            Group = "Physical Infrastructure",
+            Ctrl = "Aff_AHS_ContinousApplication",
+            Act = "CA_VehicleDetails"
+        });
+    }
+
+    // ======================================================
+    // LAND & BUILDING STEP BASED ON FACULTY
+    // ======================================================
+
+    int insertIndex = -1;
+
+    if (facultyCode == "2")
+    {
+        insertIndex = allSteps.FindIndex(x => x.Key == "DentalSkillsLab");
+    }
+    else
+    {
+        insertIndex = allSteps.FindIndex(x => x.Key == "SkillsLab");
+    }
+
+    if (insertIndex < 0)
+    {
+        insertIndex = allSteps.Count;
+    }
+
+    if (facultyCode == "2")
+    {
+        // Dental
+        allSteps.Insert(insertIndex,
+
+            new StepItem
+            {
+                Key = "LandBuilding",
+                Label = "Land & Building",
+                Group = "Physical Infrastructure",
+                Ctrl = "PhysicalInfrastructure",
+                Act = "DentalCollegeLandBuildingDetail"
+            });
+    }
+    else
+    {
+        // Medical / Others
+        allSteps.Insert(insertIndex,
+
+            new StepItem
+            {
+                Key = "LandBuilding",
+                Label = "Land & Building",
+                Group = "Physical Infrastructure",
+                Ctrl = "Medical_ContinuousAffiliation",
+                Act = "Medical_LandBuildingdetails"
+            });
+    }
+
+    var nonTeachingIndex = allSteps.FindIndex(x => x.Key == "NonTeachingStaff");
+
+    if (nonTeachingIndex < 0)
+    {
+        nonTeachingIndex = allSteps.Count;
+    }
+
+    if (facultyCode == "2")
+    {
+        allSteps.Insert(nonTeachingIndex, new StepItem
+        {
+            Key = "TeachingStaff",
+            Label = "Teaching Staff Dept Wise",
+            Group = "Human Resources",
+            Ctrl = "Dental",
+            Act = "TeachingStaffDepartmentWise"
+        });
+    }
+    else
+    {
+        allSteps.Insert(nonTeachingIndex, new StepItem
+        {
+            Key = "TeachingStaff",
+            Label = "Teaching Staff Dept Wise",
+            Group = "Human Resources",
+            Ctrl = "ContinuesAffiliation_Facultybased",
+            Act = "TeachingStaffDepartmentWise"
+        });
+    }
+
+    var equipmentIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+
+    if (equipmentIndex < 0)
+    {
+        equipmentIndex = allSteps.Count;
+    }
+
+    if (facultyCode == "2")
+    {
+        // Dental
+        allSteps.Insert(equipmentIndex,
+
+            new StepItem
+            {
+                Key = "DentalEquipmentDetails",
+                Label = "Equipment List",
+                Group = "Physical Infrastructure",
+                Ctrl = "Dental",
+                Act = "EquipmentList"
+            });
+    }
+    else
+    {
+        // Medical / Others
+        allSteps.Insert(equipmentIndex,
+
+            new StepItem
+            {
+                Key = "EquipmentDetails",
+                Label = "Equipment Details",
+                Group = "Physical Infrastructure",
+                Ctrl = "Medical_ContinuousAffiliation",
+                Act = "Medical_EquimentDetails"
+            });
+    }
     // ✅ Add MBBS ONLY for UG
     if (levels.Contains("UG"))
     {
@@ -100,6 +291,23 @@
             Ctrl = "ContinuesAffiliation_Facultybased",
             Act = "Details_Of_MBBS"
         });
+    }
+
+    if (facultyCode == "2")
+    {
+        var intakeIndex = allSteps.FindIndex(x => x.Key == "IntakeDetails");
+
+        if (intakeIndex >= 0)
+        {
+            allSteps.Insert(intakeIndex + 1, new StepItem
+            {
+                Key = "DentalFacultyDetails",
+                Label = "Faculty Repository",
+                Group = "Intake Details",
+                Ctrl = "DentalRepository",
+                Act = "TeachingFacultyDetails"
+            });
+        }
     }
 
     // ✅ Add PG-specific steps
@@ -189,10 +397,87 @@
     )
     .ToList();
 
+    if (facultyCode == "2")
+    {
+        // Insert Chair Distribution after Classroom & Laboratory
+        var chairIndex = allSteps.FindIndex(x => x.Key == "DentalSkillsLab");
+
+        if (chairIndex >= 0)
+        {
+            allSteps.Insert(chairIndex + 1, new StepItem
+            {
+                Key = "ChairDistribution",
+                Label = "Chair Distribution",
+                Group = "Physical Infrastructure",
+                Ctrl = "PhysicalInfrastructure",
+                Act = "ChairDistribution"
+            });
+        }
+    }
+
+    // skipped for Dental
+    if (facultyCode == "2")
+    {
+        allSteps = allSteps
+            .Where(x => x.Key != "AssociatedInstitutions")
+            .ToList();
+    }
+
+    // ======================================================
+    // FINAL ORDER FIX FOR DENTAL
+    // ======================================================
+
+    if (facultyCode == "2")
+    {
+        var physicalOrder = new List<string>
+        {
+            "ClinicalFacilities",
+            "LandBuilding",
+            "DentalSkillsLab",
+            "ChairDistribution",
+            "BedDistribution",
+            "Hostel",
+            "DepartmentUnits",
+            "DentalEquipmentDetails",
+            "EquipmentMaster",
+            "Vehicle"
+        };
+
+        var physicalSteps = allSteps
+            .Where(x => x.Group == "Physical Infrastructure")
+            .ToList();
+
+        var orderedPhysicalSteps = physicalOrder
+            .Select(key => physicalSteps.FirstOrDefault(x => x.Key == key))
+            .Where(x => x != null)
+            .ToList();
+
+        // Remaining physical infra steps (if any)
+        var remainingPhysicalSteps = physicalSteps
+            .Where(x => !physicalOrder.Contains(x.Key))
+            .ToList();
+
+        // Remove all physical infra steps
+        allSteps.RemoveAll(x => x.Group == "Physical Infrastructure");
+
+        // Find where Physical Infrastructure section originally started
+        var insertAt = allSteps.FindIndex(x => x.Group != "Basic Details"
+                                            && x.Group != "Intake Details");
+
+        if (insertAt < 0)
+        {
+            insertAt = allSteps.Count;
+        }
+
+        // Reinsert in exact order
+        allSteps.InsertRange(insertAt,
+            orderedPhysicalSteps.Concat(remainingPhysicalSteps));
+    }
 
     var groupedSteps = allSteps
             .GroupBy(s => s.Group)
             .ToList();
+
 
 
 }

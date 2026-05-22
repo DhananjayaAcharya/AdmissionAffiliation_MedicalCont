@@ -22,4 +22,6 @@ public partial class MstMedicalCourseType
     public DateTime? CreatedDate { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
+
+    public int FacultyCode { get; set; }
 }
