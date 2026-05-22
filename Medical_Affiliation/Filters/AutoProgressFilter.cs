@@ -38,15 +38,45 @@ public class AutoProgressFilter : IAsyncActionFilter
         var courseLevel = http.Session.GetString("CourseLevel");
         var facultyCode = http.Session.GetString("FacultyCode");
 
+        //code by ram
+
+        //var rawLevels = http.Session.GetString("ExistingCourseLevels");
+
+        //var levels = string.IsNullOrEmpty(rawLevels)
+        //    ? new List<string>()
+        //    : JsonSerializer.Deserialize<List<string>>(rawLevels)
+        //        .Select(l => l.Trim().ToUpper())
+        //        .Distinct()
+        //        .ToList();
 
         var rawLevels = http.Session.GetString("ExistingCourseLevels");
+        List<string> levels = new List<string>();
 
-        var levels = string.IsNullOrEmpty(rawLevels)
-            ? new List<string>()
-            : JsonSerializer.Deserialize<List<string>>(rawLevels)
-                .Select(l => l.Trim().ToUpper())
-                .Distinct()
-                .ToList();
+        if (!string.IsNullOrEmpty(rawLevels))
+        {
+            try
+            {
+                // Attempt to deserialize as JSON
+                if (rawLevels.Trim().StartsWith("["))
+                {
+                    levels = JsonSerializer.Deserialize<List<string>>(rawLevels) ?? new List<string>();
+                }
+                else
+                {
+                    // Fallback: If it's just a comma-separated string, split it manually
+                    levels = rawLevels.Split(',').ToList();
+                }
+            }
+            catch
+            {
+                // If both fail, just leave as empty list so the page doesn't crash
+                levels = new List<string>();
+            }
+        }
+
+        // Final cleaning
+        levels = levels.Select(l => l.Trim().ToUpper()).Distinct().ToList();
+
 
         if (string.IsNullOrEmpty(collegeCode) || levels.Count == 0)
             return;

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -232,7 +233,13 @@ namespace Medical_Affiliation.Controllers
 
             HttpContext.Session.SetString("CollegeCode", user.CollegeCode ?? "");
             HttpContext.Session.SetString("FacultyCode", user.FacultyCode ?? "");
-            HttpContext.Session.SetString("ExistingCourseLevels", string.Join(",", ExistingCourseLevels ?? new List<string>()));
+
+            //code added by ram to solve JSON error, old code commented , new code added on 22-05-2026
+
+            //HttpContext.Session.SetString("ExistingCourseLevels", string.Join(",", ExistingCourseLevels ?? new List<string>()));
+
+            // Use JsonSerializer to store the list as a proper JSON array ["UG","PG"]
+            HttpContext.Session.SetString("ExistingCourseLevels", JsonSerializer.Serialize(ExistingCourseLevels ?? new List<string>()));
 
             return RedirectToAction("Dashboard", "CollegeLogin");
         }
