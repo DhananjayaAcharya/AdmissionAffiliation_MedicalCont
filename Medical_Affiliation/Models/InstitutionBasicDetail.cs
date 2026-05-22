@@ -123,7 +123,7 @@ public partial class InstitutionBasicDetail
 
     public string? DcicertificateFilePath { get; set; }
 
-    public bool? OtherDentalCollegeInCity { get; set; }
-
     public string? KsdccertificateFilePath { get; set; }
+
+    public bool? OtherDentalCollegeInCity { get; set; }
 }
