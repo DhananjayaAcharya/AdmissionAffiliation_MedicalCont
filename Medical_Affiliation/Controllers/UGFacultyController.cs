@@ -19,23 +19,17 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        // ===== BASE STORAGE PATH =====
+        // ===== BASE STORAGE PATH (outside wwwroot — secure) =====
         private readonly string BaseFolder = @"E:\MedicalUGFacultyList";
 
         // ===== PHOTO FOLDER =====
-        private string PhotosFolder =>
-            Path.Combine(BaseFolder, "Photos");
+        private string PhotosFolder => Path.Combine(BaseFolder, "Photos");
 
         // ===== PDF / DOCUMENT FOLDER =====
-        private string UploadsFolder =>
-            BaseFolder;
+        private string UploadsFolder => BaseFolder;
 
-        // ===== WEB URL PATHS =====
-        private string PhotosWebRoot => "/MedicalUGFacultyList/Photos";
-
+        // ===== WEB ROUTE PREFIX (used only for PDF links) =====
         private string UploadsWebRoot => "/MedicalUGFacultyList";
-
-        
 
         public UGFacultyController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
@@ -43,52 +37,65 @@ namespace Medical_Affiliation.Controllers
             _environment = environment;
         }
 
-        // ── FIX 3: Index() now has the same session guard as AddFaculty().
-        //[Route("")]
-        //[Route("Index")]
-        //public IActionResult Index()
-        //{
-        //    string collegeCode = HttpContext.Session.GetString("CollegeCode");
-        //    if (string.IsNullOrEmpty(collegeCode))
-        //        return RedirectToAction("Login", "Login"); // FIX 4: correct controller name
+        // ─────────────────────────────────────────────────────────────────────
+        // NEW: Serve faculty photos through controller (bypasses IIS static file
+        //      restriction for files stored outside wwwroot)
+        // URL: /UGFaculty/Photo?file=guid.jpg
+        // ─────────────────────────────────────────────────────────────────────
+        [HttpGet]
+        [Route("Photo")]
+        public IActionResult Photo(string file)
+        {
+            if (string.IsNullOrWhiteSpace(file))
+                return NotFound();
 
-        //    ViewBag.Departments = _context.DepartmentMastersForUgs.ToList();
-        //    ViewBag.Designations = _context.UgdesignationMasters.ToList();
+            // Security: strip any path traversal attempts
+            var safeFileName = Path.GetFileName(file);
+            if (string.IsNullOrWhiteSpace(safeFileName))
+                return NotFound();
 
-        //    return View();
-        //}
+            var allowedExts = new[] { ".jpg", ".jpeg", ".png" };
+            var ext = Path.GetExtension(safeFileName).ToLowerInvariant();
+            if (!allowedExts.Contains(ext))
+                return NotFound();
+
+            var fullPath = Path.Combine(PhotosFolder, safeFileName);
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound();
+
+            var mimeType = ext == ".png" ? "image/png" : "image/jpeg";
+            return PhysicalFile(fullPath, mimeType);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [Route("AddFaculty")]
         public IActionResult AddFaculty()
         {
-          
-        
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             var collegeName = User.Identity?.Name;
-            ViewBag.CollegeName = collegeName; ViewBag.CollegeName = collegeName;
-           
+            ViewBag.CollegeName = collegeName;
 
             if (string.IsNullOrEmpty(collegeCode))
-                return RedirectToAction("Login", "Login"); // FIX 4: consistent redirect
+                return RedirectToAction("Login", "Login");
 
             var college = _context.AffiliationCollegeMasters
                 .FirstOrDefault(c => c.CollegeCode == collegeCode);
             if (college == null)
-                return RedirectToAction("Dashboard", "Home"); // FIX 4: verify this action exists
+                return RedirectToAction("Dashboard", "Home");
 
             bool isLocked = _context.UgPrintedUploads
-        .Any(x => x.CollegeCode == collegeCode);
+                .Any(x => x.CollegeCode == collegeCode);
 
             ViewBag.IsLocked = isLocked;
-
-
             ViewBag.Departments = _context.DepartmentMastersForUgs.ToList();
             ViewBag.Designations = _context.UgdesignationMasters.ToList();
 
             return View();
         }
 
+        // ─────────────────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet]
@@ -107,27 +114,23 @@ namespace Medical_Affiliation.Controllers
                             join desig in _context.UgdesignationMasters
                                 on faculty.DesignationCode equals desig.DesignationId
                             where faculty.CollegeCode == collegeCode
-
                             select new
                             {
                                 Faculty = faculty,
                                 DeptName = dept.DepartmentName,
                                 DesigName = desig.DesignationName
                             })
-                            .ToList().Distinct();
+                            .ToList();
 
-                var groupedRows = data
+                var rows = data
                     .GroupBy(x => new
                     {
                         Department = !string.IsNullOrEmpty(x.DeptName)
                             ? x.DeptName : x.Faculty.DepartmentCode,
-
                         DesignationCode = x.Faculty.DesignationCode,
-
                         Designation = !string.IsNullOrEmpty(x.DesigName)
                             ? x.DesigName : x.Faculty.DesignationCode
                     })
-
                     .SelectMany(g => g.Select(f => new
                     {
                         id = f.Faculty.Id,
@@ -146,25 +149,22 @@ namespace Medical_Affiliation.Controllers
                         professionalQualification = f.Faculty.ProfessionalQualification ?? "",
                         natureOfEmployment = f.Faculty.NatureOfEmployment ?? "",
                         teachingExpInYrs = f.Faculty.TeachingExpInYrs ?? "",
-                        photoFilePath = f.Faculty.PhotoFilePath ?? ""
+                        // KEY FIX: return a controller-served URL, not the raw file path
+                        photoFilePath = BuildPhotoUrl(f.Faculty.PhotoFilePath)
                     }))
-
                     .OrderBy(x => x.departmentCode)
                     .ThenBy(x => x.designationOrder)
                     .ToList();
 
-                return Json(new { success = true, data = groupedRows });
+                return Json(new { success = true, data = rows });
             }
             catch (Exception ex)
             {
-                return Json(new
-                {
-                    success = false,
-                    message = ex.InnerException?.Message ?? ex.Message
-                });
+                return Json(new { success = false, message = ex.InnerException?.Message ?? ex.Message });
             }
         }
 
+        // ─────────────────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet]
@@ -178,26 +178,18 @@ namespace Medical_Affiliation.Controllers
             try
             {
                 var rawData = (from faculty in _context.UgFacultyDetails
-
                                join dept in _context.DepartmentMastersForUgs
                                    on faculty.DepartmentCode equals dept.DepartmentCode
                                join desig in _context.UgdesignationMasters
                                    on faculty.DesignationCode equals desig.DesignationId
                                where faculty.CollegeCode == collegeCode
                                   && faculty.IsDeclared == true
-
                                select new
                                {
                                    Id = faculty.Id,
-
-                                   DepartmentName = dept.DepartmentName
-                                                    ?? faculty.DepartmentCode,
-
-                                   DesignationName = desig.DesignationName
-                                                    ?? faculty.DesignationCode,
-
+                                   DepartmentName = dept.DepartmentName ?? faculty.DepartmentCode,
+                                   DesignationName = desig.DesignationName ?? faculty.DesignationCode,
                                    DesignationOrder = faculty.DesignationCode,
-
                                    NameOftheFaculty = faculty.NameOftheFaculty ?? "",
                                    Dob = faculty.Dob ?? "",
                                    DateOfAppointment = faculty.DateOfAppointment ?? "",
@@ -212,7 +204,7 @@ namespace Medical_Affiliation.Controllers
                                    TeachingExpInYrs = faculty.TeachingExpInYrs ?? "",
                                    PhotoFilePath = faculty.PhotoFilePath ?? ""
                                })
-                               .ToList().Distinct();
+                               .ToList();
 
                 var rows = rawData
                     .OrderBy(x => x.DepartmentName)
@@ -235,7 +227,8 @@ namespace Medical_Affiliation.Controllers
                         professionalQualification = x.ProfessionalQualification,
                         natureOfEmployment = x.NatureOfEmployment,
                         teachingExpInYrs = x.TeachingExpInYrs,
-                        photoFilePath = x.PhotoFilePath
+                        // KEY FIX: return a controller-served URL, not the raw file path
+                        photoFilePath = BuildPhotoUrl(x.PhotoFilePath)
                     })
                     .ToList();
 
@@ -249,15 +242,11 @@ namespace Medical_Affiliation.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new
-                {
-                    success = false,
-                    message = ex.InnerException?.Message ?? ex.Message
-                });
+                return Json(new { success = false, message = ex.InnerException?.Message ?? ex.Message });
             }
         }
 
-        // ── Insert single record ──────────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
         [HttpPost]
         [Route("InsertSingleFaculty")]
         public IActionResult InsertSingleFaculty([FromBody] SaveFacultyDto dto)
@@ -309,7 +298,7 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
-        // ── Update single record ──────────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
         [HttpPost]
         [Route("UpdateSingleFaculty")]
         public IActionResult UpdateSingleFaculty([FromBody] SaveFacultyDto dto)
@@ -355,8 +344,7 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
-        // ── Upload photo ──────────────────────────────────────────────────────
-        // FIX 1: Uses IWebHostEnvironment-based paths, not hardcoded D:\ strings.
+        // ─────────────────────────────────────────────────────────────────────
         [HttpPost]
         [Route("UploadPhotoDirect")]
         public async Task<IActionResult> UploadPhotoDirect(IFormFile photo, int facultyId)
@@ -372,7 +360,6 @@ namespace Medical_Affiliation.Controllers
             if (photo.Length > 2 * 1024 * 1024)
                 return Json(new { success = false, message = "Photo must be under 2 MB." });
 
-            // FIX 1a: folder resolved via IWebHostEnvironment — works on any OS / server
             if (!Directory.Exists(PhotosFolder))
                 Directory.CreateDirectory(PhotosFolder);
 
@@ -380,19 +367,17 @@ namespace Medical_Affiliation.Controllers
             if (record == null)
                 return Json(new { success = false, message = "Faculty record not found." });
 
-            // Delete existing photo from disk if present
+            // Delete old photo file from disk if one exists
             if (!string.IsNullOrEmpty(record.PhotoFilePath))
             {
-                var oldDiskPath = Path.Combine(PhotosFolder, Path.GetFileName(record.PhotoFilePath));
+                var oldFileName = Path.GetFileName(record.PhotoFilePath);
+                var oldDiskPath = Path.Combine(PhotosFolder, oldFileName);
                 if (System.IO.File.Exists(oldDiskPath))
                 {
                     try { System.IO.File.Delete(oldDiskPath); } catch { /* non-critical */ }
                 }
             }
-            if (!Directory.Exists(PhotosFolder))
-            {
-                Directory.CreateDirectory(PhotosFolder);
-            }
+
             var uniqueName = $"{Guid.NewGuid()}{ext}";
             var fullSavePath = Path.Combine(PhotosFolder, uniqueName);
 
@@ -401,18 +386,20 @@ namespace Medical_Affiliation.Controllers
                 await photo.CopyToAsync(stream);
             }
 
-            record.PhotoFilePath = $"{PhotosWebRoot}/{uniqueName}";
+            // KEY FIX: store only the filename in the DB — not a path or URL.
+            // The Photo() action above serves it via /UGFaculty/Photo?file=guid.jpg
+            record.PhotoFilePath = uniqueName;
             _context.SaveChanges();
 
             return Json(new
             {
                 success = true,
-                path = record.PhotoFilePath
+                // Return the ready-to-use URL so the JS can display it immediately
+                path = Url.Action("Photo", "UGFaculty", new { file = uniqueName }, Request.Scheme)
             });
         }
 
-        // ── Delete faculty ────────────────────────────────────────────────────
-        // FIX 1: Uses IWebHostEnvironment-based path for disk deletion.
+        // ─────────────────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpPost]
@@ -435,8 +422,8 @@ namespace Medical_Affiliation.Controllers
 
                 if (!string.IsNullOrEmpty(record.PhotoFilePath))
                 {
-                    // FIX 1c: PhotosFolder comes from environment, not hardcoded drive
-                    var photoDiskPath = Path.Combine(PhotosFolder, Path.GetFileName(record.PhotoFilePath));
+                    var safeFileName = Path.GetFileName(record.PhotoFilePath);
+                    var photoDiskPath = Path.Combine(PhotosFolder, safeFileName);
                     if (System.IO.File.Exists(photoDiskPath))
                     {
                         try { System.IO.File.Delete(photoDiskPath); } catch { /* non-critical */ }
@@ -454,7 +441,7 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
-        // ── Lock / declare all entries ────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
         [HttpPost]
         [Route("SaveFaculty")]
         public IActionResult SaveFaculty([FromBody] List<SaveFacultyDto> facultyList)
@@ -480,8 +467,7 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
-        // ── Upload signed PDF ─────────────────────────────────────────────────
-        // FIX 1: Uses IWebHostEnvironment-based path.
+        // ─────────────────────────────────────────────────────────────────────
         [HttpPost]
         [Route("Upload")]
         public async Task<IActionResult> Upload(IFormFile signedDocument)
@@ -500,11 +486,8 @@ namespace Medical_Affiliation.Controllers
             if (ext != ".pdf")
                 return BadRequest("Only PDF files are allowed.");
 
-            // FIX 1d: UploadsFolder from environment
             if (!Directory.Exists(UploadsFolder))
-            {
                 Directory.CreateDirectory(UploadsFolder);
-            }
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
             var filePath = Path.Combine(UploadsFolder, uniqueFileName);
@@ -521,7 +504,8 @@ namespace Medical_Affiliation.Controllers
 
             if (existingUpload != null)
             {
-                var oldDiskPath = Path.Combine(UploadsFolder, Path.GetFileName(existingUpload.DocumentPath ?? ""));
+                var oldFileName = Path.GetFileName(existingUpload.DocumentPath ?? "");
+                var oldDiskPath = Path.Combine(UploadsFolder, oldFileName);
                 if (System.IO.File.Exists(oldDiskPath))
                 {
                     try { System.IO.File.Delete(oldDiskPath); } catch { /* non-critical */ }
@@ -551,7 +535,7 @@ namespace Medical_Affiliation.Controllers
             return Ok();
         }
 
-        // ── Download generated text file ──────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [Route("Download")]
@@ -573,7 +557,173 @@ namespace Medical_Affiliation.Controllers
             return GenerateFacultyFile(collegeCode, list, false);
         }
 
-        // ── FIX 5: Remove [Route] from private helper — it has no effect.
+        // ─────────────────────────────────────────────────────────────────────
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        [HttpGet]
+        [Route("GetCollegeUploads")]
+        public IActionResult GetCollegeUploads(string collegeCode)
+        {
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Json(new { success = false, message = "College code is required." });
+
+            var uploads = (from upload in _context.UgPrintedUploads
+                           join college in _context.AffiliationCollegeMasters
+                               on upload.CollegeCode equals college.CollegeCode
+                           where upload.CollegeCode == collegeCode
+                           orderby upload.CreatedOn descending
+                           select new CollegeUploadDto
+                           {
+                               Id = upload.Id,
+                               FileName = upload.DocumentPath != null
+                                                  ? Path.GetFileName(upload.DocumentPath)
+                                                  : "UGFaculty_Document.pdf",
+                               UploadedDate = upload.CreatedOn.HasValue
+                                                  ? upload.CreatedOn.Value.ToString("yyyy-MM-dd")
+                                                  : DateTime.Today.ToString("yyyy-MM-dd"),
+                               UploadedBy = college.CollegeName ?? "College Admin",
+                               Status = "Pending",
+                               FileUrl = upload.DocumentPath != null
+                                                  ? Url.Content($"~/{UploadsWebRoot.TrimStart('/')}/{Path.GetFileName(upload.DocumentPath)}")
+                                                  : string.Empty
+                           })
+                           .ToList();
+
+            return Json(uploads);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        [Route("GetFacultyList")]
+        [HttpGet]
+        public IActionResult GetFacultyList(string collegeCode)
+        {
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Json(new { success = false, message = "College code is required." });
+
+            var facultyList = (from f in _context.UgFacultyDetails
+                               join des in _context.UgdesignationMasters
+                                   on f.DesignationCode equals des.DesignationId
+                                   into desJoin
+                               from designation in desJoin.DefaultIfEmpty()
+                               join dept in _context.DepartmentMastersForUgs
+                                   on f.DepartmentCode equals dept.DepartmentCode
+                                   into deptJoin
+                               from department in deptJoin.DefaultIfEmpty()
+                               where f.CollegeCode == collegeCode
+                                  && f.IsDeclared == true
+                               orderby f.DepartmentCode, f.NameOftheFaculty
+                               select new
+                               {
+                                   Name = f.NameOftheFaculty,
+                                   DesignationName = designation.DesignationName ?? f.DesignationCode,
+                                   DepartmentName = department.DepartmentName ?? f.DepartmentCode,
+                                   DbDobValue = f.Dob,
+                                   MobileNo = f.MobileNo ?? "",
+                                   PanNo = f.Panno ?? "",
+                                   StateCouncilRegNo = f.StateCouncilRegNo ?? ""
+                               })
+                               .ToList();
+
+            var facultyDtos = facultyList.Select((f, i) => new UgFacultyDto
+            {
+                SlNo = i + 1,
+                Name = f.Name,
+                Designation = f.DesignationName,
+                Department = f.DepartmentName,
+                Dob = f.DbDobValue?.ToString() ?? string.Empty,
+                MobileNo = f.MobileNo,
+                PanNo = f.PanNo,
+                StateCouncilRegNo = f.StateCouncilRegNo
+            }).ToList();
+
+            return Json(facultyDtos);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        [HttpGet]
+        [Route("DownloadUpload")]
+        public IActionResult DownloadUpload(int id)
+        {
+            var upload = _context.UgPrintedUploads.FirstOrDefault(u => u.Id == id);
+            if (upload == null || string.IsNullOrEmpty(upload.DocumentPath))
+                return NotFound("Document not found.");
+
+            try
+            {
+                var fileName = Path.GetFileName(upload.DocumentPath);
+                var redirectUrl = Url.Content($"~/{UploadsWebRoot.TrimStart('/')}/{fileName}");
+                return Redirect(redirectUrl);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        [Route("UniversityDownload")]
+        public IActionResult UniversityDownload(string collegeCode)
+        {
+            if (HttpContext.Session.GetString("UserRole") != "University")
+                return RedirectToAction("Login", "Login");
+
+            var faculty = _context.UgFacultyDetails
+                .Where(f => f.CollegeCode == collegeCode && f.IsDeclared == true)
+                .ToList();
+
+            ViewBag.CollegeCode = collegeCode;
+            ViewBag.CollegeName = _context.AffiliationCollegeMasters
+                .Where(c => c.CollegeCode == collegeCode)
+                .Select(c => c.CollegeName)
+                .FirstOrDefault() ?? collegeCode;
+
+            return View(faculty);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // PRIVATE HELPERS
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Converts whatever is stored in PhotoFilePath to a usable URL.
+        /// Handles three cases:
+        ///   1. Already a full URL          → return as-is
+        ///   2. Just a filename (new style) → /UGFaculty/Photo?file=guid.jpg
+        ///   3. Old absolute Windows path   → extract filename, return Photo action URL
+        /// </summary>
+        private string BuildPhotoUrl(string storedPath)
+        {
+            if (string.IsNullOrWhiteSpace(storedPath))
+                return "";
+
+            // Case 1: already a full HTTP URL
+            if (storedPath.StartsWith("http://") || storedPath.StartsWith("https://"))
+                return storedPath;
+
+            // Extract just the filename from whatever format is stored
+            // This safely handles:
+            //   "guid.jpg"                                    → "guid.jpg"
+            //   "/MedicalUGFacultyList/Photos/guid.jpg"       → "guid.jpg"
+            //   "E:\MedicalUGFacultyList\Photos\guid.jpg"     → "guid.jpg"
+            //   "E:/MedicalUGFacultyList/Photos/guid.jpg"     → "guid.jpg"
+            var normalized = storedPath.Replace('\\', '/');
+            var fileName = normalized.Contains('/')
+                                 ? normalized.Substring(normalized.LastIndexOf('/') + 1)
+                                 : normalized;
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                return "";
+
+            // Return route to the Photo() action which reads directly from disk
+            return $"/UGFaculty/Photo?file={Uri.EscapeDataString(fileName)}";
+        }
+
         private IActionResult GenerateFacultyFile(string collegeCode, List<UgFacultyDetail> list, bool isUniversity)
         {
             var sb = new StringBuilder();
@@ -590,183 +740,11 @@ namespace Medical_Affiliation.Controllers
             foreach (var f in list)
                 sb.AppendLine($"{sl++}\t{f.DepartmentCode}\t{f.NameOftheFaculty}\t{f.DesignationCode}\t" +
                               $"{f.Dob}\t{f.DateOfAppointment}\t{f.MobileNo}\t{f.Panno}\t" +
-                              $"{f.StateCouncilRegNo}\t" +
-                              $"{f.AebasattendId}\t{f.ProfessionalQualification}\t" +
+                              $"{f.StateCouncilRegNo}\t{f.AebasattendId}\t{f.ProfessionalQualification}\t" +
                               $"{f.NatureOfEmployment}\t{f.TeachingExpInYrs}");
 
             var bytes = Encoding.UTF8.GetBytes(sb.ToString());
             return File(bytes, "text/plain", $"Faculty_List_{collegeCode}.txt");
-        }
-
-        [Authorize(AuthenticationSchemes = "AdminAuth")]
-        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        [HttpGet]
-        [Route("GetCollegeUploads")]
-        public IActionResult GetCollegeUploads(string collegeCode)
-        {
-
-            if (string.IsNullOrWhiteSpace(collegeCode))
-                return Json(new
-                {
-                    success = false,
-                    message = "College code is required."
-                });
-
-            var uploads = (from upload in _context.UgPrintedUploads
-
-                           join college in _context.AffiliationCollegeMasters
-                           on upload.CollegeCode equals college.CollegeCode
-
-                           where upload.CollegeCode == collegeCode
-
-                           orderby upload.CreatedOn descending
-
-                           select new CollegeUploadDto
-                           {
-                               Id = upload.Id,
-
-                               FileName = upload.DocumentPath != null
-                                   ? Path.GetFileName(upload.DocumentPath)
-                                   : "UGFaculty_Document.pdf",
-
-                               UploadedDate = upload.CreatedOn.HasValue
-                                   ? upload.CreatedOn.Value.ToString("yyyy-MM-dd")
-                                   : DateTime.Today.ToString("yyyy-MM-dd"),
-
-                               UploadedBy = college.CollegeName ?? "College Admin",
-
-                               Status = "Pending",
-
-                               FileUrl = upload.DocumentPath != null
-                                   ? Url.Content($"~/{UploadsWebRoot.TrimStart('/')}/{Path.GetFileName(upload.DocumentPath)}")
-                                   : string.Empty
-                           })
-                           .ToList();
-
-            return Json(uploads);
-        }
-
-        // ── Get faculty list (university role) ────────────────────────────────
-        [Authorize(AuthenticationSchemes = "AdminAuth")]
-        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        [Route("GetFacultyList")]
-        [HttpGet]
-        public IActionResult GetFacultyList(string collegeCode)
-        {
-            // FIX 6: Return JSON error instead of raw 401
-
-            if (string.IsNullOrWhiteSpace(collegeCode))
-                return Json(new
-                {
-                    success = false,
-                    message = "College code is required."
-                });
-
-            var facultyList = (from f in _context.UgFacultyDetails
-
-                               join des in _context.UgdesignationMasters
-                               on f.DesignationCode equals des.DesignationId
-                               into desJoin
-                               from designation in desJoin.DefaultIfEmpty()
-
-                               join dept in _context.DepartmentMastersForUgs
-                               on f.DepartmentCode equals dept.DepartmentCode
-                               into deptJoin
-                               from department in deptJoin.DefaultIfEmpty()
-
-                               where f.CollegeCode == collegeCode
-                                  && f.IsDeclared == true
-
-                               orderby f.DepartmentCode, f.NameOftheFaculty
-
-                               select new
-                               {
-                                   Name = f.NameOftheFaculty,
-
-                                   DesignationName =
-                                       designation.DesignationName != null
-                                       ? designation.DesignationName
-                                       : f.DesignationCode,
-
-                                   DepartmentName =
-                                       department.DepartmentName != null
-                                       ? department.DepartmentName
-                                       : f.DepartmentCode,
-
-                                   DbDobValue = f.Dob,
-
-                                   MobileNo = f.MobileNo ?? "",
-
-                                   PanNo = f.Panno ?? "",
-
-                                   StateCouncilRegNo = f.StateCouncilRegNo ?? ""
-                               })
-                               .ToList();
-
-            var facultyDtos = facultyList.Select((f, i) => new UgFacultyDto
-            {
-                SlNo = i + 1,
-                Name = f.Name,
-                Designation = f.DesignationName,
-                Department = f.DepartmentName,
-                Dob = f.DbDobValue != null
-                        ? f.DbDobValue.ToString()
-                        : string.Empty,
-                MobileNo = f.MobileNo,
-                PanNo = f.PanNo,
-                StateCouncilRegNo = f.StateCouncilRegNo
-            }).ToList();
-
-            return Json(facultyDtos);
-        }
-
-        // ── Download uploaded document (university role) ───────────────────────
-        // FIX 7: Redirect uses Url.Content("~/...") instead of a hardcoded "/MedicalUGFacultyList/..."
-        [Authorize(AuthenticationSchemes = "AdminAuth")]
-        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        [HttpGet]
-        [Route("DownloadUpload")]
-        public IActionResult DownloadUpload(int id)
-        {
-            
-
-            var upload = _context.UgPrintedUploads.FirstOrDefault(u => u.Id == id);
-            if (upload == null || string.IsNullOrEmpty(upload.DocumentPath))
-                return NotFound("Document not found.");
-
-            try
-            {
-                var fileName = Path.GetFileName(upload.DocumentPath);
-                // FIX 7: Url.Content resolves the app base correctly under sub-apps / reverse proxies
-                var redirectUrl = Url.Content($"~/{UploadsWebRoot.TrimStart('/')}/{fileName}");
-                return Redirect(redirectUrl);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        // ── University download view ──────────────────────────────────────────
-        [Authorize(AuthenticationSchemes = "AdminAuth")]
-        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        [Route("UniversityDownload")]
-        public IActionResult UniversityDownload(string collegeCode)
-        {
-            if (HttpContext.Session.GetString("UserRole") != "University")
-                return RedirectToAction("Login", "Login"); // FIX 4: consistent controller name
-
-            var faculty = _context.UgFacultyDetails
-                .Where(f => f.CollegeCode == collegeCode && f.IsDeclared == true)
-                .ToList();
-
-            ViewBag.CollegeCode = collegeCode;
-            ViewBag.CollegeName = _context.AffiliationCollegeMasters
-                .Where(c => c.CollegeCode == collegeCode)
-                .Select(c => c.CollegeName)
-                .FirstOrDefault() ?? collegeCode;
-
-            return View(faculty);
         }
     }
 }

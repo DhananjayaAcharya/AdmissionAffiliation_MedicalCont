@@ -763,26 +763,49 @@
                 <small>UG Faculty Management</small>
             </div>
         </div>
+
         <nav class="sidebar-nav">
+
             <div class="sidebar-section">Main Menu</div>
+
             <div class="nav-item-wrap">
                 <a class="nav-link-s active"
                    asp-controller="Home"
                    asp-action="Dashboard">
-                    <span class="nav-icon-wrap"><i class="bi bi-grid-1x2-fill"></i></span>
+                    <span class="nav-icon-wrap">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                    </span>
                     Dashboard
                 </a>
             </div>
+
+            <!-- BACK TO MAIN DASHBOARD -->
+            <div class="nav-item-wrap">
+                <a class="nav-link-s"
+                   asp-controller="CollegeLogin"
+                   asp-action="Dashboard">
+                    <span class="nav-icon-wrap">
+                        <i class="bi bi-arrow-left-circle-fill"></i>
+                    </span>
+                    Back To Dashboard
+                </a>
+            </div>
+
             <div class="sidebar-section">UG Faculty</div>
+
             <div class="nav-item-wrap">
                 <a class="nav-link-s"
                    asp-controller="UGFaculty"
                    asp-action="AddFaculty">
-                    <span class="nav-icon-wrap"><i class="bi bi-person-plus-fill"></i></span>
+                    <span class="nav-icon-wrap">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </span>
                     Add Faculty
                 </a>
             </div>
+
         </nav>
+
         <div class="sidebar-footer">
 
             <form asp-controller="Login"

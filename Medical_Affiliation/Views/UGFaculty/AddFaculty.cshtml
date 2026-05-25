@@ -28,9 +28,7 @@
             --topbar-h: 60px;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         html, body {
             height: 100%;
@@ -45,9 +43,7 @@
             width: var(--sidebar-w);
             background: var(--navy);
             position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
+            top: 0; left: 0; bottom: 0;
             display: flex;
             flex-direction: column;
             z-index: 200;
@@ -59,18 +55,13 @@
             border-bottom: 1px solid rgba(255,255,255,0.07);
             flex-shrink: 0;
         }
-
-            .sidebar-brand h5 {
-                font-family: 'Playfair Display', serif;
-                color: #fff;
-                font-size: 1rem;
-                margin: 0;
-            }
-
-            .sidebar-brand small {
-                color: rgba(255,255,255,0.4);
-                font-size: 0.7rem;
-            }
+        .sidebar-brand h5 {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 1rem;
+            margin: 0;
+        }
+        .sidebar-brand small { color: rgba(255,255,255,0.4); font-size: 0.7rem; }
 
         .sidebar-section-label {
             font-size: .62rem;
@@ -80,14 +71,9 @@
             padding: 1rem 1.2rem 0.3rem;
         }
 
-        .sidebar-nav {
-            flex: 1;
-            padding: 0.4rem 0;
-        }
+        .sidebar-nav { flex: 1; padding: 0.4rem 0; }
 
-        .nav-item-custom {
-            margin: 2px 0.6rem;
-        }
+        .nav-item-custom { margin: 2px 0.6rem; }
 
         .nav-link-custom {
             display: flex;
@@ -101,28 +87,21 @@
             font-weight: 500;
             transition: all .2s;
         }
-
-            .nav-link-custom:hover, .nav-link-custom.active {
-                background: rgba(26,115,232,0.2);
-                color: #fff;
-            }
+        .nav-link-custom:hover, .nav-link-custom.active {
+            background: rgba(26,115,232,0.2);
+            color: #fff;
+        }
 
         .nav-icon {
-            width: 30px;
-            height: 30px;
+            width: 30px; height: 30px;
             border-radius: 7px;
             background: rgba(255,255,255,0.07);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: .9rem;
             flex-shrink: 0;
             transition: background .2s;
         }
-
-        .nav-link-custom:hover .nav-icon, .nav-link-custom.active .nav-icon {
-            background: var(--blue);
-        }
+        .nav-link-custom:hover .nav-icon, .nav-link-custom.active .nav-icon { background: var(--blue); }
 
         .sidebar-footer {
             padding: .9rem 1.2rem;
@@ -131,24 +110,13 @@
         }
 
         .logout-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.55rem;
-            width: 100%;
-            background: transparent;
-            border: none;
-            padding: 0;
-            color: rgba(255,255,255,0.42);
-            text-decoration: none;
-            font-size: 0.83rem;
-            transition: color 0.18s;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 0.55rem;
+            width: 100%; background: transparent; border: none; padding: 0;
+            color: rgba(255,255,255,0.42); text-decoration: none;
+            font-size: 0.83rem; transition: color 0.18s; cursor: pointer;
             font-family: 'DM Sans', sans-serif;
         }
-
-            .logout-btn:hover {
-                color: #f87171;
-            }
+        .logout-btn:hover { color: #f87171; }
 
         /* ── Main ── */
         .main-wrapper {
@@ -165,1142 +133,498 @@
             padding: .75rem 1.8rem;
             border-bottom: 3px solid var(--blue);
         }
-
-            .college-name-banner .banner-code {
-                font-size: 1.1rem;
-                color: #fff;
-                margin-top: 2px;
-            }
+        .college-name-banner .banner-code { font-size: 1.1rem; color: #fff; margin-top: 2px; }
 
         .topbar {
             height: var(--topbar-h);
             background: #fff;
             border-bottom: 1px solid #e2e8f0;
             padding: 0 1.8rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100; flex-shrink: 0;
         }
-
-        .topbar-title {
-            font-size: .95rem;
-            font-weight: 600;
-            color: #111;
-        }
+        .topbar-title { font-size: .95rem; font-weight: 600; color: #111; }
 
         .college-badge {
             background: #f0f4f8;
             border: 1px solid #dde3ee;
             border-radius: 30px;
             padding: .35rem .9rem;
-            font-size: .78rem;
-            font-weight: 500;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            gap: .35rem;
-            max-width: 340px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+            font-size: .78rem; font-weight: 500; color: #374151;
+            display: flex; align-items: center; gap: .35rem;
+            max-width: 340px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
 
-        .content-area {
-            padding: 1.6rem 1.8rem;
-            flex: 1;
-        }
+        .content-area { padding: 1.6rem 1.8rem; flex: 1; }
 
         .page-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
-            color: #0d1b2a;
-            margin-bottom: 0;
+            font-size: 1.4rem; color: #0d1b2a; margin-bottom: 0;
         }
-
-        .breadcrumb-mini {
-            font-size: .75rem;
-            color: #94a3b8;
-            margin-top: 2px;
-        }
+        .breadcrumb-mini { font-size: .75rem; color: #94a3b8; margin-top: 2px; }
 
         /* ── Tabs ── */
         .custom-tabs {
-            display: flex;
-            gap: 4px;
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 5px;
+            display: flex; gap: 4px;
+            background: #fff; border: 1px solid #e2e8f0;
+            border-radius: 12px; padding: 5px;
             margin: 1rem 0;
             box-shadow: 0 1px 6px rgba(0,0,0,0.05);
         }
 
         .custom-tab-btn {
-            flex: 1;
-            padding: .55rem 1rem;
-            border: none;
-            background: transparent;
-            border-radius: 9px;
-            font-size: .84rem;
-            font-weight: 600;
-            color: #64748b;
-            cursor: pointer;
-            transition: all .2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            flex: 1; padding: .55rem 1rem;
+            border: none; background: transparent;
+            border-radius: 9px; font-size: .84rem; font-weight: 600;
+            color: #64748b; cursor: pointer; transition: all .2s;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
         }
+        .custom-tab-btn.active { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(13,27,42,0.25); }
+        .custom-tab-btn:not(.active):hover { background: #f1f5f9; color: #0d1b2a; }
 
-            .custom-tab-btn.active {
-                background: var(--navy);
-                color: #fff;
-                box-shadow: 0 2px 8px rgba(13,27,42,0.25);
-            }
-
-            .custom-tab-btn:not(.active):hover {
-                background: #f1f5f9;
-                color: #0d1b2a;
-            }
-
-        .tab-pane-custom {
-            display: none;
-        }
-
-            .tab-pane-custom.active {
-                display: block;
-            }
+        .tab-pane-custom { display: none; }
+        .tab-pane-custom.active { display: block; }
 
         /* ── Steps ── */
         .steps-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin: .9rem 0 1.1rem;
+            display: flex; align-items: center; gap: 6px;
+            flex-wrap: wrap; margin: .9rem 0 1.1rem;
         }
 
         .step-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: .73rem;
-            font-weight: 500;
-            padding: 4px 13px;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            color: #94a3b8;
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: .73rem; font-weight: 500;
+            padding: 4px 13px; border-radius: 20px;
+            border: 1px solid #e2e8f0; background: #f8fafc; color: #94a3b8;
             transition: all .3s;
         }
-
-            .step-pill.active {
-                background: #dbeafe;
-                color: #1a4fc4;
-                border-color: #bfdbfe;
-            }
-
-            .step-pill.done {
-                background: #dcfce7;
-                color: #166534;
-                border-color: #bbf7d0;
-            }
-
-        .step-arrow {
-            font-size: .65rem;
-            color: #cbd5e1;
-        }
+        .step-pill.active { background: #dbeafe; color: #1a4fc4; border-color: #bfdbfe; }
+        .step-pill.done   { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .step-arrow { font-size: .65rem; color: #cbd5e1; }
 
         /* ── Entry Form ── */
         .entry-form-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 1.4rem 1.6rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 1.2rem;
+            background: #fff; border: 1px solid #e2e8f0;
+            border-radius: 14px; padding: 1.4rem 1.6rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 1.2rem;
         }
-
-            .entry-form-card .form-section-title {
-                font-size: .78rem;
-                font-weight: 700;
-                letter-spacing: .07em;
-                text-transform: uppercase;
-                color: #64748b;
-                margin-bottom: 1rem;
-                display: flex;
-                align-items: center;
-                gap: .4rem;
-            }
-
-            .entry-form-card .form-label {
-                font-size: .78rem;
-                font-weight: 600;
-                color: #374151;
-                margin-bottom: 3px;
-            }
-
-            .entry-form-card .form-control,
-            .entry-form-card .form-select {
-                font-size: .83rem;
-                border-radius: 8px;
-                border: 1px solid #e2e8f0;
-                background: #f8fafc;
-                color: #0f172a;
-                font-family: 'DM Sans', sans-serif;
-                padding: .42rem .7rem;
-            }
-
-                .entry-form-card .form-control:focus,
-                .entry-form-card .form-select:focus {
-                    border-color: var(--blue);
-                    background: #fff;
-                    box-shadow: 0 0 0 3px rgba(26,115,232,0.09);
-                }
-
-                .entry-form-card .form-control.is-invalid,
-                .entry-form-card .form-select.is-invalid {
-                    border-color: #f87171;
-                    background: #fff5f5;
-                }
+        .entry-form-card .form-section-title {
+            font-size: .78rem; font-weight: 700; letter-spacing: .07em;
+            text-transform: uppercase; color: #64748b; margin-bottom: 1rem;
+            display: flex; align-items: center; gap: .4rem;
+        }
+        .entry-form-card .form-label { font-size: .78rem; font-weight: 600; color: #374151; margin-bottom: 3px; }
+        .entry-form-card .form-control,
+        .entry-form-card .form-select {
+            font-size: .83rem; border-radius: 8px;
+            border: 1px solid #e2e8f0; background: #f8fafc;
+            color: #0f172a; font-family: 'DM Sans', sans-serif; padding: .42rem .7rem;
+        }
+        .entry-form-card .form-control:focus,
+        .entry-form-card .form-select:focus {
+            border-color: var(--blue); background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.09);
+        }
+        .entry-form-card .form-control.is-invalid,
+        .entry-form-card .form-select.is-invalid { border-color: #f87171; background: #fff5f5; }
 
         .optional-badge {
-            font-size: .68rem;
-            font-weight: 500;
-            color: #94a3b8;
-            background: #f1f5f9;
-            border-radius: 4px;
-            padding: 1px 6px;
-            margin-left: 4px;
+            font-size: .68rem; font-weight: 500; color: #94a3b8;
+            background: #f1f5f9; border-radius: 4px; padding: 1px 6px; margin-left: 4px;
         }
-
         .optional-badge-photo {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            font-size: .67rem;
-            font-weight: 600;
-            color: #15803d;
-            background: #dcfce7;
-            border: 1px solid #bbf7d0;
-            border-radius: 20px;
-            padding: 1px 8px;
-            margin-left: 5px;
-            vertical-align: middle;
+            display: inline-flex; align-items: center; gap: 3px;
+            font-size: .67rem; font-weight: 600; color: #15803d;
+            background: #dcfce7; border: 1px solid #bbf7d0;
+            border-radius: 20px; padding: 1px 8px; margin-left: 5px; vertical-align: middle;
         }
-
         .photo-optional-hint {
-            font-size: .72rem;
-            color: #94a3b8;
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            font-size: .72rem; color: #94a3b8; margin-top: 4px;
+            display: flex; align-items: center; gap: 4px;
         }
-
-        .photo-preview-wrap {
-            margin-top: .4rem;
-            display: none;
+        .photo-preview-wrap { margin-top: .4rem; display: none; }
+        .photo-preview-wrap img {
+            width: 54px; height: 54px; border-radius: 50%;
+            object-fit: cover; border: 2px solid #e2e8f0;
         }
-
-            .photo-preview-wrap img {
-                width: 54px;
-                height: 54px;
-                border-radius: 50%;
-                object-fit: cover;
-                border: 2px solid #e2e8f0;
-            }
 
         /* ── Buttons ── */
         .btn-add-entry {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
             background: linear-gradient(135deg, var(--blue), #1557b0);
-            border: none;
-            color: #fff;
-            font-weight: 600;
-            border-radius: 9px;
-            padding: .52rem 1.4rem;
-            font-size: .86rem;
-            cursor: pointer;
-            transition: all .2s;
+            border: none; color: #fff; font-weight: 600;
+            border-radius: 9px; padding: .52rem 1.4rem; font-size: .86rem;
+            cursor: pointer; transition: all .2s;
             box-shadow: 0 3px 10px rgba(26,115,232,0.22);
         }
-
-            .btn-add-entry:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 5px 16px rgba(26,115,232,0.32);
-            }
+        .btn-add-entry:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(26,115,232,0.32); }
 
         .btn-reset-form {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            color: #64748b;
-            font-weight: 600;
-            border-radius: 9px;
-            padding: .52rem 1.1rem;
-            font-size: .86rem;
-            cursor: pointer;
-            transition: all .2s;
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #f1f5f9; border: 1px solid #e2e8f0;
+            color: #64748b; font-weight: 600;
+            border-radius: 9px; padding: .52rem 1.1rem; font-size: .86rem;
+            cursor: pointer; transition: all .2s;
         }
-
-            .btn-reset-form:hover {
-                background: #e2e8f0;
-                color: #0d1b2a;
-            }
+        .btn-reset-form:hover { background: #e2e8f0; color: #0d1b2a; }
 
         /* ── Grid Search Bar ── */
         .grid-search-bar {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: .75rem 1rem;
-            margin-bottom: .75rem;
+            background: #fff; border: 1px solid #e2e8f0;
+            border-radius: 12px; padding: .75rem 1rem; margin-bottom: .75rem;
             box-shadow: 0 1px 6px rgba(0,0,0,.04);
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            flex-wrap: wrap;
+            display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
         }
-
-        .grid-search-wrap {
-            position: relative;
-            flex: 1;
-            min-width: 220px;
+        .grid-search-wrap { position: relative; flex: 1; min-width: 220px; }
+        .grid-search-wrap .gs-icon {
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            color: #94a3b8; font-size: .9rem; pointer-events: none;
         }
-
-            .grid-search-wrap .gs-icon {
-                position: absolute;
-                left: 10px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: #94a3b8;
-                font-size: .9rem;
-                pointer-events: none;
-            }
-
-            .grid-search-wrap input {
-                width: 100%;
-                padding: .45rem .75rem .45rem 2rem;
-                font-size: .83rem;
-                border: 1.5px solid #e2e8f0;
-                border-radius: 9px;
-                background: #f8fafc;
-                color: #0f172a;
-                font-family: 'DM Sans', sans-serif;
-                outline: none;
-                transition: all .2s;
-            }
-
-                .grid-search-wrap input:focus {
-                    border-color: var(--blue);
-                    background: #fff;
-                    box-shadow: 0 0 0 3px rgba(26,115,232,0.09);
-                }
-
+        .grid-search-wrap input {
+            width: 100%; padding: .45rem .75rem .45rem 2rem;
+            font-size: .83rem; border: 1.5px solid #e2e8f0;
+            border-radius: 9px; background: #f8fafc; color: #0f172a;
+            font-family: 'DM Sans', sans-serif; outline: none; transition: all .2s;
+        }
+        .grid-search-wrap input:focus {
+            border-color: var(--blue); background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.09);
+        }
         .grid-search-clear {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: none;
-            background: #e2e8f0;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            font-size: .65rem;
-            color: #64748b;
-            align-items: center;
-            justify-content: center;
-            transition: all .15s;
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            display: none; background: #e2e8f0; border: none; border-radius: 50%;
+            width: 20px; height: 20px; cursor: pointer; font-size: .65rem; color: #64748b;
+            align-items: center; justify-content: center; transition: all .15s;
         }
-
-            .grid-search-clear:hover {
-                background: #dc2626;
-                color: #fff;
-            }
-
+        .grid-search-clear:hover { background: #dc2626; color: #fff; }
         .grid-result-chip {
-            display: none;
-            font-size: .76rem;
-            font-weight: 600;
-            color: #1d4ed8;
-            background: #dbeafe;
-            border-radius: 20px;
-            padding: 3px 12px;
-            white-space: nowrap;
+            display: none; font-size: .76rem; font-weight: 600;
+            color: #1d4ed8; background: #dbeafe;
+            border-radius: 20px; padding: 3px 12px; white-space: nowrap;
         }
 
         /* ── Table ── */
         .table-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            overflow: hidden;
+            background: #fff; border: 1px solid #e2e8f0;
+            border-radius: 14px; overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-
-        .table-responsive-wrap {
-            overflow-x: auto;
-        }
+        .table-responsive-wrap { overflow-x: auto; }
 
         .faculty-tbl {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .82rem;
-            min-width: 1400px;
+            width: 100%; border-collapse: collapse;
+            font-size: .82rem; min-width: 1400px;
         }
-
-            .faculty-tbl thead th {
-                background: var(--navy);
-                color: rgba(255,255,255,0.82);
-                padding: .75rem .8rem;
-                font-weight: 600;
-                font-size: .68rem;
-                letter-spacing: .05em;
-                text-transform: uppercase;
-                border: none;
-            }
-
-                .faculty-tbl thead th:first-child {
-                    width: 46px;
-                    text-align: center;
-                }
-
-            .faculty-tbl tbody tr {
-                border-bottom: 1px solid #f0f4f9;
-                transition: background .12s;
-            }
-
-                .faculty-tbl tbody tr:last-child {
-                    border-bottom: none;
-                }
-
-                .faculty-tbl tbody tr:hover {
-                    background: #f8faff;
-                }
-
-            .faculty-tbl td {
-                padding: .5rem .7rem;
-                vertical-align: middle;
-            }
-
-                .faculty-tbl td.sl-cell {
-                    text-align: center;
-                    font-weight: 700;
-                    color: #64748b;
-                    font-size: .8rem;
-                    background: #f8fafc;
-                }
-
-                .faculty-tbl td .cell-text {
-                    font-size: .81rem;
-                    color: #334155;
-                }
+        .faculty-tbl thead th {
+            background: var(--navy); color: rgba(255,255,255,0.82);
+            padding: .75rem .8rem; font-weight: 600;
+            font-size: .68rem; letter-spacing: .05em;
+            text-transform: uppercase; border: none;
+        }
+        .faculty-tbl thead th:first-child { width: 46px; text-align: center; }
+        .faculty-tbl tbody tr { border-bottom: 1px solid #f0f4f9; transition: background .12s; }
+        .faculty-tbl tbody tr:last-child { border-bottom: none; }
+        .faculty-tbl tbody tr:hover { background: #f8faff; }
+        .faculty-tbl td { padding: .5rem .7rem; vertical-align: middle; }
+        .faculty-tbl td.sl-cell {
+            text-align: center; font-weight: 700; color: #64748b;
+            font-size: .8rem; background: #f8fafc;
+        }
+        .faculty-tbl td .cell-text { font-size: .81rem; color: #334155; }
 
         /* Photo in table */
-        .faculty-photo-wrapper {
-            width: 44px;
-            height: 52px;
-            margin: auto;
-            position: relative;
-        }
-
+        .faculty-photo-wrapper { width: 44px; height: 52px; margin: auto; position: relative; }
         .thumb-img {
-            width: 44px;
-            height: 52px;
-            object-fit: cover;
-            border-radius: 5px;
-            border: 1px solid #cfcfcf;
-            background: #fff;
-            opacity: 0;
-            transition: opacity .3s ease;
+            width: 44px; height: 52px; object-fit: cover;
+            border-radius: 5px; border: 1px solid #cfcfcf;
+            background: #fff; display: block;
         }
-
         .thumb-placeholder {
-            width: 44px;
-            height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f3f3f3;
-            border: 1px solid #d5d5d5;
-            border-radius: 5px;
-            color: #888;
-            font-size: 18px;
+            width: 44px; height: 52px;
+            display: flex; align-items: center; justify-content: center;
+            background: #f3f3f3; border: 1px solid #d5d5d5;
+            border-radius: 5px; color: #888; font-size: 18px;
         }
 
         /* Employment badges */
         .emp-badge {
-            display: inline-flex;
-            align-items: center;
-            font-size: .7rem;
-            font-weight: 600;
-            padding: 2px 9px;
-            border-radius: 20px;
+            display: inline-flex; align-items: center;
+            font-size: .7rem; font-weight: 600;
+            padding: 2px 9px; border-radius: 20px;
         }
-
-        .emp-permanent {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .emp-contract {
-            background: #fef9c3;
-            color: #854d0e;
-        }
-
-        .emp-others {
-            background: #f1f5f9;
-            color: #475569;
-        }
+        .emp-permanent { background: #dcfce7; color: #166534; }
+        .emp-contract  { background: #fef9c3; color: #854d0e; }
+        .emp-others    { background: #f1f5f9; color: #475569; }
 
         /* Buttons in table */
         .btn-del {
-            width: 29px;
-            height: 29px;
-            border-radius: 7px;
-            border: none;
-            background: #fee2e2;
-            color: #dc2626;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: .85rem;
-            transition: all .15s;
+            width: 29px; height: 29px; border-radius: 7px; border: none;
+            background: #fee2e2; color: #dc2626;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: .85rem; transition: all .15s;
         }
-
-            .btn-del:hover {
-                background: #dc2626;
-                color: #fff;
-            }
-
-            .btn-del:disabled {
-                opacity: .35;
-                cursor: not-allowed;
-            }
+        .btn-del:hover { background: #dc2626; color: #fff; }
+        .btn-del:disabled { opacity: .35; cursor: not-allowed; }
 
         .btn-view-faculty {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: .75rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 7px;
-            border: 1px solid #dde3ee;
-            background: #f8fafc;
-            color: #1a73e8;
-            cursor: pointer;
-            transition: all .15s;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: .75rem; font-weight: 600;
+            padding: 4px 10px; border-radius: 7px;
+            border: 1px solid #dde3ee; background: #f8fafc; color: #1a73e8;
+            cursor: pointer; transition: all .15s; white-space: nowrap;
         }
+        .btn-view-faculty:hover { background: #1a73e8; color: #fff; border-color: #1a73e8; }
 
-            .btn-view-faculty:hover {
-                background: #1a73e8;
-                color: #fff;
-                border-color: #1a73e8;
-            }
-
-        .empty-row td {
-            text-align: center;
-            padding: 2.5rem;
-            color: #94a3b8;
-            font-size: .85rem;
-        }
+        .empty-row td { text-align: center; padding: 2.5rem; color: #94a3b8; font-size: .85rem; }
 
         /* Confirm Button */
         .btn-confirm {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
             background: linear-gradient(135deg, #059669, #047857);
-            border: none;
-            color: #fff;
-            font-weight: 600;
-            border-radius: 9px;
-            padding: .52rem 1.4rem;
-            font-size: .85rem;
-            cursor: pointer;
-            transition: all .2s;
+            border: none; color: #fff; font-weight: 600;
+            border-radius: 9px; padding: .52rem 1.4rem; font-size: .85rem;
+            cursor: pointer; transition: all .2s;
             box-shadow: 0 3px 10px rgba(5,150,105,0.22);
         }
-
-            .btn-confirm:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 5px 16px rgba(5,150,105,0.32);
-            }
+        .btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(5,150,105,0.32); }
 
         /* ── LIST TAB ── */
         .list-toolbar-new {
-            background: #fff;
-            border: 1px solid #e8ecf2;
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
+            background: #fff; border: 1px solid #e8ecf2;
+            border-radius: 14px; padding: 1rem 1.25rem;
             margin-bottom: 1rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-
         .list-toolbar-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: .6rem;
-            margin-bottom: .85rem;
+            display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap;
+            gap: .6rem; margin-bottom: .85rem;
         }
-
         .list-toolbar-title {
-            font-size: .95rem;
-            font-weight: 700;
-            color: #0d1b2a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: .95rem; font-weight: 700; color: #0d1b2a;
+            display: flex; align-items: center; gap: 8px;
         }
-
-            .list-toolbar-title .count-chip {
-                display: inline-flex;
-                align-items: center;
-                background: #dbeafe;
-                color: #1e40af;
-                border-radius: 20px;
-                padding: 1px 10px;
-                font-size: .72rem;
-                font-weight: 700;
-            }
-
-        .list-search-row {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            flex-wrap: wrap;
+        .list-toolbar-title .count-chip {
+            display: inline-flex; align-items: center;
+            background: #dbeafe; color: #1e40af;
+            border-radius: 20px; padding: 1px 10px;
+            font-size: .72rem; font-weight: 700;
         }
+        .list-search-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
 
-        .search-input-wrap {
-            position: relative;
-            flex: 1;
-            min-width: 220px;
+        .search-input-wrap { position: relative; flex: 1; min-width: 220px; }
+        .search-input-wrap .s-icon {
+            position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+            color: #94a3b8; font-size: 1rem; pointer-events: none;
         }
-
-            .search-input-wrap .s-icon {
-                position: absolute;
-                left: 11px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: #94a3b8;
-                font-size: 1rem;
-                pointer-events: none;
-            }
-
-            .search-input-wrap input {
-                width: 100%;
-                padding: .48rem .75rem .48rem 2.1rem;
-                font-size: .84rem;
-                border: 1.5px solid #e2e8f0;
-                border-radius: 10px;
-                background: #f8fafc;
-                color: #0f172a;
-                font-family: 'DM Sans', sans-serif;
-                transition: all .2s;
-                outline: none;
-            }
-
-                .search-input-wrap input:focus {
-                    border-color: var(--blue);
-                    background: #fff;
-                    box-shadow: 0 0 0 3px rgba(26,115,232,0.09);
-                }
-
+        .search-input-wrap input {
+            width: 100%; padding: .48rem .75rem .48rem 2.1rem;
+            font-size: .84rem; border: 1.5px solid #e2e8f0;
+            border-radius: 10px; background: #f8fafc; color: #0f172a;
+            font-family: 'DM Sans', sans-serif; transition: all .2s; outline: none;
+        }
+        .search-input-wrap input:focus {
+            border-color: var(--blue); background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.09);
+        }
         .search-clear-btn {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #e2e8f0;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: .65rem;
-            color: #64748b;
-            transition: all .15s;
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            background: #e2e8f0; border: none; border-radius: 50%;
+            width: 20px; height: 20px; display: none;
+            align-items: center; justify-content: center;
+            cursor: pointer; font-size: .65rem; color: #64748b; transition: all .15s;
         }
-
-            .search-clear-btn:hover {
-                background: #dc2626;
-                color: #fff;
-            }
+        .search-clear-btn:hover { background: #dc2626; color: #fff; }
 
         .filter-select {
-            padding: .46rem .75rem;
-            font-size: .82rem;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            background: #f8fafc;
-            color: #374151;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            outline: none;
-            transition: all .2s;
-            min-width: 150px;
+            padding: .46rem .75rem; font-size: .82rem;
+            border: 1.5px solid #e2e8f0; border-radius: 10px;
+            background: #f8fafc; color: #374151;
+            font-family: 'DM Sans', sans-serif; cursor: pointer;
+            outline: none; transition: all .2s; min-width: 150px;
         }
-
-            .filter-select:focus {
-                border-color: var(--blue);
-                background: #fff;
-                box-shadow: 0 0 0 3px rgba(26,115,232,0.09);
-            }
-
-        .filter-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: .55rem;
+        .filter-select:focus {
+            border-color: var(--blue); background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.09);
         }
-
+        .filter-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: .55rem; }
         .filter-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            border: 1px solid #bfdbfe;
-            border-radius: 20px;
-            padding: 2px 10px;
-            font-size: .72rem;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 5px;
+            background: #eff6ff; color: #1d4ed8;
+            border: 1px solid #bfdbfe; border-radius: 20px;
+            padding: 2px 10px; font-size: .72rem; font-weight: 600;
         }
-
-            .filter-chip .chip-remove {
-                cursor: pointer;
-                font-size: .65rem;
-                color: #3b82f6;
-                transition: color .15s;
-            }
-
-                .filter-chip .chip-remove:hover {
-                    color: #dc2626;
-                }
+        .filter-chip .chip-remove { cursor: pointer; font-size: .65rem; color: #3b82f6; transition: color .15s; }
+        .filter-chip .chip-remove:hover { color: #dc2626; }
 
         .search-result-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: .5rem;
-            padding: .55rem .85rem;
-            background: #f8fafc;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: .5rem;
+            padding: .55rem .85rem; background: #f8fafc;
             border-bottom: 1px solid #edf2f7;
-            font-size: .79rem;
-            color: #64748b;
+            font-size: .79rem; color: #64748b;
         }
-
-            .search-result-bar .result-count strong {
-                color: #0d1b2a;
-            }
-
+        .search-result-bar .result-count strong { color: #0d1b2a; }
         .reset-search-link {
-            color: var(--blue);
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            font-size: .79rem;
+            color: var(--blue); cursor: pointer; font-weight: 600;
+            text-decoration: none; font-size: .79rem;
         }
-
-            .reset-search-link:hover {
-                text-decoration: underline;
-            }
-
+        .reset-search-link:hover { text-decoration: underline; }
         mark.search-highlight {
-            background: #fef9c3;
-            color: #713f12;
-            border-radius: 2px;
-            padding: 0 2px;
-            font-weight: 600;
+            background: #fef9c3; color: #713f12;
+            border-radius: 2px; padding: 0 2px; font-weight: 600;
         }
 
         .list-tbl {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .82rem;
-            min-width: 1400px;
+            width: 100%; border-collapse: collapse;
+            font-size: .82rem; min-width: 1400px;
         }
-
-            .list-tbl thead th {
-                background: var(--navy);
-                color: rgba(255,255,255,0.82);
-                padding: .75rem .85rem;
-                font-weight: 600;
-                font-size: .68rem;
-                letter-spacing: .05em;
-                text-transform: uppercase;
-                border: none;
-                cursor: pointer;
-                user-select: none;
-                white-space: nowrap;
-            }
-
-                .list-tbl thead th:hover {
-                    background: #1a2f4a;
-                }
-
-                .list-tbl thead th .sort-icon {
-                    font-size: .65rem;
-                    opacity: .5;
-                    margin-left: 3px;
-                }
-
-                .list-tbl thead th.sort-asc .sort-icon,
-                .list-tbl thead th.sort-desc .sort-icon {
-                    opacity: 1;
-                    color: #93c5fd;
-                }
-
-            .list-tbl tbody tr {
-                border-bottom: 1px solid #f0f4f9;
-            }
-
-                .list-tbl tbody tr:hover {
-                    background: #f8faff;
-                }
-
-            .list-tbl td {
-                padding: .55rem .85rem;
-                vertical-align: middle;
-                font-size: .81rem;
-            }
-
-                .list-tbl td:first-child {
-                    text-align: center;
-                    font-weight: 700;
-                    color: #64748b;
-                    background: #f8fafc;
-                    width: 46px;
-                }
+        .list-tbl thead th {
+            background: var(--navy); color: rgba(255,255,255,0.82);
+            padding: .75rem .85rem; font-weight: 600;
+            font-size: .68rem; letter-spacing: .05em;
+            text-transform: uppercase; border: none;
+            cursor: pointer; user-select: none; white-space: nowrap;
+        }
+        .list-tbl thead th:hover { background: #1a2f4a; }
+        .list-tbl thead th .sort-icon { font-size: .65rem; opacity: .5; margin-left: 3px; }
+        .list-tbl thead th.sort-asc .sort-icon,
+        .list-tbl thead th.sort-desc .sort-icon { opacity: 1; color: #93c5fd; }
+        .list-tbl tbody tr { border-bottom: 1px solid #f0f4f9; }
+        .list-tbl tbody tr:hover { background: #f8faff; }
+        .list-tbl td { padding: .55rem .85rem; vertical-align: middle; font-size: .81rem; }
+        .list-tbl td:first-child {
+            text-align: center; font-weight: 700; color: #64748b;
+            background: #f8fafc; width: 46px;
+        }
 
         .badge-submitted {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #dcfce7;
-            color: #166534;
-            border-radius: 20px;
-            padding: 2px 10px;
-            font-size: .72rem;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #dcfce7; color: #166534;
+            border-radius: 20px; padding: 2px 10px;
+            font-size: .72rem; font-weight: 600;
         }
-
-        .no-results-row td {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #94a3b8;
-        }
-
-        .no-results-icon {
-            font-size: 2.5rem;
-            color: #cbd5e1;
-            display: block;
-            margin-bottom: .6rem;
-        }
-
-        .no-results-title {
-            font-size: .9rem;
-            font-weight: 600;
-            color: #475569;
-        }
-
-        .no-results-sub {
-            font-size: .8rem;
-            margin-top: .25rem;
-        }
+        .no-results-row td { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
+        .no-results-icon { font-size: 2.5rem; color: #cbd5e1; display: block; margin-bottom: .6rem; }
+        .no-results-title { font-size: .9rem; font-weight: 600; color: #475569; }
+        .no-results-sub { font-size: .8rem; margin-top: .25rem; }
 
         .btn-export {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            border: none;
-            font-weight: 600;
-            border-radius: 9px;
-            padding: .45rem 1.1rem;
-            font-size: .82rem;
-            cursor: pointer;
-            transition: all .2s;
+            display: inline-flex; align-items: center; gap: 6px;
+            border: none; font-weight: 600;
+            border-radius: 9px; padding: .45rem 1.1rem;
+            font-size: .82rem; cursor: pointer; transition: all .2s;
         }
-
-            .btn-export.excel {
-                background: #d1fae5;
-                color: #065f46;
-            }
-
-                .btn-export.excel:hover {
-                    background: #059669;
-                    color: #fff;
-                }
-
-            .btn-export.pdf {
-                background: #fee2e2;
-                color: #991b1b;
-            }
-
-                .btn-export.pdf:hover {
-                    background: #dc2626;
-                    color: #fff;
-                }
+        .btn-export.excel { background: #d1fae5; color: #065f46; }
+        .btn-export.excel:hover { background: #059669; color: #fff; }
+        .btn-export.pdf { background: #fee2e2; color: #991b1b; }
+        .btn-export.pdf:hover { background: #dc2626; color: #fff; }
 
         /* Upload / Completed */
         .upload-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 1.4rem 1.6rem;
+            background: #fff; border: 1px solid #e2e8f0;
+            border-radius: 14px; padding: 1.4rem 1.6rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-
         .upload-zone {
-            border: 2px dashed #cbd5e1;
-            border-radius: 10px;
-            padding: 1.8rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all .2s;
-            background: #f8fafc;
+            border: 2px dashed #cbd5e1; border-radius: 10px;
+            padding: 1.8rem; text-align: center; cursor: pointer;
+            transition: all .2s; background: #f8fafc;
         }
-
-            .upload-zone:hover, .upload-zone.dragover {
-                border-color: var(--blue);
-                background: #eff6ff;
-            }
-
-            .upload-zone i {
-                font-size: 1.8rem;
-                color: #94a3b8;
-            }
-
-            .upload-zone p {
-                font-size: .84rem;
-                color: #64748b;
-                margin: .3rem 0 0;
-            }
-
-            .upload-zone small {
-                font-size: .74rem;
-                color: #94a3b8;
-            }
+        .upload-zone:hover, .upload-zone.dragover { border-color: var(--blue); background: #eff6ff; }
+        .upload-zone i { font-size: 1.8rem; color: #94a3b8; }
+        .upload-zone p { font-size: .84rem; color: #64748b; margin: .3rem 0 0; }
+        .upload-zone small { font-size: .74rem; color: #94a3b8; }
 
         .completed-card {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 14px;
-            padding: 1.8rem;
-            text-align: center;
+            background: #f0fdf4; border: 1px solid #bbf7d0;
+            border-radius: 14px; padding: 1.8rem; text-align: center;
         }
-
         .completed-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-            border-radius: 20px;
-            padding: .4rem 1.1rem;
-            font-size: .84rem;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: .5rem;
+            background: #dcfce7; color: #166534;
+            border: 1px solid #bbf7d0; border-radius: 20px;
+            padding: .4rem 1.1rem; font-size: .84rem; font-weight: 600;
         }
 
         /* Preview Modal */
-        .modal-preview .modal-dialog {
-            max-width: 960px;
-        }
-
-        .modal-preview .modal-content {
-            border-radius: 16px;
-            border: none;
-        }
-
+        .modal-preview .modal-dialog { max-width: 960px; }
+        .modal-preview .modal-content { border-radius: 16px; border: none; }
         .modal-preview .modal-header {
             background: linear-gradient(135deg, #0d1b2a, #1e3a5f);
-            color: #fff;
-            padding: 1.1rem 1.6rem;
-            border: none;
+            color: #fff; padding: 1.1rem 1.6rem; border: none;
             border-radius: 16px 16px 0 0;
         }
-
-        .modal-preview .modal-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
+        .modal-preview .modal-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+        .preview-tbl { font-size: .8rem; }
+        .preview-tbl th {
+            background: #f8fafc; font-weight: 600; font-size: .72rem;
+            text-transform: uppercase; letter-spacing: .04em; color: #64748b;
         }
-
-        .preview-tbl {
-            font-size: .8rem;
-        }
-
-            .preview-tbl th {
-                background: #f8fafc;
-                font-weight: 600;
-                font-size: .72rem;
-                text-transform: uppercase;
-                letter-spacing: .04em;
-                color: #64748b;
-            }
-
         .declaration-box {
-            background: #fffbeb;
-            border: 1px solid #fcd34d;
-            border-radius: 10px;
-            padding: .9rem 1.1rem;
-            font-size: .82rem;
-            color: #78350f;
-            line-height: 1.65;
+            background: #fffbeb; border: 1px solid #fcd34d;
+            border-radius: 10px; padding: .9rem 1.1rem;
+            font-size: .82rem; color: #78350f; line-height: 1.65;
         }
-
         .btn-declare {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
             background: linear-gradient(135deg, #059669, #047857);
-            border: none;
-            color: #fff;
-            font-weight: 600;
-            border-radius: 9px;
-            padding: .55rem 1.3rem;
-            font-size: .86rem;
-            cursor: pointer;
-            transition: all .2s;
+            border: none; color: #fff; font-weight: 600;
+            border-radius: 9px; padding: .55rem 1.3rem; font-size: .86rem;
+            cursor: pointer; transition: all .2s;
             box-shadow: 0 5px 14px rgba(5,150,105,0.3);
         }
-
-            .btn-declare:hover {
-                transform: translateY(-1px);
-            }
+        .btn-declare:hover { transform: translateY(-1px); }
 
         .page-footer {
-            text-align: center;
-            font-size: .75rem;
-            color: #94a3b8;
-            padding: 1rem 1.8rem;
-            border-top: 1px solid #e9edf2;
+            text-align: center; font-size: .75rem; color: #94a3b8;
+            padding: 1rem 1.8rem; border-top: 1px solid #e9edf2;
         }
 
         /* Faculty Detail Modal */
         .fdm-photo-img {
-            width: 96px;
-            height: 115px;
-            border-radius: 8px;
-            object-fit: cover;
-            border: 2px solid #e2e8f0;
+            width: 96px; height: 115px; border-radius: 8px;
+            object-fit: cover; border: 2px solid #e2e8f0;
             box-shadow: 0 2px 10px rgba(0,0,0,.12);
         }
-
         .fdm-photo-placeholder {
-            width: 96px;
-            height: 115px;
-            border-radius: 8px;
-            background: #e8edf2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            font-size: 2.4rem;
-            border: 1px solid #dde3ee;
+            width: 96px; height: 115px; border-radius: 8px;
+            background: #e8edf2; display: flex;
+            align-items: center; justify-content: center;
+            color: #94a3b8; font-size: 2.4rem; border: 1px solid #dde3ee;
         }
 
         /* Pagination */
         .list-pagination {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: .5rem;
-            padding: .75rem 1rem;
-            border-top: 1px solid #f0f4f9;
-            background: #fcfdfe;
-            font-size: .8rem;
-            color: #64748b;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: .5rem;
+            padding: .75rem 1rem; border-top: 1px solid #f0f4f9;
+            background: #fcfdfe; font-size: .8rem; color: #64748b;
         }
-
-        .pagination-btns {
-            display: flex;
-            gap: 4px;
-        }
-
+        .pagination-btns { display: flex; gap: 4px; }
         .pg-btn {
-            width: 30px;
-            height: 30px;
-            border-radius: 7px;
-            border: 1px solid #e2e8f0;
-            background: #fff;
-            color: #374151;
-            font-size: .78rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all .15s;
+            width: 30px; height: 30px; border-radius: 7px;
+            border: 1px solid #e2e8f0; background: #fff; color: #374151;
+            font-size: .78rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all .15s;
         }
-
-            .pg-btn:hover {
-                background: #f1f5f9;
-            }
-
-            .pg-btn.active {
-                background: var(--navy);
-                color: #fff;
-                border-color: var(--navy);
-            }
-
-            .pg-btn:disabled {
-                opacity: .35;
-                cursor: not-allowed;
-            }
-
+        .pg-btn:hover { background: #f1f5f9; }
+        .pg-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+        .pg-btn:disabled { opacity: .35; cursor: not-allowed; }
         .rows-select {
-            padding: .3rem .5rem;
-            font-size: .78rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 7px;
-            background: #f8fafc;
-            color: #374151;
-            cursor: pointer;
-            outline: none;
+            padding: .3rem .5rem; font-size: .78rem;
+            border: 1px solid #e2e8f0; border-radius: 7px;
+            background: #f8fafc; color: #374151; cursor: pointer; outline: none;
         }
 
         .locked-section {
-            opacity: 0.75;
-            pointer-events: none;
-            position: relative;
+            opacity: 0.75; pointer-events: none; position: relative;
         }
-
-            .locked-section::after {
-                content: "LOCKED";
-                position: absolute;
-                top: 15px;
-                right: 20px;
-                background: #dc2626;
-                color: white;
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 700;
-                letter-spacing: 1px;
-            }
+        .locked-section::after {
+            content: "LOCKED"; position: absolute; top: 15px; right: 20px;
+            background: #dc2626; color: white; padding: 4px 12px;
+            border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -1332,6 +656,16 @@
                 </a>
             </div>
         </nav>
+          <div class="nav-item-wrap">
+                <a class="nav-link-s"
+                   asp-controller="CollegeLogin"
+                   asp-action="Dashboard">
+                    <span class="nav-icon-wrap">
+                        <i class="bi bi-arrow-left-circle-fill"></i>
+                    </span>
+                    Back To Dashboard
+                </a>
+            </div>
         <div class="sidebar-footer">
             <form asp-controller="Login" asp-action="Logout" method="post" style="margin:0;">
                 @Html.AntiForgeryToken()
@@ -1340,6 +674,7 @@
                 </button>
             </form>
         </div>
+
     </aside>
 
     <!-- ── MAIN WRAPPER ── -->
@@ -1489,6 +824,7 @@
                         </div>
                     </div>
                 </div>
+
                 @if (isLocked)
                 {
                     <div class="alert alert-danger mb-3" style="border-radius:10px;">
@@ -1496,6 +832,7 @@
                         Faculty submission already completed. Further modification is not allowed.
                     </div>
                 }
+
                 <!-- ── GRID SEARCH BAR ── -->
                 <div class="grid-search-bar">
                     <div class="grid-search-wrap">
@@ -1546,37 +883,18 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end align-items-center gap-2 mt-2 mb-4"
-                     id="confirmBtnWrap">
-
-                    <button class="btn-confirm"
-                            id="btnConfirm"
-                            onclick="confirmData()"
-                            @(isLocked ? "disabled" : "")>
-
+                <div class="d-flex justify-content-end align-items-center gap-2 mt-2 mb-4" id="confirmBtnWrap">
+                    <button class="btn-confirm" id="btnConfirm" onclick="confirmData()" @(isLocked ? "disabled" : "")>
                         @if (isLocked)
                         {
-                            <text>
-                                <i class="bi bi-lock-fill"></i>
-                                Faculty Data Already Submitted
-                            </text>
+                            <text><i class="bi bi-lock-fill"></i> Faculty Data Already Submitted</text>
                         }
                         else
                         {
-                            <text>
-                                <i class="bi bi-check2-all"></i>
-                                All Above Table Data is Confirmed
-                                &nbsp;(Click here to Preview &amp; Generate)
-                            </text>
+                            <text><i class="bi bi-check2-all"></i> All Above Table Data is Confirmed &nbsp;(Click here to Preview &amp; Generate)</text>
                         }
-
                     </button>
                 </div>
-
-
-
-
-               
 
                 <!-- Upload Section -->
                 <div id="uploadSection" style="display:none;" class="mb-4">
@@ -1729,19 +1047,10 @@
                         <table class="table table-bordered preview-tbl mb-0">
                             <thead>
                                 <tr>
-                                    <th>SL</th>
-                                    <th>Department</th>
-                                    <th>Name of Faculty</th>
-                                    <th>Designation</th>
-                                    <th>DOB</th>
-                                    <th>Date of Appt.</th>
-                                    <th>Mobile No</th>
-                                    <th>PAN No</th>
-                                    <th>Council Reg No</th>
-                                    <th>AEBAS ID</th>
-                                    <th>Qualification</th>
-                                    <th>Employment</th>
-                                    <th>Exp (Yrs)</th>
+                                    <th>SL</th><th>Department</th><th>Name of Faculty</th>
+                                    <th>Designation</th><th>DOB</th><th>Date of Appt.</th>
+                                    <th>Mobile No</th><th>PAN No</th><th>Council Reg No</th>
+                                    <th>AEBAS ID</th><th>Qualification</th><th>Employment</th><th>Exp (Yrs)</th>
                                 </tr>
                             </thead>
                             <tbody id="previewBody"></tbody>
@@ -1838,15 +1147,15 @@
     <script>
         // ── Razor → JS ────────────────────────────────────────────────
         const departments = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-                        (ViewBag.Departments as List<Medical_Affiliation.Models.DepartmentMastersForUg>
-                                        ?? Enumerable.Empty<Medical_Affiliation.Models.DepartmentMastersForUg>())
-                        .Select(d => new { id = d.DepartmentCode, name = d.DepartmentName }).ToList()
-                ));
+            (ViewBag.Departments as List<Medical_Affiliation.Models.DepartmentMastersForUg>
+                ?? Enumerable.Empty<Medical_Affiliation.Models.DepartmentMastersForUg>())
+            .Select(d => new { id = d.DepartmentCode, name = d.DepartmentName }).ToList()
+        ));
         const designations = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-                        (ViewBag.Designations as List<Medical_Affiliation.Models.UgdesignationMaster>
-                                        ?? Enumerable.Empty<Medical_Affiliation.Models.UgdesignationMaster>())
-                        .Select(d => new { id = d.DesignationId, name = d.DesignationName }).ToList()
-                ));
+            (ViewBag.Designations as List<Medical_Affiliation.Models.UgdesignationMaster>
+                ?? Enumerable.Empty<Medical_Affiliation.Models.UgdesignationMaster>())
+            .Select(d => new { id = d.DesignationId, name = d.DesignationName }).ToList()
+        ));
         const COLLEGE_NAME = '@Html.Raw((collegeName ?? "").Replace("'", "\\'").Replace("\r", "").Replace("\n", ""))';
         const COLLEGE_CODE = '@Html.Raw(collegeCode.Replace("'", "\\'"))';
 
@@ -1876,19 +1185,41 @@
         let sortColIdx       = -1;
         let sortAsc          = true;
 
+        // ── BASE URL for photo paths (server-safe) ────────────────────
+        // Gets the app base path correctly on both local and server deployments
+        function getBaseUrl() {
+            return window.location.origin;
+        }
+
+        // ── Photo path normaliser (FIXED for server) ──────────────────
+        // Handles: absolute URLs, Windows paths, Linux paths, virtual-dir paths
+       function normalisePhotoPath(p) {
+    if (!p || typeof p !== 'string' || p.trim() === '') return null;
+    return p.trim();
+}
+
+        // ── Build a full photo URL safe for both local & server ───────
+       function buildPhotoUrl(rawPath) {
+    if (!rawPath || rawPath.trim() === '') return null;
+    const p = rawPath.trim();
+    if (p.startsWith('http://') || p.startsWith('https://')) return p;
+    // Relative URL like /UGFaculty/Photo?file=guid.jpg
+    return window.location.origin + (p.startsWith('/') ? p : '/' + p);
+}
+
         // ── Populate dropdowns ────────────────────────────────────────
         (function populateDropdowns() {
             const deptSel  = document.getElementById('f_dept');
             const desigSel = document.getElementById('f_desig');
             const fDept    = document.getElementById('filterDept');
             const fDesig   = document.getElementById('filterDesig');
-            departments.forEach(d  => { deptSel.appendChild(new Option(d.name,d.id));  fDept.appendChild(new Option(d.name,d.id)); });
-            designations.forEach(d => { desigSel.appendChild(new Option(d.name,d.id)); fDesig.appendChild(new Option(d.name,d.id)); });
+            departments.forEach(d  => { deptSel.appendChild(new Option(d.name, d.id));  fDept.appendChild(new Option(d.name, d.id)); });
+            designations.forEach(d => { desigSel.appendChild(new Option(d.name, d.id)); fDesig.appendChild(new Option(d.name, d.id)); });
         })();
 
         // ── Helpers ───────────────────────────────────────────────────
         function escHtml(str) {
-            return String(str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            return String(str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         }
 
         function previewPhoto(input) {
@@ -1962,7 +1293,7 @@
             };
             const url = currentEditId === 0 ? URLS.insertSingleFaculty : URLS.updateSingleFaculty;
             $.ajax({
-                url, method:'POST', contentType:'application/json',
+                url, method: 'POST', contentType: 'application/json',
                 data: JSON.stringify(dto),
                 success(res) {
                     if (res.success) {
@@ -1972,7 +1303,7 @@
                             const fd = new FormData();
                             fd.append('photo', photoInput.files[0]);
                             fd.append('facultyId', tid);
-                            fetch(URLS.uploadPhotoDirect, { method:'POST', body:fd })
+                            fetch(URLS.uploadPhotoDirect, { method: 'POST', body: fd })
                                 .then(r => r.json()).then(() => { syncTableGrid(); clearGridSearch(); });
                         } else {
                             syncTableGrid(); clearGridSearch();
@@ -1980,7 +1311,7 @@
                         resetForm(); clearAlert();
                         Swal.fire({ icon:'success', title:'Saved', text: currentEditId===0 ? 'Faculty added!' : 'Record updated.', timer:1500, showConfirmButton:false });
                     } else {
-                        Swal.fire({ icon:'error', title:'Save Failed', text:res.message });
+                        Swal.fire({ icon:'error', title:'Save Failed', text: res.message });
                     }
                 },
                 error() { Swal.fire({ icon:'error', title:'Error', text:'Server communication failed.' }); }
@@ -2003,8 +1334,8 @@
             document.getElementById('f_qual').value   = t.qual;
             document.getElementById('f_nature').value = t.nature;
             document.getElementById('f_exp').value    = t.exp;
-            if (t.photoPath) {
-                document.getElementById('photoPreviewImg').src = t.photoPath;
+            if (t.photoUrl) {
+                document.getElementById('photoPreviewImg').src = t.photoUrl;
                 document.getElementById('photoPreviewWrap').style.display = 'block';
             } else {
                 document.getElementById('photoPreviewWrap').style.display = 'none';
@@ -2012,33 +1343,30 @@
             const btn = document.getElementById('btnAddEntry');
             btn.innerHTML = '<i class="bi bi-pencil-square"></i> Save Changes';
             btn.className = 'btn btn-warning text-dark fw-bold btn-add-entry';
-            document.getElementById('entryFormCard').scrollIntoView({ behavior:'smooth', block:'center' });
+            document.getElementById('entryFormCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         // ── Grid View Modal (Add Tab) ─────────────────────────────────
         function openGridFacultyModal(dbId) {
             const r = facultyRows.find(x => x.dbId === dbId);
             if (!r) return;
-            const photoSrc = r.photoPath || '';
-        document.getElementById('fdm_photo').innerHTML =
-    r.photoPath
-        ? `<img src="${window.location.origin}${r.photoPath}"
-                 class="fdm-photo-img"
-                 onerror="this.style.display='none';">`
-        : `<div class="fdm-photo-placeholder">
-                <i class="bi bi-person"></i>
-           </div>`;
-            document.getElementById('fdm_name').textContent  = r.name     || '—';
-            document.getElementById('fdm_desig').textContent = r.desigName|| '—';
-            document.getElementById('fdm_dept').textContent  = r.deptName || '—';
-            document.getElementById('fdm_dob').textContent   = r.dob      || '—';
-            document.getElementById('fdm_doa').textContent   = r.doa      || '—';
-            document.getElementById('fdm_qual').textContent  = r.qual     || '—';
-            document.getElementById('fdm_exp').textContent   = r.exp ? r.exp+' yrs' : '—';
-            document.getElementById('fdm_mobile').textContent= r.mobile   || '—';
-            document.getElementById('fdm_pan').textContent   = r.pan      || '—';
-            document.getElementById('fdm_reg').textContent   = r.regNo    || '—';
-            document.getElementById('fdm_aebas').textContent = r.aebas    || '—';
+            // FIX: use pre-built absolute photoUrl
+            document.getElementById('fdm_photo').innerHTML = r.photoUrl
+                ? `<img src="${escHtml(r.photoUrl)}" class="fdm-photo-img"
+                       alt="${escHtml(r.name)}"
+                       onerror="this.outerHTML='<div class=\\'fdm-photo-placeholder\\'><i class=\\'bi bi-person-fill\\'></i></div>'">`
+                : `<div class="fdm-photo-placeholder"><i class="bi bi-person-fill"></i></div>`;
+            document.getElementById('fdm_name').textContent   = r.name      || '—';
+            document.getElementById('fdm_desig').textContent  = r.desigName || '—';
+            document.getElementById('fdm_dept').textContent   = r.deptName  || '—';
+            document.getElementById('fdm_dob').textContent    = r.dob       || '—';
+            document.getElementById('fdm_doa').textContent    = r.doa       || '—';
+            document.getElementById('fdm_qual').textContent   = r.qual      || '—';
+            document.getElementById('fdm_exp').textContent    = r.exp ? r.exp + ' yrs' : '—';
+            document.getElementById('fdm_mobile').textContent = r.mobile    || '—';
+            document.getElementById('fdm_pan').textContent    = r.pan       || '—';
+            document.getElementById('fdm_reg').textContent    = r.regNo     || '—';
+            document.getElementById('fdm_aebas').textContent  = r.aebas     || '—';
             setNatureBadge(r.nature || '—');
             new bootstrap.Modal(document.getElementById('facultyDetailModal')).show();
         }
@@ -2047,22 +1375,23 @@
         function openListFacultyModal(idx) {
             const r = filteredListData[idx];
             if (!r) return;
-            const photoSrc = r._photoPath || '';
-            document.getElementById('fdm_photo').innerHTML = photoSrc
-                ? `<img src="${escHtml(photoSrc)}" class="fdm-photo-img" alt="${escHtml(r.nameOftheFaculty)}"
-                      onerror="this.outerHTML='<div class=fdm-photo-placeholder><i class=bi bi-person-fill></i></div>'">`
+            // FIX: use pre-built absolute _photoUrl
+            document.getElementById('fdm_photo').innerHTML = r._photoUrl
+                ? `<img src="${escHtml(r._photoUrl)}" class="fdm-photo-img"
+                       alt="${escHtml(r.nameOftheFaculty || '')}"
+                       onerror="this.outerHTML='<div class=\\'fdm-photo-placeholder\\'><i class=\\'bi bi-person-fill\\'></i></div>'">`
                 : `<div class="fdm-photo-placeholder"><i class="bi bi-person-fill"></i></div>`;
-            document.getElementById('fdm_name').textContent  = r.nameOftheFaculty         || '—';
-            document.getElementById('fdm_desig').textContent = r._desigName               || '—';
-            document.getElementById('fdm_dept').textContent  = r._deptName                || '—';
-            document.getElementById('fdm_dob').textContent   = r.dob                      || '—';
-            document.getElementById('fdm_doa').textContent   = r.dateOfAppointment        || '—';
-            document.getElementById('fdm_qual').textContent  = r.professionalQualification|| '—';
-            document.getElementById('fdm_exp').textContent   = r.teachingExpInYrs ? r.teachingExpInYrs+' yrs' : '—';
-            document.getElementById('fdm_mobile').textContent= r.mobileNo                 || '—';
-            document.getElementById('fdm_pan').textContent   = r.panNo                    || '—';
-            document.getElementById('fdm_reg').textContent   = r.stateCouncilRegNo        || '—';
-            document.getElementById('fdm_aebas').textContent = r.aEBASAttendId            || '—';
+            document.getElementById('fdm_name').textContent   = r.nameOftheFaculty          || '—';
+            document.getElementById('fdm_desig').textContent  = r._desigName                || '—';
+            document.getElementById('fdm_dept').textContent   = r._deptName                 || '—';
+            document.getElementById('fdm_dob').textContent    = r.dob                       || '—';
+            document.getElementById('fdm_doa').textContent    = r.dateOfAppointment         || '—';
+            document.getElementById('fdm_qual').textContent   = r.professionalQualification || '—';
+            document.getElementById('fdm_exp').textContent    = r.teachingExpInYrs ? r.teachingExpInYrs + ' yrs' : '—';
+            document.getElementById('fdm_mobile').textContent = r.mobileNo                  || '—';
+            document.getElementById('fdm_pan').textContent    = r.panNo                     || '—';
+            document.getElementById('fdm_reg').textContent    = r.stateCouncilRegNo         || '—';
+            document.getElementById('fdm_aebas').textContent  = r.aEBASAttendId             || '—';
             setNatureBadge(r.natureOfEmployment || '—');
             new bootstrap.Modal(document.getElementById('facultyDetailModal')).show();
         }
@@ -2070,28 +1399,28 @@
         function setNatureBadge(nat) {
             const el = document.getElementById('fdm_nature_badge');
             el.textContent = nat;
-            if (nat === 'Permanent')     { el.style.background='#dcfce7'; el.style.color='#166534'; }
-            else if (nat === 'Contract') { el.style.background='#fef9c3'; el.style.color='#854d0e'; }
-            else                         { el.style.background='#f1f5f9'; el.style.color='#475569'; }
+            if (nat === 'Permanent')     { el.style.background = '#dcfce7'; el.style.color = '#166534'; }
+            else if (nat === 'Contract') { el.style.background = '#fef9c3'; el.style.color = '#854d0e'; }
+            else                         { el.style.background = '#f1f5f9'; el.style.color = '#475569'; }
         }
 
         // ── Delete ────────────────────────────────────────────────────
         function deleteRow(seq, dbId) {
             if (declared) return;
             Swal.fire({
-                title:'Delete this entry?', text:'This permanently removes the record.',
-                icon:'warning', showCancelButton:true,
-                confirmButtonColor:'#dc2626', confirmButtonText:'Yes, delete'
+                title: 'Delete this entry?', text: 'This permanently removes the record.',
+                icon: 'warning', showCancelButton: true,
+                confirmButtonColor: '#dc2626', confirmButtonText: 'Yes, delete'
             }).then(result => {
                 if (!result.isConfirmed) return;
                 $.ajax({
-                    url:URLS.deleteFaculty, method:'POST', contentType:'application/json',
-                    data:JSON.stringify({Id:dbId}),
+                    url: URLS.deleteFaculty, method: 'POST', contentType: 'application/json',
+                    data: JSON.stringify({ Id: dbId }),
                     success(res) {
                         if (res.success) {
-                            Swal.fire({toast:true,icon:'success',title:'Deleted',position:'top-end',showConfirmButton:false,timer:1500});
+                            Swal.fire({ toast:true, icon:'success', title:'Deleted', position:'top-end', showConfirmButton:false, timer:1500 });
                             syncTableGrid(); clearGridSearch();
-                        } else { Swal.fire({icon:'error',title:'Failed',text:res.message}); }
+                        } else { Swal.fire({ icon:'error', title:'Failed', text: res.message }); }
                     }
                 });
             });
@@ -2106,15 +1435,26 @@
                         rowSeq++;
                         const dM  = departments.find(d => d.id === r.departmentCode);
                         const dsM = designations.find(d => d.id === r.designationCode);
+                        // FIX: build absolute URL once here, use everywhere
+                        const photoUrl = buildPhotoUrl(r.photoFilePath);
                         return {
-                            seq:rowSeq, dbId:r.id,
-                            deptId:r.departmentCode,    deptName: dM  ? dM.name  : r.departmentCode,
-                            desigId:r.designationCode,  desigName:dsM ? dsM.name : r.designationCode,
-                            name:r.nameOftheFaculty,    dob:r.dob,         doa:r.dateOfAppointment,
-                            mobile:r.mobileNo,          pan:r.panNo,       regNo:r.stateCouncilRegNo,
-                            aebas:r.aEBASAttendId,      qual:r.professionalQualification,
-                            nature:r.natureOfEmployment,exp:r.teachingExpInYrs,
-                            photoPath:normalisePhotoPath(r.photoFilePath)
+                            seq      : rowSeq,
+                            dbId     : r.id,
+                            deptId   : r.departmentCode,
+                            deptName : dM  ? dM.name  : (r.departmentCode  || ''),
+                            desigId  : r.designationCode,
+                            desigName: dsM ? dsM.name : (r.designationCode || ''),
+                            name     : r.nameOftheFaculty,
+                            dob      : r.dob,
+                            doa      : r.dateOfAppointment,
+                            mobile   : r.mobileNo,
+                            pan      : r.panNo,
+                            regNo    : r.stateCouncilRegNo,
+                            aebas    : r.aEBASAttendId,
+                            qual     : r.professionalQualification,
+                            nature   : r.natureOfEmployment,
+                            exp      : r.teachingExpInYrs,
+                            photoUrl : photoUrl   // absolute URL, null if no photo
                         };
                     });
                     renderTable();
@@ -2122,22 +1462,9 @@
             });
         }
 
-        function normalisePhotoPath(p) {
-            if (!p || p.trim()==='') return null;
-            p = p.trim();
-            if (p.startsWith('http://')||p.startsWith('https://')) return p;
-            const folders=['wwwroot','uploads','photos','images','faculty','FacultyPhotos','PhotoUploads'];
-            const n = p.replace(/\\/g,'/');
-            for (const f of folders) {
-                const i=n.indexOf('/'+f+'/'); if(i!==-1) return n.substring(i);
-                const i2=n.indexOf(f+'/');   if(i2!==-1) return '/'+n.substring(i2);
-            }
-            return n.startsWith('/') ? n : '/'+n;
-        }
-
         // ── Grid Search (Add Tab) ─────────────────────────────────────
         function filterGrid(query) {
-            const q    = (query||'').toLowerCase().trim();
+            const q    = (query || '').toLowerCase().trim();
             const btn  = document.getElementById('gridClearBtn');
             const chip = document.getElementById('gridResultChip');
             btn.style.display = q ? 'flex' : 'none';
@@ -2164,9 +1491,7 @@
 
         // ── Render Add-tab table ──────────────────────────────────────
         function renderTable() {
-            // Reset grid search on re-render
             clearGridSearch();
-
             const tbody = document.getElementById('facultyBody');
             if (!facultyRows.length) {
                 tbody.innerHTML = `<tr class="empty-row"><td colspan="17"><i class="bi bi-people me-2"></i>No records found. Complete the form above and click <strong>Add to List</strong>.</td></tr>`;
@@ -2174,25 +1499,21 @@
             }
             let html = '';
             facultyRows.forEach(r => {
-                let rp = (r.photoPath||'').replace(/\\/g,'/').replace(/\/+/g,'/');
-                if (rp && !rp.startsWith('/')) rp = '/'+rp;
-             const photoCell = rp
-    ? `<div class="faculty-photo-wrapper">
-         <img src="${window.location.origin}${escHtml(rp)}"
-              class="thumb-img"
-              loading="lazy"
-              alt="${escHtml(r.name)}"
-              onload="this.style.opacity='1';"
-              onerror="this.style.display='none';const ph=this.nextElementSibling;if(ph)ph.style.display='flex';" />
-         <div class="thumb-placeholder" style="display:none;">
-             <i class="bi bi-person-fill"></i>
-         </div>
-       </div>`
-    : `<div class="thumb-placeholder">
-         <i class="bi bi-person-fill"></i>
-       </div>`;
+                // FIX: use pre-built absolute photoUrl directly (no path manipulation here)
+                const photoCell = r.photoUrl
+                    ? `<div class="faculty-photo-wrapper">
+                           <img src="${escHtml(r.photoUrl)}"
+                                class="thumb-img"
+                                loading="lazy"
+                                alt="${escHtml(r.name)}"
+                                onerror="this.style.display='none';var ph=this.nextElementSibling;if(ph)ph.style.display='flex';" />
+                           <div class="thumb-placeholder" style="display:none;">
+                               <i class="bi bi-person-fill"></i>
+                           </div>
+                       </div>`
+                    : `<div class="thumb-placeholder"><i class="bi bi-person-fill"></i></div>`;
 
-                const empClass = r.nature==='Permanent' ? 'emp-permanent' : r.nature==='Contract' ? 'emp-contract' : 'emp-others';
+                const empClass = r.nature === 'Permanent' ? 'emp-permanent' : r.nature === 'Contract' ? 'emp-contract' : 'emp-others';
 
                 html += `<tr>
                     <td class="sl-cell">${r.seq}</td>
@@ -2203,7 +1524,7 @@
                     <td><span class="cell-text">${escHtml(r.doa)}</span></td>
                     <td><span class="cell-text">${escHtml(r.mobile)}</span></td>
                     <td><span class="cell-text">${escHtml(r.pan)}</span></td>
-                    <td><span class="cell-text">${escHtml(r.regNo)||'—'}</span></td>
+                    <td><span class="cell-text">${escHtml(r.regNo) || '—'}</span></td>
                     <td><span class="cell-text">${escHtml(r.aebas)}</span></td>
                     <td><span class="cell-text">${escHtml(r.qual)}</span></td>
                     <td><span class="emp-badge ${empClass}">${escHtml(r.nature)}</span></td>
@@ -2220,7 +1541,7 @@
                         </button>
                     </td>
                     <td class="text-center">
-                        <button class="btn-del" onclick="deleteRow(${r.seq},${r.dbId})" ${declared?'disabled':''}>
+                        <button class="btn-del" onclick="deleteRow(${r.seq},${r.dbId})" ${declared ? 'disabled' : ''}>
                             <i class="bi bi-trash3"></i>
                         </button>
                     </td>
@@ -2231,15 +1552,15 @@
 
         // ── Confirm / Preview ─────────────────────────────────────────
         function confirmData() {
-            if (!facultyRows.length) { showAlert('Please insert at least one record first.','danger'); return; }
+            if (!facultyRows.length) { showAlert('Please insert at least one record first.', 'danger'); return; }
             clearAlert();
             const pb = document.getElementById('previewBody');
             pb.innerHTML = '';
-            facultyRows.forEach((r,i) => {
+            facultyRows.forEach((r, i) => {
                 pb.innerHTML += `<tr>
                     <td>${i+1}</td><td>${escHtml(r.deptName)}</td><td>${escHtml(r.name)}</td>
                     <td>${escHtml(r.desigName)}</td><td>${escHtml(r.dob)}</td><td>${escHtml(r.doa)}</td>
-                    <td>${escHtml(r.mobile)}</td><td>${escHtml(r.pan)}</td><td>${escHtml(r.regNo)||'—'}</td>
+                    <td>${escHtml(r.mobile)}</td><td>${escHtml(r.pan)}</td><td>${escHtml(r.regNo) || '—'}</td>
                     <td>${escHtml(r.aebas)}</td><td>${escHtml(r.qual)}</td>
                     <td>${escHtml(r.nature)}</td><td>${escHtml(r.exp)}</td>
                 </tr>`;
@@ -2253,17 +1574,17 @@
             const btn = document.querySelector('.btn-declare');
             if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
             try {
-                const resp = await fetch(URLS.saveFaculty, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify([])});
+                const resp = await fetch(URLS.saveFaculty, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([]) });
                 const res  = await resp.json();
                 if (res.success) {
                     bootstrap.Modal.getInstance(document.getElementById('previewModal')).hide();
                     await generatePDF(facultyRows);
                     onDeclared();
                 } else {
-                    showAlert(res.message,'danger');
+                    showAlert(res.message, 'danger');
                 }
-            } catch(err) {
-                showAlert('Server communication error.','danger');
+            } catch (err) {
+                showAlert('Server communication error.', 'danger');
             } finally {
                 if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cloud-check"></i> Save &amp; Generate PDF'; }
             }
@@ -2274,9 +1595,9 @@
             document.getElementById('step1Badge').className = 'step-pill done';
             document.getElementById('step2Badge').className = 'step-pill done';
             document.getElementById('step3Badge').className = 'step-pill active';
-            showAlert('Data saved successfully! Upload the signed copy below.','success');
+            showAlert('Data saved successfully! Upload the signed copy below.', 'success');
             document.getElementById('uploadSection').style.display = 'block';
-            document.getElementById('uploadSection').scrollIntoView({behavior:'smooth',block:'start'});
+            document.getElementById('uploadSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function handleFileSelect(input) {
@@ -2300,9 +1621,9 @@
             if (!selectedFile) return;
             const fd = new FormData();
             fd.append('signedDocument', selectedFile);
-            fetch(URLS.upload, {method:'POST', body:fd}).then(r => {
+            fetch(URLS.upload, { method: 'POST', body: fd }).then(r => {
                 if (r.ok) onUploadComplete();
-                else showAlert('Upload failed. Please try again.','danger');
+                else showAlert('Upload failed. Please try again.', 'danger');
             });
         }
         function onUploadComplete() {
@@ -2313,7 +1634,7 @@
             document.getElementById('entryFormCard').style.display    = 'none';
             document.getElementById('confirmBtnWrap').style.display   = 'none';
             syncTableGrid();
-            showAlert('Signed copy uploaded successfully. Workflow complete.','success');
+            showAlert('Signed copy uploaded successfully. Workflow complete.', 'success');
         }
 
         // ── LIST TAB ──────────────────────────────────────────────────
@@ -2331,7 +1652,13 @@
                 allListData = res.data.map(r => {
                     const dM  = departments.find(d => d.id === r.departmentCode);
                     const dsM = designations.find(d => d.id === r.designationCode);
-                    return { ...r, _deptName:dM?dM.name:(r.departmentCode||''), _desigName:dsM?dsM.name:(r.designationCode||''), _photoPath:normalisePhotoPath(r.photoFilePath) };
+                    // FIX: build absolute URL once, store as _photoUrl
+                    return {
+                        ...r,
+                        _deptName  : dM  ? dM.name  : (r.departmentCode  || ''),
+                        _desigName : dsM ? dsM.name : (r.designationCode || ''),
+                        _photoUrl  : buildPhotoUrl(r.photoFilePath)   // absolute or null
+                    };
                 });
                 document.getElementById('totalCountChip').textContent = allListData.length + ' records';
                 $('#listCountBadge').text(allListData.length).show();
@@ -2360,174 +1687,185 @@
             applyFilters();
         }
         function applyFilters() {
-            const q      = (document.getElementById('listSearchInput').value||'').toLowerCase().trim();
+            const q      = (document.getElementById('listSearchInput').value || '').toLowerCase().trim();
             const dept   = document.getElementById('filterDept').value;
             const desig  = document.getElementById('filterDesig').value;
             const nature = document.getElementById('filterNature').value;
             filteredListData = allListData.filter(r => {
-                const hay = [r._deptName,r._desigName,r.nameOftheFaculty,r.mobileNo,r.panNo,r.stateCouncilRegNo,r.aEBASAttendId,r.professionalQualification,r.natureOfEmployment,r.dob,r.dateOfAppointment].join(' ').toLowerCase();
-                if (q      && !hay.includes(q))                      return false;
-                if (dept   && r.departmentCode    !== dept)          return false;
-                if (desig  && r.designationCode   !== desig)         return false;
-                if (nature && r.natureOfEmployment!== nature)        return false;
+                const hay = [r._deptName, r._desigName, r.nameOftheFaculty, r.mobileNo, r.panNo, r.stateCouncilRegNo, r.aEBASAttendId, r.professionalQualification, r.natureOfEmployment, r.dob, r.dateOfAppointment].join(' ').toLowerCase();
+                if (q      && !hay.includes(q))                   return false;
+                if (dept   && r.departmentCode  !== dept)         return false;
+                if (desig  && r.designationCode !== desig)        return false;
+                if (nature && r.natureOfEmployment !== nature)    return false;
                 return true;
             });
             currentPage = 1;
-            renderActiveChips(q,dept,desig,nature);
-            updateResultBar(q,dept,desig,nature);
+            renderActiveChips(q, dept, desig, nature);
+            updateResultBar(q, dept, desig, nature);
             renderListTable();
         }
-        function renderActiveChips(q,dept,desig,nature) {
-            let html='';
-            if (q) html+=chip(`Search: "${q}"`,`clearSearch()`);
-            if (dept)  { const n=departments.find(d=>d.id===dept);   html+=chip('Dept: '+(n?n.name:dept),`document.getElementById('filterDept').value='';applyFilters()`); }
-            if (desig) { const n=designations.find(d=>d.id===desig); html+=chip('Desig: '+(n?n.name:desig),`document.getElementById('filterDesig').value='';applyFilters()`); }
-            if (nature) html+=chip('Emp: '+nature,`document.getElementById('filterNature').value='';applyFilters()`);
-            document.getElementById('filterChips').innerHTML=html;
+        function renderActiveChips(q, dept, desig, nature) {
+            let html = '';
+            if (q) html += chip(`Search: "${q}"`, `clearSearch()`);
+            if (dept)  { const n = departments.find(d => d.id === dept);   html += chip('Dept: '  + (n ? n.name : dept),  `document.getElementById('filterDept').value='';applyFilters()`); }
+            if (desig) { const n = designations.find(d => d.id === desig); html += chip('Desig: ' + (n ? n.name : desig), `document.getElementById('filterDesig').value='';applyFilters()`); }
+            if (nature) html += chip('Emp: ' + nature, `document.getElementById('filterNature').value='';applyFilters()`);
+            document.getElementById('filterChips').innerHTML = html;
         }
-        function chip(label,code) { return `<span class="filter-chip">${escHtml(label)}<span class="chip-remove" onclick="${code}"><i class="bi bi-x"></i></span></span>`; }
-        function updateResultBar(q,dept,desig,nature) {
-            const bar=document.getElementById('searchResultBar');
-            if (q||dept||desig||nature) {
-                bar.style.display='flex';
-                document.getElementById('resultCountText').innerHTML=`Showing <strong>${filteredListData.length}</strong> of <strong>${allListData.length}</strong> records`;
-            } else { bar.style.display='none'; }
+        function chip(label, code) { return `<span class="filter-chip">${escHtml(label)}<span class="chip-remove" onclick="${code}"><i class="bi bi-x"></i></span></span>`; }
+        function updateResultBar(q, dept, desig, nature) {
+            const bar = document.getElementById('searchResultBar');
+            if (q || dept || desig || nature) {
+                bar.style.display = 'flex';
+                document.getElementById('resultCountText').innerHTML = `Showing <strong>${filteredListData.length}</strong> of <strong>${allListData.length}</strong> records`;
+            } else { bar.style.display = 'none'; }
         }
         function sortList(colIdx) {
-            if (sortColIdx===colIdx) sortAsc=!sortAsc; else { sortColIdx=colIdx; sortAsc=true; }
-            const keys=['_idx','_deptName','nameOftheFaculty','_desigName','dob','dateOfAppointment','mobileNo','panNo','stateCouncilRegNo','aEBASAttendId','professionalQualification','natureOfEmployment','teachingExpInYrs'];
-            filteredListData.sort((a,b) => {
-                const av=String(a[keys[colIdx]]||'').toLowerCase(), bv=String(b[keys[colIdx]]||'').toLowerCase();
+            if (sortColIdx === colIdx) sortAsc = !sortAsc; else { sortColIdx = colIdx; sortAsc = true; }
+            const keys = ['_idx','_deptName','nameOftheFaculty','_desigName','dob','dateOfAppointment','mobileNo','panNo','stateCouncilRegNo','aEBASAttendId','professionalQualification','natureOfEmployment','teachingExpInYrs'];
+            filteredListData.sort((a, b) => {
+                const av = String(a[keys[colIdx]] || '').toLowerCase(), bv = String(b[keys[colIdx]] || '').toLowerCase();
                 return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
             });
-            document.querySelectorAll('.list-tbl thead th').forEach((th,i) => {
-                th.classList.remove('sort-asc','sort-desc');
-                const ico=th.querySelector('.sort-icon');
-                if(ico) ico.className='bi bi-chevron-expand sort-icon';
-                if(i===colIdx){ th.classList.add(sortAsc?'sort-asc':'sort-desc'); if(ico) ico.className=`bi bi-chevron-${sortAsc?'up':'down'} sort-icon`; }
+            document.querySelectorAll('.list-tbl thead th').forEach((th, i) => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                const ico = th.querySelector('.sort-icon');
+                if (ico) ico.className = 'bi bi-chevron-expand sort-icon';
+                if (i === colIdx) { th.classList.add(sortAsc ? 'sort-asc' : 'sort-desc'); if (ico) ico.className = `bi bi-chevron-${sortAsc ? 'up' : 'down'} sort-icon`; }
             });
-            currentPage=1; renderListTable();
+            currentPage = 1; renderListTable();
         }
-        function changeRowsPerPage() { rowsPerPage=parseInt(document.getElementById('rowsPerPage').value); currentPage=1; renderListTable(); }
-        function goToPage(p) { currentPage=p; renderListTable(); }
+        function changeRowsPerPage() { rowsPerPage = parseInt(document.getElementById('rowsPerPage').value); currentPage = 1; renderListTable(); }
+        function goToPage(p) { currentPage = p; renderListTable(); }
 
         function renderListTable() {
             const tbody  = document.getElementById('listBody');
             const total  = filteredListData.length;
-            const pages  = Math.max(1, Math.ceil(total/rowsPerPage));
-            if (currentPage>pages) currentPage=pages;
-            const start    = (currentPage-1)*rowsPerPage;
-            const end      = Math.min(start+rowsPerPage, total);
+            const pages  = Math.max(1, Math.ceil(total / rowsPerPage));
+            if (currentPage > pages) currentPage = pages;
+            const start    = (currentPage - 1) * rowsPerPage;
+            const end      = Math.min(start + rowsPerPage, total);
             const pageData = filteredListData.slice(start, end);
-            const q        = (document.getElementById('listSearchInput').value||'').toLowerCase().trim();
+            const q        = (document.getElementById('listSearchInput').value || '').toLowerCase().trim();
 
             if (!pageData.length) {
-                tbody.innerHTML=`<tr class="no-results-row"><td colspan="16">
+                tbody.innerHTML = `<tr class="no-results-row"><td colspan="16">
                     <i class="bi bi-search no-results-icon"></i>
                     <div class="no-results-title">No results found</div>
                     <div class="no-results-sub text-muted">Try adjusting your search or filters</div>
                     <button class="btn btn-sm btn-outline-secondary mt-3" onclick="resetAllFilters()"><i class="bi bi-x-circle me-1"></i>Clear all filters</button>
                 </td></tr>`;
             } else {
-                let html='';
-                pageData.forEach((r,idx) => {
-                    const ph = r._photoPath
-                        ? `<img src="${escHtml(r._photoPath)}" style="width:44px;height:52px;object-fit:cover;border-radius:5px;border:1px solid #e2e8f0;" onerror="this.style.display='none';">`
-                        : `<span class="text-muted" style="font-size:.75rem;">—</span>`;
-                    html+=`<tr>
-                        <td>${start+idx+1}</td>
-                        <td>${highlight(r._deptName,q)}</td>
-                        <td style="font-weight:600;">${highlight(r.nameOftheFaculty||'',q)}</td>
-                        <td>${highlight(r._desigName,q)}</td>
-                        <td>${highlight(r.dob||'',q)}</td>
-                        <td>${highlight(r.dateOfAppointment||'',q)}</td>
-                        <td>${highlight(r.mobileNo||'',q)}</td>
-                        <td>${highlight(r.panNo||'',q)}</td>
-                        <td>${highlight(r.stateCouncilRegNo||'',q)}</td>
-                        <td>${highlight(r.aEBASAttendId||'',q)}</td>
-                        <td>${highlight(r.professionalQualification||'',q)}</td>
-                        <td>${highlight(r.natureOfEmployment||'',q)}</td>
-                        <td>${highlight(r.teachingExpInYrs||'',q)}</td>
+                let html = '';
+                pageData.forEach((r, idx) => {
+                    // FIX: use pre-built _photoUrl (absolute URL, no path manipulation needed)
+                    const ph = r._photoUrl
+                        ? `<div class="faculty-photo-wrapper">
+                               <img src="${escHtml(r._photoUrl)}"
+                                    class="thumb-img"
+                                    loading="lazy"
+                                    alt="${escHtml(r.nameOftheFaculty || '')}"
+                                    onerror="this.style.display='none';var ph=this.nextElementSibling;if(ph)ph.style.display='flex';" />
+                               <div class="thumb-placeholder" style="display:none;">
+                                   <i class="bi bi-person-fill"></i>
+                               </div>
+                           </div>`
+                        : `<div class="thumb-placeholder"><i class="bi bi-person-fill"></i></div>`;
+
+                    html += `<tr>
+                        <td>${start + idx + 1}</td>
+                        <td>${highlight(r._deptName, q)}</td>
+                        <td style="font-weight:600;">${highlight(r.nameOftheFaculty || '', q)}</td>
+                        <td>${highlight(r._desigName, q)}</td>
+                        <td>${highlight(r.dob || '', q)}</td>
+                        <td>${highlight(r.dateOfAppointment || '', q)}</td>
+                        <td>${highlight(r.mobileNo || '', q)}</td>
+                        <td>${highlight(r.panNo || '', q)}</td>
+                        <td>${highlight(r.stateCouncilRegNo || '', q)}</td>
+                        <td>${highlight(r.aEBASAttendId || '', q)}</td>
+                        <td>${highlight(r.professionalQualification || '', q)}</td>
+                        <td>${highlight(r.natureOfEmployment || '', q)}</td>
+                        <td>${highlight(r.teachingExpInYrs || '', q)}</td>
                         <td class="text-center">${ph}</td>
                         <td class="text-center">
-                            <button class="btn-view-faculty" onclick="openListFacultyModal(${start+idx})">
+                            <button class="btn-view-faculty" onclick="openListFacultyModal(${start + idx})">
                                 <i class="bi bi-eye-fill"></i> View
                             </button>
                         </td>
                         <td><span class="badge-submitted"><i class="bi bi-check-circle-fill"></i> Submitted</span></td>
                     </tr>`;
                 });
-                tbody.innerHTML=html;
+                tbody.innerHTML = html;
             }
 
-            const pag=document.getElementById('listPagination');
-            pag.style.display=total>0?'flex':'none';
-            document.getElementById('paginationInfo').textContent=`Showing ${total?start+1:0}–${end} of ${total}`;
-            const btnW=document.getElementById('paginationBtns');
-            const W=2;
-            let btns=`<button class="pg-btn" onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}><i class="bi bi-chevron-left"></i></button>`;
-            for(let p=1;p<=pages;p++){
-                if(p===1||p===pages||(p>=currentPage-W&&p<=currentPage+W)) btns+=`<button class="pg-btn ${p===currentPage?'active':''}" onclick="goToPage(${p})">${p}</button>`;
-                else if(p===currentPage-W-1||p===currentPage+W+1) btns+=`<button class="pg-btn" disabled>…</button>`;
+            const pag = document.getElementById('listPagination');
+            pag.style.display = total > 0 ? 'flex' : 'none';
+            document.getElementById('paginationInfo').textContent = `Showing ${total ? start + 1 : 0}–${end} of ${total}`;
+            const btnW = document.getElementById('paginationBtns');
+            const W = 2;
+            let btns = `<button class="pg-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="bi bi-chevron-left"></i></button>`;
+            for (let p = 1; p <= pages; p++) {
+                if (p === 1 || p === pages || (p >= currentPage - W && p <= currentPage + W)) btns += `<button class="pg-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+                else if (p === currentPage - W - 1 || p === currentPage + W + 1) btns += `<button class="pg-btn" disabled>…</button>`;
             }
-            btns+=`<button class="pg-btn" onclick="goToPage(${currentPage+1})" ${currentPage===pages?'disabled':''}><i class="bi bi-chevron-right"></i></button>`;
-            btnW.innerHTML=btns;
+            btns += `<button class="pg-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === pages ? 'disabled' : ''}><i class="bi bi-chevron-right"></i></button>`;
+            btnW.innerHTML = btns;
         }
 
-        function highlight(text,q) {
-            const safe=escHtml(text);
-            if(!q) return safe;
-            const re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
-            return safe.replace(re,'<mark class="search-highlight">$1</mark>');
+        function highlight(text, q) {
+            const safe = escHtml(text);
+            if (!q) return safe;
+            const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            return safe.replace(re, '<mark class="search-highlight">$1</mark>');
         }
 
         function switchTab(tab) {
-            document.getElementById('tabBtnAdd').classList.toggle('active',  tab==='add');
-            document.getElementById('tabBtnList').classList.toggle('active', tab==='list');
-            document.getElementById('tabAdd').classList.toggle('active',     tab==='add');
-            document.getElementById('tabList').classList.toggle('active',    tab==='list');
-            if (tab==='list') loadAllFaculty();
+            document.getElementById('tabBtnAdd').classList.toggle('active',  tab === 'add');
+            document.getElementById('tabBtnList').classList.toggle('active', tab === 'list');
+            document.getElementById('tabAdd').classList.toggle('active',     tab === 'add');
+            document.getElementById('tabList').classList.toggle('active',    tab === 'list');
+            if (tab === 'list') loadAllFaculty();
         }
 
-        function showAlert(msg,type) {
-            const icon=type==='success'?'check-circle-fill':'exclamation-triangle-fill';
-            const box=document.getElementById('alertBox');
-            if(box) box.innerHTML=`<div class="alert alert-${type} d-flex align-items-center gap-2 py-2 mb-2" style="font-size:.83rem;border-radius:9px;"><i class="bi bi-${icon}"></i> ${escHtml(msg)}</div>`;
+        function showAlert(msg, type) {
+            const icon = type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill';
+            const box = document.getElementById('alertBox');
+            if (box) box.innerHTML = `<div class="alert alert-${type} d-flex align-items-center gap-2 py-2 mb-2" style="font-size:.83rem;border-radius:9px;"><i class="bi bi-${icon}"></i> ${escHtml(msg)}</div>`;
         }
-        function clearAlert() { const box=document.getElementById('alertBox'); if(box) box.innerHTML=''; }
+        function clearAlert() { const box = document.getElementById('alertBox'); if (box) box.innerHTML = ''; }
 
         // ── PDF GENERATION ────────────────────────────────────────────
         async function generatePDF(rows) {
             try {
                 const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+                const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
                 const PW = doc.internal.pageSize.getWidth();
                 const PH = doc.internal.pageSize.getHeight();
-                const cn = (COLLEGE_NAME||'').trim();
+                const cn = (COLLEGE_NAME || '').trim();
                 const NAVY=[26,58,99], NB=[36,78,130], BLUE=[26,115,232], SIL=[210,218,228];
                 const WHT=[255,255,255], TXT=[30,40,55], SUB=[100,116,139], ACC=[5,150,105], LGT=[247,249,252];
 
-                function drawHeader(p,tp) {
+                function drawHeader(p, tp) {
                     doc.setFillColor(...NB); doc.rect(0,0,PW,18,'F');
                     doc.setFont('helvetica','bold'); doc.setFontSize(12.5); doc.setTextColor(...WHT);
-                    doc.text(cn.toUpperCase(),PW/2,8.5,{align:'center'});
+                    doc.text(cn.toUpperCase(), PW/2, 8.5, { align:'center' });
                     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(200,225,255);
-                    doc.text('UNDERGRADUATE FACULTY DETAILS REPORT',PW/2,14.5,{align:'center'});
+                    doc.text('UNDERGRADUATE FACULTY DETAILS REPORT', PW/2, 14.5, { align:'center' });
                     doc.setFillColor(...BLUE); doc.rect(0,18,PW,1.2,'F');
                     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...SUB);
-                    const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-                    doc.text('Generated : '+today,10,24.5);
-                    doc.text('Page '+p+' of '+tp,PW-10,24.5,{align:'right'});
+                    const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+                    doc.text('Generated : ' + today, 10, 24.5);
+                    doc.text('Page ' + p + ' of ' + tp, PW-10, 24.5, { align:'right' });
                     doc.setDrawColor(...SIL); doc.setLineWidth(0.3); doc.line(10,26.5,PW-10,26.5);
                 }
                 function drawFooter() {
                     doc.setFillColor(...NAVY); doc.rect(0,PH-8,PW,8,'F');
                     doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(190,215,255);
-                    doc.text('This is a computer-generated document. Alterations without authorisation are invalid.',PW/2,PH-3.2,{align:'center'});
+                    doc.text('This is a computer-generated document. Alterations without authorisation are invalid.', PW/2, PH-3.2, { align:'center' });
                 }
 
-                const head=[['#','Department','Faculty Name','Designation','DOB','Appt. Date','Mobile','PAN No.','Reg. No.','AEBAS ID','Qualification','Nature','Exp.']];
-                const body=rows.map((r,i)=>[i+1,r.deptName||'—',r.name||'—',r.desigName||'—',r.dob||'—',r.doa||'—',r.mobile||'—',r.pan||'—',r.regNo||'—',r.aebas||'—',r.qual||'—',r.nature||'—',r.exp!=null?r.exp+' yr':'—']);
+                const head = [['#','Department','Faculty Name','Designation','DOB','Appt. Date','Mobile','PAN No.','Reg. No.','AEBAS ID','Qualification','Nature','Exp.']];
+                const body = rows.map((r,i) => [i+1,r.deptName||'—',r.name||'—',r.desigName||'—',r.dob||'—',r.doa||'—',r.mobile||'—',r.pan||'—',r.regNo||'—',r.aebas||'—',r.qual||'—',r.nature||'—',r.exp!=null?r.exp+' yr':'—']);
 
                 drawHeader(1,'?');
                 doc.autoTable({
@@ -2538,135 +1876,137 @@
                     alternateRowStyles:{fillColor:LGT},
                     bodyStyles:{minCellHeight:11},
                     columnStyles:{0:{cellWidth:7,halign:'center',fontStyle:'bold'},1:{cellWidth:24},2:{cellWidth:28,fontStyle:'bold'},3:{cellWidth:22},4:{cellWidth:22,halign:'center'},5:{cellWidth:22,halign:'center'},6:{cellWidth:22,halign:'center'},7:{cellWidth:22,halign:'center'},8:{cellWidth:22},9:{cellWidth:20},10:{cellWidth:26},11:{cellWidth:18},12:{cellWidth:10,halign:'center'}},
-                    didDrawPage:function(data){drawHeader(data.pageNumber,'?');drawFooter();}
+                    didDrawPage: function(data) { drawHeader(data.pageNumber,'?'); drawFooter(); }
                 });
 
                 doc.addPage();
-                const TP=doc.internal.getNumberOfPages();
-                for(let p=1;p<=TP;p++){doc.setPage(p);doc.setFillColor(248,250,253);doc.rect(0,18,PW,10,'F');drawHeader(p,TP);}
+                const TP = doc.internal.getNumberOfPages();
+                for (let p = 1; p <= TP; p++) { doc.setPage(p); doc.setFillColor(248,250,253); doc.rect(0,18,PW,10,'F'); drawHeader(p,TP); }
                 doc.setPage(TP); drawFooter();
 
                 const M=14, iW=PW-M*2, bT=32;
                 doc.setFillColor(...NAVY); doc.roundedRect(M,bT,iW,11,2,2,'F');
                 doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...WHT);
-                doc.text('DECLARATION BY THE PRINCIPAL / DEAN',PW/2,bT+7,{align:'center'});
-                const cT=bT+15;
+                doc.text('DECLARATION BY THE PRINCIPAL / DEAN', PW/2, bT+7, { align:'center' });
+                const cT = bT+15;
                 doc.setFillColor(...LGT); doc.setDrawColor(...SIL); doc.setLineWidth(0.4);
                 doc.roundedRect(M,cT,iW,15,2,2,'FD');
                 doc.setDrawColor(...SIL); doc.line(M+iW/2,cT+2,M+iW/2,cT+13);
                 doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...SUB);
-                doc.text('INSTITUTION',M+5,cT+5.5); doc.text('TOTAL FACULTY ON RECORD',M+iW/2+5,cT+5.5);
+                doc.text('INSTITUTION', M+5, cT+5.5);
+                doc.text('TOTAL FACULTY ON RECORD', M+iW/2+5, cT+5.5);
                 doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...TXT);
-                doc.text(doc.splitTextToSize(cn,iW/2-12)[0],M+5,cT+11.5);
+                doc.text(doc.splitTextToSize(cn, iW/2-12)[0], M+5, cT+11.5);
                 doc.setTextColor(...BLUE); doc.setFontSize(14);
-                doc.text(String(rows.length),M+iW/2+5,cT+12);
+                doc.text(String(rows.length), M+iW/2+5, cT+12);
 
                 const dBT=cT+20, dBH=55;
                 doc.setFillColor(252,254,255); doc.setDrawColor(...SIL); doc.setLineWidth(0.4);
                 doc.roundedRect(M,dBT,iW,dBH,2,2,'FD');
                 doc.setFillColor(...ACC); doc.roundedRect(M,dBT,3.5,dBH,1,1,'F');
 
-                const p1='I, the undersigned, hereby solemnly declare that all the information pertaining to the faculty members of '+cn+' as listed in this document is true, complete, and accurate to the best of my knowledge and belief.';
-                const p2='The details of teaching staff including their qualifications, designations, dates of appointment, registration numbers, and attendance identifiers have been duly verified against original documents maintained at the institution.';
-                const p3='This declaration is submitted in compliance with the requirements of the Medical Affiliation Authority and I accept full responsibility for the accuracy of the data herein.';
+                const p1 = 'I, the undersigned, hereby solemnly declare that all the information pertaining to the faculty members of '+cn+' as listed in this document is true, complete, and accurate to the best of my knowledge and belief.';
+                const p2 = 'The details of teaching staff including their qualifications, designations, dates of appointment, registration numbers, and attendance identifiers have been duly verified against original documents maintained at the institution.';
+                const p3 = 'This declaration is submitted in compliance with the requirements of the Medical Affiliation Authority and I accept full responsibility for the accuracy of the data herein.';
 
                 doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...TXT);
-                let ty=dBT+8; const lH=4.6, tW=iW-14, tX=M+8;
-                [p1,p2,p3].forEach((p,i)=>{const ls=doc.splitTextToSize(p,tW);doc.text(ls,tX,ty);ty+=ls.length*lH+(i<2?4:0);});
+                let ty = dBT+8; const lH = 4.6, tW = iW-14, tX = M+8;
+                [p1,p2,p3].forEach((p,i) => { const ls = doc.splitTextToSize(p,tW); doc.text(ls,tX,ty); ty += ls.length*lH+(i<2?4:0); });
 
                 const sT=dBT+dBH+8, bW=(iW-8)/3, bH=26;
-                [{label:'Date',x:M},{label:'Stamp / Seal',x:M+bW+4},{label:'Principal / Dean Signature',x:M+(bW+4)*2}].forEach(b=>{
+                [{label:'Date',x:M},{label:'Stamp / Seal',x:M+bW+4},{label:'Principal / Dean Signature',x:M+(bW+4)*2}].forEach(b => {
                     doc.setFillColor(...LGT); doc.setDrawColor(...SIL); doc.setLineWidth(0.35);
                     doc.roundedRect(b.x,sT,bW,bH,2,2,'FD');
                     doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...SUB);
-                    doc.text(b.label.toUpperCase(),b.x+bW/2,sT+5.5,{align:'center'});
+                    doc.text(b.label.toUpperCase(), b.x+bW/2, sT+5.5, { align:'center' });
                     doc.setDrawColor(190,200,215); doc.setLineWidth(0.5);
-                    doc.line(b.x+8,sT+bH-6,b.x+bW-8,sT+bH-6);
+                    doc.line(b.x+8, sT+bH-6, b.x+bW-8, sT+bH-6);
                 });
 
-                const nT=sT+bH+6;
+                const nT = sT+bH+6;
                 doc.setFillColor(255,251,235); doc.setDrawColor(253,200,60); doc.setLineWidth(0.4);
                 doc.roundedRect(M,nT,iW,12,2,2,'FD');
                 doc.setFillColor(245,158,11); doc.roundedRect(M,nT,3.5,12,1,1,'F');
                 doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(120,53,15);
-                doc.text('NOTE :',M+7,nT+5);
+                doc.text('NOTE :', M+7, nT+5);
                 doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
-                doc.text(doc.splitTextToSize('Any subsequent alteration to this document without proper authority shall render it invalid and may attract disciplinary action.',iW-30),M+22,nT+5);
-                doc.text(doc.splitTextToSize('Please ensure all entries are cross-verified before submission to the Affiliation Authority.',iW-14),M+7,nT+9.5);
+                doc.text(doc.splitTextToSize('Any subsequent alteration to this document without proper authority shall render it invalid and may attract disciplinary action.', iW-30), M+22, nT+5);
+                doc.text(doc.splitTextToSize('Please ensure all entries are cross-verified before submission to the Affiliation Authority.', iW-14), M+7, nT+9.5);
                 doc.save('Faculty_List_Report.pdf');
-            } catch(err) { console.error(err); alert('PDF generation failed: '+err.message); }
+            } catch (err) { console.error(err); alert('PDF generation failed: ' + err.message); }
         }
 
         function exportListPDF() {
-            const data=filteredListData.length?filteredListData:allListData;
-            if(!data.length){Swal.fire({icon:'warning',title:'No Data',text:'No records to export.'});return;}
+            const data = filteredListData.length ? filteredListData : allListData;
+            if (!data.length) { Swal.fire({ icon:'warning', title:'No Data', text:'No records to export.' }); return; }
             try {
-                const {jsPDF}=window.jspdf;
-                const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-                const PW=doc.internal.pageSize.width, PH=doc.internal.pageSize.height;
-                doc.setFillColor(13,27,42);doc.rect(0,0,PW,22,'F');
-                doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(255,255,255);
-                doc.text((COLLEGE_NAME||'').toUpperCase(),PW/2,11,{align:'center'});
-                doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(180,200,230);
-                doc.text('UG Faculty List Export',PW/2,18,{align:'center'});
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+                const PW = doc.internal.pageSize.width, PH = doc.internal.pageSize.height;
+                doc.setFillColor(13,27,42); doc.rect(0,0,PW,22,'F');
+                doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(255,255,255);
+                doc.text((COLLEGE_NAME || '').toUpperCase(), PW/2, 11, { align:'center' });
+                doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(180,200,230);
+                doc.text('UG Faculty List Export', PW/2, 18, { align:'center' });
                 doc.autoTable({
-                    head:[['#','Department','Faculty Name','Designation','Mobile','PAN','Qualification','Employment','Exp (Yrs)']],
-                    body:data.map((r,i)=>[i+1,r._deptName||r.departmentCode||'',r.nameOftheFaculty||'',r._desigName||r.designationCode||'',r.mobileNo||'',r.panNo||'',r.professionalQualification||'',r.natureOfEmployment||'',r.teachingExpInYrs||'']),
-                    startY:26,theme:'grid',
-                    styles:{fontSize:8,cellPadding:2},
-                    headStyles:{fillColor:[13,27,42],textColor:255,fontStyle:'bold'},
-                    alternateRowStyles:{fillColor:[240,244,248]}
+                    head: [['#','Department','Faculty Name','Designation','Mobile','PAN','Qualification','Employment','Exp (Yrs)']],
+                    body: data.map((r,i) => [i+1, r._deptName||r.departmentCode||'', r.nameOftheFaculty||'', r._desigName||r.designationCode||'', r.mobileNo||'', r.panNo||'', r.professionalQualification||'', r.natureOfEmployment||'', r.teachingExpInYrs||'']),
+                    startY: 26, theme: 'grid',
+                    styles: { fontSize:8, cellPadding:2 },
+                    headStyles: { fillColor:[13,27,42], textColor:255, fontStyle:'bold' },
+                    alternateRowStyles: { fillColor:[240,244,248] }
                 });
-                const tot=doc.internal.getNumberOfPages();
-                for(let i=1;i<=tot;i++){doc.setPage(i);doc.setFillColor(13,27,42);doc.rect(0,PH-9,PW,9,'F');doc.setFontSize(7);doc.setTextColor(255,255,255);doc.text('Page '+i+' of '+tot+' | Generated: '+new Date().toLocaleDateString(),PW/2,PH-3.5,{align:'center'});}
+                const tot = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= tot; i++) { doc.setPage(i); doc.setFillColor(13,27,42); doc.rect(0,PH-9,PW,9,'F'); doc.setFontSize(7); doc.setTextColor(255,255,255); doc.text('Page '+i+' of '+tot+' | Generated: '+new Date().toLocaleDateString(), PW/2, PH-3.5, { align:'center' }); }
                 doc.save('UG_Faculty_List.pdf');
-            } catch(e){Swal.fire({icon:'error',title:'PDF Export Failed',text:e.message});}
+            } catch (e) { Swal.fire({ icon:'error', title:'PDF Export Failed', text: e.message }); }
         }
 
         function exportExcel() {
-            const data=filteredListData.length?filteredListData:allListData;
-            if(!data.length){Swal.fire({icon:'warning',title:'No Data',text:'No records to export.'});return;}
+            const data = filteredListData.length ? filteredListData : allListData;
+            if (!data.length) { Swal.fire({ icon:'warning', title:'No Data', text:'No records to export.' }); return; }
             try {
-                const excelData=data.map((r,i)=>({'SL No':i+1,'Department':r._deptName||r.departmentCode||'','Faculty Name':r.nameOftheFaculty||'','Designation':r._desigName||r.designationCode||'','DOB':r.dob||'','Date Of Appointment':r.dateOfAppointment||'','Mobile Number':r.mobileNo||'','PAN Number':r.panNo||'','State Council Reg No':r.stateCouncilRegNo||'','AEBAS Attend ID':r.aEBASAttendId||'','Professional Qualification':r.professionalQualification||'','Nature Of Employment':r.natureOfEmployment||'','Teaching Experience (Yrs)':r.teachingExpInYrs||''}));
-                const ws=XLSX.utils.json_to_sheet(excelData);
-                const wb=XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb,ws,'UG Faculty List');
-                XLSX.writeFile(wb,'UG_Faculty_List.xlsx');
-            } catch(e){Swal.fire({icon:'error',title:'Excel Export Failed',text:e.message});}
+                const excelData = data.map((r,i) => ({
+                    'SL No': i+1,
+                    'Department': r._deptName||r.departmentCode||'',
+                    'Faculty Name': r.nameOftheFaculty||'',
+                    'Designation': r._desigName||r.designationCode||'',
+                    'DOB': r.dob||'',
+                    'Date Of Appointment': r.dateOfAppointment||'',
+                    'Mobile Number': r.mobileNo||'',
+                    'PAN Number': r.panNo||'',
+                    'State Council Reg No': r.stateCouncilRegNo||'',
+                    'AEBAS Attend ID': r.aEBASAttendId||'',
+                    'Professional Qualification': r.professionalQualification||'',
+                    'Nature Of Employment': r.natureOfEmployment||'',
+                    'Teaching Experience (Yrs)': r.teachingExpInYrs||''
+                }));
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'UG Faculty List');
+                XLSX.writeFile(wb, 'UG_Faculty_List.xlsx');
+            } catch (e) { Swal.fire({ icon:'error', title:'Excel Export Failed', text: e.message }); }
         }
 
+        // ── Init ──────────────────────────────────────────────────────
         $(function() { syncTableGrid(); });
 
-
-
-
-                const IS_LOCKED = @(isLocked.ToString().ToLower());
+        const IS_LOCKED = @(isLocked.ToString().ToLower());
 
         document.addEventListener("DOMContentLoaded", function () {
-
             if (IS_LOCKED) {
-
-                // Disable all inputs/selects/buttons inside form
                 document.querySelectorAll('#entryFormCard input, #entryFormCard select, #entryFormCard button')
-                    .forEach(el => {
-                        el.disabled = true;
-                    });
+                    .forEach(el => { el.disabled = true; });
 
-                // Disable confirm button
                 const confirmBtn = document.getElementById('btnConfirm');
-
                 if (confirmBtn) {
                     confirmBtn.disabled = true;
                     confirmBtn.style.opacity = "0.6";
                     confirmBtn.style.cursor = "not-allowed";
-                    confirmBtn.innerHTML =
-                        '<i class="bi bi-lock-fill"></i> Faculty Data Already Submitted';
+                    confirmBtn.innerHTML = '<i class="bi bi-lock-fill"></i> Faculty Data Already Submitted';
                 }
 
-                // Disable delete buttons
-                document.querySelectorAll('.btn-del').forEach(btn => {
-                    btn.disabled = true;
-                });
+                document.querySelectorAll('.btn-del').forEach(btn => { btn.disabled = true; });
             }
         });
     </script>
