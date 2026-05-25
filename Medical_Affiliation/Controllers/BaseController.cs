@@ -13,7 +13,7 @@ namespace Medical_Affiliation.Controllers
         protected string? CollegeCode => User.FindFirst("CollegeCode")?.Value;
 
         protected string BaseMedicalPath { get; } = @"E:\Affiliation_Medical";
-        protected string BaseDentalPath { get; } = @"D:\Affiliation_Dental";
+        protected string BaseDentalPath { get; } = @"E:\Affiliation_Dental";
 
         protected string CourseLevel
         {
