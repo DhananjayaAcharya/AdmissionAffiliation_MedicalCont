@@ -25,11 +25,11 @@ public partial class CaMedicalLibraryOtherDetail
 
     public string? UploadedFileName { get; set; }
 
-    public string? SpecialFeaturesAchievementspdfPath { get; set; }
-
     public DateTime? CreatedDate { get; set; }
 
     public string? SpecialFeaturesQuestion { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? SpecialFeaturesAchievementsPdfPath { get; set; }
 }

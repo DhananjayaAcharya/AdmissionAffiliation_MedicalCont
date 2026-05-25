@@ -159,8 +159,8 @@ namespace Medical_Affiliation.Services.Faculty
                     HasStableInternet = otherDetails.HasStableInternet,
                     HasCccameraSystem = otherDetails.HasCccameraSystem,
                     UploadedFileName = otherDetails.UploadedFileName,
-                    SpecialFeaturesQuestion = otherDetails.SpecialFeaturesAchievementspdfPath != null ? "Yes" : "No",
-                    HasSpecialFeaturesPdf = otherDetails.SpecialFeaturesAchievementspdfPath != null,
+                    SpecialFeaturesQuestion = otherDetails.SpecialFeaturesAchievementsPdfPath != null ? "Yes" : "No",
+                    HasSpecialFeaturesPdf = otherDetails.SpecialFeaturesAchievementsPdfPath != null,
                     CreatedDate = otherDetails.CreatedDate,
                     HasSpecialFeatures = otherDetails.SpecialFeaturesQuestion == "Yes",
                 };

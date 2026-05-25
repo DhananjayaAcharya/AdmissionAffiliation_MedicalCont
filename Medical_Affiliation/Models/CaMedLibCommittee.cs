@@ -19,9 +19,9 @@ public partial class CaMedLibCommittee
 
     public string IsPresent { get; set; } = null!;
 
-    public string? CommitteePdfPath { get; set; }
-
     public string? CommitteePdfName { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? CommitteePdfPath { get; set; }
 }

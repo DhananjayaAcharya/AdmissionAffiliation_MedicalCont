@@ -7,8 +7,6 @@ public partial class TeachingStaffDepartmentWiseDetail
 {
     public int Id { get; set; }
 
-    public string? NameOfFaculty { get; set; }
-
     public string? CollegeCode { get; set; }
 
     public string? FacultyCode { get; set; }
@@ -34,4 +32,6 @@ public partial class TeachingStaffDepartmentWiseDetail
     public string? UgcollegeCode { get; set; }
 
     public string? PgcollegeCode { get; set; }
+
+    public string? NameOfFaculty { get; set; }
 }

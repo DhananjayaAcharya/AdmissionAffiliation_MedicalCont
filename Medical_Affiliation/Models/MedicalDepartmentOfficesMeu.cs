@@ -39,7 +39,7 @@ public partial class MedicalDepartmentOfficesMeu
 
     public string? MeuActivitiesLastAcademicYear { get; set; }
 
-    public byte[]? MeuMembersListFile { get; set; }
+    public string? MeuMembersListFilePath { get; set; }
 
     public string? CollegeCode { get; set; }
 
@@ -54,8 +54,6 @@ public partial class MedicalDepartmentOfficesMeu
     public bool? DentalEducationUnitHasAudioVisual { get; set; }
 
     public bool? DentalEducationUnitHasInternet { get; set; }
-
-    public string? MeuMembersListFilePath { get; set; }
 
     public string? DeuCoordinatorName { get; set; }
 

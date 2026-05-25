@@ -302,7 +302,12 @@ app.UseMiddleware<Medical_Affiliation.Utilities.LicInspectionSessionMiddleware>(
 app.UseAuthorization();
 
 
+var medicalFacultyPath = @"D:\MedicalUGFacultyList";
 
+if (!Directory.Exists(medicalFacultyPath))
+{
+    Directory.CreateDirectory(medicalFacultyPath);
+}
 
 app.UseStaticFiles(); // for wwwroot if needed
 
