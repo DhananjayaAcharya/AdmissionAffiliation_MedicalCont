@@ -302,13 +302,18 @@ app.UseMiddleware<Medical_Affiliation.Utilities.LicInspectionSessionMiddleware>(
 app.UseAuthorization();
 
 
+var medicalFacultyPath = @"E:\MedicalUGFacultyList";
 
+if (!Directory.Exists(medicalFacultyPath))
+{
+    Directory.CreateDirectory(medicalFacultyPath);
+}
 
 app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"E:\MedicalUGFacultyList"),
+    FileProvider = new PhysicalFileProvider(medicalFacultyPath),
     RequestPath = "/MedicalUGFacultyList"
 });
 
