@@ -39,19 +39,19 @@ namespace Medical_Affiliation.Controllers
         }
 
         // ── FIX 3: Index() now has the same session guard as AddFaculty().
-        [Route("")]
-        [Route("Index")]
-        public IActionResult Index()
-        {
-            string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            if (string.IsNullOrEmpty(collegeCode))
-                return RedirectToAction("Login", "Login"); // FIX 4: correct controller name
+        //[Route("")]
+        //[Route("Index")]
+        //public IActionResult Index()
+        //{
+        //    string collegeCode = HttpContext.Session.GetString("CollegeCode");
+        //    if (string.IsNullOrEmpty(collegeCode))
+        //        return RedirectToAction("Login", "Login"); // FIX 4: correct controller name
 
-            ViewBag.Departments = _context.DepartmentMastersForUgs.ToList();
-            ViewBag.Designations = _context.UgdesignationMasters.ToList();
+        //    ViewBag.Departments = _context.DepartmentMastersForUgs.ToList();
+        //    ViewBag.Designations = _context.UgdesignationMasters.ToList();
 
-            return View();
-        }
+        //    return View();
+        //}
         [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         [Route("AddFaculty")]
@@ -71,6 +71,12 @@ namespace Medical_Affiliation.Controllers
                 .FirstOrDefault(c => c.CollegeCode == collegeCode);
             if (college == null)
                 return RedirectToAction("Dashboard", "Home"); // FIX 4: verify this action exists
+
+            bool isLocked = _context.UgPrintedUploads
+        .Any(x => x.CollegeCode == collegeCode);
+
+            ViewBag.IsLocked = isLocked;
+
 
             ViewBag.Departments = _context.DepartmentMastersForUgs.ToList();
             ViewBag.Designations = _context.UgdesignationMasters.ToList();
