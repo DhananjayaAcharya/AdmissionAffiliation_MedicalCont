@@ -607,6 +607,8 @@ public class AcademicIntakePageViewModel1
 // ✅ FULLY CORRECTED - Individual course row for input forms
 public class IntakeByLevelViewModel1
 {
+    public int Id { get; set; }
+
     public string CourseCode { get; set; }
     public string CourseName { get; set; }
 
@@ -647,8 +649,14 @@ public class IntakeByLevelViewModel1
     [Display(Name = "AY2025 LoP Document")]
     public IFormFile? AY2025_LopDocument { get; set; }
 
+    [Display(Name = "AY2025 LoP Dental Document")]
+    public IFormFile? AY2025_LopDentalDocument { get; set; }
+
     [Display(Name = "Current LoP Document")]
     public string? AY2025_LopDocumentUrl { get; set; }
+
+    [Display(Name = "Current LoP Dental Document")]
+    public string? AY2025_LopDentalDocumentUrl { get; set; }
 
     // 2026-27 Data - NULLABLE INTS ✅
     [Display(Name = "AY2026 Existing Intake")]
@@ -683,6 +691,40 @@ public class IntakeByLevelViewModel1
     public IFormFile? AY2027_DCIDocument { get; set; }
 
     public IFormFile? AY2027_KSDCDocument { get; set; }
+
+    // =========================
+    // VIEW FILE SUPPORT
+    // =========================
+
+    public bool HasNmcDocument { get; set; }
+
+    public bool HasLopDocument { get; set; }
+
+    public bool HasAY2025DciDocument { get; set; }
+
+    public bool HasAY2025KsdcDocument { get; set; }
+
+    public bool HasAY2026DciDocument { get; set; }
+
+    public bool HasAY2026KsdcDocument { get; set; }
+
+    public bool HasAY2027DciDocument { get; set; }
+
+    public bool HasAY2027KsdcDocument { get; set; }
+
+    // Optional URLs if needed later
+
+    public string? AY2025_DCIDocumentUrl { get; set; }
+
+    public string? AY2025_KSDCDocumentUrl { get; set; }
+
+    public string? AY2026_DCIDocumentUrl { get; set; }
+
+    public string? AY2026_KSDCDocumentUrl { get; set; }
+
+    public string? AY2027_DCIDocumentUrl { get; set; }
+
+    public string? AY2027_KSDCDocumentUrl { get; set; }
 }
 
 // Saved data display row (ENHANCED)
