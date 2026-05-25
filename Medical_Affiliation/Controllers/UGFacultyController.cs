@@ -19,18 +19,23 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        // ── FIX 1: All folder names come from one place.
-        //    Never hardcode "D:\..." again — use wwwroot or a config-driven base.
+        // ===== BASE STORAGE PATH =====
+        private readonly string BaseFolder = @"E:\MedicalUGFacultyList";
+
+        // ===== PHOTO FOLDER =====
         private string PhotosFolder =>
-            Path.Combine(_environment.WebRootPath, "MedicalUGFacultyList", "Photos");
+            Path.Combine(BaseFolder, "Photos");
 
+        // ===== PDF / DOCUMENT FOLDER =====
         private string UploadsFolder =>
-            Path.Combine(_environment.WebRootPath, "MedicalUGFacultyList");
+            BaseFolder;
 
-        // ── FIX 2: Web-relative URLs are built from the request path prefix,
-        //    so they work correctly under sub-applications and reverse proxies.
+        // ===== WEB URL PATHS =====
         private string PhotosWebRoot => "/MedicalUGFacultyList/Photos";
+
         private string UploadsWebRoot => "/MedicalUGFacultyList";
+
+        
 
         public UGFacultyController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
@@ -396,18 +401,26 @@ namespace Medical_Affiliation.Controllers
                     try { System.IO.File.Delete(oldDiskPath); } catch { /* non-critical */ }
                 }
             }
-
+            if (!Directory.Exists(PhotosFolder))
+            {
+                Directory.CreateDirectory(PhotosFolder);
+            }
             var uniqueName = $"{Guid.NewGuid()}{ext}";
             var fullSavePath = Path.Combine(PhotosFolder, uniqueName);
 
             using (var stream = new FileStream(fullSavePath, FileMode.Create))
+            {
                 await photo.CopyToAsync(stream);
+            }
 
-            // FIX 1b: web path uses the property, not a raw string literal
             record.PhotoFilePath = $"{PhotosWebRoot}/{uniqueName}";
             _context.SaveChanges();
 
-            return Json(new { success = true, path = record.PhotoFilePath });
+            return Json(new
+            {
+                success = true,
+                path = record.PhotoFilePath
+            });
         }
 
         // ── Delete faculty ────────────────────────────────────────────────────
@@ -501,15 +514,18 @@ namespace Medical_Affiliation.Controllers
 
             // FIX 1d: UploadsFolder from environment
             if (!Directory.Exists(UploadsFolder))
+            {
                 Directory.CreateDirectory(UploadsFolder);
+            }
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
             var filePath = Path.Combine(UploadsFolder, uniqueFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
+            {
                 await signedDocument.CopyToAsync(stream);
+            }
 
-            // FIX 1e: web path uses UploadsWebRoot property
             var webPath = $"{UploadsWebRoot}/{uniqueFileName}";
 
             var existingUpload = await _context.UgPrintedUploads

@@ -304,14 +304,27 @@ app.UseAuthorization();
 
 
 
-app.UseStaticFiles();
+app.UseStaticFiles(); // for wwwroot if needed
+
+// ===== D:\MedicalUGFacultyList Mapping =====
+var medicalPath = @"E:\MedicalUGFacultyList";
+
+// Auto create folders if not exists
+if (!Directory.Exists(medicalPath))
+{
+    Directory.CreateDirectory(medicalPath);
+}
+
+if (!Directory.Exists(Path.Combine(medicalPath, "Photos")))
+{
+    Directory.CreateDirectory(Path.Combine(medicalPath, "Photos"));
+}
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\MedicalUGFacultyList"),
+    FileProvider = new PhysicalFileProvider(medicalPath),
     RequestPath = "/MedicalUGFacultyList"
 });
-
 
 // =============================================
 // 🔹 Routing
