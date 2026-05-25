@@ -2020,10 +2020,14 @@
             const r = facultyRows.find(x => x.dbId === dbId);
             if (!r) return;
             const photoSrc = r.photoPath || '';
-            document.getElementById('fdm_photo').innerHTML = photoSrc
-                ? `<img src="${escHtml(photoSrc)}" class="fdm-photo-img" alt="${escHtml(r.name)}"
-                      onerror="this.outerHTML='<div class=fdm-photo-placeholder><i class=bi bi-person-fill></i></div>'">`
-                : `<div class="fdm-photo-placeholder"><i class="bi bi-person-fill"></i></div>`;
+        document.getElementById('fdm_photo').innerHTML =
+    r.photoPath
+        ? `<img src="${window.location.origin}${r.photoPath}"
+                 class="fdm-photo-img"
+                 onerror="this.style.display='none';">`
+        : `<div class="fdm-photo-placeholder">
+                <i class="bi bi-person"></i>
+           </div>`;
             document.getElementById('fdm_name').textContent  = r.name     || '—';
             document.getElementById('fdm_desig').textContent = r.desigName|| '—';
             document.getElementById('fdm_dept').textContent  = r.deptName || '—';
@@ -2172,14 +2176,21 @@
             facultyRows.forEach(r => {
                 let rp = (r.photoPath||'').replace(/\\/g,'/').replace(/\/+/g,'/');
                 if (rp && !rp.startsWith('/')) rp = '/'+rp;
-                const photoCell = rp
-                    ? `<div class="faculty-photo-wrapper">
-                         <img src="${escHtml(rp)}" class="thumb-img" loading="lazy" alt="${escHtml(r.name)}"
-                              onload="this.style.opacity='1';"
-                              onerror="this.style.display='none';const ph=this.nextElementSibling;if(ph)ph.style.display='flex';" />
-                         <div class="thumb-placeholder" style="display:none;"><i class="bi bi-person-fill"></i></div>
-                       </div>`
-                    : `<div class="thumb-placeholder"><i class="bi bi-person-fill"></i></div>`;
+             const photoCell = rp
+    ? `<div class="faculty-photo-wrapper">
+         <img src="${window.location.origin}${escHtml(rp)}"
+              class="thumb-img"
+              loading="lazy"
+              alt="${escHtml(r.name)}"
+              onload="this.style.opacity='1';"
+              onerror="this.style.display='none';const ph=this.nextElementSibling;if(ph)ph.style.display='flex';" />
+         <div class="thumb-placeholder" style="display:none;">
+             <i class="bi bi-person-fill"></i>
+         </div>
+       </div>`
+    : `<div class="thumb-placeholder">
+         <i class="bi bi-person-fill"></i>
+       </div>`;
 
                 const empClass = r.nature==='Permanent' ? 'emp-permanent' : r.nature==='Contract' ? 'emp-contract' : 'emp-others';
 

@@ -104,23 +104,17 @@ namespace Medical_Affiliation.Controllers
                 var data = (from faculty in _context.UgFacultyDetails
                             join dept in _context.DepartmentMastersForUgs
                                 on faculty.DepartmentCode equals dept.DepartmentCode
-                                into deptJoin
-                            from d in deptJoin.DefaultIfEmpty()
-
                             join desig in _context.UgdesignationMasters
                                 on faculty.DesignationCode equals desig.DesignationId
-                                into desigJoin
-                            from dg in desigJoin.DefaultIfEmpty()
-
                             where faculty.CollegeCode == collegeCode
 
                             select new
                             {
                                 Faculty = faculty,
-                                DeptName = d.DepartmentName,
-                                DesigName = dg.DesignationName
+                                DeptName = dept.DepartmentName,
+                                DesigName = desig.DesignationName
                             })
-                            .ToList();
+                            .ToList().Distinct();
 
                 var groupedRows = data
                     .GroupBy(x => new
@@ -187,14 +181,8 @@ namespace Medical_Affiliation.Controllers
 
                                join dept in _context.DepartmentMastersForUgs
                                    on faculty.DepartmentCode equals dept.DepartmentCode
-                                   into deptJoin
-                               from d in deptJoin.DefaultIfEmpty()
-
                                join desig in _context.UgdesignationMasters
                                    on faculty.DesignationCode equals desig.DesignationId
-                                   into desigJoin
-                               from dg in desigJoin.DefaultIfEmpty()
-
                                where faculty.CollegeCode == collegeCode
                                   && faculty.IsDeclared == true
 
@@ -202,10 +190,10 @@ namespace Medical_Affiliation.Controllers
                                {
                                    Id = faculty.Id,
 
-                                   DepartmentName = d.DepartmentName
+                                   DepartmentName = dept.DepartmentName
                                                     ?? faculty.DepartmentCode,
 
-                                   DesignationName = dg.DesignationName
+                                   DesignationName = desig.DesignationName
                                                     ?? faculty.DesignationCode,
 
                                    DesignationOrder = faculty.DesignationCode,
@@ -224,7 +212,7 @@ namespace Medical_Affiliation.Controllers
                                    TeachingExpInYrs = faculty.TeachingExpInYrs ?? "",
                                    PhotoFilePath = faculty.PhotoFilePath ?? ""
                                })
-                               .ToList();
+                               .ToList().Distinct();
 
                 var rows = rawData
                     .OrderBy(x => x.DepartmentName)
