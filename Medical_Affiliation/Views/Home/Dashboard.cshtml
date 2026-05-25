@@ -1,0 +1,1015 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = null;
+    var collegeName = Context.Session.GetString("CollegeName") ?? "College";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – College Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #eef1f6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 230px;
+            min-width: 230px;
+            background: #0d1b2a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 200;
+        }
+
+        .sidebar-brand {
+            padding: 1.4rem 1.3rem 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: #1a73e8;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .brand-text h6 {
+            font-family: 'Playfair Display',serif;
+            color: #fff;
+            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .brand-text small {
+            color: rgba(255,255,255,0.38);
+            font-size: 0.68rem;
+        }
+
+        .sidebar-section {
+            font-size: 0.62rem;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.28);
+            padding: 1.3rem 1.3rem 0.35rem;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0.4rem 0;
+        }
+
+        .nav-item-wrap {
+            padding: 2px 0.65rem;
+        }
+
+        .nav-link-s {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.6rem 0.85rem;
+            border-radius: 9px;
+            color: rgba(255,255,255,0.58);
+            text-decoration: none;
+            font-size: 0.86rem;
+            font-weight: 500;
+            transition: all 0.18s;
+        }
+
+            .nav-link-s:hover {
+                background: rgba(26,115,232,0.14);
+                color: #fff;
+            }
+
+            .nav-link-s.active {
+                background: rgba(26,115,232,0.22);
+                color: #fff;
+            }
+
+        .nav-icon-wrap {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: rgba(255,255,255,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            transition: background 0.18s;
+        }
+
+        .nav-link-s:hover .nav-icon-wrap,
+        .nav-link-s.active .nav-icon-wrap {
+            background: #1a73e8;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.3rem;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .sign-out-link {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: rgba(255,255,255,0.42);
+            text-decoration: none;
+            font-size: 0.83rem;
+            transition: color 0.18s;
+        }
+
+            .sign-out-link:hover {
+                color: #f87171;
+            }
+
+        /* ── MAIN ── */
+        .page-wrap {
+            margin-left: 230px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid #e4e9f0;
+            padding: 0 2rem;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+            .topbar-left i {
+                color: #1a73e8;
+            }
+
+        .college-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #f1f5fb;
+            border: 1px solid #dce5f0;
+            border-radius: 30px;
+            padding: 0.38rem 1rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+            .college-chip i {
+                color: #1a73e8;
+            }
+
+        /* ── CONTENT ── */
+        .content {
+            padding: 2rem 2.2rem;
+            flex: 1;
+        }
+
+        .page-heading {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.55rem;
+            color: #0d1b2a;
+            margin-bottom: 0.15rem;
+        }
+
+        .breadcrumb-text {
+            font-size: 0.76rem;
+            color: #94a3b8;
+            margin-bottom: 1.8rem;
+        }
+
+        /* ── PROCESS INSTRUCTIONS CARD ── */
+        .process-card {
+            background: #fff;
+            border: 1px solid #e8edf5;
+            border-radius: 18px;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.055);
+            overflow: hidden;
+            margin-bottom: 1.8rem;
+        }
+
+        .process-card-header {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%);
+            padding: 1.3rem 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+            .process-card-header .header-icon {
+                width: 40px;
+                height: 40px;
+                background: rgba(255,255,255,0.12);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+                color: #fff;
+                flex-shrink: 0;
+            }
+
+            .process-card-header h5 {
+                font-family: 'Playfair Display', serif;
+                color: #fff;
+                font-size: 1.05rem;
+                margin: 0;
+            }
+
+            .process-card-header small {
+                color: rgba(255,255,255,0.55);
+                font-size: 0.73rem;
+                display: block;
+                margin-top: 2px;
+            }
+
+        .process-card-body {
+            padding: 2rem 1.8rem;
+        }
+
+        /* ── STEPS ── */
+        .steps-container {
+            display: flex;
+            gap: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 160px;
+            position: relative;
+        }
+            /* connector line between steps */
+            .step-item:not(:last-child)::after {
+                content: '';
+                position: absolute;
+                top: 22px;
+                left: calc(50% + 22px);
+                width: calc(100% - 44px);
+                height: 2px;
+                background: #e2e8f0;
+                z-index: 0;
+            }
+
+            .step-item.completed:not(:last-child)::after {
+                background: #10b981;
+            }
+
+        .step-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+            .step-circle.pending {
+                background: #f1f5f9;
+                border: 2px solid #cbd5e1;
+                color: #94a3b8;
+            }
+
+            .step-circle.active {
+                background: #eff6ff;
+                border: 2px solid #1a73e8;
+                color: #1a73e8;
+                box-shadow: 0 0 0 4px rgba(26,115,232,0.12);
+            }
+
+            .step-circle.completed {
+                background: #d1fae5;
+                border: 2px solid #10b981;
+                color: #059669;
+            }
+
+        .step-label {
+            margin-top: 0.65rem;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #64748b;
+            line-height: 1.35;
+            max-width: 120px;
+        }
+
+            .step-label.active-label {
+                color: #1a73e8;
+            }
+
+            .step-label.completed-label {
+                color: #059669;
+            }
+
+        .step-sub {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            text-align: center;
+            max-width: 130px;
+            margin-top: 3px;
+            line-height: 1.3;
+        }
+
+        /* ── INSTRUCTION BOXES ── */
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .instr-box {
+            border-radius: 12px;
+            padding: 1.2rem 1.3rem;
+            border: 1px solid;
+            display: flex;
+            gap: 0.85rem;
+            align-items: flex-start;
+        }
+
+            .instr-box.step1 {
+                background: #eff6ff;
+                border-color: #bfdbfe;
+            }
+
+            .instr-box.step2 {
+                background: #f0fdf4;
+                border-color: #bbf7d0;
+            }
+
+            .instr-box.step3 {
+                background: #fffbeb;
+                border-color: #fde68a;
+            }
+
+            .instr-box.step4 {
+                background: #fdf4ff;
+                border-color: #e9d5ff;
+            }
+
+        .instr-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .step1 .instr-num {
+            background: #1a73e8;
+            color: #fff;
+        }
+
+        .step2 .instr-num {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .step3 .instr-num {
+            background: #f59e0b;
+            color: #fff;
+        }
+
+        .step4 .instr-num {
+            background: #a855f7;
+            color: #fff;
+        }
+
+        .instr-content h6 {
+            font-size: 0.84rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .step1 .instr-content h6 {
+            color: #1e40af;
+        }
+
+        .step2 .instr-content h6 {
+            color: #065f46;
+        }
+
+        .step3 .instr-content h6 {
+            color: #92400e;
+        }
+
+        .step4 .instr-content h6 {
+            color: #6b21a8;
+        }
+
+        .instr-content p {
+            font-size: 0.78rem;
+            color: #475569;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .instr-content ul {
+            font-size: 0.76rem;
+            color: #475569;
+            line-height: 1.6;
+            margin: 4px 0 0;
+            padding-left: 1rem;
+        }
+
+        /* ── CTA BUTTON ── */
+        .cta-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.8rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            flex-wrap: wrap;
+        }
+
+        .btn-go-faculty {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            padding: 0.7rem 1.8rem;
+            text-decoration: none;
+            box-shadow: 0 5px 16px rgba(26,115,232,0.28);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+            .btn-go-faculty:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 22px rgba(26,115,232,0.38);
+                color: #fff;
+            }
+
+        .note-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #fef9c3;
+            border: 1px solid #fde047;
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #854d0e;
+        }
+
+        /* ── IMPORTANT NOTE BANNER ── */
+        .note-banner {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-left: 4px solid #f97316;
+            border-radius: 10px;
+            padding: 1rem 1.3rem;
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+            .note-banner i {
+                color: #ea580c;
+                font-size: 1.1rem;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+
+            .note-banner p {
+                font-size: 0.8rem;
+                color: #7c2d12;
+                line-height: 1.6;
+                margin: 0;
+            }
+
+            .note-banner strong {
+                color: #c2410c;
+            }
+
+        /* ── FOOTER ── */
+        .page-footer {
+            text-align: center;
+            padding: 0.9rem 2rem;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            border-top: 1px solid #e4e9f0;
+            background: #fff;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: rgba(255,255,255,0.42);
+            text-decoration: none;
+            font-size: 0.83rem;
+            transition: color 0.18s;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+            .logout-btn:hover {
+                color: #f87171;
+            }
+
+            .logout-btn i {
+                font-size: 0.9rem;
+            }
+
+        .topbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0 2rem;
+            height: 78px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+
+        /* LEFT */
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .topbar-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+            box-shadow: 0 6px 18px rgba(26,115,232,0.28);
+        }
+
+        .topbar-title-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+
+        .topbar-subtitle {
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* CENTER WELCOME */
+        .welcome-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            background: linear-gradient(135deg, #eff6ff, #ffffff);
+            border: 1px solid #dbeafe;
+            padding: 0.8rem 1.2rem;
+            border-radius: 18px;
+            min-width: 360px;
+            box-shadow: 0 4px 14px rgba(59,130,246,0.08);
+        }
+
+        .welcome-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .welcome-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .welcome-text {
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #2563eb;
+        }
+
+        .welcome-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        /* RIGHT CHIP */
+        .college-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 0.7rem 1rem;
+            min-width: 240px;
+        }
+
+        .chip-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .chip-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .chip-content small {
+                font-size: 0.68rem;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: #64748b;
+                font-weight: 700;
+            }
+
+            .chip-content span {
+                font-size: 0.88rem;
+                font-weight: 700;
+                color: #0f172a;
+                margin-top: 1px;
+            }
+
+        /* RESPONSIVE */
+        @@media (max-width: 1100px) {
+
+            .topbar {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 1rem;
+            }
+
+            .welcome-banner,
+            .college-chip {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <i class="bi bi-mortarboard-fill text-white" style="font-size:1rem;"></i>
+            </div>
+            <div class="brand-text">
+                <h6>College Portal</h6>
+                <small>UG Faculty Management</small>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">Main Menu</div>
+            <div class="nav-item-wrap">
+                <a class="nav-link-s active"
+                   asp-controller="Home"
+                   asp-action="Dashboard">
+                    <span class="nav-icon-wrap"><i class="bi bi-grid-1x2-fill"></i></span>
+                    Dashboard
+                </a>
+            </div>
+            <div class="sidebar-section">UG Faculty</div>
+            <div class="nav-item-wrap">
+                <a class="nav-link-s"
+                   asp-controller="UGFaculty"
+                   asp-action="AddFaculty">
+                    <span class="nav-icon-wrap"><i class="bi bi-person-plus-fill"></i></span>
+                    Add Faculty
+                </a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+
+            <form asp-controller="Login"
+                  asp-action="Logout"
+                  method="post"
+                  style="margin:0;">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit" class="logout-btn">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Sign Out</span>
+                </button>
+
+            </form>
+
+        </div>
+    </aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <div class="page-wrap">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <div class="topbar-icon">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                </div>
+
+                <div class="topbar-title-wrap">
+                    <h4 class="topbar-title">Dashboard</h4>
+                    <small class="topbar-subtitle">
+                        UG Faculty Management Portal
+                    </small>
+                </div>
+            </div>
+
+            <div class="welcome-banner">
+                <div class="welcome-badge">
+                    <i class="bi bi-stars"></i>
+                </div>
+
+                <div class="welcome-content">
+                    <span class="welcome-text">Welcome Back</span>
+                    <div class="welcome-name">
+                        @ViewBag.CollegeName
+                    </div>
+                </div>
+            </div>
+
+           
+
+        </header>
+
+        <main class="content">
+
+            @if (TempData["UploadSuccess"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center py-2 mb-3">
+                    <i class="bi bi-check-circle-fill me-2"></i> @TempData["UploadSuccess"]
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["UploadError"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center py-2 mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["UploadError"]
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <h2 class="page-heading">College Dashboard</h2>
+            <div class="breadcrumb-text">Home / Dashboard</div>
+
+            <!-- ═══════════════ PROCESS INSTRUCTIONS CARD ═══════════════ -->
+            <div class="process-card">
+
+                <div class="process-card-header">
+                    <div class="header-icon"><i class="bi bi-info-circle-fill"></i></div>
+                    <div>
+                        <h5>How to Submit UG Faculty Details</h5>
+                        <small>Follow all 4 steps in order to complete your faculty submission</small>
+                    </div>
+                </div>
+
+                <div class="process-card-body">
+
+                    <!-- ── Step Progress Bar ── -->
+                    <div class="steps-container">
+
+                        <div class="step-item">
+                            <div class="step-circle active">
+                                <i class="bi bi-person-plus-fill"></i>
+                            </div>
+                            <div class="step-label active-label">Step 1<br>Add Faculty</div>
+                            <div class="step-sub">Fill in all faculty details using the form</div>
+                        </div>
+
+                        <div class="step-item">
+                            <div class="step-circle pending">
+                                <i class="bi bi-check2-all"></i>
+                            </div>
+                            <div class="step-label">Step 2<br>Confirm Data</div>
+                            <div class="step-sub">Click the Confirm button below the table</div>
+                        </div>
+
+                        <div class="step-item">
+                            <div class="step-circle pending">
+                                <i class="bi bi-printer-fill"></i>
+                            </div>
+                            <div class="step-label">Step 3<br>Print &amp; Sign</div>
+                            <div class="step-sub">Print PDF, get Principal's signature &amp; seal</div>
+                        </div>
+
+                        <div class="step-item">
+                            <div class="step-circle pending">
+                                <i class="bi bi-cloud-arrow-up-fill"></i>
+                            </div>
+                            <div class="step-label">Step 4<br>Upload Signed Copy</div>
+                            <div class="step-sub">Upload the scanned signed document</div>
+                        </div>
+
+                    </div>
+
+                    <!-- ── Detailed Instruction Boxes ── -->
+                    <div class="instructions-grid">
+
+                        <!-- Step 1 -->
+                        <div class="instr-box step1">
+                            <div class="instr-num">1</div>
+                            <div class="instr-content">
+                                <h6><i class="bi bi-person-plus me-1"></i>Add Faculty Members</h6>
+                                <p>Go to <strong>Add Faculty</strong> from the sidebar. Fill in the following mandatory details for each faculty member:</p>
+                                <ul>
+                                    <li>Department</li>
+                                    <li>Designation</li>
+                                    <li>Name of Faculty</li>
+                                    <li>Date of Birth &amp; Date of Appointment for current designation</li>
+                                    <li>Mobile No <em>(unique per faculty)</em></li>
+                                    <li>PAN No</li>
+                                   
+                                </ul>
+                                <p class="mt-1">Click <strong>"Add to List"</strong> after filling each faculty's details. Repeat for all faculty members.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="instr-box step2">
+                            <div class="instr-num">2</div>
+                            <div class="instr-content">
+                                <h6><i class="bi bi-check2-all me-1"></i>Confirm All Data</h6>
+                                <p>After adding all faculty members, review the table carefully. Once satisfied:</p>
+                                <ul>
+                                    <li>Scroll below the faculty table</li>
+                                    <li>Click the green <strong>"All Below Table Data is Confirmed"</strong> button</li>
+                                    <li>A preview modal will appear — review all entries once more</li>
+                                    <li>Click <strong>"Save &amp; Declare"</strong> — the PDF will download automatically</li>
+                                </ul>
+                                <p class="mt-1"><strong>Note:</strong> You can still edit and re-confirm before uploading the signed copy.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="instr-box step3">
+                            <div class="instr-num">3</div>
+                            <div class="instr-content">
+                                <h6><i class="bi bi-printer me-1"></i>Print, Sign &amp; Scan</h6>
+                                <p>After the PDF downloads automatically:</p>
+                                <ul>
+                                    <li>Take a <strong>printout</strong> of the downloaded PDF</li>
+                                    <li>Submit it to the <strong>Principal</strong> for signature and official seal</li>
+                                    <li>After signing, <strong>scan</strong> the document back to PDF or image</li>
+                                    <li>Keep the scanned file ready for upload</li>
+                                </ul>
+                                <p class="mt-1">Accepted formats: <strong>PDF only</strong> &nbsp;|&nbsp; Max size: <strong>10 MB</strong></p>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="instr-box step4">
+                            <div class="instr-num">4</div>
+                            <div class="instr-content">
+                                <h6><i class="bi bi-cloud-arrow-up me-1"></i>Upload Signed Copy</h6>
+                                <p>Return to the <strong>Add Faculty</strong> page after signing:</p>
+                                <ul>
+                                    <li>Scroll down to the <strong>"Upload Signed Faculty List"</strong> section</li>
+                                    <li>Click <strong>"Browse"</strong> or drag &amp; drop the scanned PDF</li>
+                                    <li>Click <strong>"Mark as Submitted"</strong></li>
+                                    <li>Once uploaded, the process is <strong>complete and locked</strong></li>
+                                </ul>
+                                <p class="mt-1">The University will be notified upon successful submission.</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ── Important Note ── -->
+                    <div class="note-banner">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <p>
+                            <strong>Important:</strong> Mobile Number is used as a unique identifier for each faculty member — duplicate mobile numbers are not allowed.
+                            Ensure all details are accurate before confirming, as the data will be submitted to the University for official records.
+                            Once the signed copy is uploaded, <strong>no further edits are permitted</strong>.
+                        </p>
+                    </div>
+
+                    <!-- ── CTA ── -->
+                    <div class="cta-row">
+                        <a class="nav-link-s"
+                           asp-controller="UGFaculty"
+                           asp-action="AddFaculty">
+                            <i class="bi bi-arrow-right-circle-fill"></i>
+                            Start — Go to Add Faculty
+                        </a>
+                        <div class="note-chip">
+                            <i class="bi bi-clock-fill"></i>
+                            Complete all 4 steps to finish submission
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+
+      
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

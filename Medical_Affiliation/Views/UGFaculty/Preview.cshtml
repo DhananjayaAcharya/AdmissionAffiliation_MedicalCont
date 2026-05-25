@@ -1,0 +1,66 @@
+@model List<Medical_Affiliation.Models.UgFacultyDetail>
+
+@{
+    ViewData["Title"] = "Preview";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">Faculty Data Preview</h2>
+        <a asp-action="AddFaculty" asp-controller="UGFaculty" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Edit Details
+        </a>
+    </div>
+
+    <div class="card shadow border-0 mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr class="text-center">
+                            <th class="py-3">SL.No</th>
+                            <th>Department</th>
+                            <th>Name of Faculty</th>
+                            <th>Designation</th>
+                            <th>Date of Appointment for current designation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var f = Model[i];
+                            <tr>
+                                <td class="fw-bold">@(i + 1)</td>
+                                <td>@f.DepartmentCode</td>
+                                <td class="fw-semibold">@f.NameOftheFaculty</td>
+                                <td>@f.DesignationCode</td>
+                                <td>@f.DateOfAppointment</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 bg-white mb-5">
+        <div class="card-body p-4 text-center">
+            <div class="mb-4">
+                <h5 class="fw-bold text-uppercase text-muted small mb-3">Official Declaration</h5>
+                <p class="lead fs-6" style="max-width: 700px; margin: 0 auto;">
+                    "I hereby declare that the faculty details listed above are correct and complete to the best of my knowledge and belief. Any discrepancies found may be subject to administrative action."
+                </p>
+            </div>
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-action="Download" asp-controller="UGFaculty" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow">
+                    <i class="bi bi-file-earmark-pdf-fill me-2"></i> Download Signed Document
+                </a>
+            </div>
+            <div class="mt-4 p-3 bg-light rounded border text-muted small">
+                <i class="bi bi-info-circle-fill me-2 text-primary"></i>
+                <strong>Important:</strong> Please take a printout of this document, get it signed by the Principal, and upload the scanned copy to the dashboard.
+            </div>
+        </div>
+    </div>
+</div>
+

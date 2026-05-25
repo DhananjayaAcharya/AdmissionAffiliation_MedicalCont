@@ -90,6 +90,8 @@ namespace Medical_Affiliation.Controllers
 
             return RedirectToAction(redirectAction, redirectController);
         }
+        [Authorize(AuthenticationSchemes = "CollegeAuth")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Dashboard()
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -115,24 +117,22 @@ namespace Medical_Affiliation.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult UniversityDashboard()
         {
-            
+
 
             var uploadedColleges = (from upload in _context.UgPrintedUploads
+
                                     join college in _context.AffiliationCollegeMasters
-                                    on EF.Functions.Collate(
-                                           upload.CollegeCode,
-                                           "SQL_Latin1_General_CP1_CI_AS")
-                                    equals EF.Functions.Collate(
-                                           college.CollegeCode,
-                                           "SQL_Latin1_General_CP1_CI_AS")
+                                    on upload.CollegeCode equals college.CollegeCode
+
                                     select new UploadedCollegeViewModel
                                     {
                                         CollegeCode = upload.CollegeCode,
                                         CollegeName = college.CollegeName
                                     })
-                         .Distinct()
-                         .OrderBy(c => c.CollegeName)
-                         .ToList();
+
+             .Distinct()
+             .OrderBy(c => c.CollegeName)
+             .ToList();
 
             return View(uploadedColleges);
         }

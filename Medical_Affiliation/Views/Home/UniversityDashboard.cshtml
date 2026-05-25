@@ -1,0 +1,948 @@
+@model List<Medical_Affiliation.Models.UploadedCollegeViewModel>
+
+@{
+    ViewData["Title"] = "University Dashboard";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RGUHS Portal</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+            :root {
+                --maroon: #7B1C2E;
+                --maroon-dark: #5A1220;
+                --maroon-light: #A52840;
+                --gold: #C8991A;
+                --gold-light: #E8B830;
+                --cream: #FAF7F2;
+                --cream-dark: #F0EBE1;
+                --ink: #1A1410;
+                --ink-light: #3D3028;
+                --muted: #7A6E66;
+                --border: #D8CFC4;
+                --shadow-sm: 0 2px 8px rgba(123,28,46,0.08);
+                --shadow-md: 0 6px 24px rgba(123,28,46,0.14);
+                --shadow-lg: 0 16px 48px rgba(123,28,46,0.18);
+            }
+
+            body {
+                font-family: 'DM Sans', sans-serif;
+                background: var(--cream);
+                color: var(--ink);
+                margin: 0;
+                padding: 0;
+            }
+
+            /* ── DASHBOARD UI COMPONENTS ── */
+            .uni-header {
+                background: linear-gradient(135deg, var(--maroon-dark) 0%, var(--maroon) 60%, var(--maroon-light) 100%);
+                padding: 1.5rem 2rem;
+                border-bottom: 3px solid var(--gold);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .uni-logo-area {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .uni-emblem {
+                width: 54px;
+                height: 54px;
+                background: var(--gold);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'EB Garamond', serif;
+                font-size: 1.4rem;
+                color: var(--maroon-dark);
+                font-weight: 700;
+                flex-shrink: 0;
+                box-shadow: 0 0 0 3px rgba(200,153,26,0.3);
+            }
+
+            .uni-title {
+                font-family: 'EB Garamond', serif;
+                color: #fff;
+                font-size: 1.25rem;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
+            .uni-subtitle {
+                color: rgba(255,255,255,0.65);
+                font-size: 0.72rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-top: 2px;
+            }
+
+            .uni-badge {
+                background: rgba(200,153,26,0.18);
+                border: 1px solid var(--gold);
+                color: var(--gold-light);
+                font-size: 0.72rem;
+                padding: 4px 12px;
+                border-radius: 20px;
+                letter-spacing: 0.05em;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .logout-text-link {
+                color: rgba(255,255,255,0.75);
+                font-size: 0.82rem;
+                font-weight: 500;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                transition: color 0.2s;
+                padding: 4px 0;
+                border-bottom: 1px solid transparent;
+            }
+
+                .logout-text-link:hover {
+                    color: #fff;
+                    border-bottom-color: rgba(255,255,255,0.5);
+                    text-decoration: none;
+                }
+
+            .main-card {
+                background: #fff;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow-sm);
+                overflow: hidden;
+            }
+
+            .card-header-rguhs {
+                background: var(--cream-dark);
+                border-bottom: 1px solid var(--border);
+                padding: 1.1rem 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+            }
+
+                .card-header-rguhs .icon-dot {
+                    width: 8px;
+                    height: 8px;
+                    background: var(--maroon);
+                    border-radius: 50%;
+                }
+
+                .card-header-rguhs h6 {
+                    font-family: 'EB Garamond', serif;
+                    font-size: 1.05rem;
+                    font-weight: 600;
+                    color: var(--maroon-dark);
+                    margin: 0;
+                }
+
+            .selector-row {
+                display: flex;
+                gap: 1rem;
+                align-items: flex-end;
+                padding: 1.5rem;
+                flex-wrap: wrap;
+            }
+
+            .form-group-rguhs {
+                flex: 1;
+                min-width: 240px;
+            }
+
+                .form-group-rguhs label {
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    color: var(--muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                    display: block;
+                    margin-bottom: 0.4rem;
+                }
+
+            .form-select-rguhs {
+                width: 100%;
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                padding: 0.6rem 2.5rem 0.6rem 0.9rem;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.9rem;
+                color: var(--ink);
+                background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A6E66' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+                appearance: none;
+                cursor: pointer;
+                transition: border-color 0.2s, box-shadow 0.2s;
+            }
+
+                .form-select-rguhs:focus {
+                    outline: none;
+                    border-color: var(--maroon);
+                    box-shadow: 0 0 0 3px rgba(123,28,46,0.1);
+                }
+
+            .btn-fetch {
+                background: var(--maroon);
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 0.6rem 1.6rem;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.88rem;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+                white-space: nowrap;
+            }
+
+                .btn-fetch:hover {
+                    background: var(--maroon-dark);
+                    box-shadow: var(--shadow-md);
+                    transform: translateY(-1px);
+                }
+
+            .btn-view {
+                background: transparent;
+                border: 1.5px solid var(--maroon);
+                color: var(--maroon);
+                border-radius: 6px;
+                padding: 4px 12px;
+                font-size: 0.78rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.15s;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+            }
+
+                .btn-view:hover {
+                    background: var(--maroon);
+                    color: #fff;
+                }
+
+            .btn-approve {
+                background: var(--gold);
+                color: var(--maroon-dark);
+                border: none;
+                border-radius: 6px;
+                padding: 5px 14px;
+                font-size: 0.78rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.15s;
+                letter-spacing: 0.02em;
+                display: inline-flex;
+                align-items: center;
+            }
+
+                .btn-approve:hover {
+                    background: var(--gold-light);
+                    box-shadow: 0 2px 8px rgba(200,153,26,0.4);
+                }
+
+            .table-section {
+                padding: 0 1.5rem 1.5rem;
+                overflow-x: auto;
+            }
+
+            #uploadedList {
+                display: none;
+            }
+
+            .rguhs-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.875rem;
+            }
+
+                .rguhs-table thead tr {
+                    background: var(--maroon);
+                    color: #fff;
+                }
+
+                .rguhs-table thead th {
+                    padding: 0.75rem 1rem;
+                    font-weight: 600;
+                    font-size: 0.78rem;
+                    letter-spacing: 0.04em;
+                    text-transform: uppercase;
+                    border: none;
+                    text-align: left;
+                }
+
+                .rguhs-table tbody tr {
+                    border-bottom: 1px solid var(--cream-dark);
+                    transition: background 0.15s;
+                }
+
+                    .rguhs-table tbody tr:hover {
+                        background: var(--cream);
+                    }
+
+                .rguhs-table tbody td {
+                    padding: 0.85rem 1rem;
+                    color: var(--ink-light);
+                    vertical-align: middle;
+                }
+
+            .badge-status {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 3px 10px;
+                border-radius: 20px;
+                font-size: 0.72rem;
+                font-weight: 600;
+                letter-spacing: 0.03em;
+            }
+
+            .badge-verified {
+                background: #E8F5E9;
+                color: #2E7D32;
+            }
+
+            .badge-pending {
+                background: #FFF8E1;
+                color: #F57F17;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1rem;
+                color: var(--muted);
+            }
+
+            /* Modals Overlay Configurations */
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(26,20,16,0.55);
+                z-index: 1050;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(3px);
+            }
+
+                .modal-overlay.active {
+                    display: flex;
+                }
+
+            .modal-box {
+                background: #fff;
+                border-radius: 14px;
+                width: 96vw;
+                max-width: 480px;
+                box-shadow: var(--shadow-lg);
+                position: relative;
+                animation: modalIn 0.25s ease;
+            }
+
+                .modal-box.doc-modal-box {
+                    max-width: 950px;
+                    width: 92vw;
+                }
+
+                .modal-box.letter-modal-box {
+                    max-width: 1050px;
+                    width: 95vw;
+                    max-height: 95vh;
+                    overflow-y: auto;
+                }
+
+                .modal-box.confirm-modal-box {
+                    max-width: 460px;
+                }
+
+            @@keyframes modalIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(18px) scale(0.97);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: none;
+                }
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 14px;
+                right: 18px;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: var(--muted);
+                cursor: pointer;
+                z-index: 10;
+            }
+
+                .modal-close:hover {
+                    color: var(--maroon);
+                }
+
+            .modal-actions {
+                padding: 1rem 2rem 1.5rem;
+                display: flex;
+                gap: 0.75rem;
+                justify-content: flex-end;
+                border-top: 1px solid var(--border);
+                position: sticky;
+                bottom: 0;
+                background: #fff;
+            }
+
+            .btn-print {
+                background: var(--maroon);
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 0.55rem 1.4rem;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+                .btn-print:hover {
+                    background: var(--maroon-dark);
+                }
+
+            .btn-cancel {
+                background: transparent;
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                padding: 0.55rem 1.2rem;
+                font-size: 0.85rem;
+                font-weight: 500;
+                color: var(--muted);
+                cursor: pointer;
+            }
+
+            .btn-confirm-yes {
+                background: var(--maroon);
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 0.6rem 1.6rem;
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: background 0.2s;
+            }
+
+                .btn-confirm-yes:hover {
+                    background: var(--maroon-dark);
+                }
+
+            .btn-confirm-no {
+                background: transparent;
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                padding: 0.6rem 1.4rem;
+                font-size: 0.9rem;
+                font-weight: 500;
+                color: var(--muted);
+                cursor: pointer;
+            }
+
+            /* ── BASE SCREEN PREVIEW LETTER ARCHITECTURE ── */
+            .letter-wrap {
+                padding: 1.5rem;
+                font-family: 'EB Garamond', serif;
+                background: #fff;
+            }
+
+            .letter-border {
+                border: 2px solid var(--maroon);
+                padding: 2rem;
+                position: relative;
+                background: #fff;
+                min-height: 250mm;
+                box-sizing: border-box;
+            }
+
+                .letter-border::before {
+                    content: '';
+                    position: absolute;
+                    inset: 5px;
+                    border: 1px solid var(--gold);
+                    pointer-events: none;
+                }
+
+            .letter-header-block {
+                border-bottom: 2px solid var(--maroon);
+                padding-bottom: 12px;
+                margin-bottom: 20px;
+            }
+
+            .logo-row {
+                display: table;
+                width: 100%;
+            }
+
+            .logo-col {
+                display: table-cell;
+                vertical-align: middle;
+                width: 90px;
+            }
+
+            .text-col {
+                display: table-cell;
+                vertical-align: middle;
+                text-align: left;
+                padding-left: 15px;
+            }
+
+            .logo-row img {
+                height: 75px;
+                width: auto;
+                display: block;
+            }
+
+            h2 {
+                font-size: 14pt;
+                font-weight: 700;
+                color: var(--maroon-dark);
+                margin: 0 0 3px 0;
+                line-height: 1.2;
+                text-transform: uppercase;
+            }
+
+            .addr {
+                font-family: 'DM Sans', sans-serif;
+                font-size: 8.5pt;
+                color: var(--muted);
+                margin: 0;
+            }
+
+            .dept-line {
+                font-family: 'DM Sans', sans-serif;
+                font-size: 8.5pt;
+                color: var(--maroon);
+                font-weight: 600;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                margin-top: 4px;
+                margin-bottom: 0;
+            }
+
+            .letter-date-row {
+                text-align: right;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 10pt;
+                margin-bottom: 20px;
+            }
+
+            .letter-to-block {
+                font-size: 10.5pt;
+                line-height: 1.6;
+                margin-bottom: 20px;
+            }
+
+            .lbl {
+                font-size: 8pt;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: var(--muted);
+                font-family: 'DM Sans', sans-serif;
+            }
+
+            .letter-subject-block {
+                background: var(--cream);
+                border-left: 3.5px solid var(--maroon);
+                padding: 10px 14px;
+                margin-bottom: 20px;
+                font-size: 10.5pt;
+                line-height: 1.5;
+            }
+
+                .letter-subject-block strong {
+                    color: var(--maroon-dark);
+                }
+
+            .letter-salutation {
+                font-size: 10.5pt;
+                margin-bottom: 12px;
+            }
+
+            .letter-para, .letter-closing-para {
+                font-size: 10.5pt;
+                line-height: 1.75;
+                color: var(--ink-light);
+                margin-bottom: 15px;
+                text-align: justify;
+            }
+
+            .faculty-letter-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 9pt;
+                font-family: 'DM Sans', sans-serif;
+                margin: 15px 0;
+            }
+
+                .faculty-letter-table thead {
+                    background: var(--maroon);
+                    color: #fff;
+                }
+
+                .faculty-letter-table th {
+                    padding: 7px 10px;
+                    font-size: 8pt;
+                    text-transform: uppercase;
+                    font-weight: 600;
+                    text-align: left;
+                }
+
+                .faculty-letter-table td {
+                    padding: 6px 10px;
+                    border-bottom: 1px solid var(--border);
+                    color: var(--ink-light);
+                }
+
+                .faculty-letter-table tr:nth-child(even) {
+                    background: var(--cream);
+                }
+
+            .letter-sign-block {
+                margin-top: 40px;
+                text-align: right;
+            }
+
+                .letter-sign-block p {
+                    font-size: 10.5pt;
+                    margin-bottom: 55px;
+                    color: var(--ink-light);
+                }
+
+            .sign-name {
+                font-size: 11pt;
+                font-weight: 700;
+                color: var(--maroon-dark);
+                display: block;
+            }
+
+            .sign-title {
+                font-size: 8.5pt;
+                color: var(--muted);
+                font-family: 'DM Sans', sans-serif;
+                display: block;
+                line-height: 1.4;
+            }
+
+            .letter-copy-block {
+                margin-top: 30px;
+                border-top: 1px dashed var(--border);
+                padding-top: 12px;
+                font-size: 9pt;
+                font-family: 'DM Sans', sans-serif;
+                color: var(--muted);
+            }
+
+                .letter-copy-block strong {
+                    color: var(--maroon);
+                }
+
+                .letter-copy-block ol {
+                    margin: 5px 0 0;
+                    padding-left: 18px;
+                    line-height: 1.6;
+                }
+
+            .animate-spin {
+                animation: spin 1s linear infinite;
+                display: inline-block;
+            }
+            @@keyframes spin {
+                from {
+                    transform: rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* ── MEDIA PRINT CONFIGURATIONS ── */
+            @@media print {
+                @@page {
+                    size: A4 portrait;
+                    margin: 0;
+                }
+
+                .modal-actions, .modal-close, .uni-header, .selector-row, .table-section {
+                    display: none !important;
+                }
+
+                html, body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    background: #fff !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                .letter-wrap {
+                    padding: 0 !important;
+                    background: #fff !important;
+                }
+
+                .letter-border {
+                    position: relative !important;
+                    width: 210mm !important;
+                    min-height: 297mm !important;
+                    box-sizing: border-box !important;
+                    padding: 20mm 20mm 25mm 20mm !important;
+                    margin: 0 auto !important;
+                    border: none !important;
+                    page-break-after: always !important;
+                }
+
+                    .letter-border::after {
+                        content: "";
+                        position: absolute;
+                        top: 10mm;
+                        bottom: 10mm;
+                        left: 10mm;
+                        right: 10mm;
+                        border: 2.5px solid #7B1C2E !important;
+                        pointer-events: none;
+                        z-index: 100;
+                    }
+
+                    .letter-border::before {
+                        content: "";
+                        position: absolute;
+                        top: 11.5mm;
+                        bottom: 11.5mm;
+                        left: 11.5mm;
+                        right: 11.5mm;
+                        border: 1px solid #C8991A !important;
+                        pointer-events: none;
+                        z-index: 100;
+                    }
+
+                .letter-header-block {
+                    border-bottom: 2px solid #7B1C2E !important;
+                    padding-bottom: 10px !important;
+                    margin-bottom: 18px !important;
+                }
+
+                .logo-row {
+                    display: table !important;
+                    width: 100% !important;
+                }
+
+                .logo-col {
+                    display: table-cell !important;
+                    vertical-align: middle !important;
+                    width: 80px !important;
+                }
+
+                .text-col {
+                    display: table-cell !important;
+                    vertical-align: middle !important;
+                    text-align: left !important;
+                    padding-left: 15px !important;
+                }
+
+                .logo-row img {
+                    height: 75px !important;
+                    width: auto !important;
+                    display: block;
+                }
+
+                h2 {
+                    font-size: 14pt !important;
+                    color: #5A1220 !important;
+                    font-weight: 700 !important;
+                }
+
+                .dept-line {
+                    color: #7B1C2E !important;
+                }
+
+                .letter-subject-block {
+                    background: #FAF7F2 !important;
+                    border-left: 4px solid #7B1C2E !important;
+                }
+
+                .faculty-letter-table {
+                    display: table !important;
+                    page-break-inside: auto !important;
+                }
+
+                    .faculty-letter-table thead {
+                        display: table-header-group !important;
+                        background: #7B1C2E !important;
+                    }
+
+                    .faculty-letter-table th {
+                        color: #fff !important;
+                        background: #7B1C2E !important;
+                    }
+
+                    .faculty-letter-table tr {
+                        page-break-inside: avoid !important;
+                    }
+
+                        .faculty-letter-table tr:nth-child(even) {
+                            background: #FAF7F2 !important;
+                        }
+
+                .letter-sign-block, .letter-copy-block {
+                    page-break-inside: avoid !important;
+                }
+            }
+    </style>
+</head>
+<body>
+
+    <div class="uni-header">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="uni-logo-area">
+                <div class="uni-emblem">R</div>
+                <div>
+                    <div class="uni-title">Rajiv Gandhi University of Health Sciences</div>
+                    <div class="uni-subtitle">University Administrative Portal · Karnataka</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <span class="uni-badge"><i class="bi bi-shield-check" style="margin-right:4px;"></i> University Director</span>
+                <a asp-controller="Account" asp-action="Logout" class="logout-text-link">
+                    <i class="bi bi-box-arrow-right"></i> Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div style="padding:2rem;">
+        <div class="main-card" style="margin-bottom:2rem;">
+            <div class="card-header-rguhs">
+                <div class="icon-dot"></div>
+                <h6>College Faculty Upload Review</h6>
+            </div>
+            <div class="selector-row">
+                <div class="form-group-rguhs">
+                    <label for="collegeSelect">Select College</label>
+                    <select class="form-select-rguhs" id="collegeSelect">
+                        <option value="">— Choose a college —</option>
+                        @foreach (var item in Model)
+                        {
+                            <option value="@item.CollegeCode" data-name="@item.CollegeName">
+                                [@item.CollegeCode] @item.CollegeName
+                            </option>
+                        }
+                    </select>
+                </div>
+                <button class="btn-fetch" onclick="fetchUploads()">
+                    <i class="bi bi-arrow-clockwise" style="font-size:1rem;"></i> Fetch Uploads
+                </button>
+            </div>
+        </div>
+
+        <div class="main-card" id="uploadedList">
+            <div class="card-header-rguhs">
+                <div class="icon-dot"></div>
+                <h6 id="resultTitle">Uploaded Documents</h6>
+            </div>
+            <div class="table-section">
+                <div id="uploadTableWrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal-box doc-modal-box">
+            <button class="modal-close" onclick="closeModal('viewModal')">&times;</button>
+            <div style="padding:1.5rem 2rem 0.5rem;">
+                <h5 style="font-family:'EB Garamond',serif; color:var(--maroon-dark); font-weight:700; margin:0 0 1rem;" id="viewModalTitle">Document Preview</h5>
+                <div id="docContainer" style="height:70vh; background:#f8f9fa; border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+                </div>
+            </div>
+            <div class="modal-actions" style="background:#f8f9fa; border-radius: 0 0 14px 14px; padding:0.8rem 2rem;">
+                <button class="btn-cancel" onclick="closeModal('viewModal')">Close Preview</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box confirm-modal-box">
+            <div style="padding:2rem 2rem 0;">
+                <div class="confirm-icon">
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                </div>
+                <div class="confirm-title">Generate Approval Letter</div>
+                <div class="confirm-message" id="confirmMessage">
+                    You are about to generate an official approval letter for this college.
+                    Please ensure the faculty list has been reviewed before proceeding.
+                </div>
+            </div>
+            <div class="modal-actions" style="justify-content:center; gap:1rem;">
+                <button class="btn-confirm-no" onclick="closeModal('confirmModal')">
+                    <i class="bi bi-x-circle" style="margin-right:5px;"></i>Cancel
+                </button>
+                <button class="btn-confirm-yes" id="confirmYesBtn" onclick="proceedWithApproval()">
+                    <i class="bi bi-check-circle-fill" style="margin-right:5px;"></i>Yes, Generate Letter
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="letterModal">
+        <div class="modal-box letter-modal-box">
+            <button class="modal-close" onclick="closeModal('letterModal')">&times;</button>
+            <div id="letterContent" class="letter-wrap">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('letterModal')">Close</button>
+                <button class="btn-print" onclick="printLetter()">
+                    <i class="bi bi-printer-fill" style="margin-right:5px;"></i>Print / Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        const getCollegeUploadsUrl =
+            '@Url.Action("GetCollegeUploads", "UGFaculty")';
+
+        const getFacultyListUrl =
+            '@Url.Action("GetFacultyList", "UGFaculty")';
+
+        const downloadUploadUrl =
+            '@Url.Action("DownloadUpload", "UGFaculty")';
+
+        const medicalFacultyBaseUrl =
+            '@Url.Content("~/MedicalUGFacultyList/")';
+
+    </script>
+
+    <script src="~/js/university-dashboard.js"></script>
+    <script src="~/js/university-dashboard.js"></script>
+</body>
+</html>
