@@ -308,7 +308,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\MedicalUGFacultyList"),
+    FileProvider = new PhysicalFileProvider(@"E:\MedicalUGFacultyList"),
     RequestPath = "/MedicalUGFacultyList"
 });
 
