@@ -1,4 +1,19 @@
 
+--SELECT * FROM [dbo].[Mst_Course]
+--where FacultyCode = 2 and CourseName = 'PhD'
+--WHERE CourseCode = 2014;
+
+UPDATE [Mst_Course]
+SET CourseCode = 2015 where FacultyCode = 2 and CourseName = 'PhD'
+
+UPDATE [Mst_Course]
+SET CourseCode = 2016 where FacultyCode = 2 and CourseName = 'Fellowship'
+
+UPDATE [Mst_Course]
+SET CourseCode = 2017 where FacultyCode = 2 and CourseName = 'Phd and Fellowship'
+
+SELECT * FROM Mst_Course where FacultyCode = 2;
+
 ALTER TABLE AFF_InstitutionsDetails
 ALTER COLUMN [CourseApplied] NVARCHAR(500) NULL;
 
@@ -5153,3 +5168,31 @@ SET IDENTITY_INSERT [dbo].[LIC_Inspection] OFF
 GO
 ALTER TABLE [dbo].[LIC_Inspection] ADD  CONSTRAINT [DF__LIC_Inspe__IsCom__6C8E1007]  DEFAULT ((0)) FOR [IsCompleted]
 GO
+
+
+
+----------------------- ACADEMIC INTAKE -------------------
+
+
+ALTER TABLE AcademicIntake
+ADD AY2025_LopDentalDocument NVARCHAR(500) NULL;
+
+ALTER TABLE AcademicIntake
+ALTER COLUMN AY2025_DCIDocument NVARCHAR(500) NULL;
+
+--delete FROM AcademicIntake WHERE FacultyCode = 2;
+
+ALTER TABLE AcademicIntake
+ALTER COLUMN AY2025_KSDCDocument NVARCHAR(500) NULL;
+
+ALTER TABLE AcademicIntake
+ALTER COLUMN AY2026_DCIDocument NVARCHAR(500) NULL;
+
+ALTER TABLE AcademicIntake
+ALTER COLUMN AY2026_KSDCDocument NVARCHAR(500) NULL;
+
+ALTER TABLE AcademicIntake
+ALTER COLUMN AY2027_DCIDocument NVARCHAR(500) NULL;
+
+ALTER TABLE AcademicIntake
+ALTER COLUMN AY2027_KSDCDocument NVARCHAR(500) NULL;

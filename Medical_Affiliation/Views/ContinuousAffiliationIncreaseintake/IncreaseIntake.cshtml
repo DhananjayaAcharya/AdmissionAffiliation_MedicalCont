@@ -610,7 +610,7 @@
 
 @* ── RAZOR HELPER ── *@
 @functions {
-    void RenderTable(
+    async Task RenderTable(
         IList<IntakeByLevelViewModel1>? list,
         string prefix)
     {
@@ -763,10 +763,22 @@
                                             <span class="fn">LOP File</span>
 
                                             <input type="file"
-                                                   name="@(p).AY2025_LopDocument"
+                                                   name="@(p).AY2025_LopDentalDocument"
                                                    class="file-validate"
                                                    accept=".pdf" />
                                         </label>
+                                        @if (c.HasLopDocument)
+                                        {
+                                            <div class="mt-1">
+                                                <a asp-action="ViewDocument"
+                                                   asp-route-id="@c.Id"
+                                                   asp-route-docType="LOPDENTAL2025"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-primary">
+                                                    View File
+                                                </a>
+                                            </div>
+                                        }
                                     </td>
                                     <td style="min-width:170px">
                                         <label class="fl">
@@ -786,27 +798,20 @@
                                                    class="file-validate"
                                                    accept=".pdf" />
                                         </label>
+                                        @if (c.HasAY2025DciDocument)
+                                        {
+                                            <div class="mt-1">
+                                                <a asp-action="ViewDocument"
+                                                   asp-route-id="@c.Id"
+                                                   asp-route-docType="DCI2025"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-primary">
+                                                    View File
+                                                </a>
+                                            </div>
+                                        }
                                     </td>
 
-                                    // <td style="min-width:170px">
-                                    //     <label class="fl">
-                                    //         <svg width="12" height="12" fill="none"
-                                    //              stroke="currentColor"
-                                    //              stroke-width="2.2"
-                                    //              viewBox="0 0 24 24">
-                                    //             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                                    //             <polyline points="17 8 12 3 7 8" />
-                                    //             <line x1="12" y1="3" x2="12" y2="15" />
-                                    //         </svg>
-
-                                    //         <span class="fn">KSDC File</span>
-
-                                    //         <input type="file"
-                                    //                name="@(p).AY2025_KSDCDocument"
-                                    //                class="file-validate"
-                                    //                accept=".pdf" />
-                                    //     </label>
-                                    // </td>
                                 }
                                 else
                                 {
@@ -861,6 +866,18 @@
                                                    class="file-validate"
                                                    accept=".pdf" />
                                         </label>
+                                        @if (c.HasAY2026DciDocument)
+                                        {
+                                            <div class="mt-1">
+                                                <a asp-action="ViewDocument"
+                                                   asp-route-id="@c.Id"
+                                                   asp-route-docType="DCI2026"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-primary">
+                                                    View File
+                                                </a>
+                                            </div>
+                                        }
                                     </td>
 
                                     // <td style="min-width:170px">
@@ -935,6 +952,18 @@
                                                    class="file-validate"
                                                    accept=".pdf" />
                                         </label>
+                                        @if (c.HasAY2027DciDocument)
+                                        {
+                                            <div class="mt-1">
+                                                <a asp-action="ViewDocument"
+                                                   asp-route-id="@c.Id"
+                                                   asp-route-docType="DCI2027"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-primary">
+                                                    View File
+                                                </a>
+                                            </div>
+                                        }
                                     </td>
 
                                     // <td style="min-width:170px">

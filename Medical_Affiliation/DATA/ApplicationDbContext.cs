@@ -495,23 +495,38 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Ay2024ExistingIntake).HasColumnName("AY2024_ExistingIntake");
             entity.Property(e => e.Ay2024IncreaseIntake).HasColumnName("AY2024_IncreaseIntake");
             entity.Property(e => e.Ay2024TotalIntake).HasColumnName("AY2024_TotalIntake");
-            entity.Property(e => e.Ay2025Dcidocument).HasColumnName("AY2025_DCIDocument");
+            entity.Property(e => e.Ay2025Dcidocument)
+                .HasMaxLength(500)
+                .HasColumnName("AY2025_DCIDocument");
             entity.Property(e => e.Ay2025ExistingIntake).HasColumnName("AY2025_ExistingIntake");
-            entity.Property(e => e.Ay2025Ksdcdocument).HasColumnName("AY2025_KSDCDocument");
+            entity.Property(e => e.Ay2025Ksdcdocument)
+                .HasMaxLength(500)
+                .HasColumnName("AY2025_KSDCDocument");
             entity.Property(e => e.Ay2025LopDate).HasColumnName("AY2025_LopDate");
+            entity.Property(e => e.Ay2025LopDentalDocument)
+                .HasMaxLength(500)
+                .HasColumnName("AY2025_LopDentalDocument");
             entity.Property(e => e.Ay2025LopDocument).HasColumnName("AY2025_LopDocument");
             entity.Property(e => e.Ay2025LopNmcIntake).HasColumnName("AY2025_LopNmcIntake");
             entity.Property(e => e.Ay2025NmcDocument).HasColumnName("AY2025_NmcDocument");
             entity.Property(e => e.Ay2025TotalIntake).HasColumnName("AY2025_TotalIntake");
             entity.Property(e => e.Ay2026AddRequestedIntake).HasColumnName("AY2026_AddRequestedIntake");
-            entity.Property(e => e.Ay2026Dcidocument).HasColumnName("AY2026_DCIDocument");
+            entity.Property(e => e.Ay2026Dcidocument)
+                .HasMaxLength(500)
+                .HasColumnName("AY2026_DCIDocument");
             entity.Property(e => e.Ay2026ExistingIntake).HasColumnName("AY2026_ExistingIntake");
-            entity.Property(e => e.Ay2026Ksdcdocument).HasColumnName("AY2026_KSDCDocument");
+            entity.Property(e => e.Ay2026Ksdcdocument)
+                .HasMaxLength(500)
+                .HasColumnName("AY2026_KSDCDocument");
             entity.Property(e => e.Ay2026TotalIntake).HasColumnName("AY2026_TotalIntake");
             entity.Property(e => e.Ay2027AddRequestedIntake).HasColumnName("AY2027_AddRequestedIntake");
-            entity.Property(e => e.Ay2027Dcidocument).HasColumnName("AY2027_DCIDocument");
+            entity.Property(e => e.Ay2027Dcidocument)
+                .HasMaxLength(500)
+                .HasColumnName("AY2027_DCIDocument");
             entity.Property(e => e.Ay2027ExistingIntake).HasColumnName("AY2027_ExistingIntake");
-            entity.Property(e => e.Ay2027Ksdcdocument).HasColumnName("AY2027_KSDCDocument");
+            entity.Property(e => e.Ay2027Ksdcdocument)
+                .HasMaxLength(500)
+                .HasColumnName("AY2027_KSDCDocument");
             entity.Property(e => e.Ay2027TotalIntake).HasColumnName("AY2027_TotalIntake");
             entity.Property(e => e.CollegeCode).HasMaxLength(20);
             entity.Property(e => e.Courses).HasMaxLength(250);

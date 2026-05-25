@@ -67,9 +67,9 @@ namespace Medical_Affiliation.Controllers
             {
                 // ── 1. Collect all submitted rows ──────────────────────────────
                 var incoming = new List<AcademicIntake>();
-                CollectCourses(model.UgCourses, facultyCode, collegeCode, incoming);
-                CollectCourses(model.PgCourses, facultyCode, collegeCode, incoming);
-                CollectCourses(model.SsCourses, facultyCode, collegeCode, incoming);
+                await CollectCourses(model.UgCourses, facultyCode, collegeCode, incoming);
+                await CollectCourses(model.PgCourses, facultyCode, collegeCode, incoming);
+                await CollectCourses(model.SsCourses, facultyCode, collegeCode, incoming);
 
                 Console.WriteLine($"[POST] Collected {incoming.Count} course rows from form.");
 
@@ -155,36 +155,69 @@ namespace Medical_Affiliation.Controllers
 
                             if (vm != null)
                             {
-
-                                if (vm.AY2025_LopDocument != null)
-                                
-                                    db.Ay2025LopDocument =
-                                        ToBytes(vm.AY2025_LopDocument);
-                                
+                                if (vm.AY2025_LopDentalDocument != null)
+                                {
+                                    DeleteFileIfExists(db.Ay2025LopDentalDocument, "AY2025_LOP_DENTAL");
+                                    db.Ay2025LopDentalDocument =
+                                        await SaveFileAsync(
+                                            vm.AY2025_LopDocument,
+                                            "AY2025_LOP_DENTAL");
+                                }
 
                                 if (vm.AY2025_DCIDocument != null)
+                                {
+                                    DeleteFileIfExists( db.Ay2025Dcidocument, "AY2025_DCI");
+
                                     db.Ay2025Dcidocument =
-                                        ToBytes(vm.AY2025_DCIDocument);
+                                        await SaveFileAsync(
+                                            vm.AY2025_DCIDocument,
+                                            "AY2025_DCI");
+                                }
 
                                 if (vm.AY2025_KSDCDocument != null)
+                                {
+                                    DeleteFileIfExists(db.Ay2025Ksdcdocument, "AY2025_KSDC");
                                     db.Ay2025Ksdcdocument =
-                                        ToBytes(vm.AY2025_KSDCDocument);
+                                        await SaveFileAsync(
+                                            vm.AY2025_KSDCDocument,
+                                            "AY2025_KSDC");
+                                }
 
                                 if (vm.AY2026_DCIDocument != null)
+                                {
+                                    DeleteFileIfExists(db.Ay2026Dcidocument, "AY2026_DCI");
                                     db.Ay2026Dcidocument =
-                                        ToBytes(vm.AY2026_DCIDocument);
+                                        await SaveFileAsync(
+                                            vm.AY2026_DCIDocument,
+                                            "AY2026_DCI");
+                                }
 
                                 if (vm.AY2026_KSDCDocument != null)
+                                {
+                                    DeleteFileIfExists(db.Ay2026Ksdcdocument, "AY2026_KSDC");
                                     db.Ay2026Ksdcdocument =
-                                        ToBytes(vm.AY2026_KSDCDocument);
+                                        await SaveFileAsync(
+                                            vm.AY2026_KSDCDocument,
+                                            "AY2026_KSDC");
+                                }
 
                                 if (vm.AY2027_DCIDocument != null)
+                                {
+                                    DeleteFileIfExists(db.Ay2027Dcidocument, "AY2027_DCI");
                                     db.Ay2027Dcidocument =
-                                        ToBytes(vm.AY2027_DCIDocument);
+                                        await SaveFileAsync(
+                                            vm.AY2027_DCIDocument,
+                                            "AY2027_DCI");
+                                }
 
                                 if (vm.AY2027_KSDCDocument != null)
+                                {
+                                    DeleteFileIfExists(db.Ay2027Ksdcdocument, "AY2027_KSDC");
                                     db.Ay2027Ksdcdocument =
-                                        ToBytes(vm.AY2027_KSDCDocument);
+                                        await SaveFileAsync(
+                                            vm.AY2027_KSDCDocument,
+                                            "AY2027_KSDC");
+                                }
                             }
                         }
                         else
@@ -256,8 +289,107 @@ namespace Medical_Affiliation.Controllers
             }
 
             // Always reload fresh data from DB before re-rendering the view
-            BuildModelData(model, facultyCode, collegeCode, facultyId);
+            await BuildModelData(model, facultyCode, collegeCode, facultyId);
             return View(model);
+        }
+
+        protected async Task<string?> SaveFileAsync( IFormFile? file,   string folderName)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            var folderPath = Path.Combine(BaseDentalPath, folderName);
+
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var fileName =
+                $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+
+            var fullPath = Path.Combine(folderPath, fileName);
+
+            using var stream = new FileStream(fullPath, FileMode.Create);
+
+            await file.CopyToAsync(stream);
+
+            return fileName;
+        }
+
+
+        public IActionResult ViewDocument(int id, string docType)
+        {
+            var record = _context.AcademicIntakes
+                .FirstOrDefault(x => x.Id == id);
+
+            if (record == null)
+                return NotFound();
+
+            string? fileName = null;
+            string? folderName = null;
+
+            switch (docType)
+            {
+                case "LOPDENTAL2025":
+                    fileName = record.Ay2025LopDentalDocument;
+                    folderName = "AY2025_LOP_DENTAL";
+                    break;
+
+                case "DCI2025":
+                    fileName = record.Ay2025Dcidocument;
+                    folderName = "AY2025_DCI";
+                    break;
+
+                case "KSDC2025":
+                    fileName = record.Ay2025Ksdcdocument;
+                    folderName = "AY2025_KSDC";
+                    break;
+
+                case "DCI2026":
+                    fileName = record.Ay2026Dcidocument;
+                    folderName = "AY2026_DCI";
+                    break;
+
+                case "KSDC2026":
+                    fileName = record.Ay2026Ksdcdocument;
+                    folderName = "AY2026_KSDC";
+                    break;
+
+                case "DCI2027":
+                    fileName = record.Ay2027Dcidocument;
+                    folderName = "AY2027_DCI";
+                    break;
+
+                case "KSDC2027":
+                    fileName = record.Ay2027Ksdcdocument;
+                    folderName = "AY2027_KSDC";
+                    break;
+
+                case "NMC2025":
+
+                    // Medical still stored in DB as byte[]
+                    if (record.Ay2025NmcDocument == null ||
+                        record.Ay2025NmcDocument.Length == 0)
+                    {
+                        return NotFound();
+                    }
+
+                    return File(
+                        record.Ay2025NmcDocument,
+                        "application/pdf");
+            }
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                return NotFound();
+
+            var fullPath = Path.Combine(
+                BaseDentalPath,
+                folderName!,
+                fileName);
+
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound();
+
+            return PhysicalFile(fullPath, "application/pdf");
         }
 
         // ════════════════════════════════════════════════════════════
@@ -280,7 +412,7 @@ namespace Medical_Affiliation.Controllers
 
             return ms.ToArray();
         }
-        private static AcademicIntake MapToEntity(
+        private async Task<AcademicIntake> MapToEntity(
                           string facultyCode,
                           string collegeCode,
                           IntakeByLevelViewModel1 vm)
@@ -321,10 +453,25 @@ namespace Medical_Affiliation.Controllers
                     ToBytes(vm.AY2025_NmcDocument),
 
                 Ay2025Dcidocument =
-                    ToBytes(vm.AY2025_DCIDocument),
+                    vm.AY2025_DCIDocument != null
+                        ? await SaveFileAsync(
+                            vm.AY2025_DCIDocument,
+                            "AY2025_DCI")
+                        : null,
 
                 Ay2025Ksdcdocument =
-                    ToBytes(vm.AY2025_KSDCDocument),
+                    vm.AY2025_KSDCDocument != null
+                        ? await SaveFileAsync(
+                            vm.AY2025_KSDCDocument,
+                            "AY2025_KSDC")
+                        : null,
+
+                Ay2025LopDentalDocument =
+                    vm.AY2025_LopDentalDocument != null
+                        ? await SaveFileAsync(
+                            vm.AY2025_LopDentalDocument,
+                            "AY2025_LOP_DENTAL")
+                        : null,
 
                 // ── 2026-27 ─────────────────────────────
                 Ay2026ExistingIntake =
@@ -337,10 +484,18 @@ namespace Medical_Affiliation.Controllers
                     vm.AY2026_TotalIntake ?? 0,
 
                 Ay2026Dcidocument =
-                    ToBytes(vm.AY2026_DCIDocument),
+                    vm.AY2026_DCIDocument != null
+                        ? await SaveFileAsync(
+                            vm.AY2026_DCIDocument,
+                            "AY2026_DCI")
+                        : null,
 
                 Ay2026Ksdcdocument =
-                    ToBytes(vm.AY2026_KSDCDocument),
+                    vm.AY2026_KSDCDocument != null
+                        ? await SaveFileAsync(
+                            vm.AY2026_KSDCDocument,
+                            "AY2026_KSDC")
+                        : null,
 
                 // ── 2027-28 ─────────────────────────────
                 Ay2027ExistingIntake =
@@ -353,17 +508,21 @@ namespace Medical_Affiliation.Controllers
                     vm.AY2027_TotalIntake ?? 0,
 
                 Ay2027Dcidocument =
-                    ToBytes(vm.AY2027_DCIDocument),
+                    vm.AY2027_DCIDocument != null
+                        ? await SaveFileAsync(
+                            vm.AY2027_DCIDocument,
+                            "AY2027_DCI")
+                        : null,
 
                 Ay2027Ksdcdocument =
-                    ToBytes(vm.AY2027_KSDCDocument)
+                    vm.AY2027_KSDCDocument != null ? await SaveFileAsync(vm.AY2027_KSDCDocument, "AY2027_KSDC") : null
             };
         }
         /// <summary>
         /// Iterates a list of view-model rows, maps each to an entity, and appends to target.
         /// Skips rows with no CourseCode.
         /// </summary>
-        private static void CollectCourses(
+        private async Task CollectCourses(
             IEnumerable<IntakeByLevelViewModel1>? rows,
             string facultyCode,
             string collegeCode,
@@ -373,7 +532,7 @@ namespace Medical_Affiliation.Controllers
             foreach (var r in rows)
             {
                 if (string.IsNullOrWhiteSpace(r.CourseCode)) continue;
-                target.Add(MapToEntity(facultyCode, collegeCode, r));
+                target.Add(await MapToEntity(facultyCode, collegeCode, r));
             }
         }
 
@@ -394,23 +553,23 @@ namespace Medical_Affiliation.Controllers
             model.CollegeName ??= HttpContext.Session.GetString("CollegeName");
             var seatSlab = await _context.AcademicIntakes.Where(e => e.CollegeCode == collegeCode).Select(e => e.Ay2025TotalIntake).FirstOrDefaultAsync();
             
-            if(seatSlab.ToString() != null) HttpContext.Session.SetString("SeatSlab", seatSlab.ToString());
+            HttpContext.Session.SetString("SeatSlab", seatSlab.ToString());
 
             var hospitalDetailsId = await _context.HospitalDetailsForAffiliations.Where(e => e.CollegeCode == collegeCode).Select(e => e.HospitalDetailsId).FirstOrDefaultAsync();
 
-            if (hospitalDetailsId.ToString() != null) HttpContext.Session.SetString("HospitalDetailsId", hospitalDetailsId.ToString());
+            HttpContext.Session.SetString("HospitalDetailsId", hospitalDetailsId.ToString());
 
-            var intakeDetails = _context.CollegeCourseIntakeDetails
+            var intakeDetails = await _context.CollegeCourseIntakeDetails
                 .Where(d => d.FacultyCode == facultyId && d.CollegeCode == collegeCode)
-                .ToList();
+                .ToListAsync();
 
-            var allCourses = _context.MstCourses
+            var allCourses = await  _context.MstCourses
                 .Where(c => c.FacultyCode == facultyId)
-                .ToList();
+                .ToListAsync();
 
-            var existingIntakes = _context.AcademicIntakes
+            var existingIntakes = await _context.AcademicIntakes
                 .Where(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode)
-                .ToList();
+                .ToListAsync();
 
             // ── Reusable LINQ projection ───────────────────────────────────
             //IEnumerable<IntakeByLevelViewModel1> Project(string level) =>
@@ -464,8 +623,28 @@ namespace Medical_Affiliation.Controllers
 
                         select new IntakeByLevelViewModel1
                         {
+                            Id = existing?.Id ?? 0,
                             CourseCode = c.CourseCode.ToString(),
                             CourseName = c.CourseName,
+                            HasNmcDocument =
+                                    existing?.Ay2025NmcDocument != null &&
+                                    existing.Ay2025NmcDocument.Length > 0,
+
+                            HasLopDocument =
+                                    existing?.Ay2025LopDentalDocument != null &&
+                                    existing.Ay2025LopDentalDocument.Length > 0,
+
+                            HasAY2025DciDocument =
+                                    existing?.Ay2025Dcidocument != null &&
+                                    existing.Ay2025Dcidocument.Length > 0,
+
+                            HasAY2026DciDocument =
+                                    existing?.Ay2026Dcidocument != null &&
+                                    existing.Ay2026Dcidocument.Length > 0,
+
+                            HasAY2027DciDocument =
+                                    existing?.Ay2027Dcidocument != null &&
+                                    existing.Ay2027Dcidocument.Length > 0,
 
                             // 2024-25
                             AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
@@ -506,6 +685,86 @@ namespace Medical_Affiliation.Controllers
 
                             AY2027_TotalIntake =
                                  existing?.Ay2027TotalIntake ?? 0
+                        };
+                }
+                else if (existingIntakes.Any())
+                {
+                    return
+                        from c in levelCourses
+                        join e in existingIntakes
+                            on c.CourseCode.ToString() equals e.Courses
+                        where c.CourseLevel == level
+
+                        select new IntakeByLevelViewModel1
+                        {
+                            Id = e.Id,
+
+                            CourseCode = c.CourseCode.ToString(),
+                            CourseName = c.CourseName,
+
+                            HasNmcDocument =
+                                e.Ay2025NmcDocument != null &&
+                                e.Ay2025NmcDocument.Length > 0,
+
+                            HasLopDocument =
+                                !string.IsNullOrWhiteSpace(e.Ay2025LopDentalDocument),
+
+                            HasAY2025DciDocument =
+                                !string.IsNullOrWhiteSpace(e.Ay2025Dcidocument),
+
+                            HasAY2025KsdcDocument =
+                                !string.IsNullOrWhiteSpace(e.Ay2025Ksdcdocument),
+
+                            HasAY2026DciDocument =
+                                !string.IsNullOrWhiteSpace(e.Ay2026Dcidocument),
+
+                            HasAY2026KsdcDocument =
+                                !string.IsNullOrWhiteSpace(e.Ay2026Ksdcdocument),
+
+                            HasAY2027DciDocument =
+                                !string.IsNullOrWhiteSpace(e.Ay2027Dcidocument),
+
+                            HasAY2027KsdcDocument =
+                                !string.IsNullOrWhiteSpace(e.Ay2027Ksdcdocument),
+
+                            AY2024_ExistingIntake =
+                                e.Ay2024ExistingIntake,
+
+                            AY2024_IncreaseIntake =
+                                e.Ay2024IncreaseIntake,
+
+                            AY2024_TotalIntake =
+                                e.Ay2024TotalIntake,
+
+                            AY2025_ExistingIntake =
+                                e.Ay2025ExistingIntake,
+
+                            AY2025_LopNmcIntake =
+                                e.Ay2025LopNmcIntake,
+
+                            AY2025_TotalIntake =
+                                e.Ay2025TotalIntake,
+
+                            AY2025_LopDate =
+                                e.Ay2025LopDate,
+
+                            AY2026_ExistingIntake =
+                                e.Ay2026ExistingIntake,
+
+                            AY2026_AddRequestedIntake =
+                                e.Ay2026AddRequestedIntake,
+
+                            AY2026_TotalIntake =
+                                e.Ay2026TotalIntake,
+
+                            AY2027_ExistingIntake =
+                                e.Ay2027ExistingIntake,
+
+                            AY2027_AddRequestedIntake =
+                                e.Ay2027AddRequestedIntake,
+
+                            AY2027_TotalIntake =
+                                e.Ay2027TotalIntake
                         };
                 }
 
@@ -624,6 +883,29 @@ namespace Medical_Affiliation.Controllers
             .ToList();
         }
 
+        private void DeleteFileIfExists( string? fileName,  string folderName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return;
+
+            var fullPath = Path.Combine(
+                BaseDentalPath,
+                folderName,
+                fileName);
+
+            Console.WriteLine($"DELETE PATH: {fullPath}");
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+
+                Console.WriteLine("FILE DELETED");
+            }
+            else
+            {
+                Console.WriteLine("FILE NOT FOUND");
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> ViewNmcDocument(int id)
