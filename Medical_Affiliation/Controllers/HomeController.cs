@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -89,6 +90,51 @@ namespace Medical_Affiliation.Controllers
 
             return RedirectToAction(redirectAction, redirectController);
         }
+        public IActionResult Dashboard()
+        {
+            string collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var collegeName = User.Identity?.Name;
+            ViewBag.CollegeName = collegeName; ViewBag.CollegeName = collegeName;
 
+            
+            ViewBag.CollegeName = collegeName ?? "Unknown College";
+            ViewBag.CollegeCode = collegeCode;
+
+            var hasPendingUpload = false;
+            if (!string.IsNullOrEmpty(collegeCode))
+            {
+                hasPendingUpload = _context.UgFacultyDetails
+                    .Any(f => f.CollegeCode == collegeCode && f.IsDeclared == true && f.PrintedCopyUploaded == false);
+            }
+            ViewBag.HasPendingUpload = hasPendingUpload;
+
+            return View();
+        }
+
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult UniversityDashboard()
+        {
+            
+
+            var uploadedColleges = (from upload in _context.UgPrintedUploads
+                                    join college in _context.AffiliationCollegeMasters
+                                    on EF.Functions.Collate(
+                                           upload.CollegeCode,
+                                           "SQL_Latin1_General_CP1_CI_AS")
+                                    equals EF.Functions.Collate(
+                                           college.CollegeCode,
+                                           "SQL_Latin1_General_CP1_CI_AS")
+                                    select new UploadedCollegeViewModel
+                                    {
+                                        CollegeCode = upload.CollegeCode,
+                                        CollegeName = college.CollegeName
+                                    })
+                         .Distinct()
+                         .OrderBy(c => c.CollegeName)
+                         .ToList();
+
+            return View(uploadedColleges);
+        }
     }
 }

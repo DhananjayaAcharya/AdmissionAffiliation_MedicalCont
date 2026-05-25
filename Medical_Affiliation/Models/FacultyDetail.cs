@@ -29,6 +29,12 @@ public partial class FacultyDetail
 
     public string? DepartmentDetails { get; set; }
 
+    public string? GuideRecognitionDocPath { get; set; }
+
+    public string? PhDrecognitionDocPath { get; set; }
+
+    public string? LitigationDocPath { get; set; }
+
     public string? RemoveRemarks { get; set; }
 
     public bool? IsRemoved { get; set; }
@@ -40,12 +46,6 @@ public partial class FacultyDetail
     public string? IsExaminer { get; set; }
 
     public string? ExaminerFor { get; set; }
-
-    public string? GuideRecognitionDocPath { get; set; }
-
-    public string? PhDrecognitionDocPath { get; set; }
-
-    public string? LitigationDocPath { get; set; }
 
     public DateOnly? From { get; set; }
 

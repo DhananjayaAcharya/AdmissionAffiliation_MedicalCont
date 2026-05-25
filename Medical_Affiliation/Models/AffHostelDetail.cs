@@ -27,8 +27,6 @@ public partial class AffHostelDetail
 
     public string TotalMaleRooms { get; set; } = null!;
 
-    public string? PossessionProofPath { get; set; }
-
     public DateTime CreatedOn { get; set; }
 
     public string? CreatedBy { get; set; }
@@ -70,4 +68,6 @@ public partial class AffHostelDetail
     public bool? MedicalFacilities { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? PossessionProofPath { get; set; }
 }

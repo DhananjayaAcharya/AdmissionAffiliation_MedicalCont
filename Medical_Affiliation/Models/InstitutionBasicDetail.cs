@@ -93,8 +93,6 @@ public partial class InstitutionBasicDetail
 
     public string? KncCertificateNumber { get; set; }
 
-    public DateTime CreatedOn { get; set; }
-
     public string? GovAutonomousCertFilePath { get; set; }
 
     public string? GovCouncilMembershipFilePath { get; set; }
@@ -120,6 +118,8 @@ public partial class InstitutionBasicDetail
     public string? RegisteredTrustMemberDetailsPath { get; set; }
 
     public string? AuditStatementFilePath { get; set; }
+
+    public DateTime CreatedOn { get; set; }
 
     public string? DcicertificateFilePath { get; set; }
 

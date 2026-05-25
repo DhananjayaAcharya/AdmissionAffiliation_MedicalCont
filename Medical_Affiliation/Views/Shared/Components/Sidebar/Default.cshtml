@@ -230,6 +230,18 @@
                         College Basic Details
                     </a>
                 </li>
+                @if (facultyCode == "1")
+                {
+                    <li class="sidebar-item">
+                        <a asp-controller="Home"
+                           asp-action="Dashboard"
+                           class="sidebar-link @(currentController == "UGFaculty" ? "active" : "")">
+
+                            <i class="bi bi-building"></i>
+                            Update UG Medical Faculty Details   
+                        </a>
+                    </li>
+                }
             }
 
             @if (facultyCode == "12")

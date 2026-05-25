@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using System.Globalization;
 using QuestPDF.Infrastructure;
+using System.Globalization;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -298,6 +300,17 @@ app.UseMiddleware<Medical_Affiliation.Utilities.SectionOfficerSessionMiddleware>
 app.UseMiddleware<Medical_Affiliation.Utilities.LicInspectionSessionMiddleware>();
 
 app.UseAuthorization();
+
+
+
+
+app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(@"D:\MedicalUGFacultyList"),
+    RequestPath = "/MedicalUGFacultyList"
+});
 
 
 // =============================================

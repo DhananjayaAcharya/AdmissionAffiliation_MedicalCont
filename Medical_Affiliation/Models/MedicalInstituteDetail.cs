@@ -45,7 +45,7 @@ public partial class MedicalInstituteDetail
 
     public byte[]? TrustDoc { get; set; }
 
-    public string? Taluk { get; set; }
-
     public string? District { get; set; }
+
+    public string? Taluk { get; set; }
 }

@@ -80,6 +80,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AhsExpectedIntakeMaster> AhsExpectedIntakeMasters { get; set; }
 
+    public virtual DbSet<ApplicationProgress> ApplicationProgresses { get; set; }
+
     public virtual DbSet<AssociatedInstitution> AssociatedInstitutions { get; set; }
 
     public virtual DbSet<BasicDetail> BasicDetails { get; set; }
@@ -170,10 +172,6 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<CaMstYearOfStudy> CaMstYearOfStudies { get; set; }
 
-    public virtual DbSet<CaNursingCollectionDevelopment> CaNursingCollectionDevelopments { get; set; }
-
-    public virtual DbSet<CaNursingLibraryEquipment> CaNursingLibraryEquipments { get; set; }
-
     public virtual DbSet<CaProgress> CaProgresses { get; set; }
 
     public virtual DbSet<CaSsAffiliationGrantedYear> CaSsAffiliationGrantedYears { get; set; }
@@ -187,8 +185,6 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<CaSsPermission> CaSsPermissions { get; set; }
 
     public virtual DbSet<CaStudentRegisterRecord> CaStudentRegisterRecords { get; set; }
-
-    public virtual DbSet<CaUserDetail> CaUserDetails { get; set; }
 
     public virtual DbSet<CaVehicleDetail> CaVehicleDetails { get; set; }
 
@@ -303,8 +299,6 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<MedCaMstStaffDesignation> MedCaMstStaffDesignations { get; set; }
 
     public virtual DbSet<MedCaStaffParticular> MedCaStaffParticulars { get; set; }
-
-    public virtual DbSet<MedMstSpecialityDepartmentsLibrary> MedMstSpecialityDepartmentsLibraries { get; set; }
 
     public virtual DbSet<MedicalAdministrativePhysicalFacility> MedicalAdministrativePhysicalFacilities { get; set; }
 
@@ -486,7 +480,7 @@ public partial class ApplicationDbContext : DbContext
 
 //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+//        => optionsBuilder.UseSqlServer("Server=DESKTOP-G9AH0T4\\MSSQLSERVER02;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -559,13 +553,9 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AdministrativeFacilityType>(entity =>
         {
-            entity.HasKey(e => e.FacilityId)
-                .HasName("PK__Administ__5FB08A74ED8E284A")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.FacilityId).HasName("PK__Administ__5FB08A7465C6A277");
 
-            entity.HasIndex(e => e.FacilityName, "UQ__Administ__16622C885D682195")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => e.FacilityName, "UQ__Administ__16622C88303D4B1E").IsUnique();
 
             entity.Property(e => e.Category).HasMaxLength(50);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
@@ -615,9 +605,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffDeanAdministrativeExperience>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Aff_Dean__3214EC07AB3CA9A7")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Aff_Dean__3214EC07E0B657EC");
 
             entity.ToTable("Aff_DeanAdministrativeExperience");
 
@@ -631,14 +619,12 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasOne(d => d.Dean).WithMany(p => p.AffDeanAdministrativeExperiences)
                 .HasForeignKey(d => d.DeanId)
-                .HasConstraintName("FK__Aff_DeanA__DeanI__5792F321");
+                .HasConstraintName("FK__Aff_DeanA__DeanI__0CFADF99");
         });
 
         modelBuilder.Entity<AffDeanOrDirectorDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Aff_Dean__3214EC07B85BA1A5")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Aff_Dean__3214EC0772362609");
 
             entity.ToTable("Aff_DeanOrDirectorDetails");
 
@@ -655,9 +641,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffDeanTeachingExperience>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Aff_Dean__3214EC07DB06BF0C")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Aff_Dean__3214EC0783065F7B");
 
             entity.ToTable("Aff_DeanTeachingExperience");
 
@@ -675,14 +659,12 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasOne(d => d.Dean).WithMany(p => p.AffDeanTeachingExperiences)
                 .HasForeignKey(d => d.DeanId)
-                .HasConstraintName("FK__Aff_DeanT__DeanI__5C57A83E");
+                .HasConstraintName("FK__Aff_DeanT__DeanI__11BF94B6");
         });
 
         modelBuilder.Entity<AffHostelDetail>(entity =>
         {
-            entity.HasKey(e => e.HostelDetailsId)
-                .HasName("PK__AFF_Host__E51556F8D5CC60EB")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.HostelDetailsId).HasName("PK__AFF_Host__E51556F824051D42");
 
             entity.ToTable("AFF_HostelDetails");
 
@@ -698,7 +680,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.HostelFacilityDetails).HasMaxLength(1000);
             entity.Property(e => e.HostelType).HasMaxLength(50);
             entity.Property(e => e.OwnOrRented).HasMaxLength(50);
-            entity.Property(e => e.PossessionProofPath).HasMaxLength(500);
+            entity.Property(e => e.PossessionProofPath)
+                .HasMaxLength(500)
+                .IsUnicode(false);
             entity.Property(e => e.SpacePerStudent).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TotalFemaleRooms).HasMaxLength(200);
             entity.Property(e => e.TotalFemaleStudents).HasMaxLength(200);
@@ -793,7 +777,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DeanName).HasMaxLength(150);
             entity.Property(e => e.District).HasMaxLength(500);
             entity.Property(e => e.DocumentContentType).HasMaxLength(500);
-            entity.Property(e => e.DocumentDataPath).HasMaxLength(500);
+            entity.Property(e => e.DocumentDataPath).HasMaxLength(1000);
             entity.Property(e => e.DocumentName).HasMaxLength(500);
             entity.Property(e => e.EmailId).HasMaxLength(500);
             entity.Property(e => e.FacultyCode).HasMaxLength(500);
@@ -852,9 +836,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffNonTeachingStaff>(entity =>
         {
-            entity.HasKey(e => e.StaffId)
-                .HasName("PK__Aff_NonT__96D4AB17F9EF1834")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.StaffId).HasName("PK__Aff_NonT__96D4AB17FF6F1195");
 
             entity.ToTable("Aff_NonTeachingStaff");
 
@@ -878,8 +860,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffPrincipalAdministrativeExperience>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("Aff_PrincipalAdministrativeExperience");
 
             entity.Property(e => e.Collegecode).HasMaxLength(100);
@@ -893,8 +873,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffPrincipalDetail>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("Aff_PrincipalDetails");
 
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
@@ -910,8 +888,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffPrincipalTeachingExperience>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("Aff_PrincipalTeachingExperience");
 
             entity.Property(e => e.Collegecode).HasMaxLength(100);
@@ -1110,21 +1086,17 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValue(true)
                 .HasColumnName("showNodalOfficerDetails");
             entity.Property(e => e.ShowRepositoryDetails).HasColumnName("showRepositoryDetails");
-            entity.Property(e => e.Status).HasDefaultValue(false);
+            entity.Property(e => e.Status).HasDefaultValue(true);
             entity.Property(e => e.TalukId).HasMaxLength(150);
         });
 
         modelBuilder.Entity<AffiliationCourseDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Affiliat__3214EC07E9E733CE")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07EEFCFB75");
 
             entity.ToTable("Affiliation_CourseDetails");
 
-            entity.HasIndex(e => new { e.Facultycode, e.Collegecode, e.CourseId }, "UQ_MBBS_Per_College")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => new { e.Facultycode, e.Collegecode, e.CourseId }, "UQ_MBBS_Per_College").IsUnique();
 
             entity.Property(e => e.ActionTakenOnDeficiencies).HasMaxLength(500);
             entity.Property(e => e.Collegecode).HasMaxLength(200);
@@ -1140,7 +1112,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.GokorderPath).HasMaxLength(500);
             entity.Property(e => e.IntakeDuring202526).HasMaxLength(250);
             entity.Property(e => e.IntakeSlab).HasMaxLength(200);
-            entity.Property(e => e.LastAffiliationRguhsfilePath).HasMaxLength(500);
+            entity.Property(e => e.LastAffiliationRguhsfilePath)
+                .HasMaxLength(500)
+                .HasColumnName("LastAffiliationRGUHSFilePath");
             entity.Property(e => e.PreviousNotificationFilesPath).HasMaxLength(500);
             entity.Property(e => e.SanctionedIntakeLastAffiliation).HasMaxLength(250);
             entity.Property(e => e.SanctionedIntakePermission).HasMaxLength(250);
@@ -1153,13 +1127,9 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationFinalDeclaration>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Affiliat__3214EC07A22ED69B")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07CCD5B3FF");
 
-            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.AffiliationTypeId }, "UX_AffFinalDeclarations")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.AffiliationTypeId }, "UX_AffFinalDeclarations").IsUnique();
 
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
             entity.Property(e => e.CreatedDate)
@@ -1186,9 +1156,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationLicinpsection>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK_Affiliation_LICinspection")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK_Affiliation_LICinspection");
 
             entity.ToTable("Affiliation_LICinpsection");
 
@@ -1209,9 +1177,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationOtherCoursesPermittedByNmc>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Affiliat__3214EC070D06F573")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07979E1D6C");
 
             entity.ToTable("Affiliation_OtherCoursesPermittedByNMC");
 
@@ -1231,9 +1197,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.NmcsupportingDocument).HasColumnName("NMCsupportingDocument");
             entity.Property(e => e.NmcsupportingDocumentPath)
                 .HasMaxLength(500)
-                .HasColumnName("NMCsupportingDocumentPath");
+                .IsUnicode(false);
             entity.Property(e => e.PermissionByNmc).HasColumnName("PermissionByNMC");
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
@@ -1242,17 +1209,13 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationPayment>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Affiliat__3214EC07E1B17275")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07B1095F63");
 
             entity.ToTable("Affiliation_Payment");
 
-            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode }, "IX_Payment_College_Faculty").HasFillFactor(80);
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode }, "IX_Payment_College_Faculty");
 
-            entity.HasIndex(e => e.TransactionReferenceNo, "UQ_Payment_TransactionReference")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => e.TransactionReferenceNo, "UQ_Payment_TransactionReference").IsUnique();
 
             entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
@@ -1289,9 +1252,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationPgSsCourseDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Affiliat__3214EC07ADACE44D")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07EEA3226E");
 
             entity.ToTable("Affiliation_PgSsCourseDetails");
 
@@ -1323,9 +1284,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationPgSsCourseDetailsForGok>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Affiliat__3214EC07181E93F2")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07DA6B8D65");
 
             entity.ToTable("Affiliation_PgSsCourseDetailsForGOK");
 
@@ -1348,9 +1307,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.DocumentofGok).HasColumnName("DocumentofGOK");
             entity.Property(e => e.DocumentofGokpath)
                 .HasMaxLength(500)
-                .HasColumnName("DocumentofGOKPath");
+                .IsUnicode(false);
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -1362,9 +1322,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationPgSsCourseDetailsRguh>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Affiliat__3214EC07DA48AC32")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC0770FE851E");
 
             entity.ToTable("Affiliation_PgSsCourseDetailsRGUHS");
 
@@ -1384,9 +1342,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.RguhssupportingDocument).HasColumnName("RGUHSsupportingDocument");
             entity.Property(e => e.RguhssupportingDocumentPath)
                 .HasMaxLength(500)
-                .HasColumnName("RGUHSsupportingDocumentPath");
+                .IsUnicode(false);
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -1445,10 +1404,32 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.MedcolmaxSeats).HasColumnName("MEDCOLMaxSeats");
         });
 
+        modelBuilder.Entity<ApplicationProgress>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Applicat__3214EC071DC2D25E");
+
+            entity.ToTable("ApplicationProgress");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.TypeOfAffiliation, e.CourseLevel }, "IX_ApplicationProgress_Main");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.TypeOfAffiliation, e.CourseLevel, e.StepKey }, "UQ_ApplicationProgress").IsUnique();
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.StepKey)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UpdatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+        });
+
         modelBuilder.Entity<AssociatedInstitution>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.Property(e => e.AssociatedCollegeCode)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -1523,79 +1504,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyId).HasColumnName("FacultyID");
         });
 
-        modelBuilder.Entity<CaAcademicMatter>(entity =>
-        {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Acade__3214EC0727181893")
-                .HasFillFactor(80);
-
-            entity.ToTable("CA_AcademicMatters");
-
-            entity.Property(e => e.AcademicCommitteeFileName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.AcademicPerformanceFileName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.AntiRaggingCommitteeFileName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.CeuMembersFile).HasColumnName("CEU_MembersFile");
-            entity.Property(e => e.CeuMembersFileName)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("CEU_MembersFileName");
-            entity.Property(e => e.CeuProgramsFile).HasColumnName("CEU_ProgramsFile");
-            entity.Property(e => e.CeuProgramsFileName)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("CEU_ProgramsFileName");
-            entity.Property(e => e.CollegeCode)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.CourseCurriculumFileName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.FacultyCode)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.FundedStaffListFileName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.IndexedJournalsFileName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.NatureOfActivities)
-                .HasMaxLength(500)
-                .IsUnicode(false);
-            entity.Property(e => e.PracticalClassesRatio)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.PublicationsLast3Years)
-                .HasMaxLength(400)
-                .IsUnicode(false);
-            entity.Property(e => e.RegistrationNumber)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.ResearchProjectsPgstudents)
-                .HasMaxLength(3)
-                .IsUnicode(false)
-                .HasColumnName("ResearchProjectsPGStudents");
-            entity.Property(e => e.TheoryClassesRatio)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
-            entity.Property(e => e.YearOfStarting).HasMaxLength(10);
-        });
-
         modelBuilder.Entity<CaAcademicPerformance>(entity =>
         {
-            entity.HasKey(e => e.AcademicPerformanceId)
-                .HasName("PK__CA_Acade__B11DC2CC066279D3")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.AcademicPerformanceId).HasName("PK__CA_Acade__B11DC2CC07F2D5C2");
 
             entity.ToTable("CA_AcademicPerformance");
 
@@ -1607,7 +1518,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.PassPercentage).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.Remarks).HasMaxLength(500);
             entity.Property(e => e.Subject)
-                .HasMaxLength(100)
+                .HasMaxLength(50)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.YearOfStudy).WithMany(p => p.CaAcademicPerformances)
@@ -1617,9 +1528,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaCourseCurriculum>(entity =>
         {
-            entity.HasKey(e => e.CourseCurriculumId)
-                .HasName("PK__CA_Cours__8DF27A2CE85D470E")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.CourseCurriculumId).HasName("PK__CA_Cours__8DF27A2C01D5FA06");
 
             entity.ToTable("CA_CourseCurriculum");
 
@@ -1639,9 +1548,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaCourseDetailsInFinancialDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Cours__3214EC07D39733A0")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Cours__3214EC07C1EE4940");
 
             entity.ToTable("CA_CourseDetailsInFinancialDetails");
 
@@ -1682,9 +1589,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaDepartmentLibraryDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Depar__3214EC0797564DA6")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Depar__3214EC07A7E48177");
 
             entity.ToTable("CA_DepartmentLibraryDetails");
 
@@ -1696,9 +1601,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaExaminationScheme>(entity =>
         {
-            entity.HasKey(e => e.ExaminationSchemeId)
-                .HasName("PK__CA_Exami__EC2E8707780C7BD2")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.ExaminationSchemeId).HasName("PK__CA_Exami__EC2E8707EA14ED0D");
 
             entity.ToTable("CA_ExaminationScheme");
 
@@ -1716,9 +1619,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaFinancialDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Finan__3214EC07D6A3427A")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Finan__3214EC07BAF83EF2");
 
             entity.ToTable("CA_FinancialDetails");
 
@@ -1746,9 +1647,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaLibraryDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Libra__3214EC07424B2240")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Libra__3214EC07DB6C8CE5");
 
             entity.ToTable("CA_LibraryDetails");
 
@@ -1761,9 +1660,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaLibraryService>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Libra__3214EC079CA38393")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Libra__3214EC0722257043");
 
             entity.ToTable("CA_LibraryServices");
 
@@ -1779,9 +1676,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaLibraryStaffDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Libra__3214EC07E662A0D7")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Libra__3214EC076335630E");
 
             entity.ToTable("CA_LibraryStaffDetails");
 
@@ -1795,9 +1690,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedLibCommittee>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Med_L__3214EC07B3C9D4FE")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Med_L__3214EC07F7A2E6CC");
 
             entity.ToTable("CA_Med_Lib_Committee");
 
@@ -1816,9 +1709,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedLibOtherAcademicActivity>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Med_L__3214EC07C348DB22")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Med_L__3214EC07BC494598");
 
             entity.ToTable("CA_Med_Lib_OtherAcademicActivities");
 
@@ -1835,7 +1726,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedLibTechnicalProcess>(entity =>
         {
-            entity.HasKey(e => new { e.SlNo, e.FacultyCode, e.CollegeCode, e.CourseLevel }).HasFillFactor(80);
+            entity.HasKey(e => new { e.SlNo, e.FacultyCode, e.CollegeCode, e.CourseLevel });
 
             entity.ToTable("CA_Med_LibTechnicalProcess");
 
@@ -1850,9 +1741,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedLibraryBuilding>(entity =>
         {
-            entity.HasKey(e => e.SlNo)
-                .HasName("PK__CA_Med_L__BC789CF23C32F799")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.SlNo).HasName("PK__CA_Med_L__BC789CF2FFABC706");
 
             entity.ToTable("CA_Med_LibraryBuilding");
 
@@ -1870,9 +1759,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedLibraryEquipment>(entity =>
         {
-            entity.HasKey(e => new { e.SlNo, e.FacultyCode, e.CollegeCode })
-                .HasName("PK__CA_Med_L__BF2295F6A7D11E56")
-                .HasFillFactor(80);
+            entity.HasKey(e => new { e.SlNo, e.FacultyCode, e.CollegeCode }).HasName("PK__CA_Med_L__BF2295F6FD26E713");
 
             entity.ToTable("CA_Med_LibraryEquipments");
 
@@ -1890,9 +1777,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedLibraryFinance>(entity =>
         {
-            entity.HasKey(e => e.SlNo)
-                .HasName("PK__CA_Med_L__BC789CF29B80458F")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.SlNo).HasName("PK__CA_Med_L__BC789CF2C8B9A020");
 
             entity.ToTable("CA_Med_LibraryFinance");
 
@@ -1907,9 +1792,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedLibraryGeneral>(entity =>
         {
-            entity.HasKey(e => new { e.FacultyCode, e.CollegeCode, e.CourseLevel })
-                .HasName("PK_CA_MedLibraryGenerals")
-                .HasFillFactor(80);
+            entity.HasKey(e => new { e.FacultyCode, e.CollegeCode, e.CourseLevel }).HasName("PK_CA_MedLibraryGenerals");
 
             entity.ToTable("CA_Med_LibraryGeneral");
 
@@ -1938,7 +1821,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedLibraryItem>(entity =>
         {
-            entity.HasKey(e => new { e.SlNo, e.FacultyCode, e.CollegeCode, e.CourseLevel }).HasFillFactor(80);
+            entity.HasKey(e => new { e.SlNo, e.FacultyCode, e.CollegeCode, e.CourseLevel });
 
             entity.ToTable("CA_Med_LibraryItems");
 
@@ -1952,9 +1835,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedResearchPublicationsDetail>(entity =>
         {
-            entity.HasKey(e => e.SlNo)
-                .HasName("PK__CA_Med_R__BC789CF21961D2C3")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.SlNo).HasName("PK__CA_Med_R__BC789CF26A40CA87");
 
             entity.ToTable("CA_Med_ResearchPublicationsDetails");
 
@@ -1983,9 +1864,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedStaffParticularsOther>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Med_S__3214EC07E2D3CFBF")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Med_S__3214EC0749611D37");
 
             entity.ToTable("CA_Med_StaffParticularsOther");
 
@@ -1996,26 +1875,32 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.AebasinspectionDayPdfName)
                 .HasMaxLength(255)
                 .HasColumnName("AEBASInspectionDayPdfName");
-            entity.Property(e => e.AebasinspectionDayPdfPath).HasMaxLength(500);
+            entity.Property(e => e.AebasinspectionDayPdfPath)
+                .HasMaxLength(505)
+                .HasColumnName("AEBASInspectionDayPdfPath");
             entity.Property(e => e.AebaslastThreeMonthsPdfName)
                 .HasMaxLength(255)
                 .HasColumnName("AEBASLastThreeMonthsPdfName");
-            entity.Property(e => e.AebaslastThreeMonthsPdfPath).HasMaxLength(500);
+            entity.Property(e => e.AebaslastThreeMonthsPdfPath)
+                .HasMaxLength(505)
+                .HasColumnName("AEBASLastThreeMonthsPdfPath");
             entity.Property(e => e.CollegeCode).HasMaxLength(25);
             entity.Property(e => e.CourseLevel).HasMaxLength(10);
             entity.Property(e => e.EsipdfName)
                 .HasMaxLength(255)
                 .HasColumnName("ESIPdfName");
-            entity.Property(e => e.EsipdfPath).HasMaxLength(500);
+            entity.Property(e => e.EsipdfPath)
+                .HasMaxLength(505)
+                .HasColumnName("ESIPdfPath");
             entity.Property(e => e.ExaminerDetailsAttached)
                 .HasMaxLength(1)
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.ExaminerDetailsPdfName).HasMaxLength(255);
-            entity.Property(e => e.ExaminerDetailsPdfPath).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath).HasMaxLength(505);
             entity.Property(e => e.FacultyCode).HasMaxLength(25);
             entity.Property(e => e.ProvidentFundPdfName).HasMaxLength(255);
-            entity.Property(e => e.ProvidentFundPdfPath).HasMaxLength(500);
+            entity.Property(e => e.ProvidentFundPdfPath).HasMaxLength(505);
             entity.Property(e => e.RegistrationNo).HasMaxLength(50);
             entity.Property(e => e.ServiceRegisterMaintained)
                 .HasMaxLength(1)
@@ -2028,14 +1913,12 @@ public partial class ApplicationDbContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("TeachersUpdatedInEMS");
             entity.Property(e => e.TeachersUpdatedPdfName).HasMaxLength(255);
-            entity.Property(e => e.TeachersUpdatedPdfPath).HasMaxLength(500);
+            entity.Property(e => e.TeachersUpdatedPdfPath).HasMaxLength(505);
         });
 
         modelBuilder.Entity<CaMedStaffParticularsOtherTemp>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Med_S__3214EC07DC59B11D")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Med_S__3214EC07F92ACB65");
 
             entity.ToTable("CA_Med_StaffPArticularsOther_Temp");
 
@@ -2065,9 +1948,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedicalDepartmentLibrary>(entity =>
         {
-            entity.HasKey(e => e.DepartmentalLibraryId)
-                .HasName("PK__CA_Medic__E8CE73C38A5CE468")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.DepartmentalLibraryId).HasName("PK__CA_Medic__E8CE73C37B8194A4");
 
             entity.ToTable("CA_MedicalDepartmentLibrary");
 
@@ -2083,9 +1964,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedicalLibraryOtherDetail>(entity =>
         {
-            entity.HasKey(e => e.DigitalValuationId)
-                .HasName("PK__CA_Medic__9BA4BEF696F639E0")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.DigitalValuationId).HasName("PK__CA_Medic__9BA4BEF63ADF996D");
 
             entity.ToTable("CA_MedicalLibraryOtherDetails");
 
@@ -2100,7 +1979,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.HasDigitalValuationCentre).HasMaxLength(3);
             entity.Property(e => e.HasStableInternet).HasMaxLength(3);
             entity.Property(e => e.RegistrationNo).HasMaxLength(50);
-            entity.Property(e => e.SpecialFeaturesAchievementsPdfPath).HasMaxLength(500);
+            entity.Property(e => e.SpecialFeaturesAchievementspdfPath).HasMaxLength(500);
             entity.Property(e => e.SpecialFeaturesQuestion)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -2109,9 +1988,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedicalLibraryService>(entity =>
         {
-            entity.HasKey(e => e.LibraryServiceId)
-                .HasName("PK__CA_Medic__6311BE38DDD66686")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.LibraryServiceId).HasName("PK__CA_Medic__6311BE381BF76392");
 
             entity.ToTable("CA_MedicalLibraryServices");
 
@@ -2122,16 +1999,13 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.IsAvailable).HasMaxLength(3);
             entity.Property(e => e.RegistrationNo).HasMaxLength(15);
-            entity.Property(e => e.UploadedFileDataPath).HasMaxLength(500);
             entity.Property(e => e.UploadedFileName).HasMaxLength(255);
             entity.Property(e => e.UploadedPdfPath).HasMaxLength(500);
         });
 
         modelBuilder.Entity<CaMedicalLibraryStaff>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Medic__3214EC07B294C9E9")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Medic__3214EC07D4C48BD2");
 
             entity.ToTable("CA_MedicalLibraryStaff");
 
@@ -2149,9 +2023,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMedicalLibraryUsageReport>(entity =>
         {
-            entity.HasKey(e => e.UsageReportId)
-                .HasName("PK__CA_Medic__0DD1EF5F10D6DA11")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.UsageReportId).HasName("PK__CA_Medic__0DD1EF5F271CE46C");
 
             entity.ToTable("CA_MedicalLibraryUsageReport");
 
@@ -2167,9 +2039,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstCourseCurriculum>(entity =>
         {
-            entity.HasKey(e => e.CurriculumId)
-                .HasName("PK__CA_MST_C__06C9FA1CA482F4B2")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.CurriculumId).HasName("PK__CA_MST_C__06C9FA1CACA9C671");
 
             entity.ToTable("CA_MST_CourseCurriculum");
 
@@ -2192,36 +2062,20 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstExaminationScheme>(entity =>
         {
-            entity.HasKey(e => e.SchemeId)
-                .HasName("PK__CA_MST_E__DB7E1A62D6AA7CB0")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.SchemeId).HasName("PK__CA_MST_E__DB7E1A6244230B61");
 
             entity.ToTable("CA_MST_ExaminationScheme");
 
-            entity.HasIndex(e => e.SchemeCode, "UQ__CA_MST_E__8B17EDD519650FE3")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => e.SchemeCode, "UQ__CA_MST_E__8B17EDD570E4580C").IsUnique();
 
-            entity.HasIndex(e => e.SchemeCode, "UQ__CA_MST_E__8B17EDD546ABD03D")
-                .IsUnique()
-                .HasFillFactor(80);
-
-            entity.HasIndex(e => e.SchemeCode, "UQ__CA_MST_E__8B17EDD581964BD7")
-                .IsUnique()
-                .HasFillFactor(80);
-
-            entity.HasIndex(e => e.SchemeCode, "UQ__CA_MST_E__8B17EDD5F150F0B6")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => e.SchemeCode, "UQ__CA_MST_E__8B17EDD5C08EAB90").IsUnique();
 
             entity.Property(e => e.SchemeCode).HasMaxLength(10);
         });
 
         modelBuilder.Entity<CaMstLibraryEquipmentsType>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_MST_L__3214EC07A50DBF31")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_MST_L__3214EC07D644D800");
 
             entity.ToTable("CA_MST_LibraryEquipmentsType");
 
@@ -2230,9 +2084,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstLibraryServicesList>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_MST_L__3214EC07E87E103E")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_MST_L__3214EC07A27A7775");
 
             entity.ToTable("CA_MST_LibraryServicesList");
 
@@ -2241,9 +2093,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstMedCommitteeName>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_MST_M__3214EC07E46049F4")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_MST_M__3214EC07DEF43FE1");
 
             entity.ToTable("CA_MST_Med_CommitteeNames");
 
@@ -2257,9 +2107,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstMedLibTechnicalProcess>(entity =>
         {
-            entity.HasKey(e => e.SlNo)
-                .HasName("PK__CA_MST_M__BC789CF28CB64161")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.SlNo).HasName("PK__CA_MST_M__BC789CF235DB039D");
 
             entity.ToTable("CA_MST_Med_LibTechnicalProcess");
 
@@ -2271,9 +2119,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstMedLibraryEquipment>(entity =>
         {
-            entity.HasKey(e => e.SlNo)
-                .HasName("PK__CA_MST_M__BC789CF2AF45686A")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.SlNo).HasName("PK__CA_MST_M__BC789CF29F44F8FD");
 
             entity.ToTable("CA_MST_Med_LibraryEquipments");
 
@@ -2285,9 +2131,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstMedLibraryItem>(entity =>
         {
-            entity.HasKey(e => e.SlNo)
-                .HasName("PK__CA_MST_M__BC789CF2FD2E1241")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.SlNo).HasName("PK__CA_MST_M__BC789CF2B732EE64");
 
             entity.ToTable("CA_MST_Med_LibraryItems");
 
@@ -2299,9 +2143,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstMedOtherAcademicActivity>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_MST_M__3214EC0754E1197A")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_MST_M__3214EC07D6678A33");
 
             entity.ToTable("CA_MST_Med_OtherAcademicActivities");
 
@@ -2312,19 +2154,11 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstMediLibraryService>(entity =>
         {
-            entity.HasKey(e => e.ServiceId)
-                .HasName("PK__CA_MST_M__C51BB00AA26A8A2A")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.ServiceId).HasName("PK__CA_MST_M__C51BB00AC6BCA14C");
 
             entity.ToTable("CA_MST_MediLibraryServices");
 
-            entity.HasIndex(e => e.ServiceName, "UQ__CA_MST_M__A42B5F99CF49DF69")
-                .IsUnique()
-                .HasFillFactor(80);
-
-            entity.HasIndex(e => e.ServiceName, "UQ__CA_MST_M__A42B5F99F8571F08")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => e.ServiceName, "UQ__CA_MST_M__A42B5F99A1C924BC").IsUnique();
 
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
@@ -2334,9 +2168,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstRegisterRecord>(entity =>
         {
-            entity.HasKey(e => e.RegisterRecordId)
-                .HasName("PK__CA_MST_R__03F93351D4F2D0D6")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.RegisterRecordId).HasName("PK__CA_MST_R__03F933515B81F988");
 
             entity.ToTable("CA_MST_RegisterRecord");
 
@@ -2348,9 +2180,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstUserDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_MST_U__3214EC0764AC77DE")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_MST_U__3214EC070FC66CF6");
 
             entity.ToTable("CA_MST_UserDetails");
 
@@ -2360,9 +2190,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstVdVehicleFor>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_MST_V__3214EC0746FEE63B")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_MST_V__3214EC078F22F43F");
 
             entity.ToTable("CA_MST_VD_VehicleFor");
 
@@ -2372,59 +2200,20 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaMstYearOfStudy>(entity =>
         {
-            entity.HasKey(e => e.YearOfStudyId)
-                .HasName("PK__CA_MST_Y__F043CBDD563661E3")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.YearOfStudyId).HasName("PK__CA_MST_Y__F043CBDDB6F7A931");
 
             entity.ToTable("CA_MST_YearOfStudy");
 
             entity.Property(e => e.YearName).HasMaxLength(50);
         });
 
-        modelBuilder.Entity<CaNursingCollectionDevelopment>(entity =>
-        {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Nursi__3214EC0794124098")
-                .HasFillFactor(80);
-
-            entity.ToTable("CA_Nursing_CollectionDevelopment");
-
-            entity.Property(e => e.CollegeCode).HasMaxLength(10);
-            entity.Property(e => e.DocumentType).HasMaxLength(200);
-            entity.Property(e => e.FacultyCode).HasMaxLength(10);
-            entity.Property(e => e.RegistrationNo).HasMaxLength(20);
-        });
-
-        modelBuilder.Entity<CaNursingLibraryEquipment>(entity =>
-        {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Nursi__3214EC072AE0F078")
-                .HasFillFactor(80);
-
-            entity.ToTable("CA_Nursing_LibraryEquipments");
-
-            entity.Property(e => e.CollegeCode).HasMaxLength(10);
-            entity.Property(e => e.EquipmentType).HasMaxLength(200);
-            entity.Property(e => e.FacultyCode).HasMaxLength(10);
-            entity.Property(e => e.RegistrationNo).HasMaxLength(20);
-            entity.Property(e => e.SAvailable)
-                .HasMaxLength(1)
-                .IsUnicode(false)
-                .IsFixedLength()
-                .HasColumnName("sAvailable");
-        });
-
         modelBuilder.Entity<CaProgress>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Progr__3214EC0767153B83")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Progr__3214EC073CF8B152");
 
             entity.ToTable("CA_Progress");
 
-            entity.HasIndex(e => new { e.CollegeCode, e.CourseLevel, e.StepKey }, "UQ_CA")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => new { e.CollegeCode, e.CourseLevel, e.StepKey }, "UQ_CA").IsUnique();
 
             entity.Property(e => e.CollegeCode).HasMaxLength(50);
             entity.Property(e => e.CourseLevel).HasMaxLength(10);
@@ -2437,9 +2226,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaSsAffiliationGrantedYear>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_SS_Af__3214EC07243A1B87")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_SS_Af__3214EC07126C90C3");
 
             entity.ToTable("CA_SS_AffiliationGrantedYear");
 
@@ -2448,14 +2235,14 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CoursesApplied).HasMaxLength(10);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.FileName).HasMaxLength(300);
-            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.FilePath)
+                .HasMaxLength(500)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<CaSsLicpreviousInspection>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_SS_LI__3214EC0766E88C44")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_SS_LI__3214EC07E1946047");
 
             entity.ToTable("CA_SS_LICPreviousInspection");
 
@@ -2468,9 +2255,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaSsLopsavedDate>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_SS_LO__3214EC07D1A33DD2")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_SS_LO__3214EC07A1506C29");
 
             entity.ToTable("CA_SS_LOPSavedDate");
 
@@ -2482,9 +2267,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CaSsOtherCoursesConducted>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_SS_Ot__3214EC07BCF4D107")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_SS_Ot__3214EC0755F5403E");
 
             entity.ToTable("CA_SS_OtherCoursesConducted");
 
@@ -2493,16 +2276,16 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CourseName).HasMaxLength(200);
             entity.Property(e => e.CoursesApplied).HasMaxLength(10);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.DocumentPath).HasMaxLength(500);
+            entity.Property(e => e.DocumentPath)
+                .HasMaxLength(500)
+                .IsUnicode(false);
             entity.Property(e => e.FileName).HasMaxLength(255);
             entity.Property(e => e.SanctionedIntake).HasMaxLength(100);
         });
 
         modelBuilder.Entity<CaSsPermission>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_SS_Pe__3214EC076755BFD7")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_SS_Pe__3214EC07B43E0DA3");
 
             entity.ToTable("CA_SS_Permission");
 
@@ -2511,15 +2294,15 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CoursesApplied).HasMaxLength(10);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.FileName).HasMaxLength(300);
-            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.FilePath)
+                .HasMaxLength(500)
+                .IsUnicode(false);
             entity.Property(e => e.PermissionStatus).HasMaxLength(20);
         });
 
         modelBuilder.Entity<CaStudentRegisterRecord>(entity =>
         {
-            entity.HasKey(e => e.StudentRegisterRecordId)
-                .HasName("PK__CA_Stude__105ECE02A6115C8C")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.StudentRegisterRecordId).HasName("PK__CA_Stude__105ECE022B11D2A2");
 
             entity.ToTable("CA_StudentRegisterRecords");
 
@@ -2535,25 +2318,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_StudentRegister_Record");
         });
 
-        modelBuilder.Entity<CaUserDetail>(entity =>
-        {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_UserD__3214EC078E4F6EE1")
-                .HasFillFactor(80);
-
-            entity.ToTable("CA_UserDetails");
-
-            entity.Property(e => e.CategoryName).HasMaxLength(200);
-            entity.Property(e => e.CollegeCode).HasMaxLength(10);
-            entity.Property(e => e.FacultyCode).HasMaxLength(10);
-            entity.Property(e => e.RegistrationNo).HasMaxLength(20);
-        });
-
         modelBuilder.Entity<CaVehicleDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__CA_Vehic__3214EC07045E6061")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__CA_Vehic__3214EC07FBD299C1");
 
             entity.ToTable("CA_VehicleDetails");
 
@@ -2744,8 +2511,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CoursesOffered>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("CoursesOffered");
 
             entity.Property(e => e.CollegeCode)
@@ -2790,12 +2555,12 @@ public partial class ApplicationDbContext : DbContext
             entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalChairs)
                 .HasForeignKey(d => d.CollegeCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__DentalCha__Colle__2A8B4280");
+                .HasConstraintName("FK__DentalCha__Colle__7D4E87B5");
 
             entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.DentalChairs)
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__DentalCha__Facul__29971E47");
+                .HasConstraintName("FK__DentalCha__Facul__7C5A637C");
         });
 
         modelBuilder.Entity<DentalCollegeEquipmentDetail>(entity =>
@@ -3159,14 +2924,16 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(150);
             entity.Property(e => e.ExaminerFor).HasMaxLength(150);
             entity.Property(e => e.FacultyCode).HasMaxLength(50);
-            entity.Property(e => e.GuideRecognitionDocPath).HasMaxLength(500);
+            entity.Property(e => e.GuideRecognitionDocPath).HasMaxLength(1000);
             entity.Property(e => e.IsExaminer).HasMaxLength(150);
-            entity.Property(e => e.LitigationDocPath).HasMaxLength(500);
+            entity.Property(e => e.LitigationDocPath).HasMaxLength(1000);
             entity.Property(e => e.LitigationPending).HasMaxLength(150);
             entity.Property(e => e.Mobile).HasMaxLength(15);
             entity.Property(e => e.NameOfFaculty).HasMaxLength(200);
             entity.Property(e => e.Pan).HasMaxLength(20);
-            entity.Property(e => e.PhDrecognitionDocPath).HasMaxLength(500);
+            entity.Property(e => e.PhDrecognitionDocPath)
+                .HasMaxLength(1000)
+                .HasColumnName("PhDRecognitionDocPath");
             entity.Property(e => e.RecognizedPgTeacher).HasMaxLength(50);
             entity.Property(e => e.RecognizedPhDteacher)
                 .HasMaxLength(150)
@@ -3229,8 +2996,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<FellowShipMedical>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("FellowShip_Medical");
 
             entity.Property(e => e.Id).HasColumnName("id");
@@ -3455,9 +3220,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<IndoorBedsOccupancy>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK_IndoorBedsOccupancy_Id")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK_IndoorBedsOccupancy_Id");
 
             entity.ToTable("IndoorBedsOccupancy");
 
@@ -3485,8 +3248,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<IndoorInfrastructureRequirementsCompliance>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("IndoorInfrastructureRequirementsCompliance");
 
             entity.Property(e => e.CollegeCode)
@@ -3539,22 +3300,22 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.InstitutionId).HasFillFactor(80);
 
-            entity.Property(e => e.AadhaarFilePath).HasMaxLength(500);
+            entity.Property(e => e.AadhaarFilePath).HasMaxLength(1000);
             entity.Property(e => e.AadhaarNumber).HasMaxLength(20);
             entity.Property(e => e.AcademicYearStarted).HasMaxLength(20);
             entity.Property(e => e.AddressOfInstitution).HasMaxLength(300);
             entity.Property(e => e.AltEmailId).HasMaxLength(150);
             entity.Property(e => e.AltLandlineOrMobile).HasMaxLength(20);
-            entity.Property(e => e.AmendedDocPath).HasMaxLength(500);
-            entity.Property(e => e.AuditStatementFilePath).HasMaxLength(500);
-            entity.Property(e => e.BankStatementFilePath).HasMaxLength(500);
+            entity.Property(e => e.AmendedDocPath).HasMaxLength(1000);
+            entity.Property(e => e.AuditStatementFilePath).HasMaxLength(1000);
+            entity.Property(e => e.BankStatementFilePath).HasMaxLength(1000);
             entity.Property(e => e.CategoryOfOrganisation).HasMaxLength(100);
             entity.Property(e => e.CollegeCode).HasMaxLength(10);
             entity.Property(e => e.CollegeStatus).HasMaxLength(100);
             entity.Property(e => e.ContactPersonMobile).HasMaxLength(20);
             entity.Property(e => e.ContactPersonName).HasMaxLength(200);
             entity.Property(e => e.ContactPersonRelation).HasMaxLength(200);
-            entity.Property(e => e.ContinuationAffiliationFilePath).HasMaxLength(500);
+            entity.Property(e => e.ContinuationAffiliationFilePath).HasMaxLength(1000);
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -3568,17 +3329,17 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode).HasMaxLength(20);
             entity.Property(e => e.Fax).HasMaxLength(20);
             entity.Property(e => e.FinancingAuthorityName).HasMaxLength(200);
-            entity.Property(e => e.FirstAffiliationNotifFilePath).HasMaxLength(500);
-            entity.Property(e => e.GokOrderExistingCoursesFilePath).HasMaxLength(500);
+            entity.Property(e => e.FirstAffiliationNotifFilePath).HasMaxLength(1000);
+            entity.Property(e => e.GokOrderExistingCoursesFilePath).HasMaxLength(1000);
             entity.Property(e => e.GokobtainedTrustName)
                 .HasMaxLength(200)
                 .HasColumnName("GOKObtainedTrustName");
-            entity.Property(e => e.GovAutonomousCertFilePath).HasMaxLength(500);
+            entity.Property(e => e.GovAutonomousCertFilePath).HasMaxLength(1000);
             entity.Property(e => e.GovAutonomousCertNumber).HasMaxLength(100);
-            entity.Property(e => e.GovCouncilMembershipFilePath).HasMaxLength(500);
+            entity.Property(e => e.GovCouncilMembershipFilePath).HasMaxLength(1000);
             entity.Property(e => e.HeadOfInstitutionAddress).HasMaxLength(300);
             entity.Property(e => e.HeadOfInstitutionName).HasMaxLength(150);
-            entity.Property(e => e.KncCertificateFilePath).HasMaxLength(500);
+            entity.Property(e => e.KncCertificateFilePath).HasMaxLength(1000);
             entity.Property(e => e.KncCertificateNumber).HasMaxLength(100);
             entity.Property(e => e.KsdccertificateFilePath)
                 .HasMaxLength(500)
@@ -3586,14 +3347,16 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("KSDCcertificateFilePath");
             entity.Property(e => e.MobileNumber).HasMaxLength(20);
             entity.Property(e => e.NameOfInstitution).HasMaxLength(200);
-            entity.Property(e => e.PanfilePath).HasMaxLength(500);
+            entity.Property(e => e.PanfilePath)
+                .HasMaxLength(1000)
+                .HasColumnName("PANFilePath");
             entity.Property(e => e.Pannumber)
                 .HasMaxLength(20)
                 .HasColumnName("PANNumber");
             entity.Property(e => e.PinCode).HasMaxLength(10);
             entity.Property(e => e.PresidentName).HasMaxLength(100);
-            entity.Property(e => e.RegisteredTrustMemberDetailsPath).HasMaxLength(500);
-            entity.Property(e => e.RegistrationCertificateFilePath).HasMaxLength(500);
+            entity.Property(e => e.RegisteredTrustMemberDetailsPath).HasMaxLength(1000);
+            entity.Property(e => e.RegistrationCertificateFilePath).HasMaxLength(1000);
             entity.Property(e => e.RegistrationNumber).HasMaxLength(50);
             entity.Property(e => e.StdCode).HasMaxLength(10);
             entity.Property(e => e.Taluk).HasMaxLength(100);
@@ -3852,8 +3615,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LicInspectionCollegeDetail>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("LIC_InspectionCollege_Details");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
@@ -3877,9 +3638,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LicInspectionOtherDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__LicInspe__3214EC0709FD3DBC")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__LicInspe__3214EC0709FD3DBC");
 
             entity.Property(e => e.CollegeCode).HasMaxLength(20);
             entity.Property(e => e.CollegeName).HasMaxLength(200);
@@ -3901,9 +3660,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LicclaimDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__LICClaim__3214EC07A54FC362")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__LICClaim__3214EC07A54FC362");
 
             entity.ToTable("LICClaimDetails");
 
@@ -3943,8 +3700,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LiccollegeApproval>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("LICCollegeApproval");
 
             entity.Property(e => e.AcademicYear)
@@ -4052,9 +3807,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LicinspectionDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__LICInspe__3214EC0743278AD0")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__LICInspe__3214EC07CF2D6736");
 
             entity.ToTable("LICInspectionDetails");
 
@@ -4073,7 +3826,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedCaAccountAndFeeDetail>(entity =>
         {
-            entity.HasKey(e => new { e.Id, e.CollegeCode, e.FacultyCode, e.CourseLevel }).HasFillFactor(80);
+            entity.HasKey(e => new { e.Id, e.CollegeCode, e.FacultyCode, e.CourseLevel });
 
             entity.ToTable("Med_CA_AccountAndFeeDetails");
 
@@ -4117,9 +3870,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedCaMstStaffDesignation>(entity =>
         {
-            entity.HasKey(e => e.SlNo)
-                .HasName("PK__Med_CA_M__BC789CF2B879DBA6")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.SlNo).HasName("PK__Med_CA_M__BC789CF28BB59A34");
 
             entity.ToTable("Med_CA_MST_StaffDesignation");
 
@@ -4130,17 +3881,13 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedCaStaffParticular>(entity =>
         {
-            entity.HasKey(e => new { e.Id, e.CollegeCode, e.FacultyCode, e.DesignationSlNo, e.CourseLevel }).HasFillFactor(80);
+            entity.HasKey(e => new { e.Id, e.CollegeCode, e.FacultyCode, e.DesignationSlNo, e.CourseLevel });
 
             entity.ToTable("Med_CA_StaffParticulars");
 
-            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.DesignationSlNo, e.CourseLevel }, "UQ_StaffParticulars_CollegeFacultyDesignationLevel")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.DesignationSlNo, e.CourseLevel }, "UQ_StaffParticulars_CollegeFacultyDesignationLevel").IsUnique();
 
-            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.DesignationSlNo, e.CourseLevel }, "UQ_StaffParticulars_CollegeFacultyDesignation_Level")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.DesignationSlNo, e.CourseLevel }, "UQ_StaffParticulars_CollegeFacultyDesignation_Level").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.CollegeCode).HasMaxLength(20);
@@ -4151,31 +3898,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.SubFacultyCode).HasMaxLength(20);
         });
 
-        modelBuilder.Entity<MedMstSpecialityDepartmentsLibrary>(entity =>
-        {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Med_MST___3214EC27D1A360A3")
-                .HasFillFactor(80);
-
-            entity.ToTable("Med_MST_SpecialityDepartmentsLibrary");
-
-            entity.HasIndex(e => e.DepartmentId, "UK_Med_MST_SpecialityDepartmentsLibrary_DepartmentID")
-                .IsUnique()
-                .HasFillFactor(80);
-
-            entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.DepartmentId)
-                .HasMaxLength(10)
-                .HasColumnName("DepartmentID");
-            entity.Property(e => e.FacultyCode).HasMaxLength(5);
-            entity.Property(e => e.SpecialityDepartments).HasMaxLength(200);
-        });
-
         modelBuilder.Entity<MedicalAdministrativePhysicalFacility>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Medical___3214EC078BAEFF63")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Medical___3214EC078089FFAF");
 
             entity.ToTable("Medical_AdministrativePhysicalFacilities");
 
@@ -4258,9 +3983,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedicalDepartmentOfficesMeu>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Medical___3214EC070323BF7C")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Medical___3214EC070323BF7C");
 
             entity.ToTable("Medical_DepartmentOfficesMeu");
 
@@ -4287,7 +4010,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.MeuCoordinatorEmail).HasMaxLength(150);
             entity.Property(e => e.MeuCoordinatorName).HasMaxLength(200);
             entity.Property(e => e.MeuCoordinatorPhone).HasMaxLength(50);
-            entity.Property(e => e.MeuMembersListFilePath).HasMaxLength(500);
+            entity.Property(e => e.MeuMembersListFilePath)
+                .HasMaxLength(500)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<MedicalInstituteDetail>(entity =>
@@ -4320,9 +4045,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedicalMuseum>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Medical___3214EC079703EDAF")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Medical___3214EC07B6122AA4");
 
             entity.ToTable("Medical_Museums");
 
@@ -4343,9 +4066,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedicalSkillsLaboratory>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Medical___3214EC07723BD6E2")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Medical___3214EC072BF21B5C");
 
             entity.ToTable("Medical_SkillsLaboratory");
 
@@ -4364,9 +4085,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedicalStudentPracticalLab>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Medical___3214EC07DEA87C64")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Medical___3214EC07AD980F64");
 
             entity.ToTable("Medical_StudentPracticalLabs");
 
@@ -4382,9 +4101,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MedicalUgbedDistribution>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Medical___3214EC0729B27EDD")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Medical___3214EC07F7CDEC4F");
 
             entity.ToTable("Medical_UGBedDistribution");
 
@@ -4803,7 +4520,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MstIndoorBedsDepartmentMaster>(entity =>
         {
-            entity.HasKey(e => e.DeptId).HasFillFactor(80);
+            entity.HasKey(e => e.DeptId);
 
             entity.ToTable("MST_IndoorBedsDepartmentMaster");
 
@@ -4824,9 +4541,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MstIndoorBedsOccupancyMaster>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__MST_Indo__3214EC072C40E7A0")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__MST_Indo__3214EC07E72626F0");
 
             entity.ToTable("MST_IndoorBedsOccupancyMaster");
 
@@ -4852,8 +4567,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MstIndoorInfrastructureRequirementsMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("MST_IndoorInfrastructureRequirementsMaster");
 
             entity.Property(e => e.CreatedOn)
@@ -4982,9 +4695,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MstLicAcademicCouncilMember>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK_AcMemberList")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK_AcMemberList");
 
             entity.ToTable("MST_Lic_AcademicCouncilMembers");
 
@@ -5015,7 +4726,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MstLicInspectionAllotedMembersDetail>(entity =>
         {
-            entity.HasKey(e => e.SlNo).HasFillFactor(80);
+            entity.HasKey(e => e.SlNo);
 
             entity.ToTable("MST_LIC_Inspection_AllotedMembersDetails");
 
@@ -5034,8 +4745,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MstLicInspectionMember>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("MST_LIC_Inspection_Members");
 
             entity.Property(e => e.Licid)
@@ -5046,9 +4755,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MstLicSenateMember>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__MST_Lic___3214EC0750496673")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__MST_Lic___3214EC07F8095D39");
 
             entity.ToTable("MST_Lic_SenateMembers");
 
@@ -5064,9 +4771,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MstLicSubjectExpertiseMember>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK_ExpMemberList")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK_ExpMemberList");
 
             entity.ToTable("MST_Lic_SubjectExpertiseMembers");
 
@@ -5178,9 +4883,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<NonTeachingStaffDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__NonTeach__3214EC07D6CB44BF")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__NonTeach__3214EC0796E2CA6C");
 
             entity.Property(e => e.CollegeCode).HasMaxLength(20);
             entity.Property(e => e.CourseLevel).HasMaxLength(10);
@@ -5394,11 +5097,9 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<SmallGroupTeaching>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__SmallGro__3214EC0746706E84")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__SmallGro__3214EC07193B4222");
 
-            entity.Property(e => e.ApprovedBuildingPlanFilePath).HasMaxLength(500);
+            entity.Property(e => e.ApprovedBuildingPlanFilePath).HasMaxLength(100);
             entity.Property(e => e.ApprovedBuildingPlanPath).HasMaxLength(500);
             entity.Property(e => e.AreaDeficiencySqm).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.AvailableAreaSqm).HasColumnType("decimal(10, 2)");
@@ -5443,8 +5144,6 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<SuperVisionInFieldPracticeArea>(entity =>
         {
-            entity.HasKey(e => e.Id).HasFillFactor(80);
-
             entity.ToTable("SuperVisionInFieldPracticeArea");
 
             entity.Property(e => e.CollegeCode)
@@ -5590,9 +5289,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<TblMedicalEquipmentAvailability>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Tbl_Medi__3214EC0756D02BFC")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Tbl_Medi__3214EC07D2B24EBD");
 
             entity.ToTable("Tbl_MedicalEquipmentAvailability");
 
@@ -5612,9 +5309,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<TblMedicalSkillsLabEquipment>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Tbl_Medi__3214EC074A3E214B")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Tbl_Medi__3214EC077027A9CB");
 
             entity.ToTable("Tbl_MedicalSkillsLabEquipments");
 
@@ -5635,15 +5330,14 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.IsAdmin).HasDefaultValue(false);
             entity.Property(e => e.Password).HasMaxLength(256);
             entity.Property(e => e.UserName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<TeachingStaffDepartmentWiseDetail>(entity =>
         {
-            entity.HasKey(e => e.Id)
-                .HasName("PK__Teaching__3214EC07D0070FC9")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.Id).HasName("PK__Teaching__3214EC0724B5F7D3");
 
             entity.Property(e => e.CollegeCode).HasMaxLength(20);
             entity.Property(e => e.CourseLevel).HasMaxLength(10);
@@ -5877,7 +5571,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<UgdesignationMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UGDesign__3214EC2781440299");
+            entity.HasKey(e => e.Id).HasName("PK__UGDesign__3214EC2724A096D4");
 
             entity.ToTable("UGDesignationMaster");
 
