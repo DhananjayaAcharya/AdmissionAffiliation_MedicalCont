@@ -6,6 +6,7 @@
     var designations = ViewBag.Designations as List<Medical_Affiliation.Models.UgdesignationMaster>;
     var collegeName = ViewBag.CollegeName as string ?? Context.Session.GetString("CollegeName") ?? "";
     var collegeCode = Context.Session.GetString("CollegeCode") ?? "";
+    var isLocked = ViewBag.IsLocked != null && (bool)ViewBag.IsLocked;
     Layout = null;
 }
 
@@ -1280,6 +1281,26 @@
             cursor: pointer;
             outline: none;
         }
+
+        .locked-section {
+            opacity: 0.75;
+            pointer-events: none;
+            position: relative;
+        }
+
+            .locked-section::after {
+                content: "LOCKED";
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: #dc2626;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
     </style>
 </head>
 <body>
@@ -1306,7 +1327,7 @@
             </div>
             <div class="sidebar-section-label">UG Faculty</div>
             <div class="nav-item-custom">
-                <a class="nav-link-custom active" href="@Url.Action("Index", "UGFaculty")">
+                <a class="nav-link-custom active" href="@Url.Action("AddFaculty", "UGFaculty")">
                     <span class="nav-icon"><i class="bi bi-person-plus-fill"></i></span>Add Faculty
                 </a>
             </div>
@@ -1381,7 +1402,7 @@
                 }
 
                 <!-- Entry Form -->
-                <div class="entry-form-card" id="entryFormCard">
+                <div class="entry-form-card @(isLocked ? "locked-section" : "")" id="entryFormCard">
                     <div class="form-section-title">
                         <i class="bi bi-person-vcard-fill text-primary"></i>
                         Faculty Details — Fill and Click Add
@@ -1468,7 +1489,13 @@
                         </div>
                     </div>
                 </div>
-
+                @if (isLocked)
+                {
+                    <div class="alert alert-danger mb-3" style="border-radius:10px;">
+                        <i class="bi bi-lock-fill me-2"></i>
+                        Faculty submission already completed. Further modification is not allowed.
+                    </div>
+                }
                 <!-- ── GRID SEARCH BAR ── -->
                 <div class="grid-search-bar">
                     <div class="grid-search-wrap">
@@ -1519,11 +1546,37 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end align-items-center gap-2 mt-2 mb-4" id="confirmBtnWrap">
-                    <button class="btn-confirm" id="btnConfirm" onclick="confirmData()">
-                        <i class="bi bi-check2-all"></i> All Above Table Data is Confirmed &nbsp;(Click here to Preview &amp; Generate)
+                <div class="d-flex justify-content-end align-items-center gap-2 mt-2 mb-4"
+                     id="confirmBtnWrap">
+
+                    <button class="btn-confirm"
+                            id="btnConfirm"
+                            onclick="confirmData()"
+                            @(isLocked ? "disabled" : "")>
+
+                        @if (isLocked)
+                        {
+                            <text>
+                                <i class="bi bi-lock-fill"></i>
+                                Faculty Data Already Submitted
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <i class="bi bi-check2-all"></i>
+                                All Above Table Data is Confirmed
+                                &nbsp;(Click here to Preview &amp; Generate)
+                            </text>
+                        }
+
                     </button>
                 </div>
+
+
+
+
+               
 
                 <!-- Upload Section -->
                 <div id="uploadSection" style="display:none;" class="mb-4">
@@ -2572,6 +2625,39 @@
         }
 
         $(function() { syncTableGrid(); });
+
+
+
+
+                const IS_LOCKED = @(isLocked.ToString().ToLower());
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            if (IS_LOCKED) {
+
+                // Disable all inputs/selects/buttons inside form
+                document.querySelectorAll('#entryFormCard input, #entryFormCard select, #entryFormCard button')
+                    .forEach(el => {
+                        el.disabled = true;
+                    });
+
+                // Disable confirm button
+                const confirmBtn = document.getElementById('btnConfirm');
+
+                if (confirmBtn) {
+                    confirmBtn.disabled = true;
+                    confirmBtn.style.opacity = "0.6";
+                    confirmBtn.style.cursor = "not-allowed";
+                    confirmBtn.innerHTML =
+                        '<i class="bi bi-lock-fill"></i> Faculty Data Already Submitted';
+                }
+
+                // Disable delete buttons
+                document.querySelectorAll('.btn-del').forEach(btn => {
+                    btn.disabled = true;
+                });
+            }
+        });
     </script>
 </body>
 </html>
