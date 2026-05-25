@@ -15,8 +15,6 @@ public partial class CaSsPermission
 
     public string PermissionStatus { get; set; } = null!;
 
-    public byte[]? FileData { get; set; }
-
     public string? FileName { get; set; }
 
     public DateTime? CreatedOn { get; set; }

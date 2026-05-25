@@ -31,6 +31,7 @@ namespace Medical_Affiliation.Controllers
             // Only fetch required columns
             var faculties = await _context.Faculties
                 .AsNoTracking()
+                .Where(e => e.Status == "Active")
                 .Select(f => new FacultyViewModel
                 {
                     FacultyId = f.FacultyId.ToString(),

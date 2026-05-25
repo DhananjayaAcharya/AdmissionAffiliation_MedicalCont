@@ -168,49 +168,49 @@ namespace Medical_Affiliation.Models
     {
         public ClinicalHospitalViewModel ClinicalHospitalDetails { get; set; } = new();
 
-        public ClinicalCapacityViewModel ClinicalCapacity { get; set; }
+        public ClinicalCapacityViewModel ClinicalCapacity { get; set; } = new();
 
-        public HospitalFacilitiesViewModel HospitalFacilities { get; set; }
+        public HospitalFacilitiesViewModel HospitalFacilities { get; set; } = new();
         //public List<AffiliatedHospitalDocumentsViewModel> HospitalDocuments { get; set; }
         //public List<FieldPracticeAreaViewModel> FieldPracticeAreas { get; set; }
-        public List<HospitalDocumentsToBeUploadedViewModel> HospitalDocumentsToBeUploadedList { get; set; }
-        public AffiliatedHospitalDocumentsPostVM AffiliatedDocumentsPostVM { get; set; }
+        public List<HospitalDocumentsToBeUploadedViewModel> HospitalDocumentsToBeUploadedList { get; set; } = new();
+        public AffiliatedHospitalDocumentsPostVM AffiliatedDocumentsPostVM { get; set; } = new();
 
-        public FieldPracticeAreasPostViewModel FieldPracticeAreaPostVM { get; set; }
+        public FieldPracticeAreasPostViewModel FieldPracticeAreaPostVM { get; set; } = new();
 
-        public IndoorDepartmentRequirementsPostVM IndoorDepartment { get; set; }
-        public OTRequirementsPostVM OTRequirements { get; set; }
-        public CasualityRequirementsPostVM CasualityRequirements { get; set; }
-        public CSSDandLaundryRequirementsPostVM CSSDandLaundryRequirements { get; set; }
-        public RadioDiagnosisRequirementsPostVM RadioDiagnosisRequirements { get; set; }
-        public AnaesthesiologyRequirementsPostVM AnaesthesiologyRequirements { get; set; }
-        public CentralLaboratoryRequirementsPostVM CentralLaboratoryRequirements { get; set; }
-        public BloodBankRequirementsPostVM BloodBankRequirements { get; set; }
-        public YogaRequirementsPostVM YogaRequirements { get; set; }
-        public RadiationOncologyRequirementsPostVM RadiationOncologyRequirements { get; set; }
-        public ArtCenterRequirementsPostVM ArtCenterRequirements { get; set; }
-        public PharmacyRequirementsPostVM PharmacyRequirements { get; set; }
-        public UtilitiesRequirementsPostVM UtilitiesRequirements { get; set; }
+        public IndoorDepartmentRequirementsPostVM IndoorDepartment { get; set; } = new();
+        public OTRequirementsPostVM OTRequirements { get; set; } = new();
+        public CasualityRequirementsPostVM CasualityRequirements { get; set; } = new();
+        public CSSDandLaundryRequirementsPostVM CSSDandLaundryRequirements { get; set; } = new();
+        public RadioDiagnosisRequirementsPostVM RadioDiagnosisRequirements { get; set; } = new();
+        public AnaesthesiologyRequirementsPostVM AnaesthesiologyRequirements { get; set; } = new();
+        public CentralLaboratoryRequirementsPostVM CentralLaboratoryRequirements { get; set; } = new();
+        public BloodBankRequirementsPostVM BloodBankRequirements { get; set; } = new();
+        public YogaRequirementsPostVM YogaRequirements { get; set; } = new();
+        public RadiationOncologyRequirementsPostVM RadiationOncologyRequirements { get; set; } = new();
+        public ArtCenterRequirementsPostVM ArtCenterRequirements { get; set; } = new();
+        public PharmacyRequirementsPostVM PharmacyRequirements { get; set; } = new();
+        public UtilitiesRequirementsPostVM UtilitiesRequirements { get; set; } = new();
 
-        public OutPatientRequirementsPostVM OutPatientRequirements { get; set; }
-        public IndoorBedsUnitsRequirementsPostVM IndoorBedsUnitsRequirements { get; set; }
+        public OutPatientRequirementsPostVM OutPatientRequirements { get; set; } = new();
+        public IndoorBedsUnitsRequirementsPostVM IndoorBedsUnitsRequirements { get; set; } = new();
 
-        public IndoorBedsOccupancyPostVM IndoorBedsOccupancy { get; set; }
-        public SuperVisionInFieldPracticeAreaPostVm SuperVisionInFieldPracticeArea { get; set; }
+        public IndoorBedsOccupancyPostVM IndoorBedsOccupancy { get; set; } = new();
+        public SuperVisionInFieldPracticeAreaPostVm SuperVisionInFieldPracticeArea { get; set; } = new();
 
-        public NPTARequirementsPostVM NptaRequirementPostvm { get; set; }
+        public NPTARequirementsPostVM NptaRequirementPostvm { get; set; } = new();
 
-        public EngAlliedRequirementsPostVM EngAlliedRequirementPostvm { get; set; }
+        public EngAlliedRequirementsPostVM EngAlliedRequirementPostvm { get; set; } = new();
 
-        public AdmAncRequirementsPostVM AdmAncRequirementPostvm { get; set; }
+        public AdmAncRequirementsPostVM AdmAncRequirementPostvm { get; set; } = new();
 
-        public DisciplinePostVM DisciplineVm { get; set; }
+        public DisciplinePostVM DisciplineVm { get; set; } = new();
         public int FacultyCode { get; set; }
         public string CollegeCode { get; set; }
 
         public string CourseLevel { get; set; }
         public List<SectionViewModel> Sections { get; set; } = new();
-        public List<DentalWardBedDistributionVm> DentalWardBedDistribution { get; set; }
+        public List<DentalWardBedDistributionVm> DentalWardBedDistribution { get; set; } = new();
 
     }
 

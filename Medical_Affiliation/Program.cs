@@ -302,7 +302,7 @@ app.UseMiddleware<Medical_Affiliation.Utilities.LicInspectionSessionMiddleware>(
 app.UseAuthorization();
 
 
-var medicalFacultyPath = @"E:\MedicalUGFacultyList";
+var medicalFacultyPath = @"D:\MedicalUGFacultyList";
 
 if (!Directory.Exists(medicalFacultyPath))
 {

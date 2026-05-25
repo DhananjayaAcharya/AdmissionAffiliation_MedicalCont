@@ -69,35 +69,11 @@ namespace Medical_Affiliation.Controllers
                 _userContext.CollegeCode,
                 _userContext.FacultyId,
                 _userContext.CourseLevel
-            );
-
-            if (model == null)
-            {
-                throw new Exception("Composite VM is NULL");
-            }
-
-            if (model.ClinicalHospitalDetails == null)
-            {
-                throw new Exception("ClinicalHospitalDetails is NULL");
-            }
-
-            if (model.NptaRequirementPostvm == null)
-            {
-                throw new Exception("NptaRequirementPostvm is NULL");
-            }
-
-            if (model.EngAlliedRequirementPostvm == null)
-            {
-                throw new Exception("EngAlliedRequirementPostvm is NULL");
-            }
-
-            if (model.DisciplineVm == null)
-            {
-                throw new Exception("DisciplineVm is NULL");
-            }
+            ) ?? new HospitalAffiliationCompositeViewModel();
 
             return View("HospitalDetailsForAffiliation", model);
         }
+
 
         private async Task<bool> HospitalExists(int hospitalId, string collegeCode, string facultyCode)
         {
