@@ -7,6 +7,7 @@
         public string CourseLevel { get; set;  } = string.Empty;
         public int SeatSlab { get; set; }
 
+        public int HospitalDetailsId { get; set; }
         public string SeatSlabId { get; set; } = string.Empty;
 
         public int ChairsRequired { get; set; }

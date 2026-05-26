@@ -552,6 +552,8 @@ namespace Medical_Affiliation.Services.Handlers.Medical
 
             var clinicalCapacityVM = new ClinicalCapacityViewModel
             {
+                hospitalDetailsId = hospital.HospitalDetailsId,
+                SeatSlab = seatSlab,
                 Form = hospital == null
                     ? new ClinicalCapacityFormVM
                     {
@@ -637,6 +639,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 FacultyCode = facultyCode,
                 AffiliationTypeId = typeOfAffiliation,
                 HospitalDetailsId = hospital?.HospitalDetailsId ?? 0,
+                SeatSlab = seatSlab,
                 Requirements = BuildDentalRequirements<NPTAServicesItemVM>(NPTAReqMaster, existingNPTAServices, hospital?.HospitalDetailsId ?? 0)
 
             };
@@ -647,6 +650,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 FacultyCode = facultyCode,
                 AffiliationTypeId = typeOfAffiliation,
                 HospitalDetailsId = hospital?.HospitalDetailsId ?? 0,
+                SeatSlab = seatSlab,
                 Requirements = BuildDentalRequirements<EngAlliedServicesItemVM>(EngAlliedReqMaster, existingEngAlliedServices, hospital?.HospitalDetailsId ?? 0)
 
             };

@@ -238,6 +238,24 @@ namespace Medical_Affiliation.Controllers
                     }
                 ).ToList();
 
+            if (!subjects.Any())
+            {
+                subjects = (
+                    from ai in _context.AcademicIntakes
+                    join c in _context.MstCourses
+                        on ai.Courses equals c.CourseCode.ToString()
+                    where ai.CollegeCode == collegeCode
+                          && c.CourseLevel.ToUpper() == "PG"
+                    group c by new { c.CourseCode, c.SubjectName } into g
+                    orderby g.Key.SubjectName
+                    select new SelectListItem
+                    {
+                        Value = g.Key.CourseCode.ToString(),
+                        Text = g.Key.SubjectName
+                    }
+                ).ToList();
+            }
+
             var model = new CA_Aff_PgAcademicMattersViewModel
             {
                 CollegeCode = collegeCode,

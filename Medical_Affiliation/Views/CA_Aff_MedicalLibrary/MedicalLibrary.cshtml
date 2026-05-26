@@ -93,8 +93,8 @@
 
         .form-wrap {
             max-width: 1280px;
-            margin: 7rem auto;
-            padding: 0 1px 60px;
+            margin: 7rem auto 0;
+            padding: 0 10px 10px;
         }
 
         .section-card {
@@ -356,7 +356,7 @@
                                             <td colspan="2">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <label class="fw-semibold mb-0">Upload Document <span class="text-danger">*</span></label>
-                                                    <input type="file" class="form-control form-control-sm pdf-input file-validate"
+                                                    <input type="file" accept=".pdf,application/pdf" class="form-control form-control-sm pdf-input file-validate"
                                                            style="max-width:280px" asp-for="LibraryServices[@i].UploadedPdf"
                                                            accept=".pdf" data-has-file="@(!string.IsNullOrEmpty(row.ExistingFileName))" />
                                                     @if (!string.IsNullOrEmpty(row.ExistingFileName))
@@ -395,7 +395,7 @@
                         </p>
                         <div class="d-flex align-items-center gap-3">
                             <label class="fw-semibold">Upload Document <span class="text-danger">*</span></label>
-                            <input asp-for="UsageReportPdf" type="file" class="form-control form-control-sm file-validate"
+                            <input asp-for="UsageReportPdf" accept=".pdf,application/pdf" type="file" class="form-control form-control-sm file-validate"
                             accept=".pdf" style="max-width:280px"
                             data-has-file="@(!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))" />
                             @if (!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))
@@ -644,7 +644,7 @@
                         </div>
 
                         <div id="specialPdfRow" class="align-items-center gap-3" style="display:none;">
-                            <input type="file" class="form-control file-validate" style="max-width:320px"
+                            <input accept=".pdf,application/pdf" type="file" class="form-control file-validate" style="max-width:320px"
                             asp-for="OtherDetails.SpecialFeaturesPdf" accept=".pdf" />
                             @if (Model.OtherDetails?.HasSpecialFeaturesPdf == true)
                             {

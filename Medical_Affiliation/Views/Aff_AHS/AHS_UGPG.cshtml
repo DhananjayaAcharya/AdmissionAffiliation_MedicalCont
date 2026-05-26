@@ -393,13 +393,13 @@
                     @*updated code added below, by ram on 17-11-2025, removed two inputs - KNMC & INC *@
                     <div class="col-6 mb-2">
                         <label asp-for="RGUHSNotificationFile" class="form-label">RGUHS Notification</label>
-                        <input type="file" asp-for="RGUHSNotificationFile" class="form-control form-control-sm" />
+                        <input type="file" asp-for="RGUHSNotificationFile" class="form-control form-control-sm" accept=".pdf,application/pdf" />
                         <span asp-validation-for="RGUHSNotificationFile" class="text-danger"></span>
                     </div>
                     
                     <div class="col-6 mb-2">
                         <label asp-for="GOKUploadFile" class="form-label">GOK Upload</label>
-                        <input type="file" asp-for="GOKUploadFile" class="form-control form-control-sm" />
+                        <input type="file" asp-for="GOKUploadFile" class="form-control form-control-sm" accept=".pdf,application/pdf" />
                         <span asp-validation-for="GOKUploadFile" class="text-danger"></span>
                     </div>
                 </div>

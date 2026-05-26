@@ -919,7 +919,7 @@
                                     <input type="file" name="[@i].GuideRecognitionDoc"
                                            class="fc guide-recognition-doc"
                                            style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none")"
-                                           accept=".pdf,.jpg,.jpeg,.png" />
+                                           accept=".pdf" />
                                 </td>
                                 <td>@Html.TextBoxFor(m => m[i].Mobile, new { @class = "fc", placeholder = "10-digit", maxlength = "10" })</td>
                                 <td>@Html.TextBoxFor(m => m[i].Email, new { @class = "fc", placeholder = "email@domain.com" })</td>
@@ -1047,7 +1047,7 @@
                         </td>
                         <td>
                             <input type="file" name="[${rowIndex}].GuideRecognitionDoc"
-                                   class="fc guide-recognition-doc" accept=".pdf,.jpg,.jpeg,.png"
+                                   class="fc guide-recognition-doc" accept=".pdf"
                                    style="display:none;" />
                         </td>
                         <td><input name="[${rowIndex}].Mobile" class="fc" placeholder="10-digit" maxlength="10" /></td>

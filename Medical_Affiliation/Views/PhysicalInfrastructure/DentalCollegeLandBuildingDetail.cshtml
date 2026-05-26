@@ -493,7 +493,7 @@
                                     <label class="upload-btn">
                                         Upload File
 
-                                        <input asp-for="SaleDeedDocument" type="file" class="hidden-upload"  onchange="showFileName(this, 'saleDeedFileName')" />
+                                        <input asp-for="SaleDeedDocument" accept=".pdf,application/pdf" type="file" class="hidden-upload"  onchange="showFileName(this, 'saleDeedFileName')" />
                                     </label>
 
                                    @if (string.IsNullOrEmpty(Model.SaleDeedDocumentPath))
@@ -535,7 +535,7 @@
                                     <label class="upload-btn">
                                         Upload File
 
-                                        <input asp-for="EncumbranceCertificateDocument" type="file" class="hidden-upload" onchange="showFileName(this, 'encumbranceFileName')" />
+                                        <input asp-for="EncumbranceCertificateDocument" type="file" accept=".pdf,application/pdf" class="hidden-upload" onchange="showFileName(this, 'encumbranceFileName')" />
                                     </label>
 
                                     @if (string.IsNullOrEmpty(Model.EncumbranceCertificateDocumentPath))
@@ -643,7 +643,7 @@
 
                                         <input asp-for="ApprovedLayoutPlanDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'layoutPlanFileName')" />
                                     </label>
@@ -700,7 +700,7 @@
 
                                         <input asp-for="LandSketchDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'landSketchFileName')" />
                                     </label>
@@ -757,7 +757,7 @@
 
                                         <input asp-for="DistanceCertificateDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'distanceFileName')" />
                                     </label>
@@ -893,7 +893,7 @@
 
                                         <input asp-for="CompletionCertificateDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'completionFileName')" />
                                     </label>
@@ -951,7 +951,7 @@
 
                                         <input asp-for="StructuralStabilityCertificateDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'structuralFileName')" />
                                     </label>
@@ -1060,7 +1060,7 @@
 
                                         <input asp-for="LiftLicenseDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'liftFileName')" />
                                     </label>
@@ -1117,7 +1117,7 @@
 
                                         <input asp-for="ElectricalSafetyCertificateDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'electricalFileName')" />
                                     </label>
@@ -1174,7 +1174,7 @@
 
                                         <input asp-for="WaterSupplyCertificateDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'waterSupplyFileName')" />
                                     </label>
@@ -1231,7 +1231,7 @@
 
                                         <input asp-for="SewageSanitationApprovalDocument"
                                                type="file"
-                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               accept=".pdf"
                                                class="hidden-upload"
                                                onchange="showFileName(this, 'sewageFileName')" />
                                     </label>

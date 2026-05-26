@@ -350,6 +350,7 @@
                                 <div class="d-flex align-items-center gap-2">
                                     <input type="file"
                                            name="[@i].GuideRecognitionDoc"
+                                               accept=".pdf,application/pdf"
                                            class="form-control pg-doc"
                                            style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none")" />
 
@@ -377,7 +378,7 @@
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <input type="file"
-                                           name="[@i].PhDRecognitionDoc"
+                                           name="[@i].PhDRecognitionDoc" accept=".pdf,application/pdf"
                                            class="form-control phd-doc"
                                            style="display:@(Model[i].RecognizedPhDTeacher == "Yes" ? "block" : "none")" />
 
@@ -407,6 +408,7 @@
                                     <input type="file"
                                            name="[@i].LitigationDoc"
                                            class="form-control litig-doc"
+                                               accept=".pdf,application/pdf"
                                            style="display:@(Model[i].LitigationPending == "Yes" ? "block" : "none")" />
 
                                     @if (Model[i].LitigationDocData != null)
@@ -564,7 +566,7 @@
                         </select>
                     </td>
 
-                    <td><input type="file" name="${pgName}" class="form-control pg-doc" style="display:none;" /></td>
+                    <td><input type="file" name="${pgName}" class="form-control pg-doc" style="display:none;" accept=".pdf,application/pdf" /></td>
 
                     <td>
                         <select name="[${rowIndex}].RecognizedPhDTeacher" class="form-control phd-teacher">
@@ -574,7 +576,7 @@
                         </select>
                     </td>
 
-                    <td><input type="file" name="${phdName}" class="form-control phd-doc" style="display:none;" /></td>
+                    <td><input type="file" name="${phdName}" class="form-control phd-doc" style="display:none;" accept=".pdf,application/pdf"/></td>
 
                     <td>
                         <select name="[${rowIndex}].LitigationPending" class="form-control litig-teacher">
@@ -584,7 +586,7 @@
                         </select>
                     </td>
 
-                    <td><input type="file" name="${litigName}" class="form-control litig-doc" style="display:none;" /></td>
+                    <td><input type="file" name="${litigName}" class="form-control litig-doc" style="display:none;" accept=".pdf,application/pdf" /></td>
 
 
                     <td><input name="[${rowIndex}].Mobile" class="form-control" /></td>

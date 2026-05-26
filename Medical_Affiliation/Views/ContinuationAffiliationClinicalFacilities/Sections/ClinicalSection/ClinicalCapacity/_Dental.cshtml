@@ -1,8 +1,8 @@
 ﻿@model ClinicalCapacityViewModel
 
 @{
-    var seatSlab = Context.Session.GetString("SeatSlab");
-    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId");
+    var seatSlab = Context.Session.GetString("SeatSlab") ?? Model.SeatSlab.ToString();
+    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId") ?? Model.hospitalDetailsId.ToString();
 }
 <style>
     .empty-state p {
@@ -28,7 +28,7 @@
         </div>
 
     }
-    else if (hospitalDetailsId != null)
+    else if (hospitalDetailsId == null)
     {
         <div class="empty-state">
             <p>Please fill Affiliated Hospital Information details first.</p>

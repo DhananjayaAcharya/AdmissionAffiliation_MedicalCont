@@ -343,6 +343,7 @@
     .nav-controls {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 12px;
     }
 
@@ -573,7 +574,7 @@
 
                                             <div class="field-group">
                                                 <label class="form-label-text">Upload Council List (PDF)</label>
-                                                <input type="file"
+                                                <input type="file" accept=".pdf,application/pdf"
                                                        name="Sections[@i].GoverningCouncilPdf"
                                                        class="form-control pdf-file" />
 
@@ -651,7 +652,7 @@
                                             <div class="pdf-upload-area AccountBooksPdfDiv mt-2"
                                                  style="display:@(item.AccountBooksMaintained == "Y" ? "block" : "none")">
 
-                                                <input type="file" name="Sections[@i].AccountSummaryPdf" class="form-control pdf-file" />
+                                                <input type="file" accept=".pdf,application/pdf" name="Sections[@i].AccountSummaryPdf" class="form-control pdf-file" />
 
                                             @if (!string.IsNullOrEmpty(item.AccountSummaryPdfName))
                                             {
@@ -676,7 +677,7 @@
                                             <div class="pdf-upload-area AuditedPdfDiv mt-2"
                                                  style="display:@(item.AccountsAudited == "Y" ? "block" : "none")">
 
-                                                <input type="file" name="Sections[@i].AuditedStatementPdf" class="form-control pdf-file" />
+                                                <input type="file" accept=".pdf,application/pdf" name="Sections[@i].AuditedStatementPdf" class="form-control pdf-file" />
 
                                             @if (!string.IsNullOrEmpty(item.AuditedStatementPdfName))
                                             {
@@ -703,7 +704,7 @@
                                                 <div class="pdf-upload-area DonationPdfDiv mt-2"
                                                      style="display:@(item.DonationLevied == "Y" ? "block" : "none")">
 
-                                                    <input type="file" name="Sections[@i].DonationPdf" class="form-control pdf-file" />
+                                                    <input type="file" name="Sections[@i].DonationPdf" accept=".pdf,application/pdf" class="form-control pdf-file" />
 
                                                 @if (!string.IsNullOrEmpty(item.DonationPdfName))
                                                 {
@@ -774,7 +775,7 @@
                     }
 
                     <!-- LEFT SIDE -->
-                    <div class="nav-controls">
+                    @* <div class="nav-controls"> *@
 
                         <!-- PREVIOUS -->
                         <a asp-controller="@prevController"
@@ -795,7 +796,7 @@
                             Next →
                         </a>
 
-                    </div>
+                    @* </div> *@
 
                    
 

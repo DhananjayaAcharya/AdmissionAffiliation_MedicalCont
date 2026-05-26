@@ -291,6 +291,8 @@ namespace Medical_Affiliation.Models
 
     public class ClinicalCapacityViewModel
     {
+        public int hospitalDetailsId { get; set; }
+        public int SeatSlab {  get; set; }
         public ClinicalCapacityFormVM Form { get; set; } = new();
 
         // Dropdowns
@@ -400,6 +402,8 @@ namespace Medical_Affiliation.Models
         public int SectionCode { get; set; }
 
         public int HospitalDetailsId { get; set; }
+
+        public int SeatSlab { get; set; }
     }
 
     public abstract class RequirementsBasePostVM<TItem>
@@ -410,6 +414,8 @@ namespace Medical_Affiliation.Models
 
         [Required]
         public int HospitalDetailsId { get; set; }
+
+        public int SeatSlab { get; set; }
 
         [Required]
         public int FacultyCode { get; set; }

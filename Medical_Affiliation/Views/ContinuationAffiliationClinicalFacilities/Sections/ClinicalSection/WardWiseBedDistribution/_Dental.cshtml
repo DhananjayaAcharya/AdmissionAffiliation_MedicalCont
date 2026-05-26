@@ -1,7 +1,8 @@
 ﻿@model List<DentalWardBedDistributionVm>
 @{
-    var seatSlab = Context.Session.GetString("SeatSlab");
-    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId");
+    var seatSlab = Context.Session.GetString("SeatSlab") ?? Model.Select(e => e.SeatSlab).FirstOrDefault().ToString();
+    var id = Model.Select(e => e.HospitalDetailsId).FirstOrDefault();
+    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId") ?? id.ToString();
 }
 <style>
     .empty-state p {
@@ -37,7 +38,7 @@
             </div>
 
         }
-        else if (hospitalDetailsId != null)
+        else if (hospitalDetailsId == null)
         {
             <div class="empty-state">
                 <p>Please fill Affiliated Hospital Information details first.</p>

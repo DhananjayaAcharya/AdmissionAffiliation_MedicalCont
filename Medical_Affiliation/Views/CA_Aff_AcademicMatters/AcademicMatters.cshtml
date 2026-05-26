@@ -323,7 +323,7 @@
                                         <input type="hidden" asp-for="CourseCurriculums[@i].CurriculumName" />
                                         <input type="hidden" asp-for="CourseCurriculums[@i].CurriculumId" />
 
-                                        <input type="file" class="curriculum-file"  id="@fileInputId" name="CourseCurriculums[@i].CurriculumPdfFiles" accept=".pdf" />
+                                        <input type="file" class="curriculum-file" accept=".pdf,application/pdf" id="@fileInputId" name="CourseCurriculums[@i].CurriculumPdfFiles" accept=".pdf" />
 
                                         <label for="@fileInputId" class="custom-upload-btn">
                                             <i class="bi bi-upload"></i> Upload PDF

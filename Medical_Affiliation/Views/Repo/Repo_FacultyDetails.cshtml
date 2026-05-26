@@ -785,7 +785,7 @@
                                     </td>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                                            <input type="file" name="[@i].GuideRecognitionDoc" class="fc pg-doc"
+                                                <input type="file" name="[@i].GuideRecognitionDoc" class="fc pg-doc" accept=".pdf,application/pdf"
                                                    style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].PGRecognitionDocData != null)
                                             {
@@ -804,7 +804,7 @@
                                     </td>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                                            <input type="file" name="[@i].PhDRecognitionDoc" class="fc phd-doc"
+                                                <input type="file" name="[@i].PhDRecognitionDoc" class="fc phd-doc" accept=".pdf,application/pdf"
                                                    style="display:@(Model[i].RecognizedPhDTeacher == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].PhDRecognitionDocData != null)
                                             {
@@ -823,7 +823,7 @@
                                     </td>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                                            <input type="file" name="[@i].LitigationDoc" class="fc litig-doc"
+                                                <input type="file" name="[@i].LitigationDoc" class="fc litig-doc" accept=".pdf,application/pdf"
                                                    style="display:@(Model[i].LitigationPending == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].LitigationDocData != null)
                                             {
@@ -1000,7 +1000,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="file" name="[${ri}].GuideRecognitionDoc" class="fc pg-doc" style="display:none;min-width:140px;" />
+        <input type="file" name="[${ri}].GuideRecognitionDoc" class="fc pg-doc" style="display:none;min-width:140px;"  accept=".pdf,application/pdf"/>
                     </td>
                     <td>
                         <select name="[${ri}].RecognizedPhDTeacher" class="fc phd-teacher">
@@ -1008,7 +1008,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="file" name="[${ri}].PhDRecognitionDoc" class="fc phd-doc" style="display:none;min-width:140px;" />
+                        <input type="file" name="[${ri}].PhDRecognitionDoc" class="fc phd-doc" style="display:none;min-width:140px;"  accept=".pdf,application/pdf"/>
                     </td>
                     <td>
                         <select name="[${ri}].LitigationPending" class="fc litig-teacher">

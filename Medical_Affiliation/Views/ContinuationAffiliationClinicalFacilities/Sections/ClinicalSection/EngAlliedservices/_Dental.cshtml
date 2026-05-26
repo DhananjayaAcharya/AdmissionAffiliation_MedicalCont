@@ -1,7 +1,7 @@
 ﻿@model Medical_Affiliation.Models.EngAlliedRequirementsPostVM
 @{
-    var seatSlab = Context.Session.GetString("SeatSlab");
-    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId");
+    var seatSlab = Context.Session.GetString("SeatSlab") ?? Model.SeatSlab.ToString();
+    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId") ?? Model.HospitalDetailsId.ToString();
 }
 <style>
     .empty-state p {
@@ -29,7 +29,7 @@
             <p>Please fill <a asp-action="IncreaseIntake" asp-controller="ContinuousAffiliationIncreaseintake">Course Intake</a>  details first.</p>
         </div>
     }
-    else if (hospitalDetailsId != null)
+    else if (hospitalDetailsId == null)
     {
         <div class="empty-state">
             <p>Please fill Affiliated Hospital Information details first.</p>

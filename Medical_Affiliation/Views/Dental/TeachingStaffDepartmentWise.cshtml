@@ -853,9 +853,12 @@
                        asp-action="Repo_FacultyDetails"
                        class="btn-prev">← Previous</a>
 
+                    @if (Model.FacultyRows != null && Model.FacultyRows.Any())
+                    {
                     <button type="submit" class="btn-save">
                         Save & Continue
                     </button>
+                    }
 
                     @if (facultyCode == "1")
                     {

@@ -49,6 +49,8 @@ namespace Medical_Affiliation.Controllers
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode);
 
+            var hospital = await _context.HospitalDetailsForAffiliations.AsNoTracking().Where(e => e.CollegeCode == collegeCode).FirstOrDefaultAsync();
+
             List<DentalChairVm> model = new();
 
             // =========================================================
@@ -118,6 +120,7 @@ namespace Medical_Affiliation.Controllers
                         CourseLevel = course.CourseLevel,
 
                         SeatSlab = seatSlab,
+                        HospitalDetailsId = hospital.HospitalDetailsId,
 
                         SeatSlabId = seatSlabData != null
                             ? seatSlabData.SeatSlabId

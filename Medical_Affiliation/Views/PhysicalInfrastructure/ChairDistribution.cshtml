@@ -6,8 +6,8 @@
     var facultyCode = Context.Session.GetString("FacultyCode");
 }
 @{
-    var seatSlab = Context.Session.GetString("SeatSlab");
-    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId");
+    var seatSlab = Context.Session.GetString("SeatSlab") ?? Model.Select(f => f.SeatSlab).FirstOrDefault().ToString();
+    var hospitalDetailsId = Context.Session.GetString("HospitalDetailsId") ?? Model.Select( f => f.HospitalDetailsId ).FirstOrDefault().ToString();
 }
 <style>
     .empty-state p {
@@ -60,13 +60,13 @@
         <div class="table-header">
             <h5 class="mb-0">Chair Distribution Details</h5>
         </div>
-        @if (seatSlab == null)
+        @if (seatSlab == null || seatSlab == "0")
         {
             <div class="empty-state">
                 <p>Please fill <a asp-action="IncreaseIntake" asp-controller="ContinuousAffiliationIncreaseintake">Course Intake</a>  details first.</p>
             </div>
 
-        } else if (hospitalDetailsId != null)
+        } else if (hospitalDetailsId == null)
         {
             <div class="empty-state">
                 <p>Please fill <a asp-action="ClinicalFacilities" asp-controller="ContinuationAffiliationClinicalFacilities">Affiliated Hospital Information details</a> first. </p>
@@ -141,23 +141,23 @@
             </div>
             <!-- Footer -->
             <div class="table-footer" style="justify-content: space-between;">
-                <a asp-action="DentalSkillsLaboratory" asp-controller="PhysicalInfrastructure"
+                @* <a asp-action="DentalSkillsLaboratory" asp-controller="PhysicalInfrastructure"
                    class="btn btn-outline-secondary">
 
                     ← Previous
 
-                </a>
+                </a> *@
                 <button class="btn btn-primary save-btn px-4" type="button">
                     <i class="bi bi-save2 me-2"></i>
                     Save Chair Details
                 </button>
-                <a asp-controller="ContinuesAffiliation_Facultybased"
+                @* <a asp-controller="ContinuesAffiliation_Facultybased"
                    asp-action="MedicalUGBedDistribution"
                    class="btn btn-success next-btn">
 
                     Next →
 
-                </a>
+                </a> *@
             </div>
         </form>
         }
