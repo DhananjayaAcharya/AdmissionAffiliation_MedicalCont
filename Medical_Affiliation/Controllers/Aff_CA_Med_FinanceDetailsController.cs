@@ -25,10 +25,31 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             //var regNo = HttpContext.Session.GetString("RegistrationNo");
 
-            var raw = HttpContext.Session.GetString("ExistingCourseLevels"); 
-            var levels = string.IsNullOrEmpty(raw)
-                ? new List<string>() 
-                : JsonSerializer.Deserialize<List<string>>(raw).Select(l => l.Trim().ToUpper()).Distinct().ToList();
+            // First try from CollegeCourseIntakeDetails
+            var levels = await (
+                from cc in _context.CollegeCourseIntakeDetails
+                join cm in _context.MstCourses
+                    on cc.CourseCode equals cm.CourseCode.ToString()
+                where cc.CollegeCode == CollegeCode
+                select cm.CourseLevel
+            )
+            .Distinct()
+            .ToListAsync();
+
+            // If no levels found, then take from AcademicIntake
+            if (!levels.Any())
+            {
+                levels = await (
+                    from ai in _context.AcademicIntakes
+                    join cm in _context.MstCourses
+                        on ai.Courses equals cm.CourseCode.ToString()
+                    where ai.CollegeCode == CollegeCode
+                          && !string.IsNullOrEmpty(ai.Courses)
+                    select cm.CourseLevel
+                )
+                .Distinct()
+                .ToListAsync();
+            }
 
             levels = levels
                 .OrderBy(l => l == "UG" ? 1 :

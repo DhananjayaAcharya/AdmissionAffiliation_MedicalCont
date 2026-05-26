@@ -5182,6 +5182,8 @@ ALTER COLUMN AY2025_DCIDocument NVARCHAR(500) NULL;
 
 --delete FROM AcademicIntake WHERE FacultyCode = 2;
 
+SELECT * FRom AcademicIntake WHERE FacultyCode = 2;
+
 ALTER TABLE AcademicIntake
 ALTER COLUMN AY2025_KSDCDocument NVARCHAR(500) NULL;
 

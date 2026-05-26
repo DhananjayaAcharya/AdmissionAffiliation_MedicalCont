@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Dental Chair Distribution";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 @{
     var seatSlab = Context.Session.GetString("SeatSlab");
@@ -20,6 +21,15 @@
 
     .table-light th {
         background-color: lightgray;
+    }
+
+    .navigation-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: .5rem 24px;
+        border-top: 1px solid var(--border);
+        margin-top: 20px;
     }
 </style>
 
@@ -151,8 +161,34 @@
             </div>
         </form>
         }
-    </div>
+        <div class="navigation-bar">
 
+            @if (facultyCode == "1")
+            {
+
+                <a href="@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")"
+                   class="btn-prev btn">Previous</a>
+            }
+
+            @if (facultyCode == "2")
+            {
+                <a href="@Url.Action("DentalSkillsLaboratory", "PhysicalInfrastructure")"
+                   class="btn-prev btn">Previous</a>
+            }
+
+            @if (facultyCode == "1")
+            {
+                <a href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")"
+                   class="btn btn-primary">Next</a>
+            }
+
+            @if (facultyCode == "2")
+            {
+                <a href="@Url.Action("MedicalUGBedDistribution", "ContinuesAffiliation_Facultybased")"
+                   class="btn btn-primary">Next</a>
+            }
+        </div>
+    </div>
 </div>
 
 @section Scripts {

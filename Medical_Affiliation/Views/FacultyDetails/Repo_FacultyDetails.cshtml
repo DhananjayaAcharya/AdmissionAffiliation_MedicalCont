@@ -879,9 +879,18 @@
                 </div>
 
                 <div class="nav-footer">
+                    @if (facultyCode == "1")
+                    {
                     <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="NonTeachingStaffDepartmentwise" class="btn-official-outline">
                         <i class="bi bi-arrow-left"></i> Previous
                     </a>
+                    }
+                    @if (facultyCode == "2")
+                    {
+                        <a asp-controller="Aff_CA_MedicalLibrary" asp-action="Aff_CA_Medical_LibraryDetails" class="btn-official-outline">
+                        <i class="bi bi-arrow-left"></i> Previous
+                    </a>
+                    }
                     <div style="display: flex; flex-direction: column;">
                         <button type="submit" class="btn-official">
                             <i class="bi bi-save2"></i> Save &amp; Proceed <i class="bi bi-arrow-right"></i>
@@ -890,9 +899,18 @@
                             <i class="bi bi-info-circle"></i> Guide Ship Letter required only if PG/PhD Guide is Yes.
                         </span>
                     </div>
-                    <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="Aff_HostelDetails" class="btn-official-outline">
-                        <i class="bi bi-arrow-right"></i> Next
-                    </a>
+
+                    @if(facultyCode == "1"){
+                        <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="Aff_HostelDetails" class="btn-official-outline">
+                            <i class="bi bi-arrow-right"></i> Next
+                        </a>
+                    }
+
+                    @if(facultyCode == "2"){
+                        <a asp-controller="Dental" asp-action="TeachingStaffDepartmentWise" class="btn-official-outline">
+                            <i class="bi bi-arrow-right"></i> Next
+                        </a>
+                    }
                 </div>
             </form>
 

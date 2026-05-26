@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Teaching Staff — Department Wise";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
+
 
     var designationHeaders = Model.DesignationHeaders;
 }
@@ -843,11 +845,34 @@
                 <!-- FOOTER -->
                 <div class="form-footer">
 
+                   
+
+                </div>
+                <div class="navigation-buttons">
+                    <a asp-controller="Dental"
+                       asp-action="Repo_FacultyDetails"
+                       class="btn-prev">← Previous</a>
+
                     <button type="submit" class="btn-save">
                         Save & Continue
                     </button>
 
+                    @if (facultyCode == "1")
+                    {
+                        <a asp-controller="CA_Med_ResearchPublications"
+                           asp-action="CA_Med_ResearchPublicationsDetails"
+                           class="btn-save">Next →</a>
+                    }
+
+                    @if (facultyCode == "2")
+                    {
+                        <a asp-controller="ContinuesAffiliation_Facultybased"
+                           asp-action="NonTeachingStaffDepartmentwise"
+                           class="btn-save">Next →</a>
+
+                    }
                 </div>
+
 
             </form>
         </div><!-- /.form-card -->

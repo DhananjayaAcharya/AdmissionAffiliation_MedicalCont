@@ -739,15 +739,34 @@
             }
             <!-- Footer Actions -->
             <div class="form-footer">
+
+                @if (facultyCode == "1")
+                {
                 <a asp-controller="Aff_CA_MedicalLibrary" asp-action="Aff_CA_Medical_LibraryDetails"
                    class="btn btn-ghost">← Previous : Library Details</a>
+                }
+
+                @if (facultyCode == "2")
+                {
+                <a asp-controller="CA_Med_StaffDetails" asp-action="CA_Med_StaffDetails"
+                   class="btn btn-ghost">← Previous : Library Details</a>
+                }
 
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-cloud-arrow-up me-2"></i>Save Changes
                 </button>
 
+                @if (facultyCode == "1")
+                {
                 <a asp-controller="ContinuesAffiliation_Facultybased" asp-action="TeachingStaffDepartmentWise"
                    class="btn btn-primary">Next →</a>
+                }
+
+                @if (facultyCode == "2")
+                {
+                <a asp-controller="CA_Med_ResearchPublications" asp-action="CA_Med_ResearchPublicationsDetails"
+                   class="btn btn-primary">Next →</a>
+                }
             </div>
         </form>
     </div>

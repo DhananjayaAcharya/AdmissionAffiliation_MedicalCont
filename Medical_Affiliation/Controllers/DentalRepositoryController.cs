@@ -886,10 +886,10 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-                "Teaching Faculty Details Saved Successfully.";
+            /*TempData["Success"] =
+                "Teaching Faculty Details Saved Successfully.";*/
 
-            return RedirectToAction("TeachingFacultyDetails");
+            return RedirectToAction("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities");
         }
 
         [HttpGet]

@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Clinical Facilites";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 @{
     var docsPostModel = new HospitalDocumentsToBeUploadedPostModel
@@ -351,10 +352,26 @@
                     <!-- Navigation -->
                     <div class="navigation-bar">
                         
+                        @if(facultyCode == "1"){
+
                         <a href="@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")"
                            class="btn-prev btn">Previous</a>
-                        <a href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")" 
-                           class="btn btn-primary">Next</a>
+                        }
+                        
+                        @if(facultyCode == "2"){
+                        <a href="@Url.Action("TeachingFacultyDetails", "DentalRepository")"
+                           class="btn-prev btn">Previous</a>
+                        }
+
+                        @if(facultyCode == "1"){
+                            <a href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")" 
+                               class="btn btn-primary">Next</a>
+                        }
+
+                        @if(facultyCode == "2"){
+                            <a href="@Url.Action("DentalCollegeLandBuildingDetail", "PhysicalInfrastructure")"
+                               class="btn btn-primary">Next</a>
+                        }
                     </div>
                 </div>
 

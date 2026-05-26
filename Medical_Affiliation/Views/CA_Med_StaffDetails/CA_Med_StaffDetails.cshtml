@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Staff Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <style>
@@ -672,9 +673,22 @@
                 <a asp-controller="Aff_CA_Med_FinanceDetails"
                    asp-action="Med_CA_AccountAndFeeDetails"
                    class="btn-prev">← Previous</a>
+
+
+                @if (facultyCode == "1")
+                {
                 <a asp-controller="CA_Med_ResearchPublications"
                    asp-action="CA_Med_ResearchPublicationsDetails"
                    class="btn-save">Next →</a>
+                }
+
+                @if (facultyCode == "2")
+                {
+                <a asp-controller="CA_Aff_MedicalLibrary"
+                   asp-action="MedicalLibrary"
+                   class="btn-save">Next →</a>
+                    
+                }
             </div>
 
            

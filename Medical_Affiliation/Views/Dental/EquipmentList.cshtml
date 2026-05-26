@@ -709,19 +709,19 @@
 
             @* <button type="submit" class="btn-save">&#128190; Save</button> *@
 
-            @if(facultyCode == "2")
+            @* @if(facultyCode == "2")
             {
                 <!-- 🔹 NEXT -->
                 <a asp-controller="ContinuationAffiliationClinicalFacilities"
                    asp-action="ClinicalFacilities"
                    class="btn-next">Next →</a>
             } else
-            {
+            { *@
                 <!-- 🔹 NEXT -->
-                <a asp-controller="Aff_AHS_ContinuousApplication"
+                <a asp-controller="Aff_AHS_ContinousApplication"
                    asp-action="CA_VehicleDetails"
                    class="btn-next">Next →</a>
-            }
+            @* } *@
 
             @* </div> *@
 

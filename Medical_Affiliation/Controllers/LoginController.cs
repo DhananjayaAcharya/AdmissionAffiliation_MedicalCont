@@ -123,7 +123,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(AdmissionLoginViewModel model)
+        public async Task<IActionResult> Login(AdmissionLoginViewModel model)   
         {
             // Reload dropdowns
             model.Faculties = _context.Faculties
@@ -189,12 +189,35 @@ namespace Medical_Affiliation.Controllers
                                      .FirstOrDefaultAsync();
 
             var ExistingCourseLevels = await (
-                                        from cc in _context.CollegeCourseIntakeDetails
-                                        join cm in _context.MstCourses
-                                            on cc.CourseCode equals cm.CourseCode.ToString()
-                                        where cc.CollegeCode == user.CollegeCode
-                                        select cm.CourseLevel
-                                    ).Distinct().ToListAsync();
+                        from cc in _context.CollegeCourseIntakeDetails
+                        join cm in _context.MstCourses
+                            on cc.CourseCode equals cm.CourseCode.ToString()
+                        where cc.CollegeCode == user.CollegeCode
+                        select cm.CourseLevel
+                    ).Distinct().ToListAsync();
+
+            // If no course levels found, fetch from AcademicIntake -> Courses
+            if (!ExistingCourseLevels.Any())
+            {
+                var academicCourses = await _context.AcademicIntakes
+                    .Where(ai => ai.CollegeCode == user.CollegeCode &&
+                                 !string.IsNullOrEmpty(ai.Courses))
+                    .Select(ai => ai.Courses)
+                    .ToListAsync();
+
+                var courseCodes = academicCourses
+                    .SelectMany(c => c!
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    .Select(c => c.Trim())
+                    .Distinct()
+                    .ToList();
+
+                ExistingCourseLevels = await _context.MstCourses
+                    .Where(cm => courseCodes.Contains(cm.CourseCode.ToString()))
+                    .Select(cm => cm.CourseLevel)
+                    .Distinct()
+                    .ToListAsync();
+            }
 
             var userIP = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
@@ -240,7 +263,8 @@ namespace Medical_Affiliation.Controllers
             //HttpContext.Session.SetString("ExistingCourseLevels", string.Join(",", ExistingCourseLevels ?? new List<string>()));
 
             // Use JsonSerializer to store the list as a proper JSON array ["UG","PG"]
-            HttpContext.Session.SetString("ExistingCourseLevels", JsonSerializer.Serialize(ExistingCourseLevels ?? new List<string>()));
+            var levels = JsonSerializer.Serialize(ExistingCourseLevels ?? new List<string>());
+            HttpContext.Session.SetString("ExistingCourseLevels", levels);
 
             return RedirectToAction("Dashboard", "CollegeLogin");
         }

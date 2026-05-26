@@ -712,9 +712,21 @@
                 <a asp-controller="CA_Med_ResearchPublications"
                    asp-action="CA_Med_ResearchPublicationsDetails"
                    class="btn-prev">← Previous</a>
+
+                @if (facultyCode == "1")
+                {
                 <a asp-controller="CA_Aff_MedicalLibrary"
                    asp-action="MedicalLibrary"
                    class="btn-save">Next →</a>
+                }
+
+                @if (facultyCode == "2")
+                {
+                <a asp-controller="FacultyDetails"
+                   asp-action="Repo_FacultyDetails"
+                   class="btn-save">Next →</a>
+                }
+
             </div>
 
         </div>

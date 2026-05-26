@@ -167,7 +167,14 @@ var authSchemes = new[]
 },
 };
 
-var authBuilder = builder.Services.AddAuthentication();
+var authBuilder = builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "CollegeAuth";
+    options.DefaultChallengeScheme = "CollegeAuth";
+    options.DefaultForbidScheme = "CollegeAuth";
+    options.DefaultSignInScheme = "CollegeAuth";
+    options.DefaultSignOutScheme = "CollegeAuth";
+});
 
 //var authBuilder = builder.Services.AddAuthentication(options =>
 //{
@@ -302,17 +309,10 @@ app.UseMiddleware<Medical_Affiliation.Utilities.LicInspectionSessionMiddleware>(
 app.UseAuthorization();
 
 
-var medicalFacultyPath = @"D:\MedicalUGFacultyList";
-
-if (!Directory.Exists(medicalFacultyPath))
-{
-    Directory.CreateDirectory(medicalFacultyPath);
-}
-
 app.UseStaticFiles(); // for wwwroot if needed
 
 // ===== D:\MedicalUGFacultyList Mapping =====
-var medicalPath = @"E:\MedicalUGFacultyList";
+var medicalPath = @"D:\MedicalUGFacultyList";
 
 // Auto create folders if not exists
 if (!Directory.Exists(medicalPath))

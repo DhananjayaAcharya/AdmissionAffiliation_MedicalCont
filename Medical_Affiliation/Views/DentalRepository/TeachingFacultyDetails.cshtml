@@ -5,6 +5,7 @@
     ViewData["Title"] = "Teaching Faculty Details";
     var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
     var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
+    var seatSlab = Context.Session.GetString("SeatSlab");
     Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     Context.Response.Headers["Pragma"] = "no-cache";
     Context.Response.Headers["Expires"] = "0";
@@ -856,11 +857,11 @@
                         All data is saved securely. You may proceed even without entries.
                     </div>
                     <div class="actions-right">
-                        <a asp-controller="MedicalRepository" asp-action="FacultyDetails" class="btn btn-ghost">
+                        @* <a asp-controller="MedicalRepository" asp-action="FacultyDetails" class="btn btn-ghost">
                             <i class="ri-arrow-left-line"></i> Previous
-                        </a>
+                        </a> *@
                         <button type="submit" class="btn btn-primary">
-                            <i class="ri-save-3-line"></i> Save &amp; Proceed
+                            <i class="ri-save-3-line"></i> Save
                         </button>
                     </div>
                 </div>
@@ -870,11 +871,20 @@
 
         <!-- ══ NAVIGATION FOOTER ══ -->
         <div class="nav-footer">
-            <a asp-controller="MedicalRepository" asp-action="FacultyDetails" class="btn-nav btn-nav-prev">
-                <i class="ri-arrow-left-line"></i> Previous Step
-            </a>
+            @if(facultyCode == "1"){
+                <a asp-controller="MedicalRepository" asp-action="FacultyDetails" class="btn-nav btn-nav-prev">
+                    <i class="ri-arrow-left-line"></i> Previous Step
+                </a>
+            }
+            
+            @if(facultyCode == "2"){
+                <a asp-controller="ContinuousAffiliationIncreaseintake" asp-action="IncreaseIntake" class="btn-nav btn-nav-prev">
+                    <i class="ri-arrow-left-line"></i> Previous Step
+                </a>
+            }
+            
             <button type="submit" form="teachingFacultyForm" class="btn-nav btn-nav-next">
-                Save &amp; Proceed <i class="ri-arrow-right-line"></i>
+               Next <i class="ri-arrow-right-line"></i>
             </button>
         </div>
 
