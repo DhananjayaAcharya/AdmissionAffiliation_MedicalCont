@@ -2842,7 +2842,12 @@ namespace Medical_Affiliation.Controllers
             }
 
             // 8. Success – redirect based on OrganizationCategory (G / P)
-            TempData["SuccessMessage"] = "Institution details saved successfully.";
+            //TempData["SuccessMessage"] = "Institution details saved successfully.";
+
+            if(facultyCode == "2")
+            {
+                return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
+            }
 
             // ✅ FIX 1: vm.TypeOfInstitution holds the selected InstitutionTypeId as a string
             // ✅ FIX 2: Parse it to int before querying MstInstitutionTypes

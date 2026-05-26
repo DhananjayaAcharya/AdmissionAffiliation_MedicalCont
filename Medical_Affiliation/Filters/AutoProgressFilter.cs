@@ -74,8 +74,26 @@ public class AutoProgressFilter : IAsyncActionFilter
             }
         }
 
-        // Final cleaning
-        levels = levels.Select(l => l.Trim().ToUpper()).Distinct().ToList();
+        // Fallback → get from AcademicIntake + MstCourses
+        if (!levels.Any())
+        {
+            levels = await (
+                from ai in _db.AcademicIntakes
+                join cm in _db.MstCourses
+                    on ai.Courses equals cm.CourseCode.ToString()
+                where ai.CollegeCode == collegeCode
+                      && !string.IsNullOrEmpty(ai.Courses)
+                select cm.CourseLevel
+            )
+            .Distinct()
+            .ToListAsync();
+        }
+
+        // Final cleanup
+        levels = levels
+            .Select(l => l.Trim().ToUpper())
+            .Distinct()
+            .ToList();
 
 
         if (string.IsNullOrEmpty(collegeCode) || levels.Count == 0)
@@ -129,6 +147,7 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key = "PgAssociatedInstitutions", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
             new CAStep { Key="TeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
+            new CAStep { Key="TeachingStaff", Ctrl="Dental", Act="TeachingStaffDepartmentWise" },
             new CAStep { Key="NonTeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
             new CAStep { Key="Hostel", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },

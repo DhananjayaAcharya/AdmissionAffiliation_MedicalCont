@@ -3,6 +3,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @inject ApplicationDbContext _context   // ✅ ADD
 @using System.Text.Json;
+@using Microsoft.EntityFrameworkCore;
 
 @{
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
@@ -11,10 +12,45 @@
 
     var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
 
-    var levels = string.IsNullOrEmpty(raw)
-    ? new List<string>()
-    : JsonSerializer.Deserialize<List<string>>(raw)
-        .Select(l => l.Trim().ToUpper())
+    List<string> levels = new();
+
+    if (!string.IsNullOrEmpty(raw))
+    {
+        try
+        {
+            if (raw.Trim().StartsWith("["))
+            {
+                levels = JsonSerializer.Deserialize<List<string>>(raw)
+                         ?? new List<string>();
+            }
+            else
+            {
+                levels = raw.Split(',').ToList();
+            }
+        }
+        catch
+        {
+            levels = new List<string>();
+        }
+    }
+
+    // fallback from AcademicIntake
+    if (!levels.Any())
+    {
+        levels = await (
+            from ai in _context.AcademicIntakes
+            join cm in _context.MstCourses
+                on ai.Courses equals cm.CourseCode.ToString()
+            where ai.CollegeCode == collegeCode
+                  && !string.IsNullOrEmpty(ai.Courses)
+            select cm.CourseLevel
+        )
+        .Distinct()
+        .ToListAsync();
+    }
+
+    levels = levels
+        .Select(x => x.Trim().ToUpper())
         .Distinct()
         .ToList();
 
@@ -35,7 +71,7 @@
     {
         // ================= BASIC DETAILS =================
         new StepItem{ Key="Institution", Label="Institution Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Institution_Details" },
-        new StepItem{ Key="TrustDetails", Label="Trust Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="aff_institutedetails" },
+        new StepItem{ Key="TrustDetails", Label="Trust Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_InstituteDetails" },
         new StepItem{ Key="TrustMemberDetails", Label="Trust Member Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
 
         // 👇 CONDITIONAL STEP
@@ -936,7 +972,10 @@
                      data-tab-content="@groupId">
                     @foreach (var step in group)
                     {
-                        var isActive = currentCtrl == step.Ctrl && currentAct == step.Act;
+                        var isActive =
+                            string.Equals(currentCtrl, step.Ctrl, StringComparison.OrdinalIgnoreCase)
+                            &&
+                            string.Equals(currentAct, step.Act, StringComparison.OrdinalIgnoreCase);
                         var isDone = doneSteps.Contains(step.Key);
 
                         string dotCls = isActive ? "ca-dot ca-dot-current"
