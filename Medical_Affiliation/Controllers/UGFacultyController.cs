@@ -20,7 +20,7 @@ namespace Medical_Affiliation.Controllers
         private readonly IWebHostEnvironment _environment;
 
         // ===== BASE STORAGE PATH (outside wwwroot — secure) =====
-        private readonly string BaseFolder = @"E:\MedicalUGFacultyList";
+        private readonly string BaseFolder = @"D:\MedicalUGFacultyList";
 
         // ===== PHOTO FOLDER =====
         private string PhotosFolder => Path.Combine(BaseFolder, "Photos");
@@ -46,24 +46,48 @@ namespace Medical_Affiliation.Controllers
         [Route("Photo")]
         public IActionResult Photo(string file)
         {
+            // Validate input
             if (string.IsNullOrWhiteSpace(file))
                 return NotFound();
 
-            // Security: strip any path traversal attempts
-            var safeFileName = Path.GetFileName(file);
+            // Normalize slashes
+            file = file.Replace("\\", "/");
+
+            // Extract only filename
+            // Handles:
+            // MedicalUGFacultyList/Photos/guid.jpg
+            // E:/MedicalUGFacultyList/Photos/guid.jpg
+            // guid.jpg
+            string safeFileName = Path.GetFileName(file);
+
             if (string.IsNullOrWhiteSpace(safeFileName))
                 return NotFound();
 
-            var allowedExts = new[] { ".jpg", ".jpeg", ".png" };
-            var ext = Path.GetExtension(safeFileName).ToLowerInvariant();
+            // Allowed extensions
+            string[] allowedExts = { ".jpg", ".jpeg", ".png" };
+
+            string ext = Path.GetExtension(safeFileName).ToLowerInvariant();
+
             if (!allowedExts.Contains(ext))
                 return NotFound();
 
-            var fullPath = Path.Combine(PhotosFolder, safeFileName);
+            // Physical file path
+            string fullPath = Path.Combine(PhotosFolder, safeFileName);
+
+            // File check
             if (!System.IO.File.Exists(fullPath))
                 return NotFound();
 
-            var mimeType = ext == ".png" ? "image/png" : "image/jpeg";
+            // MIME type
+            string mimeType = ext switch
+            {
+                ".png" => "image/png",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                _ => "application/octet-stream"
+            };
+
+            // Return image
             return PhysicalFile(fullPath, mimeType);
         }
 
@@ -120,7 +144,7 @@ namespace Medical_Affiliation.Controllers
                                 DeptName = dept.DepartmentName,
                                 DesigName = desig.DesignationName
                             })
-                            .ToList();
+                            .ToList().Distinct();
 
                 var rows = data
                     .GroupBy(x => new
@@ -204,7 +228,7 @@ namespace Medical_Affiliation.Controllers
                                    TeachingExpInYrs = faculty.TeachingExpInYrs ?? "",
                                    PhotoFilePath = faculty.PhotoFilePath ?? ""
                                })
-                               .ToList();
+                               .ToList().Distinct();
 
                 var rows = rawData
                     .OrderBy(x => x.DepartmentName)
@@ -357,8 +381,8 @@ namespace Medical_Affiliation.Controllers
             if (!allowedExts.Contains(ext))
                 return Json(new { success = false, message = "Only JPG and PNG files are allowed." });
 
-            if (photo.Length > 2 * 1024 * 1024)
-                return Json(new { success = false, message = "Photo must be under 2 MB." });
+            if (photo.Length > 1 * 1024 * 1024)
+                return Json(new { success = false, message = "Photo must be under 1 MB." });
 
             if (!Directory.Exists(PhotosFolder))
                 Directory.CreateDirectory(PhotosFolder);
@@ -624,7 +648,7 @@ namespace Medical_Affiliation.Controllers
                                    PanNo = f.Panno ?? "",
                                    StateCouncilRegNo = f.StateCouncilRegNo ?? ""
                                })
-                               .ToList();
+                               .ToList().Distinct();
 
             var facultyDtos = facultyList.Select((f, i) => new UgFacultyDto
             {
@@ -700,30 +724,24 @@ namespace Medical_Affiliation.Controllers
         private string BuildPhotoUrl(string storedPath)
         {
             if (string.IsNullOrWhiteSpace(storedPath))
-                return "";
+                return string.Empty;
 
-            // Case 1: already a full HTTP URL
-            if (storedPath.StartsWith("http://") || storedPath.StartsWith("https://"))
-                return storedPath;
+            // Normalize slashes
+            storedPath = storedPath.Replace("\\", "/").Trim();
 
-            // Extract just the filename from whatever format is stored
-            // This safely handles:
-            //   "guid.jpg"                                    → "guid.jpg"
-            //   "/MedicalUGFacultyList/Photos/guid.jpg"       → "guid.jpg"
-            //   "E:\MedicalUGFacultyList\Photos\guid.jpg"     → "guid.jpg"
-            //   "E:/MedicalUGFacultyList/Photos/guid.jpg"     → "guid.jpg"
-            var normalized = storedPath.Replace('\\', '/');
-            var fileName = normalized.Contains('/')
-                                 ? normalized.Substring(normalized.LastIndexOf('/') + 1)
-                                 : normalized;
+            // Extract filename only
+            string fileName = Path.GetFileName(storedPath);
 
             if (string.IsNullOrWhiteSpace(fileName))
-                return "";
+                return string.Empty;
 
-            // Return route to the Photo() action which reads directly from disk
-            return $"/UGFaculty/Photo?file={Uri.EscapeDataString(fileName)}";
+            // Return controller URL
+            return Url.Action(
+                action: "Photo",
+                controller: "UGFaculty",
+                values: new { file = fileName }
+            ) ?? string.Empty;
         }
-
         private IActionResult GenerateFacultyFile(string collegeCode, List<UgFacultyDetail> list, bool isUniversity)
         {
             var sb = new StringBuilder();
