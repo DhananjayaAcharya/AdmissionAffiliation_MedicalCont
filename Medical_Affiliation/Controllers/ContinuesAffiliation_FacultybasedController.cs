@@ -4066,6 +4066,12 @@ namespace Medical_Affiliation.Controllers
                 // 💾 Final commit
                 _context.SaveChanges();
 
+                if(facultyCode == "2")
+                {
+
+                    TempData["SuccessMessage"] = "Principal details saved successfully.";
+                    return RedirectToAction("Ug_Course_Details");
+                }
                 TempData["SuccessMessage"] = "Principal details saved successfully.";
                 return RedirectToAction("Details_Of_MBBS");
             }

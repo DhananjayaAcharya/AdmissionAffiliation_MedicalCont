@@ -160,7 +160,7 @@ namespace Medical_Affiliation.Controllers
                                     DeleteFileIfExists(db.Ay2025LopDentalDocument, "AY2025_LOP_DENTAL");
                                     db.Ay2025LopDentalDocument =
                                         await SaveFileAsync(
-                                            vm.AY2025_LopDocument,
+                                            vm.AY2025_LopDentalDocument,
                                             "AY2025_LOP_DENTAL");
                                 }
 

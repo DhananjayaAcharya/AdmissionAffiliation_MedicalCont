@@ -53,7 +53,7 @@ namespace Medical_Affiliation.Controllers
                 from ai in _context.AcademicIntakes
                 join mc in _context.MstCourses
                     on ai.Courses equals mc.CourseCode.ToString()
-                where ai.CollegeCode == collegeCode
+                where ai.CollegeCode == collegeCode && ai.Ay2026TotalIntake > 0 
                       && !string.IsNullOrEmpty(ai.Courses)
                 select mc.CourseLevel
             )
