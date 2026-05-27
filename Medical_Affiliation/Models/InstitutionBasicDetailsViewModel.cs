@@ -477,6 +477,7 @@ namespace Medical_Affiliation.Models
         // New fields as per the image (Section c, d, e, f)
         public string SanctionedIntake_Permission { get; set; } = string.Empty;   // Column in section c
         public string DateOfLOP_Renewal_GOIMCI { get; set; } = string.Empty;      // "Date of LOP & renewal from GOI/MCI/NMC for UG"
+        public string DateOfLOP_Renewal_DCIKSDC { get; set; } = string.Empty;      // "Date of LOP & renewal from GOI/MCI/NMC for UG"
 
         // d. EC & FC (already have year and sanctioned, kept for consistency)
         // e. Last affiliation by RGUHS

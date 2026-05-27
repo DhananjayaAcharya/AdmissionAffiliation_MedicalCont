@@ -337,7 +337,7 @@
                                                                         }, new { @class = "form-control recognized-pg-teacher" })
                                 </td>
                                 <td>
-                                        <input type="file" name="[@i].GuideRecognitionDoc" class="form-control guide-recognition-doc" accept=".pdf,application/pdf"
+                                        <input type="file" name="[@i].GuideRecognitionDoc" class="form-control guide-recognition-doc" accept=".pdf"
                                            style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none")" />
                                 </td>
                                 <td>@Html.TextBoxFor(m => m[i].Mobile, new { @class = "form-control" })</td>
@@ -427,7 +427,7 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="file" name="[${rowIndex}].GuideRecognitionDoc" class="form-control guide-recognition-doc" style="display:none;" accept=".pdf,application/pdf"/>
+                                <input type="file" name="[${rowIndex}].GuideRecognitionDoc" class="form-control guide-recognition-doc" style="display:none;" accept=".pdf"/>
                             </td>
                             <td><input name="[${rowIndex}].Mobile" class="form-control" /></td>
                             <td><input name="[${rowIndex}].Email" class="form-control" /></td>

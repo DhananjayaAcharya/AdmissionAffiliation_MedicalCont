@@ -11,7 +11,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public Aff_CA_Med_FinanceDetailsController(ApplicationDbContext context)
+        public Aff_CA_Med_FinanceDetailsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

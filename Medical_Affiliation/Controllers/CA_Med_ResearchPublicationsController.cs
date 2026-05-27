@@ -11,7 +11,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public CA_Med_ResearchPublicationsController(ApplicationDbContext context)
+        public CA_Med_ResearchPublicationsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

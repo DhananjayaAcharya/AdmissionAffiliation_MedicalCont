@@ -101,7 +101,8 @@ public class AutoProgressFilter : IAsyncActionFilter
 
         var ctrl = context.RouteData.Values["controller"]?.ToString();
         var act = context.RouteData.Values["action"]?.ToString();
-
+        Console.WriteLine($"CTRL = [{ctrl}]");
+        Console.WriteLine($"ACT = [{act}]");
         // 🔥 STEP LIST (same as sidebar — keys must match)
         var allSteps = new List<CAStep>
         {
@@ -110,6 +111,7 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key="TrustMemberDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
             // ✅ ADD THIS
             new CAStep { Key="MBBSDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Details_Of_MBBS" },
+            new CAStep { Key="BDSDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Ug_Course_Details" },
 
             new CAStep { Key="FacultyDetails", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
             new CAStep { Key="DeanDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
@@ -120,10 +122,11 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key="SkillsLab", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
             new CAStep { Key="DentalSkillsLab", Ctrl="PhysicalInfrastructure", Act="DentalSkillsLaboratory" },
             new CAStep { Key="EquipmentDetails", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
-            new CAStep { Key="DentalEquipmentDetails", Ctrl="Dental", Act="EquipmentList" },
+            new CAStep { Key="DentalEquipmentDetails", Ctrl="Dental", Act="SaveEquipment" },
             new CAStep { Key="EquipmentMaster", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
 
             new CAStep { Key="ClinicalFacilities", Ctrl="ContinuationAffiliationClinicalFacilities", Act="SaveOperationTheatreRequirements" },
+            new CAStep { Key="ClinicalFacilities", Ctrl="ContinuationAffiliationClinicalFacilities", Act="SaveDentalWardDistribution" },
             new CAStep { Key="Vehicle", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
             new CAStep { Key="BedDistribution", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
             new CAStep { Key="ChairDistribution", Ctrl="PhysicalInfrastructure", Act="ChairDistribution" },
@@ -139,10 +142,11 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep{ Key="PGAcademicMatters", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMattersPG" },
 
             new CAStep { Key="Finance", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
-            new CAStep { Key="StaffDetails", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
+            new CAStep { Key="StaffDetails", Ctrl="CA_Med_StaffDetails", Act="SavePayScale" },
 
             new CAStep { Key="Research", Ctrl="CA_Med_ResearchPublications", Act="CA_Med_ResearchPublicationsDetails" },
             new CAStep { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
+            new CAStep { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Act="SaveFinance" },
             new CAStep { Key="LibraryServices", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
             new CAStep { Key = "PgAssociatedInstitutions", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
@@ -151,7 +155,7 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key="NonTeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
             new CAStep { Key="Hostel", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
-            //new CAStep { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
+            new CAStep { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
 
             new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
             new CAStep{ Key = "SsCoursesOffered",  Ctrl = "AffiliationSS", Act = "CoursesOffered" },

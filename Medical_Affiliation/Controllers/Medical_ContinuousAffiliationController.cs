@@ -15,7 +15,7 @@ namespace Medical_Affiliation.Controllers
 
         private readonly ApplicationDbContext _context;
 
-        public Medical_ContinuousAffiliationController(ApplicationDbContext context)
+        public Medical_ContinuousAffiliationController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

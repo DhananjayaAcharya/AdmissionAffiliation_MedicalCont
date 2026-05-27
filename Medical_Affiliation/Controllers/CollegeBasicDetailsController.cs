@@ -16,7 +16,7 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
         private readonly SessionUserContext _userContext;
 
-        public CollegeBasicDetailsController(ApplicationDbContext context)
+        public CollegeBasicDetailsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

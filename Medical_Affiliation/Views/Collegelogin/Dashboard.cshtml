@@ -1169,19 +1169,79 @@
         </div>
     }
 
+    <div class="modal fade" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form asp-action="UpdatePassword" asp-controller="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updatePasswordModalLabel">Change Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="CollegeCode" value="@collegeCode" />
+                        <div class="mb-3 position-relative">
+                            <label for="NewPassword" class="form-label">New Password</label>
+
+                            <input type="password"
+                                   class="form-control"
+                                   id="NewPassword"
+                                   name="UpdatedPassword"
+                                   required
+                                   minlength="8"
+                                   maxlength="20"
+                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{8,20}$"
+                                   title="Password must be 8-20 characters and include uppercase, lowercase, number, and special character."
+                                   autocomplete="new-password" />
+
+                            <span class="position-absolute top-50 end-0 translate-middle-y pe-3 toggle-password"
+                                  style="cursor:pointer; transform: translateY(-50%);">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </span>
+
+                            <small class="text-muted">
+                                Password must contain:
+                                uppercase, lowercase, number, special character, and minimum 8 characters.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         @if (TempData["ShowWelcomePopup"] != null && (bool)TempData["ShowWelcomePopup"])
         {
-                    <text>
-                    var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
-                    welcomeModal.show();
-                    document.getElementById('btnChangePassword').addEventListener('click', function () {
-                        welcomeModal.hide();
-                        window.location.href = '@Url.Action("ChangePassword", "Collegelogin")';
-                    });
-                    </text>
+            <text>
+                var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+                welcomeModal.show();
+
+                document.getElementById('btnChangePassword')
+                .addEventListener('click', function () {
+
+                // Hide welcome modal
+                welcomeModal.hide();
+
+                // Wait slightly before opening next modal
+                setTimeout(function () {
+
+                var updatePasswordModal = new bootstrap.Modal(
+                document.getElementById('updatePasswordModal')
+                );
+
+                updatePasswordModal.show();
+
+                }, 400);
+                });
+            </text>
         }
     </script>
     <script>

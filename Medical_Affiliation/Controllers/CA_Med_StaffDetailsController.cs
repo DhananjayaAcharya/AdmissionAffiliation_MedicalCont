@@ -9,7 +9,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public CA_Med_StaffDetailsController(ApplicationDbContext context)
+        public CA_Med_StaffDetailsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -62,17 +62,7 @@ namespace Medical_Affiliation.Controllers
         {
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
 
-            var levels = string.IsNullOrEmpty(raw)
-                ? new List<string> { "UG" }
-                : System.Text.Json.JsonSerializer
-                    .Deserialize<List<string>>(raw)
-                    .Select(x => x.Trim().ToUpper())
-                    .Distinct()
-                    .OrderBy(x =>
-                        x == "UG" ? 1 :
-                        x == "PG" ? 2 :
-                        x == "SS" ? 3 : 99)
-                    .ToList();
+            var levels = await GetSortedCourseLevels();
 
             var vm = await LoadStaffViewModel();
 
@@ -117,15 +107,7 @@ namespace Medical_Affiliation.Controllers
 
             // Changes by Ram on 23/04/2026
 
-            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
-
-            var levels = string.IsNullOrEmpty(raw)
-                ? new[] { "UG" }
-                : System.Text.Json.JsonSerializer
-                    .Deserialize<List<string>>(raw)
-                    .Select(x => x.Trim().ToUpper())
-                    .Distinct()
-                    .ToArray();
+            var levels = await GetSortedCourseLevels();
 
 
             foreach (var item in model.StaffPayScaleList)
@@ -201,17 +183,7 @@ namespace Medical_Affiliation.Controllers
 
             // Changes by Ram on 23/04/2026
 
-            var raw =
-                HttpContext.Session.GetString("ExistingCourseLevels");
-
-            var levels =
-                string.IsNullOrEmpty(raw)
-                ? new[] { "UG" }
-                : System.Text.Json.JsonSerializer
-                    .Deserialize<List<string>>(raw)
-                    .Select(x => x.Trim().ToUpper())
-                    .Distinct()
-                    .ToArray();
+            var levels = await GetSortedCourseLevels();
 
             // Changes by Ram on 24/04/26
             // Validate only if file not newly uploaded AND no old file exists

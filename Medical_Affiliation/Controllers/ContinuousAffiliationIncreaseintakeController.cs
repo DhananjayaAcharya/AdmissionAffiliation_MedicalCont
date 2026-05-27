@@ -10,7 +10,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public ContinuousAffiliationIncreaseintakeController(ApplicationDbContext context)
+        public ContinuousAffiliationIncreaseintakeController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

@@ -16,7 +16,7 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
 
-        public DentalController(ApplicationDbContext context, IUserContext userContext)
+        public DentalController(ApplicationDbContext context, IUserContext userContext) : base(context)
         {
             this._context = context;
             this._userContext = userContext;

@@ -50,4 +50,6 @@ public partial class AffiliationCourseDetail
     public string? PreviousNotificationFilesPath { get; set; }
 
     public string? LastAffiliationRguhsfilePath { get; set; }
+
+    public string? DateOfLoprenewalDciksdc { get; set; }
 }

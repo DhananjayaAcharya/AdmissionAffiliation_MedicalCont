@@ -150,10 +150,12 @@
             border-radius: 8px;
         }
 
-        .custom-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+            .custom-table {
+                width: max-content;
+                min-width: 100%;
+                border-collapse: collapse;
+                table-layout: auto;
+            }
 
         .custom-table thead {
             position: sticky;
@@ -162,10 +164,13 @@
             background: #f8f9fc;
         }
 
-        .custom-table th, .custom-table td {
+        .custom-table th,
+        .custom-table td {
             padding: 12px 16px;
             border-bottom: 1px solid var(--border);
             vertical-align: middle;
+            white-space: nowrap;
+            min-width: 140px;
         }
 
         .custom-table th {
@@ -179,6 +184,25 @@
 
         .custom-table tr:hover {
             background: #f8fbff;
+        }
+
+        .custom-table th:first-child,
+        .custom-table td:first-child {
+            min-width: 70px;
+        }
+
+        .custom-table th:last-child,
+        .custom-table td:last-child {
+            min-width: 110px;
+        }
+
+        .custom-table td:nth-child(10) {
+            min-width: 240px;
+        }
+
+        /* Department dropdown wider */
+        .dept-dropdown {
+            min-width: 220px;
         }
 
         /* Form Controls */
@@ -356,7 +380,7 @@
                                             <td colspan="2">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <label class="fw-semibold mb-0">Upload Document <span class="text-danger">*</span></label>
-                                                    <input type="file" accept=".pdf,application/pdf" class="form-control form-control-sm pdf-input file-validate"
+                                                    <input type="file" accept=".pdf" class="form-control form-control-sm pdf-input file-validate"
                                                            style="max-width:280px" asp-for="LibraryServices[@i].UploadedPdf"
                                                            accept=".pdf" data-has-file="@(!string.IsNullOrEmpty(row.ExistingFileName))" />
                                                     @if (!string.IsNullOrEmpty(row.ExistingFileName))
@@ -395,7 +419,7 @@
                         </p>
                         <div class="d-flex align-items-center gap-3">
                             <label class="fw-semibold">Upload Document <span class="text-danger">*</span></label>
-                            <input asp-for="UsageReportPdf" accept=".pdf,application/pdf" type="file" class="form-control form-control-sm file-validate"
+                            <input asp-for="UsageReportPdf" accept=".pdf" type="file" class="form-control form-control-sm file-validate"
                             accept=".pdf" style="max-width:280px"
                             data-has-file="@(!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))" />
                             @if (!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))
@@ -644,7 +668,7 @@
                         </div>
 
                         <div id="specialPdfRow" class="align-items-center gap-3" style="display:none;">
-                            <input accept=".pdf,application/pdf" type="file" class="form-control file-validate" style="max-width:320px"
+                            <input accept=".pdf" type="file" class="form-control file-validate" style="max-width:320px"
                             asp-for="OtherDetails.SpecialFeaturesPdf" accept=".pdf" />
                             @if (Model.OtherDetails?.HasSpecialFeaturesPdf == true)
                             {

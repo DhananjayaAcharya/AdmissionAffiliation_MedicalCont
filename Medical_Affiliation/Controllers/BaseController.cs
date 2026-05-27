@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Medical_Affiliation.DATA;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace Medical_Affiliation.Controllers
@@ -9,6 +11,12 @@ namespace Medical_Affiliation.Controllers
     [Authorize(Policy = "CollegeOnly")]
     public class BaseController : Controller
     {
+        protected readonly ApplicationDbContext _context;
+
+        public BaseController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
         protected string? FacultyCode => User.FindFirst("FacultyCode")?.Value;
         protected string? CollegeCode => User.FindFirst("CollegeCode")?.Value;
 
@@ -35,22 +43,40 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
-        protected List<string> GetSortedCourseLevels(string raw)
+        protected async Task<List<string>> GetSortedCourseLevels()
         {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
             var order = new List<string> { "UG", "PG", "SS" };
 
-            var levels = string.IsNullOrEmpty(raw)
-                ? new List<string>()
-                : JsonSerializer.Deserialize<List<string>>(raw)?
-                    .Where(l => !string.IsNullOrWhiteSpace(l))
-                    .Select(l => l.Trim().ToUpper())
-                    .Distinct()
-                    .ToList() ?? new List<string>();
+            var levels = await (
+                from ai in _context.AcademicIntakes
+                join mc in _context.MstCourses
+                    on ai.Courses equals mc.CourseCode.ToString()
+                where ai.CollegeCode == collegeCode
+                      && !string.IsNullOrEmpty(ai.Courses)
+                select mc.CourseLevel
+            )
+            .Distinct()
+            .ToListAsync();
 
-            return levels
-                .OrderBy(l => order.Contains(l) ? order.IndexOf(l) : int.MaxValue)
+            levels = levels
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .Select(l => l.Trim().ToUpper())
+                .Distinct()
+                .OrderBy(l => order.Contains(l)
+                    ? order.IndexOf(l)
+                    : int.MaxValue)
                 .ThenBy(l => l)
                 .ToList();
+
+            // fallback
+            if (!levels.Any())
+            {
+                levels.Add("UG");
+            }
+
+            return levels;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)

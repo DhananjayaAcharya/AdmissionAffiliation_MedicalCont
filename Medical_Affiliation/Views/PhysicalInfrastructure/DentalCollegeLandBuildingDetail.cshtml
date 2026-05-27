@@ -167,7 +167,7 @@
                             </td>
 
                             <td>
-                                <<select name="HasFutureExpansionSpace" class="form-select">
+                                <select name="HasFutureExpansionSpace" class="form-select">
 
                                     <option value="">-- Select --</option>
 
@@ -493,7 +493,7 @@
                                     <label class="upload-btn">
                                         Upload File
 
-                                        <input asp-for="SaleDeedDocument" accept=".pdf,application/pdf" type="file" class="hidden-upload"  onchange="showFileName(this, 'saleDeedFileName')" />
+                                        <input asp-for="SaleDeedDocument" accept=".pdf" type="file" class="hidden-upload"  onchange="showFileName(this, 'saleDeedFileName')" />
                                     </label>
 
                                    @if (string.IsNullOrEmpty(Model.SaleDeedDocumentPath))
@@ -535,7 +535,7 @@
                                     <label class="upload-btn">
                                         Upload File
 
-                                        <input asp-for="EncumbranceCertificateDocument" type="file" accept=".pdf,application/pdf" class="hidden-upload" onchange="showFileName(this, 'encumbranceFileName')" />
+                                        <input asp-for="EncumbranceCertificateDocument" type="file" accept=".pdf" class="hidden-upload" onchange="showFileName(this, 'encumbranceFileName')" />
                                     </label>
 
                                     @if (string.IsNullOrEmpty(Model.EncumbranceCertificateDocumentPath))

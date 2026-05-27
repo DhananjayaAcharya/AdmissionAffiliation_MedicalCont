@@ -12,7 +12,7 @@ namespace Medical_Affiliation.Controllers
         public readonly ApplicationDbContext _context;
         public readonly IUserContext _userContext;
 
-        public AffiliationPaymentController(ApplicationDbContext context, IUserContext userContext)
+        public AffiliationPaymentController(ApplicationDbContext context, IUserContext userContext) : base(context)
         {
             _context = context;
             _userContext = userContext;

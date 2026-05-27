@@ -307,7 +307,7 @@
                                 <input name="AdmissionsAdmitted" value="@row.AdmissionsAdmitted" type="number" min="0" class="form-control" />
                             </td>
                             <td>
-                                <input type="file" name="GOKSanctionIntakeFile" class="form-control" required accept=".pdf,application/pdf" />
+                                <input type="file" name="GOKSanctionIntakeFile" class="form-control" required accept=".pdf" />
                                 @if (!string.IsNullOrEmpty(row.GOKSanctionIntakeFileName))
                                 {
                                     <div class="mt-1">
@@ -321,7 +321,7 @@
                                 }
                             </td>
                             <td>
-                                <input type="file" name="ApexBodyPermissionAndIntakeFile" class="form-control" required accept=".pdf,application/pdf" />
+                                <input type="file" name="ApexBodyPermissionAndIntakeFile" class="form-control" required accept=".pdf" />
                                 @if (!string.IsNullOrEmpty(row.ApexBodyPermissionAndIntakeFileName))
                                 {
                                     <div class="mt-1">
@@ -335,7 +335,7 @@
                                 }
                             </td>
                             <td>
-                                <input type="file" name="RGUHSSanctionIntakeFile" class="form-control" required accept=".pdf,application/pdf" />
+                                <input type="file" name="RGUHSSanctionIntakeFile" class="form-control" required accept=".pdf" />
                                 @if (!string.IsNullOrEmpty(row.RGUHSSanctionIntakeFileName))
                                 {
                                     <div class="mt-1">
@@ -349,7 +349,7 @@
                                 }
                             </td>
                             <td>
-                                <input type="file" name="GOIPermissionFile" class="form-control" required accept=".pdf,application/pdf" />
+                                <input type="file" name="GOIPermissionFile" class="form-control" required accept=".pdf" />
                                 @if (!string.IsNullOrEmpty(row.GOIPermissionFileName))
                                 {
                                     <div class="mt-1">

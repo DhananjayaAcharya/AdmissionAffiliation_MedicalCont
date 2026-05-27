@@ -17,13 +17,13 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
         private static readonly int?[] _yearIds = { 1, 2, 3, 4 }; // 1st, 2nd, 3rd, Final
 
-        public CA_Aff_AcademicMattersController(ApplicationDbContext context)
+        public CA_Aff_AcademicMattersController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
 
         [HttpGet]
-        public IActionResult AcademicMatters()
+        public async  Task<IActionResult> AcademicMatters()
         {
             //var courseLevel = HttpContext.Session.GetString("CourseLevel");
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -32,7 +32,7 @@ namespace Medical_Affiliation.Controllers
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
 
-            var levels = GetSortedCourseLevels(raw);
+            var levels = await GetSortedCourseLevels();
 
 
             var model = new CA_Aff_AcademicMattersViewModel
@@ -44,27 +44,27 @@ namespace Medical_Affiliation.Controllers
             };
 
             //x.CurriculumId == curriculumId);
-            var savedCurriculums = _context.CaCourseCurricula
+            var savedCurriculums = await _context.CaCourseCurricula
                 .Where(x => x.CollegeCode == model.CollegeCode &&
                             x.FacultyId == model.FacultyId &&
                             x.CourseLevel == model.CourseLevel &&
                             x.AffiliationType == model.AffiliationType)
-                .ToList();
+                .ToListAsync();
 
             // Load academic performance rows for this college/faculty/affiliation
-            var academics = _context.CaAcademicPerformances
+            var academics = await _context.CaAcademicPerformances
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyId == facultyId &&
                     //x.CourseLevel == courseLevel &&
                     x.AffiliationType == affiliationType &&
                     _yearIds.Any(y => y == x.YearOfStudyId))
-                .ToList();
+                .ToListAsync();
 
             // Year master
-            var yearMaster = _context.CaMstYearOfStudies
+            var yearMaster = await _context.CaMstYearOfStudies
                 .Where(y => _yearIds.Contains(y.YearOfStudyId))
-                .ToDictionary(y => y.YearOfStudyId, y => y.YearName);
+                .ToDictionaryAsync(y => y.YearOfStudyId, y => y.YearName);
 
             var academicRows = new List<AcademicPerformanceViewModel>();
             foreach (var y in _yearIds)
@@ -112,9 +112,9 @@ namespace Medical_Affiliation.Controllers
             // Course curriculum
 
             // ================= COURSE CURRICULUM (LIST) =================
-            var curriculumMasters = _context.CaMstCourseCurricula
+            var curriculumMasters = await _context.CaMstCourseCurricula
                 .OrderBy(c => c.CurriculumId)
-                .ToList();
+                .ToListAsync();
 
             //var savedCurriculums = _context.CaCourseCurricula
             //    .Where(x => x.CollegeCode == collegeCode
@@ -142,16 +142,16 @@ namespace Medical_Affiliation.Controllers
             ViewBag.CurriculumMasters = curriculumMasters;
 
             // Examination schemes: build master list and merge saved values
-            var savedSchemes = _context.CaExaminationSchemes
+            var savedSchemes = await _context.CaExaminationSchemes
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyId == facultyId &&
                             //x.CourseLevel == courseLevel &&
                             x.AffiliationType == affiliationType)
-                .ToList();
+                .ToListAsync();
 
-            var schemes = _context.CaMstExaminationSchemes
+            var schemes = await _context.CaMstExaminationSchemes
                 .OrderBy(s => s.SchemeId)
-                .ToList();
+                .ToListAsync();
 
             model.ExaminationSchemess = schemes
                 .Select(m =>
@@ -167,16 +167,16 @@ namespace Medical_Affiliation.Controllers
                 .ToList();
 
             // Student register records (multiple)
-            var registerMasters = _context.CaMstRegisterRecords
+            var registerMasters = await _context.CaMstRegisterRecords
                                          .OrderBy(r => r.RegisterRecordId)
-                                         .ToList();
+                                         .ToListAsync();
 
-            var savedRegisters = _context.CaStudentRegisterRecords
+            var savedRegisters = await _context.CaStudentRegisterRecords
                     .Where(x => x.CollegeCode == collegeCode &&
                                 x.FacultyId == facultyId &&
                                 //x.CourseLevel == courseLevel &&
                                 x.AffiliationType == affiliationType)
-                    .ToList();
+                    .ToListAsync();
 
             model.StudentRegisterRecords = registerMasters
                      .Select(m =>
@@ -197,14 +197,14 @@ namespace Medical_Affiliation.Controllers
 
 
             // ViewBag Masters
-            ViewBag.YearList = _context.CaMstYearOfStudies
+            ViewBag.YearList = await _context.CaMstYearOfStudies
                 .Where(y => _yearIds.Contains(y.YearOfStudyId))
                 .OrderBy(y => y.YearOfStudyId)
-                .ToList();
+                .ToListAsync();
 
-            ViewBag.RegisterRecords = _context.CaMstRegisterRecords
+            ViewBag.RegisterRecords = await _context.CaMstRegisterRecords
                 .OrderBy(r => r.RegisterRecordId)
-                .ToList();
+                .ToListAsync();
 
             //        ViewBag.CurriculumMasters = _context.CaMstCourseCurricula
             //.OrderBy(c => c.CurriculumId)     // or CurriculumName if you have that column
@@ -214,7 +214,7 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
-        public IActionResult AcademicMattersPG(string subjectCode = null)
+        public async Task<IActionResult> AcademicMattersPG(string subjectCode = null)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
@@ -223,7 +223,7 @@ namespace Medical_Affiliation.Controllers
             string courseLevel = "PG";
 
             // 🔹 SUBJECT MASTER (you must have table like this)
-            var subjects = (
+            var subjects = await (
                     from c in _context.MstCourses
                     join i in _context.CollegeCourseIntakeDetails
                         on c.CourseCode.ToString() equals i.CourseCode
@@ -236,11 +236,11 @@ namespace Medical_Affiliation.Controllers
                         Value = g.Key.CourseCode.ToString(),
                         Text = g.Key.SubjectName
                     }
-                ).ToList();
+                ).ToListAsync();
 
             if (!subjects.Any())
             {
-                subjects = (
+                subjects = await (
                     from ai in _context.AcademicIntakes
                     join c in _context.MstCourses
                         on ai.Courses equals c.CourseCode.ToString()
@@ -253,7 +253,7 @@ namespace Medical_Affiliation.Controllers
                         Value = g.Key.CourseCode.ToString(),
                         Text = g.Key.SubjectName
                     }
-                ).ToList();
+                ).ToListAsync();
             }
 
             var model = new CA_Aff_PgAcademicMattersViewModel
@@ -266,15 +266,15 @@ namespace Medical_Affiliation.Controllers
 
 
             // 🔹 YEAR MASTER
-            var yearMaster = _context.CaMstYearOfStudies
+            var yearMaster = await  _context.CaMstYearOfStudies
                 .OrderBy(y => y.YearOfStudyId)
-                .ToList();
+                .ToListAsync();
 
 
             ViewBag.YearList = yearMaster;
 
             // 🔹 EXISTING DATA
-            var academics = _context.CaAcademicPerformances
+            var academics = await _context.CaAcademicPerformances
                 .AsNoTracking()
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
@@ -282,7 +282,7 @@ namespace Medical_Affiliation.Controllers
                     x.AffiliationType == affiliationType &&
                     x.CourseLevel.ToUpper() == courseLevel
                     )
-                .ToList();
+                .ToListAsync();
 
 
             var sections = new List<PgSubjectSectionVM>();
@@ -597,7 +597,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AcademicMattersPG(CA_Aff_PgAcademicMattersViewModel model)
+        public async Task<IActionResult> AcademicMattersPG(CA_Aff_PgAcademicMattersViewModel model)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
@@ -610,13 +610,13 @@ namespace Medical_Affiliation.Controllers
             }
 
             // 🔹 GET EXISTING DB DATA
-            var existingRecords = _context.CaAcademicPerformances
+            var existingRecords = await _context.CaAcademicPerformances
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyId == facultyId &&
                     x.AffiliationType == affiliationType &&
                     x.CourseLevel == courseLevel)
-                .ToList();
+                .ToListAsync();
 
             // 🔹 CREATE LOOKUP (Subject + Year)
             var existingDict = existingRecords
@@ -690,7 +690,7 @@ namespace Medical_Affiliation.Controllers
             // 💾 SAVE
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 TempData["Success"] = "Academic data saved successfully";
             }
@@ -709,7 +709,7 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-        private void LoadAcademicMattersMasters(CA_Aff_AcademicMattersViewModel model)
+        private async void LoadAcademicMattersMasters(CA_Aff_AcademicMattersViewModel model)
         {
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
@@ -717,19 +717,19 @@ namespace Medical_Affiliation.Controllers
                 .Where(y => _yearIds.Contains(y.YearOfStudyId))
                 .ToList();
 
-            ViewBag.RegisterRecords = _context.CaMstRegisterRecords
+            ViewBag.RegisterRecords = await _context.CaMstRegisterRecords
 
-                .ToList();
+                .ToListAsync();
 
-            ViewBag.CurriculumMasters = _context.CaMstCourseCurricula
+            ViewBag.CurriculumMasters = await _context.CaMstCourseCurricula
     .OrderBy(c => c.CurriculumId)
-    .ToList();
+    .ToListAsync();
 
 
             // Ensure ExaminationSchemess is always populated with master rows (merge saved counts when available)
-            var schemes = _context.CaMstExaminationSchemes
+            var schemes = await _context.CaMstExaminationSchemes
                 .OrderBy(s => s.SchemeId)
-                .ToList();
+                .ToListAsync();
 
             var savedSchemes = new List<CaExaminationScheme>();
             if (!string.IsNullOrEmpty(model.CollegeCode) && model.FacultyId.HasValue)
@@ -754,9 +754,9 @@ namespace Medical_Affiliation.Controllers
             }).ToList();
 
             // Student Register Records – rebuild for validation failure
-            var registerMasters = _context.CaMstRegisterRecords
+            var registerMasters = await _context.CaMstRegisterRecords
                 .OrderBy(r => r.RegisterRecordId)
-                .ToList();
+                .ToListAsync();
 
             var savedRegisters = new List<CaStudentRegisterRecord>();
             if (!string.IsNullOrEmpty(model.CollegeCode) && model.FacultyId.HasValue)

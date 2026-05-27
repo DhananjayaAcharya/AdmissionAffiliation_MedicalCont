@@ -783,7 +783,7 @@
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                                             <input type="file" name="[@i].GuideRecognitionDoc" class="fc pg-doc file-validate"
-                                                       accept=".pdf,application/pdf"
+                                                       accept=".pdf"
                                                    style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].PGRecognitionDocData != null)
                                             {
@@ -803,7 +803,7 @@
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                                             <input type="file" name="[@i].PhDRecognitionDoc" class="fc phd-doc file-validate"
-                                                       accept=".pdf,application/pdf"
+                                                       accept=".pdf"
                                                    style="display:@(Model[i].RecognizedPhDTeacher == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].PhDRecognitionDocData != null)
                                             {
@@ -843,7 +843,7 @@
                                     <td>
                                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                                             <input type="file" name="[@i].LitigationDoc" class="fc litig-doc file-validate"
-                                                       accept=".pdf,application/pdf"
+                                                       accept=".pdf"
                                                    style="display:@(Model[i].LitigationPending == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].LitigationDocData != null)
                                             {
@@ -1038,7 +1038,7 @@
                         </select>
                     </td>
                     <td>
-        <input type="file" name="[${ri}].GuideRecognitionDoc" accept=".pdf,application/pdf" class="fc pg-doc file-validate" style="display:none;min-width:140px;" />
+        <input type="file" name="[${ri}].GuideRecognitionDoc" accept=".pdf" class="fc pg-doc file-validate" style="display:none;min-width:140px;" />
                     </td>
                     <td>
                         <select name="[${ri}].RecognizedPhDTeacher" class="fc phd-teacher">
@@ -1046,7 +1046,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="file" name="[${ri}].PhDRecognitionDoc" class="fc phd-doc file-validate" style="display:none;min-width:140px;" accept=".pdf,application/pdf" />
+                        <input type="file" name="[${ri}].PhDRecognitionDoc" class="fc phd-doc file-validate" style="display:none;min-width:140px;" accept=".pdf" />
                     </td>
                     <td><input name="[${ri}].Mobile"  class="fc" placeholder="10-digit" /></td>
                     <td><input name="[${ri}].Email"   class="fc" placeholder="email@domain.com" /></td>
@@ -1058,7 +1058,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="file" name="[${ri}].LitigationDoc" class="fc litig-doc file-validate" style="display:none;min-width:140px;" accept=".pdf,application/pdf" />
+                        <input type="file" name="[${ri}].LitigationDoc" class="fc litig-doc file-validate" style="display:none;min-width:140px;" accept=".pdf" />
                     </td>
                     <td style="text-align:center;white-space:nowrap;min-width:160px;">
                         <button type="button" class="btn-remove remove-row">
