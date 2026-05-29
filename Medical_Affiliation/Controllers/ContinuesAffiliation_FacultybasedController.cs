@@ -18,7 +18,7 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public ContinuesAffiliation_FacultybasedController(ApplicationDbContext context)
+        public ContinuesAffiliation_FacultybasedController(ApplicationDbContext context) : base(context)
         {
             _context = context;
 
@@ -1436,7 +1436,7 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
-        public IActionResult Aff_HostelDetails()
+        public async Task<IActionResult> Aff_HostelDetails()
         {
             var courseLevel = CourseLevel;
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -1447,21 +1447,20 @@ namespace Medical_Affiliation.Controllers
 
             var vm = new AffHostelDetailsCreateVm
             {
-                HostelTypes = _context.MstHosteltypes
+                HostelTypes = await _context.MstHosteltypes
                     .Select(x => new SelectListItem
                     {
                         Value = x.HospitalType,
                         Text = x.HospitalType
                     })
-                    .ToList()
+                    .ToListAsync()
             };
 
             // 🔥 LOAD EXISTING FIRST
-            var existing = _context.AffHostelDetails
-                .FirstOrDefault(h =>
+            var existing = await _context.AffHostelDetails
+                .FirstOrDefaultAsync(h =>
                     h.CollegeCode == collegeCode &&
-                    h.FacultyCode == facultyCode &&
-                    h.CourseLevel == courseLevel);
+                    h.FacultyCode == facultyCode);
 
             if (existing != null)
             {
@@ -1598,6 +1597,11 @@ namespace Medical_Affiliation.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            if(facultyCode == "2")
+            {
+                return RedirectToAction("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation");
+            }
 
             return RedirectToAction("IncreaseIntake", "ContinuousAffiliationIncreaseintake");
         }
@@ -3208,6 +3212,190 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
+        // GET: Load existing data
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        public async Task<IActionResult> Ug_Course_Details()
+        {
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
+
+            if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("ClgLogin");
+
+            var entity = await _context.AffiliationCourseDetails
+                .FirstOrDefaultAsync(x => x.Facultycode == facultyCode &&
+                                          x.Collegecode == collegeCode &&
+                                          x.CourseId == "BDS");
+
+            var model = new AffiliationCourseDetailsViewModel
+            {
+                Facultycode = facultyCode,
+                Collegecode = collegeCode,
+                CourseId = "BDS",
+                courseName = "BDS",
+
+                IntakeDuring_2025_26 = entity?.IntakeDuring202526 ?? "",
+                Intake_slab = entity?.IntakeSlab ?? "",
+                Typeofpermission = entity?.Typeofpermission ?? "",
+                yearofLOP = entity?.YearofLop,
+                dateofrecognition = entity?.Dateofrecognition ?? "",
+                yearofObtainingECandFC = entity?.YearofObtainingEcandFc,
+                sannctionedIntake_EC_FC = entity?.SannctionedIntakeEcFc ?? "",
+
+                // New fields
+                SanctionedIntake_Permission = entity?.SanctionedIntakePermission ?? "",
+                DateOfLOP_Renewal_DCIKSDC = entity?.DateOfLoprenewalDciksdc ?? "",
+                YearOfLastAffiliation_RGUHS = entity?.YearOfLastAffiliationRguhs ?? "",
+                SanctionedIntake_LastAffiliation = entity?.SanctionedIntakeLastAffiliation ?? "",
+                DateOfPreviousLICInspection = entity?.DateOfPreviousLicinspection,
+                ActionTakenOnDeficiencies = entity?.ActionTakenOnDeficiencies ?? "",
+
+                HasGOKOrder = entity?.GokorderPath != null && entity.GokorderPath.Length > 0,
+                HasLastAffiliationFile = entity?.LastAffiliationRguhsfilePath != null && entity.LastAffiliationRguhsfilePath.Length > 0,
+                HasPreviousNotificationFile = entity?.PreviousNotificationFilesPath != null && entity.PreviousNotificationFilesPath.Length > 0
+            };
+
+            return View(model);
+        }
+
+        // POST: Save / Update
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Ug_Course_Details(AffiliationCourseDetailsViewModel model)
+        {
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
+
+            if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("ClgLogin");
+
+            if (ModelState.IsValid)
+            {
+
+                model.Facultycode = facultyCode;
+                model.Collegecode = collegeCode;
+
+                var existingEntity = await _context.AffiliationCourseDetails
+                    .FirstOrDefaultAsync(x => x.Facultycode == model.Facultycode &&
+                                              x.Collegecode == model.Collegecode &&
+                                              x.CourseId == model.CourseId);
+
+                var entity = existingEntity ?? new AffiliationCourseDetail();
+
+                // Map fields
+                entity.Facultycode = model.Facultycode;
+                entity.Collegecode = model.Collegecode;
+                entity.CourseId = model.CourseId;
+                entity.CourseName = model.courseName;
+                entity.IntakeDuring202526 = model.IntakeDuring_2025_26;
+                entity.IntakeSlab = model.Intake_slab;
+                entity.Typeofpermission = model.Typeofpermission;
+                entity.YearofLop = model.yearofLOP;
+                entity.Dateofrecognition = model.dateofrecognition;
+                entity.YearofObtainingEcandFc = model.yearofObtainingECandFC;
+                entity.SannctionedIntakeEcFc = model.sannctionedIntake_EC_FC;
+
+                // New fields
+                entity.SanctionedIntakePermission = model.SanctionedIntake_Permission;
+                entity.DateOfLoprenewalDciksdc = model.DateOfLOP_Renewal_DCIKSDC;
+                entity.YearOfLastAffiliationRguhs = model.YearOfLastAffiliation_RGUHS;
+                entity.SanctionedIntakeLastAffiliation = model.SanctionedIntake_LastAffiliation;
+                entity.DateOfPreviousLicinspection = model.DateOfPreviousLICInspection;
+                entity.ActionTakenOnDeficiencies = model.ActionTakenOnDeficiencies;
+
+                // File: GOK Order (EC & FC)
+                // 🔥 File: GOK Order (EC & FC)
+                if (model.GOKorder != null && model.GOKorder.Length > 0)
+                {
+                    var gokPath = await SaveCourseFileAsync(model.GOKorder, "GOKOrders", FacultyCode);
+
+                    if (gokPath != null)
+                    {
+                        // 🔹 Delete old file
+                        if (!string.IsNullOrEmpty(entity.GokorderPath) &&
+                            System.IO.File.Exists(entity.GokorderPath))
+                        {
+                            System.IO.File.Delete(entity.GokorderPath);
+                        }
+
+                        entity.GokorderPath = gokPath;
+                    }
+                }
+
+                // 🔥 File: Last Affiliation by RGUHS
+                if (model.LastAffiliationRGUHSFile != null && model.LastAffiliationRGUHSFile.Length > 0)
+                {
+                    var rguhsPath = await SaveCourseFileAsync(model.LastAffiliationRGUHSFile, "RGUHS", FacultyCode);
+
+                    if (rguhsPath != null)
+                    {
+                        if (!string.IsNullOrEmpty(entity.LastAffiliationRguhsfilePath) &&
+                            System.IO.File.Exists(entity.LastAffiliationRguhsfilePath))
+                        {
+                            System.IO.File.Delete(entity.LastAffiliationRguhsfilePath);
+                        }
+
+                        entity.LastAffiliationRguhsfilePath = rguhsPath;
+                    }
+                }
+
+
+                if (model.PreviousNotificationFiles != null && model.PreviousNotificationFiles.Length > 0)
+                {
+                    var notificationPath = await SaveCourseFileAsync(model.PreviousNotificationFiles, "PreviousNotification", FacultyCode);
+
+                    if (notificationPath != null)
+                    {
+                        if (!string.IsNullOrEmpty(entity.PreviousNotificationFilesPath) &&
+                            System.IO.File.Exists(entity.PreviousNotificationFilesPath))
+                        {
+                            System.IO.File.Delete(entity.PreviousNotificationFilesPath);
+                        }
+
+                        entity.PreviousNotificationFilesPath = notificationPath;
+                    }
+                }
+
+
+
+                if (existingEntity == null)
+                {
+                    _context.AffiliationCourseDetails.Add(entity);
+                }
+
+                await _context.SaveChangesAsync();
+
+                //return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
+                //return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+                if(facultyCode == "2")
+                {
+
+                    return RedirectToAction("PgCourses", "AffiliationPgCourse");
+                }
+                return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
+
+                //var courseLevel = HttpContext.Session.GetString("CourseLevel");
+                //if (courseLevel == "UG")
+                //{
+                //    return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
+                //}
+                //else if (courseLevel == "PG")
+                //{
+                //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+                //}
+                //else if (courseLevel == "SS")
+                //{
+                //    return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased_SS");
+                //}
+            }
+
+            // Repopulate on validation error
+            model.Facultycode = facultyCode;
+            model.Collegecode = collegeCode;
+            return View(model);
+        }
+
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
@@ -3878,6 +4066,12 @@ namespace Medical_Affiliation.Controllers
                 // 💾 Final commit
                 _context.SaveChanges();
 
+                if(facultyCode == "2")
+                {
+
+                    TempData["SuccessMessage"] = "Principal details saved successfully.";
+                    return RedirectToAction("Ug_Course_Details");
+                }
                 TempData["SuccessMessage"] = "Principal details saved successfully.";
                 return RedirectToAction("Details_Of_MBBS");
             }
@@ -5011,6 +5205,10 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
+            if(facultyCode == "2")
+            {
+                return RedirectToAction("Preview", "CAPreview");
+            }
             return RedirectToAction("Aff_HostelDetails");
         }
 

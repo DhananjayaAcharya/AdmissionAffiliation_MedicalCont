@@ -41,7 +41,7 @@
             from ai in _context.AcademicIntakes
             join cm in _context.MstCourses
                 on ai.Courses equals cm.CourseCode.ToString()
-            where ai.CollegeCode == collegeCode
+            where ai.CollegeCode == collegeCode && ai.Ay2026TotalIntake > 0
                   && !string.IsNullOrEmpty(ai.Courses)
             select cm.CourseLevel
         )
@@ -317,7 +317,7 @@
             });
     }
     // ✅ Add MBBS ONLY for UG
-    if (levels.Contains("UG"))
+    if (levels.Contains("UG") && facultyCode == "1")
     {
         allSteps.Insert(1, new StepItem
         {
@@ -326,6 +326,17 @@
             Group = "Intake Details",
             Ctrl = "ContinuesAffiliation_Facultybased",
             Act = "Details_Of_MBBS"
+        });
+    }
+    else if (levels.Contains("UG") && facultyCode == "2")
+    {
+        allSteps.Insert(1, new StepItem
+        {
+            Key = "BDSDetails",
+            Label = "UG Course Details",
+            Group = "Intake Details",
+            Ctrl = "ContinuesAffiliation_Facultybased",
+            Act = "Ug_Course_Details"
         });
     }
 

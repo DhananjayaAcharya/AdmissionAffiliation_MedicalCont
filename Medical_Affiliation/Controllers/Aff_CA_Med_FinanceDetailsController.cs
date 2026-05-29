@@ -11,7 +11,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public Aff_CA_Med_FinanceDetailsController(ApplicationDbContext context)
+        public Aff_CA_Med_FinanceDetailsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -19,6 +19,8 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> Med_CA_AccountAndFeeDetails()
         {
+
+
             //var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -39,16 +41,7 @@ namespace Medical_Affiliation.Controllers
             // If no levels found, then take from AcademicIntake
             if (!levels.Any())
             {
-                levels = await (
-                    from ai in _context.AcademicIntakes
-                    join cm in _context.MstCourses
-                        on ai.Courses equals cm.CourseCode.ToString()
-                    where ai.CollegeCode == CollegeCode
-                          && !string.IsNullOrEmpty(ai.Courses)
-                    select cm.CourseLevel
-                )
-                .Distinct()
-                .ToListAsync();
+                levels = await GetSortedCourseLevels();
             }
 
             levels = levels

@@ -747,9 +747,17 @@
                     }
                     else
                     {    *@
+                    @if (facultyCode == "2")
+                    {
+                        <a asp-controller="ContinuesAffiliation_Facultybased"
+                           asp-action="Ug_Course_Details"
+                           class="btn-next"> Next</a>
+                    }
+                    @if(facultyCode != "2"){
                         <a asp-controller="Medical_ContinuousAffiliation"
                            asp-action="Medical_LandBuildingdetails"
                            class="btn-next"> Next</a>
+                    }
                     @* } *@
                 </div>
 

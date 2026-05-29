@@ -13,7 +13,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public CA_Aff_MedicalLibraryController(ApplicationDbContext context)
+        public CA_Aff_MedicalLibraryController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -880,8 +880,18 @@ namespace Medical_Affiliation.Controllers
 
                 transaction.Commit();
 
-                TempData["Success"] =
-                    "Medical Library details saved successfully.";
+                //if(FacultyCode == "1")
+                //{
+
+                //TempData["Success"] =
+                //    "Medical Library details saved successfully.";
+                //}
+                //if(FacultyCode == "2")
+                //{
+
+                //TempData["Success"] =
+                //    "Dental Library details saved successfully.";
+                //}
 
                 return RedirectToAction(nameof(MedicalLibrary));
             }

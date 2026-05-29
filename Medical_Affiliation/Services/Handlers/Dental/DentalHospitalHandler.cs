@@ -552,7 +552,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
 
             var clinicalCapacityVM = new ClinicalCapacityViewModel
             {
-                hospitalDetailsId = hospital.HospitalDetailsId,
+                hospitalDetailsId = hospital?.HospitalDetailsId ?? 0,
                 SeatSlab = seatSlab,
                 Form = hospital == null
                     ? new ClinicalCapacityFormVM

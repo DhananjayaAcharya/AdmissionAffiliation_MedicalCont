@@ -12,7 +12,7 @@ namespace Medical_Affiliation.Controllers
 
         private readonly ApplicationDbContext _context;
 
-        public FacultyDetailsController(ApplicationDbContext context)
+        public FacultyDetailsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -421,6 +421,10 @@ namespace Medical_Affiliation.Controllers
                 _context.SaveChanges();
                 transaction.Commit();
 
+                if(facultyCode== "2")
+                {
+                    return RedirectToAction("TeachingStaffDepartmentWise", "Dental");
+                }
                 //return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
                 return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
             }

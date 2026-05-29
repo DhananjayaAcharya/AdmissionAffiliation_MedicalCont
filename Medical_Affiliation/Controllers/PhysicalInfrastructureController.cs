@@ -13,7 +13,7 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
 
-        public PhysicalInfrastructureController(ApplicationDbContext context, IUserContext userContext)
+        public PhysicalInfrastructureController(ApplicationDbContext context, IUserContext userContext) : base(context)
         {
             this._context = context;
             this._userContext = userContext;
@@ -690,7 +690,7 @@ namespace Medical_Affiliation.Controllers
             // DOCUMENT UPLOAD BASE PATH
             // ==============================
 
-            string baseFolder = Path.Combine( "D:\\DentalCollegeDetails\\LandAndBuildingDetails", collegeCode);
+            string baseFolder = Path.Combine( BaseDentalPath,"LandAndBuildingDetails", collegeCode);
 
             if (!Directory.Exists(baseFolder))
             {

@@ -9,7 +9,7 @@ namespace Medical_Affiliation.Controllers
     public class ClinicalFacilitiesForAffiliationController : BaseController
     {
         private readonly ApplicationDbContext _context;
-        public ClinicalFacilitiesForAffiliationController(ApplicationDbContext context)
+        public ClinicalFacilitiesForAffiliationController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

@@ -183,7 +183,7 @@
                                         {
                                             <a href="@Url.Action("ViewFile", "Aff_Medical", new { id = Model.UGDetailsList[i].Id, fileType = "RGUHS" })" target="_blank">View File</a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="UGDetailsList[@i].RGUHSNotificationFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="UGDetailsList[@i].RGUHSNotificationFile" />
                                     </td>
 
 
@@ -194,7 +194,7 @@
                                                 View File
                                             </a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="UGDetailsList[@i].GMCFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="UGDetailsList[@i].GMCFile" />
                                     </td>
 
                                     <td>
@@ -204,11 +204,11 @@
                                                 View File
                                             </a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="UGDetailsList[@i].NMCFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="UGDetailsList[@i].NMCFile" />
                                     </td>
 
 
-                                    @* <td><input class="form-control" accept=".pdf,application/pdf"type="file" name="UGDetailsList[@i].RGUHSNotificationFile" /></td>
+                                    @* <td><input class="form-control" accept=".pdf"type="file" name="UGDetailsList[@i].RGUHSNotificationFile" /></td>
                                     <td><input class="form-control" type="file" name="UGDetailsList[@i].GMCFile" /></td>
                                     <td><input class="form-control" type="file" name="UGDetailsList[@i].NMCFile" /></td> *@
                                     <td>
@@ -282,7 +282,7 @@
                                                 View File
                                             </a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="PGDetailsList[@i].RGUHSNotificationFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="PGDetailsList[@i].RGUHSNotificationFile" />
                                     </td>
 
                                     <td>
@@ -292,7 +292,7 @@
                                                 View File
                                             </a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="PGDetailsList[@i].GMCFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="PGDetailsList[@i].GMCFile" />
                                     </td>
 
                                     <td>
@@ -302,12 +302,12 @@
                                                 View File
                                             </a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="PGDetailsList[@i].NMCFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="PGDetailsList[@i].NMCFile" />
                                     </td>
 
 
                                     @*  <td><input class="form-control" type="file" name="PGDetailsList[@i].RGUHSNotificationFile" /></td>
-                                    <td><input class="form-control" accept=".pdf,application/pdf"type="file" name="PGDetailsList[@i].GMCFile" /></td>
+                                    <td><input class="form-control" accept=".pdf"type="file" name="PGDetailsList[@i].GMCFile" /></td>
                                     <td><input class="form-control" type="file" name="PGDetailsList[@i].NMCFile" /></td> *@
                                     <td>
                                         <button type="button" class="btn btn-pill btn-add" onclick="addRow('pg')"><i class="bi bi-plus-lg"></i></button>
@@ -379,7 +379,7 @@
                                                 View File
                                             </a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="SSDetailsList[@i].RGUHSNotificationFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="SSDetailsList[@i].RGUHSNotificationFile" />
                                     </td>
 
                                     <td>
@@ -389,7 +389,7 @@
                                                 View File
                                             </a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="SSDetailsList[@i].GMCFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="SSDetailsList[@i].GMCFile" />
                                     </td>
 
                                     <td>
@@ -399,7 +399,7 @@
                                                 View File
                                             </a>
                                         }
-                                        <input class="form-control mt-1" accept=".pdf,application/pdf" type="file" name="SSDetailsList[@i].NMCFile" />
+                                        <input class="form-control mt-1" accept=".pdf" type="file" name="SSDetailsList[@i].NMCFile" />
                                     </td>
 
                                     <td>
@@ -525,9 +525,9 @@
         <td><input class="form-control" name="UGDetailsList[__index__].NumberOfSeats" /></td>
         <td><input class="form-control" name="UGDetailsList[__index__].PermittedYear" /></td>
         <td><input class="form-control" name="UGDetailsList[__index__].RecognizedYear" /></td>
-        <td><input class="form-control" accept=".pdf,application/pdf"type="file" name="UGDetailsList[__index__].RGUHSNotificationFile" /></td>
-        <td><input class="form-control" accept=".pdf,application/pdf"type="file" name="UGDetailsList[__index__].GMCFile" /></td>
-        <td><input class="form-control" accept=".pdf,application/pdf"type="file" name="UGDetailsList[__index__].NMCFile" /></td>
+        <td><input class="form-control" accept=".pdf"type="file" name="UGDetailsList[__index__].RGUHSNotificationFile" /></td>
+        <td><input class="form-control" accept=".pdf"type="file" name="UGDetailsList[__index__].GMCFile" /></td>
+        <td><input class="form-control" accept=".pdf"type="file" name="UGDetailsList[__index__].NMCFile" /></td>
         <td>
             <button type="button" class="btn btn-pill btn-add" onclick="addRow('ug')"><i class="bi bi-plus-lg"></i></button>
             <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'ug')"><i class="bi bi-x-lg"></i></button>
@@ -552,9 +552,9 @@
         <td><input class="form-control" name="PGDetailsList[__index__].NumberOfSeats" /></td>
         <td><input class="form-control" name="PGDetailsList[__index__].PermittedYear" /></td>
         <td><input class="form-control" name="PGDetailsList[__index__].RecognizedYear" /></td>
-        <td><input class="form-control" accept=".pdf,application/pdf" type="file" name="PGDetailsList[__index__].RGUHSNotificationFile" /></td>
-        <td><input class="form-control" accept=".pdf,application/pdf" type="file" name="PGDetailsList[__index__].GMCFile" /></td>
-        <td><input class="form-control" accept=".pdf,application/pdf" type="file" name="PGDetailsList[__index__].NMCFile" /></td>
+        <td><input class="form-control" accept=".pdf" type="file" name="PGDetailsList[__index__].RGUHSNotificationFile" /></td>
+        <td><input class="form-control" accept=".pdf" type="file" name="PGDetailsList[__index__].GMCFile" /></td>
+        <td><input class="form-control" accept=".pdf" type="file" name="PGDetailsList[__index__].NMCFile" /></td>
         <td>
             <button type="button" class="btn btn-pill btn-add" onclick="addRow('pg')"><i class="bi bi-plus-lg"></i></button>
             <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'pg')"><i class="bi bi-x-lg"></i></button>
@@ -579,9 +579,9 @@
         <td><input class="form-control" name="SSDetailsList[__index__].NumberOfSeats" /></td>
         <td><input class="form-control" name="SSDetailsList[__index__].PermittedYear" /></td>
         <td><input class="form-control" name="SSDetailsList[__index__].RecognizedYear" /></td>
-        <td><input class="form-control" accept=".pdf,application/pdf" type="file" name="SSDetailsList[__index__].RGUHSNotificationFile" /></td>
-        <td><input class="form-control" type="file" accept=".pdf,application/pdf" name="SSDetailsList[__index__].GMCFile" /></td>
-        <td><input class="form-control" type="file" accept=".pdf,application/pdf" name="SSDetailsList[__index__].NMCFile" /></td>
+        <td><input class="form-control" accept=".pdf" type="file" name="SSDetailsList[__index__].RGUHSNotificationFile" /></td>
+        <td><input class="form-control" type="file" accept=".pdf" name="SSDetailsList[__index__].GMCFile" /></td>
+        <td><input class="form-control" type="file" accept=".pdf" name="SSDetailsList[__index__].NMCFile" /></td>
         <td>
             <button type="button" class="btn btn-pill btn-add" onclick="addRow('ss')"><i class="bi bi-plus-lg"></i></button>
             <button type="button" class="btn btn-pill btn-del" onclick="deleteRow(this,'ss')"><i class="bi bi-x-lg"></i></button>

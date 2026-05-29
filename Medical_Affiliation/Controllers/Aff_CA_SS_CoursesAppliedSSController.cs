@@ -10,7 +10,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public Aff_CA_SS_CoursesAppliedSSController(ApplicationDbContext context)
+        public Aff_CA_SS_CoursesAppliedSSController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

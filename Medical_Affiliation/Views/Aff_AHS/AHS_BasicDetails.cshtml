@@ -714,7 +714,7 @@
                                 <span class="hint" style="display:block;font-weight:400;">(Trustee Amendment documents)</span>
                             </label>
                             <div class="file-upload-wrap">
-                                <input asp-for="TrustEstablishmentDocument" type="file" accept=".pdf,application/pdf" />
+                                <input asp-for="TrustEstablishmentDocument" type="file" accept=".pdf" />
                             </div>
                             @if (Model.TrustDocData != null && Model.TrustDocData.Length > 0)
                             {
@@ -730,7 +730,7 @@
                                 <span class="hint" style="display:block;font-weight:400;">(GOK document)</span>
                             </label>
                             <div class="file-upload-wrap">
-                                <input asp-for="CollegeEstablishmentDocument" type="file" accept=".pdf,application/pdf" />
+                                <input asp-for="CollegeEstablishmentDocument" type="file" accept=".pdf" />
                             </div>
                             @if (Model.EstablishmentDocData != null && Model.EstablishmentDocData.Length > 0)
                             {

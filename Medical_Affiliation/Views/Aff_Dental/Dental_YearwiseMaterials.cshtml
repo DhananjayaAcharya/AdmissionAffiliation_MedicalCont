@@ -380,11 +380,11 @@
                 <div class="row g-3 mt-3">
                     <div class="col-md-3">
                         <label class="form-label fw-semibold" for="ParentHospitalKpmebedsDocFile">KPME Beds Document</label>
-                        <input type="file" id="ParentHospitalKpmebedsDocFile" accept=".pdf,application/pdf" class="form-control rounded-pill" name="ParentHospitalKpmebedsDocFile" />
+                        <input type="file" id="ParentHospitalKpmebedsDocFile" accept=".pdf" class="form-control rounded-pill" name="ParentHospitalKpmebedsDocFile" />
                     </div>
                 <div class="col-md-3 mt-3">
                     <label class="form-label fw-semibold" for="ParentHospitalPostBasicDocFile">PCB Beds Document</label>
-                    <input type="file" accept=".pdf,application/pdf" id="ParentHospitalPostBasicDocFile" class="form-control rounded-pill" name="ParentHospitalPostBasicDocFile" />
+                    <input type="file" accept=".pdf" id="ParentHospitalPostBasicDocFile" class="form-control rounded-pill" name="ParentHospitalPostBasicDocFile" />
                 </div>
                    @*  <div class="col-md-3">
                         <label class="form-label fw-semibold" for="PolutionControlDocFile">Polution Control Document</label>
@@ -392,11 +392,11 @@
                     </div> *@
                     <div class="col-md-3">
                         <label class="form-label fw-semibold" for="FireSafetyDocFile">Fire Safety Document</label>
-                    <input type="file" id="FireSafetyDocFile" accept=".pdf,application/pdf" class="form-control rounded-pill" name="FireSafetyDocFile" />
+                    <input type="file" id="FireSafetyDocFile" accept=".pdf" class="form-control rounded-pill" name="FireSafetyDocFile" />
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-semibold" for="BiomedicalWasteManagemenDocFile">Bio Medical Waste Management Document</label>
-                    <input type="file" id="BiomedicalWasteManagemenDocFile" accept=".pdf,application/pdf" class="form-control rounded-pill" name="BiomedicalWasteManagemenDocFile" />
+                    <input type="file" id="BiomedicalWasteManagemenDocFile" accept=".pdf" class="form-control rounded-pill" name="BiomedicalWasteManagemenDocFile" />
                     </div>
                     
                 </div>
@@ -441,7 +441,7 @@
                                     <input type="number" name="[@i].Year3" class="form-control rounded" min="0" />
                                 </td>
                                 <td>
-                                    <input type="file" name="[@i].UploadDocument" class="form-control" accept=".pdf,application/pdf" />
+                                    <input type="file" name="[@i].UploadDocument" class="form-control" accept=".pdf" />
                                     @* Explicit mapping hidden field so controller knows target column *@
                                     <input type="hidden" name="[@i].UploadTarget"
                                            value="@(Model[i].ParametersName != null && Model[i].ParametersName.IndexOf("Minor", System.StringComparison.OrdinalIgnoreCase) >= 0

@@ -798,7 +798,7 @@
 
                             <div class="field-group" style="grid-column: span 3;">
                                 <label class="form-label-text">Upload Approved Building Plan</label>
-                                <input type="file" class="form-control file-validate" asp-for="ApprovedBuildingPlanDocument" accept=".pdf,application/pdf" />
+                                <input type="file" class="form-control file-validate" asp-for="ApprovedBuildingPlanDocument" accept=".pdf" />
                                 @if (Model != null && Model.HasApprovedBuildingPlanFile)
                                 {
                                     <a asp-action="ViewBuildingPlan" target="_blank" class="btn-view-pdf">

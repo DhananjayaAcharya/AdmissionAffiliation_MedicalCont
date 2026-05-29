@@ -14,7 +14,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public Aff_CA_MedicalLibraryController(ApplicationDbContext context)
+        public Aff_CA_MedicalLibraryController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -32,38 +32,7 @@ namespace Medical_Affiliation.Controllers
             var vm = new CA_Med_LibraryMainVM();
 
             // Changes by Ram on 23/04/2026
-            var raw =
-            HttpContext.Session.GetString(
-            "ExistingCourseLevels");
-
-            List<string> levels;
-
-            if (string.IsNullOrWhiteSpace(raw))
-            {
-                levels = new List<string> { "UG" };
-            }
-            else
-            {
-                try
-                {
-                    levels =
-                    System.Text.Json.JsonSerializer
-                    .Deserialize<List<string>>(raw)
-                    ?? new List<string> { "UG" };
-                }
-                catch
-                {
-                    // Handles old session format:
-                    // UG,PG,SS
-
-                    levels =
-                        raw.Split(',')
-                        .Select(x => x.Trim().ToUpper())
-                        .Where(x => !string.IsNullOrEmpty(x))
-                        .Distinct()
-                        .ToList();
-                }
-            }
+            var levels = await GetSortedCourseLevels();
 
             vm.ExistingCourseLevels = levels;
 
@@ -265,51 +234,32 @@ namespace Medical_Affiliation.Controllers
             // ==========================================
 
             // FIXED course levels parsing
-            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
+            //var collegeCode = HttpContext.Session.GetString("CollegeCode");
 
-            string[] levels;
+            var levels = await (
+                from ai in _context.AcademicIntakes
+                join mc in _context.MstCourses
+                    on ai.Courses equals mc.CourseCode.ToString()
+                where ai.CollegeCode == collegeCode
+                      && !string.IsNullOrEmpty(ai.Courses)
+                select mc.CourseLevel
+            )
+            .Distinct()
+            .ToListAsync();
 
-            if (string.IsNullOrWhiteSpace(raw))
+            levels = levels
+                .Select(x => x?.Trim()?.ToUpper())
+                .Where(x =>
+                    x == "UG" ||
+                    x == "PG" ||
+                    x == "SS")
+                .Distinct()
+                .ToList();
+
+            if (!levels.Any())
             {
-                levels = new[] { "UG" };
+                levels.Add("UG");
             }
-            else
-            {
-                try
-                {
-                    var parsed =
-                        JsonSerializer.Deserialize<List<string>>(raw);
-
-                    levels = parsed?
-                        .Select(x => x?.Trim())
-                        .Where(x =>
-                            x == "UG" ||
-                            x == "PG" ||
-                            x == "SS")
-                        .Distinct()
-                        .ToArray()
-
-                        ?? new[] { "UG" };
-                }
-                catch
-                {
-                    levels =
-                        raw.Split(',')
-                           .Select(x => x.Trim())
-                           .Select(x =>
-                                x.Replace("[", "")
-                                 .Replace("]", "")
-                                 .Replace("\"", ""))
-                           .Where(x =>
-                                x == "UG" ||
-                                x == "PG" ||
-                                x == "SS")
-                           .Distinct()
-                           .ToArray();
-                }
-            }
-
-
 
             // ==========================================
             // Save General section
@@ -449,49 +399,7 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             // Changes by Ram on 23/04/2026
-            var raw =
-            HttpContext.Session.GetString(
-            "ExistingCourseLevels");
-
-            string[] levels;
-
-            if (string.IsNullOrWhiteSpace(raw))
-            {
-                levels = new[] { "UG" };
-            }
-            else
-            {
-                try
-                {
-                    // Handles JSON session:
-                    // ["UG","PG","SS"]
-
-                    levels =
-                     System.Text.Json.JsonSerializer
-                     .Deserialize<List<string>>(raw)
-                     ?.Select(x => x.Trim().ToUpper())
-                     .Distinct()
-                     .ToArray()
-
-                     ?? new[] { "UG" };
-                }
-                catch
-                {
-                    // Handles old comma session:
-                    // UG,PG,SS
-
-                    levels =
-                     raw.Split(',')
-                     .Select(x => x.Trim()
-                                 .Replace("[", "")
-                                 .Replace("]", "")
-                                 .Replace("\"", "")
-                                 .ToUpper())
-                     .Where(x => !string.IsNullOrEmpty(x))
-                     .Distinct()
-                     .ToArray();
-                }
-            }
+            var levels = await GetSortedCourseLevels();
 
             foreach (var level in levels)
             {
@@ -541,49 +449,7 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             // Changes by Ram on 23/04/2026
-            var raw =
-            HttpContext.Session.GetString(
-            "ExistingCourseLevels");
-
-            string[] levels;
-
-            if (string.IsNullOrWhiteSpace(raw))
-            {
-                levels = new[] { "UG" };
-            }
-            else
-            {
-                try
-                {
-                    // Handles JSON session:
-                    // ["UG","PG","SS"]
-
-                    levels =
-                     System.Text.Json.JsonSerializer
-                     .Deserialize<List<string>>(raw)
-                     ?.Select(x => x.Trim().ToUpper())
-                     .Distinct()
-                     .ToArray()
-
-                     ?? new[] { "UG" };
-                }
-                catch
-                {
-                    // Handles old comma session:
-                    // UG,PG,SS
-
-                    levels =
-                     raw.Split(',')
-                     .Select(x => x.Trim()
-                                 .Replace("[", "")
-                                 .Replace("]", "")
-                                 .Replace("\"", "")
-                                 .ToUpper())
-                     .Where(x => !string.IsNullOrEmpty(x))
-                     .Distinct()
-                     .ToArray();
-                }
-            }
+            var levels = await GetSortedCourseLevels();
 
             foreach (var item in model.TechnicalProcess)
             {
@@ -723,45 +589,7 @@ namespace Medical_Affiliation.Controllers
             HttpContext.Session.GetString(
             "ExistingCourseLevels");
 
-            string[] levels;
-
-            if (string.IsNullOrWhiteSpace(raw))
-            {
-                levels = new[] { "UG" };
-            }
-            else
-            {
-                try
-                {
-                    // Handles JSON session:
-                    // ["UG","PG","SS"]
-
-                    levels =
-                     System.Text.Json.JsonSerializer
-                     .Deserialize<List<string>>(raw)
-                     ?.Select(x => x.Trim().ToUpper())
-                     .Distinct()
-                     .ToArray()
-
-                     ?? new[] { "UG" };
-                }
-                catch
-                {
-                    // Handles old comma session:
-                    // UG,PG,SS
-
-                    levels =
-                     raw.Split(',')
-                     .Select(x => x.Trim()
-                                 .Replace("[", "")
-                                 .Replace("]", "")
-                                 .Replace("\"", "")
-                                 .ToUpper())
-                     .Where(x => !string.IsNullOrEmpty(x))
-                     .Distinct()
-                     .ToArray();
-                }
-            }
+            var levels = await GetSortedCourseLevels();
 
             foreach (var level in levels)
             {

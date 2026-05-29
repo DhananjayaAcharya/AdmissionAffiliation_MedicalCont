@@ -1181,6 +1181,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CourseId).HasMaxLength(250);
             entity.Property(e => e.CourseName).HasMaxLength(250);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.DateOfLoprenewalDciksdc)
+                .HasMaxLength(250)
+                .HasColumnName("DateOfLOPRenewalDCIKSDC");
             entity.Property(e => e.DateOfLoprenewalGoimci)
                 .HasMaxLength(250)
                 .HasColumnName("DateOfLOPRenewalGOIMCI");

@@ -12,7 +12,7 @@ namespace Medical_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public MedicalContinuesAffiliationController(ApplicationDbContext context)
+        public MedicalContinuesAffiliationController(ApplicationDbContext context) : base(context)
         {
             _context = context;
 

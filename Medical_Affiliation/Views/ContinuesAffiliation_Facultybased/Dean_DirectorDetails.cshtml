@@ -718,19 +718,26 @@
 
                 <div class="form-footer">
 
-                    @if (Context.Session.GetString("CourseLevel") == "UG")
+                    @if (Context.Session.GetString("CourseLevel") == "UG" && facultyCode == "1")
                     {
                         <a asp-controller="ContinuesAffiliation_Facultybased"
                            asp-action="Details_Of_MBBS"
                            class="btn-prev">← Previous</a>
                     }
-                    else if (Context.Session.GetString("CourseLevel") == "PG"
-                    || Context.Session.GetString("CourseLevel") == "SS")
+                    else if (facultyCode == "1" && Context.Session.GetString("CourseLevel") == "PG"
+                    || Context.Session.GetString("CourseLevel") == "SS" )
                     {
                         <a asp-controller="ContinuesAffiliation_Facultybased"
                            asp-action="Aff_TrustMemberDetails"
                            class="btn-prev">← Previous</a>
+                        
                     }
+                    else if(facultyCode == "2"){
+                        <a asp-controller="ContinuesAffiliation_Facultybased"
+                           asp-action="Aff_TrustMemberDetails"
+                           class="btn-prev">← Previous</a>
+                    }
+
 
                     <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
 

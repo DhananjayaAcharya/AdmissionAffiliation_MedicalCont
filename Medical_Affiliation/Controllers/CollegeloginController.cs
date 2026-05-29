@@ -26,7 +26,7 @@ namespace Admission_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public CollegeloginController(ApplicationDbContext context)
+        public CollegeloginController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

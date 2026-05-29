@@ -733,7 +733,7 @@
                                         Upload Document
                                     </label>
                                     <div class="d-flex gap-2">
-                                        <input asp-for="DocumentFile" type="file" class="form-control flex-grow-1" accept=".pdf,application/pdf" />
+                                        <input asp-for="DocumentFile" type="file" class="form-control flex-grow-1" accept=".pdf" />
                                         @if (!string.IsNullOrEmpty(Model.CollegeCode) && !string.IsNullOrEmpty(Model.FacultyCode))
                                         {
                                             <a asp-action="DownloadDocument"

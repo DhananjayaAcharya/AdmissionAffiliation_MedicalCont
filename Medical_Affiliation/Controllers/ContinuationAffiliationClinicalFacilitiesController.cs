@@ -15,7 +15,7 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
 
 
-        public ContinuationAffiliationClinicalFacilitiesController(IHospitalService hospitalService, IUserContext userContext, ApplicationDbContext context)
+        public ContinuationAffiliationClinicalFacilitiesController(IHospitalService hospitalService, IUserContext userContext, ApplicationDbContext context) : base(context)
         {
             _hospitalService = hospitalService;
             _userContext = userContext;
@@ -781,6 +781,88 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveDisciplineDetails( [FromBody] DisciplinePostVM model)
+        {
+            try
+            {
+                if (model == null || model.Disciplines == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid Request"
+                    });
+                }
+
+                foreach (var item in model.Disciplines)
+                {
+                    var existing = await _context.MedicalAlliedDisciplineDetails
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == model.CollegeCode &&
+                            x.HospitalDetailsId == model.HospitalDetailsId &&
+                            x.AffiliationTypeId == model.AffiliationTypeId &&
+                            x.DisciplineCode == item.DisciplineCode);
+
+                    // =========================
+                    // UPDATE
+                    // =========================
+                    if (existing != null)
+                    {
+                        existing.DisciplineName = item.DisciplineName;
+                        existing.SeatSlab = model.SeatSlab;
+                        existing.IsActive = item.IsSelected;
+                        existing.UpdatedOn = DateTime.Now;
+
+                        _context.MedicalAlliedDisciplineDetails.Update(existing);
+                    }
+                    // =========================
+                    // INSERT
+                    // =========================
+                    else if (item.IsSelected)
+                    {
+                        var entity = new MedicalAlliedDisciplineDetail
+                        {
+                            FacultyCode = Convert.ToInt32(FacultyCode),
+                            CollegeCode = model.CollegeCode,
+                            HospitalDetailsId = model.HospitalDetailsId,
+                            AffiliationTypeId = model.AffiliationTypeId,
+
+                            DisciplineCode = item.DisciplineCode,
+                            DisciplineName = item.DisciplineName,
+
+                            Intake = null,
+                            SeatSlab = model.SeatSlab,
+                            Remarks = null,
+
+                            IsActive = true,
+                            CreatedOn = DateTime.Now
+                        };
+
+                        await _context.MedicalAlliedDisciplineDetails
+                            .AddAsync(entity);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Discipline Details Saved Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
 
 
         private void ValidateAffiliatedHospitalDocuments(AffiliatedHospitalDocumentsPostVM model)
