@@ -97,5 +97,7 @@ public partial class LiccollegeApproval
 
     public byte[]? LicApprovalFile { get; set; }
 
+    public DateOnly? InspectionDate { get; set; }
+
     public DateTime? LicApprovalUploadedOn { get; set; }
 }

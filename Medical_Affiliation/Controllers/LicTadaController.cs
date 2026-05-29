@@ -68,14 +68,47 @@ namespace Medical_Affiliation.Controllers
             ViewBag.Faculty = GetFacultyCode();
         }
 
-        // ══════════════════════════════════════════ SHARED DROPDOWNS
+        // ══════════════════════════════════════════ BUILDVM OVERLOADS
 
-        private LicTadaDashboardVM BuildVM() => new LicTadaDashboardVM
+        // Single-role: CW, AO, Cashier
+        private LicTadaDashboardVM BuildVM(string role) => new LicTadaDashboardVM
         {
-            AcademicYears = _svc.GetYears(),
-            Faculties = _svc.GetFaculties(),
-            Colleges = _svc.GetColleges()
+            AcademicYears = _svc.GetYears(role),
+            Faculties = _svc.GetFaculties(role),
+            Colleges = _svc.GetColleges(role),
+            FinalAcademicYears = new(),
+            FinalFaculties = new(),
+            FinalColleges = new(),
+            PaidAcademicYears = _svc.GetYears("Cashier_Paid"),
+            PaidFaculties = _svc.GetFaculties("Cashier_Paid"),
+            PaidColleges = _svc.GetColleges("Cashier_Paid")
         };
+
+        // Dual-role: FO only (Fresh tab + Final tab)
+        private LicTadaDashboardVM BuildVM(string role1, string role2) => new LicTadaDashboardVM
+        {
+            // Fresh tab
+            AcademicYears = _svc.GetYears(role1),
+            Faculties = _svc.GetFaculties(role1),
+            Colleges = _svc.GetColleges(role1),
+            // Final tab
+            FinalAcademicYears = _svc.GetYears(role2),
+            FinalFaculties = _svc.GetFaculties(role2),
+            FinalColleges = _svc.GetColleges(role2),
+            // Paid tab
+            PaidAcademicYears = _svc.GetYears("Cashier_Paid"),
+            PaidFaculties = _svc.GetFaculties("Cashier_Paid"),
+            PaidColleges = _svc.GetColleges("Cashier_Paid")
+        };
+
+        // IEqualityComparer to deduplicate by Value
+        private class DDComparer : IEqualityComparer<LicTadaDDItem>
+        {
+            public bool Equals(LicTadaDDItem? x, LicTadaDDItem? y)
+                => string.Equals(x?.Value, y?.Value, StringComparison.OrdinalIgnoreCase);
+            public int GetHashCode(LicTadaDDItem obj)
+                => (obj.Value ?? "").ToLowerInvariant().GetHashCode();
+        }
 
         // ══════════════════════════════════════════ ENTRY POINT
 
@@ -92,7 +125,7 @@ namespace Medical_Affiliation.Controllers
         {
             if (!IsRole("Finance")) return RedirectByRole();
             SetViewBagRole();
-            return View(BuildVM());
+            return View(BuildVM("FO_Fresh", "FO_Final"));
         }
 
         [HttpPost]
@@ -114,11 +147,11 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpPost]
-        public IActionResult ForwardToCW(int id, string remarks)
+        public IActionResult ForwardToCW(int id, string remarks, string routedTo)
         {
             if (!IsRole("Finance"))
                 return Json(new { success = false, message = "Not authorized." });
-            bool ok = _svc.ForwardToCW(id, remarks ?? "");
+            bool ok = _svc.ForwardToCW(id, remarks ?? "", routedTo ?? "");
             return Json(new { success = ok });
         }
 
@@ -133,13 +166,31 @@ namespace Medical_Affiliation.Controllers
             return Json(new { success = ok });
         }
 
+        [HttpPost]
+        public IActionResult FO2Approve(int id, string remarks)
+        {
+            if (!IsRole("Finance"))
+                return Json(new { success = false, message = "Not authorized." });
+            bool ok = _svc.FO2Approve(id, remarks ?? "");
+            return Json(new { success = ok });
+        }
+
+        [HttpPost]
+        public IActionResult FO2Reject(int id, string remarks)
+        {
+            if (!IsRole("Finance"))
+                return Json(new { success = false, message = "Not authorized." });
+            bool ok = _svc.FO2Reject(id, remarks ?? "");
+            return Json(new { success = ok });
+        }
+
         // ══════════════════════════════════════════ CASE WORKER
 
         public IActionResult CW()
         {
             if (!IsRole("CaseWorker")) return RedirectByRole();
             SetViewBagRole();
-            return View(BuildVM());
+            return View(BuildVM("CaseWorker"));
         }
 
         [HttpPost]
@@ -151,13 +202,24 @@ namespace Medical_Affiliation.Controllers
                 _svc.GetCWRecords(year, faculty, college));
         }
 
-        // ── SaveKm — shared by CW and AO ────────────────────────────────────
         [HttpPost]
-        public IActionResult SaveKm(int id, decimal km, decimal rkm)
+        public IActionResult SaveKm(int id, decimal km, decimal rkm,
+                              decimal? da = null,
+                              decimal? lca = null,
+                              decimal? airRoad = null,
+                              decimal? airFare = null)
         {
             if (!IsRole("CaseWorker") && !IsRole("AO") && !IsRole("Finance"))
                 return Json(new { success = false, message = "Not authorized." });
-            bool ok = _svc.SaveKm(id, km, rkm);
+
+            var editedBy = HttpContext.Session.GetString("UserName") ?? "";
+            var editorDesignation = HttpContext.Session.GetString("Designation") ?? "";
+            string stage = IsRole("CaseWorker") ? "CaseWorker"
+                                  : IsRole("AO") ? "AO"
+                                  : "FO2";
+
+            bool ok = _svc.SaveKm(id, km, rkm, da, lca, airRoad, airFare,
+                                  editedBy, editorDesignation, stage);
             return Json(new { success = ok });
         }
 
@@ -185,7 +247,7 @@ namespace Medical_Affiliation.Controllers
         {
             if (!IsRole("AO")) return RedirectByRole();
             SetViewBagRole();
-            return View(BuildVM());
+            return View(BuildVM("AO"));
         }
 
         [HttpPost]
@@ -197,7 +259,6 @@ namespace Medical_Affiliation.Controllers
                 _svc.GetAORecords(year, faculty, college));
         }
 
-        // ── AOAction — single endpoint for Approve + Reject ─────────────────
         [HttpPost]
         public IActionResult AOAction(int id, string action, string remarks)
         {
@@ -215,7 +276,7 @@ namespace Medical_Affiliation.Controllers
         {
             if (!IsRole("Cashier")) return RedirectByRole();
             SetViewBagRole();
-            return View(BuildVM());
+            return View(BuildVM("Cashier"));
         }
 
         [HttpPost]
@@ -236,7 +297,62 @@ namespace Medical_Affiliation.Controllers
             return Json(new { success = ok });
         }
 
-        // ══════════════════════════════════════════ SHARED: Member modal
+        [HttpPost]
+        public IActionResult CashierPaidGrid(string? year, string? faculty, string? college)
+        {
+            // AFTER
+            if (!IsRole("Cashier"))
+                return Content("<div class='lt-empty'>⚠️ Not authorized.</div>");
+            return PartialView("_GridCashierPaid",
+                _svc.GetCashierPaidRecords(year, faculty, college));
+        }
+
+        [HttpPost]
+        public IActionResult AllPaidGrid(string? year, string? faculty, string? college)
+        {
+            // AFTER
+            if (!IsRole("Finance") && !IsRole("CaseWorker") && !IsRole("AO"))
+                return Content("<div class='lt-empty'>⚠️ Not authorized.</div>");
+            return PartialView("_AllPaidGrid",
+                _svc.GetCashierPaidRecords(year, faculty, college));
+        }
+
+        [HttpPost]
+        public IActionResult CashierPayAll(string collegeCode, string academicYear, string remarks)
+        {
+            if (!IsRole("Cashier"))
+                return Json(new { success = false, message = "Not authorized." });
+            bool ok = _svc.CashierPayAll(collegeCode, academicYear, remarks ?? "");
+            return Json(new { success = ok });
+        }
+
+        [HttpPost]
+        public IActionResult CashierPayMultiple(string ids, string remarks)
+        {
+            if (!IsRole("Cashier"))
+                return Json(new { success = false, message = "Not authorized." });
+
+            if (string.IsNullOrWhiteSpace(ids))
+                return Json(new { success = false, message = "No IDs provided." });
+
+            var idList = ids.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(s => int.TryParse(s.Trim(), out int n) ? n : 0)
+                            .Where(n => n > 0)
+                            .ToList();
+
+            if (!idList.Any())
+                return Json(new { success = false, message = "No valid IDs." });
+
+            int paid = 0, failed = 0;
+            foreach (var id in idList)
+            {
+                bool ok = _svc.CashierPay(id, remarks ?? "");
+                if (ok) paid++; else failed++;
+            }
+            return Json(new { success = paid > 0, paid, failed });
+        }
+
+        // ══════════════════════════════════════════ SHARED
 
         [HttpGet]
         public IActionResult Member(string phone, string name, string mode = "view")
@@ -252,22 +368,17 @@ namespace Medical_Affiliation.Controllers
             ViewBag.Mode = mode;
             return PartialView("_TadaMember", m);
         }
+
         [HttpGet]
         public IActionResult BankDetails(string phone)
         {
             var role = GetRole();
-            Console.WriteLine($"[BankDetails] phone='{phone}' role='{role}'");
-
             if (role == null)
                 return Json(new { found = false, error = "no_session" });
-
             if (string.IsNullOrWhiteSpace(phone))
                 return Json(new { found = false, error = "no_phone" });
 
             var b = _svc.GetBankDetails(phone);
-
-            Console.WriteLine($"[BankDetails] found={b.Found} acct='{b.AccountNumber}'");
-
             return Json(new
             {
                 found = b.Found,
@@ -282,22 +393,11 @@ namespace Medical_Affiliation.Controllers
             });
         }
 
-        [HttpPost]
-        public IActionResult CashierPaidGrid(string? year, string? faculty, string? college)
+        [HttpGet]
+        public IActionResult GetEditLog(int id)
         {
-            if (!IsRole("Cashier"))
-                return Content("<div class='lt-empty'>⚠️ Not authorized.</div>");
-            return PartialView("_GridCashierPaid",
-                _svc.GetCashierPaidRecords(year, faculty, college));
-        }
-
-        [HttpPost]
-        public IActionResult CashierPayAll(string collegeCode, string academicYear, string remarks)
-        {
-            if (!IsRole("Cashier"))
-                return Json(new { success = false, message = "Not authorized." });
-            bool ok = _svc.CashierPayAll(collegeCode, academicYear, remarks ?? "");
-            return Json(new { success = ok });
+            var logs = _svc.GetEditLog(id);
+            return Json(logs);
         }
     }
 }

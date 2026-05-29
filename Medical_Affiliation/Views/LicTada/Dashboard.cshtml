@@ -1,4 +1,4 @@
-﻿@model Medical_Affiliation.Models.LicTadaDashboardVM
+@model Medical_Affiliation.Models.LicTadaDashboardVM
 @{
     Layout = null;
 }
@@ -8,8 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>LIC TA/DA Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap"
-          rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/lictada.css" />
 </head>
 <body>
@@ -19,68 +18,82 @@
             <div class="lt-brand-icon">🎓</div>
             <div>
                 <div class="lt-brand-name">LIC TA/DA Management</div>
-                <div class="lt-brand-sub">UNIVERSITY AFFILIATION PORTAL</div>
+                <div class="lt-brand-sub">University Affiliation Portal</div>
             </div>
         </div>
         <div class="lt-user">
             <span class="lt-role">Finance Officer</span>
-            <div class="lt-avatar">FO</div>
+            <div class="lt-avatar" style="background:linear-gradient(135deg,#2563eb,#7c3aed)">FO</div>
         </div>
     </nav>
 
     <div class="lt-page">
 
         <div class="lt-page-hd">
-            <h1>Payment Dashboard</h1>
-            <p>LIC Inspection College — TA/DA Claim Processing &amp; Verification</p>
+            <div class="lt-ph-left">
+                <h1>Payment Dashboard</h1>
+                <p>LIC Inspection College &mdash; TA/DA Claim Processing &amp; Verification</p>
+            </div>
         </div>
 
         <!-- Workflow Banner -->
         <div class="lt-workflow">
-            <span class="lt-wfb lt-blue">FO</span>
-            <span class="lt-wfl">Finance Officer</span>
-            <span class="lt-arr">→</span>
-            <span class="lt-wfb lt-purple">CW</span>
-            <span class="lt-wfl">Case Worker</span>
-            <span class="lt-arr">→</span>
-            <span class="lt-wfb lt-amber">AO/AS</span>
-            <span class="lt-wfl">Audit Officer</span>
-            <span class="lt-arr">→</span>
-            <span class="lt-wfb lt-blue">FO2</span>
-            <span class="lt-wfl">Final Approval</span>
-            <span class="lt-arr">→</span>
-            <span class="lt-wfb lt-red">Reject</span>
-            <span class="lt-wfl">Director</span>
-            <span class="lt-arr">/ →</span>
-            <span class="lt-wfb lt-green">CS</span>
-            <span class="lt-wfl">Cashier</span>
+            <div class="lt-wf-step">
+                <span class="lt-wf-badge wfb-blue">FO</span>
+                <span class="lt-wf-label">Finance Officer</span>
+            </div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step">
+                <span class="lt-wf-badge wfb-violet">CW</span>
+                <span class="lt-wf-label">Case Worker</span>
+            </div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step">
+                <span class="lt-wf-badge wfb-gold">AO/AS</span>
+                <span class="lt-wf-label">SO/AS/AO</span>
+            </div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step">
+                <span class="lt-wf-badge wfb-blue">FO2</span>
+                <span class="lt-wf-label">FO2 Decision</span>
+            </div>
+            <span class="lt-wf-arrow">→</span>
+            <div class="lt-wf-step">
+                <span class="lt-wf-badge wfb-rose">Reject</span>
+                <span class="lt-wf-label">Director</span>
+            </div>
+            <span class="lt-wf-arrow">/ →</span>
+            <div class="lt-wf-step">
+                <span class="lt-wf-badge wfb-emerald">CS</span>
+                <span class="lt-wf-label">Cashier</span>
+            </div>
         </div>
 
-        <!-- Stat Cards (hidden until first fetch) -->
+        <!-- Stat Cards -->
         <div class="lt-stats" id="ltStats" style="display:none">
-            <div class="lt-stat" style="border-color:#bfdbfe">
+            <div class="lt-stat" style="border-color:#93c5fd">
                 <div class="lt-si">📋</div>
-                <div class="lt-sv" id="stTotal" style="color:#3b82f6">0</div>
+                <div class="lt-sv" id="stTotal" style="color:#2563eb">0</div>
                 <div class="lt-sl">Total Records</div>
             </div>
-            <div class="lt-stat" style="border-color:#ddd6fe">
+            <div class="lt-stat" style="border-color:#c4b5fd">
                 <div class="lt-si">✅</div>
-                <div class="lt-sv" id="stCW" style="color:#8b5cf6">0</div>
+                <div class="lt-sv" id="stCW" style="color:#7c3aed">0</div>
                 <div class="lt-sl">CW Verified</div>
             </div>
-            <div class="lt-stat" style="border-color:#fde68a">
+            <div class="lt-stat" style="border-color:#f0cc84">
                 <div class="lt-si">📤</div>
-                <div class="lt-sv" id="stFO" style="color:#d97706">0</div>
+                <div class="lt-sv" id="stFO" style="color:#d4860a">0</div>
                 <div class="lt-sl">FO Forwarded</div>
             </div>
-            <div class="lt-stat" style="border-color:#a5f3fc">
+            <div class="lt-stat" style="border-color:#6ee7b7">
                 <div class="lt-si">🔍</div>
-                <div class="lt-sv" id="stAO" style="color:#0891b2">0</div>
+                <div class="lt-sv" id="stAO" style="color:#16a37f">0</div>
                 <div class="lt-sl">ASAO Verified</div>
             </div>
-            <div class="lt-stat" style="border-color:#a7f3d0">
+            <div class="lt-stat" style="border-color:#6ee7b7">
                 <div class="lt-si">💰</div>
-                <div class="lt-sv" id="stCS" style="color:#059669">0</div>
+                <div class="lt-sv" id="stCS" style="color:#16a37f">0</div>
                 <div class="lt-sl">Gone for Cashier</div>
             </div>
         </div>
@@ -90,7 +103,9 @@
             <div class="lt-card-hd">
                 <div style="display:flex;align-items:center;gap:10px">
                     <span style="font-size:18px">💳</span>
-                    <span class="lt-card-title">Verify Payments</span>
+                    <div>
+                        <div class="lt-card-title">Verify Payments</div>
+                    </div>
                 </div>
                 <button class="lt-btn-pri" id="ltToggleBtn" onclick="ltToggle()">
                     ▼ Open Panel
@@ -161,3 +176,5 @@
     <script src="~/js/lictada.js"></script>
 </body>
 </html>
+
+

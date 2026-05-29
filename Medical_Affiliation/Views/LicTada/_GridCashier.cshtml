@@ -1,175 +1,475 @@
-﻿@model List<Medical_Affiliation.Models.LicTadaGridRow>
+@model List<Medical_Affiliation.Models.LicTadaGridRow>
+
+@{
+    var flatRows = new List<(int RowIdx, int Id, string CollegeCode, string CollegeName, string CollegeTown,
+                              string AcademicYear, DateOnly InspectionDate, string TypeOfMembers, string MemberName,
+                              string Phone, decimal Amount, decimal OldAmt, decimal TotalClaim)>();
+    int ri = 0;
+    if (Model != null)
+    {
+        foreach (var r in Model)
+        {
+            var members = new List<(string Tag, int Id, string Name, string Phone, decimal Amt, decimal OldAmt)>
+            {
+                ("Senate Members",    r.SenetMemberId,      r.SenetMember,      r.SenetMemberPhNo,      r.SenetMemberAmount,      r.SenetMemberOldAmount),
+                ("Academic Council",  r.AcMemberId,         r.AcMember,         r.AcMemberPhNo,         r.AcMemberAmount,         r.AcMemberOldAmount),
+                ("Subject Expertise", r.SubjectExpertiseId, r.SubjectExpertise, r.SubjectExpertisePhNo, r.SubjectExpertiseAmount, r.SubjectExpertiseOldAmount),
+            };
+            foreach (var m in members)
+            {
+                if (!string.IsNullOrEmpty(m.Name))
+                {
+                    ri++;
+                    flatRows.Add((ri, m.Id, r.CollegeCode, r.CollegeName, r.CollegeTown,
+              r.AcademicYear, r.InspectionDate.Value, m.Tag, m.Name, m.Phone,
+              m.Amt, m.OldAmt, r.TotalClaimAmount));
+                }
+            }
+        }
+    }
+}
 
 @if (Model == null || !Model.Any())
 {
-    <div style="padding:64px 24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:#8fa3be;line-height:2">
-        <div style="font-size:44px;margin-bottom:12px">💳</div>
-        No records pending payment.<br />
-        <span style="font-size:11px;color:#b8cad9">Records appear here after FO Level 2 approval</span>
+    <div style="padding:72px 24px;text-align:center">
+        <div style="font-size:52px;margin-bottom:14px;opacity:.4">💳</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#94a3b8">No records pending payment.</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#cbd5e1;margin-top:6px">Records appear here after FO Level 2 approval</div>
     </div>
 }
 else
 {
-    <!-- ═══ SUMMARY BAR ═══ -->
-    <div style="padding:14px 24px;background:linear-gradient(90deg,#f0fdf8,#f8fafc);border-bottom:1px solid #e2e8f3;
-                    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5a6e8a">
-                💳 <strong>@Model.Count</strong> inspection(s) pending payment
-            </span>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#0f9b6e;font-weight:800">
-                Total: ₹ @string.Format("{0:#,##0}", Model.Sum(x => x.TotalClaimAmount))
-            </span>
-            <button id="btn-cs-print-all"
-                    style="background:linear-gradient(135deg,#2d6be4,#5b8ef0);border:none;color:#fff;
-                               border-radius:8px;padding:7px 14px;cursor:pointer;font-size:11px;
-                               font-family:'JetBrains Mono',monospace;font-weight:600;display:inline-flex;
-                               align-items:center;gap:5px;box-shadow:0 3px 10px rgba(45,107,228,.3)">
-                🖨 Print All
-            </button>
-        </div>
-    </div>
+    <!-- ═══ CDN CSS ═══ -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
 
-    <!-- ═══ TABLE ═══ -->
-    <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:13px" id="cs-table">
+    <style>
+        /* ── Toolbar layout ── */
+        .cs-dt-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-bottom: 1.5px solid #e2e8f0;
+        }
+
+        .cs-dt-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            flex: 1
+        }
+
+        .cs-dt-search {
+            display: flex;
+            align-items: center
+        }
+
+        .cs-dt-length {
+            display: flex;
+            align-items: center
+        }
+
+        .cs-dt-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 20px;
+            border-top: 1px solid #f1f5f9;
+            background: #f8fafc;
+        }
+
+        /* ── DT Buttons ── */
+        .dt-buttons {
+            display: flex !important;
+            flex-wrap: wrap;
+            gap: 6px
+        }
+
+        .dt-button {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 13px !important;
+            border-radius: 8px !important;
+            font-family: 'IBM Plex Mono', monospace !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: all .15s !important;
+            border: 1.5px solid #e2e8f0 !important;
+            background: #fff !important;
+            color: #1e293b !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            background-image: none !important;
+        }
+
+            .dt-button:hover, .dt-button:focus, .dt-button:active {
+                background: #f0f5ff !important;
+                border-color: #2563eb !important;
+                color: #2563eb !important;
+                box-shadow: none !important;
+                outline: none !important;
+            }
+
+            .dt-button.buttons-copy {
+                border-color: #7c3aed !important;
+                color: #7c3aed !important;
+                background: #faf5ff !important
+            }
+
+                .dt-button.buttons-copy:hover {
+                    background: #ede9fe !important
+                }
+
+            .dt-button.buttons-excel {
+                border-color: #16a37f !important;
+                color: #16a37f !important;
+                background: #f0fdf8 !important
+            }
+
+                .dt-button.buttons-excel:hover {
+                    background: #d1fae5 !important
+                }
+
+            .dt-button.buttons-pdf {
+                border-color: #e53e3e !important;
+                color: #e53e3e !important;
+                background: #fff5f5 !important
+            }
+
+                .dt-button.buttons-pdf:hover {
+                    background: #fed7d7 !important
+                }
+
+            .dt-button.buttons-print {
+                border-color: #2563eb !important;
+                color: #2563eb !important;
+                background: #eff6ff !important
+            }
+
+                .dt-button.buttons-print:hover {
+                    background: #dbeafe !important
+                }
+
+            .dt-button.buttons-colvis {
+                border-color: #f59e0b !important;
+                color: #b45309 !important;
+                background: #fffbeb !important
+            }
+
+                .dt-button.buttons-colvis:hover {
+                    background: #fef3c7 !important
+                }
+
+        /* ── DT Controls ── */
+        .dataTables_wrapper .dataTables_filter {
+            margin: 0
+        }
+
+            .dataTables_wrapper .dataTables_filter label {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-family: 'IBM Plex Mono', monospace;
+                font-size: 11px;
+                color: #64748b;
+            }
+
+            .dataTables_wrapper .dataTables_filter input {
+                font-family: 'IBM Plex Mono', monospace;
+                font-size: 12px;
+                border: 1.5px solid #e2e8f0;
+                border-radius: 9px;
+                padding: 7px 14px;
+                outline: none;
+                width: 260px;
+                transition: border .15s;
+                color: #1e293b;
+                background: #fff;
+            }
+
+                .dataTables_wrapper .dataTables_filter input:focus {
+                    border-color: #2563eb;
+                    box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+                }
+
+        .dataTables_wrapper .dataTables_length {
+            margin: 0
+        }
+
+            .dataTables_wrapper .dataTables_length label {
+                font-family: 'IBM Plex Mono', monospace;
+                font-size: 11px;
+                color: #64748b;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .dataTables_wrapper .dataTables_length select {
+                font-family: 'IBM Plex Mono', monospace;
+                font-size: 12px;
+                border: 1.5px solid #e2e8f0;
+                border-radius: 7px;
+                padding: 5px 8px;
+            }
+
+        .dataTables_wrapper .dataTables_info {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+        }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                border-radius: 7px !important;
+                font-family: 'IBM Plex Mono', monospace !important;
+                font-size: 11px !important;
+                padding: 4px 10px !important;
+            }
+
+                .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+                .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+                    background: #2563eb !important;
+                    color: #fff !important;
+                    border-color: #2563eb !important;
+                }
+
+                .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                    background: #f0f5ff !important;
+                    color: #2563eb !important;
+                    border-color: #dbeafe !important;
+                }
+
+        table.dataTable tbody tr:hover {
+            background: #f0fdf8 !important
+        }
+
+        table.dataTable thead th {
+            border-bottom: none !important
+        }
+
+        table.dataTable.no-footer {
+            border-bottom: 1px solid #e2e8f0 !important
+        }
+
+        /* ── Column visibility dropdown ── */
+        div.dt-button-collection {
+            background: #fff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.12);
+            z-index: 9999;
+            min-width: 180px;
+        }
+
+            div.dt-button-collection .dt-button {
+                display: block !important;
+                width: 100%;
+                margin: 2px 0 !important;
+                border-radius: 6px !important;
+                padding: 6px 12px !important;
+                text-align: left;
+            }
+
+        /* ── Footer bar ── */
+        #cs-flat-footer {
+            padding: 14px 20px;
+            background: linear-gradient(to right, #f0fdf8, #f8fafc);
+            border-top: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            box-shadow: 0 -4px 20px rgba(0,0,0,.06);
+        }
+    </style>
+
+    <!-- ═══ SUMMARY BAR ═══ -->
+    <div style="padding:12px 20px;background:linear-gradient(90deg,#f0fdf8,#f8fafc);
+                    border-bottom:1.5px solid #e2e8f0;display:flex;align-items:center;
+                    justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#64748b">
+                💳 <strong id="cs-flat-count">@flatRows.Count</strong> member(s) pending
+            </span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#64748b">
+                <span id="cs-sel-count" style="font-weight:700;color:#2563eb">0</span> selected
+                &nbsp;·&nbsp; ₹ <span id="cs-sel-total" style="font-weight:700;color:#2563eb">0</span>
+            </span>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:800;color:#16a37f">
+            Grand Total: ₹ <span id="cs-grand-total">@string.Format("{0:#,##0}", flatRows.Sum(x => x.Amount))</span>
+        </span>
+    </div>
+    
+    <!-- ═══ TABLE WRAPPER ═══ -->
+    <div style="padding:16px 20px;overflow-x:auto">
+        <table id="cs-flat-table" class="display nowrap" style="width:100%;font-size:12px">
             <thead>
-                <tr style="background:linear-gradient(to right,#f8fafc,#ffffff);border-bottom:2px solid #e2e8f3">
+                <tr style="background:linear-gradient(to right,#1e293b,#334155)">
                     @{
-                        string thStyle = "padding:13px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#5a6e8a;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap";
+                        string th = "padding:11px 13px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.12em;white-space:nowrap;border-bottom:2px solid #475569";
                     }
-                    <th style="@thStyle">#</th>
-                    <th style="@thStyle">Year</th>
-                    <th style="@thStyle">College</th>
-                    <th style="@thStyle">Members &amp; Bank Details</th>
-                    <th style="@thStyle">Total ₹</th>
-                    <th style="@thStyle">Action</th>
+                    <th style="@th;width:36px">
+                        <input type="checkbox" id="cs-chk-all" title="Select all"
+                               style="width:15px;height:15px;cursor:pointer;accent-color:#16a37f" />
+                    </th>
+                    <th style="@th;width:38px">#</th>
+                    <th style="@th;min-width:200px">College</th>
+                    <th style="@th;min-width:95px">Acad. Year</th>
+                    <th style="@th;min-width:95px">Date of Inspection</th>
+                    <th style="@th;min-width:120px">Type of Member</th>
+                    <th style="@th;min-width:160px">Member Name</th>
+                    <th style="@th;min-width:130px">Bank A/C No.</th>
+                    <th style="@th;min-width:130px">Bank Name</th>
+                    <th style="@th;min-width:110px">Branch</th>
+                    <th style="@th;min-width:100px">IFSC Code</th>
+                    <th style="@th;text-align:right;min-width:110px">Total Claim ₹</th>
+                    <th style="@th;text-align:right;min-width:110px">Sanctioned ₹</th>
+                    <th style="@th;min-width:160px">Action</th>
                 </tr>
             </thead>
-            <tbody id="cs-tbody">
-                @for (int i = 0; i < Model.Count; i++)
+            <tbody id="cs-flat-tbody">
+                @foreach (var row in flatRows)
                 {
-                    var r = Model[i];
-                    var members = new[]
-                    {
-                        new { Tag="SN", TagClr="#2d6be4", TagBg="#e8f0fd", Name=r.SenetMember,      Phone=r.SenetMemberPhNo,      Id=r.SenetMemberId,      Amt=r.SenetMemberAmount      },
-                        new { Tag="AC", TagClr="#6d35cc", TagBg="#f0eafd", Name=r.AcMember,         Phone=r.AcMemberPhNo,         Id=r.AcMemberId,         Amt=r.AcMemberAmount         },
-                        new { Tag="EX", TagClr="#0f9b6e", TagBg="#e5f7f2", Name=r.SubjectExpertise, Phone=r.SubjectExpertisePhNo, Id=r.SubjectExpertiseId, Amt=r.SubjectExpertiseAmount },
-                        };
+                    var tagBg = row.TypeOfMembers == "Senate Members" ? "#dbeafe"
+                    : row.TypeOfMembers == "Academic Council" ? "#ede9fe"
+                    : "#d1fae5";
+                    var tagClr = row.TypeOfMembers == "Senate Members" ? "#2563eb"
+                    : row.TypeOfMembers == "Academic Council" ? "#7c3aed"
+                    : "#16a37f";
 
-                    <tr class="cs-row" data-index="@i"
-                        data-college-code="@r.CollegeCode"
-                        data-academic-year="@r.AcademicYear"
-                        style="border-bottom:1px solid #edf1f7;background:#ffffff"
+                    <tr class="cs-flat-row"
+                        data-id="@row.Id"
+                        data-college="@row.CollegeName.ToLower()"
+                        data-town="@row.CollegeTown.ToLower()"
+                        data-member="@row.MemberName.ToLower()"
+                        data-type="@row.TypeOfMembers.ToLower()"
+                        data-phone="@row.Phone"
+                        data-college-code="@row.CollegeCode"
+                        data-year="@row.AcademicYear"
+                        data-name="@row.MemberName"
+                        data-amt="@row.Amount"
+                        style="border-bottom:1px solid #f1f5f9;background:#fff;transition:background .12s"
                         onmouseover="this.style.background='#f0fdf8'"
-                        onmouseout="this.style.background='#ffffff'">
+                        onmouseout="this.style.background='#fff'">
 
-                        <td style="padding:13px 16px;vertical-align:top;font-family:'JetBrains Mono',monospace;color:#8fa3be;font-size:11px">
-                            <span class="cs-row-num">@(i + 1)</span>
+                        <td style="padding:10px 13px;vertical-align:middle">
+                            <input type="checkbox" class="cs-flat-chk" data-id="@row.Id"
+                                   style="width:15px;height:15px;cursor:pointer;accent-color:#16a37f" />
                         </td>
 
-                        <td style="padding:13px 16px;vertical-align:top">
-                            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#0f9b6e">@r.AcademicYear</span>
+                        <td style="padding:10px 13px;vertical-align:middle;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#94a3b8;font-weight:600">
+                            @row.RowIdx
                         </td>
 
-                        <td style="padding:13px 16px;vertical-align:top;min-width:160px">
-                            <div style="font-weight:700;color:#0d1b2e;font-size:13px">@r.CollegeName</div>
-                            <div style="color:#8fa3be;font-size:11px;font-family:'JetBrains Mono',monospace;margin-top:2px">@r.CollegeTown</div>
-                            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#b8cad9;margin-top:3px">@r.CollegeCode</div>
+                        <td style="padding:10px 13px;vertical-align:middle">
+                            <div style="font-weight:700;color:#1e293b;font-size:12px;line-height:1.3">@row.CollegeName</div>
+                            <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#94a3b8;margin-top:2px">@row.CollegeTown · @row.CollegeCode</div>
                         </td>
 
-                        <td style="padding:13px 16px;vertical-align:top;min-width:340px">
-                            <div style="display:flex;flex-direction:column;gap:10px">
-                                @foreach (var mem in members)
-                                {
-                                    if (string.IsNullOrEmpty(mem.Name)) { continue; }
-                                    <div class="mem-block"
-                                         data-phone="@mem.Phone"
-                                         data-name="@mem.Name"
-                                         data-amt="@mem.Amt"
-                                         data-college="@r.CollegeName"
-                                         data-year="@r.AcademicYear"
-                                         style="border:1.5px solid #e2e8f3;border-radius:12px;overflow:hidden">
-
-                                        <div style="padding:8px 12px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:8px">
-                                            <div style="display:flex;align-items:center;gap:7px">
-                                                <span style="font-size:8.5px;padding:2px 6px;border-radius:4px;background:@mem.TagBg;color:@mem.TagClr;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.05em">@mem.Tag</span>
-                                                <button onclick="ltOpen('@mem.Phone','@mem.Name','cashier','')"
-                                                        style="background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#0d1b2e;padding:0;text-align:left"
-                                                        onmouseover="this.style.color='#2d6be4';this.style.textDecoration='underline'"
-                                                        onmouseout="this.style.color='#0d1b2e';this.style.textDecoration='none'">
-                                                    @mem.Name
-                                                </button>
-                                            </div>
-                                            <div style="display:flex;align-items:center;gap:8px">
-                                                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#0f9b6e">
-                                                    ₹ @string.Format("{0:#,##0}", mem.Amt)
-                                                </span>
-                                                <button class="btn-print-slip"
-                                                        title="Print payment slip"
-                                                        style="background:#f0f5ff;border:1px solid #b3cdfb;color:#2d6be4;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap"
-                                                        onmouseover="this.style.background='#e8f0fd'"
-                                                        onmouseout="this.style.background='#f0f5ff'">
-                                                    🖨 PDF
-                                                </button>
-                                                <!-- ★ Individual Pay button per member -->
-                                                <button class="btn-member-pay"
-                                                        data-id="@mem.Id"
-                                                        data-name="@mem.Name"
-                                                        title="Mark @mem.Name as Paid"
-                                                        style="background:linear-gradient(135deg,#0f9b6e,#0a7a58);border:none;color:#fff;
-                                                                           border-radius:6px;padding:3px 10px;cursor:pointer;font-size:10px;
-                                                                           font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap;
-                                                                           box-shadow:0 2px 6px rgba(15,155,110,.3)"
-                                                        onmouseover="this.style.opacity='0.85'"
-                                                        onmouseout="this.style.opacity='1'">
-                                                    💳 Pay
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div class="bank-panel"
-                                             id="bp_@mem.Id"
-                                             data-phone="@mem.Phone"
-                                             data-loaded="false"
-                                             style="padding:10px 13px;background:#ffffff;min-height:36px">
-                                            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#b8cad9;text-align:center;padding:4px 0">
-                                                ⏳ Loading…
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                }
-                            </div>
+                        <td style="padding:10px 13px;vertical-align:middle">
+                            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:#16a37f;
+                                                 background:#d1fae5;border:1px solid #6ee7b7;border-radius:6px;padding:2px 8px;white-space:nowrap">
+                                @row.AcademicYear
+                            </span>
+                        </td>
+                        <td style="padding:10px 13px;vertical-align:middle">
+                            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:#16a37f;
+                                                         background:#d1fae5;border:1px solid #6ee7b7;border-radius:6px;padding:2px 8px;white-space:nowrap">
+                                @row.InspectionDate.ToString("dd MMM yyyy",  System.Globalization.CultureInfo.InvariantCulture)
+                            
+                            </span>
                         </td>
 
-                        <td style="padding:13px 16px;vertical-align:top;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:#0f9b6e;white-space:nowrap">
-                            ₹ @string.Format("{0:#,##0}", r.TotalClaimAmount)
+                        <td style="padding:10px 13px;vertical-align:middle">
+                            <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;
+                                                 background:@tagBg;color:@tagClr;border-radius:5px;padding:2px 8px;white-space:nowrap">
+                                @row.TypeOfMembers
+                            </span>
                         </td>
 
-                        <td style="padding:13px 16px;vertical-align:top">
-                            <div style="display:flex;flex-direction:column;gap:8px">
-                                <!-- ★ Pay All button marks ALL members in this college/year group -->
-                                <button class="btn-pay-all"
-                                        data-college-code="@r.CollegeCode"
-                                        data-academic-year="@r.AcademicYear"
-                                        data-college-name="@r.CollegeName"
-                                        style="background:linear-gradient(135deg,#0f9b6e,#0a7a58);border:none;color:#fff;border-radius:8px;
-                                                       padding:8px 16px;cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace;
-                                                       font-weight:600;white-space:nowrap;box-shadow:0 3px 10px rgba(15,155,110,.3);
-                                                       display:inline-flex;align-items:center;gap:5px"
-                                        onmouseover="this.style.transform='translateY(-1px)'"
-                                        onmouseout="this.style.transform='none'">
-                                    💳 Mark All as Paid
+                        <td style="padding:10px 13px;vertical-align:middle">
+                            <button onclick="ltOpen('@row.Phone','@row.MemberName','cashier','')"
+                                    style="background:none;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;
+                                                   font-size:12px;font-weight:700;color:#1e293b;padding:0;text-align:left;white-space:nowrap"
+                                    onmouseover="this.style.color='#2563eb';this.style.textDecoration='underline'"
+                                    onmouseout="this.style.color='#1e293b';this.style.textDecoration='none'">
+                                @row.MemberName
+                            </button>
+                        </td>
+
+                        <td class="cs-bank-acct" data-phone="@row.Phone"
+                            style="padding:10px 13px;vertical-align:middle;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:#16a37f">
+                            <span style="color:#cbd5e1;font-size:10px">⏳</span>
+                        </td>
+
+                        <td class="cs-bank-name" data-phone="@row.Phone"
+                            style="padding:10px 13px;vertical-align:middle;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1e293b">
+                            <span style="color:#cbd5e1;font-size:10px">—</span>
+                        </td>
+
+                        <td class="cs-bank-branch" data-phone="@row.Phone"
+                            style="padding:10px 13px;vertical-align:middle;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#64748b">
+                            <span style="color:#cbd5e1;font-size:10px">—</span>
+                        </td>
+
+                        <td class="cs-bank-ifsc" data-phone="@row.Phone"
+                            style="padding:10px 13px;vertical-align:middle;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2563eb;font-weight:600">
+                            <span style="color:#cbd5e1;font-size:10px">—</span>
+                        </td>
+
+                        <td style="padding:10px 13px;vertical-align:middle;text-align:right;
+                                           font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:800;color:#1e293b">
+                            ₹ @string.Format("{0:#,##0}", row.OldAmt)
+                        </td>
+
+                        <td style="padding:10px 13px;vertical-align:middle;text-align:right;
+                                           font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:800;color:#16a37f">
+                            ₹ @string.Format("{0:#,##0}", row.Amount)
+                        </td>
+
+                        <td style="padding:10px 13px;vertical-align:middle">
+                            <div style="display:flex;align-items:center;gap:5px">
+                                <button class="btn-row-pay"
+                                        data-id="@row.Id"
+                                        data-name="@row.MemberName"
+                                        style="background:linear-gradient(135deg,#16a37f,#0a7a58);border:none;color:#fff;
+                                                       border-radius:6px;padding:5px 10px;cursor:pointer;font-size:10px;
+                                                       font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;
+                                                       box-shadow:0 2px 6px rgba(15,155,110,.3);transition:all .15s"
+                                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                    💳 Pay
                                 </button>
-                                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#b8cad9;text-align:center">
-                                    @{
-                                        var memCount = members.Count(m => !string.IsNullOrEmpty(m.Name));
-                                    }
-                                    @memCount member(s)
-                                </span>
+                                <button class="btn-row-pdf"
+                                        data-name="@row.MemberName"
+                                        data-phone="@row.Phone"
+                                        data-college="@row.CollegeName"
+                                        data-year="@row.AcademicYear"
+                                        data-amt="@row.Amount"
+                                        style="background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;color:#fff;
+                                                       border-radius:6px;padding:5px 10px;cursor:pointer;font-size:10px;
+                                                       font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;
+                                                       box-shadow:0 2px 6px rgba(37,99,235,.3);transition:all .15s"
+                                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                    📄 Slip
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -178,397 +478,1428 @@ else
         </table>
     </div>
 
-    <!-- ═══ PAGINATION ═══ -->
-    <div style="padding:14px 24px;border-top:1px solid #edf1f7;background:#f8fafc;
-                    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8fa3be">
-            Showing <span id="cs-page-info">—</span>
+    <!-- ═══ FOOTER BAR ═══ -->
+    <div id="cs-flat-footer">
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#64748b">
+                <span id="cs-sel-count2" style="font-weight:700;color:#1e293b">0</span> selected
+            </span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:800;color:#16a37f">
+                Grand Total: ₹ <span id="cs-grand-total2">@string.Format("{0:#,##0}", flatRows.Sum(x => x.Amount))</span>
+            </span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#64748b">
+                Selected: ₹ <span id="cs-sel-total2" style="font-weight:700;color:#2563eb">0</span>
+            </span>
         </div>
-        <div id="cs-pagination" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <button id="btn-print-all-slips"
+                    style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:#fff;
+                               border-radius:9px;padding:10px 18px;cursor:pointer;font-size:11px;
+                               font-family:'IBM Plex Mono',monospace;font-weight:700;white-space:nowrap;
+                               box-shadow:0 3px 10px rgba(109,40,217,.3);transition:all .2s;
+                               display:inline-flex;align-items:center;gap:6px"
+                    onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                📄 Print All Slips
+            </button>
+            <button id="btn-flat-pay-selected"
+                    disabled
+                    style="background:linear-gradient(135deg,#16a37f,#0a7a58);border:none;color:#fff;
+                               border-radius:9px;padding:10px 20px;cursor:not-allowed;opacity:.5;
+                               font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:700;
+                               display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+                               box-shadow:0 3px 10px rgba(15,155,110,.3);transition:all .2s">
+                💳 Mark Selected as Paid
+            </button>
+        </div>
     </div>
+
+    <!-- ═══ CDN JS ═══ -->
+    <script>if (typeof jQuery === 'undefined') { document.write('<scr' + 'ipt src="https://code.jquery.com/jquery-3.7.0.min.js"><\/scr' + 'ipt>'); }</script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 }
 
 <script>
-    var _AT = String.fromCharCode(64);
-
-    var SLIP_CSS = [
-        'body{font-family:Arial,sans-serif;padding:36px 40px;color:#0d1b2e;max-width:680px;margin:auto}',
-        'h1{margin:0 0 3px;font-size:22px}',
-        '.sub{margin:0;color:#5a6e8a;font-size:13px}',
-        'hr{border:none;border-top:2px solid #e2e8f3;margin:20px 0}',
-        '.lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#8fa3be;font-weight:700;margin-bottom:3px}',
-        '.amt{font-size:30px;font-weight:800;color:#0f9b6e;margin:0}',
-        '.badge{display:inline-block;padding:4px 14px;border-radius:20px;background:#e5f7f2;color:#0f9b6e;font-size:11px;font-weight:700;border:1px solid #86e0c8}',
-        'footer{margin-top:30px;text-align:center;font-size:10px;color:#b8cad9;border-top:1px solid #eee;padding-top:10px}',
-        '.pbtn{margin:20px auto;display:block;padding:9px 28px;background:#2d6be4;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}'
-    ].join('') + _AT + 'media print{.pbtn{display:none}body{padding:18px}}';
-
-    var ALL_CSS = [
-        'body{font-family:Arial,sans-serif;padding:28px;color:#0d1b2e}',
-        'h2{margin:0 0 2px;font-size:20px}',
-        'h3{margin:0;font-size:14px;color:#2d6be4}',
-        '.block{border:1.5px solid #e2e8f3;border-radius:8px;padding:16px;margin-bottom:22px}',
-        'table{width:100%;border-collapse:collapse;font-size:12px}',
-        '.pbtn{margin:16px auto;display:block;padding:9px 28px;background:#2d6be4;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}'
-    ].join('') + _AT + 'media print{.pbtn{display:none}.block{page-break-inside:avoid}}';
-
-    var bankCache = {};
-    var inFlight  = {};
-
+    
     (function () {
+        'use strict';
 
+        var BC = (typeof bankCache !== 'undefined') ? bankCache : {};
+        var IF = (typeof inFlight  !== 'undefined') ? inFlight  : {};
+
+        /* ══════════════════════════════════════════════════════════════
+           BANK FETCH
+        ══════════════════════════════════════════════════════════════ */
         function fetchBank(phone) {
             if (!phone || !phone.trim()) return Promise.resolve(null);
             phone = phone.trim();
-            if (bankCache[phone] !== undefined) return Promise.resolve(bankCache[phone].raw);
-            if (inFlight[phone]) return inFlight[phone];
-
-            var url = '/LicTada/BankDetails?phone=' + encodeURIComponent(phone);
-            inFlight[phone] = fetch(url, {
+            if (BC[phone] !== undefined) return Promise.resolve(BC[phone]);
+            if (IF[phone]) return IF[phone];
+            IF[phone] = fetch('/LicTada/BankDetails?phone=' + encodeURIComponent(phone), {
                 method: 'GET', credentials: 'same-origin',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-            .then(function(d) {
-                bankCache[phone] = { raw: d, html: buildScreenHtml(d) };
-                delete inFlight[phone]; return d;
-            })
-            .catch(function(err) {
-                bankCache[phone] = { raw: null, html: '<span style="color:#e03055;font-size:11px">⚠️ ' + err.message + '</span>' };
-                delete inFlight[phone]; return null;
-            });
-            return inFlight[phone];
+            }).then(function (r) { return r.json(); })
+              .then(function (d) { BC[phone] = d; delete IF[phone]; return d; })
+              .catch(function ()  { BC[phone] = null; delete IF[phone]; return null; });
+            return IF[phone];
         }
 
-        function buildScreenHtml(d) {
-            var found  = d && (d.found === true || d.Found === true);
-            var acctNo = d ? (d.accountNumber || d.AccountNumber || '') : '';
-            if (!found || !acctNo || !acctNo.trim()) {
-                return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#c9b3f5;'
-                     + 'background:#f8f4ff;border:1px solid #e8e0fb;border-radius:8px;padding:6px 12px;display:inline-block">'
-                     + '⚠️ No bank info on file</div>';
+        function getVal(d, keys) {
+            if (!d) return '';
+            for (var i = 0; i < keys.length; i++) { var v = d[keys[i]]; if (v) return v; }
+            return '';
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           LOAD BANK COLUMNS
+        ══════════════════════════════════════════════════════════════ */
+        function loadAllBankCols() {
+            var phones = [];
+            document.querySelectorAll('#cs-flat-tbody .cs-flat-row').forEach(function (row) {
+                var ph = (row.getAttribute('data-phone') || '').trim();
+                if (ph && phones.indexOf(ph) < 0) phones.push(ph);
+            });
+            phones.forEach(function (phone) {
+                fetchBank(phone).then(function (d) {
+                    var found  = d && (d.found === true || d.Found === true);
+                    var acct   = found ? getVal(d, ['accountNumber',  'AccountNumber'])        : '';
+                    var bname  = found ? getVal(d, ['bankName',       'BankName'])             : '';
+                    var branch = found ? getVal(d, ['branchName',     'BranchName'])           : '';
+                    var ifsc   = found ? getVal(d, ['ifscCode',       'IfscCode', 'IFSCCode']) : '';
+
+                    qsa('.cs-bank-acct[data-phone="'   + phone + '"]', function (c) {
+                        c.innerHTML = acct ? esc(acct) : '<span style="color:#f0a500;font-size:10px">⚠ N/A</span>';
+                        c.setAttribute('data-val', acct);
+                    });
+                    qsa('.cs-bank-name[data-phone="'   + phone + '"]', function (c) {
+                        c.textContent = bname  || '—'; c.setAttribute('data-val', bname);
+                    });
+                    qsa('.cs-bank-branch[data-phone="' + phone + '"]', function (c) {
+                        c.textContent = branch || '—'; c.setAttribute('data-val', branch);
+                    });
+                    qsa('.cs-bank-ifsc[data-phone="'   + phone + '"]', function (c) {
+                        c.textContent = ifsc   || '—'; c.setAttribute('data-val', ifsc);
+                    });
+                });
+            });
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           CHECKBOX + SELECTION BAR
+        ══════════════════════════════════════════════════════════════ */
+        var chkAll = document.getElementById('cs-chk-all');
+        if (chkAll) {
+            chkAll.addEventListener('change', function () {
+                qsa('.cs-flat-chk', function (c) { c.checked = chkAll.checked; });
+                updateSelBar();
+            });
+        }
+        document.addEventListener('change', function (e) {
+            if (e.target && e.target.classList.contains('cs-flat-chk')) updateSelBar();
+        });
+
+        function updateSelBar() {
+            var checked = document.querySelectorAll('.cs-flat-chk:checked');
+            var total = 0;
+            checked.forEach(function (c) {
+                var row = c.closest('.cs-flat-row');
+                if (row) total += parseFloat(row.getAttribute('data-amt') || 0);
+            });
+            var f = function (n) { return n.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); };
+            ['cs-sel-count', 'cs-sel-count2'].forEach(function (id) { setTxt(id, checked.length); });
+            ['cs-sel-total', 'cs-sel-total2'].forEach(function (id) { setTxt(id, f(total)); });
+            var btn = document.getElementById('btn-flat-pay-selected');
+            if (btn) {
+                var en = checked.length > 0;
+                btn.disabled      = !en;
+                btn.style.opacity = en ? '1' : '.5';
+                btn.style.cursor  = en ? 'pointer' : 'not-allowed';
             }
-            var bank = d.bankName || d.BankName || '';
-            var branch = d.branchName || d.BranchName || '';
-            var items = [
-                { l:'Bank',     v: bank + (branch ? ' · ' + branch : ''), bold:true,  c:'#0d1b2e' },
-                { l:'A/C Name', v: d.accountHolderName || d.AccountHolderName || '', bold:false, c:'#0d1b2e' },
-                { l:'A/C No.',  v: acctNo,                                            bold:true,  c:'#0f9b6e' },
-                { l:'IFSC',     v: d.ifscCode || d.IfscCode || d.IFSCCode || '',      bold:false, c:'#2d6be4' },
-                { l:'PAN',      v: d.panNumber || d.PanNumber || d.PANNumber || '',   bold:false, c:'#5a6e8a' },
-                { l:'Travel',   v: d.modeOfTravel || d.ModeOfTravel || '',            bold:false, c:'#5a6e8a' },
-                { l:'Aadhaar',  v: d.aadhaarNumber || d.AadhaarNumber || '',          bold:false, c:'#5a6e8a' },
-            ].filter(function(x){ return x.v && x.v.trim(); });
-            var h = '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px 10px;font-family:\'JetBrains Mono\',monospace;font-size:11px">';
-            items.forEach(function(x){
-                h += '<span style="color:#8fa3be;font-size:9px;text-transform:uppercase;letter-spacing:.07em">' + x.l + '</span>'
-                   + '<span style="color:' + x.c + ';font-weight:' + (x.bold ? '700' : '500') + '">' + esc(x.v) + '</span>';
-            });
-            return h + '</div>';
         }
 
-        function buildPrintTable(d) {
-            var found  = d && (d.found === true || d.Found === true);
-            var acctNo = d ? (d.accountNumber || d.AccountNumber || '') : '';
-            if (!found || !acctNo || !acctNo.trim())
-                return '<p style="color:#999;font-size:12px;margin:4px 0">⚠️ No bank info on file</p>';
-            var bank = d.bankName || d.BankName || '';
-            var branch = d.branchName || d.BranchName || '';
-            var items = [
-                ['Bank',           bank + (branch ? ' · ' + branch : '')],
-                ['Account Name',   d.accountHolderName || d.AccountHolderName || ''],
-                ['Account No.',    acctNo],
-                ['IFSC Code',      d.ifscCode || d.IfscCode || d.IFSCCode || ''],
-                ['PAN',            d.panNumber || d.PanNumber || d.PANNumber || ''],
-                ['Mode of Travel', d.modeOfTravel || d.ModeOfTravel || ''],
-                ['Aadhaar',        d.aadhaarNumber || d.AadhaarNumber || ''],
-            ].filter(function(x){ return x[1] && x[1].trim(); });
-            var t = '<table style="width:100%;border-collapse:collapse;font-size:12px">';
-            items.forEach(function(r){
-                t += '<tr>'
-                   + '<td style="padding:5px 8px;border:1px solid #e2e8f3;color:#888;font-size:10px;text-transform:uppercase;width:130px">' + esc(r[0]) + '</td>'
-                   + '<td style="padding:5px 8px;border:1px solid #e2e8f3;font-weight:600;color:#0d1b2e">' + esc(r[1]) + '</td>'
-                   + '</tr>';
-            });
-            return t + '</table>';
-        }
+        /* ══════════════════════════════════════════════════════════════
+           CLICK DELEGATION — Pay + PDF Slip
+        ══════════════════════════════════════════════════════════════ */
+        document.addEventListener('click', function (e) {
 
-        function renderPanel(el) {
-            if (el.getAttribute('data-loaded') === 'true') return;
-            var phone = (el.getAttribute('data-phone') || '').trim();
-            if (!phone) {
-                el.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#c9b3f5;'
-                             + 'background:#f8f4ff;border:1px solid #e8e0fb;border-radius:8px;padding:6px 12px">⚠️ No phone</div>';
-                el.setAttribute('data-loaded', 'true'); return;
-            }
-            fetchBank(phone).then(function() {
-                var cached = bankCache[phone];
-                el.innerHTML = (cached && cached.html) ? cached.html
-                    : '<span style="color:#e03055;font-size:11px">⚠️ No data returned</span>';
-                el.setAttribute('data-loaded', 'true');
-            });
-        }
-
-        function prefetchAll() {
-            document.querySelectorAll('.bank-panel[data-phone]').forEach(function(p) { renderPanel(p); });
-        }
-
-        /* ── INDIVIDUAL PAY (single member by Id) ───────────────────────────── */
-        function memberPay(id, memberName, btn) {
-            var rmk = prompt('Payment remarks for ' + memberName + ' (optional):') || '';
-            if (!confirm('Mark ' + memberName + ' as PAID?')) return;
-            btn.disabled = true;
-            btn.textContent = '⏳...';
-
-            fetch('/LicTada/CashierPay', {
-                method: 'POST', credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'id=' + id + '&remarks=' + encodeURIComponent(rmk)
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(res) {
-                if (res.success) {
-                    // Mark just this member block as paid
-                    var memBlock = btn.closest('.mem-block');
-                    if (memBlock) {
-                        memBlock.style.transition = 'opacity .4s';
-                        memBlock.style.opacity = '0.35';
-                        btn.style.background = 'linear-gradient(135deg,#8fa3be,#b8cad9)';
-                        btn.textContent = '✅ Paid';
-                        btn.disabled = true;
-                    }
-                    // Check if all members in this row are now paid
-                    var row = btn.closest('tr');
-                    if (row) {
-                        var unpaid = row.querySelectorAll('.btn-member-pay:not([data-paid])');
-                        var allPaid = true;
-                        unpaid.forEach(function(b) { if (!b.disabled || b.textContent.trim() !== '✅ Paid') allPaid = false; });
-                        if (allPaid) {
-                            setTimeout(function() {
-                                row.style.transition = 'opacity .5s';
-                                row.style.opacity = '.2';
-                                setTimeout(function() { row.remove(); }, 600);
-                            }, 400);
-                        }
-                    }
-                    if (typeof ltToast === 'function') ltToast('💳 ' + memberName + ' marked as paid', 'ok');
-                } else {
-                    if (typeof ltToast === 'function') ltToast('Failed to record payment for ' + memberName, 'err');
-                    btn.disabled = false;
-                    btn.textContent = '💳 Pay';
-                }
-            })
-            .catch(function() {
-                if (typeof ltToast === 'function') ltToast('Network error.', 'err');
-                btn.disabled = false;
-                btn.textContent = '💳 Pay';
-            });
-        }
-
-        /* ── PAY ALL (all members in college/year group) ────────────────────── */
-        function payAll(collegeCode, academicYear, collegeName, btn) {
-            var rmk = prompt('Payment reference for all members of ' + collegeName + ' (optional):') || '';
-            if (!confirm('Mark ALL members of ' + collegeName + ' (' + academicYear + ') as PAID?')) return;
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Processing...';
-
-            fetch('/LicTada/CashierPayAll', {
-                method: 'POST', credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'collegeCode='   + encodeURIComponent(collegeCode)
-                    + '&academicYear=' + encodeURIComponent(academicYear)
-                    + '&remarks='      + encodeURIComponent(rmk)
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(res) {
-                if (res.success) {
-                    if (typeof ltToast === 'function') ltToast('💳 All members of ' + collegeName + ' marked as paid', 'ok');
-                    var row = btn.closest('tr');
-                    if (row) {
-                        row.style.transition = 'opacity .5s';
-                        row.style.opacity = '.2';
-                        setTimeout(function() { row.remove(); }, 600);
-                    }
-                } else {
-                    if (typeof ltToast === 'function') ltToast('Failed to record payments.', 'err');
-                    btn.disabled = false;
-                    btn.innerHTML = '💳 Mark All as Paid';
-                }
-            })
-            .catch(function() {
-                if (typeof ltToast === 'function') ltToast('Network error.', 'err');
-                btn.disabled = false;
-                btn.innerHTML = '💳 Mark All as Paid';
-            });
-        }
-
-        /* ── EVENT DELEGATION ───────────────────────────────────────────────── */
-        document.addEventListener('click', function(e) {
-            // PDF slip
-            var slipBtn = e.target.closest('.btn-print-slip');
-            if (slipBtn) {
-                var mb = slipBtn.closest('.mem-block');
-                if (mb) printSlip(mb.getAttribute('data-phone'), mb.getAttribute('data-name'),
-                                   mb.getAttribute('data-college'), mb.getAttribute('data-year'), mb.getAttribute('data-amt'));
-                return;
-            }
-            // Individual pay
-            var payBtn = e.target.closest('.btn-member-pay');
+            /* Individual Pay */
+            var payBtn = e.target.closest('.btn-row-pay');
             if (payBtn) {
-                memberPay(payBtn.getAttribute('data-id'), payBtn.getAttribute('data-name'), payBtn);
+                var id   = payBtn.getAttribute('data-id');
+                var name = payBtn.getAttribute('data-name');
+                var rmk  = prompt('Payment remarks for ' + name + ' (optional):') || '';
+                if (!confirm('Mark ' + name + ' as PAID?')) return;
+                payBtn.disabled = true; payBtn.innerHTML = '⏳...';
+                payMember(id, rmk, function (ok) {
+                    if (ok) {
+                        if (typeof ltToast === 'function') ltToast('💳 ' + name + ' marked as paid', 'ok');
+                        var row = payBtn.closest('.cs-flat-row');
+                        if (row) { row.style.opacity = '.25'; setTimeout(function () { row.remove(); updateSelBar(); }, 600); }
+                    } else {
+                        if (typeof ltToast === 'function') ltToast('Failed.', 'err');
+                        payBtn.disabled = false; payBtn.innerHTML = '💳 Pay';
+                    }
+                });
                 return;
             }
-            // Pay all
-            var payAllBtn = e.target.closest('.btn-pay-all');
-            if (payAllBtn) {
-                payAll(payAllBtn.getAttribute('data-college-code'),
-                       payAllBtn.getAttribute('data-academic-year'),
-                       payAllBtn.getAttribute('data-college-name'), payAllBtn);
+
+            /* PDF Slip */
+            var slipBtn = e.target.closest('.btn-row-pdf');
+            if (slipBtn) {
+                printSlip(
+                    slipBtn.getAttribute('data-phone'),
+                    slipBtn.getAttribute('data-name'),
+                    slipBtn.getAttribute('data-college'),
+                    slipBtn.getAttribute('data-year'),
+                    slipBtn.getAttribute('data-amt')
+                );
                 return;
             }
         });
 
-        /* ── PRINT ALL BUTTON ───────────────────────────────────────────────── */
-        var printAllBtn = document.getElementById('btn-cs-print-all');
-        if (printAllBtn) printAllBtn.addEventListener('click', printAll);
+        /* ══════════════════════════════════════════════════════════════
+           BULK PAY
+        ══════════════════════════════════════════════════════════════ */
+        var paySelBtn = document.getElementById('btn-flat-pay-selected');
+        if (paySelBtn) {
+            paySelBtn.addEventListener('click', function () {
+                var checked = Array.from(document.querySelectorAll('.cs-flat-chk:checked'));
+                if (!checked.length) return;
+                var names = checked.map(function (c) { return c.closest('.cs-flat-row').getAttribute('data-name'); }).join(', ');
+                var rmk   = prompt('Bulk payment remarks (optional):\n' + checked.length + ' member(s): ' + names) || '';
+                if (!confirm('Mark ' + checked.length + ' member(s) as PAID?')) return;
+                paySelBtn.disabled = true; paySelBtn.innerHTML = '⏳ Processing...';
+                var ids = checked.map(function (c) { return c.getAttribute('data-id'); });
+                var failed = 0;
+                function next(idx) {
+                    if (idx >= ids.length) {
+                        if (typeof ltToast === 'function')
+                            ltToast('💳 ' + (ids.length - failed) + ' paid' + (failed ? ' (' + failed + ' failed)' : ''), 'ok');
+                        paySelBtn.disabled = false; paySelBtn.innerHTML = '💳 Mark Selected as Paid';
+                        updateSelBar(); return;
+                    }
+                    payMember(ids[idx], rmk, function (ok) {
+                        if (ok) {
+                            var row = document.querySelector('.cs-flat-row[data-id="' + ids[idx] + '"]');
+                            if (row) { row.style.opacity = '.25'; setTimeout(function () { row.remove(); }, 500); }
+                        } else { failed++; }
+                        next(idx + 1);
+                    });
+                }
+                next(0);
+            });
+        }
 
-        /* ── OPEN PRINT WINDOW ──────────────────────────────────────────────── */
-        function openPrintWindow(html) {
+        /* ══════════════════════════════════════════════════════════════
+           PRINT ALL SLIPS
+        ══════════════════════════════════════════════════════════════ */
+        var printAllBtn = document.getElementById('btn-print-all-slips');
+        if (printAllBtn) {
+            printAllBtn.addEventListener('click', function () {
+                var rows = Array.from(document.querySelectorAll('#cs-flat-tbody .cs-flat-row'));
+                if (!rows.length) return;
+                var phones = rows.map(function (r) { return (r.getAttribute('data-phone') || '').trim(); })
+                                 .filter(function (p, i, a) { return p && a.indexOf(p) === i; });
+                Promise.all(phones.map(fetchBank)).then(function () {
+                    var slips = rows.map(function (row) {
+                        return buildSlipHTML(
+                            (row.getAttribute('data-phone')  || '').trim(),
+                            row.getAttribute('data-name')    || '',
+                            row.getAttribute('data-college') || '',
+                            row.getAttribute('data-year')    || '',
+                            row.getAttribute('data-amt')     || '0',
+                            BC[(row.getAttribute('data-phone') || '').trim()]
+                        );
+                    }).join('<div style="page-break-after:always;margin:0;padding:0"></div>');
+                    openPrintWindow(slips, 'All Payment Slips');
+                });
+            });
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           PAY MEMBER (API call)
+        ══════════════════════════════════════════════════════════════ */
+        function payMember(id, remarks, cb) {
+            fetch('/LicTada/CashierPay', {
+                method: 'POST', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + encodeURIComponent(id) + '&remarks=' + encodeURIComponent(remarks)
+            }).then(function (r) { return r.json(); })
+              .then(function (res) { cb(res.success === true); })
+              .catch(function () { cb(false); });
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           PDF SLIP (individual / print-all)
+        ══════════════════════════════════════════════════════════════ */
+        function printSlip(phone, name, college, year, amt) {
+            fetchBank(phone).then(function (d) {
+                openPrintWindow(buildSlipHTML(phone, name, college, year, amt, d), 'Payment Slip - ' + name);
+            });
+        }
+
+        function buildSlipHTML(phone, name, college, year, amt, d) {
+            var found  = d && (d.found === true || d.Found === true);
+            var acct   = found ? getVal(d, ['accountNumber',     'AccountNumber'])        : '';
+            var bname  = found ? getVal(d, ['bankName',          'BankName'])             : '';
+            var branch = found ? getVal(d, ['branchName',        'BranchName'])           : '';
+            var ifsc   = found ? getVal(d, ['ifscCode',          'IfscCode', 'IFSCCode']) : '';
+            var aname  = found ? getVal(d, ['accountHolderName', 'AccountHolderName'])    : '';
+            var pan    = found ? getVal(d, ['panNumber',         'PanNumber'])            : '';
+            var aadhar = found ? getVal(d, ['aadhaarNumber',     'AadhaarNumber'])        : '';
+            var travel = found ? getVal(d, ['modeOfTravel',      'ModeOfTravel'])         : '';
+            var amtFmt  = 'Rs. ' + parseFloat(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+            var dateStr = new Date().toLocaleString('en-IN');
+
+            var bankRows = [
+                ['Bank',           bname + (branch ? ' - ' + branch : '')],
+                ['Account Name',   aname],
+                ['Account No.',    acct || 'Not on file'],
+                ['IFSC Code',      ifsc],
+                ['PAN',            pan],
+                ['Mode of Travel', travel],
+                ['Aadhaar',        aadhar]
+            ].filter(function (x) { return x[1] && x[1].trim(); });
+
+            var bankTable = bankRows.length
+                ? '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">'
+                  + bankRows.map(function (r) {
+                        return '<tr>'
+                            + '<td style="padding:6px 10px;border:1px solid #e2e8f0;color:#888;font-size:10px;text-transform:uppercase;width:140px">' + esc(r[0]) + '</td>'
+                            + '<td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:600;color:#1e293b">' + esc(r[1]) + '</td>'
+                            + '</tr>';
+                    }).join('') + '</table>'
+                : '<p style="color:#e53e3e;font-size:12px;margin:8px 0">No bank details on file</p>';
+
+            return '<div style="font-family:Arial,sans-serif;padding:36px 40px;color:#1e293b;max-width:680px;margin:auto">'
+                + '<div style="display:flex;justify-content:space-between;align-items:flex-start;'
+                +              'margin-bottom:18px;border-bottom:2px solid #e2e8f0;padding-bottom:16px">'
+                +   '<div>'
+                +     '<h1 style="margin:0 0 4px;font-size:22px;color:#1e293b">' + esc(name) + '</h1>'
+                +     '<p style="margin:0;color:#64748b;font-size:13px">' + esc(college) + ' - ' + esc(year) + '</p>'
+                +   '</div>'
+                +   '<div style="text-align:right">'
+                +     '<span style="display:inline-block;padding:4px 16px;border-radius:20px;background:#d1fae5;'
+                +                  'color:#16a37f;font-size:11px;font-weight:700;border:1px solid #6ee7b7">Payment Slip</span>'
+                +     '<br><span style="font-size:10px;color:#94a3b8;margin-top:4px;display:block">' + dateStr + '</span>'
+                +   '</div>'
+                + '</div>'
+                + '<div style="font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#94a3b8;font-weight:700;margin-bottom:6px">Claim Amount</div>'
+                + '<p style="font-size:32px;font-weight:800;color:#16a37f;margin:0 0 20px">' + amtFmt + '</p>'
+                + '<hr style="border:none;border-top:1.5px solid #e2e8f0;margin:0 0 16px">'
+                + '<div style="font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#94a3b8;font-weight:700;margin-bottom:8px">Bank Details</div>'
+                + bankTable
+                + '<footer style="margin-top:30px;text-align:center;font-size:10px;color:#cbd5e1;'
+                +                'border-top:1px solid #eee;padding-top:12px">'
+                +   'Generated by Medical Affiliation System - ' + dateStr
+                + '</footer>'
+                + '</div>';
+        }
+
+        function openPrintWindow(bodyHtml, title) {
+            var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + esc(title) + '</title>'
+                + '<style>'
+                + 'body{margin:0;padding:0;background:#f8fafc}'
+                + '.pbtn{display:block;margin:16px auto;padding:9px 28px;background:#2563eb;color:#fff;'
+                +       'border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:Arial,sans-serif}'
+                + '@@media print{.pbtn{display:none}body{background:#fff}}'
+                + '</style></head><body>'
+                + '<button class="pbtn" onclick="window.print()">Print / Save as PDF</button>'
+                + bodyHtml
+                + '<button class="pbtn" onclick="window.print()">Print / Save as PDF</button>'
+                + '</body></html>';
             var w = window.open('', '_blank', 'width=820,height=960,scrollbars=yes');
             if (!w) { alert('Pop-up blocked! Please allow pop-ups.'); return; }
             w.document.open(); w.document.write(html); w.document.close(); w.focus();
-            w.onload = function() { try { w.print(); } catch(e){} };
-            setTimeout(function() { try { w.print(); } catch(e){} }, 900);
+            setTimeout(function () { try { w.print(); } catch (e) {} }, 900);
         }
 
-        function printSlip(phone, memberName, collegeName, year, amt) {
-            fetchBank(phone).then(function(d) {
-                var bankTable = buildPrintTable(d);
-                var amtFmt    = 'Rs. ' + parseFloat(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-                var dateStr   = new Date().toLocaleString('en-IN');
-                var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payment Slip</title>'
-                    + '<style>' + SLIP_CSS + '</style></head><body>'
-                    + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
-                    +   '<div><h1>' + esc(memberName) + '</h1>'
-                    +   '<p class="sub">' + esc(collegeName) + ' &nbsp;&middot;&nbsp; ' + esc(year) + '</p></div>'
-                    +   '<div style="text-align:right"><span class="badge">Payment Slip</span><br>'
-                    +   '<span style="font-size:10px;color:#8fa3be">' + dateStr + '</span></div>'
-                    + '</div><hr>'
-                    + '<div class="lbl">Claim Amount</div><p class="amt">' + amtFmt + '</p><hr>'
-                    + '<div class="lbl">Bank Details</div>' + bankTable
-                    + '<footer>Generated by Medical Affiliation System &middot; ' + dateStr + '</footer>'
-                    + '<button class="pbtn" onclick="window.print()">Print / Save as PDF</button>'
-                    + '</body></html>';
-                openPrintWindow(html);
-            });
+        /* ══════════════════════════════════════════════════════════════
+           EXPORT — read visible rows from the table
+           Columns: 0=chk 1=# 2=College 3=Year 4=Type 5=Member
+                    6=BankAcct 7=BankName 8=Branch 9=IFSC
+                    10=TotalClaim 11=Sanctioned 12=Action
+        ══════════════════════════════════════════════════════════════ */
+        function getExportRows() {
+            return Array.from(document.querySelectorAll('#cs-flat-tbody .cs-flat-row'))
+                        .filter(function (r) { return r.style.display !== 'none'; });
         }
 
-        function printAll() {
-            var phones = [];
-            document.querySelectorAll('.bank-panel[data-phone]').forEach(function(p) {
-                var ph = (p.getAttribute('data-phone') || '').trim();
-                if (ph && phones.indexOf(ph) < 0) phones.push(ph);
+        function rowToExportArray(row) {
+            var tds = row.querySelectorAll('td');
+            return [
+                txt(tds[1]),        // #
+                txt(tds[2]),        // College (name + town)
+                txt(tds[3]),        // Acad Year
+                txt(tds[4]),        // Type
+                txt(tds[5]),        // Member Name
+                dval(tds[6]),       // Bank A/C
+                dval(tds[7]),       // Bank Name
+                dval(tds[8]),       // Branch
+                dval(tds[9]),       // IFSC
+                amtClean(tds[10]),  // Total Claim
+                amtClean(tds[11])   // Sanctioned
+            ];
+        }
+
+        var EXPORT_HEADERS = [
+            '#', 'College', 'Acad. Year', 'Type', 'Member Name',
+            'Bank A/C No.', 'Bank Name', 'Branch', 'IFSC Code',
+            'Total Claim (Rs.)', 'Sanctioned (Rs.)'
+        ];
+
+        function txt(td)      { return td ? td.textContent.trim() : ''; }
+        function dval(td) {
+            if (!td) return '';
+            var v = (td.getAttribute('data-val') || '').trim();
+            if (!v || v === '⏳' || v === '—') v = td.textContent.trim();
+            if (v === '⏳' || v === '—') v = '';
+            return v;
+        }
+        function amtClean(td) {
+            if (!td) return '';
+            return td.textContent.trim().replace(/Rs\.?/gi, '').replace(/[^\d,.-]/g, '').trim();
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           EXCEL EXPORT — SheetJS
+        ══════════════════════════════════════════════════════════════ */
+        function exportExcel() {
+            loadScript(
+                'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+                'sheetjs-xlsx',
+                function () {
+                    var rows   = getExportRows().map(rowToExportArray);
+                    var wsData = [EXPORT_HEADERS].concat(rows.map(function (r) {
+                        var copy = r.slice();
+                        /* cols 9 & 10 = amounts → real numbers */
+                        [9, 10].forEach(function (i) {
+                            var n = parseFloat(String(copy[i]).replace(/,/g, ''));
+                            copy[i] = isNaN(n) ? copy[i] : n;
+                        });
+                        return copy;
+                    }));
+                    var wb = XLSX.utils.book_new();
+                    var ws = XLSX.utils.aoa_to_sheet(wsData);
+                    ws['!cols'] = [
+                        {wch:4},{wch:32},{wch:12},{wch:18},{wch:24},
+                        {wch:18},{wch:22},{wch:16},{wch:14},{wch:14},{wch:14}
+                    ];
+                    XLSX.utils.book_append_sheet(wb, ws, 'Pending Payments');
+                    XLSX.writeFile(wb, 'pending_payments_' + dateTag() + '.xlsx');
+                }
+            );
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           PDF EXPORT — RGUHS style (jsPDF + AutoTable)
+        ══════════════════════════════════════════════════════════════ */
+        function exportPDF() {
+            var rows       = getExportRows().map(rowToExportArray);
+            var grandTotal = 0;
+            rows.forEach(function (r) {
+                grandTotal += parseFloat(String(r[9]).replace(/,/g, '').replace(/[^\d.]/g, '')) || 0;
             });
-            Promise.all(phones.map(fetchBank)).then(function() {
-                var content = '';
-                document.querySelectorAll('#cs-tbody .cs-row').forEach(function(row, idx) {
-                    var year    = (row.querySelector('td:nth-child(2) span') || {}).innerText || '';
-                    var college = (row.querySelector('td:nth-child(3) div') || {}).innerText || '';
-                    var total   = (row.querySelector('td:nth-child(5)')     || {}).innerText || '';
-                    var memberRows = '';
-                    row.querySelectorAll('.mem-block').forEach(function(mb) {
-                        var phone  = (mb.getAttribute('data-phone') || '').trim();
-                        var name   = mb.getAttribute('data-name') || '';
-                        var amt    = mb.getAttribute('data-amt')  || '0';
-                        var amtFmt = 'Rs. ' + parseFloat(amt).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-                        var cached = bankCache[phone];
-                        var tbl    = cached ? buildPrintTable(cached.raw) : '<p style="color:#aaa">No data</p>';
-                        memberRows += '<tr style="vertical-align:top">'
-                            + '<td style="padding:8px 10px;border:1px solid #e2e8f3;white-space:nowrap;font-size:12px"><strong>' + esc(name) + '</strong><br>'
-                            + '<span style="color:#0f9b6e;font-weight:700">' + amtFmt + '</span></td>'
-                            + '<td style="padding:8px 10px;border:1px solid #e2e8f3">' + tbl + '</td></tr>';
+            var now     = new Date().toLocaleString('en-IN');
+            var dateStr = new Date().toLocaleDateString('en-IN');
+
+            /* Step 1: fetch logo → base64 */
+            function loadLogoThenPDF(b64, mime) {
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf-core', function () {
+                    loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js', 'jspdf-autotable', function () {
+                        buildPDF(b64, mime);
                     });
-                    content += '<div class="block">'
-                        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
-                        + '<h3>' + (idx+1) + '. ' + esc(college.trim()) + ' &nbsp;&middot;&nbsp; ' + esc(year.trim()) + '</h3>'
-                        + '<span style="font-size:14px;font-weight:800;color:#0f9b6e">' + esc(total.trim()) + '</span></div>'
-                        + '<table style="width:100%;border-collapse:collapse"><thead><tr>'
-                        + '<th style="padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f3;font-size:10px;text-transform:uppercase;color:#5a6e8a;text-align:left;width:180px">Member</th>'
-                        + '<th style="padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f3;font-size:10px;text-transform:uppercase;color:#5a6e8a;text-align:left">Bank Details</th>'
-                        + '</tr></thead><tbody>' + memberRows + '</tbody></table></div>';
                 });
-                var dateStr = new Date().toLocaleString('en-IN');
-                var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pending Payments Report</title>'
-                    + '<style>' + ALL_CSS + '</style></head><body>'
-                    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:2px solid #e2e8f3;padding-bottom:14px">'
-                    + '<div><h2>Pending Payments Report</h2><p style="margin:0;color:#8fa3be;font-size:11px">Generated: ' + dateStr + '</p></div></div>'
-                    + content + '<button class="pbtn" onclick="window.print()">Print / Save as PDF</button>'
-                    + '</body></html>';
-                openPrintWindow(html);
-            });
-        }
-
-        /* ── PAGINATION ─────────────────────────────────────────────────────── */
-        var PAGE_SIZE = 10;
-        var allRows   = [];
-
-        function initPagination() {
-            allRows = Array.from(document.querySelectorAll('#cs-tbody .cs-row'));
-            renderPage(1);
-        }
-
-        function renderPage(page) {
-            var total = allRows.length;
-            var pages = Math.ceil(total / PAGE_SIZE) || 1;
-            var start = (page - 1) * PAGE_SIZE;
-            var end   = Math.min(start + PAGE_SIZE, total);
-            allRows.forEach(function(r, idx) {
-                r.style.display = (idx >= start && idx < end) ? '' : 'none';
-                if (idx >= start && idx < end) { var n = r.querySelector('.cs-row-num'); if (n) n.textContent = idx + 1; }
-            });
-            var info = document.getElementById('cs-page-info');
-            if (info) info.textContent = (start + 1) + '-' + end + ' of ' + total;
-            var pg = document.getElementById('cs-pagination');
-            if (!pg) return;
-            pg.innerHTML = '';
-            function mkBtn(lbl, tp, active, disabled) {
-                var b = document.createElement('button');
-                b.textContent = lbl; b.disabled = disabled;
-                b.style.cssText = 'padding:5px 11px;border-radius:7px;font-family:\'JetBrains Mono\',monospace;font-size:11px;'
-                    + 'font-weight:' + (active?'700':'500') + ';cursor:' + (disabled?'default':'pointer') + ';'
-                    + 'border:1.5px solid ' + (active?'#2d6be4':'#e2e8f3') + ';'
-                    + 'background:' + (active?'#2d6be4':'#fff') + ';'
-                    + 'color:' + (active?'#fff':disabled?'#c0cfe0':'#2d3f5c') + ';transition:all .15s';
-                if (!disabled && !active) { b.onmouseover = function(){this.style.background='#f0f5ff';}; b.onmouseout = function(){this.style.background='#fff';}; }
-                b.onclick = function() { if (!disabled) renderPage(tp); };
-                return b;
             }
-            pg.appendChild(mkBtn('Prev', page-1, false, page===1));
-            var sp = Math.max(1, Math.min(page-2, pages-4));
-            var ep = Math.min(pages, sp+4);
-            for (var p = sp; p <= ep; p++) pg.appendChild(mkBtn(p, p, p===page, false));
-            pg.appendChild(mkBtn('Next', page+1, false, page===pages));
+
+            fetch('/images/newlogo.jpeg', { credentials: 'same-origin' })
+                .then(function (r) { return r.blob(); })
+                .then(function (blob) {
+                    var reader = new FileReader();
+                    reader.onloadend = function () {
+                        loadLogoThenPDF(reader.result.split(',')[1], blob.type || 'image/jpeg');
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(function () { loadLogoThenPDF(null, null); });
+
+            /* Step 2: build PDF */
+            function buildPDF(logoB64, logoMime) {
+                var jsPDF   = window.jspdf.jsPDF;
+                var doc     = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a3' });
+                var PW      = doc.internal.pageSize.getWidth();
+                var PH      = doc.internal.pageSize.getHeight();
+                var M       = 30;
+                var HDR_H   = 105;
+                var FTR_H   = 36;
+                var TOP_BAR = 5;
+                var LOGO_W  = 72;
+                var LOGO_H  = 72;
+                var RED     = [143, 26, 26];
+                var DARK    = [30,  30,  30];
+                var GREY    = [110, 110, 110];
+                var LGREY   = [220, 220, 220];
+                var WHITE   = [255, 255, 255];
+                var TW      = PW - M * 2;
+
+                /* watermark */
+                function drawWatermark() {
+                    if (!logoB64) return;
+                    try {
+                        doc.setGState(new doc.GState({ opacity: 0.04 }));
+                        var wmW = PH * 0.85;
+                        doc.addImage(logoB64, logoMime || 'JPEG', (PW - wmW) / 2, (PH - wmW) / 2, wmW, wmW);
+                        doc.setGState(new doc.GState({ opacity: 1 }));
+                    } catch (e) {}
+                }
+
+                /* page header */
+                function drawPageHeader() {
+                    doc.setFillColor(255, 255, 255);
+                    doc.rect(0, 0, PW, HDR_H, 'F');
+                    doc.setFillColor.apply(doc, RED);
+                    doc.rect(0, 0, PW, TOP_BAR, 'F');
+                    if (logoB64) {
+                        doc.addImage(logoB64, logoMime || 'JPEG', M, TOP_BAR + 10, LOGO_W, LOGO_H);
+                        doc.addImage(logoB64, logoMime || 'JPEG', PW - M - LOGO_W, TOP_BAR + 10, LOGO_W, LOGO_H);
+                    }
+                    doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+                    doc.setTextColor.apply(doc, RED);
+                    doc.text('Rajiv Gandhi University of Health Sciences, Karnataka', PW / 2, TOP_BAR + 30, { align: 'center' });
+                    doc.setFontSize(9.5); doc.setFont('helvetica', 'normal');
+                    doc.setTextColor.apply(doc, DARK);
+                    doc.text("4th 'T' Block, Jayanagar, Bangalore - 560 041", PW / 2, TOP_BAR + 50, { align: 'center' });
+                    doc.text('Phone: 080-29601933  |  Website: www.rguhs.ac.in',  PW / 2, TOP_BAR + 65, { align: 'center' });
+                    doc.setFillColor.apply(doc, RED);
+                    doc.rect(0, HDR_H - 5, PW, 3, 'F');
+                    doc.setFillColor(200, 200, 200);
+                    doc.rect(0, HDR_H - 2, PW, 1, 'F');
+                }
+
+                /* section heading */
+                function sectionHeading(label, y) {
+                    doc.setDrawColor.apply(doc, LGREY);
+                    doc.setFillColor(250, 250, 252);
+                    doc.rect(M, y, TW, 24, 'FD');
+                    doc.setFillColor.apply(doc, RED);
+                    doc.rect(M, y, 5, 24, 'F');
+                    doc.setFontSize(10.5); doc.setFont('helvetica', 'bold');
+                    doc.setTextColor.apply(doc, RED);
+                    doc.text(label, M + 14, y + 17);
+                }
+
+                /* page footer */
+                function drawPageFooter() {
+                    doc.setFillColor.apply(doc, RED);
+                    doc.rect(0, PH - FTR_H, PW, 2, 'F');
+                    doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+                    doc.setTextColor.apply(doc, GREY);
+                    doc.text('Rajiv Gandhi University of Health Sciences, Karnataka', M, PH - FTR_H + 18);
+                    doc.setFont('helvetica', 'bold'); doc.setTextColor.apply(doc, DARK);
+                    doc.text('Printed on: ' + dateStr, PW - M, PH - FTR_H + 18, { align: 'right' });
+                }
+
+                /* PAGE 1 */
+                drawWatermark();
+                drawPageHeader();
+
+                /* summary section */
+                var sy = HDR_H + 6;
+                sectionHeading('Pending Payments Report', sy);
+
+                var infoData = [
+                    ['Report Generated',      now],
+                    ['Total Pending Records', String(rows.length)],
+                    ['Grand Total Claim',     'Rs. ' + fmt(grandTotal)]
+                ];
+                var infoY = sy + 24;
+                infoData.forEach(function (pair, i) {
+                    doc.setFillColor.apply(doc, i % 2 === 0 ? [255,255,255] : [248,249,252]);
+                    doc.setDrawColor.apply(doc, LGREY);
+                    doc.rect(M, infoY, TW, 22, 'FD');
+                    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+                    doc.setTextColor.apply(doc, GREY);
+                    doc.text(pair[0], M + 10, infoY + 15);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor.apply(doc, i === 2 ? RED : DARK);
+                    doc.text(pair[1], M + 240, infoY + 15);
+                    infoY += 22;
+                });
+
+                /* table */
+                var tableHeadY = infoY + 12;
+                sectionHeading('Pending Payment Details', tableHeadY);
+
+                /* build body — split college cell into name + town */
+                var tableBody = rows.map(function (r) {
+                    var college  = r[1];
+                    var townPart = '';
+                    var parts    = college.split('\n');
+                    if (parts.length > 1) {
+                        college  = parts[0].trim();
+                        townPart = parts[1].replace(/·.*$/, '').trim();
+                    }
+                    return [
+                        r[0],       // #
+                        college,    // College Name
+                        townPart,   // Town
+                        r[2],       // Acad Year
+                        r[3],       // Type
+                        r[4],       // Member Name
+                        r[5],       // Bank A/C
+                        r[6],       // Bank Name
+                        r[7],       // Branch
+                        r[8],       // IFSC
+                        r[9],       // Total Claim
+                        r[10]       // Sanctioned
+                    ];
+                });
+
+                /* proportional column widths — 12 cols, sum = TW */
+                var units = [2, 13, 6, 5, 8, 10, 10, 8, 7, 6.5, 7, 7];
+                var uSum  = units.reduce(function (a, b) { return a + b; }, 0);
+                var cw    = units.map(function (u) { return +(u * TW / uSum).toFixed(1); });
+
+                doc.autoTable({
+                    startY:     tableHeadY + 24,
+                    tableWidth: TW,
+                    head: [[
+                        '#', 'College', 'Town', 'Acad. Year', 'Type', 'Member Name',
+                        'Bank A/C No.', 'Bank Name', 'Branch', 'IFSC',
+                        'Total Claim (Rs.)', 'Sanctioned (Rs.)'
+                    ]],
+                    body: tableBody,
+                    foot: [[
+                        '', '', '', '', '',
+                        { content: 'Grand Total', colSpan: 5,
+                          styles: { halign: 'right', fontStyle: 'bold', textColor: RED } },
+                        '', '', '', '',
+                        { content: 'Rs. ' + fmt(grandTotal),
+                          styles: { halign: 'right', fontStyle: 'bold', textColor: RED } },
+                        ''
+                    ]],
+                    showFoot: 'lastPage',
+                    margin:   { left: M, right: M, top: HDR_H + 4, bottom: FTR_H + 8 },
+                    styles: {
+                        fontSize:    7.5,
+                        cellPadding: { top: 4, bottom: 4, left: 4, right: 4 },
+                        lineColor:   LGREY,
+                        lineWidth:   0.4,
+                        textColor:   DARK,
+                        font:        'helvetica',
+                        overflow:    'linebreak'
+                    },
+                    headStyles: {
+                        fillColor:   RED,
+                        textColor:   WHITE,
+                        fontStyle:   'bold',
+                        fontSize:    7.5,
+                        halign:      'left',
+                        cellPadding: { top: 5, bottom: 5, left: 4, right: 4 }
+                    },
+                    alternateRowStyles: { fillColor: [248, 249, 252] },
+                    footStyles: {
+                        fillColor:  [255, 245, 245],
+                        textColor:  DARK,
+                        fontStyle:  'bold',
+                        fontSize:   8.5
+                    },
+                    columnStyles: {
+                        0:  { cellWidth: cw[0],  halign: 'center' },
+                        1:  { cellWidth: cw[1] },
+                        2:  { cellWidth: cw[2] },
+                        3:  { cellWidth: cw[3],  halign: 'center' },
+                        4:  { cellWidth: cw[4] },
+                        5:  { cellWidth: cw[5] },
+                        6:  { cellWidth: cw[6] },
+                        7:  { cellWidth: cw[7] },
+                        8:  { cellWidth: cw[8] },
+                        9:  { cellWidth: cw[9] },
+                        10: { cellWidth: cw[10], halign: 'right' },
+                        11: { cellWidth: cw[11], halign: 'right' }
+                    },
+                    didDrawPage: function () {
+                        drawWatermark();
+                        drawPageHeader();
+                        drawPageFooter();
+                    }
+                });
+
+                doc.save('pending_payments_' + dateTag() + '.pdf');
+            }
         }
 
+    
+
+        /* ══════════════════════════════════════════════════════════════
+           HELPERS
+        ══════════════════════════════════════════════════════════════ */
         function esc(s) {
             if (s == null) return '';
             return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         }
+        function fmt(n) {
+            return parseFloat(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+        function setTxt(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+        function qsa(q, fn)    { document.querySelectorAll(q).forEach(fn); }
+        function dateTag()     { return new Date().toISOString().slice(0, 10); }
 
-        window.csPrefetchAll = function() {
-            document.querySelectorAll('.bank-panel[data-phone]').forEach(function(p) {
-                p.setAttribute('data-loaded', 'false');
-                p.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#b8cad9;text-align:center;padding:4px 0">⏳ Loading…</div>';
-            });
-            bankCache = {}; inFlight = {};
-            prefetchAll(); initPagination();
-        };
+        function loadScript(src, id, cb) {
+            if (document.getElementById(id)) { cb(); return; }
+            var s = document.createElement('script');
+            s.id  = id; s.src = src;
+            s.onload  = cb;
+            s.onerror = function () { alert('Could not load library: ' + src); };
+            document.head.appendChild(s);
+        }
 
-        setTimeout(function() {
-            if (document.querySelectorAll('.bank-panel[data-phone]').length > 0) {
-                prefetchAll(); initPagination();
-            }
+        /* ══════════════════════════════════════════════════════════════
+           BOOT
+        ══════════════════════════════════════════════════════════════ */
+        setTimeout(function () {
+            loadAllBankCols();
+            updateSelBar();
+            initDataTable();
         }, 150);
 
     })();
+
+     (function () {
+        'use strict';
+
+        /* ── bank-detail cache & in-flight map ── */
+        var BC = {}, IF = {};
+
+        /* ══════════════════════════════════════════
+           BOOT — wait for DOM
+        ══════════════════════════════════════════ */
+        function boot() {
+            if (!document.getElementById('cs-flat-table')) return;
+
+            loadAllBankCols();
+            wireSearch();
+            wireExports();
+            wireSlips();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', boot);
+        } else {
+            boot();
+        }
+
+        /* ══════════════════════════════════════════
+           1. SEARCH  (pure JS — no DataTables needed)
+        ══════════════════════════════════════════ */
+        function wireSearch() {
+            var inp = document.getElementById('pd-universal-search');
+            var clr = document.getElementById('pd-search-clear');
+            if (!inp) return;
+
+            function doSearch() {
+                var q = inp.value.trim().toLowerCase();
+                var rows = document.querySelectorAll('#pd-flat-tbody .pd-flat-row');
+                var shown = 0, total = 0;
+
+                rows.forEach(function (row) {
+                    /* search across: all td text + bank data-val attrs */
+                    var haystack = row.textContent.toLowerCase();
+
+                    /* also include bank column data-val (loaded async) */
+                    row.querySelectorAll('[data-val]').forEach(function (el) {
+                        haystack += ' ' + (el.getAttribute('data-val') || '').toLowerCase();
+                    });
+
+                    var match = !q || haystack.indexOf(q) !== -1;
+                    row.style.display = match ? '' : 'none';
+                    if (match) {
+                        shown++;
+                        total += parseFloat(row.getAttribute('data-amt') || 0);
+                    }
+                });
+
+                setTxt('pd-flat-count',    shown);
+                setTxt('pd-visible-count', shown);
+                setTxt('pd-grand-total',   fmt(total));
+                setTxt('pd-grand-total2',  fmt(total));
+                if (clr) clr.style.display = q ? 'block' : 'none';
+            }
+
+            inp.addEventListener('input',   doSearch);
+            inp.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') { inp.value = ''; doSearch(); }
+            });
+            if (clr) {
+                clr.addEventListener('click', function () {
+                    inp.value = ''; doSearch(); inp.focus();
+                });
+            }
+        }
+
+        /* ══════════════════════════════════════════
+           HELPERS — read visible rows
+        ══════════════════════════════════════════ */
+        function getVisibleRows() {
+            return Array.from(
+                document.querySelectorAll('#pd-flat-tbody .pd-flat-row')
+            ).filter(function (r) { return r.style.display !== 'none'; });
+        }
+
+        function rowToArray(row) {
+            var tds = row.querySelectorAll('td');
+            return [
+                txt(tds[0]),              // #
+                txt(tds[1]),              // College
+                txt(tds[2]),              // Acad Year
+                txt(tds[3]),              // Type
+                txt(tds[4]),              // Member Name
+                dval(tds[5]),             // Bank A/C
+                dval(tds[6]),             // Bank Name
+                dval(tds[7]),             // Branch
+                dval(tds[8]),             // IFSC
+                amtClean(tds[9]),         // Amount — stripped of ₹ symbol
+                txt(tds[10])              // Status
+            ];
+        }
+
+        /* strips ₹ and any non-numeric chars except digits, commas, dots */
+        function amtClean(td) {
+            if (!td) return '';
+            var raw = td.textContent.trim();
+            /* remove the ₹ / Rs. prefix and whitespace, keep digits/commas/dots */
+            raw = raw.replace(/₹/g, '').replace(/Rs\.?/gi, '').trim();
+            return raw;
+        }
+
+        var HEADERS = [
+            '#', 'College', 'Acad. Year', 'Type', 'Member Name',
+            'Bank A/C No.', 'Bank Name', 'Branch', 'IFSC Code',
+            'Amount Paid (Rs.)', 'Status'
+        ];
+
+        function txt(td)  { return td ? td.textContent.trim() : ''; }
+        function dval(td) {
+            if (!td) return '';
+            var v = (td.getAttribute('data-val') || '').trim();
+            if (!v || v === '⏳' || v === '—') v = td.textContent.trim();
+            if (v === '⏳' || v === '—') v = '';
+            return v;
+        }
+
+        /* ══════════════════════════════════════════
+           2. EXPORTS
+        ══════════════════════════════════════════ */
+        function wireExports() {
+            on('pd-btn-csv',   'click', exportCSV);
+            on('pd-btn-excel', 'click', exportExcel);
+            on('pd-btn-pdf',   'click', exportPDF);
+            on('pd-btn-print', 'click', exportPrint);
+        }
+
+        /* ── CSV (no external lib) ── */
+        function exportCSV() {
+            var rows = getVisibleRows().map(rowToArray);
+            var csv  = [HEADERS].concat(rows).map(function (r) {
+                return r.map(function (c) {
+                    return '"' + String(c).replace(/"/g, '""') + '"';
+                }).join(',');
+            }).join('\n');
+            dlBlob('\uFEFF' + csv, 'paid_members.csv', 'text/csv');
+        }
+
+        /* ── EXCEL via SheetJS (loaded on demand) ── */
+        function exportExcel() {
+            loadScript(
+                'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+                'sheetjs-xlsx',
+                function () {
+                    var rows   = getVisibleRows().map(rowToArray);
+
+                    /* convert amount column (index 9) to a real number for Excel */
+                    var wsData = [HEADERS].concat(rows.map(function (r) {
+                        var copy = r.slice();
+                        var n = parseFloat(String(copy[9]).replace(/,/g, '').replace(/[^\d.]/g, ''));
+                        copy[9] = isNaN(n) ? copy[9] : n;
+                        return copy;
+                    }));
+
+                    var wb = XLSX.utils.book_new();
+                    var ws = XLSX.utils.aoa_to_sheet(wsData);
+
+                    /* column widths */
+                    ws['!cols'] = [
+                        {wch:5},{wch:30},{wch:12},{wch:18},{wch:22},
+                        {wch:18},{wch:20},{wch:16},{wch:14},{wch:14},{wch:10}
+                    ];
+
+                    XLSX.utils.book_append_sheet(wb, ws, 'Paid Members');
+                    XLSX.writeFile(wb, 'paid_members_' + dateTag() + '.xlsx');
+                }
+            );
+        }
+
+        /* ── PDF — RGUHS university document style with logo + watermark ── */
+        function exportPDF() {
+            var rows = getVisibleRows().map(rowToArray);
+            var grandTotal = 0;
+            rows.forEach(function (r) {
+                grandTotal += parseFloat(String(r[9]).replace(/,/g, '').replace(/[^\d.]/g, '')) || 0;
+            });
+            var now     = new Date().toLocaleString('en-IN');
+            var dateStr = new Date().toLocaleDateString('en-IN');
+
+            /* ── Step 1: load the logo image as base64 first ── */
+            function loadLogoThenPDF(logoBase64, logoMime) {
+                loadScript(
+                    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+                    'jspdf-core',
+                    function () {
+                        loadScript(
+                            'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
+                            'jspdf-autotable',
+                            function () {
+                                buildPDF(logoBase64, logoMime);
+                            }
+                        );
+                    }
+                );
+            }
+
+            /* fetch logo from the app's own server → convert to base64 */
+            fetch('/images/newlogo.jpeg', { credentials: 'same-origin' })
+                .then(function (r) { return r.blob(); })
+                .then(function (blob) {
+                    var reader = new FileReader();
+                    reader.onloadend = function () {
+                        /* result = "data:image/jpeg;base64,xxxx" */
+                        var b64  = reader.result.split(',')[1];
+                        var mime = blob.type || 'image/jpeg';
+                        loadLogoThenPDF(b64, mime);
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(function () {
+                    /* logo fetch failed — build PDF without logo */
+                    loadLogoThenPDF(null, null);
+                });
+
+            /* ── Step 2: build the actual PDF ── */
+            function buildPDF(logoB64, logoMime) {
+                var jsPDF    = window.jspdf.jsPDF;
+                var doc      = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a3' });
+                var PW       = doc.internal.pageSize.getWidth();   // 1190 pt
+                var PH       = doc.internal.pageSize.getHeight();  //  842 pt
+                var M        = 30;          // left/right margin
+                var HDR_H    = 105;         // ← taller header height
+                var FTR_H    = 36;          // footer strip height
+                var TOP_BAR  = 5;           // top red bar thickness
+                var LOGO_W   = 72;          // logo size in header
+                var LOGO_H   = 72;
+                var RED      = [143, 26, 26];
+                var DARK     = [30,  30,  30];
+                var GREY     = [110, 110, 110];
+                var LGREY    = [220, 220, 220];
+                var WHITE    = [255, 255, 255];
+
+                /* usable table width = page width - 2 margins */
+                var TW = PW - M * 2;
+
+                /* ── watermark: very large, very faint logo centred ── */
+                function drawWatermark() {
+                    if (!logoB64) return;
+                    try {
+                        /* opacity 0.04 = extremely light / barely visible */
+                        doc.setGState(new doc.GState({ opacity: 0.04 }));
+                        var wmW = PH * 0.85;   // ~715 pt — nearly full page height
+                        var wmH = wmW;
+                        doc.addImage(
+                            logoB64, logoMime || 'JPEG',
+                            (PW - wmW) / 2,
+                            (PH - wmH) / 2,
+                            wmW, wmH
+                        );
+                        doc.setGState(new doc.GState({ opacity: 1 }));
+                    } catch (e) { /* GState not available — skip */ }
+                }
+
+                /* ── page header ── */
+                function drawPageHeader() {
+                    /* white background for entire header strip */
+                    doc.setFillColor(255, 255, 255);
+                    doc.rect(0, 0, PW, HDR_H, 'F');
+
+                    /* thick top red bar */
+                    doc.setFillColor.apply(doc, RED);
+                    doc.rect(0, 0, PW, TOP_BAR, 'F');
+
+                    /* logo left */
+                    if (logoB64) {
+                        doc.addImage(logoB64, logoMime || 'JPEG',
+                            M, TOP_BAR + 10, LOGO_W, LOGO_H);
+                    }
+                    /* logo right */
+                    if (logoB64) {
+                        doc.addImage(logoB64, logoMime || 'JPEG',
+                            PW - M - LOGO_W, TOP_BAR + 10, LOGO_W, LOGO_H);
+                    }
+
+                    /* university name */
+                    doc.setFontSize(18);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor.apply(doc, RED);
+                    doc.text('Rajiv Gandhi University of Health Sciences, Karnataka',
+                        PW / 2, TOP_BAR + 30, { align: 'center' });
+
+                    /* address */
+                    doc.setFontSize(9.5);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor.apply(doc, DARK);
+                    doc.text("4th 'T' Block, Jayanagar, Bangalore - 560 041",
+                        PW / 2, TOP_BAR + 50, { align: 'center' });
+                    doc.text('Phone: 080-29601933  |  Website: www.rguhs.ac.in',
+                        PW / 2, TOP_BAR + 65, { align: 'center' });
+
+                    /* divider lines at bottom of header */
+                    doc.setFillColor.apply(doc, RED);
+                    doc.rect(0, HDR_H - 5, PW, 3, 'F');
+                    doc.setFillColor(200, 200, 200);
+                    doc.rect(0, HDR_H - 2, PW, 1, 'F');
+                }
+
+                /* ── section heading with left red bar ── */
+                function sectionHeading(label, y) {
+                    doc.setDrawColor.apply(doc, LGREY);
+                    doc.setFillColor(250, 250, 252);
+                    doc.rect(M, y, TW, 24, 'FD');
+                    doc.setFillColor.apply(doc, RED);
+                    doc.rect(M, y, 5, 24, 'F');
+                    doc.setFontSize(10.5);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor.apply(doc, RED);
+                    doc.text(label, M + 14, y + 17);
+                }
+
+                /* ── page footer ── */
+                function drawPageFooter() {
+                    doc.setFillColor.apply(doc, RED);
+                    doc.rect(0, PH - FTR_H, PW, 2, 'F');
+                    doc.setFontSize(8);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor.apply(doc, GREY);
+                    doc.text('Rajiv Gandhi University of Health Sciences, Karnataka',
+                        M, PH - FTR_H + 18);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor.apply(doc, DARK);
+                    doc.text('Printed on: ' + dateStr,
+                        PW - M, PH - FTR_H + 18, { align: 'right' });
+                }
+
+                /* ════ PAGE 1 — watermark + header ════ */
+                drawWatermark();
+                drawPageHeader();
+
+                /* ── summary info rows ── */
+                var sy    = HDR_H + 6;
+                sectionHeading('Paid Members Report', sy);
+
+                var infoData = [
+                    ['Report Generated',   now],
+                    ['Total Paid Records', String(rows.length)],
+                    ['Grand Total Paid',   'Rs. ' + fmt(grandTotal)]
+                ];
+                var infoY = sy + 24;
+                var rowH  = 22;
+                infoData.forEach(function (pair, i) {
+                    doc.setFillColor.apply(doc, i % 2 === 0 ? [255,255,255] : [248,249,252]);
+                    doc.setDrawColor.apply(doc, LGREY);
+                    doc.rect(M, infoY, TW, rowH, 'FD');
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor.apply(doc, GREY);
+                    doc.text(pair[0], M + 10, infoY + 15);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor.apply(doc, i === 2 ? RED : DARK);
+                    doc.text(pair[1], M + 240, infoY + 15);
+                    infoY += rowH;
+                });
+
+                /* ── table section heading ── */
+                var tableHeadY = infoY + 12;
+                sectionHeading('Paid Members Details', tableHeadY);
+
+                /* ── build table body ── */
+                var tableBody = rows.map(function (r) {
+                    var college  = r[1];
+                    var townPart = '';
+                    var parts    = college.split('\n');
+                    if (parts.length > 1) {
+                        college  = parts[0].trim();
+                        townPart = parts[1].replace(/·.*$/, '').trim();
+                    }
+                    return [r[0], college, townPart, r[2], r[3], r[4],
+                            r[5], r[6], r[7], r[8], r[9], 'Paid'];
+                });
+
+                /*
+                 * FIT-TO-PAGE column widths
+                 * Total = TW (page width minus margins).
+                 * Proportions chosen so every column is visible and nothing overflows.
+                 * Ratios (12 cols): 2+13+6+5+8+10+10+8+7+6.5+7+4 = 86.5 → scale to TW
+                 */
+                var units  = [2, 13, 6, 5, 8, 10, 10, 8, 7, 6.5, 7, 4];
+                var total  = units.reduce(function (a, b) { return a + b; }, 0);
+                var scale  = TW / total;
+                var cw     = units.map(function (u) { return +(u * scale).toFixed(1); });
+
+                doc.autoTable({
+                    startY:   tableHeadY + 24,
+                    tableWidth: TW,              // ← force table = full usable width
+                    head: [['#', 'College', 'Town', 'Acad. Year', 'Type', 'Member Name',
+                            'Bank A/C No.', 'Bank Name', 'Branch', 'IFSC', 'Amount (Rs.)', 'Status']],
+                    body: tableBody,
+                    foot: [[
+                        '', '', '', '', '',
+                        { content: 'Grand Total', colSpan: 5,
+                          styles: { halign: 'right', fontStyle: 'bold', textColor: RED } },
+                        '', '', '', '',
+                        { content: 'Rs. ' + fmt(grandTotal),
+                          styles: { halign: 'right', fontStyle: 'bold', textColor: RED } },
+                        ''
+                    ]],
+                    showFoot: 'lastPage',
+                    margin: { left: M, right: M, top: HDR_H + 4, bottom: FTR_H + 8 },
+                    styles: {
+                        fontSize:    7.5,
+                        cellPadding: { top: 4, bottom: 4, left: 4, right: 4 },
+                        lineColor:   LGREY,
+                        lineWidth:   0.4,
+                        textColor:   DARK,
+                        font:        'helvetica',
+                        overflow:    'linebreak'
+                    },
+                    headStyles: {
+                        fillColor:  RED,
+                        textColor:  WHITE,
+                        fontStyle:  'bold',
+                        fontSize:   7.5,
+                        halign:     'left',
+                        cellPadding: { top: 5, bottom: 5, left: 4, right: 4 }
+                    },
+                    alternateRowStyles: { fillColor: [248, 249, 252] },
+                    footStyles: {
+                        fillColor:  [255, 245, 245],
+                        textColor:  DARK,
+                        fontStyle:  'bold',
+                        fontSize:   8.5
+                    },
+                    columnStyles: {
+                        0:  { cellWidth: cw[0],  halign: 'center' },
+                        1:  { cellWidth: cw[1] },
+                        2:  { cellWidth: cw[2] },
+                        3:  { cellWidth: cw[3],  halign: 'center' },
+                        4:  { cellWidth: cw[4] },
+                        5:  { cellWidth: cw[5] },
+                        6:  { cellWidth: cw[6] },
+                        7:  { cellWidth: cw[7] },
+                        8:  { cellWidth: cw[8] },
+                        9:  { cellWidth: cw[9] },
+                        10: { cellWidth: cw[10], halign: 'right' },
+                        11: { cellWidth: cw[11], halign: 'center' }
+                    },
+                    didDrawPage: function () {
+                        drawWatermark();
+                        drawPageHeader();
+                        drawPageFooter();
+                    }
+                });
+
+                doc.save('paid_members_' + dateTag() + '.pdf');
+            }
+        }
+
+        /* ── PRINT (no external lib) ── */
+        function exportPrint() {
+            var rows = getVisibleRows().map(rowToArray);
+            var now  = new Date().toLocaleString('en-IN');
+            var grandTotal = 0;
+            rows.forEach(function (r) {
+                grandTotal += parseFloat(String(r[9]).replace(/[^\d.]/g, '')) || 0;
+            });
+
+            var trs = rows.map(function (r, ri) {
+                return '<tr>' + r.map(function (c) {
+                    return '<td style="background:' + (ri % 2 ? '#f8fafc' : '#fff') + '">' + esc(c || '—') + '</td>';
+                }).join('') + '</tr>';
+            }).join('');
+
+            var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Paid Members Report</title><style>'
+                + '*{box-sizing:border-box;margin:0;padding:0}'
+                + 'body{font-family:Arial,sans-serif;font-size:11px;padding:24px;color:#1e293b}'
+                + '.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:12px;border-bottom:3px solid #16a37f}'
+                + '.hdr h1{font-size:17px;color:#0f172a;margin-bottom:4px}'
+                + '.hdr p{font-size:10px;color:#64748b}'
+                + '.stats{display:flex;gap:14px;margin-bottom:16px}'
+                + '.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 16px;flex:1}'
+                + '.sl{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:4px}'
+                + '.sv{font-size:16px;font-weight:700;color:#1e293b}'
+                + '.sv.g{color:#16a37f}'
+                + 'table{width:100%;border-collapse:collapse}'
+                + 'thead tr{background:#0f172a}'
+                + 'th{padding:8px 10px;font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;text-align:left}'
+                + 'td{padding:7px 10px;font-size:10px;border-bottom:1px solid #f1f5f9}'
+                + 'tfoot td{background:#f0fdf8;font-weight:700;color:#0f766e;border-top:2px solid #6ee7b7;font-size:11px}'
+                + '.pb{display:block;margin:14px auto;padding:8px 24px;background:#16a37f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:Arial,sans-serif}'
+                + '.ft{margin-top:18px;text-align:center;font-size:9px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:10px}'
+                + '@@media print{.pb{display:none}}'
+                + '</style></head><body>'
+                + '<button class="pb" onclick="window.print()">🖨 Print / Save as PDF</button>'
+                + '<div class="hdr">'
+                + '<div><h1>Medical Affiliation System</h1><p>Cashier — Paid Members Report &nbsp;·&nbsp; ' + now + '</p></div>'
+                + '<div style="font-size:10px;color:#64748b;text-align:right">Total: <strong>' + rows.length + '</strong> records</div>'
+                + '</div>'
+                + '<div class="stats">'
+                + '<div class="stat"><div class="sl">Total Records</div><div class="sv">' + rows.length + '</div></div>'
+                + '<div class="stat"><div class="sl">Grand Total Paid</div><div class="sv g">Rs. ' + fmt(grandTotal) + '</div></div>'
+                + '<div class="stat"><div class="sl">Report Date</div><div class="sv" style="font-size:11px">' + now + '</div></div>'
+                + '</div>'
+                + '<table><thead><tr>'
+                + HEADERS.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('')
+                + '</tr></thead><tbody>' + trs + '</tbody>'
+                + '<tfoot><tr>'
+                + '<td></td><td></td><td></td><td></td>'
+                + '<td colspan="5" style="text-align:right">Grand Total Paid</td>'
+                + '<td style="text-align:right">Rs. ' + fmt(grandTotal) + '</td>'
+                + '<td></td>'
+                + '</tr></tfoot></table>'
+                + '<div class="ft">Medical Affiliation System &nbsp;·&nbsp; Confidential &nbsp;·&nbsp; ' + now + '</div>'
+                + '<button class="pb" style="margin-top:14px" onclick="window.print()">🖨 Print / Save as PDF</button>'
+                + '</body></html>';
+
+            var w = window.open('', '_blank', 'width=1200,height=860,scrollbars=yes');
+            if (!w) { alert('Pop-up blocked — please allow pop-ups.'); return; }
+            w.document.open(); w.document.write(html); w.document.close();
+            setTimeout(function () { try { w.print(); } catch (e) {} }, 700);
+        }
+
+        /* ══════════════════════════════════════════
+           3. BANK DETAILS (unchanged logic)
+        ══════════════════════════════════════════ */
+        function fetchBank(phone) {
+            if (!phone || !phone.trim()) return Promise.resolve(null);
+            phone = phone.trim();
+            if (BC[phone] !== undefined) return Promise.resolve(BC[phone]);
+            if (IF[phone]) return IF[phone];
+            IF[phone] = fetch('/LicTada/BankDetails?phone=' + encodeURIComponent(phone), {
+                method: 'GET', credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { BC[phone] = d;    delete IF[phone]; return d; })
+            .catch(function ()  { BC[phone] = null; delete IF[phone]; return null; });
+            return IF[phone];
+        }
+
+        function loadAllBankCols() {
+            var phones = [];
+            document.querySelectorAll('#pd-flat-tbody .pd-flat-row').forEach(function (row) {
+                var ph = (row.getAttribute('data-phone') || '').trim();
+                if (ph && phones.indexOf(ph) < 0) phones.push(ph);
+            });
+            phones.forEach(function (phone) {
+                fetchBank(phone).then(function (d) {
+                    var found  = d && (d.found === true || d.Found === true);
+                    var acct   = found ? getVal(d, ['accountNumber',  'AccountNumber'])        : '';
+                    var bname  = found ? getVal(d, ['bankName',       'BankName'])             : '';
+                    var branch = found ? getVal(d, ['branchName',     'BranchName'])           : '';
+                    var ifsc   = found ? getVal(d, ['ifscCode',       'IfscCode', 'IFSCCode']) : '';
+
+                    qsa('.pd-bank-acct[data-phone="'   + phone + '"]', function (c) {
+                        c.innerHTML = acct
+                            ? esc(acct)
+                            : '<span style="color:#f59e0b;font-size:10px">⚠ N/A</span>';
+                        c.setAttribute('data-val', acct);
+                    });
+                    qsa('.pd-bank-name[data-phone="'   + phone + '"]', function (c) {
+                        c.textContent = bname  || '—'; c.setAttribute('data-val', bname);
+                    });
+                    qsa('.pd-bank-branch[data-phone="' + phone + '"]', function (c) {
+                        c.textContent = branch || '—'; c.setAttribute('data-val', branch);
+                    });
+                    qsa('.pd-bank-ifsc[data-phone="'   + phone + '"]', function (c) {
+                        c.textContent = ifsc   || '—'; c.setAttribute('data-val', ifsc);
+                    });
+                });
+            });
+        }
+
+        /* ══════════════════════════════════════════
+           4. SLIPS (unchanged logic)
+        ══════════════════════════════════════════ */
+        function wireSlips() {
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.btn-pd-slip');
+                if (!btn) return;
+                printSlip(
+                    btn.getAttribute('data-phone'),
+                    btn.getAttribute('data-name'),
+                    btn.getAttribute('data-college'),
+                    btn.getAttribute('data-year'),
+                    btn.getAttribute('data-amt')
+                );
+            });
+
+            var pab = document.getElementById('btn-pd-print-all-slips');
+            if (pab) {
+                pab.addEventListener('click', function () {
+                    var rows = Array.from(document.querySelectorAll('#pd-flat-tbody .pd-flat-row'));
+                    if (!rows.length) return;
+                    var phones = rows
+                        .map(function (r) { return (r.getAttribute('data-phone') || '').trim(); })
+                        .filter(function (p, i, a) { return p && a.indexOf(p) === i; });
+
+                    Promise.all(phones.map(fetchBank)).then(function () {
+                        var slips = rows.map(function (row) {
+                            var ph = (row.getAttribute('data-phone') || '').trim();
+                            return buildSlipHTML(ph,
+                                row.getAttribute('data-name')    || '',
+                                row.getAttribute('data-college') || '',
+                                row.getAttribute('data-year')    || '',
+                                row.getAttribute('data-amt')     || '0',
+                                BC[ph]
+                            );
+                        }).join('<div style="page-break-after:always"></div>');
+                        openPrintWin(slips, 'All Payment Slips');
+                    });
+                });
+            }
+        }
+
+        function printSlip(phone, name, college, year, amt) {
+            fetchBank(phone).then(function (d) {
+                openPrintWin(buildSlipHTML(phone, name, college, year, amt, d), 'Payment Slip — ' + name);
+            });
+        }
+
+        function buildSlipHTML(phone, name, college, year, amt, d) {
+            var found  = d && (d.found === true || d.Found === true);
+            var acct   = found ? getVal(d, ['accountNumber',     'AccountNumber'])        : '';
+            var bname  = found ? getVal(d, ['bankName',          'BankName'])             : '';
+            var branch = found ? getVal(d, ['branchName',        'BranchName'])           : '';
+            var ifsc   = found ? getVal(d, ['ifscCode',          'IfscCode', 'IFSCCode']) : '';
+            var aname  = found ? getVal(d, ['accountHolderName', 'AccountHolderName'])    : '';
+            var pan    = found ? getVal(d, ['panNumber',         'PanNumber'])            : '';
+            var aadhar = found ? getVal(d, ['aadhaarNumber',     'AadhaarNumber'])        : '';
+            var travel = found ? getVal(d, ['modeOfTravel',      'ModeOfTravel'])         : '';
+            var amtFmt = 'Rs. ' + parseFloat(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+            var dateStr = new Date().toLocaleString('en-IN');
+
+            var brows = [
+                ['Bank',           bname + (branch ? ' · ' + branch : '')],
+                ['Account Name',   aname],
+                ['Account No.',    acct || '⚠ Not on file'],
+                ['IFSC Code',      ifsc],
+                ['PAN',            pan],
+                ['Mode of Travel', travel],
+                ['Aadhaar',        aadhar]
+            ].filter(function (x) { return x[1] && x[1].trim(); });
+
+            var btbl = brows.length
+                ? '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">'
+                  + brows.map(function (r) {
+                      return '<tr>'
+                          + '<td style="padding:7px 12px;border:1px solid #e2e8f0;color:#94a3b8;'
+                          +     'font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;width:150px">' + esc(r[0]) + '</td>'
+                          + '<td style="padding:7px 12px;border:1px solid #e2e8f0;font-weight:600;color:#1e293b">' + esc(r[1]) + '</td>'
+                          + '</tr>';
+                  }).join('') + '</table>'
+                : '<div style="color:#e53e3e;font-size:12px;padding:12px 0">⚠ No bank details on file</div>';
+
+            return '<div style="font-family:Arial,sans-serif;padding:40px 44px;color:#1e293b;max-width:700px;margin:auto">'
+                + '<div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;'
+                +     'padding:24px 28px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start">'
+                + '<div><h1 style="margin:0 0 6px;font-size:20px;color:#fff">' + esc(name) + '</h1>'
+                + '<p style="margin:0;color:#94a3b8;font-size:12px">' + esc(college) + ' &nbsp;·&nbsp; ' + esc(year) + '</p></div>'
+                + '<div style="text-align:right">'
+                + '<span style="display:inline-block;padding:5px 16px;border-radius:20px;'
+                +     'background:rgba(22,163,127,.2);color:#34d399;font-size:10px;font-weight:700;'
+                +     'border:1px solid rgba(22,163,127,.4)">✅ PAYMENT SLIP</span>'
+                + '<div style="font-size:9px;color:#64748b;margin-top:6px">' + dateStr + '</div></div></div>'
+                + '<div style="font-size:8.5px;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;font-weight:700;margin-bottom:6px">Amount Paid</div>'
+                + '<div style="font-size:36px;font-weight:800;color:#16a37f;margin:0 0 24px;letter-spacing:-.02em">' + amtFmt + '</div>'
+                + '<div style="border-top:1.5px solid #e2e8f0;margin-bottom:20px"></div>'
+                + '<div style="font-size:8.5px;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;font-weight:700;margin-bottom:10px">Bank Details</div>'
+                + btbl
+                + '<div style="margin-top:32px;text-align:center;font-size:9.5px;color:#cbd5e1;'
+                +     'border-top:1px solid #f1f5f9;padding-top:14px">Generated by Medical Affiliation System &nbsp;·&nbsp; ' + dateStr + '</div></div>';
+        }
+
+        function openPrintWin(bodyHtml, title) {
+            var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + esc(title) + '</title>'
+                + '<style>'
+                + 'body{margin:0;padding:0;background:#f8fafc}'
+                + '.pbtn{display:block;margin:16px auto;padding:9px 28px;background:#16a37f;color:#fff;'
+                +     'border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:Arial,sans-serif}'
+                + '@@media print{.pbtn{display:none}body{background:#fff}}'
+                + '</style></head><body>'
+                + '<button class="pbtn" onclick="window.print()">🖨 Print / Save as PDF</button>'
+                + bodyHtml
+                + '<button class="pbtn" onclick="window.print()">🖨 Print / Save as PDF</button>'
+                + '</body></html>';
+            var w = window.open('', '_blank', 'width=820,height=960,scrollbars=yes');
+            if (!w) { alert('Pop-up blocked!'); return; }
+            w.document.open(); w.document.write(html); w.document.close(); w.focus();
+            setTimeout(function () { try { w.print(); } catch (e) {} }, 900);
+        }
+
+        /* ══════════════════════════════════════════
+           HELPERS
+        ══════════════════════════════════════════ */
+        function getVal(d, keys) {
+            if (!d) return '';
+            for (var i = 0; i < keys.length; i++) { var v = d[keys[i]]; if (v) return v; }
+            return '';
+        }
+        function esc(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+        function fmt(n) {
+            return parseFloat(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+        function setTxt(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+        function qsa(q, fn)    { document.querySelectorAll(q).forEach(fn); }
+        function on(id, ev, fn){ var el = document.getElementById(id); if (el) el.addEventListener(ev, fn); }
+        function dateTag()     { return new Date().toISOString().slice(0, 10); }
+        function dlBlob(content, filename, mime) {
+            var blob = new Blob([content], { type: mime });
+            var a    = document.createElement('a');
+            a.href   = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a); a.click();
+            setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 500);
+        }
+
+        /* load a CDN script only once */
+        function loadScript(src, id, cb) {
+            if (document.getElementById(id)) { cb(); return; }
+            var s   = document.createElement('script');
+            s.id    = id;
+            s.src   = src;
+            s.onload  = cb;
+            s.onerror = function () { alert('Could not load library from CDN. Check your internet connection.'); };
+            document.head.appendChild(s);
+        }
+
+        /* console helper: window.pdPrefetchAll() to force-refresh bank data */
+        window.pdPrefetchAll = function () { BC = {}; IF = {}; loadAllBankCols(); };
+
+    })();
+
 </script>

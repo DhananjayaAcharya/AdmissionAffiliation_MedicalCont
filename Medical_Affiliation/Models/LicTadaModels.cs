@@ -16,9 +16,16 @@ namespace Medical_Affiliation.Models
         public List<LicTadaDDItem> AcademicYears { get; set; } = new();
         public List<LicTadaDDItem> Faculties { get; set; } = new();
         public List<LicTadaDDItem> Colleges { get; set; } = new();
+
+        public List<LicTadaDDItem> FinalAcademicYears { get; set; } = new();
+        public List<LicTadaDDItem> FinalFaculties { get; set; } = new();
+        public List<LicTadaDDItem> FinalColleges { get; set; } = new();
+        public List<LicTadaDDItem> PaidAcademicYears { get; set; } = new();
+        public List<LicTadaDDItem> PaidFaculties { get; set; } = new();
+        public List<LicTadaDDItem> PaidColleges { get; set; } = new();
     }
 
-    // ── Grid row (used by ALL dashboards) ─────────────────────────────────────
+    // ── Grid row (used by ALL dashboards) ────────────────────────────────────
     public class LicTadaGridRow
     {
         public int MemberId { get; set; }
@@ -39,11 +46,14 @@ namespace Medical_Affiliation.Models
         public string SubjectExpertisePhNo { get; set; } = "";
 
         public decimal TotalClaimAmount { get; set; }
+        public decimal Old_TotalClaimAmount { get; set; }
+
+
         public string CaseWorkerRemarks { get; set; } = "";
         public string FO_Level2_Status { get; set; } = "";
         public string Cashier_Status { get; set; } = "";
 
-        // ── Bank / Account details (Cashier view only) ──────────
+        // ── Bank / Account details (Cashier view only) ───────────
         public string AccountHolderName { get; set; } = "";
         public string AccountNumber { get; set; } = "";
         public string IFSCCode { get; set; } = "";
@@ -58,7 +68,23 @@ namespace Medical_Affiliation.Models
         public decimal SenetMemberAmount { get; set; }
         public decimal AcMemberAmount { get; set; }
         public decimal SubjectExpertiseAmount { get; set; }
+
+        public decimal SenetMemberOldAmount { get; set; }
+        public decimal AcMemberOldAmount { get; set; }
+        public decimal SubjectExpertiseOldAmount { get; set; }
+
+
+        public DateOnly? InspectionDate { get; set; }
     }
+
+    // ── Edit audit entry — one entry per changed field ────────────────────────
+    public class LicTadaEditEntry
+    {
+        public string Field { get; set; } = "";
+        public decimal OldValue { get; set; }
+        public decimal NewValue { get; set; }
+    }
+
     // ── Full member detail (modal) ────────────────────────────────────────────
     public class LicTadaMember
     {
@@ -86,29 +112,39 @@ namespace Medical_Affiliation.Models
         public decimal AirRoadCost { get; set; }
         public string Division { get; set; } = string.Empty;
         public bool IsLCA { get; set; }
+
         public string DR_ApprovalStatus { get; set; } = string.Empty;
         public string DR_Remarks { get; set; } = string.Empty;
         public string DRApprovedBy { get; set; } = string.Empty;
         public DateTime? DRApprovedDate { get; set; }
+
         public string FO_Level1_ApprovedStatus { get; set; } = string.Empty;
         public string FO_Level1_Remarks { get; set; } = string.Empty;
         public DateTime? FO_Level1_ForwardedDate { get; set; }
+
         public string F_CaseWorker_Approve_Status { get; set; } = string.Empty;
         public string F_CaseWorker_Approve_Remarks { get; set; } = string.Empty;
         public DateTime? F_CaseWorker_Approved_Date { get; set; }
+
         public string F_AO_SP_Approved_Status { get; set; } = string.Empty;
         public string F_AO_SP_Approved_Remarks { get; set; } = string.Empty;
         public DateTime? F_AO_SP_Approved_Date { get; set; }
+
         public string FO_Level2_ApprovedStatus { get; set; } = string.Empty;
         public string FO_Level2_ApprovedRemarks { get; set; } = string.Empty;
         public DateTime? FO_Level2_ApprovedDate { get; set; }
+
         public string Cashier_Update { get; set; } = string.Empty;
         public DateTime? CashierApprovedDate { get; set; }
+
         public string LicApprovalFileName { get; set; } = string.Empty;
-
-        //public string LicApprovalFileName { get; set; } = string.Empty;
-
         public string UploadedBills { get; set; } = string.Empty;
+
+        public DateOnly? InspectionDate { get; set; } = null;
+
+        public bool HasLicFile { get; set; } = false;
+        // ── Edit audit — populated by GetMember() from CWEditLog ─────────────
+        public List<LicTadaEditEntry> CWEditedFields { get; set; } = new List<LicTadaEditEntry>();
     }
 
     // ── Request models (form-encoded) ─────────────────────────────────────────
@@ -140,5 +176,33 @@ namespace Medical_Affiliation.Models
     {
         public int Id { get; set; }
         public string Remarks { get; set; } = string.Empty;
+    }
+
+    public class LicTadaEditLogEntry
+    {
+        public int LogId { get; set; }
+        public string EditedAt { get; set; } = "";
+        public string EditedBy { get; set; } = "";
+        public string EditorDesignation { get; set; } = "";
+        public string EditedAtStage { get; set; } = "";
+        public string ChangedFields { get; set; } = "";
+        public decimal? Old_Kilometers { get; set; }
+        public decimal? New_Kilometers { get; set; }
+        public decimal? Old_ReturnKilometers { get; set; }
+        public decimal? New_ReturnKilometers { get; set; }
+        public decimal? Old_TravelCost { get; set; }
+        public decimal? New_TravelCost { get; set; }
+        public decimal? Old_DACost { get; set; }
+        public decimal? New_DACost { get; set; }
+        public decimal? Old_LCACost { get; set; }
+        public decimal? New_LCACost { get; set; }
+        public bool? Old_IsLCA { get; set; }
+        public bool? New_IsLCA { get; set; }
+        public decimal? Old_AirRoadCost { get; set; }
+        public decimal? New_AirRoadCost { get; set; }
+        public decimal? Old_AirFair { get; set; }
+        public decimal? New_AirFair { get; set; }
+        public decimal? Old_TotalClaimAmount { get; set; }
+        public decimal? New_TotalClaimAmount { get; set; }
     }
 }
