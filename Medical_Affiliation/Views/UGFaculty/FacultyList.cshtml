@@ -1,0 +1,1360 @@
+﻿@{
+    ViewData["Title"] = "Faculty List";
+    Layout = null;
+
+    var collegeName = ViewBag.CollegeName as string ?? Context.Session.GetString("CollegeName") ?? "";
+    var collegeCode = Context.Session.GetString("CollegeCode") ?? "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faculty List</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+
+    <style>
+            :root {
+                --sidebar-w: 230px;
+                --navy: #0c1420;
+                --navy-2: #142033;
+                --accent: #2563eb;
+                --accent-light: #dbeafe;
+                --accent-dark: #1e40af;
+                --surface: #ffffff;
+                --bg: #f4f6fb;
+                --border: #e4e9f0;
+                --text: #0f172a;
+                --muted: #64748b;
+                --muted-2: #94a3b8;
+                --radius: 14px;
+                --radius-sm: 8px;
+                --radius-xs: 6px;
+                --shadow-card: 0 1px 3px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.05);
+                --shadow-subtle: 0 1px 2px rgba(15,23,42,.04);
+                --font-display: 'Libre Baskerville', Georgia, serif;
+                --font-body: 'DM Sans', sans-serif;
+                --transition: .18s ease;
+            }
+
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: var(--font-body);
+                background: var(--bg);
+                color: var(--text);
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+            /* ── SCROLLBAR ── */
+            ::-webkit-scrollbar {
+                width: 5px;
+                height: 5px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 99px;
+            }
+
+            /* ── SIDEBAR ── */
+            .sidebar {
+                width: var(--sidebar-w);
+                background: var(--navy);
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                display: flex;
+                flex-direction: column;
+                z-index: 100;
+                overflow-y: auto;
+            }
+
+            .sb-brand {
+                padding: 1.3rem 1.1rem 1.1rem;
+                border-bottom: 1px solid rgba(255,255,255,.07);
+            }
+
+            .sb-logo-row {
+                display: flex;
+                align-items: center;
+                gap: .65rem;
+                margin-bottom: .35rem;
+            }
+
+            .sb-logo-dot {
+                width: 32px;
+                height: 32px;
+                border-radius: 9px;
+                background: var(--accent);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+
+            .sb-brand h5 {
+                font-family: var(--font-display);
+                color: #fff;
+                font-size: .92rem;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .sb-brand small {
+                color: rgba(255,255,255,.38);
+                font-size: .72rem;
+                letter-spacing: .03em;
+            }
+
+            .sb-section {
+                padding: 1.1rem 1rem .3rem;
+                font-size: .65rem;
+                color: rgba(255,255,255,.28);
+                letter-spacing: .12em;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+
+            .sb-nav {
+                padding: 0 .55rem;
+                flex: 1;
+            }
+
+            .sb-item {
+                margin-bottom: 2px;
+            }
+
+            .sb-link {
+                display: flex;
+                align-items: center;
+                gap: .65rem;
+                padding: .65rem .85rem;
+                border-radius: var(--radius-sm);
+                color: rgba(255,255,255,.55);
+                text-decoration: none;
+                font-size: .82rem;
+                font-weight: 500;
+                transition: var(--transition);
+                cursor: pointer;
+            }
+
+                .sb-link:hover {
+                    background: rgba(255,255,255,.06);
+                    color: rgba(255,255,255,.88);
+                }
+
+                .sb-link.active {
+                    background: rgba(37,99,235,.25);
+                    color: #93c5fd;
+                }
+
+                    .sb-link.active .sb-icon {
+                        background: rgba(37,99,235,.35);
+                        color: #60a5fa;
+                    }
+
+            .sb-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: var(--radius-xs);
+                background: rgba(255,255,255,.07);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: .95rem;
+                flex-shrink: 0;
+                transition: var(--transition);
+            }
+
+            .sb-divider {
+                border: none;
+                border-top: 1px solid rgba(255,255,255,.07);
+                margin: .6rem .55rem;
+            }
+
+            /* ── MAIN ── */
+            .main-wrap {
+                margin-left: var(--sidebar-w);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* ── TOPBAR ── */
+            .topbar {
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                padding: .9rem 1.6rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                box-shadow: var(--shadow-subtle);
+            }
+
+            .topbar-left {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .topbar-breadcrumb {
+                font-size: .7rem;
+                color: var(--muted-2);
+                letter-spacing: .07em;
+                text-transform: uppercase;
+                font-weight: 600;
+                margin-bottom: 3px;
+            }
+
+            .topbar-title {
+                font-family: var(--font-display);
+                font-size: 1.3rem;
+                color: var(--text);
+                line-height: 1.2;
+            }
+
+            .college-chip {
+                display: flex;
+                align-items: center;
+                gap: .75rem;
+                background: #f0f5ff;
+                border: 1px solid #c7d9ff;
+                border-radius: var(--radius);
+                padding: .65rem 1rem;
+            }
+
+            .college-chip-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: var(--radius-sm);
+                background: var(--accent);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.05rem;
+                flex-shrink: 0;
+            }
+
+            .chip-label {
+                font-size: .65rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .07em;
+                color: #93aada;
+                margin-bottom: 2px;
+            }
+
+            .chip-name {
+                font-size: .88rem;
+                font-weight: 600;
+                color: #1e3a8a;
+                line-height: 1.2;
+            }
+
+            .chip-code {
+                font-size: .72rem;
+                color: #3b5bdb;
+                margin-top: 2px;
+            }
+
+            /* ── PAGE BODY ── */
+            .page-body {
+                padding: 1.4rem 1.6rem;
+                flex: 1;
+            }
+
+            /* ── STATS ROW ── */
+            .stats-row {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: .85rem;
+                margin-bottom: 1.2rem;
+            }
+
+            .stat-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 1rem 1.1rem;
+                display: flex;
+                align-items: center;
+                gap: .85rem;
+                box-shadow: var(--shadow-card);
+                transition: var(--transition);
+            }
+
+                .stat-card:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 20px rgba(15,23,42,.09);
+                }
+
+            .stat-icon {
+                width: 42px;
+                height: 42px;
+                border-radius: var(--radius-sm);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+                flex-shrink: 0;
+            }
+
+                .stat-icon.blue {
+                    background: #dbeafe;
+                    color: #1d4ed8;
+                }
+
+                .stat-icon.green {
+                    background: #dcfce7;
+                    color: #15803d;
+                }
+
+                .stat-icon.amber {
+                    background: #fef3c7;
+                    color: #b45309;
+                }
+
+                .stat-icon.purple {
+                    background: #ede9fe;
+                    color: #6d28d9;
+                }
+
+            .stat-num {
+                font-family: var(--font-display);
+                font-size: 1.45rem;
+                color: var(--text);
+                line-height: 1;
+            }
+
+            .stat-lbl {
+                font-size: .73rem;
+                color: var(--muted);
+                font-weight: 500;
+                margin-top: 3px;
+            }
+
+            /* ── TOOLBAR ── */
+            .toolbar {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 1rem 1.1rem;
+                margin-bottom: 1rem;
+                display: grid;
+                grid-template-columns: 2fr 1fr 1fr 1fr;
+                gap: .75rem;
+                align-items: center;
+                box-shadow: var(--shadow-card);
+            }
+
+            .search-wrap {
+                position: relative;
+            }
+
+                .search-wrap i {
+                    position: absolute;
+                    left: 13px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--muted-2);
+                    font-size: 1rem;
+                    pointer-events: none;
+                    z-index: 2;
+                }
+
+            .search-input {
+                width: 100%;
+                height: 42px;
+                padding-left: 40px !important;
+                border: 1.5px solid var(--border) !important;
+                border-radius: var(--radius-sm) !important;
+                background: var(--bg) !important;
+                font-size: .84rem !important;
+                font-family: var(--font-body) !important;
+                color: var(--text) !important;
+                transition: var(--transition);
+                box-shadow: none !important;
+            }
+
+                .search-input::placeholder {
+                    color: var(--muted-2);
+                }
+
+                .search-input:focus {
+                    border-color: var(--accent) !important;
+                    background: #fff !important;
+                    box-shadow: 0 0 0 4px rgba(37,99,235,.1) !important;
+                    outline: none;
+                }
+
+            .filter-select {
+                height: 42px;
+                border: 1.5px solid var(--border) !important;
+                border-radius: var(--radius-sm) !important;
+                background: var(--bg) !important;
+                font-size: .84rem !important;
+                font-family: var(--font-body) !important;
+                color: var(--text) !important;
+                transition: var(--transition);
+                box-shadow: none !important;
+                cursor: pointer;
+                width: 100%;
+                padding: 0 .75rem;
+                appearance: auto;
+            }
+
+                .filter-select:focus {
+                    border-color: var(--accent) !important;
+                    background: #fff !important;
+                    box-shadow: 0 0 0 4px rgba(37,99,235,.1) !important;
+                    outline: none;
+                }
+
+            /* ── TABLE ── */
+            .table-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                overflow: hidden;
+                box-shadow: var(--shadow-card);
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            .faculty-table {
+                width: 100%;
+                min-width: 1850px;
+                border-collapse: collapse;
+            }
+
+                .faculty-table thead th {
+                    background: var(--navy);
+                    color: rgba(255,255,255,.82);
+                    padding: .85rem .95rem;
+                    font-size: .68rem;
+                    text-transform: uppercase;
+                    letter-spacing: .08em;
+                    font-weight: 600;
+                    white-space: nowrap;
+                    text-align: left;
+                }
+
+                    .faculty-table thead th:first-child {
+                        padding-left: 1.2rem;
+                    }
+
+                .faculty-table tbody td {
+                    padding: .85rem .95rem;
+                    border-bottom: 1px solid #f1f5f9;
+                    font-size: .83rem;
+                    color: var(--text);
+                    vertical-align: middle;
+                }
+
+                    .faculty-table tbody td:first-child {
+                        padding-left: 1.2rem;
+                        color: var(--muted-2);
+                        font-size: .78rem;
+                    }
+
+                .faculty-table tbody tr:last-child td {
+                    border-bottom: none;
+                }
+
+                .faculty-table tbody tr {
+                    transition: background var(--transition);
+                }
+
+                    .faculty-table tbody tr:hover td {
+                        background: #f8faff;
+                    }
+
+            /* Name cell */
+            .name-strong {
+                font-weight: 600;
+                font-size: .85rem;
+                color: var(--text);
+                display: block;
+            }
+
+            /* Dept chip */
+            .dept-chip {
+                display: inline-block;
+                background: #f0f5ff;
+                color: #3b5bdb;
+                border: 1px solid #c7d9ff;
+                border-radius: 20px;
+                padding: 3px 10px;
+                font-size: .7rem;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            /* Designation */
+            .desig-text {
+                font-size: .78rem;
+                color: var(--muted);
+            }
+
+            /* Employment badge */
+            .emp-badge {
+                display: inline-block;
+                padding: 4px 11px;
+                border-radius: 20px;
+                font-size: .7rem;
+                font-weight: 700;
+                letter-spacing: .02em;
+            }
+
+                .emp-badge.permanent {
+                    background: #dcfce7;
+                    color: #166534;
+                }
+
+                .emp-badge.contract {
+                    background: #fef9c3;
+                    color: #854d0e;
+                }
+
+                .emp-badge.others {
+                    background: #f1f5f9;
+                    color: #475569;
+                }
+
+            /* Status badge */
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: #dbeafe;
+                color: #1e40af;
+                padding: 4px 11px;
+                border-radius: 20px;
+                font-size: .7rem;
+                font-weight: 700;
+            }
+
+            .status-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #3b82f6;
+                flex-shrink: 0;
+            }
+
+            /* Photo */
+            .thumb-img {
+                width: 40px;
+                height: 50px;
+                object-fit: cover;
+                border-radius: var(--radius-xs);
+                border: 1px solid var(--border);
+            }
+
+            .thumb-placeholder {
+                width: 40px;
+                height: 50px;
+                background: #f1f5f9;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-xs);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--muted-2);
+                font-size: 1rem;
+            }
+
+            /* View button */
+            .btn-view {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: transparent;
+                border: 1.5px solid var(--border);
+                border-radius: var(--radius-xs);
+                color: var(--muted);
+                padding: .38rem .75rem;
+                font-size: .75rem;
+                font-weight: 600;
+                font-family: var(--font-body);
+                cursor: pointer;
+                transition: var(--transition);
+                white-space: nowrap;
+            }
+
+                .btn-view:hover {
+                    background: var(--accent);
+                    border-color: var(--accent);
+                    color: white;
+                }
+
+            /* ── PAGINATION ── */
+            .pagination-wrap {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: .9rem 1.2rem;
+                border-top: 1px solid var(--border);
+                flex-wrap: wrap;
+                gap: .75rem;
+                background: #fafbfd;
+            }
+
+            .page-info {
+                font-size: .78rem;
+                color: var(--muted);
+                font-weight: 500;
+            }
+
+            .pagination-btns {
+                display: flex;
+                gap: 5px;
+            }
+
+            .pg-btn {
+                min-width: 34px;
+                height: 34px;
+                padding: 0 8px;
+                border: 1.5px solid var(--border);
+                border-radius: var(--radius-xs);
+                background: var(--surface);
+                color: var(--text);
+                font-size: .78rem;
+                font-weight: 600;
+                font-family: var(--font-body);
+                cursor: pointer;
+                transition: var(--transition);
+            }
+
+                .pg-btn:hover {
+                    background: var(--accent-light);
+                    border-color: #93c5fd;
+                    color: var(--accent-dark);
+                }
+
+                .pg-btn.active {
+                    background: var(--accent);
+                    border-color: var(--accent);
+                    color: white;
+                }
+
+                .pg-btn:disabled {
+                    opacity: .4;
+                    cursor: not-allowed;
+                }
+
+            /* ── EMPTY STATE ── */
+            .empty-state {
+                padding: 3.5rem 1rem;
+                text-align: center;
+                color: var(--muted);
+            }
+
+                .empty-state i {
+                    font-size: 2.5rem;
+                    color: var(--muted-2);
+                    display: block;
+                    margin-bottom: .75rem;
+                }
+
+                .empty-state p {
+                    font-size: .88rem;
+                    color: var(--muted);
+                }
+
+            /* ── RESPONSIVE ── */
+            @@media (max-width: 1400px) {
+                .toolbar {
+                    grid-template-columns: 1fr 1fr;
+                }
+
+                .stats-row {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @@media (max-width: 768px) {
+                .toolbar {
+                    grid-template-columns: 1fr;
+                }
+
+                .stats-row {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            /* ── FADE-IN ── */
+            .fade-in {
+                animation: fadeUp .3s ease both;
+            }
+
+            @@keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(8px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar">
+        <div class="sb-brand">
+            <div class="sb-logo-row">
+                <div class="sb-logo-dot">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                    <h5>College Portal</h5>
+                </div>
+            </div>
+            <small>UG Faculty Management</small>
+        </div>
+
+        <div class="sb-nav">
+            <div class="sb-section">UG Faculty</div>
+
+            <div class="sb-item">
+                <a class="sb-link" href="@Url.Action("AddFaculty", "UGFaculty")">
+                    <span class="sb-icon"><i class="bi bi-person-plus-fill"></i></span>
+                    Add Faculty
+                </a>
+            </div>
+
+            <div class="sb-item">
+                <a class="sb-link active" href="@Url.Action("FacultyList", "UGFaculty")">
+                    <span class="sb-icon"><i class="bi bi-people-fill"></i></span>
+                    Faculty List
+                </a>
+            </div>
+
+            <hr class="sb-divider" />
+
+            <div class="sb-item">
+                <a class="sb-link"
+                   asp-controller="CollegeLogin"
+                   asp-action="Dashboard">
+                    <span class="sb-icon"><i class="bi bi-arrow-left-circle-fill"></i></span>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══ MAIN ═══ -->
+    <div class="main-wrap">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <div>
+                    <div class="topbar-breadcrumb">UG Faculty Management</div>
+                    <div class="topbar-title">Faculty Master List</div>
+                </div>
+            </div>
+
+            <div class="college-chip">
+                <div class="college-chip-icon">
+                    <i class="bi bi-building-fill"></i>
+                </div>
+                <div>
+                    <div class="chip-label">College</div>
+                    <div class="chip-name">@collegeName</div>
+                    <div class="chip-code">Code: @collegeCode</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE BODY -->
+        <div class="page-body">
+
+            <!-- STATS ROW -->
+            <div class="stats-row fade-in">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+                    <div>
+                        <div class="stat-num" id="statTotal">—</div>
+                        <div class="stat-lbl">Total Faculty</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="bi bi-patch-check-fill"></i></div>
+                    <div>
+                        <div class="stat-num" id="statPermanent">—</div>
+                        <div class="stat-lbl">Permanent</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                    <div>
+                        <div class="stat-num" id="statContract">—</div>
+                        <div class="stat-lbl">Contract</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="bi bi-diagram-3-fill"></i></div>
+                    <div>
+                        <div class="stat-num" id="statDepts">—</div>
+                        <div class="stat-lbl">Departments</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar fade-in" style="animation-delay:.05s">
+                <div class="search-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text"
+                           id="searchInput"
+                           class="search-input"
+                           placeholder="Search by name, mobile, PAN…" />
+                </div>
+
+                <select class="filter-select" id="deptFilter">
+                    <option value="">All Departments</option>
+                </select>
+
+                <select class="filter-select" id="designationFilter">
+                    <option value="">All Designations</option>
+                </select>
+
+                <select class="filter-select" id="natureFilter">
+                    <option value="">All Employment</option>
+                    <option value="Permanent">Permanent</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+
+            <!-- TABLE -->
+            <div class="table-card fade-in" style="animation-delay:.1s">
+                <div class="table-responsive">
+                    <table class="faculty-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Department</th>
+                                <th>Faculty Name</th>
+                                <th>Designation</th>
+                                <th>DOB</th>
+                                <th>Appointment</th>
+                                <th>Mobile</th>
+                                <th>PAN No.</th>
+                                <th>Registration No</th>
+                                <th>AEBAS ID</th>
+                                <th>Qualification</th>
+                                <th>Employment</th>
+                                <th>Experience</th>
+                                <th>Photo</th>
+                                <th>View</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="facultyBody">
+                            <tr>
+                                <td colspan="12">
+                                    <div class="empty-state">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                        <p>Loading faculty records…</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-wrap">
+                    <div class="page-info" id="pageInfo">Showing 1 to 10</div>
+                    <div class="pagination-btns" id="paginationBtns"></div>
+                </div>
+            </div>
+
+        </div><!-- /page-body -->
+    </div><!-- /main-wrap -->
+    <!-- ── FACULTY DETAIL MODAL ── -->
+    <div class="modal fade" id="facultyDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:580px;">
+            <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden;">
+                <div style="background:linear-gradient(135deg,#0d1b2a,#1e3a5f);padding:1.2rem 1.6rem;display:flex;align-items:flex-start;justify-content:space-between;">
+                    <div>
+                        <div style="font-family:'Playfair Display',serif;color:#fff;font-size:1.1rem;font-weight:700;margin:0;" id="fdm_name">—</div>
+                        <div style="color:rgba(255,255,255,.5);font-size:.75rem;margin-top:3px;" id="fdm_desig">—</div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div style="display:flex;border-bottom:1px solid #f0f4f9;">
+                        <div style="width:150px;flex-shrink:0;background:#f8fafc;border-right:1px solid #f0f4f9;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.4rem 1rem;gap:.8rem;">
+                            <div id="fdm_photo"></div>
+                            <span id="fdm_dept" style="font-size:.72rem;font-weight:600;background:#dbeafe;color:#1d4ed8;border-radius:20px;padding:3px 10px;text-align:center;line-height:1.5;"></span>
+                            <span id="fdm_nature_badge" style="font-size:.72rem;font-weight:600;border-radius:20px;padding:3px 10px;"></span>
+                        </div>
+                        <div style="flex:1;padding:1.2rem 1.4rem;display:grid;grid-template-columns:1fr 1fr;gap:.85rem .5rem;align-content:start;">
+                            <div>
+                                <div style="font-size:.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;"><i class="bi bi-calendar3 me-1"></i>Date of Birth</div>
+                                <div style="font-size:.88rem;font-weight:600;color:#0d1b2a;margin-top:2px;" id="fdm_dob">—</div>
+                            </div>
+                            <div>
+                                <div style="font-size:.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;"><i class="bi bi-calendar-check me-1"></i>Date of Appointment</div>
+                                <div style="font-size:.88rem;font-weight:600;color:#0d1b2a;margin-top:2px;" id="fdm_doa">—</div>
+                            </div>
+                            <div>
+                                <div style="font-size:.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;"><i class="bi bi-award-fill me-1"></i>Qualification</div>
+                                <div style="font-size:.88rem;font-weight:600;color:#0d1b2a;margin-top:2px;" id="fdm_qual">—</div>
+                            </div>
+                            <div>
+                                <div style="font-size:.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;"><i class="bi bi-clock-fill me-1"></i>Teaching Experience</div>
+                                <div style="font-size:.88rem;font-weight:600;color:#0d1b2a;margin-top:2px;" id="fdm_exp">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding:.85rem 1.4rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid #f0f4f9;gap:1rem;">
+                            <span style="font-size:.78rem;color:#64748b;font-weight:500;flex-shrink:0;"><i class="bi bi-phone-fill me-2 text-primary"></i>Mobile No.</span>
+                            <span style="font-size:.82rem;font-weight:600;color:#0d1b2a;" id="fdm_mobile">—</span>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid #f0f4f9;gap:1rem;">
+                            <span style="font-size:.78rem;color:#64748b;font-weight:500;flex-shrink:0;"><i class="bi bi-card-text me-2 text-primary"></i>PAN No.</span>
+                            <span style="font-size:.82rem;font-weight:600;color:#0d1b2a;" id="fdm_pan">—</span>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid #f0f4f9;gap:1rem;">
+                            <span style="font-size:.78rem;color:#64748b;font-weight:500;flex-shrink:0;"><i class="bi bi-clipboard2-check-fill me-2 text-primary"></i>State / NMC Reg. No.</span>
+                            <span style="font-size:.82rem;font-weight:600;color:#0d1b2a;" id="fdm_reg">—</span>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;gap:1rem;">
+                            <span style="font-size:.78rem;color:#64748b;font-weight:500;flex-shrink:0;"><i class="bi bi-person-badge-fill me-2 text-primary"></i>AEBAS Attend ID</span>
+                            <span style="font-size:.82rem;font-weight:600;color:#0d1b2a;" id="fdm_aebas">—</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="border-top:1px solid #f0f4f9;padding:.8rem 1.4rem;display:flex;justify-content:flex-end;">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" style="font-size:.82rem;border-radius:8px;padding:.38rem 1rem;">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+            let allFaculty = [];
+            let currentPage = 1;
+            const rowsPerPage = 10;
+
+            /* ── LOAD ── */
+            async function loadFaculty() {
+                try {
+                    const response = await fetch('@Url.Action("GetAllFaculty", "UGFaculty")');
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        showError(result.message || 'Failed to load faculty');
+                        return;
+                    }
+
+                    allFaculty = result.data || [];
+                    updateStats();
+                    renderFaculty(allFaculty);
+                    populateDepartmentFilter();
+                    populateDesignationFilter();
+                } catch (err) {
+                    console.error(err);
+                    showError('Failed to load faculty. Please try again.');
+                }
+            }
+
+            function showError(msg) {
+                document.getElementById('facultyBody').innerHTML = `
+                    <tr><td colspan="12">
+                        <div class="empty-state">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <p>${msg}</p>
+                        </div>
+                    </td></tr>`;
+            }
+
+            /* ── STATS ── */
+            function updateStats() {
+                document.getElementById('statTotal').textContent     = allFaculty.length;
+                document.getElementById('statPermanent').textContent = allFaculty.filter(f => f.natureOfEmployment === 'Permanent').length;
+                document.getElementById('statContract').textContent  = allFaculty.filter(f => f.natureOfEmployment === 'Contract').length;
+                document.getElementById('statDepts').textContent     = new Set(allFaculty.map(f => f.departmentCode).filter(Boolean)).size;
+            }
+
+            /* ── FILTERS ── */
+            function populateDepartmentFilter() {
+
+                const el = document.getElementById('deptFilter');
+
+                el.innerHTML =
+                    '<option value="">All Departments</option>';
+
+                [...new Set(allFaculty.map(x => x.departmentName))]
+                    .filter(Boolean)
+                    .forEach(d => {
+
+                        el.innerHTML += `
+                            <option value="${d}">
+                                ${d}
+                            </option>
+                        `;
+                    });
+            }
+
+            function populateDesignationFilter() {
+
+                const el =
+                    document.getElementById('designationFilter');
+
+                el.innerHTML =
+                    '<option value="">All Designations</option>';
+
+                [...new Set(allFaculty.map(x => x.designationName))]
+                    .filter(Boolean)
+                    .forEach(d => {
+
+                        el.innerHTML += `
+                            <option value="${d}">
+                                ${d}
+                            </option>
+                        `;
+                    });
+            }
+
+            /* ── RENDER TABLE ── */
+            function renderFaculty(data) {
+                const tbody = document.getElementById('facultyBody');
+
+                if (!data.length) {
+                    tbody.innerHTML = `
+                        <tr><td colspan="12">
+                            <div class="empty-state">
+                                <i class="bi bi-person-x"></i>
+                                <p>No faculty found matching your filters.</p>
+                            </div>
+                        </td></tr>`;
+                    document.getElementById('paginationBtns').innerHTML = '';
+                    document.getElementById('pageInfo').textContent = '0 results';
+                    return;
+                }
+
+                const start = (currentPage - 1) * rowsPerPage;
+                const end   = start + rowsPerPage;
+                const slice = data.slice(start, end);
+
+                tbody.innerHTML = '';
+
+                slice.forEach((f, index) => {
+
+                    const photoHtml = f.photoFilePath
+                        ? `<img src="${f.photoFilePath}" class="thumb-img"  />`
+                        : `<div class="thumb-placeholder"><i class="bi bi-person"></i></div>`;
+
+                    const empClass = (f.natureOfEmployment || '').toLowerCase();
+
+                    tbody.innerHTML += `
+                        <tr>
+
+                            <td>${start + index + 1}</td>
+
+                            <td>
+                                <span class="dept-chip">
+                                    ${f.departmentName ?? f.departmentCode ?? '—'}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="name-strong">
+                                    ${f.nameOftheFaculty ?? '—'}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="desig-text">
+                                    ${f.designationName ?? f.designationCode ?? '—'}
+                                </span>
+                            </td>
+
+                            <td>${f.dob ?? '—'}</td>
+
+                            <td>${f.dateOfAppointment ?? '—'}</td>
+
+                            <td>${f.mobileNo ?? '—'}</td>
+
+                            <td>${f.panNo ?? '—'}</td>
+
+                            <td>${f.stateCouncilRegNo ?? '—'}</td>
+
+                            <td>${f.aEBASAttendId ?? '—'}</td>
+
+                            <td>${f.professionalQualification ?? '—'}</td>
+
+                            <td>
+                                <span class="emp-badge
+                                    ${f.natureOfEmployment === 'Permanent'
+                                        ? 'permanent'
+                                        : f.natureOfEmployment === 'Contract'
+                                            ? 'contract'
+                                            : 'others'}">
+
+                                    ${f.natureOfEmployment ?? '—'}
+
+                                </span>
+                            </td>
+
+                            <td>${f.teachingExpInYrs ?? '—'} Yrs</td>
+
+                            <td>
+                                ${photoHtml}
+                            </td>
+
+                            <td>
+                                <button class="btn-view"
+                                        onclick="viewFaculty(${f.id})">
+
+                                    <i class="bi bi-eye-fill"></i>
+                                    View
+
+                                </button>
+                            </td>
+
+                            <td>
+                                <span class="status-badge">
+                                    <span class="status-dot"></span>
+                                    Submitted
+                                </span>
+                            </td>
+
+                        </tr>
+                        `;
+                });
+
+                renderPagination(data.length);
+            }
+
+            /* ── PAGINATION ── */
+            function renderPagination(totalRows) {
+                const totalPages = Math.ceil(totalRows / rowsPerPage);
+                const container  = document.getElementById('paginationBtns');
+                container.innerHTML = '';
+
+                if (totalPages <= 1) {
+                    document.getElementById('pageInfo').textContent =
+                        `Showing ${Math.min(totalRows, rowsPerPage)} of ${totalRows} faculty`;
+                    return;
+                }
+
+                // Prev
+                const prev = document.createElement('button');
+                prev.className = 'pg-btn';
+                prev.innerHTML = '<i class="bi bi-chevron-left"></i>';
+                prev.disabled  = currentPage === 1;
+                prev.onclick   = () => goToPage(currentPage - 1);
+                container.appendChild(prev);
+
+                // Page numbers (show max 5)
+                let startP = Math.max(1, currentPage - 2);
+                let endP   = Math.min(totalPages, startP + 4);
+                if (endP - startP < 4) startP = Math.max(1, endP - 4);
+
+                for (let i = startP; i <= endP; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = `pg-btn${i === currentPage ? ' active' : ''}`;
+                    btn.textContent = i;
+                    btn.onclick = () => goToPage(i);
+                    container.appendChild(btn);
+                }
+
+                // Next
+                const next = document.createElement('button');
+                next.className = 'pg-btn';
+                next.innerHTML = '<i class="bi bi-chevron-right"></i>';
+                next.disabled  = currentPage === totalPages;
+                next.onclick   = () => goToPage(currentPage + 1);
+                container.appendChild(next);
+
+                const start = (currentPage - 1) * rowsPerPage + 1;
+                const end   = Math.min(currentPage * rowsPerPage, totalRows);
+                document.getElementById('pageInfo').textContent =
+                    `Showing ${start}–${end} of ${totalRows} faculty`;
+            }
+
+            function goToPage(page) {
+                currentPage = page;
+                filterFaculty(false);
+            }
+
+            /* ── FILTERING ── */
+            function applyFilters() {
+                currentPage = 1;
+                filterFaculty(true);
+            }
+
+            function filterFaculty(resetPage = false) {
+                const search      = document.getElementById('searchInput').value.toLowerCase();
+                const dept        = document.getElementById('deptFilter').value;
+                const designation = document.getElementById('designationFilter').value;
+                const nature      = document.getElementById('natureFilter').value;
+
+                const filtered = allFaculty.filter(f => {
+                    const matchSearch =
+                        (f.nameOftheFaculty || '').toLowerCase().includes(search) ||
+                        (f.mobileNo || '').toLowerCase().includes(search) ||
+                        (f.panNo || '').toLowerCase().includes(search);
+
+                    return matchSearch
+                                   && (!dept || f.departmentName === dept)
+            && (!designation || f.designationName === designation)
+                        && (!nature      || f.natureOfEmployment  === nature);
+                });
+
+                renderFaculty(filtered);
+            }
+
+            
+            function viewFaculty(id) {
+
+                const f = allFaculty.find(x => x.id == id);
+
+                if (!f) return;
+
+                document.getElementById('fdm_name').innerText =
+                    f.nameOftheFaculty || '—';
+
+                document.getElementById('fdm_desig').innerText =
+                    f.designationName || f.designationCode || '—';
+
+                document.getElementById('fdm_dept').innerText =
+                    f.departmentName || f.departmentCode || '—';
+
+                document.getElementById('fdm_dob').innerText =
+                    f.dob || '—';
+
+                document.getElementById('fdm_doa').innerText =
+                    f.dateOfAppointment || '—';
+
+                document.getElementById('fdm_mobile').innerText =
+                    f.mobileNo || '—';
+
+                document.getElementById('fdm_pan').innerText =
+                    f.panNo || '—';
+
+                document.getElementById('fdm_reg').innerText =
+                    f.stateCouncilRegNo || '—';
+
+                document.getElementById('fdm_aebas').innerText =
+                    f.aEBASAttendId  || '—';
+
+                document.getElementById('fdm_qual').innerText =
+                    f.professionalQualification || '—';
+
+                document.getElementById('fdm_exp').innerText =
+                    f.teachingExpInYrs
+                        ? f.teachingExpInYrs + ' Years'
+                        : '—';
+
+                // Employment Badge
+
+                const badge =
+                    document.getElementById('fdm_nature_badge');
+
+                badge.innerText =
+                    f.natureOfEmployment || '—';
+
+                badge.style.background = '#f1f5f9';
+                badge.style.color = '#475569';
+
+                if (f.natureOfEmployment === 'Permanent') {
+
+                    badge.style.background = '#dcfce7';
+                    badge.style.color = '#166534';
+                }
+                else if (f.natureOfEmployment === 'Contract') {
+
+                    badge.style.background = '#fef3c7';
+                    badge.style.color = '#854d0e';
+                }
+
+                // Photo
+
+                if (f.photoFilePath) {
+
+                    document.getElementById('fdm_photo').innerHTML = `
+                        <img src="${f.photoFilePath}"
+                             style="
+                                width:90px;
+                                height:110px;
+                                object-fit:cover;
+                                border-radius:12px;
+                                border:2px solid #dbeafe;
+                             " />
+                    `;
+                }
+                else {
+
+                    document.getElementById('fdm_photo').innerHTML = `
+                        <div style="
+                            width:90px;
+                            height:110px;
+                            border-radius:12px;
+                            background:#e2e8f0;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            font-size:2rem;
+                            color:#94a3b8;
+                        ">
+                            <i class="bi bi-person"></i>
+                        </div>
+                    `;
+                }
+
+                const modal = new bootstrap.Modal(
+                    document.getElementById('facultyDetailModal')
+                );
+
+                modal.show();
+            }
+
+            /* ── EVENT LISTENERS ── */
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('deptFilter').addEventListener('change', applyFilters);
+            document.getElementById('designationFilter').addEventListener('change', applyFilters);
+            document.getElementById('natureFilter').addEventListener('change', applyFilters);
+
+            /* ── INIT ── */
+            loadFaculty();
+    </script>
+
+</body>
+</html>
