@@ -1,4 +1,4 @@
-﻿@model Medical_Affiliation.Models.LicTadaMember
+@model Medical_Affiliation.Models.LicTadaMember
 @{
     var mname = ViewBag.MemberName as string ?? "Member";
     var mode = ViewBag.Mode as string ?? "view";
@@ -7,58 +7,67 @@
     switch (Model.TypeOfMembers)
     {
         case "AC Member":
-            clr = "#6d35cc"; clrL = "#f0eafd"; clrB = "#c9b3f5";
-            clrGrad = "linear-gradient(135deg,#6d35cc,#9b59e8)"; break;
+            clr = "#7c3aed"; clrL = "#ede9fe"; clrB = "#c4b5fd";
+            clrGrad = "linear-gradient(135deg,#7c3aed,#a855f7)"; break;
         case "Subject Expert":
         case "Subject Expertise":
-            clr = "#0f9b6e"; clrL = "#e5f7f2"; clrB = "#86e0c8";
-            clrGrad = "linear-gradient(135deg,#0f9b6e,#1ac48c)"; break;
+            clr = "#16a37f"; clrL = "#d1fae5"; clrB = "#6ee7b7";
+            clrGrad = "linear-gradient(135deg,#16a37f,#34d399)"; break;
         default:
-            clr = "#2d6be4"; clrL = "#e8f0fd"; clrB = "#b3cdfb";
-            clrGrad = "linear-gradient(135deg,#2d6be4,#5b8ef0)"; break;
+            clr = "#2563eb"; clrL = "#dbeafe"; clrB = "#93c5fd";
+            clrGrad = "linear-gradient(135deg,#2563eb,#60a5fa)"; break;
     }
 
     string F(decimal v) => "₹ " + string.Format("{0:#,##0}", v);
-    string Dt(DateTime? d) => d.HasValue ? d.Value.ToString("dd MMM yyyy") : "—";
+    // string Dt(DateTime? d) => d.HasValue ? d.Value.ToString("dd MMM yyyy") : "—";
+    string Dt(DateTime? d) => d.HasValue ? d.Value.ToString("dd MMM yyyy", System.Globalization.CultureInfo.InvariantCulture) : "—";
 
     bool cwActioned = Model.F_CaseWorker_Approve_Status == "Verified"
                     || Model.F_CaseWorker_Approve_Status == "Rejected";
     bool aoActioned = Model.F_AO_SP_Approved_Status == "Approved"
                     || Model.F_AO_SP_Approved_Status == "Rejected";
-    bool fo2Actioned = Model.FO_Level2_ApprovedStatus == "Approved"
+    bool FO2Actioned = Model.FO_Level2_ApprovedStatus == "Approved"
                     || Model.FO_Level2_ApprovedStatus == "Rejected";
 
     bool hasBills = !string.IsNullOrEmpty(Model.UploadedBills);
     bool hasOrder = !string.IsNullOrEmpty(Model.LicApprovalFileName);
     bool isBills64 = hasBills && Model.UploadedBills.Length > 200;
 
+    bool kmEditable = mode == "cw" || mode == "ao" || mode == "FO2";
+
+    decimal lcaDefault = Model.IsBanglore ? 500m : 300m;
+    decimal daDefault = Model.IsBanglore ? 1500m : 900m;
+
     var trail = new (string Lbl, string Icon, string Sts, string Date)[]
     {
         ("Director",    "🏛", Model.DR_ApprovalStatus,           Dt(Model.DRApprovedDate)),
         ("FO Level 1",  "💼", Model.FO_Level1_ApprovedStatus,    Dt(Model.FO_Level1_ForwardedDate)),
         ("Case Worker", "🔍", Model.F_CaseWorker_Approve_Status, Dt(Model.F_CaseWorker_Approved_Date)),
-        ("AO / SP",     "📊", Model.F_AO_SP_Approved_Status,     Dt(Model.F_AO_SP_Approved_Date)),
+        ("SO/AS/AO",     "📊", Model.F_AO_SP_Approved_Status,     Dt(Model.F_AO_SP_Approved_Date)),
         ("FO Level 2",  "✅", Model.FO_Level2_ApprovedStatus,    Dt(Model.FO_Level2_ApprovedDate)),
         ("Cashier",     "💳", Model.Cashier_Update,              Dt(Model.CashierApprovedDate)),
     };
+}
 
-    bool kmEditable = mode == "cw" || mode == "ao" || mode == "fo2";
+@if (kmEditable)
+{
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 }
 
 <!-- ═══ HEADER ═══ -->
-<div style="background:linear-gradient(135deg,#0f1b35,#1e2d52);padding:26px 30px 22px;border-radius:30px 30px 0 0;
+<div style="background:linear-gradient(135deg,#111827,#1a2540);padding:26px 30px 22px;border-radius:24px 24px 0 0;
             display:flex;justify-content:space-between;align-items:flex-start;gap:16px;position:relative;overflow:hidden">
     <div style="position:absolute;inset:0;opacity:.03;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:24px 24px;pointer-events:none"></div>
     <div style="flex:1;min-width:0;position:relative;z-index:1">
         <span style="display:inline-block;border-radius:20px;padding:3px 13px;background:@(clrL)22;color:@clr;
-                     border:1px solid @(clrB)66;font-size:10px;font-family:'JetBrains Mono',monospace;
+                     border:1px solid @(clrB)66;font-size:10px;font-family:'IBM Plex Mono',monospace;
                      font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">
             @(Model.TypeOfMembers ?? "Member")
         </span>
-        <h2 style="font-size:24px;font-weight:800;color:#ffffff;letter-spacing:-.03em;line-height:1.2;font-family:'Outfit',sans-serif">
+        <h2 style="font-size:24px;font-weight:800;color:#ffffff;letter-spacing:-.03em;line-height:1.2;font-family:'Inter',sans-serif">
             @mname
         </h2>
-        <div style="color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-size:11.5px;margin-top:7px;display:flex;gap:14px;flex-wrap:wrap">
+        <div style="color:rgba(255,255,255,.5);font-family:'IBM Plex Mono',monospace;font-size:11.5px;margin-top:7px;display:flex;gap:14px;flex-wrap:wrap">
             <span>📱 @Model.MobileNo</span>
             <span>📍 @(string.IsNullOrEmpty(Model.Division) ? "N/A" : Model.Division)</span>
             <span>📅 @Model.NoOfDays day(s)</span>
@@ -79,31 +88,30 @@
     </button>
 </div>
 
-<!-- ═══ CW REMARKS BANNER — shown to AO and FO2 ═══ -->
-@if ((mode == "ao" || mode == "fo2") &&
+<!-- ═══ CW REMARKS BANNER ═══ -->
+@if ((mode == "ao" || mode == "FO2") &&
      (!string.IsNullOrWhiteSpace(Model.F_CaseWorker_Approve_Remarks) || !string.IsNullOrWhiteSpace(Model.F_CaseWorker_Approve_Status)))
 {
     bool cwVerified = Model.F_CaseWorker_Approve_Status == "Verified";
     bool cwRejected = Model.F_CaseWorker_Approve_Status == "Rejected";
     <div style="margin:0;padding:13px 24px;
-                    background:@(cwVerified ? "linear-gradient(90deg,#e5f7f2,#f0fdf8)" : cwRejected ? "linear-gradient(90deg,#fde8ed,#fff5f7)" : "linear-gradient(90deg,#f0ebff,#faf8ff)");
-                    border-bottom:1.5px solid @(cwVerified ? "#86e0c8" : cwRejected ? "#f9a8be" : "#d4c5f5");
+                    background:@(cwVerified ? "linear-gradient(90deg,#d1fae5,#f0fdf8)" : cwRejected ? "linear-gradient(90deg,#fee2e2,#fff5f7)" : "linear-gradient(90deg,#f0ebff,#faf8ff)");
+                    border-bottom:1.5px solid @(cwVerified ? "#6ee7b7" : cwRejected ? "#fca5a5" : "#c4b5fd");
                     display:flex;align-items:flex-start;gap:12px">
         <span style="font-size:18px;flex-shrink:0;margin-top:1px">🔍</span>
         <div style="flex:1">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
-                                color:@(cwVerified ? "#0f9b6e" : cwRejected ? "#e03055" : "#6d35cc");
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;
+                                color:@(cwVerified ? "#16a37f" : cwRejected ? "#e53e3e" : "#7c3aed");
                                 text-transform:uppercase;letter-spacing:.12em">
                     Case Worker Remarks
                 </div>
                 @if (!string.IsNullOrWhiteSpace(Model.F_CaseWorker_Approve_Status))
                 {
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
-                                         padding:2px 8px;border-radius:4px;
-                                         background:@(cwVerified ? "#e5f7f2" : cwRejected ? "#fde8ed" : "#f0ebff");
-                                         color:@(cwVerified ? "#0f9b6e" : cwRejected ? "#e03055" : "#6d35cc");
-                                         border:1px solid @(cwVerified ? "#86e0c8" : cwRejected ? "#f9a8be" : "#d4c5f5")">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;
+                                         background:@(cwVerified ? "#d1fae5" : cwRejected ? "#fee2e2" : "#f0ebff");
+                                         color:@(cwVerified ? "#16a37f" : cwRejected ? "#e53e3e" : "#7c3aed");
+                                         border:1px solid @(cwVerified ? "#6ee7b7" : cwRejected ? "#fca5a5" : "#c4b5fd")">
                         @(cwVerified ? "✅ Verified" : cwRejected ? "❌ Rejected" : Model.F_CaseWorker_Approve_Status)
                         &nbsp;·&nbsp; @Dt(Model.F_CaseWorker_Approved_Date)
                     </span>
@@ -111,46 +119,40 @@
             </div>
             @if (!string.IsNullOrWhiteSpace(Model.F_CaseWorker_Approve_Remarks))
             {
-                <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;
-                                    color:@(cwVerified ? "#0d5c3a" : cwRejected ? "#a01030" : "#3d2a6e");font-style:italic">
-                    "@Model.F_CaseWorker_Approve_Remarks"
-                </div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:@(cwVerified ? "#065f46" : cwRejected ? "#991b1b" : "#3730a3");font-style:italic">"@Model.F_CaseWorker_Approve_Remarks"</div>
             }
             else
             {
-                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0b3cc;font-style:italic">
-                    No remarks entered by Case Worker
-                </div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#94a3b8;font-style:italic">No remarks entered by Case Worker</div>
             }
         </div>
     </div>
 }
 
-<!-- ═══ AO REMARKS BANNER — shown to FO2 only ═══ -->
-@if (mode == "fo2" &&
+<!-- ═══ AO REMARKS BANNER ═══ -->
+@if (mode == "FO2" &&
      (!string.IsNullOrWhiteSpace(Model.F_AO_SP_Approved_Remarks) || !string.IsNullOrWhiteSpace(Model.F_AO_SP_Approved_Status)))
 {
     bool aoApproved = Model.F_AO_SP_Approved_Status == "Approved";
     bool aoRejected = Model.F_AO_SP_Approved_Status == "Rejected";
     <div style="margin:0;padding:13px 24px;
-                    background:@(aoApproved ? "linear-gradient(90deg,#e8f0fd,#f0f5ff)" : aoRejected ? "linear-gradient(90deg,#fde8ed,#fff5f7)" : "linear-gradient(90deg,#fef7e6,#fffdf0)");
-                    border-bottom:1.5px solid @(aoApproved ? "#b3cdfb" : aoRejected ? "#f9a8be" : "#f8d98a");
+                    background:@(aoApproved ? "linear-gradient(90deg,#dbeafe,#f0f5ff)" : aoRejected ? "linear-gradient(90deg,#fee2e2,#fff5f7)" : "linear-gradient(90deg,#fef7e6,#fffdf0)");
+                    border-bottom:1.5px solid @(aoApproved ? "#93c5fd" : aoRejected ? "#fca5a5" : "#f0cc84");
                     display:flex;align-items:flex-start;gap:12px">
         <span style="font-size:18px;flex-shrink:0;margin-top:1px">📊</span>
         <div style="flex:1">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
-                                color:@(aoApproved ? "#2d6be4" : aoRejected ? "#e03055" : "#c97b00");
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;
+                                color:@(aoApproved ? "#2563eb" : aoRejected ? "#e53e3e" : "#d4860a");
                                 text-transform:uppercase;letter-spacing:.12em">
-                    AO / SP Remarks
+                    SO/AS/AO Remarks
                 </div>
                 @if (!string.IsNullOrWhiteSpace(Model.F_AO_SP_Approved_Status))
                 {
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
-                                         padding:2px 8px;border-radius:4px;
-                                         background:@(aoApproved ? "#e8f0fd" : aoRejected ? "#fde8ed" : "#fef7e6");
-                                         color:@(aoApproved ? "#2d6be4" : aoRejected ? "#e03055" : "#c97b00");
-                                         border:1px solid @(aoApproved ? "#b3cdfb" : aoRejected ? "#f9a8be" : "#f8d98a")">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;
+                                         background:@(aoApproved ? "#dbeafe" : aoRejected ? "#fee2e2" : "#fef7e6");
+                                         color:@(aoApproved ? "#2563eb" : aoRejected ? "#e53e3e" : "#d4860a");
+                                         border:1px solid @(aoApproved ? "#93c5fd" : aoRejected ? "#fca5a5" : "#f0cc84")">
                         @(aoApproved ? "✅ Approved" : aoRejected ? "❌ Rejected" : Model.F_AO_SP_Approved_Status)
                         &nbsp;·&nbsp; @Dt(Model.F_AO_SP_Approved_Date)
                     </span>
@@ -158,17 +160,40 @@
             </div>
             @if (!string.IsNullOrWhiteSpace(Model.F_AO_SP_Approved_Remarks))
             {
-                <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;
-                                    color:@(aoApproved ? "#1a3a7a" : aoRejected ? "#a01030" : "#7a5200");font-style:italic">
-                    "@Model.F_AO_SP_Approved_Remarks"
-                </div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:@(aoApproved ? "#1e3a8a" : aoRejected ? "#991b1b" : "#78350f");font-style:italic">"@Model.F_AO_SP_Approved_Remarks"</div>
             }
             else
             {
-                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0b3cc;font-style:italic">
-                    No remarks entered by AO / SP
-                </div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#94a3b8;font-style:italic">No remarks entered by SO/AS/AO</div>
             }
+        </div>
+    </div>
+}
+
+<!-- ═══ EDIT AUDIT BANNER ═══ -->
+@if ((mode == "ao" || mode == "FO2" || mode == "view") && Model.CWEditedFields?.Any() == true)
+{
+    <div style="margin:0;padding:13px 24px;background:linear-gradient(90deg,#fffbf0,#fffdf8);
+                    border-bottom:1.5px solid #f0cc84;display:flex;align-items:flex-start;gap:12px">
+        <span style="font-size:18px;flex-shrink:0;margin-top:1px">✏️</span>
+        <div style="flex:1">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;
+                            color:#d4860a;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">
+                Edited by Case Worker
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+                @foreach (var e in Model.CWEditedFields)
+                {
+                    <div style="background:#fff;border:1px solid #f0cc84;border-radius:8px;padding:7px 12px;min-width:130px">
+                        <div style="font-size:8.5px;color:#d4860a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;font-family:'IBM Plex Mono',monospace">@e.Field</div>
+                        <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-family:'IBM Plex Mono',monospace">
+                            <span style="color:#e53e3e;text-decoration:line-through">₹@string.Format("{0:#,##0}", e.OldValue)</span>
+                            <span style="color:#94a3b8">→</span>
+                            <span style="color:#16a37f;font-weight:700">₹@string.Format("{0:#,##0}", e.NewValue)</span>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 }
@@ -176,117 +201,195 @@
 <!-- ═══ BODY ═══ -->
 <div style="padding:26px 30px">
 
+    <!-- ══ MAP DISTANCE CALCULATOR ══ -->
+    @if (kmEditable)
+    {
+        <div style="margin-bottom:24px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+                            font-family:'IBM Plex Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
+                📍 Distance Calculator
+                <span style="flex:1;height:1px;background:#e2e8f0;display:block"></span>
+                <button onclick="(function(){var p=document.getElementById('mapCalcPanel_@Model.Id');p.style.display=p.style.display==='none'?'block':'none';})()"
+                        style="background:none;border:1px solid #e2e8f0;border-radius:6px;padding:3px 12px;
+                                   font-family:'IBM Plex Mono',monospace;font-size:10px;color:#94a3b8;cursor:pointer"
+                        onmouseover="this.style.borderColor='@clr';this.style.color='@clr'"
+                        onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#94a3b8'">
+                    show / hide map
+                </button>
+            </div>
+            <div id="mapCalcPanel_@Model.Id" style="display:none;margin-top:13px">
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                        <div>
+                            <div style="color:#94a3b8;font-size:9px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px">From Place</div>
+                            <input type="text" id="mapFrom_@Model.Id" value="@Model.FromPlace" placeholder="e.g. Mysuru"
+                                   style="width:100%;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;
+                                              font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1e293b;
+                                              background:#fff;outline:none;box-sizing:border-box;transition:border-color .15s"
+                                   onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0'"
+                                   onkeydown="if(event.key==='Enter')document.getElementById('mapTo_@Model.Id').focus()" />
+                        </div>
+                        <div>
+                            <div style="color:#94a3b8;font-size:9px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px">To Place</div>
+                            <input type="text" id="mapTo_@Model.Id" value="@Model.ToPlace" placeholder="e.g. Bangalore"
+                                   style="width:100%;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;
+                                              font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1e293b;
+                                              background:#fff;outline:none;box-sizing:border-box;transition:border-color .15s"
+                                   onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0'"
+                                   onkeydown="if(event.key==='Enter')ltCalcDistance('@Model.Id')" />
+                        </div>
+                    </div>
+                    <button id="mapCalcBtn_@Model.Id" onclick="ltCalcDistance('@Model.Id')"
+                            style="width:100%;padding:10px;border-radius:8px;border:none;color:#fff;
+                                       font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;
+                                       cursor:pointer;background:@clrGrad;margin-bottom:12px;letter-spacing:.05em;transition:opacity .15s"
+                            onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                        📍 Calculate Road Distance
+                    </button>
+                    <div id="mapDiv_@Model.Id"
+                         style="border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;height:280px;
+                                    background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+                        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#94a3b8">Enter places above and click Calculate</span>
+                    </div>
+                    <div id="mapResult_@Model.Id" style="display:none">
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+                            <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:10px;text-align:center">
+                                <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#2563eb;text-transform:uppercase;margin-bottom:4px">Onward KM</div>
+                                <div id="mapOnKm_@Model.Id" style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:#1e293b">—</div>
+                            </div>
+                            <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:10px;text-align:center">
+                                <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#2563eb;text-transform:uppercase;margin-bottom:4px">Return KM</div>
+                                <div id="mapRetKm_@Model.Id" style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:#1e293b">—</div>
+                            </div>
+                            <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:10px;text-align:center">
+                                <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#2563eb;text-transform:uppercase;margin-bottom:4px">Duration</div>
+                                <div id="mapDur_@Model.Id" style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:#1e293b">—</div>
+                            </div>
+                        </div>
+                        <div id="mapLcaWarn_@Model.Id"
+                             style="display:none;margin-bottom:10px;padding:9px 14px;background:#fee2e2;
+                                        border:1.5px solid #fca5a5;border-radius:8px;
+                                        font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#e53e3e;font-weight:700">
+                            ⚠️ One side ≤ 40 km — LCA rule applies. TA &amp; DA = ₹0.
+                        </div>
+                        <button onclick="ltApplyDistance('@Model.Id')"
+                                style="width:100%;padding:10px;border-radius:8px;border:none;color:#fff;
+                                           font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;
+                                           cursor:pointer;background:linear-gradient(135deg,#16a37f,#34d399);
+                                           letter-spacing:.05em;transition:opacity .15s"
+                                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                            ✅ Apply KM to Form Fields
+                        </button>
+                    </div>
+                    <div id="mapErr_@Model.Id"
+                         style="display:none;margin-top:8px;padding:9px 14px;background:#fee2e2;
+                                    border:1.5px solid #fca5a5;border-radius:8px;
+                                    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#e53e3e;font-weight:700">
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- ① JOURNEY -->
     <div style="margin-bottom:24px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;margin-bottom:13px;
-                    font-family:'JetBrains Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
+                    font-family:'IBM Plex Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
             🗺 Journey Details
-            <span style="flex:1;height:1px;background:#e2e8f3;display:block"></span>
+            <span style="flex:1;height:1px;background:#e2e8f0;display:block"></span>
         </div>
-        <div style="background:#f8fafc;border:1px solid #e2e8f3;border-radius:14px;padding:18px">
-
-            <!-- Onward -->
-            <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#8fa3be;
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:#94a3b8;
                         text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;display:flex;align-items:center;gap:6px">
                 <span style="width:3px;height:12px;background:@clr;border-radius:2px;display:inline-block"></span>
                 Onward Journey
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
                 <div>
-                    <div style="color:#8fa3be;font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">From Place</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#0d1b2e;font-weight:500">
-                        @(string.IsNullOrEmpty(Model.FromPlace) ? "—" : Model.FromPlace)
-                    </div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">From Place</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:500">@(string.IsNullOrEmpty(Model.FromPlace) ? "—" : Model.FromPlace)</div>
                 </div>
                 <div>
-                    <div style="color:#8fa3be;font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">To Place</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#0d1b2e;font-weight:500">
-                        @(string.IsNullOrEmpty(Model.ToPlace) ? "—" : Model.ToPlace)
-                    </div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">To Place</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:500">@(string.IsNullOrEmpty(Model.ToPlace) ? "—" : Model.ToPlace)</div>
                 </div>
                 <div>
-                    <div style="color:#8fa3be;font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
                         Kilometers
                         @if (kmEditable)
                         {
-                            <em style="color:#c97b00;font-size:9px;margin-left:4px;font-style:italic">editable</em>
+                            <em style="color:#d4860a;font-size:9px;margin-left:4px;font-style:italic">editable</em>
                         }
                     </div>
                     @if (kmEditable)
                     {
                         <input type="number" id="km_@Model.Id" value="@Model.Kilometers" min="0" step="0.1"
-                               oninput="modalCalc('@Model.Id')"
-                               style="background:#fff;border:1.5px solid #e2e8f3;border-radius:8px;color:#0d1b2e;
-                                          padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:13px;
+                               data-val="@Model.Kilometers" oninput="modalCalc('@Model.Id')"
+                               style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;color:#1e293b;
+                                          padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:13px;
                                           width:100%;outline:none;box-sizing:border-box;transition:border-color .15s"
-                               onfocus="this.style.borderColor='@clr'"
-                               onblur="this.style.borderColor='#e2e8f3'" />
+                               onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0'" />
                     }
                     else
                     {
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#0d1b2e;font-weight:500">@Model.Kilometers km</div>
+                        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:500">@Model.Kilometers km</div>
                     }
                 </div>
             </div>
-
-            <hr style="border:none;border-top:1px dashed #e2e8f3;margin:14px 0" />
-
-            <!-- Return -->
-            <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#8fa3be;
+            <hr style="border:none;border-top:1px dashed #e2e8f0;margin:14px 0" />
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:#94a3b8;
                         text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;display:flex;align-items:center;gap:6px">
                 <span style="width:3px;height:12px;background:#64748b;border-radius:2px;display:inline-block"></span>
                 Return Journey
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
                 <div>
-                    <div style="color:#8fa3be;font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">Return From</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#0d1b2e;font-weight:500">
-                        @(string.IsNullOrEmpty(Model.ReturnFromPlace) ? "—" : Model.ReturnFromPlace)
-                    </div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">Return From</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:500">@(string.IsNullOrEmpty(Model.ReturnFromPlace) ? "—" : Model.ReturnFromPlace)</div>
                 </div>
                 <div>
-                    <div style="color:#8fa3be;font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">Return To</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#0d1b2e;font-weight:500">
-                        @(string.IsNullOrEmpty(Model.ReturnToPlace) ? "—" : Model.ReturnToPlace)
-                    </div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">Return To</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:500">@(string.IsNullOrEmpty(Model.ReturnToPlace) ? "—" : Model.ReturnToPlace)</div>
                 </div>
                 <div>
-                    <div style="color:#8fa3be;font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
                         Return KM
                         @if (kmEditable)
                         {
-                            <em style="color:#c97b00;font-size:9px;margin-left:4px;font-style:italic">editable</em>
+                            <em style="color:#d4860a;font-size:9px;margin-left:4px;font-style:italic">editable</em>
                         }
                     </div>
                     @if (kmEditable)
                     {
                         <input type="number" id="rkm_@Model.Id" value="@Model.ReturnKilometers" min="0" step="0.1"
-                               oninput="modalCalc('@Model.Id')"
-                               style="background:#fff;border:1.5px solid #e2e8f3;border-radius:8px;color:#0d1b2e;
-                                          padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:13px;
+                               data-val="@Model.ReturnKilometers" oninput="modalCalc('@Model.Id')"
+                               style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;color:#1e293b;
+                                          padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:13px;
                                           width:100%;outline:none;box-sizing:border-box;transition:border-color .15s"
-                               onfocus="this.style.borderColor='@clr'"
-                               onblur="this.style.borderColor='#e2e8f3'" />
+                               onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0'" />
                     }
                     else
                     {
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#0d1b2e;font-weight:500">@Model.ReturnKilometers km</div>
+                        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:500">@Model.ReturnKilometers km</div>
                     }
                 </div>
             </div>
-
-            <!-- Live cost preview strip — cw, ao, fo2 -->
             @if (kmEditable)
             {
                 <div id="costPreview_@Model.Id"
-                     style="margin-top:14px;padding:10px 16px;background:#f0ebff;border:1px solid #d4c5f5;
-                                border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:11px;
-                                color:#6d35cc;font-weight:700;display:flex;gap:18px;flex-wrap:wrap">
+                     style="margin-top:14px;padding:10px 16px;background:#f0ebff;border:1px solid #c4b5fd;
+                                border-radius:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;
+                                color:#7c3aed;font-weight:700;display:flex;gap:18px;flex-wrap:wrap">
                     <span>Onward: <span id="cpOnward_@Model.Id">₹ @string.Format("{0:#,##0}", Model.Kilometers * 15)</span></span>
                     <span>Return: <span id="cpReturn_@Model.Id">₹ @string.Format("{0:#,##0}", Model.ReturnKilometers * 15)</span></span>
-                    <span style="margin-left:auto;font-size:13px">
-                        Travel Total: <span id="cpTotal_@Model.Id">₹ @string.Format("{0:#,##0}", (Model.Kilometers + Model.ReturnKilometers) * 15)</span>
-                    </span>
+                    <span style="margin-left:auto;font-size:13px">Travel Total: <span id="cpTotal_@Model.Id">₹ @string.Format("{0:#,##0}", (Model.Kilometers + Model.ReturnKilometers) * 15)</span></span>
+                </div>
+                <div id="kmWarning_@Model.Id"
+                     style="display:none;margin-top:8px;padding:9px 14px;background:#fee2e2;
+                                border:1.5px solid #fca5a5;border-radius:10px;
+                                font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+                                color:#e53e3e;font-weight:700;align-items:center;gap:8px">
+                    ⚠️ One side KM ≤ 40 — TA &amp; DA = ₹0. LCA (@(Model.IsBanglore ? "₹500 Bangalore" : "₹300")) applies.
                 </div>
             }
         </div>
@@ -295,56 +398,145 @@
     <!-- ② CLAIM BREAKDOWN -->
     <div style="margin-bottom:24px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;margin-bottom:13px;
-                    font-family:'JetBrains Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
+                    font-family:'IBM Plex Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
             💰 Claim Breakdown
-            <span style="flex:1;height:1px;background:#e2e8f3;display:block"></span>
+            <span style="flex:1;height:1px;background:#e2e8f0;display:block"></span>
         </div>
-        <div style="background:#f8fafc;border:1px solid #e2e8f3;border-radius:14px;padding:18px">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px">
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-                @{
-                    var items = new (string L, string V, string Id, decimal Raw)[]
-                    {
-                                ("Days",     Model.NoOfDays.ToString(), "",                         0m),
-                                ("Travel",   F(Model.TravelCost),       "bcTravel_" + Model.Id,     Model.TravelCost),
-                                ("DA",       F(Model.DACost),           "bcDA_"     + Model.Id,     Model.DACost),
-                                ("LCA",      F(Model.LCACost),          "bcLCA_"    + Model.Id,     Model.LCACost),
-                                ("College",  F(Model.CollegeCost),      "bcCol_"    + Model.Id,     Model.CollegeCost),
-                                ("Air/Road", F(Model.AirRoadCost),      "bcAR_"     + Model.Id,     Model.AirRoadCost),
-                    };
-                    if (Model.AirFair > 0)
-                        items = items.Append(("Air Fare", F(Model.AirFair), "bcAF_" + Model.Id, Model.AirFair)).ToArray();
-                }
-                @foreach (var it in items)
-                {
-                    <div>
-                        <div style="color:#8fa3be;font-size:9.5px;font-family:'JetBrains Mono',monospace;
-                                        text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
-                            @it.L
-                        </div>
-                        @if (!string.IsNullOrEmpty(it.Id))
-                        {
-                            <div id="@it.Id" data-val="@it.Raw"
-                                 style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#0d1b2e;font-weight:600">
-                                @it.V
-                            </div>
-                        }
-                        else
-                        {
-                            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#0d1b2e;font-weight:600">
-                                @it.V
-                            </div>
-                        }
+                <div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">Days</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:600">@Model.NoOfDays</div>
+                </div>
+                <div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
+                        Travel (TA) @if (kmEditable) {
+                        <em style="color:#94a3b8;font-size:9px;margin-left:2px;font-style:italic">auto</em>
+                                                }
                     </div>
-                }
+                    <div id="bcTravel_@Model.Id" data-val="@Model.TravelCost"
+                         style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:600;transition:color .3s">
+                        ₹ @string.Format("{0:#,##0}", Model.TravelCost)
+                    </div>
+                </div>
+                <div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
+                        DA @if (kmEditable) {
+                        <em style="color:#d4860a;font-size:9px;margin-left:4px;font-style:italic">@(Model.IsBanglore ? "BLR ₹1500" : "₹900")</em>
+                                                }
+                    </div>
+                    @if (kmEditable)
+                    {
+                        <input type="number" id="bcDA_@Model.Id" value="@Model.DACost" min="0" step="1"
+                               data-val="@Model.DACost" data-da-default="@daDefault"
+                               oninput="syncDataVal(this);onDAChange('@Model.Id')"
+                               style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;color:#1e293b;
+                                          padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;
+                                          width:100%;outline:none;box-sizing:border-box;transition:all .15s"
+                               onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0';syncDataVal(this)" />
+                    }
+                    else
+                    {
+                        <div id="bcDA_@Model.Id" data-val="@Model.DACost"
+                             style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:600">
+                            ₹ @string.Format("{0:#,##0}", Model.DACost)
+                        </div>
+                    }
+                </div>
+                <div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
+                        LCA @if (kmEditable) {
+                        <em style="color:#d4860a;font-size:9px;margin-left:4px;font-style:italic">@(Model.IsBanglore ? "BLR ₹500" : "₹300")</em>
+                                                }
+                    </div>
+                    @if (kmEditable)
+                    {
+                        <input type="number" id="bcLCA_@Model.Id" value="@Model.LCACost" min="0" step="1"
+                               data-val="@Model.LCACost" data-lca-default="@lcaDefault"
+                               oninput="syncDataVal(this);onLCAChange('@Model.Id')"
+                               style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;color:#1e293b;
+                                          padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;
+                                          width:100%;outline:none;box-sizing:border-box;transition:all .15s"
+                               onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0';syncDataVal(this)" />
+                    }
+                    else
+                    {
+                        <div id="bcLCA_@Model.Id" data-val="@Model.LCACost"
+                             style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:600">
+                            ₹ @string.Format("{0:#,##0}", Model.LCACost)
+                        </div>
+                    }
+                </div>
+                <div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">College</div>
+                    <div id="bcCol_@Model.Id" data-val="@Model.CollegeCost"
+                         style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:600">
+                        ₹ @string.Format("{0:#,##0}", Model.CollegeCost)
+                    </div>
+                </div>
+                <div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
+                        Air/Road @if (kmEditable) {
+                        <em style="color:#d4860a;font-size:9px;margin-left:4px;font-style:italic">editable</em>
+                                                }
+                    </div>
+                    @if (kmEditable)
+                    {
+                        <input type="number" id="bcAR_@Model.Id" value="@Model.AirRoadCost" min="0" step="1"
+                               data-val="@Model.AirRoadCost"
+                               oninput="syncDataVal(this);recomputeTotal('@Model.Id')"
+                               style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;color:#1e293b;
+                                          padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;
+                                          width:100%;outline:none;box-sizing:border-box;transition:all .15s"
+                               onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0';syncDataVal(this)" />
+                    }
+                    else
+                    {
+                        <div id="bcAR_@Model.Id" data-val="@Model.AirRoadCost"
+                             style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:600">
+                            ₹ @string.Format("{0:#,##0}", Model.AirRoadCost)
+                        </div>
+                    }
+                </div>
+                <div>
+                    <div style="color:#94a3b8;font-size:9.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">
+                        Air Fare @if (kmEditable) {
+                        <em style="color:#d4860a;font-size:9px;margin-left:4px;font-style:italic">editable</em>
+                                                }
+                    </div>
+                    @if (kmEditable)
+                    {
+                        <input type="number" id="bcAF_@Model.Id" value="@Model.AirFair" min="0" step="1"
+                               data-val="@Model.AirFair"
+                               oninput="syncDataVal(this);recomputeTotal('@Model.Id')"
+                               style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;color:#1e293b;
+                                          padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;
+                                          width:100%;outline:none;box-sizing:border-box;transition:all .15s"
+                               onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0';syncDataVal(this)" />
+                    }
+                    else
+                    {
+                        <div id="bcAF_@Model.Id" data-val="@Model.AirFair"
+                             style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1e293b;font-weight:600">
+                            ₹ @string.Format("{0:#,##0}", Model.AirFair)
+                        </div>
+                    }
+                </div>
             </div>
-            <div style="margin-top:18px;padding:16px 20px;border-radius:12px;
+            @if (kmEditable)
+            {
+                <div style="margin-top:10px;padding:7px 12px;background:#fef7e6;border:1px solid #f0cc84;
+                                border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#d4860a;font-weight:600">
+                    ℹ️ Either side KM ≤ 40 → LCA <strong>@(Model.IsBanglore ? "₹500 (BLR)" : "₹300")</strong>, TA &amp; DA = ₹0
+                    &nbsp;|&nbsp; Both sides &gt; 40 → TA + DA <strong>@(Model.IsBanglore ? "₹1500 (BLR)" : "₹900")</strong>, LCA = ₹0
+                </div>
+            }
+            <div style="margin-top:14px;padding:16px 20px;border-radius:12px;
                         background:linear-gradient(90deg,@(clrL),transparent);
                         border:1px solid @(clrB)55;display:flex;justify-content:space-between;align-items:center">
-                <span style="color:#5a6e8a;font-family:'JetBrains Mono',monospace;font-size:11px;
-                             text-transform:uppercase;letter-spacing:.1em;font-weight:600">Total Claim Amount</span>
+                <span style="color:#64748b;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:600">Total Claim Amount</span>
                 <span id="claimTotal_@Model.Id"
-                      style="font-size:26px;font-weight:800;letter-spacing:-.03em;color:@clr;
-                             font-family:'Outfit',sans-serif;transition:color .3s">
+                      style="font-size:26px;font-weight:800;letter-spacing:-.03em;color:@clr;font-family:'Inter',sans-serif;transition:color .3s">
                     ₹ @string.Format("{0:#,##0}", Model.TotalClaimAmount)
                 </span>
             </div>
@@ -354,28 +546,25 @@
     <!-- ③ APPROVAL TRAIL -->
     <div style="margin-bottom:24px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;margin-bottom:13px;
-                    font-family:'JetBrains Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
+                    font-family:'IBM Plex Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
             🔖 Approval Trail
-            <span style="flex:1;height:1px;background:#e2e8f3;display:block"></span>
+            <span style="flex:1;height:1px;background:#e2e8f0;display:block"></span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             @foreach (var t in trail)
             {
                 bool done = !string.IsNullOrEmpty(t.Sts) && t.Sts != "—";
-                bool rej = t.Sts == "Rejected";
-                bool fwd = t.Sts == "Forwarded";
-                string tbg = done ? (rej ? "#fde8ed" : fwd ? "#fef7e6" : "#e5f7f2") : "#ffffff";
-                string tbd = done ? (rej ? "#f9a8be" : fwd ? "#f8d98a" : "#86e0c8") : "#e2e8f3";
-                string tclr = done ? (rej ? "#e03055" : fwd ? "#c97b00" : "#0f9b6e") : "#8fa3be";
+                bool rej = t.Sts == "Rejected"; bool fwd = t.Sts == "Forwarded";
+                string tbg = done ? (rej ? "#fee2e2" : fwd ? "#fef7e6" : "#d1fae5") : "#ffffff";
+                string tbd = done ? (rej ? "#fca5a5" : fwd ? "#f0cc84" : "#6ee7b7") : "#e2e8f0";
+                string tclr = done ? (rej ? "#e53e3e" : fwd ? "#d4860a" : "#16a37f") : "#94a3b8";
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 15px;
                                 background:@tbg;border:1.5px solid @tbd;border-radius:10px">
                     <div>
-                        <span style="color:#5a6e8a;font-size:12px;font-family:'JetBrains Mono',monospace;display:block">@t.Icon @t.Lbl</span>
-                        <span style="font-size:9.5px;color:#8fa3be;font-family:'JetBrains Mono',monospace;display:block;margin-top:2px">@t.Date</span>
+                        <span style="color:#64748b;font-size:12px;font-family:'IBM Plex Mono',monospace;display:block">@t.Icon @t.Lbl</span>
+                        <span style="font-size:9.5px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;display:block;margin-top:2px">@t.Date</span>
                     </div>
-                    <span style="font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;color:@tclr">
-                        @(done? t.Sts: "Pending")
-                    </span>
+                    <span style="font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:@tclr">@(done? t.Sts: "Pending")</span>
                 </div>
             }
         </div>
@@ -383,44 +572,49 @@
 
     <!-- ④ FLAGS -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px">
-        <span style="padding:4px 14px;border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;border:1px solid;
-              @(Model.IsBanglore ? "background:#e5f7f2;color:#0f9b6e;border-color:#86e0c8" : "background:#f8fafc;color:#8fa3be;border-color:#e2e8f3")">
+        <span style="padding:4px 14px;border-radius:20px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;border:1px solid;
+              @(Model.IsBanglore ? "background:#d1fae5;color:#16a37f;border-color:#6ee7b7" : "background:#f8fafc;color:#94a3b8;border-color:#e2e8f0")">
             @(Model.IsBanglore ? "✓" : "✗") Bangalore: @(Model.IsBanglore ? "Yes" : "No")
         </span>
-        <span style="padding:4px 14px;border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;border:1px solid;
-              @(Model.IsLCA ? "background:#e5f7f2;color:#0f9b6e;border-color:#86e0c8" : "background:#f8fafc;color:#8fa3be;border-color:#e2e8f3")">
-            @(Model.IsLCA ? "✓" : "✗") LCA: @(Model.IsLCA ? "Yes" : "No")
+        <span id="lcaFlagBadge_@Model.Id"
+              style="padding:4px 14px;border-radius:20px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;border:1px solid;
+                     @(Model.IsLCA ? "background:#d1fae5;color:#16a37f;border-color:#6ee7b7" : "background:#f8fafc;color:#94a3b8;border-color:#e2e8f0")">
+            @(Model.IsLCA ? "✓ LCA: Active" : "✗ LCA: Inactive")
+            @if (kmEditable)
+            {
+                <span style="font-size:9px;opacity:.7"> (auto)</span>
+            }
         </span>
     </div>
 
     <!-- ⑤ DOCUMENTS -->
     <div style="margin-bottom:24px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;margin-bottom:13px;
-                    font-family:'JetBrains Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
+                    font-family:'IBM Plex Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
             📎 Documents
-            <span style="flex:1;height:1px;background:#e2e8f3;display:block"></span>
+            <span style="flex:1;height:1px;background:#e2e8f0;display:block"></span>
         </div>
         @{
             var docs = new (string Title, string Icon, bool Has, bool IsB64, string Data, string FileName)[]
             {
                 ("Uploaded Bills", "🧾", hasBills, isBills64, Model.UploadedBills       ?? "", "UploadedBill.pdf"),
-                ("Order Copy", "📋", hasOrder, true, Model.LicApprovalFileName ?? "", "OrderCopy.pdf")
+                ("Order Copy",     "📋", hasOrder, true,      Model.LicApprovalFileName ?? "", "OrderCopy.pdf"),
             };
         }
         @foreach (var doc in docs)
         {
-            <div style="border:1.5px solid #e2e8f3;border-radius:14px;overflow:hidden;margin-bottom:10px">
+            <div style="border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-bottom:10px">
                 <div style="padding:11px 16px;background:#f8fafc;display:flex;align-items:center;
-                                justify-content:space-between;@(doc.Has ? "border-bottom:1px solid #edf1f7" : "")">
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;
-                                     color:#5a6e8a;text-transform:uppercase;letter-spacing:.1em">@doc.Icon @doc.Title</span>
+                                justify-content:space-between;@(doc.Has ? "border-bottom:1px solid #f1f5f9" : "")">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.1em">@doc.Icon @doc.Title</span>
                     @if (doc.Has)
                     {
-                        <span style="background:#e5f7f2;color:#0f9b6e;border:1px solid #86e0c8;border-radius:20px;padding:2px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700">✓ Available</span>
+                        <span style="background:#d1fae5;color:#16a37f;border:1px solid #6ee7b7;border-radius:20px;padding:2px 10px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:700">✓ Available</span>
                     }
                     else
                     {
-                        <span style="background:#f8fafc;color:#8fa3be;border:1px solid #e2e8f3;border-radius:20px;padding:2px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700">Not uploaded</span>
+
+                        <span style="background:#f8fafc;color:#94a3b8;border:1px solid #e2e8f0;border-radius:20px;padding:2px 10px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:700">Not uploaded</span>
                     }
                 </div>
                 @if (doc.Has)
@@ -429,32 +623,29 @@
                         <div style="display:flex;align-items:center;gap:12px">
                             <span style="font-size:28px">@doc.Icon</span>
                             <div style="flex:1">
-                                <div style="font-weight:600;font-size:13px;color:#0d1b2e">@doc.FileName</div>
-                                <div style="font-size:10.5px;color:#8fa3be;font-family:'JetBrains Mono',monospace">
-                                    @(doc.IsB64 ? "Base64 encoded PDF" : "File stored on server")
-                                </div>
+                                <div style="font-weight:600;font-size:13px;color:#1e293b">@doc.FileName</div>
+                                <div style="font-size:10.5px;color:#94a3b8;font-family:'IBM Plex Mono',monospace">@(doc.IsB64 ? "Base64 encoded PDF" : "File stored on server")</div>
                             </div>
                             <div style="display:flex;gap:6px">
                                 @if (doc.IsB64)
                                 {
                                     <a href="#" onclick="ltViewPdf('@doc.Data'); return false;"
-                                       style="padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;
-                      text-decoration:none;color:#fff;background:@clrGrad;cursor:pointer">📄 View</a>
+                                       style="padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;color:#fff;background:@clrGrad;cursor:pointer">📄 View</a>
                                     <a href="data:application/octet-stream;base64,@doc.Data" download="@doc.FileName"
-                                       style="background:#fff;color:#2d3f5c;padding:7px 16px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;border:1.5px solid #e2e8f3">⬇ Download</a>
+                                       style="background:#fff;color:#334155;padding:7px 16px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;border:1.5px solid #e2e8f0">⬇ Download</a>
                                 }
                                 else
                                 {
                                     <a href="/uploads/@doc.Data" target="_blank"
                                        style="padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;color:#fff;background:@clrGrad">📄 View</a>
                                     <a href="/uploads/@doc.Data" download="@doc.FileName"
-                                       style="background:#fff;color:#2d3f5c;padding:7px 16px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;border:1.5px solid #e2e8f3">⬇ Download</a>
+                                       style="background:#fff;color:#334155;padding:7px 16px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;border:1.5px solid #e2e8f0">⬇ Download</a>
                                 }
                             </div>
                         </div>
                         @if (!doc.IsB64 && doc.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
                         {
-                            <div style="margin-top:10px;border-top:1px solid #edf1f7">
+                            <div style="margin-top:10px;border-top:1px solid #f1f5f9">
                                 <iframe src="/uploads/@doc.Data" style="width:100%;height:280px;border:none;display:block" title="@doc.Title"></iframe>
                             </div>
                         }
@@ -464,126 +655,149 @@
         }
     </div>
 
+    <!-- ⑨ EDIT HISTORY -->
+    <div style="margin-bottom:24px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+                    font-family:'IBM Plex Mono',monospace;color:@clr;display:flex;align-items:center;gap:8px">
+            📋 Edit History
+            <span style="flex:1;height:1px;background:#e2e8f0;display:block"></span>
+            <button onclick="ltToggleEditLog('@Model.Id')"
+                    id="editLogToggleBtn_@Model.Id"
+                    style="background:none;border:1px solid #e2e8f0;border-radius:6px;padding:3px 12px;
+                           font-family:'IBM Plex Mono',monospace;font-size:10px;color:#94a3b8;cursor:pointer;transition:all .15s"
+                    onmouseover="this.style.borderColor='@clr';this.style.color='@clr'"
+                    onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#94a3b8'">
+                show / hide history
+            </button>
+        </div>
+        <div id="editLogPanel_@Model.Id" style="display:none;margin-top:13px">
+            <div id="editLogLoading_@Model.Id"
+                 style="padding:24px;text-align:center;background:#f8fafc;border:1px solid #e2e8f0;
+                        border-radius:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#94a3b8">
+                ⏳ Loading edit history…
+            </div>
+            <div id="editLogEmpty_@Model.Id"
+                 style="display:none;padding:30px;text-align:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px">
+                <div style="font-size:32px;margin-bottom:10px">📭</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#94a3b8">No edits have been made to this record yet.</div>
+            </div>
+            <div id="editLogEntries_@Model.Id"></div>
+        </div>
+    </div>
+
     <!-- ⑥ CW ACTIONS -->
     @if (mode == "cw")
     {
         <div style="margin-bottom:14px">
-            <label style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:#8fa3be;
+            <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#94a3b8;
                               text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:7px">Remarks</label>
             <textarea id="rmk_@Model.Id"
-                  style="width:100%;padding:11px 14px;background:#ffffff;border:1.5px solid #e2e8f3;
-                             border-radius:12px;color:#0d1b2e;font-family:'JetBrains Mono',monospace;
+                  style="width:100%;padding:11px 14px;background:#ffffff;border:1.5px solid #e2e8f0;
+                             border-radius:12px;color:#1e293b;font-family:'IBM Plex Mono',monospace;
                              font-size:12px;resize:vertical;min-height:72px;outline:none;
                              box-sizing:border-box;transition:border-color .15s"
-                  onfocus="this.style.borderColor='@clr'"
-                  onblur="this.style.borderColor='#e2e8f3'"
+                  onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0'"
                   placeholder="Enter verification remarks...">@Model.F_CaseWorker_Approve_Remarks</textarea>
         </div>
         @if (cwActioned)
         {
             bool isV = Model.F_CaseWorker_Approve_Status == "Verified";
             <div style="padding:15px 20px;border-radius:12px;text-align:center;font-weight:700;font-size:14px;
-                                border:1.5px solid;font-family:'Outfit',sans-serif;
-                                @(isV ? "background:#e5f7f2;border-color:#86e0c8;color:#0f9b6e"
-                                                : "background:#fde8ed;border-color:#f9a8be;color:#e03055")">
-        @(isV ? "✅ Already Verified" : "❌ Already Rejected") &nbsp;·&nbsp; @Dt(Model.F_CaseWorker_Approved_Date)
-    </div>
+                                border:1.5px solid;font-family:'Inter',sans-serif;
+                                @(isV ? "background:#d1fae5;border-color:#6ee7b7;color:#16a37f" : "background:#fee2e2;border-color:#fca5a5;color:#e53e3e")">
+                @(isV ? "✅ Already Verified" : "❌ Already Rejected") &nbsp;·&nbsp; @Dt(Model.F_CaseWorker_Approved_Date)
+            </div>
         }
         else
         {
             <button id="ltSave_@Model.Id" onclick="ltCWSave('@Model.Id')"
                     style="width:100%;padding:14px 20px;border-radius:12px;border:none;color:#fff;
-                                   font-size:15px;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;
+                                   font-size:15px;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;
                                    background:@clrGrad;box-shadow:0 4px 16px @(clr)44;transition:all .2s"
                     onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-                💾 Save KM &amp; Mark as Verified
+                💾 Save &amp; Mark as Verified
             </button>
         }
     }
 
-    <!-- ⑦ AO ACTIONS — Approve only, no Reject -->
+    <!-- ⑦ AO ACTIONS -->
     @if (mode == "ao")
     {
         <div style="margin-bottom:14px">
-            <label style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:#8fa3be;
-                              text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:7px">AO / SP Remarks</label>
+            <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#94a3b8;
+                              text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:7px">SO/AS/AO Remarks</label>
             <textarea id="aoRmk_@Model.Id"
-                  style="width:100%;padding:11px 14px;background:#ffffff;border:1.5px solid #e2e8f3;
-                             border-radius:12px;color:#0d1b2e;font-family:'JetBrains Mono',monospace;
+                  style="width:100%;padding:11px 14px;background:#ffffff;border:1.5px solid #e2e8f0;
+                             border-radius:12px;color:#1e293b;font-family:'IBM Plex Mono',monospace;
                              font-size:12px;resize:vertical;min-height:72px;outline:none;
                              box-sizing:border-box;transition:border-color .15s"
-                  onfocus="this.style.borderColor='#c97b00'"
-                  onblur="this.style.borderColor='#e2e8f3'"
+                  onfocus="this.style.borderColor='#d4860a'" onblur="this.style.borderColor='#e2e8f0'"
                   placeholder="Enter approval remarks...">@Model.F_AO_SP_Approved_Remarks</textarea>
         </div>
         @if (aoActioned)
         {
             bool isA = Model.F_AO_SP_Approved_Status == "Approved";
             <div style="padding:15px 20px;border-radius:12px;text-align:center;font-weight:700;font-size:14px;
-                                border:1.5px solid;font-family:'Outfit',sans-serif;
-                                @(isA ? "background:#e5f7f2;border-color:#86e0c8;color:#0f9b6e"
-                                                : "background:#fde8ed;border-color:#f9a8be;color:#e03055")">
-        @(isA ? "✅ Already Approved" : "❌ Already Rejected") &nbsp;·&nbsp; @Dt(Model.F_AO_SP_Approved_Date)
-    </div>
+                                border:1.5px solid;font-family:'Inter',sans-serif;
+                                @(isA ? "background:#d1fae5;border-color:#6ee7b7;color:#16a37f" : "background:#fee2e2;border-color:#fca5a5;color:#e53e3e")">
+                @(isA ? "✅ Already Approved" : "❌ Already Rejected") &nbsp;·&nbsp; @Dt(Model.F_AO_SP_Approved_Date)
+            </div>
         }
         else
         {
             <button id="aoApproveBtn_@Model.Id" onclick="aoSave('@Model.Id')"
                     style="width:100%;padding:14px 20px;border-radius:12px;border:none;color:#fff;
-                                   font-size:15px;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;
-                                   background:linear-gradient(135deg,#0f9b6e,#1ac48c);
+                                   font-size:15px;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;
+                                   background:linear-gradient(135deg,#16a37f,#34d399);
                                    box-shadow:0 4px 16px rgba(15,155,110,.35);transition:all .2s"
                     onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-                ✅ Save KM &amp; Approve
+                ✅ Save &amp; Approve
             </button>
         }
     }
 
-    <!-- ⑧ FO2 ACTIONS — Approve + Reject (reject remarks mandatory) -->
-    @if (mode == "fo2")
+    <!-- ⑧ FO2 ACTIONS -->
+    @if (mode == "FO2")
     {
         <div style="margin-bottom:14px">
-            <label style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:#8fa3be;
+            <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#94a3b8;
                               text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:7px">
                 FO Level 2 Remarks
-                <span style="color:#e03055;margin-left:4px;font-style:italic">* required when rejecting</span>
+                <span style="color:#e53e3e;margin-left:4px;font-style:italic">* required when rejecting</span>
             </label>
-            <textarea id="fo2Rmk_@Model.Id"
-                  style="width:100%;padding:11px 14px;background:#ffffff;border:1.5px solid #e2e8f3;
-                             border-radius:12px;color:#0d1b2e;font-family:'JetBrains Mono',monospace;
+            <textarea id="FO2Rmk_@Model.Id"
+                  style="width:100%;padding:11px 14px;background:#ffffff;border:1.5px solid #e2e8f0;
+                             border-radius:12px;color:#1e293b;font-family:'IBM Plex Mono',monospace;
                              font-size:12px;resize:vertical;min-height:72px;outline:none;
                              box-sizing:border-box;transition:border-color .15s"
-                  onfocus="this.style.borderColor='@clr'"
-                  onblur="this.style.borderColor='#e2e8f3'"
+                  onfocus="this.style.borderColor='@clr'" onblur="this.style.borderColor='#e2e8f0'"
                   placeholder="Enter remarks...">@Model.FO_Level2_ApprovedRemarks</textarea>
         </div>
-        @if (fo2Actioned)
+        @if (FO2Actioned)
         {
             bool isA = Model.FO_Level2_ApprovedStatus == "Approved";
             <div style="padding:15px 20px;border-radius:12px;text-align:center;font-weight:700;font-size:14px;
-                                border:1.5px solid;font-family:'Outfit',sans-serif;
-                                @(isA ? "background:#e5f7f2;border-color:#86e0c8;color:#0f9b6e"
-                                                : "background:#fde8ed;border-color:#f9a8be;color:#e03055")">
-        @(isA ? "✅ Already Approved" : "❌ Already Rejected") &nbsp;·&nbsp; @Dt(Model.FO_Level2_ApprovedDate)
-    </div>
+                                border:1.5px solid;font-family:'Inter',sans-serif;
+                                @(isA ? "background:#d1fae5;border-color:#6ee7b7;color:#16a37f" : "background:#fee2e2;border-color:#fca5a5;color:#e53e3e")">
+                @(isA ? "✅ Already Approved" : "❌ Already Rejected") &nbsp;·&nbsp; @Dt(Model.FO_Level2_ApprovedDate)
+            </div>
         }
         else
         {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <button id="fo2ApproveBtn_@Model.Id" onclick="fo2Action('@Model.Id','Approved')"
+                <button id="FO2ApproveBtn_@Model.Id" onclick="FO2Action('@Model.Id','Approved')"
                         style="padding:14px 20px;border-radius:12px;border:none;color:#fff;
-                                       font-size:15px;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;
-                                       background:linear-gradient(135deg,#0f9b6e,#1ac48c);
+                                       font-size:15px;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;
+                                       background:linear-gradient(135deg,#16a37f,#34d399);
                                        box-shadow:0 4px 16px rgba(15,155,110,.35);transition:all .2s"
                         onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
                     ✅ Approve
                 </button>
-                <button id="fo2RejectBtn_@Model.Id" onclick="fo2Action('@Model.Id','Rejected')"
-                        style="padding:14px 20px;border-radius:12px;border:2px solid #f9a8be;color:#e03055;
-                                       font-size:15px;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;
+                <button id="FO2RejectBtn_@Model.Id" onclick="FO2Action('@Model.Id','Rejected')"
+                        style="padding:14px 20px;border-radius:12px;border:2px solid #fca5a5;color:#e53e3e;
+                                       font-size:15px;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;
                                        background:#fff;transition:all .2s"
-                        onmouseover="this.style.background='#fde8ed'"
-                        onmouseout="this.style.background='#fff'">
+                        onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fff'">
                     ❌ Reject
                 </button>
             </div>
@@ -592,272 +806,461 @@
 
 </div>
 
-<!-- ═══ SCRIPTS ═══ -->
-@if (mode == "cw")
+@if (kmEditable)
 {
-    <script>
-        function modalCalc(id) {
-            var km = parseFloat(document.getElementById('km_' + id).value) || 0;
-            var rkm = parseFloat(document.getElementById('rkm_' + id).value) || 0;
-            var totalKm = km + rkm;
-            var fmt = function (n) { return '₹ ' + Math.round(n).toLocaleString('en-IN'); };
-            var isShortTrip = totalKm > 0 && totalKm <= 40;
-            var travelCost = isShortTrip ? 0 : totalKm * 15;
-            var onEl = document.getElementById('cpOnward_' + id);
-            var rtEl = document.getElementById('cpReturn_' + id);
-            var ttEl = document.getElementById('cpTotal_' + id);
-            if (onEl) onEl.textContent = fmt(isShortTrip ? 0 : km * 15);
-            if (rtEl) rtEl.textContent = fmt(isShortTrip ? 0 : rkm * 15);
-            if (ttEl) ttEl.textContent = fmt(travelCost) + (isShortTrip ? ' ⚠️ ≤40km: No Travel/DA' : '');
-            var travelEl = document.getElementById('bcTravel_' + id);
-            if (travelEl) { travelEl.textContent = fmt(travelCost); travelEl.setAttribute('data-val', travelCost); travelEl.style.color = isShortTrip ? '#e03055' : '#0d1b2e'; }
-            var daEl = document.getElementById('bcDA_' + id);
-            if (daEl) {
-                if (!daEl.hasAttribute('data-original')) daEl.setAttribute('data-original', parseFloat(daEl.getAttribute('data-val')) || 0);
-                var origDA = parseFloat(daEl.getAttribute('data-original')) || 0;
-                var effDA = isShortTrip ? 0 : origDA;
-                daEl.textContent = fmt(effDA); daEl.setAttribute('data-val', effDA);
-                daEl.style.color = (isShortTrip && origDA > 0) ? '#e03055' : '#0d1b2e';
-            }
-            function getVal(eid) { var e = document.getElementById(eid); return e ? (parseFloat(e.getAttribute('data-val')) || 0) : 0; }
-            var tot = travelCost + getVal('bcDA_' + id) + getVal('bcLCA_' + id) + getVal('bcCol_' + id) + getVal('bcAR_' + id) + getVal('bcAF_' + id);
-            var totEl = document.getElementById('claimTotal_' + id);
-            if (totEl) {
-                totEl.textContent = '₹ ' + Math.round(tot).toLocaleString('en-IN');
-                totEl.style.color = '#0f9b6e'; clearTimeout(totEl._ft);
-                totEl._ft = setTimeout(function () { totEl.style.color = ''; }, 1400);
-            }
-        }
-
-        function ltCWSave(id) {
-            var kmEl  = document.getElementById('km_'  + id);
-            var rkmEl = document.getElementById('rkm_' + id);
-            var rmkEl = document.getElementById('rmk_' + id);
-            var btn   = document.getElementById('ltSave_' + id);
-            if (!kmEl || !rkmEl) { ltToast('❌ KM fields not found.', 'err'); return; }
-            var km  = parseFloat(kmEl.value)  || 0;
-            var rkm = parseFloat(rkmEl.value) || 0;
-            var rmk = rmkEl ? rmkEl.value.trim() : '';
-            if (km < 0 || rkm < 0) { ltToast('⚠️ KM cannot be negative.', 'err'); return; }
-            btn.disabled = true; btn.textContent = '⏳ Saving KM…';
-            fetch('/LicTada/SaveKm', {
-                method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'id=' + encodeURIComponent(id) + '&km=' + encodeURIComponent(km) + '&rkm=' + encodeURIComponent(rkm)
-            })
-            .then(function (r) { return r.json(); })
-            .then(function (d) {
-                if (!d.success) throw new Error('KM save failed');
-                btn.textContent = '⏳ Verifying…';
-                return fetch('/LicTada/CWVerify', {
-                    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'id=' + encodeURIComponent(id) + '&remarks=' + encodeURIComponent(rmk)
-                });
-            })
-            .then(function (r) { return r.json(); })
-            .then(function (d) {
-                if (!d.success) throw new Error('Verify failed');
-                btn.textContent = '✅ Verified!'; btn.style.background = '#e5f7f2';
-                btn.style.color = '#0f9b6e'; btn.style.border = '2px solid #86e0c8'; btn.style.boxShadow = 'none';
-                ltToast('✅ KM saved and member verified successfully.', 'ok');
-                setTimeout(ltClose, 1500);
-            })
-            .catch(function (e) {
-                btn.disabled = false; btn.textContent = '💾 Save KM & Mark as Verified';
-                ltToast('❌ ' + (e.message || 'Operation failed'), 'err');
-            });
-        }
-    </script>
-}
-
-@if (mode == "ao")
-{
-    <script>
-        function modalCalc(id) {
-            var km = parseFloat(document.getElementById('km_' + id).value) || 0;
-            var rkm = parseFloat(document.getElementById('rkm_' + id).value) || 0;
-            var totalKm = km + rkm;
-            var fmt = function (n) { return '₹ ' + Math.round(n).toLocaleString('en-IN'); };
-            var isShortTrip = totalKm > 0 && totalKm <= 40;
-            var travelCost = isShortTrip ? 0 : totalKm * 15;
-            var onEl = document.getElementById('cpOnward_' + id);
-            var rtEl = document.getElementById('cpReturn_' + id);
-            var ttEl = document.getElementById('cpTotal_' + id);
-            if (onEl) onEl.textContent = fmt(isShortTrip ? 0 : km * 15);
-            if (rtEl) rtEl.textContent = fmt(isShortTrip ? 0 : rkm * 15);
-            if (ttEl) ttEl.textContent = fmt(travelCost) + (isShortTrip ? ' ⚠️ ≤40km: No Travel/DA' : '');
-            var travelEl = document.getElementById('bcTravel_' + id);
-            if (travelEl) { travelEl.textContent = fmt(travelCost); travelEl.setAttribute('data-val', travelCost); travelEl.style.color = isShortTrip ? '#e03055' : '#0d1b2e'; }
-            var daEl = document.getElementById('bcDA_' + id);
-            if (daEl) {
-                if (!daEl.hasAttribute('data-original')) daEl.setAttribute('data-original', parseFloat(daEl.getAttribute('data-val')) || 0);
-                var origDA = parseFloat(daEl.getAttribute('data-original')) || 0;
-                var effDA = isShortTrip ? 0 : origDA;
-                daEl.textContent = fmt(effDA); daEl.setAttribute('data-val', effDA);
-                daEl.style.color = (isShortTrip && origDA > 0) ? '#e03055' : '#0d1b2e';
-            }
-            function getVal(eid) { var e = document.getElementById(eid); return e ? (parseFloat(e.getAttribute('data-val')) || 0) : 0; }
-            var tot = travelCost + getVal('bcDA_' + id) + getVal('bcLCA_' + id) + getVal('bcCol_' + id) + getVal('bcAR_' + id) + getVal('bcAF_' + id);
-            var totEl = document.getElementById('claimTotal_' + id);
-            if (totEl) {
-                totEl.textContent = '₹ ' + Math.round(tot).toLocaleString('en-IN');
-                totEl.style.color = '#c97b00'; clearTimeout(totEl._ft);
-                totEl._ft = setTimeout(function () { totEl.style.color = ''; }, 1400);
-            }
-        }
-
-        function aoSave(id) {
-            var kmEl       = document.getElementById('km_'  + id);
-            var rkmEl      = document.getElementById('rkm_' + id);
-            var rmkEl      = document.getElementById('aoRmk_' + id);
-            var approveBtn = document.getElementById('aoApproveBtn_' + id);
-            if (!kmEl || !rkmEl) { ltToast('❌ KM fields not found.', 'err'); return; }
-            var km  = parseFloat(kmEl.value)  || 0;
-            var rkm = parseFloat(rkmEl.value) || 0;
-            var rmk = rmkEl ? rmkEl.value.trim() : '';
-            if (km < 0 || rkm < 0) { ltToast('⚠️ KM cannot be negative.', 'err'); return; }
-            if (approveBtn) { approveBtn.disabled = true; approveBtn.style.opacity = '.6'; approveBtn.textContent = '⏳ Saving KM…'; }
-            fetch('/LicTada/SaveKm', {
-                method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'id=' + encodeURIComponent(id) + '&km=' + encodeURIComponent(km) + '&rkm=' + encodeURIComponent(rkm)
-            })
-            .then(function (r) { return r.json(); })
-            .then(function (d) {
-                if (!d.success) throw new Error('KM save failed');
-                if (approveBtn) approveBtn.textContent = '⏳ Approving…';
-                return fetch('/LicTada/AOAction', {
-                    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'id=' + encodeURIComponent(id) + '&action=Approved&remarks=' + encodeURIComponent(rmk)
-                });
-            })
-            .then(function (r) { return r.json(); })
-            .then(function (d) {
-                if (!d.success) throw new Error(d.message || 'AO approve failed');
-                if (approveBtn) {
-                    approveBtn.textContent = '✅ Approved!'; approveBtn.style.background = '#e5f7f2';
-                    approveBtn.style.color = '#0f9b6e'; approveBtn.style.border = '2px solid #86e0c8';
-                    approveBtn.style.boxShadow = 'none'; approveBtn.style.opacity = '1';
-                }
-                ltToast('✅ KM saved and claim approved.', 'ok');
-                setTimeout(ltClose, 1600);
-            })
-            .catch(function (e) {
-                if (approveBtn) { approveBtn.disabled = false; approveBtn.style.opacity = '1'; approveBtn.textContent = '✅ Save KM & Approve'; }
-                ltToast('❌ ' + (e.message || 'Operation failed'), 'err');
-            });
-        }
-    </script>
-}
-
-@if (mode == "fo2")
-{
-    <script>
-        function modalCalc(id) {
-            var km = parseFloat(document.getElementById('km_' + id).value) || 0;
-            var rkm = parseFloat(document.getElementById('rkm_' + id).value) || 0;
-            var totalKm = km + rkm;
-            var fmt = function (n) { return '₹ ' + Math.round(n).toLocaleString('en-IN'); };
-            var isShortTrip = totalKm > 0 && totalKm <= 40;
-            var travelCost = isShortTrip ? 0 : totalKm * 15;
-            var onEl = document.getElementById('cpOnward_' + id);
-            var rtEl = document.getElementById('cpReturn_' + id);
-            var ttEl = document.getElementById('cpTotal_' + id);
-            if (onEl) onEl.textContent = fmt(isShortTrip ? 0 : km * 15);
-            if (rtEl) rtEl.textContent = fmt(isShortTrip ? 0 : rkm * 15);
-            if (ttEl) ttEl.textContent = fmt(travelCost) + (isShortTrip ? ' ⚠️ ≤40km: No Travel/DA' : '');
-            var travelEl = document.getElementById('bcTravel_' + id);
-            if (travelEl) { travelEl.textContent = fmt(travelCost); travelEl.setAttribute('data-val', travelCost); travelEl.style.color = isShortTrip ? '#e03055' : '#0d1b2e'; }
-            var daEl = document.getElementById('bcDA_' + id);
-            if (daEl) {
-                if (!daEl.hasAttribute('data-original')) daEl.setAttribute('data-original', parseFloat(daEl.getAttribute('data-val')) || 0);
-                var origDA = parseFloat(daEl.getAttribute('data-original')) || 0;
-                var effDA = isShortTrip ? 0 : origDA;
-                daEl.textContent = fmt(effDA); daEl.setAttribute('data-val', effDA);
-                daEl.style.color = (isShortTrip && origDA > 0) ? '#e03055' : '#0d1b2e';
-            }
-            function getVal(eid) { var e = document.getElementById(eid); return e ? (parseFloat(e.getAttribute('data-val')) || 0) : 0; }
-            var tot = travelCost + getVal('bcDA_' + id) + getVal('bcLCA_' + id) + getVal('bcCol_' + id) + getVal('bcAR_' + id) + getVal('bcAF_' + id);
-            var totEl = document.getElementById('claimTotal_' + id);
-            if (totEl) {
-                totEl.textContent = '₹ ' + Math.round(tot).toLocaleString('en-IN');
-                totEl.style.color = '#2d6be4'; clearTimeout(totEl._ft);
-                totEl._ft = setTimeout(function () { totEl.style.color = ''; }, 1400);
-            }
-        }
-
-        function fo2Action(id, action) {
-            var approveBtn = document.getElementById('fo2ApproveBtn_' + id);
-            var rejectBtn  = document.getElementById('fo2RejectBtn_'  + id);
-            var rmkEl      = document.getElementById('fo2Rmk_' + id);
-            var kmEl       = document.getElementById('km_'  + id);
-            var rkmEl      = document.getElementById('rkm_' + id);
-            var rmk        = rmkEl ? rmkEl.value.trim() : '';
-            var km         = parseFloat(kmEl  ? kmEl.value  : 0) || 0;
-            var rkm        = parseFloat(rkmEl ? rkmEl.value : 0) || 0;
-
-            /* Reject — remarks mandatory */
-            if (action === 'Rejected' && !rmk) {
-                ltToast('⚠️ Remarks are mandatory before rejecting.', 'err');
-                if (rmkEl) { rmkEl.focus(); rmkEl.style.borderColor = '#e03055'; }
-                return;
-            }
-            if (km < 0 || rkm < 0) { ltToast('⚠️ KM cannot be negative.', 'err'); return; }
-
-            if (approveBtn) { approveBtn.disabled = true; approveBtn.style.opacity = '.6'; }
-            if (rejectBtn)  { rejectBtn.disabled  = true; rejectBtn.style.opacity  = '.6'; }
-            var activeBtn = action === 'Approved' ? approveBtn : rejectBtn;
-            if (activeBtn) activeBtn.textContent = '⏳ Saving KM…';
-
-            /* Step 1 — SaveKm */
-            fetch('/LicTada/SaveKm', {
-                method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'id=' + encodeURIComponent(id) + '&km=' + encodeURIComponent(km) + '&rkm=' + encodeURIComponent(rkm)
-            })
-            .then(function (r) { return r.json(); })
-            .then(function (d) {
-                if (!d.success) throw new Error('KM save failed');
-                if (activeBtn) activeBtn.textContent = '⏳ Saving decision…';
-                /* Step 2 — FO2Action */
-                return fetch('/LicTada/FO2Action', {
-                    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'id=' + encodeURIComponent(id) + '&action=' + encodeURIComponent(action) + '&remarks=' + encodeURIComponent(rmk)
-                });
-            })
-            .then(function (r) { return r.json(); })
-            .then(function (d) {
-                if (!d.success) throw new Error(d.message || 'FO2 action failed');
-                if (action === 'Approved') {
-                    if (approveBtn) {
-                        approveBtn.textContent = '✅ Approved!'; approveBtn.style.background = '#e5f7f2';
-                        approveBtn.style.color = '#0f9b6e'; approveBtn.style.border = '2px solid #86e0c8';
-                        approveBtn.style.boxShadow = 'none'; approveBtn.style.opacity = '1';
-                    }
-                    ltToast('✅ KM saved and claim approved by FO Level 2.', 'ok');
-                } else {
-                    if (rejectBtn) {
-                        rejectBtn.textContent = '❌ Rejected'; rejectBtn.style.background = '#fde8ed'; rejectBtn.style.opacity = '1';
-                    }
-                    ltToast('❌ KM saved and claim rejected by FO Level 2.', 'err');
-                }
-                setTimeout(ltClose, 1600);
-            })
-            .catch(function (e) {
-                if (approveBtn) { approveBtn.disabled = false; approveBtn.style.opacity = '1'; approveBtn.textContent = '✅ Approve'; }
-                if (rejectBtn)  { rejectBtn.disabled  = false; rejectBtn.style.opacity  = '1'; rejectBtn.textContent  = '❌ Reject'; }
-                ltToast('❌ ' + (e.message || 'Operation failed'), 'err');
-            });
-        }
-    </script>
-   
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 }
 <script>
-    function ltViewPdf(b64) {
-        var binary = atob(b64);
-        var bytes = new Uint8Array(binary.length);
-        for (var i = 0; i < binary.length; i++) {
-            bytes[i] = binary.charCodeAt(i);
-        }
-        var blob = new Blob([bytes], { type: 'application/pdf' });
-        var url  = URL.createObjectURL(blob);
-        window.open(url, '_blank');
+    if (!window._ltMaps) window._ltMaps = {};
+
+    function syncDataVal(el) { el.setAttribute('data-val', parseFloat(el.value) || 0); }
+
+    function getKmVal(eid) {
+        var el = document.getElementById(eid);
+        if (!el) return 0;
+        var v = parseFloat(el.value);
+        if (isNaN(v) || el.value === '') v = parseFloat(el.getAttribute('data-val') || '0');
+        return isNaN(v) ? 0 : v;
     }
+
+    function getFieldVal(eid) {
+        var el = document.getElementById(eid);
+        if (!el) return 0;
+        return el.tagName === 'INPUT' ? (parseFloat(el.value) || 0) : (parseFloat(el.getAttribute('data-val')) || 0);
+    }
+
+    function collectClaimFields(id) {
+        return 'da='       + encodeURIComponent(getFieldVal('bcDA_'  + id))
+             + '&lca='     + encodeURIComponent(getFieldVal('bcLCA_' + id))
+             + '&airRoad=' + encodeURIComponent(getFieldVal('bcAR_'  + id))
+             + '&airFare=' + encodeURIComponent(getFieldVal('bcAF_'  + id));
+    }
+
+    function recomputeTotal(id) {
+        var tvVal = parseFloat(document.getElementById('bcTravel_' + id)?.getAttribute('data-val')) || 0;
+        var total = tvVal + getFieldVal('bcDA_' + id) + getFieldVal('bcLCA_' + id)
+                  + getFieldVal('bcCol_' + id) + getFieldVal('bcAR_' + id) + getFieldVal('bcAF_' + id);
+        var el = document.getElementById('claimTotal_' + id);
+        if (el) {
+            el.textContent = '₹ ' + Math.round(total).toLocaleString('en-IN');
+            el.style.color = '#16a37f';
+            clearTimeout(el._ft);
+            el._ft = setTimeout(function() { el.style.color = ''; }, 1400);
+        }
+    }
+
+    function modalCalc(id) {
+        var km  = parseFloat(document.getElementById('km_'  + id)?.value) || 0;
+        var rkm = parseFloat(document.getElementById('rkm_' + id)?.value) || 0;
+        var kmEl = document.getElementById('km_' + id), rkmEl = document.getElementById('rkm_' + id);
+        if (kmEl)  kmEl.setAttribute('data-val',  km);
+        if (rkmEl) rkmEl.setAttribute('data-val', rkm);
+        var totalKm = km + rkm;
+        var isShort = (km > 0 && km <= 40) || (rkm > 0 && rkm <= 40);
+        var travelCost = isShort ? 0 : totalKm * 15;
+        var fmt = function(n) { return '₹ ' + Math.round(n).toLocaleString('en-IN'); };
+        var onEl = document.getElementById('cpOnward_' + id), rtEl = document.getElementById('cpReturn_' + id), ttEl = document.getElementById('cpTotal_' + id);
+        if (onEl) onEl.textContent = fmt(isShort ? 0 : km  * 15);
+        if (rtEl) rtEl.textContent = fmt(isShort ? 0 : rkm * 15);
+        if (ttEl) ttEl.textContent = fmt(travelCost) + (isShort ? ' ⚠️ one side ≤40km' : '');
+        var tvEl = document.getElementById('bcTravel_' + id);
+        if (tvEl) { tvEl.textContent = fmt(travelCost); tvEl.setAttribute('data-val', travelCost); tvEl.style.color = isShort ? '#e53e3e' : '#1e293b'; }
+        var daEl = document.getElementById('bcDA_' + id);
+        var daDefault = daEl ? (parseInt(daEl.getAttribute('data-da-default')) || 900) : 900;
+        if (daEl && daEl.tagName === 'INPUT') {
+            if (isShort) {
+                daEl.value = '0'; daEl.setAttribute('data-val','0'); daEl.disabled = true;
+                daEl.style.background='#f8fafc'; daEl.style.color='#cbd5e1'; daEl.style.borderColor='#f1f5f9'; daEl.style.cursor='not-allowed';
+            } else {
+                daEl.disabled = false; daEl.style.background='#fff'; daEl.style.color='#1e293b'; daEl.style.borderColor='#e2e8f0'; daEl.style.cursor='text';
+                if ((parseFloat(daEl.value)||0)===0) daEl.value = daDefault;
+                syncDataVal(daEl);
+            }
+        }
+        var lcaEl = document.getElementById('bcLCA_' + id);
+        var lcaDefault = lcaEl ? (parseInt(lcaEl.getAttribute('data-lca-default'))||300) : 300;
+        if (lcaEl && lcaEl.tagName === 'INPUT') {
+            if (isShort) {
+                if ((parseFloat(lcaEl.value)||0)===0) lcaEl.value = lcaDefault;
+                lcaEl.disabled=false; lcaEl.style.background='#fff'; lcaEl.style.color='#1e293b'; lcaEl.style.borderColor='#6ee7b7'; lcaEl.style.cursor='text';
+                syncDataVal(lcaEl);
+            } else {
+                lcaEl.value='0'; lcaEl.setAttribute('data-val','0'); lcaEl.disabled=true;
+                lcaEl.style.background='#f8fafc'; lcaEl.style.color='#cbd5e1'; lcaEl.style.borderColor='#f1f5f9'; lcaEl.style.cursor='not-allowed';
+            }
+        }
+        var badge = document.getElementById('kmWarning_' + id);
+        if (badge) badge.style.display = isShort ? 'flex' : 'none';
+        updateLcaBadge(id, totalKm, isShort);
+        recomputeTotal(id);
+    }
+
+    function onDAChange(id) {
+        var daEl = document.getElementById('bcDA_' + id);
+        var daVal = parseFloat(daEl ? daEl.value : 0) || 0;
+        var lcaEl = document.getElementById('bcLCA_' + id);
+        if (daVal > 0) {
+            if (lcaEl && lcaEl.tagName==='INPUT') { lcaEl.value='0'; lcaEl.setAttribute('data-val','0'); lcaEl.disabled=true; lcaEl.style.background='#f8fafc'; lcaEl.style.color='#cbd5e1'; lcaEl.style.borderColor='#f1f5f9'; lcaEl.style.cursor='not-allowed'; }
+            updateLcaBadge(id, 1, false);
+        } else {
+            if (lcaEl && lcaEl.tagName==='INPUT') { lcaEl.disabled=false; lcaEl.style.background='#fff'; lcaEl.style.color='#1e293b'; lcaEl.style.borderColor='#e2e8f0'; lcaEl.style.cursor='text'; }
+            modalCalc(id); return;
+        }
+        recomputeTotal(id);
+    }
+
+    function onLCAChange(id) {
+        var lcaEl = document.getElementById('bcLCA_' + id);
+        var lcaVal = parseFloat(lcaEl ? lcaEl.value : 0) || 0;
+        if (lcaVal > 0) {
+            var tvEl = document.getElementById('bcTravel_' + id);
+            if (tvEl) { tvEl.textContent='₹ 0'; tvEl.setAttribute('data-val','0'); tvEl.style.color='#e53e3e'; }
+            ['cpOnward_','cpReturn_','cpTotal_'].forEach(function(p){var el=document.getElementById(p+id);if(el)el.textContent=p==='cpTotal_'?'₹ 0 ⚠️ LCA Active':'₹ 0';});
+            var daEl = document.getElementById('bcDA_' + id);
+            if (daEl && daEl.tagName==='INPUT') { daEl.value='0'; daEl.setAttribute('data-val','0'); daEl.disabled=true; daEl.style.background='#f8fafc'; daEl.style.color='#cbd5e1'; daEl.style.borderColor='#f1f5f9'; daEl.style.cursor='not-allowed'; }
+            ['km_','rkm_'].forEach(function(pfx){var el=document.getElementById(pfx+id);if(el){el.value='0';el.setAttribute('data-val','0');el.disabled=true;el.style.background='#f8fafc';el.style.color='#cbd5e1';el.style.borderColor='#f1f5f9';el.style.cursor='not-allowed';}});
+            var badge = document.getElementById('kmWarning_' + id);
+            if (badge) badge.style.display='none';
+            updateLcaBadge(id, 0, true);
+        } else {
+            ['km_','rkm_'].forEach(function(pfx){var el=document.getElementById(pfx+id);if(el){el.disabled=false;el.style.background='#fff';el.style.color='#1e293b';el.style.borderColor='#e2e8f0';el.style.cursor='text';}});
+            modalCalc(id); return;
+        }
+        recomputeTotal(id);
+    }
+
+    function updateLcaBadge(id, totalKm, isShort) {
+        var b = document.getElementById('lcaFlagBadge_' + id);
+        if (!b) return;
+        if (totalKm===0&&!isShort) { b.textContent='— LCA: —'; b.style.cssText="padding:4px 14px;border-radius:20px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;border:1px solid #e2e8f0;background:#f8fafc;color:#94a3b8"; }
+        else if (isShort) { b.textContent='✓ LCA: Active'; b.style.cssText="padding:4px 14px;border-radius:20px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;border:1px solid #6ee7b7;background:#d1fae5;color:#16a37f"; }
+        else { b.textContent='✗ LCA: Inactive'; b.style.cssText="padding:4px 14px;border-radius:20px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;border:1px solid #e2e8f0;background:#f8fafc;color:#94a3b8"; }
+    }
+
+       async function ltCalcDistance(id) {
+        var from   = document.getElementById('mapFrom_' + id)?.value.trim();
+        var to     = document.getElementById('mapTo_'   + id)?.value.trim();
+        var btn    = document.getElementById('mapCalcBtn_' + id);
+        var errDiv = document.getElementById('mapErr_'     + id);
+        var mapDiv = document.getElementById('mapDiv_'     + id);
+        var resDiv = document.getElementById('mapResult_'  + id);
+
+        errDiv.style.display = 'none';
+        resDiv.style.display = 'none';
+
+        if (!from || !to) {
+            errDiv.textContent = '⚠️ Enter both From and To places.';
+            errDiv.style.display = 'block';
+            return;
+        }
+
+        btn.disabled    = true;
+        btn.textContent = '⏳ Calculating…';
+        mapDiv.innerHTML     = '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#94a3b8">Locating places…</span>';
+        mapDiv.style.cssText = 'border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;height:280px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin-bottom:12px';
+
+        try {
+            // ── STEP 1: Geocode both places ──────────────────────────────
+            function geocode(place) {
+                return fetch(
+                    'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q='
+                    + encodeURIComponent(place),
+                    { headers: { 'Accept-Language': 'en' } }
+                )
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    if (!d || !d.length) throw new Error('Place not found: "' + place + '"');
+                    return { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) };
+                });
+            }
+
+            var loc1 = await geocode(from);
+            var loc2 = await geocode(to);
+
+            var spanEl = mapDiv.querySelector('span');
+            if (spanEl) spanEl.textContent = 'Calculating shortest route…';
+
+            // ── STEP 2: Fetch ALL alternatives from OSRM ─────────────────
+            var osrmUrl = 'https://router.project-osrm.org/route/v1/driving/'
+                + loc1.lon + ',' + loc1.lat + ';'
+                + loc2.lon + ',' + loc2.lat
+                + '?overview=full&geometries=geojson&alternatives=3&continue_straight=false';
+
+            var rdata = await fetch(osrmUrl).then(function(r) {
+                if (!r.ok) throw new Error('Routing server error: ' + r.status);
+                return r.json();
+            });
+
+            if (!rdata.routes || !rdata.routes.length)
+                throw new Error('No driving route found between these places.');
+
+            // ── STEP 3: Pick route with MINIMUM distance ──────────────────
+            var route = rdata.routes.reduce(function(best, r) {
+                return r.distance < best.distance ? r : best;
+            }, rdata.routes[0]);
+
+            var onKm   = Math.round(route.distance / 100) / 10;
+            var durMin = Math.round(route.duration / 60);
+            var hrs    = Math.floor(durMin / 60);
+            var mins   = durMin % 60;
+
+            // ── STEP 4: Update result boxes ───────────────────────────────
+            document.getElementById('mapOnKm_'    + id).textContent = onKm + ' km';
+            document.getElementById('mapRetKm_'   + id).textContent = onKm + ' km';
+            document.getElementById('mapDur_'     + id).textContent = hrs > 0 ? hrs + 'h ' + mins + 'm' : mins + ' min';
+            document.getElementById('mapLcaWarn_' + id).style.display = (onKm > 0 && onKm <= 40) ? 'block' : 'none';
+
+            resDiv.style.display   = 'block';
+            window['_mapKm_' + id] = onKm;
+
+            // ── STEP 5: Render Leaflet map ────────────────────────────────
+            mapDiv.style.cssText = 'border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;height:280px;margin-bottom:12px';
+            mapDiv.innerHTML     = '<div id="lmap_' + id + '" style="width:100%;height:100%"></div>';
+
+            function doLeaflet() {
+                if (typeof L === 'undefined') { setTimeout(doLeaflet, 150); return; }
+                if (window._ltMaps[id]) { try { window._ltMaps[id].remove(); } catch(e) {} }
+
+                var lmap = L.map('lmap_' + id, { zoomControl: true });
+                window._ltMaps[id] = lmap;
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+                    maxZoom: 18
+                }).addTo(lmap);
+
+                var mkBlue = L.divIcon({ html: '<div style="width:13px;height:13px;background:#2563eb;border:2.5px solid #fff;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.3)"></div>', iconSize:[13,13], iconAnchor:[6,6], className:'' });
+                var mkRed  = L.divIcon({ html: '<div style="width:13px;height:13px;background:#e53e3e;border:2.5px solid #fff;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.3)"></div>', iconSize:[13,13], iconAnchor:[6,6], className:'' });
+
+                L.marker([loc1.lat, loc1.lon], { icon: mkBlue }).addTo(lmap).bindPopup('<b>' + from + '</b>');
+                L.marker([loc2.lat, loc2.lon], { icon: mkRed  }).addTo(lmap).bindPopup('<b>' + to   + '</b> · ' + onKm + ' km');
+
+                var latLngs = route.geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
+                var poly    = L.polyline(latLngs, { color: '#2563eb', weight: 4, opacity: .85 }).addTo(lmap);
+                lmap.fitBounds(poly.getBounds(), { padding: [20, 20] });
+            }
+            doLeaflet();
+
+        } catch(e) {
+            mapDiv.innerHTML     = '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#94a3b8">Enter places and click Calculate</span>';
+            mapDiv.style.cssText = 'border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;height:280px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin-bottom:12px';
+            errDiv.textContent   = e.message || 'Failed to calculate distance.';
+            errDiv.style.display = 'block';
+        }
+
+        btn.disabled    = false;
+        btn.textContent = '📍 Calculate Road Distance';
+    }
+
+    function ltApplyDistance(id) {
+        var km=window['_mapKm_'+id];
+        if(!km){ltToast('⚠️ Calculate a route first.','warn');return;}
+        ['km_','rkm_'].forEach(function(pfx){var el=document.getElementById(pfx+id);if(el){el.disabled=false;el.removeAttribute('disabled');el.style.background='#fff';el.style.color='#1e293b';el.style.borderColor='#e2e8f0';el.style.cursor='text';el.value=km;el.setAttribute('data-val',km);}});
+        modalCalc(id);
+        var panel=document.getElementById('mapCalcPanel_'+id);
+        if(panel)panel.style.display='none';
+        ltToast('✅ '+km+' km applied to Onward & Return KM fields.','ok');
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       EDIT HISTORY
+       FIX: ltToggleEditLog always reloads on open — no stale cache.
+            After every save, flag is reset so next open is fresh too.
+    ══════════════════════════════════════════════════════════════ */
+    function ltToggleEditLog(id) {
+        var panel = document.getElementById('editLogPanel_' + id);
+        var isHidden = panel.style.display === 'none';
+        panel.style.display = isHidden ? 'block' : 'none';
+        // ── FIX: always reload on every open — removed stale flag check ──
+        if (isHidden) {
+            ltLoadEditLog(id);
+        }
+    }
+
+    function ltLoadEditLog(id) {
+        var loadEl    = document.getElementById('editLogLoading_' + id);
+        var emptyEl   = document.getElementById('editLogEmpty_'   + id);
+        var entriesEl = document.getElementById('editLogEntries_' + id);
+        loadEl.style.display  = 'block';
+        emptyEl.style.display = 'none';
+        entriesEl.innerHTML   = '';
+
+        fetch('/LicTada/GetEditLog?id=' + encodeURIComponent(id))
+        .then(function(r) { return r.json(); })
+        .then(function(logs) {
+            loadEl.style.display = 'none';
+            if (!logs || logs.length === 0) { emptyEl.style.display = 'block'; return; }
+            logs.forEach(function(log) { entriesEl.innerHTML += ltBuildLogCard(log); });
+        })
+        .catch(function() {
+            loadEl.style.display = 'none';
+            emptyEl.innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#e53e3e;padding:20px;text-align:center">❌ Failed to load edit history.</div>';
+            emptyEl.style.display = 'block';
+        });
+    }
+
+    function ltBuildLogCard(log) {
+        var stageClr = log.editedAtStage==='CaseWorker'?'#7c3aed':log.editedAtStage==='AO'?'#d4860a':log.editedAtStage==='FO2'?'#2563eb':'#94a3b8';
+        var stageBg  = log.editedAtStage==='CaseWorker'?'#f0ebff':log.editedAtStage==='AO'?'#fef7e6':log.editedAtStage==='FO2'?'#dbeafe':'#f8fafc';
+        var stageBd  = log.editedAtStage==='CaseWorker'?'#c4b5fd':log.editedAtStage==='AO'?'#f0cc84':log.editedAtStage==='FO2'?'#93c5fd':'#e2e8f0';
+
+        function row(label, oldVal, newVal, isKm) {
+            if (oldVal === null && newVal === null) return '';
+            var oldFmt = oldVal !== null ? (isKm ? oldVal + ' km' : '₹ ' + Number(oldVal).toLocaleString('en-IN')) : '—';
+            var newFmt = newVal !== null ? (isKm ? newVal + ' km' : '₹ ' + Number(newVal).toLocaleString('en-IN')) : '—';
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9">'
+                 + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.08em">' + label + '</div>'
+                 + '<div style="display:flex;align-items:center;gap:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px">'
+                 + '<span style="color:#e53e3e;text-decoration:line-through">' + oldFmt + '</span>'
+                 + '<span style="color:#94a3b8">→</span>'
+                 + '<span style="color:#16a37f;font-weight:700">' + newFmt + '</span>'
+                 + '</div></div>';
+        }
+
+        var rows = ''
+            + row('KM Onward',   log.old_Kilometers,       log.new_Kilometers,       true)
+            + row('KM Return',   log.old_ReturnKilometers,  log.new_ReturnKilometers,  true)
+            + row('Travel Cost', log.old_TravelCost,        log.new_TravelCost,        false)
+            + row('DA',          log.old_DACost,            log.new_DACost,            false)
+            + row('LCA',         log.old_LCACost,           log.new_LCACost,           false)
+            + row('Air/Road',    log.old_AirRoadCost,       log.new_AirRoadCost,       false)
+            + row('Air Fare',    log.old_AirFair,           log.new_AirFair,           false)
+            + row('Total',       log.old_TotalClaimAmount,  log.new_TotalClaimAmount,  false);
+
+        var lcaChange = '';
+        if (log.old_IsLCA !== null && log.new_IsLCA !== null && log.old_IsLCA !== log.new_IsLCA) {
+            lcaChange = '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9">'
+                      + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.08em">LCA Rule</div>'
+                      + '<div style="display:flex;align-items:center;gap:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px">'
+                      + '<span style="color:#e53e3e;text-decoration:line-through">' + (log.old_IsLCA ? 'Active' : 'Inactive') + '</span>'
+                      + '<span style="color:#94a3b8">→</span>'
+                      + '<span style="color:#16a37f;font-weight:700">' + (log.new_IsLCA ? 'Active' : 'Inactive') + '</span>'
+                      + '</div></div>';
+        }
+
+        return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:10px;overflow:hidden">'
+            + '<div style="padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+            +   '<div style="flex:1;min-width:0">'
+            +     '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;color:#1e293b">'
+            +       (log.editedBy || '—')
+            +       '<span style="font-weight:400;color:#94a3b8;margin-left:6px">' + (log.editorDesignation || '') + '</span>'
+            +     '</div>'
+            +     '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#94a3b8;margin-top:2px">' + (log.editedAt || '') + '</div>'
+            +   '</div>'
+            +   '<span style="padding:3px 10px;border-radius:20px;font-family:\'JetBrains Mono\',monospace;font-size:9px;font-weight:700;background:' + stageBg + ';color:' + stageClr + ';border:1px solid ' + stageBd + '">'
+            +     (log.editedAtStage || '—')
+            +   '</span>'
+            + '</div>'
+            + '<div style="padding:8px 16px;background:#fffbf0;border-bottom:1px solid #f0cc84;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#d4860a;font-weight:600">'
+            +   '✏️ Changed: ' + (log.changedFields || '—')
+            + '</div>'
+            + '<div style="padding:0 16px">' + lcaChange + rows + '</div>'
+            + '</div>';
+    }
+
+    /* ── SAVE FUNCTIONS ── */
+    function ltCWSave(id) {
+        var btn=document.getElementById('ltSave_'+id);
+        var rmkEl=document.getElementById('rmk_'+id);
+        var km=getKmVal('km_'+id), rkm=getKmVal('rkm_'+id);
+        var rmk=rmkEl?rmkEl.value.trim():'';
+        if(km<0||rkm<0){ltToast('⚠️ KM cannot be negative.','err');return;}
+        btn.disabled=true; btn.textContent='⏳ Saving…';
+        fetch('/LicTada/SaveKm',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'id='+encodeURIComponent(id)+'&km='+encodeURIComponent(km)+'&rkm='+encodeURIComponent(rkm)+'&'+collectClaimFields(id)})
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(!d.success)throw new Error('Save failed');
+            btn.textContent='⏳ Verifying…';
+            return fetch('/LicTada/CWVerify',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                body:'id='+encodeURIComponent(id)+'&remarks='+encodeURIComponent(rmk)});
+        })
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(!d.success)throw new Error('Verify failed');
+            // ── FIX: reset log flag so next open re-fetches fresh data ──
+            window['_editLogLoaded_' + id] = false;
+            btn.textContent='✅ Verified!'; btn.style.background='#d1fae5'; btn.style.color='#16a37f'; btn.style.border='2px solid #6ee7b7'; btn.style.boxShadow='none';
+            ltToast('✅ Saved and verified successfully.','ok');
+            setTimeout(ltClose, 1500);
+        })
+        .catch(function(e){btn.disabled=false;btn.textContent='💾 Save & Mark as Verified';ltToast('❌ '+(e.message||'Operation failed'),'err');});
+    }
+
+    function aoSave(id) {
+        var approveBtn=document.getElementById('aoApproveBtn_'+id);
+        var rmkEl=document.getElementById('aoRmk_'+id);
+        var km=getKmVal('km_'+id), rkm=getKmVal('rkm_'+id);
+        var rmk=rmkEl?rmkEl.value.trim():'';
+        if(km<0||rkm<0){ltToast('⚠️ KM cannot be negative.','err');return;}
+        if(approveBtn){approveBtn.disabled=true;approveBtn.style.opacity='.6';approveBtn.textContent='⏳ Saving…';}
+        fetch('/LicTada/SaveKm',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'id='+encodeURIComponent(id)+'&km='+encodeURIComponent(km)+'&rkm='+encodeURIComponent(rkm)+'&'+collectClaimFields(id)})
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(!d.success)throw new Error('Save failed');
+            if(approveBtn)approveBtn.textContent='⏳ Approving…';
+            return fetch('/LicTada/AOAction',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                body:'id='+encodeURIComponent(id)+'&action=Approved&remarks='+encodeURIComponent(rmk)});
+        })
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(!d.success)throw new Error(d.message||'Approve failed');
+            // ── FIX: reset log flag so next open re-fetches fresh data ──
+            window['_editLogLoaded_' + id] = false;
+            if(approveBtn){approveBtn.textContent='✅ Approved!';approveBtn.style.background='#d1fae5';approveBtn.style.color='#16a37f';approveBtn.style.border='2px solid #6ee7b7';approveBtn.style.boxShadow='none';approveBtn.style.opacity='1';}
+            ltToast('✅ Saved and approved.','ok');
+            setTimeout(ltClose, 1600);
+        })
+        .catch(function(e){if(approveBtn){approveBtn.disabled=false;approveBtn.style.opacity='1';approveBtn.textContent='✅ Save & Approve';}ltToast('❌ '+(e.message||'Operation failed'),'err');});
+    }
+
+    function FO2Action(id, action) {
+        var approveBtn=document.getElementById('FO2ApproveBtn_'+id), rejectBtn=document.getElementById('FO2RejectBtn_'+id);
+        var rmkEl=document.getElementById('FO2Rmk_'+id);
+        var km=getKmVal('km_'+id), rkm=getKmVal('rkm_'+id);
+        var rmk=rmkEl?rmkEl.value.trim():'';
+        if(action==='Rejected'&&!rmk){ltToast('⚠️ Remarks are mandatory before rejecting.','err');if(rmkEl){rmkEl.focus();rmkEl.style.borderColor='#e53e3e';}return;}
+        if(km<0||rkm<0){ltToast('⚠️ KM cannot be negative.','err');return;}
+        if(approveBtn){approveBtn.disabled=true;approveBtn.style.opacity='.6';}
+        if(rejectBtn){rejectBtn.disabled=true;rejectBtn.style.opacity='.6';}
+        var activeBtn=action==='Approved'?approveBtn:rejectBtn;
+        if(activeBtn)activeBtn.textContent='⏳ Saving…';
+        fetch('/LicTada/SaveKm',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'id='+encodeURIComponent(id)+'&km='+encodeURIComponent(km)+'&rkm='+encodeURIComponent(rkm)+'&'+collectClaimFields(id)})
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(!d.success)throw new Error('Save failed');
+            if(activeBtn)activeBtn.textContent='⏳ Saving decision…';
+            return fetch('/LicTada/FO2Action',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                body:'id='+encodeURIComponent(id)+'&action='+encodeURIComponent(action)+'&remarks='+encodeURIComponent(rmk)});
+        })
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if(!d.success)throw new Error(d.message||'FO2 action failed');
+            // ── FIX: reset log flag so next open re-fetches fresh data ──
+            window['_editLogLoaded_' + id] = false;
+            if(action==='Approved'){
+                if(approveBtn){approveBtn.textContent='✅ Approved!';approveBtn.style.background='#d1fae5';approveBtn.style.color='#16a37f';approveBtn.style.border='2px solid #6ee7b7';approveBtn.style.boxShadow='none';approveBtn.style.opacity='1';}
+                ltToast('✅ Saved and approved by FO Level 2.','ok');
+            } else {
+                if(rejectBtn){rejectBtn.textContent='❌ Rejected';rejectBtn.style.background='#fee2e2';rejectBtn.style.opacity='1';}
+                ltToast('❌ Claim rejected by FO Level 2.','warn');
+            }
+            setTimeout(ltClose, 1600);
+        })
+        .catch(function(e){
+            if(approveBtn){approveBtn.disabled=false;approveBtn.style.opacity='1';approveBtn.textContent='✅ Approve';}
+            if(rejectBtn){rejectBtn.disabled=false;rejectBtn.style.opacity='1';rejectBtn.textContent='❌ Reject';}
+            ltToast('❌ '+(e.message||'Operation failed'),'err');
+        });
+    }
+
+    function ltViewPdf(b64) {
+        var binary=atob(b64), bytes=new Uint8Array(binary.length);
+        for(var i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+        window.open(URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),'_blank');
+    }
+
 </script>
+

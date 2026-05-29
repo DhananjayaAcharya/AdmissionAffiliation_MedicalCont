@@ -16,4 +16,8 @@ public partial class UgPrintedUpload
     public DateTime? CreatedOn { get; set; }
 
     public string? Ipaddress { get; set; }
+
+    public string? ReferenceId { get; set; }
+
+    public string? EofficeNo { get; set; }
 }

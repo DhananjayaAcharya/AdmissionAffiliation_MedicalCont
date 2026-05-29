@@ -24,4 +24,12 @@ public partial class ContinuationTrustMemberDetail
     public DateOnly? JoiningDate { get; set; }
 
     public string? DesignationId { get; set; }
+
+    public string? Ipaddress { get; set; }
+
+    public string? Browser { get; set; }
+
+    public string? DeviceType { get; set; }
+
+    public byte[] RowTimestamp { get; set; } = null!;
 }

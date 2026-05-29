@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Medical_Affiliation.Models;
 using Microsoft.Data.SqlClient;
-using Medical_Affiliation.Models;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace Medical_Affiliation.Services
 {
@@ -78,6 +79,9 @@ namespace Medical_Affiliation.Services
             public string Email { get; set; } = "";
             public string Address { get; set; } = "";
             public string ModeOfTravel { get; set; } = "";
+            public DateOnly? InspectionDate { get; set; } = null;
+            public decimal? Old_TotalClaimAmount { get; set; } = null ;
+
         }
 
         private List<RawMemberRow> ExecRawMembers(string sql, string? year, string? faculty, string? college)
@@ -115,6 +119,12 @@ namespace Medical_Affiliation.Services
                     Email = S(dr, "Email"),
                     Address = S(dr, "Address"),
                     ModeOfTravel = S(dr, "ModeOfTravel"),
+                    InspectionDate = dr["InspectionDate"] == DBNull.Value
+                    
+    ? (DateOnly?)null
+    : DateOnly.FromDateTime(Convert.ToDateTime(dr["InspectionDate"])),
+                    Old_TotalClaimAmount = M(dr, "Old_TotalClaimAmount"),
+
                 });
             return list;
         }
@@ -163,6 +173,12 @@ namespace Medical_Affiliation.Services
                         Email = first.Email,
                         Address = first.Address,
                         ModeOfTravel = first.ModeOfTravel,
+                        InspectionDate =first.InspectionDate,
+                        SenetMemberOldAmount = senate?.Old_TotalClaimAmount ?? 0m,
+                        AcMemberOldAmount = ac?.Old_TotalClaimAmount ?? 0m,
+                        SubjectExpertiseOldAmount = expert?.Old_TotalClaimAmount ?? 0m,
+
+
                     };
                 })
                 .OrderBy(x => x.CollegeName)
@@ -171,61 +187,179 @@ namespace Medical_Affiliation.Services
 
         // ══ DROPDOWNS ══════════════════════════════════════════════════════════
 
-        public List<LicTadaDDItem> GetYears()
+        //public List<LicTadaDDItem> GetYears()
+        //{
+        //    var list = new List<LicTadaDDItem>();
+        //    using var con = new SqlConnection(_conn);
+        //    using var cmd = new SqlCommand(@"
+        //        SELECT AcademicYear
+        //        FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+        //        GROUP BY AcademicYear ORDER BY AcademicYear DESC", con);
+        //    con.Open();
+        //    using var dr = cmd.ExecuteReader();
+        //    while (dr.Read())
+        //    {
+        //        var y = S(dr, "AcademicYear");
+        //        list.Add(new LicTadaDDItem { Value = y, Text = y });
+        //    }
+        //    return list;
+        //}
+
+        //public List<LicTadaDDItem> GetFaculties()
+        //{
+        //    var list = new List<LicTadaDDItem>();
+        //    using var con = new SqlConnection(_conn);
+        //    using var cmd = new SqlCommand(@"
+        //        SELECT f.FacultyId, f.FacultyName
+        //        FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] a
+        //        INNER JOIN dbo.Faculty f ON f.FacultyId = a.FacultyCode
+        //        GROUP BY f.FacultyId, f.FacultyName ORDER BY f.FacultyId", con);
+        //    con.Open();
+        //    using var dr = cmd.ExecuteReader();
+        //    while (dr.Read())
+        //        list.Add(new LicTadaDDItem { Value = S(dr, "FacultyId"), Text = S(dr, "FacultyName") });
+        //    return list;
+        //}
+
+        //public List<LicTadaDDItem> GetColleges()
+        //{
+        //    var list = new List<LicTadaDDItem>();
+        //    using var con = new SqlConnection(_conn);
+        //    using var cmd = new SqlCommand(@"
+        //        SELECT ac.CollegeCode, ac.CollegeName, ac.CollegeTown
+        //        FROM [Admission_Affiliation].[dbo].[LICClaimDetails] id
+        //        INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = id.Collegecode
+        //        INNER JOIN [Admission_Affiliation].[dbo].[LICCollegeApproval] cl ON cl.CollegeCode = id.Collegecode
+        //        GROUP BY ac.CollegeCode, ac.CollegeName, ac.CollegeTown
+        //        ORDER BY ac.CollegeName", con);
+        //    con.Open();
+        //    using var dr = cmd.ExecuteReader();
+        //    while (dr.Read())
+        //        list.Add(new LicTadaDDItem
+        //        {
+        //            Value = S(dr, "CollegeCode"),
+        //            Text = S(dr, "CollegeName") + " — " + S(dr, "CollegeTown")
+        //        });
+        //    return list;
+        //}
+
+
+        // ══ DROPDOWNS — role-filtered ══════════════════════════════════════════════
+
+        public List<LicTadaDDItem> GetYears(string? role = null)
         {
             var list = new List<LicTadaDDItem>();
+            var where = BuildRoleWhereClause(role);
             using var con = new SqlConnection(_conn);
-            using var cmd = new SqlCommand(@"
-                SELECT AcademicYear
-                FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                GROUP BY AcademicYear ORDER BY AcademicYear DESC", con);
+            using var cmd = new SqlCommand($@"
+SELECT DISTINCT ca.AcademicYear
+FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
+WHERE {where}
+ORDER BY ca.AcademicYear DESC", con);
             con.Open();
             using var dr = cmd.ExecuteReader();
             while (dr.Read())
             {
-                var y = S(dr, "AcademicYear");
-                list.Add(new LicTadaDDItem { Value = y, Text = y });
+                var y = dr["AcademicYear"]?.ToString() ?? "";
+                if (!string.IsNullOrEmpty(y))
+                    list.Add(new LicTadaDDItem { Value = y, Text = y });
             }
             return list;
         }
 
-        public List<LicTadaDDItem> GetFaculties()
+        public List<LicTadaDDItem> GetFaculties(string? role = null)
         {
             var list = new List<LicTadaDDItem>();
+            var where = BuildRoleWhereClause(role);
             using var con = new SqlConnection(_conn);
-            using var cmd = new SqlCommand(@"
-                SELECT f.FacultyId, f.FacultyName
-                FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] a
-                INNER JOIN dbo.Faculty f ON f.FacultyId = a.FacultyCode
-                GROUP BY f.FacultyId, f.FacultyName ORDER BY f.FacultyId", con);
-            con.Open();
-            using var dr = cmd.ExecuteReader();
-            while (dr.Read())
-                list.Add(new LicTadaDDItem { Value = S(dr, "FacultyId"), Text = S(dr, "FacultyName") });
-            return list;
-        }
-
-        public List<LicTadaDDItem> GetColleges()
-        {
-            var list = new List<LicTadaDDItem>();
-            using var con = new SqlConnection(_conn);
-            using var cmd = new SqlCommand(@"
-                SELECT ac.CollegeCode, ac.CollegeName, ac.CollegeTown
-                FROM [Admission_Affiliation].[dbo].[LICClaimDetails] id
-                INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = id.Collegecode
-                INNER JOIN [Admission_Affiliation].[dbo].[LICCollegeApproval] cl ON cl.CollegeCode = id.Collegecode
-                GROUP BY ac.CollegeCode, ac.CollegeName, ac.CollegeTown
-                ORDER BY ac.CollegeName", con);
+            using var cmd = new SqlCommand($@"
+SELECT DISTINCT f.FacultyId, f.FacultyName
+FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
+INNER JOIN dbo.Faculty f ON f.FacultyId = ca.FacultyCode
+WHERE {where}
+ORDER BY f.FacultyName", con);
             con.Open();
             using var dr = cmd.ExecuteReader();
             while (dr.Read())
                 list.Add(new LicTadaDDItem
                 {
-                    Value = S(dr, "CollegeCode"),
-                    Text = S(dr, "CollegeName") + " — " + S(dr, "CollegeTown")
+                    Value = dr["FacultyId"]?.ToString() ?? "",
+                    Text = dr["FacultyName"]?.ToString() ?? ""
                 });
             return list;
         }
+        public List<LicTadaDDItem> GetColleges(string? role = null)
+        {
+            var list = new List<LicTadaDDItem>();
+            var where = BuildRoleWhereClause(role);
+            using var con = new SqlConnection(_conn);
+            using var cmd = new SqlCommand($@"
+SELECT DISTINCT ac.CollegeCode AS CollegeCode, ac.CollegeName, ac.CollegeTown
+FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
+INNER JOIN dbo.Affiliation_College_Master ac
+    ON ac.CollegeCode = ca.CollegeCode
+WHERE {where}
+ORDER BY ac.CollegeName", con);
+            con.Open();
+            using var dr = cmd.ExecuteReader();
+            while (dr.Read())
+                list.Add(new LicTadaDDItem
+                {
+                    Value = dr["CollegeCode"]?.ToString() ?? "",
+                    Text = (dr["CollegeName"]?.ToString() ?? "")
+                          + " — "
+                          + (dr["CollegeTown"]?.ToString() ?? "")
+                });
+            return list;
+        }
+        /// <summary>
+        /// Returns the WHERE clause fragment that matches exactly
+        /// the records visible in each role's grid query.
+        /// </summary>
+        private static string BuildRoleWhereClause(string? role) => role switch
+        {
+            "FO_Fresh" =>
+                @"ca.CollegeCode IN (
+            SELECT CollegeCode
+            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+            WHERE DR_ApprovalStatus IS NOT NULL AND DR_ApprovalStatus <> ''
+              AND (FO_Level1_ApprovedStatus IS NULL OR FO_Level1_ApprovedStatus = '')
+        )",
+
+            "FO_Final" =>
+                @"ca.CollegeCode IN (
+            SELECT CollegeCode
+            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+            WHERE F_AO_SP_Approved_Status IN ('Approved','Rejected')
+              AND (FO_Level2_ApprovedStatus IS NULL OR FO_Level2_ApprovedStatus = '')
+        )",
+
+            "CaseWorker" =>
+                @"ca.CollegeCode IN (
+            SELECT CollegeCode
+            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+            WHERE FO_Level1_ApprovedStatus = 'AssignedToCW'
+              AND (F_CaseWorker_Approve_Status IS NULL OR F_CaseWorker_Approve_Status = '')
+        )",
+
+            "AO" =>
+                @"ca.CollegeCode IN (
+            SELECT CollegeCode
+            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+            WHERE F_CaseWorker_Approve_Status IN ('Verified','Rejected')
+              AND (F_AO_SP_Approved_Status IS NULL OR F_AO_SP_Approved_Status = '')
+        )",
+
+            "Cashier" =>
+                @"ca.FO_Level2_ApprovedStatus = 'Approved'
+          AND (ca.Cashier_Update IS NULL OR ca.Cashier_Update = '')",
+
+            "Cashier_Paid" =>
+                @"ca.FO_Level2_ApprovedStatus = 'Approved'
+          AND ca.Cashier_Update = 'Paid'",
+
+            _ => "1 = 0"
+        };
 
         // ══ GRID QUERIES ═══════════════════════════════════════════════════════
 
@@ -239,7 +373,8 @@ namespace Medical_Affiliation.Services
                     '' AS CaseWorkerRemarks, '' AS FO_Level2_Status, '' AS Cashier_Status,
                     '' AS AccountHolderName, '' AS AccountNumber,    '' AS IFSCCode,
                     '' AS BankName,          '' AS BranchName,       '' AS PANNumber,
-                    '' AS AadhaarNumber,     '' AS Email,            '' AS Address, '' AS ModeOfTravel
+                    '' AS AadhaarNumber,     '' AS Email,            '' AS Address, '' AS ModeOfTravel,
+                       ca.InspectionDate
                 FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
                 INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
                 WHERE ca.CollegeCode IN (
@@ -266,12 +401,13 @@ namespace Medical_Affiliation.Services
                     '' AS Cashier_Status,
                     '' AS AccountHolderName, '' AS AccountNumber, '' AS IFSCCode,
                     '' AS BankName,          '' AS BranchName,    '' AS PANNumber,
-                    '' AS AadhaarNumber,     '' AS Email,         '' AS Address, '' AS ModeOfTravel
+                    '' AS AadhaarNumber,     '' AS Email,         '' AS Address, '' AS ModeOfTravel,
+                        ca.InspectionDate
                 FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
                 INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
                 WHERE ca.CollegeCode IN (
                     SELECT CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                    WHERE F_AO_SP_Approved_Status = 'Approved'
+                    WHERE F_AO_SP_Approved_Status IN ('Approved','Rejected')
                       AND (FO_Level2_ApprovedStatus IS NULL OR FO_Level2_ApprovedStatus = '')
                 )
                 AND (@Year    IS NULL OR ca.AcademicYear = @Year)
@@ -292,12 +428,13 @@ namespace Medical_Affiliation.Services
                     '' AS FO_Level2_Status, '' AS Cashier_Status,
                     '' AS AccountHolderName, '' AS AccountNumber, '' AS IFSCCode,
                     '' AS BankName,          '' AS BranchName,    '' AS PANNumber,
-                    '' AS AadhaarNumber,     '' AS Email,         '' AS Address, '' AS ModeOfTravel
+                    '' AS AadhaarNumber,     '' AS Email,         '' AS Address, '' AS ModeOfTravel,
+                   ca.InspectionDate
                 FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
                 INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
                 WHERE ca.CollegeCode IN (
                     SELECT CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                    WHERE FO_Level1_ApprovedStatus = 'Forwarded'
+                    WHERE FO_Level1_ApprovedStatus = 'AssignedToCW'
                       AND (F_CaseWorker_Approve_Status IS NULL OR F_CaseWorker_Approve_Status = '')
                 )
                 AND (@Year    IS NULL OR ca.AcademicYear = @Year)
@@ -318,12 +455,13 @@ namespace Medical_Affiliation.Services
                     '' AS FO_Level2_Status, '' AS Cashier_Status,
                     '' AS AccountHolderName, '' AS AccountNumber, '' AS IFSCCode,
                     '' AS BankName,          '' AS BranchName,    '' AS PANNumber,
-                    '' AS AadhaarNumber,     '' AS Email,         '' AS Address, '' AS ModeOfTravel
+                    '' AS AadhaarNumber,     '' AS Email,         '' AS Address, '' AS ModeOfTravel,
+                    ca.InspectionDate
                 FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
                 INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
                 WHERE ca.CollegeCode IN (
                     SELECT CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                    WHERE F_CaseWorker_Approve_Status = 'Verified'
+                    WHERE F_CaseWorker_Approve_Status IN ('Verified','Rejected')
                       AND (F_AO_SP_Approved_Status IS NULL OR F_AO_SP_Approved_Status = '')
                 )
                 AND (@Year    IS NULL OR ca.AcademicYear = @Year)
@@ -335,34 +473,63 @@ namespace Medical_Affiliation.Services
 
         public List<LicTadaGridRow> GetCashierRecords(string? year, string? faculty, string? college)
         {
-            const string sql = @"
-                SELECT ca.Id,
-                    ac.CollegeCode, ac.CollegeName, ac.CollegeTown,
-                    ca.AcademicYear, ca.TypeOfMembers, ca.memberName, ca.MobileNo,
-                    ca.TotalClaimAmount,
-                    ''                                         AS CaseWorkerRemarks,
-                    ISNULL(ca.FO_Level2_ApprovedStatus,'')     AS FO_Level2_Status,
-                    ISNULL(ca.Cashier_Update,'')               AS Cashier_Status,
-                    ISNULL(li.AccountHolderName,'') AS AccountHolderName,
-                    ISNULL(li.AccountNumber,'')     AS AccountNumber,
-                    ISNULL(li.IFSCCode,'')          AS IFSCCode,
-                    ISNULL(li.BankName,'')          AS BankName,
-                    ISNULL(li.BranchName,'')        AS BranchName,
-                    ISNULL(li.PANNumber,'')         AS PANNumber,
-                    ISNULL(li.AadhaarNumber,'')     AS AadhaarNumber,
-                    ISNULL(li.Email,'')             AS Email,
-                    ISNULL(li.Address,'')           AS Address,
-                    ISNULL(li.ModeOfTravel,'')      AS ModeOfTravel
-                FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
-                INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
-                LEFT  JOIN [Admission_Affiliation].[dbo].[LIC_Inspection] li
-                       ON li.PhoneNumber = ca.MobileNo
-                WHERE ca.FO_Level2_ApprovedStatus = 'Approved'
-                  AND (ca.Cashier_Update IS NULL OR ca.Cashier_Update = '')
-                  AND (@Year    IS NULL OR ca.AcademicYear = @Year)
-                  AND (@Faculty IS NULL OR ca.FacultyCode  = @Faculty)
-                  AND (@College IS NULL OR ca.CollegeCode  = @College)
-                ORDER BY ac.CollegeName";
+            const string sql = @"SELECT 
+                                ca.Id,
+                                ac.CollegeCode, 
+                                ac.CollegeName, 
+                                ac.CollegeTown,
+                                ca.AcademicYear, 
+                                ca.TypeOfMembers, 
+                                ca.memberName, 
+                                ca.MobileNo,
+
+                                -- ✅ CURRENT VALUE
+                                ca.TotalClaimAmount AS TotalClaimAmount,
+
+                                -- ✅ OLD VALUE (first change if exists)
+                                ISNULL(ed.First_Old_TotalClaimAmount, ca.TotalClaimAmount) AS Old_TotalClaimAmount,
+
+                                '' AS CaseWorkerRemarks,
+                                ISNULL(ca.FO_Level2_ApprovedStatus,'') AS FO_Level2_Status,
+                                ISNULL(ca.Cashier_Update,'') AS Cashier_Status,
+
+                                ISNULL(li.AccountHolderName,'') AS AccountHolderName,
+                                ISNULL(li.AccountNumber,'')     AS AccountNumber,
+                                ISNULL(li.IFSCCode,'')          AS IFSCCode,
+                                ISNULL(li.BankName,'')          AS BankName,
+                                ISNULL(li.BranchName,'')        AS BranchName,
+                                ISNULL(li.PANNumber,'')         AS PANNumber,
+                                ISNULL(li.AadhaarNumber,'')     AS AadhaarNumber,
+                                ISNULL(li.Email,'')             AS Email,
+                                ISNULL(li.Address,'')           AS Address,
+                                ISNULL(li.ModeOfTravel,'')      AS ModeOfTravel,
+
+                                ca.InspectionDate
+
+                            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
+
+                            INNER JOIN dbo.Affiliation_College_Master ac 
+                                ON ac.CollegeCode = ca.CollegeCode
+
+                            LEFT JOIN [Admission_Affiliation].[dbo].[LIC_Inspection] li
+                                ON li.PhoneNumber = ca.MobileNo
+
+                            OUTER APPLY 
+                            (
+                                SELECT TOP 1 
+                                    edlog.Old_TotalClaimAmount AS First_Old_TotalClaimAmount
+                                FROM [Admission_Affiliation].[dbo].[LIC_TA_DA_Edit_Log] edlog
+                                WHERE edlog.MobileNo = ca.MobileNo
+                                  AND edlog.ApprovalId = ca.Id
+                                ORDER BY edlog.EditedAt ASC
+                            ) ed
+                            WHERE ca.FO_Level2_ApprovedStatus = 'Approved'
+                              AND (ca.Cashier_Update IS NULL OR ca.Cashier_Update = '')
+                                              AND (@Year    IS NULL OR ca.AcademicYear = @Year)
+                                              AND (@Faculty IS NULL OR ca.FacultyCode  = @Faculty)
+                                              AND (@College IS NULL OR ca.CollegeCode  = @College)
+                                            
+                            ORDER BY ac.CollegeName;";
             return GroupToGrid(ExecRawMembers(sql, year, faculty, college));
         }
 
@@ -371,30 +538,36 @@ namespace Medical_Affiliation.Services
         public LicTadaMember GetMember(string mobileNo)
         {
             var m = new LicTadaMember();
+
+            // ── Query 1: All scalar fields — NO binary columns ─────────────────
             const string sql1 = @"
-                SELECT TOP 1
-                    [Id],[FacultyCode],[CollegeCode],[TypeOfMembers],[MobileNo],[memberName],
-                    [FromPlace],[ToPlace],[Kilometers],
-                    [ReturnFromPlace],[ReturnToPlace],[ReturnKilometers],
-                    [TotalClaimAmount],[IsBanglore],[AirFair],[NoOfDays],
-                    [TravelCost],[DACost],[LCACost],[CollegeCost],[AirRoadCost],
-                    [Division],[IsLCA],
-                    [DR_ApprovalStatus],[DR_Remarks],[DRApprovedBy],[DRApprovedDate],
-                    [FO_Level1_ApprovedStatus],[FO_Level1_Remarks],[FO_Level1_ForwardedDate],
-                    [F_CaseWorker_Approve_Status],[F_CaseWorker_Approve_Remarks],[F_CaseWorker_Approved_Date],
-                    [F_AO_SP_Approved_Status],[F_AO_SP_Approved_Remarks],[F_AO_SP_Approved_Date],
-                    [FO_Level2_ApprovedStatus],[FO_Level2_ApprovedRemarks],[FO_Level2_ApprovedDate],
-                    [Cashier_Update],[CashierApprovedDate],[LicApprovalFile]
-                FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                WHERE MobileNo = @Phone";
+        SELECT TOP 1
+            [Id],[FacultyCode],[CollegeCode],[TypeOfMembers],[MobileNo],[memberName],
+            [FromPlace],[ToPlace],[Kilometers],
+            [ReturnFromPlace],[ReturnToPlace],[ReturnKilometers],
+            [TotalClaimAmount],[IsBanglore],[AirFair],[NoOfDays],
+            [TravelCost],[DACost],[LCACost],[CollegeCost],[AirRoadCost],
+            [Division],[IsLCA],
+            [DR_ApprovalStatus],[DR_Remarks],[DRApprovedBy],[DRApprovedDate],
+            [FO_Level1_ApprovedStatus],[FO_Level1_Remarks],[FO_Level1_ForwardedDate],
+            [F_CaseWorker_Approve_Status],[F_CaseWorker_Approve_Remarks],[F_CaseWorker_Approved_Date],
+            [F_AO_SP_Approved_Status],[F_AO_SP_Approved_Remarks],[F_AO_SP_Approved_Date],
+            [FO_Level2_ApprovedStatus],[FO_Level2_ApprovedRemarks],[FO_Level2_ApprovedDate],
+            [Cashier_Update],[CashierApprovedDate],[InspectionDate],
+            CASE WHEN LicApprovalFile IS NOT NULL AND DATALENGTH(LicApprovalFile) > 0
+                 THEN 1 ELSE 0 END AS HasLicFile
+        FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+        WHERE MobileNo = @Phone";
 
             using (var con = new SqlConnection(_conn))
             using (var cmd = new SqlCommand(sql1, con))
             {
+                cmd.CommandTimeout = 120;
                 cmd.Parameters.AddWithValue("@Phone", mobileNo ?? "");
                 con.Open();
                 using var dr = cmd.ExecuteReader();
                 if (!dr.Read()) return m;
+
                 m.Id = N(dr, "Id");
                 m.FacultyCode = S(dr, "FacultyCode");
                 m.CollegeCode = S(dr, "CollegeCode");
@@ -436,46 +609,63 @@ namespace Medical_Affiliation.Services
                 m.FO_Level2_ApprovedDate = DT(dr, "FO_Level2_ApprovedDate");
                 m.Cashier_Update = S(dr, "Cashier_Update");
                 m.CashierApprovedDate = DT(dr, "CashierApprovedDate");
-                m.LicApprovalFileName = S(dr, "LicApprovalFile");
+                var inspectionDate = DT(dr, "InspectionDate");
+                m.InspectionDate = inspectionDate.HasValue
+                    ? DateOnly.FromDateTime(inspectionDate.Value)
+                    : (DateOnly?)null;
 
+                // Flag: file exists but don't download it yet
+                m.HasLicFile = N(dr, "HasLicFile") == 1;
+            }
 
-                var licOrdinal = dr.GetOrdinal("LicApprovalFile");
-                if (!dr.IsDBNull(licOrdinal))
+            // ── Query 2: LicApprovalFile binary — separate round trip ──────────
+            if (m.HasLicFile)
+            {
+                const string sqlFile = @"
+            SELECT TOP 1 LicApprovalFile
+            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+            WHERE MobileNo = @Phone
+              AND LicApprovalFile IS NOT NULL";
+
+                using var conF = new SqlConnection(_conn);
+                using var cmdF = new SqlCommand(sqlFile, conF);
+                cmdF.CommandTimeout = 180; // large file needs more time
+                cmdF.Parameters.AddWithValue("@Phone", mobileNo ?? "");
+                conF.Open();
+                using var drF = cmdF.ExecuteReader(CommandBehavior.SequentialAccess);
+                if (drF.Read() && !drF.IsDBNull(0))
                 {
-                    var licBytes = (byte[])dr.GetValue(licOrdinal);
-                    if (licBytes != null && licBytes.Length > 0)
-                        m.LicApprovalFileName = Convert.ToBase64String(licBytes);
+                    var bytes = (byte[])drF.GetValue(0);
+                    if (bytes?.Length > 0)
+                        m.LicApprovalFileName = Convert.ToBase64String(bytes);
                 }
             }
 
-
-
+            // ── Query 3: UploadBills binary ─────────────────────────────────────
             if (!string.IsNullOrEmpty(m.MobileNo))
             {
                 const string sql2 = @"
-                    SELECT TOP 1 [UploadBills]
-                    FROM [Admission_Affiliation].[dbo].[LICClaimDetails]
-                    WHERE PhoneNumber = @Phone";
+            SELECT TOP 1 UploadBills
+            FROM [Admission_Affiliation].[dbo].[LICClaimDetails]
+            WHERE PhoneNumber = @Phone
+              AND UploadBills IS NOT NULL";
+
                 using var con2 = new SqlConnection(_conn);
                 using var cmd2 = new SqlCommand(sql2, con2);
+                cmd2.CommandTimeout = 180;
                 cmd2.Parameters.AddWithValue("@Phone", m.MobileNo);
                 con2.Open();
-                using var dr2 = cmd2.ExecuteReader();
-                if (dr2.Read())
+                using var dr2 = cmd2.ExecuteReader(CommandBehavior.SequentialAccess);
+                if (dr2.Read() && !dr2.IsDBNull(0))
                 {
-                    var ordinal = dr2.GetOrdinal("UploadBills");
-                    if (!dr2.IsDBNull(ordinal))
-                    {
-                        var bytes = (byte[])dr2.GetValue(ordinal);
-                        if (bytes != null && bytes.Length > 0)
-                            m.UploadedBills = Convert.ToBase64String(bytes);
-                    }
+                    var bytes = (byte[])dr2.GetValue(0);
+                    if (bytes?.Length > 0)
+                        m.UploadedBills = Convert.ToBase64String(bytes);
                 }
             }
 
             return m;
         }
-
         // ══ BANK DETAILS ═══════════════════════════════════════════════════════
         // Returns a strongly-typed LicBankDetailsVM so ASP.NET Core JSON
         // serializer always produces consistent camelCase property names.
@@ -539,6 +729,11 @@ namespace Medical_Affiliation.Services
 
         public bool ForwardToCW(int id, string remarks)
         {
+            return ForwardToCW(id, remarks, "");
+        }
+
+        public bool ForwardToCW(int id, string remarks, string routedTo)
+        {
             using var con = new SqlConnection(_conn);
             con.Open();
 
@@ -561,7 +756,7 @@ namespace Medical_Affiliation.Services
 
             using (var cmd = new SqlCommand(@"
                 UPDATE [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                SET FO_Level1_ApprovedStatus = 'Forwarded',
+                SET FO_Level1_ApprovedStatus = 'AssignedToCW',
                     FO_Level1_Remarks        = @Remarks,
                     FO_Level1_ForwardedDate  = GETDATE(),
                     UpdatedDate              = GETDATE()
@@ -569,94 +764,462 @@ namespace Medical_Affiliation.Services
                   AND AcademicYear = @AcademicYear
                   AND (FO_Level1_ApprovedStatus IS NULL OR FO_Level1_ApprovedStatus = '')", con))
             {
-                cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
+                var normalizedRoute = string.IsNullOrWhiteSpace(routedTo) ? "SO/AS/AO" : routedTo.Trim();
+                var composedRemarks = string.IsNullOrWhiteSpace(remarks)
+                    ? $"Routed by FO to {normalizedRoute}"
+                    : $"{remarks} | Routed by FO to {normalizedRoute}";
+                cmd.Parameters.AddWithValue("@Remarks", composedRemarks);
                 cmd.Parameters.AddWithValue("@CollegeCode", collegeCode);
                 cmd.Parameters.AddWithValue("@AcademicYear", academicYear);
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
 
-        public bool SaveKm(int id, decimal km, decimal rkm)
+        // ═══════════════════════════════════════════════════════════════════
+        //  LicTadaService.cs — SaveKm (complete replacement)
+        //
+        //  Business rules:
+        //    KM ≤ 40  →  TravelCost=0, DACost=0, LCACost=auto(500/300), IsLCA=1
+        //    KM > 40  →  TravelCost=(km+rkm)×15, DACost=user value, LCACost=0, IsLCA=0
+        //
+        //  Both LICCollegeApproval and LICClaimDetails are updated.
+        //  All changes are written as JSON to CWEditLog for the audit banner.
+        // ═══════════════════════════════════════════════════════════════════
+
+        public bool SaveKm(int id, decimal km, decimal rkm,
+       decimal? da = null,
+       decimal? lca = null,
+       decimal? airRoad = null,
+       decimal? airFare = null,
+       string editedBy = "",
+       string editorDesignation = "",
+       string editedAtStage = "")   // "CaseWorker" | "AO" | "FO2"
         {
             decimal totalKm = km + rkm;
-            bool shortTrip = totalKm > 0 && totalKm <= 40m;
+
+            // ── RULE: EITHER one side ≤ 40 → LCA (no TA, no DA)
+            //          BOTH  sides > 40     → TA + DA, LCA = 0
+            bool shortTrip = (km > 0 && km <= 40m) || (rkm > 0 && rkm <= 40m);
+
             decimal travelCost = shortTrip ? 0m : totalKm * 15m;
 
             using var con = new SqlConnection(_conn);
             con.Open();
 
+            // ── Variables to hold current DB values ────────────────────────
             string phone = "";
-            decimal originalDA = 0m;
-            decimal lcaCost = 0m;
+            decimal originalDA = 0m, originalLCA = 0m;
+            decimal originalAirRoad = 0m, originalAirFare = 0m;
+            decimal originalKM = 0m, originalRKM = 0m;
+            decimal originalTravel = 0m, originalTotal = 0m;
             decimal collegeCost = 0m;
-            decimal airRoadCost = 0m;
-            decimal airFair = 0m;
+            bool isBangalore = false;
+            string academicYear = "", collegeCode = "", memberName = "";
+            string typeOfMembers = "", mobileNo = "", fromPlace = "";
+            string toPlace = "", returnFrom = "", returnTo = "", division = "";
+            int facultyCode = 0;
 
+            // ── Step 1: Read current values BEFORE opening transaction ──────
+            // (read-only, no need to be inside transaction)
             using (var cmd = new SqlCommand(@"
-                SELECT TOP 1 MobileNo,
-                    ISNULL(DACost,     0),
-                    ISNULL(LCACost,    0),
-                    ISNULL(CollegeCost,0),
-                    ISNULL(AirRoadCost,0),
-                    ISNULL(AirFair,    0)
-                FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                WHERE Id = @Id", con))
+        SELECT TOP 1
+            MobileNo,
+            ISNULL(DACost,           0) AS DACost,
+            ISNULL(LCACost,          0) AS LCACost,
+            ISNULL(CollegeCost,      0) AS CollegeCost,
+            ISNULL(AirRoadCost,      0) AS AirRoadCost,
+            ISNULL(AirFair,          0) AS AirFair,
+            ISNULL(Kilometers,       0) AS Kilometers,
+            ISNULL(ReturnKilometers, 0) AS ReturnKilometers,
+            ISNULL(TravelCost,       0) AS TravelCost,
+            ISNULL(TotalClaimAmount, 0) AS TotalClaimAmount,
+            ISNULL(IsBanglore,       0) AS IsBanglore,
+            ISNULL(AcademicYear,    '') AS AcademicYear,
+            ISNULL(FacultyCode,      0) AS FacultyCode,
+            ISNULL(CollegeCode,     '') AS CollegeCode,
+            ISNULL(memberName,      '') AS memberName,
+            ISNULL(TypeOfMembers,   '') AS TypeOfMembers,
+            ISNULL(FromPlace,       '') AS FromPlace,
+            ISNULL(ToPlace,         '') AS ToPlace,
+            ISNULL(ReturnFromPlace, '') AS ReturnFromPlace,
+            ISNULL(ReturnToPlace,   '') AS ReturnToPlace,
+            ISNULL(Division,        '') AS Division
+        FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+        WHERE Id = @Id", con))
             {
                 cmd.Parameters.AddWithValue("@Id", id);
                 using var dr = cmd.ExecuteReader();
                 if (!dr.Read()) return false;
-                phone = dr.IsDBNull(0) ? "" : dr.GetValue(0)?.ToString() ?? "";
-                originalDA = dr.IsDBNull(1) ? 0m : Convert.ToDecimal(dr.GetValue(1));
-                lcaCost = dr.IsDBNull(2) ? 0m : Convert.ToDecimal(dr.GetValue(2));
-                collegeCost = dr.IsDBNull(3) ? 0m : Convert.ToDecimal(dr.GetValue(3));
-                airRoadCost = dr.IsDBNull(4) ? 0m : Convert.ToDecimal(dr.GetValue(4));
-                airFair = dr.IsDBNull(5) ? 0m : Convert.ToDecimal(dr.GetValue(5));
+
+                // Read by column name — immune to index/ordering issues
+                phone = dr["MobileNo"]?.ToString() ?? "";
+                originalDA = dr.IsDBNull(dr.GetOrdinal("DACost")) ? 0m : Convert.ToDecimal(dr["DACost"]);
+                originalLCA = dr.IsDBNull(dr.GetOrdinal("LCACost")) ? 0m : Convert.ToDecimal(dr["LCACost"]);
+                collegeCost = dr.IsDBNull(dr.GetOrdinal("CollegeCost")) ? 0m : Convert.ToDecimal(dr["CollegeCost"]);
+                originalAirRoad = dr.IsDBNull(dr.GetOrdinal("AirRoadCost")) ? 0m : Convert.ToDecimal(dr["AirRoadCost"]);
+                originalAirFare = dr.IsDBNull(dr.GetOrdinal("AirFair")) ? 0m : Convert.ToDecimal(dr["AirFair"]);
+                originalKM = dr.IsDBNull(dr.GetOrdinal("Kilometers")) ? 0m : Convert.ToDecimal(dr["Kilometers"]);
+                originalRKM = dr.IsDBNull(dr.GetOrdinal("ReturnKilometers")) ? 0m : Convert.ToDecimal(dr["ReturnKilometers"]);
+                originalTravel = dr.IsDBNull(dr.GetOrdinal("TravelCost")) ? 0m : Convert.ToDecimal(dr["TravelCost"]);
+                originalTotal = dr.IsDBNull(dr.GetOrdinal("TotalClaimAmount")) ? 0m : Convert.ToDecimal(dr["TotalClaimAmount"]);
+                isBangalore = !dr.IsDBNull(dr.GetOrdinal("IsBanglore")) && Convert.ToBoolean(dr["IsBanglore"]);
+                academicYear = dr["AcademicYear"]?.ToString() ?? "";
+                facultyCode = dr.IsDBNull(dr.GetOrdinal("FacultyCode")) ? 0 : Convert.ToInt32(dr["FacultyCode"]);
+                collegeCode = dr["CollegeCode"]?.ToString() ?? "";
+                memberName = dr["memberName"]?.ToString() ?? "";
+                typeOfMembers = dr["TypeOfMembers"]?.ToString() ?? "";
+                mobileNo = dr["MobileNo"]?.ToString() ?? "";
+                fromPlace = dr["FromPlace"]?.ToString() ?? "";
+                toPlace = dr["ToPlace"]?.ToString() ?? "";
+                returnFrom = dr["ReturnFromPlace"]?.ToString() ?? "";
+                returnTo = dr["ReturnToPlace"]?.ToString() ?? "";
+                division = dr["Division"]?.ToString() ?? "";
             }
 
             if (string.IsNullOrEmpty(phone)) return false;
 
-            decimal effectiveDA = shortTrip ? 0m : originalDA;
-            decimal totalClaim = travelCost + effectiveDA + lcaCost + collegeCost + airRoadCost + airFair;
+            // ── Defaults based on Bangalore flag ───────────────────────────
+            decimal lcaDefault = isBangalore ? 500m : 300m;   // LCA: BLR=500, Other=300
+            decimal daDefault = isBangalore ? 1500m : 900m;   // DA:  BLR=1500, Other=900
 
-            using (var cmd = new SqlCommand(@"
-                UPDATE [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                SET Kilometers       = @KM,
-                    ReturnKilometers = @RKM,
-                    TravelCost       = @TravelCost,
-                    DACost           = @DACost,
-                    TotalClaimAmount = @TotalClaim,
-                    UpdatedDate      = GETDATE()
-                WHERE Id = @Id", con))
+            decimal effectiveDA, effectiveLCA;
+            bool effectiveIsLCA;
+
+            if (shortTrip)
             {
-                cmd.Parameters.AddWithValue("@KM", km);
-                cmd.Parameters.AddWithValue("@RKM", rkm);
-                cmd.Parameters.AddWithValue("@TravelCost", travelCost);
-                cmd.Parameters.AddWithValue("@DACost", effectiveDA);
-                cmd.Parameters.AddWithValue("@TotalClaim", totalClaim);
-                cmd.Parameters.AddWithValue("@Id", id);
-                cmd.ExecuteNonQuery();
+                // Either side ≤ 40 → No TA, No DA, LCA applies
+                effectiveDA = 0m;
+                effectiveLCA = lca.HasValue ? lca.Value
+                               : (originalLCA > 0 ? originalLCA : lcaDefault);
+                effectiveIsLCA = true;
+            }
+            else
+            {
+                // Both sides > 40 → TA + DA apply, LCA = 0
+                effectiveDA = da.HasValue ? da.Value
+                               : (originalDA > 0 ? originalDA : daDefault);
+                effectiveLCA = 0m;
+                effectiveIsLCA = false;
             }
 
-            using (var cmd = new SqlCommand(@"
-                UPDATE [Admission_Affiliation].[dbo].[LICClaimDetails]
-                SET Kilometers       = @KM,
-                    ReturnKilometers = @RKM,
-                    TravelCost       = @TravelCost,
-                    DACost           = @DACost,
-                    TotalCost        = @TotalClaim
-                WHERE PhoneNumber = @Phone", con))
-            {
-                cmd.Parameters.AddWithValue("@KM", km);
-                cmd.Parameters.AddWithValue("@RKM", rkm);
-                cmd.Parameters.AddWithValue("@TravelCost", travelCost);
-                cmd.Parameters.AddWithValue("@DACost", effectiveDA);
-                cmd.Parameters.AddWithValue("@TotalClaim", totalClaim);
-                cmd.Parameters.AddWithValue("@Phone", phone);
-                cmd.ExecuteNonQuery();
-            }
+            decimal effectiveAirRoad = airRoad.HasValue ? airRoad.Value : originalAirRoad;
+            decimal effectiveAirFare = airFare.HasValue ? airFare.Value : originalAirFare;
 
-            return true;
+            decimal totalClaim = travelCost + effectiveDA + effectiveLCA
+                               + collegeCost + effectiveAirRoad + effectiveAirFare;
+
+            // ── Detect which fields actually changed ────────────────────────
+            bool kmChanged = Math.Abs(km - originalKM) > 0.01m;
+            bool rkmChanged = Math.Abs(rkm - originalRKM) > 0.01m;
+            bool travelChanged = Math.Abs(travelCost - originalTravel) > 0.01m;
+            bool daChanged = Math.Abs(effectiveDA - originalDA) > 0.01m;
+            bool lcaChanged = Math.Abs(effectiveLCA - originalLCA) > 0.01m;
+            bool airRoadChanged = Math.Abs(effectiveAirRoad - originalAirRoad) > 0.01m;
+            bool airFareChanged = Math.Abs(effectiveAirFare - originalAirFare) > 0.01m;
+            bool totalChanged = Math.Abs(totalClaim - originalTotal) > 0.01m;
+
+            bool anyChanged = kmChanged || rkmChanged || travelChanged || daChanged
+                           || lcaChanged || airRoadChanged || airFareChanged || totalChanged;
+
+            // ── Build ChangedFields summary string ─────────────────────────
+            var changedList = new List<string>();
+            if (kmChanged) changedList.Add("KM Onward");
+            if (rkmChanged) changedList.Add("KM Return");
+            if (travelChanged) changedList.Add("Travel Cost");
+            if (daChanged) changedList.Add("DA");
+            if (lcaChanged) changedList.Add("LCA");
+            if (airRoadChanged) changedList.Add("Air/Road");
+            if (airFareChanged) changedList.Add("Air Fare");
+            if (totalChanged) changedList.Add("Total");
+            string changedFields = string.Join(", ", changedList);
+
+            // ── IsLCA before this edit ──────────────────────────────────────
+            bool oldIsLCA = originalLCA > 0m;
+
+            // ══════════════════════════════════════════════════════════════════
+            // Step 2: Begin transaction — ALL writes must succeed or ALL rollback
+            // ══════════════════════════════════════════════════════════════════
+            using var txn = con.BeginTransaction();
+            try
+            {
+                // ── UPDATE LICCollegeApproval ─────────────────────────────────
+                using (var cmd = new SqlCommand(@"
+            UPDATE [Admission_Affiliation].[dbo].[LICCollegeApproval]
+            SET Kilometers       = @KM,
+                ReturnKilometers = @RKM,
+                TravelCost       = @TravelCost,
+                DACost           = @DACost,
+                LCACost          = @LCA,
+                AirRoadCost      = @AirRoad,
+                AirFair          = @AirFare,
+                TotalClaimAmount = @TotalClaim,
+                IsLCA            = @IsLCA,
+                UpdatedDate      = GETDATE()
+            WHERE Id = @Id", con, txn))
+                {
+                    cmd.Parameters.AddWithValue("@KM", km);
+                    cmd.Parameters.AddWithValue("@RKM", rkm);
+                    cmd.Parameters.AddWithValue("@TravelCost", travelCost);
+                    cmd.Parameters.AddWithValue("@DACost", effectiveDA);
+                    cmd.Parameters.AddWithValue("@LCA", effectiveLCA);
+                    cmd.Parameters.AddWithValue("@AirRoad", effectiveAirRoad);
+                    cmd.Parameters.AddWithValue("@AirFare", effectiveAirFare);
+                    cmd.Parameters.AddWithValue("@TotalClaim", totalClaim);
+                    cmd.Parameters.AddWithValue("@IsLCA", effectiveIsLCA ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // ── UPDATE LICClaimDetails ────────────────────────────────────
+                // Column is AirFair (NOT AirFareCost)
+                using (var cmd = new SqlCommand(@"
+            UPDATE [Admission_Affiliation].[dbo].[LICClaimDetails]
+            SET Kilometers       = @KM,
+                ReturnKilometers = @RKM,
+                TravelCost       = @TravelCost,
+                DACost           = @DACost,
+                LCACost          = @LCA,
+                AirRoadCost      = @AirRoad,
+                AirFare          = @AirFare,
+                TotalCost = @TotalClaim,
+                IsLCA            = @IsLCA
+            WHERE PhoneNumber = @Phone", con, txn))
+                {
+                    cmd.Parameters.AddWithValue("@KM", km);
+                    cmd.Parameters.AddWithValue("@RKM", rkm);
+                    cmd.Parameters.AddWithValue("@TravelCost", travelCost);
+                    cmd.Parameters.AddWithValue("@DACost", effectiveDA);
+                    cmd.Parameters.AddWithValue("@LCA", effectiveLCA);
+                    cmd.Parameters.AddWithValue("@AirRoad", effectiveAirRoad);
+                    cmd.Parameters.AddWithValue("@AirFare", effectiveAirFare);
+                    cmd.Parameters.AddWithValue("@TotalClaim", totalClaim);
+                    cmd.Parameters.AddWithValue("@IsLCA", effectiveIsLCA ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@Phone", phone);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // ── INSERT into LIC_TA_DA_Edit_Log (only if something changed) ─
+                if (anyChanged)
+                {
+                    using var logCmd = new SqlCommand(@"
+                INSERT INTO [Admission_Affiliation].[dbo].[LIC_TA_DA_Edit_Log]
+                (
+                    ApprovalId,
+                    AcademicYear,   FacultyCode,    CollegeCode,
+                    MemberName,     TypeOfMembers,  MobileNo,
+                    IsBanglore,     Division,
+
+                    Old_Kilometers,         New_Kilometers,
+                    Old_ReturnKilometers,   New_ReturnKilometers,
+                    Old_TravelCost,         New_TravelCost,
+                    Old_DACost,             New_DACost,
+                    Old_LCACost,            New_LCACost,
+                    Old_IsLCA,              New_IsLCA,
+                    Old_AirRoadCost,        New_AirRoadCost,
+                    Old_AirFair,            New_AirFair,
+                    Old_TotalClaimAmount,   New_TotalClaimAmount,
+
+                    ChangedFields,
+                    EditedBy,   EditorDesignation,  EditedAtStage,  EditedAt
+                )
+                VALUES
+                (
+                    @ApprovalId,
+                    @AcademicYear,  @FacultyCode,   @CollegeCode,
+                    @MemberName,    @TypeOfMembers, @MobileNo,
+                    @IsBangalore,   @Division,
+
+                    @Old_KM,                @New_KM,
+                    @Old_RKM,               @New_RKM,
+                    @Old_Travel,            @New_Travel,
+                    @Old_DA,                @New_DA,
+                    @Old_LCA,               @New_LCA,
+                    @Old_IsLCA,             @New_IsLCA,
+                    @Old_AirRoad,           @New_AirRoad,
+                    @Old_AirFare,           @New_AirFare,
+                    @Old_Total,             @New_Total,
+
+                    @ChangedFields,
+                    @EditedBy,  @EditorDesignation, @EditedAtStage, GETDATE()
+                )", con, txn);
+
+                    // Record info
+                    logCmd.Parameters.AddWithValue("@ApprovalId", id);
+                    logCmd.Parameters.AddWithValue("@AcademicYear", academicYear);
+                    logCmd.Parameters.AddWithValue("@FacultyCode", facultyCode);
+                    logCmd.Parameters.AddWithValue("@CollegeCode", collegeCode);
+                    logCmd.Parameters.AddWithValue("@MemberName", memberName);
+                    logCmd.Parameters.AddWithValue("@TypeOfMembers", typeOfMembers);
+                    logCmd.Parameters.AddWithValue("@MobileNo", mobileNo);
+                    logCmd.Parameters.AddWithValue("@IsBangalore", isBangalore ? 1 : 0);
+                    logCmd.Parameters.AddWithValue("@Division", division);
+
+                    // KM Onward — NULL if not changed
+                    logCmd.Parameters.AddWithValue("@Old_KM",
+                        kmChanged ? (object)originalKM : DBNull.Value);
+                    logCmd.Parameters.AddWithValue("@New_KM",
+                        kmChanged ? (object)km : DBNull.Value);
+
+                    // KM Return
+                    logCmd.Parameters.AddWithValue("@Old_RKM",
+                        rkmChanged ? (object)originalRKM : DBNull.Value);
+                    logCmd.Parameters.AddWithValue("@New_RKM",
+                        rkmChanged ? (object)rkm : DBNull.Value);
+
+                    // Travel Cost (auto-computed from KM)
+                    logCmd.Parameters.AddWithValue("@Old_Travel",
+                        travelChanged ? (object)originalTravel : DBNull.Value);
+                    logCmd.Parameters.AddWithValue("@New_Travel",
+                        travelChanged ? (object)travelCost : DBNull.Value);
+
+                    // DA
+                    logCmd.Parameters.AddWithValue("@Old_DA",
+                        daChanged ? (object)originalDA : DBNull.Value);
+                    logCmd.Parameters.AddWithValue("@New_DA",
+                        daChanged ? (object)effectiveDA : DBNull.Value);
+
+                    // LCA
+                    logCmd.Parameters.AddWithValue("@Old_LCA",
+                        lcaChanged ? (object)originalLCA : DBNull.Value);
+                    logCmd.Parameters.AddWithValue("@New_LCA",
+                        lcaChanged ? (object)effectiveLCA : DBNull.Value);
+
+                    // IsLCA flag (always stored)
+                    logCmd.Parameters.AddWithValue("@Old_IsLCA", oldIsLCA ? 1 : 0);
+                    logCmd.Parameters.AddWithValue("@New_IsLCA", effectiveIsLCA ? 1 : 0);
+
+                    // Air/Road
+                    logCmd.Parameters.AddWithValue("@Old_AirRoad",
+                        airRoadChanged ? (object)originalAirRoad : DBNull.Value);
+                    logCmd.Parameters.AddWithValue("@New_AirRoad",
+                        airRoadChanged ? (object)effectiveAirRoad : DBNull.Value);
+
+                    // Air Fare
+                    logCmd.Parameters.AddWithValue("@Old_AirFare",
+                        airFareChanged ? (object)originalAirFare : DBNull.Value);
+                    logCmd.Parameters.AddWithValue("@New_AirFare",
+                        airFareChanged ? (object)effectiveAirFare : DBNull.Value);
+
+                    // Total Claim Amount
+                    logCmd.Parameters.AddWithValue("@Old_Total",
+                        totalChanged ? (object)originalTotal : DBNull.Value);
+                    logCmd.Parameters.AddWithValue("@New_Total",
+                        totalChanged ? (object)totalClaim : DBNull.Value);
+
+                    // Audit fields
+                    logCmd.Parameters.AddWithValue("@ChangedFields",
+                        changedFields);
+                    logCmd.Parameters.AddWithValue("@EditedBy",
+                        string.IsNullOrEmpty(editedBy) ? DBNull.Value : (object)editedBy);
+                    logCmd.Parameters.AddWithValue("@EditorDesignation",
+                        string.IsNullOrEmpty(editorDesignation) ? DBNull.Value : (object)editorDesignation);
+                    logCmd.Parameters.AddWithValue("@EditedAtStage",
+                        string.IsNullOrEmpty(editedAtStage) ? DBNull.Value : (object)editedAtStage);
+
+                    logCmd.ExecuteNonQuery();
+                }
+
+                // ══════════════════════════════════════════════════════════════
+                // All 3 operations succeeded → COMMIT
+                // ══════════════════════════════════════════════════════════════
+                txn.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // ══════════════════════════════════════════════════════════════
+                // Any failure → ROLLBACK everything — DB stays in original state
+                // ══════════════════════════════════════════════════════════════
+                try { txn.Rollback(); } catch { /* rollback itself failed — connection lost */ }
+
+                // Log the exception (use your existing logger)
+                // _logger.LogError(ex, "SaveKm failed for ApprovalId={Id}", id);
+
+                return false;
+            }
         }
+
+        //public bool SaveKm(int id, decimal km, decimal rkm)
+        //{
+        //    decimal totalKm = km + rkm;
+        //    bool shortTrip = totalKm > 0 && totalKm <= 40m;
+        //    decimal travelCost = shortTrip ? 0m : totalKm * 15m;
+
+        //    using var con = new SqlConnection(_conn);
+        //    con.Open();
+
+        //    string phone = "";
+        //    decimal originalDA = 0m;
+        //    decimal lcaCost = 0m;
+        //    decimal collegeCost = 0m;
+        //    decimal airRoadCost = 0m;
+        //    decimal airFair = 0m;
+
+        //    using (var cmd = new SqlCommand(@"
+        //        SELECT TOP 1 MobileNo,
+        //            ISNULL(DACost,     0),
+        //            ISNULL(LCACost,    0),
+        //            ISNULL(CollegeCost,0),
+        //            ISNULL(AirRoadCost,0),
+        //            ISNULL(AirFair,    0)
+        //        FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+        //        WHERE Id = @Id", con))
+        //    {
+        //        cmd.Parameters.AddWithValue("@Id", id);
+        //        using var dr = cmd.ExecuteReader();
+        //        if (!dr.Read()) return false;
+        //        phone = dr.IsDBNull(0) ? "" : dr.GetValue(0)?.ToString() ?? "";
+        //        originalDA = dr.IsDBNull(1) ? 0m : Convert.ToDecimal(dr.GetValue(1));
+        //        lcaCost = dr.IsDBNull(2) ? 0m : Convert.ToDecimal(dr.GetValue(2));
+        //        collegeCost = dr.IsDBNull(3) ? 0m : Convert.ToDecimal(dr.GetValue(3));
+        //        airRoadCost = dr.IsDBNull(4) ? 0m : Convert.ToDecimal(dr.GetValue(4));
+        //        airFair = dr.IsDBNull(5) ? 0m : Convert.ToDecimal(dr.GetValue(5));
+        //    }
+
+        //    if (string.IsNullOrEmpty(phone)) return false;
+
+        //    decimal effectiveDA = shortTrip ? 0m : originalDA;
+        //    decimal totalClaim = travelCost + effectiveDA + lcaCost + collegeCost + airRoadCost + airFair;
+
+        //    using (var cmd = new SqlCommand(@"
+        //        UPDATE [Admission_Affiliation].[dbo].[LICCollegeApproval]
+        //        SET Kilometers       = @KM,
+        //            ReturnKilometers = @RKM,
+        //            TravelCost       = @TravelCost,
+        //            DACost           = @DACost,
+        //            TotalClaimAmount = @TotalClaim,
+        //            UpdatedDate      = GETDATE()
+        //        WHERE Id = @Id", con))
+        //    {
+        //        cmd.Parameters.AddWithValue("@KM", km);
+        //        cmd.Parameters.AddWithValue("@RKM", rkm);
+        //        cmd.Parameters.AddWithValue("@TravelCost", travelCost);
+        //        cmd.Parameters.AddWithValue("@DACost", effectiveDA);
+        //        cmd.Parameters.AddWithValue("@TotalClaim", totalClaim);
+        //        cmd.Parameters.AddWithValue("@Id", id);
+        //        cmd.ExecuteNonQuery();
+        //    }
+
+        //    using (var cmd = new SqlCommand(@"
+        //        UPDATE [Admission_Affiliation].[dbo].[LICClaimDetails]
+        //        SET Kilometers       = @KM,
+        //            ReturnKilometers = @RKM,
+        //            TravelCost       = @TravelCost,
+        //            DACost           = @DACost,
+        //            TotalCost        = @TotalClaim
+        //        WHERE PhoneNumber = @Phone", con))
+        //    {
+        //        cmd.Parameters.AddWithValue("@KM", km);
+        //        cmd.Parameters.AddWithValue("@RKM", rkm);
+        //        cmd.Parameters.AddWithValue("@TravelCost", travelCost);
+        //        cmd.Parameters.AddWithValue("@DACost", effectiveDA);
+        //        cmd.Parameters.AddWithValue("@TotalClaim", totalClaim);
+        //        cmd.Parameters.AddWithValue("@Phone", phone);
+        //        cmd.ExecuteNonQuery();
+        //    }
+
+        //    return true;
+        //}
 
         public bool CWVerify(int id, string remarks)
         {
@@ -666,6 +1229,7 @@ namespace Medical_Affiliation.Services
                 SET F_CaseWorker_Approve_Status  = 'Verified',
                     F_CaseWorker_Approve_Remarks = @Remarks,
                     F_CaseWorker_Approved_Date   = GETDATE(),
+                    FO_Level1_ApprovedStatus     = 'CWReviewed',
                     UpdatedDate                  = GETDATE()
                 WHERE Id = @Id", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
@@ -682,6 +1246,7 @@ namespace Medical_Affiliation.Services
                 SET F_CaseWorker_Approve_Status  = 'Rejected',
                     F_CaseWorker_Approve_Remarks = @Remarks,
                     F_CaseWorker_Approved_Date   = GETDATE(),
+                    FO_Level1_ApprovedStatus     = 'CWReviewed',
                     UpdatedDate                  = GETDATE()
                 WHERE Id = @Id", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
@@ -698,6 +1263,7 @@ namespace Medical_Affiliation.Services
                 SET F_AO_SP_Approved_Status  = 'Approved',
                     F_AO_SP_Approved_Remarks = @Remarks,
                     F_AO_SP_Approved_Date    = GETDATE(),
+                    FO_Level1_ApprovedStatus = 'SOReviewed',
                     UpdatedDate              = GETDATE()
                 WHERE Id = @Id", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
@@ -714,6 +1280,7 @@ namespace Medical_Affiliation.Services
                 SET F_AO_SP_Approved_Status  = 'Rejected',
                     F_AO_SP_Approved_Remarks = @Remarks,
                     F_AO_SP_Approved_Date    = GETDATE(),
+                    FO_Level1_ApprovedStatus = 'SOReviewed',
                     UpdatedDate              = GETDATE()
                 WHERE Id = @Id", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
@@ -730,6 +1297,7 @@ namespace Medical_Affiliation.Services
                 SET FO_Level2_ApprovedStatus  = 'Approved',
                     FO_Level2_ApprovedRemarks = @Remarks,
                     FO_Level2_ApprovedDate    = GETDATE(),
+                    FO_Level1_ApprovedStatus  = 'FOFinalApproved',
                     UpdatedDate               = GETDATE()
                 WHERE Id = @Id", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
@@ -746,6 +1314,7 @@ namespace Medical_Affiliation.Services
                 SET FO_Level2_ApprovedStatus  = 'Rejected',
                     FO_Level2_ApprovedRemarks = @Remarks,
                     FO_Level2_ApprovedDate    = GETDATE(),
+                    FO_Level1_ApprovedStatus  = 'FORejectedToDirector',
                     UpdatedDate               = GETDATE()
                 WHERE Id = @Id", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
@@ -786,37 +1355,65 @@ namespace Medical_Affiliation.Services
         }
         public List<LicTadaGridRow> GetCashierPaidRecords(string? year, string? faculty, string? college)
         {
-            const string sql = @"
-        SELECT ca.Id,
-            ac.CollegeCode, ac.CollegeName, ac.CollegeTown,
-            ca.AcademicYear, ca.TypeOfMembers, ca.memberName, ca.MobileNo,
-            ca.TotalClaimAmount,
-            ''                                         AS CaseWorkerRemarks,
-            ISNULL(ca.FO_Level2_ApprovedStatus,'')     AS FO_Level2_Status,
-            ISNULL(ca.Cashier_Update,'')               AS Cashier_Status,
-            ISNULL(li.AccountHolderName,'') AS AccountHolderName,
-            ISNULL(li.AccountNumber,'')     AS AccountNumber,
-            ISNULL(li.IFSCCode,'')          AS IFSCCode,
-            ISNULL(li.BankName,'')          AS BankName,
-            ISNULL(li.BranchName,'')        AS BranchName,
-            ISNULL(li.PANNumber,'')         AS PANNumber,
-            ISNULL(li.AadhaarNumber,'')     AS AadhaarNumber,
-            ISNULL(li.Email,'')             AS Email,
-            ISNULL(li.Address,'')           AS Address,
-            ISNULL(li.ModeOfTravel,'')      AS ModeOfTravel
-        FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
-        INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
-        LEFT  JOIN [Admission_Affiliation].[dbo].[LIC_Inspection] li
-               ON li.PhoneNumber = ca.MobileNo
-        WHERE ca.FO_Level2_ApprovedStatus = 'Approved'
-          AND ca.Cashier_Update = 'Paid'
-          AND (@Year    IS NULL OR ca.AcademicYear = @Year)
-          AND (@Faculty IS NULL OR ca.FacultyCode  = @Faculty)
-          AND (@College IS NULL OR ca.CollegeCode  = @College)
-        ORDER BY ca.CashierApprovedDate DESC";
+            const string sql = @" SELECT 
+                                    ca.Id,
+                                    ac.CollegeCode, 
+                                    ac.CollegeName, 
+                                    ac.CollegeTown,
+                                    ca.AcademicYear, 
+                                    ca.TypeOfMembers, 
+                                    ca.memberName, 
+                                    ca.MobileNo,
+
+                                    ca.TotalClaimAmount AS TotalClaimAmount,
+
+                                    ISNULL(ed.First_Old_TotalClaimAmount, ca.TotalClaimAmount) AS Old_TotalClaimAmount,
+
+                                    '' AS CaseWorkerRemarks,
+                                    ISNULL(ca.FO_Level2_ApprovedStatus, '') AS FO_Level2_Status,
+                                    ISNULL(ca.Cashier_Update, '')            AS Cashier_Status,
+
+                                    ISNULL(li.AccountHolderName, '') AS AccountHolderName,
+                                    ISNULL(li.AccountNumber,     '') AS AccountNumber,
+                                    ISNULL(li.IFSCCode,          '') AS IFSCCode,
+                                    ISNULL(li.BankName,          '') AS BankName,
+                                    ISNULL(li.BranchName,        '') AS BranchName,
+                                    ISNULL(li.PANNumber,         '') AS PANNumber,
+                                    ISNULL(li.AadhaarNumber,     '') AS AadhaarNumber,
+                                    ISNULL(li.Email,             '') AS Email,
+                                    ISNULL(li.Address,           '') AS Address,
+                                    ISNULL(li.ModeOfTravel,      '') AS ModeOfTravel,
+
+                                    ca.InspectionDate
+
+                                FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
+
+                                INNER JOIN dbo.Affiliation_College_Master ac 
+                                    ON ac.CollegeCode = ca.CollegeCode
+
+                                LEFT JOIN [Admission_Affiliation].[dbo].[LIC_Inspection] li
+                                    ON li.PhoneNumber = ca.MobileNo
+
+                                OUTER APPLY 
+                                (
+                                    SELECT TOP 1 
+                                        edlog.Old_TotalClaimAmount AS First_Old_TotalClaimAmount
+                                    FROM [Admission_Affiliation].[dbo].[LIC_TA_DA_Edit_Log] edlog
+                                    WHERE edlog.MobileNo    = ca.MobileNo
+                                      AND edlog.ApprovalId  = ca.Id
+                                    ORDER BY edlog.EditedAt ASC
+                                ) ed
+
+                                WHERE ca.FO_Level2_ApprovedStatus = 'Approved'
+                                  AND ca.Cashier_Update           = 'Paid'
+                                  AND (@Year    IS NULL OR ca.AcademicYear = @Year)
+                                  AND (@Faculty IS NULL OR ca.FacultyCode  = @Faculty)
+                                  AND (@College IS NULL OR ca.CollegeCode  = @College)
+
+                                ORDER BY ca.CashierApprovedDate DESC";
+
             return GroupToGrid(ExecRawMembers(sql, year, faculty, college));
         }
-
         public bool CashierPayAll(string collegeCode, string academicYear, string remarks)
         {
             using var con = new SqlConnection(_conn);
@@ -835,6 +1432,84 @@ namespace Medical_Affiliation.Services
             cmd.Parameters.AddWithValue("@CollegeCode", collegeCode ?? "");
             cmd.Parameters.AddWithValue("@AcademicYear", academicYear ?? "");
             return cmd.ExecuteNonQuery() > 0;
+        }
+
+        public List<LicTadaEditLogEntry> GetEditLog(int approvalId)
+        {
+            var list = new List<LicTadaEditLogEntry>();
+            using var con = new SqlConnection(_conn);
+            con.Open();
+            using var cmd = new SqlCommand(@"
+        SELECT
+            LogId,
+            FORMAT(EditedAt, 'dd MMM yyyy hh:mm tt') AS EditedAt,
+            ISNULL(EditedBy,          '—') AS EditedBy,
+            ISNULL(EditorDesignation, '—') AS EditorDesignation,
+            ISNULL(EditedAtStage,     '—') AS EditedAtStage,
+            ISNULL(ChangedFields,     '—') AS ChangedFields,
+            Old_Kilometers,         New_Kilometers,
+            Old_ReturnKilometers,   New_ReturnKilometers,
+            Old_TravelCost,         New_TravelCost,
+            Old_DACost,             New_DACost,
+            Old_LCACost,            New_LCACost,
+            Old_IsLCA,              New_IsLCA,
+            Old_AirRoadCost,        New_AirRoadCost,
+            Old_AirFair,            New_AirFair,
+            Old_TotalClaimAmount,   New_TotalClaimAmount
+        FROM [Admission_Affiliation].[dbo].[LIC_TA_DA_Edit_Log]
+        WHERE ApprovalId = @ApprovalId
+        ORDER BY EditedAt DESC", con);
+            cmd.Parameters.AddWithValue("@ApprovalId", approvalId);
+            using var dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                decimal? N(string col) => dr.IsDBNull(dr.GetOrdinal(col)) ? (decimal?)null : Convert.ToDecimal(dr[col]);
+                bool? B(string col) => dr.IsDBNull(dr.GetOrdinal(col)) ? (bool?)null : Convert.ToBoolean(dr[col]);
+                list.Add(new LicTadaEditLogEntry
+                {
+                    LogId = Convert.ToInt32(dr["LogId"]),
+                    EditedAt = dr["EditedAt"]?.ToString() ?? "",
+                    EditedBy = dr["EditedBy"]?.ToString() ?? "",
+                    EditorDesignation = dr["EditorDesignation"]?.ToString() ?? "",
+                    EditedAtStage = dr["EditedAtStage"]?.ToString() ?? "",
+                    ChangedFields = dr["ChangedFields"]?.ToString() ?? "",
+                    Old_Kilometers = N("Old_Kilometers"),
+                    New_Kilometers = N("New_Kilometers"),
+                    Old_ReturnKilometers = N("Old_ReturnKilometers"),
+                    New_ReturnKilometers = N("New_ReturnKilometers"),
+                    Old_TravelCost = N("Old_TravelCost"),
+                    New_TravelCost = N("New_TravelCost"),
+                    Old_DACost = N("Old_DACost"),
+                    New_DACost = N("New_DACost"),
+                    Old_LCACost = N("Old_LCACost"),
+                    New_LCACost = N("New_LCACost"),
+                    Old_IsLCA = B("Old_IsLCA"),
+                    New_IsLCA = B("New_IsLCA"),
+                    Old_AirRoadCost = N("Old_AirRoadCost"),
+                    New_AirRoadCost = N("New_AirRoadCost"),
+                    Old_AirFair = N("Old_AirFair"),
+                    New_AirFair = N("New_AirFair"),
+                    Old_TotalClaimAmount = N("Old_TotalClaimAmount"),
+                    New_TotalClaimAmount = N("New_TotalClaimAmount"),
+                });
+            }
+            return list;
+        }
+
+
+        public (int Paid, int Failed) CashierPayBulk(List<int> ids, string remarks)
+        {
+            int paid = 0, failed = 0;
+            foreach (var id in ids)
+            {
+                try
+                {
+                    bool ok = CashierPay(id, remarks);
+                    if (ok) paid++; else failed++;
+                }
+                catch { failed++; }
+            }
+            return (paid, failed);
         }
     }
 }

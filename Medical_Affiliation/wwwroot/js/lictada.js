@@ -8,6 +8,7 @@ var ltCurBtn = null;
 
 // ── FILTER TOGGLE ────────────────────────────────────────────
 function ltToggleFilter(filterId, btnId) {
+    debugger
     var panel = document.getElementById(filterId);
     var btn = btnId ? document.getElementById(btnId) : null;
     if (!panel) return;

@@ -626,45 +626,58 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrWhiteSpace(collegeCode))
                 return Json(new { success = false, message = "College code is required." });
 
-            var facultyList = (from f in _context.UgFacultyDetails
-                               join des in _context.UgdesignationMasters
-                                   on f.DesignationCode equals des.DesignationId
-                                   into desJoin
-                               from designation in desJoin.DefaultIfEmpty()
-                               join dept in _context.DepartmentMastersForUgs
-                                   on f.DepartmentCode equals dept.DepartmentCode
-                                   into deptJoin
-                               from department in deptJoin.DefaultIfEmpty()
-                               where f.CollegeCode == collegeCode
-                                  && f.IsDeclared == true
-                               orderby f.DepartmentCode, f.NameOftheFaculty
-                               select new
-                               {
-                                   Name = f.NameOftheFaculty,
-                                   DesignationName = designation.DesignationName ?? f.DesignationCode,
-                                   DepartmentName = department.DepartmentName ?? f.DepartmentCode,
-                                   DbDobValue = f.Dob,
-                                   MobileNo = f.MobileNo ?? "",
-                                   PanNo = f.Panno ?? "",
-                                   StateCouncilRegNo = f.StateCouncilRegNo ?? ""
-                               })
-                               .ToList().Distinct();
+            var rawFaculty = (from f in _context.UgFacultyDetails.AsNoTracking()
+                              join des in _context.UgdesignationMasters.AsNoTracking()
+                                  on f.DesignationCode equals des.DesignationId into desJoin
+                              from des in desJoin.DefaultIfEmpty()
+                              join dept in _context.DepartmentMastersForUgs.AsNoTracking()
+                                  on f.DepartmentCode equals dept.DepartmentCode into deptJoin
+                              from dept in deptJoin.DefaultIfEmpty()
+                              where f.CollegeCode == collegeCode && f.IsDeclared == true
+                              orderby dept.DepartmentName, f.DesignationCode, f.NameOftheFaculty
+                              select new
+                              {
+                                  f.NameOftheFaculty,
+                                  Designation = des != null ? des.DesignationName : null,
+                                  f.DesignationCode,
+                                  Department = dept != null ? dept.DepartmentName : null,
+                                  f.DepartmentCode,
+                                  f.AebasattendId,
+                                  f.StateCouncilRegNo,
+                                  f.PhotoFilePath,
+                                  f.Dob
+                              }).ToList();
 
-            var facultyDtos = facultyList.Select((f, i) => new UgFacultyDto
-            {
-                SlNo = i + 1,
-                Name = f.Name,
-                Designation = f.DesignationName,
-                Department = f.DepartmentName,
-                Dob = f.DbDobValue?.ToString() ?? string.Empty,
-                MobileNo = f.MobileNo,
-                PanNo = f.PanNo,
-                StateCouncilRegNo = f.StateCouncilRegNo
-            }).ToList();
+            var facultyDtos = rawFaculty
+      .GroupBy(f => new
+      {
+          Name = (f.NameOftheFaculty ?? "").Trim(),
+          DesignationCode = (f.DesignationCode ?? "").Trim(),
+          DepartmentCode = (f.DepartmentCode ?? "").Trim(),
+          AEBASAttendId = (f.AebasattendId ?? "").Trim(),
+          StateCouncilRegNo = (f.StateCouncilRegNo ?? "").Trim(),
+          Dob = (f.Dob ?? "").Trim()
+      })
+      .Select(g => g.First())
+      .OrderBy(f => f.Department ?? f.DepartmentCode)
+      .ThenBy(f => f.DesignationCode)
+      .ThenBy(f => f.NameOftheFaculty)
+      .Select((f, i) => new
+      {
+          SlNo = i + 1,
+          Name = f.NameOftheFaculty ?? "",
+          Designation = f.Designation ?? f.DesignationCode ?? "",
+          DesignationCode = f.DesignationCode ?? "",
+          Department = f.Department ?? f.DepartmentCode ?? "",
+          AEBASAttendId = f.AebasattendId ?? "",
+          StateCouncilRegNo = f.StateCouncilRegNo ?? "",
+          PhotoFilePath = BuildPhotoUrl(f.PhotoFilePath),
+          Dob = f.Dob ?? ""
+      })
+      .ToList();
 
             return Json(facultyDtos);
         }
-
         // ─────────────────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "AdminAuth")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
@@ -763,6 +776,43 @@ namespace Medical_Affiliation.Controllers
 
             var bytes = Encoding.UTF8.GetBytes(sb.ToString());
             return File(bytes, "text/plain", $"Faculty_List_{collegeCode}.txt");
+        }
+
+
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        [HttpPost]
+        [Route("SaveReferenceId")]
+        public IActionResult SaveReferenceId([FromBody] SaveReferenceDto dto)
+        {
+            if (dto == null
+                || dto.Id <= 0
+                || string.IsNullOrWhiteSpace(dto.CollegeCode)
+                || string.IsNullOrWhiteSpace(dto.ReferenceId)
+                || string.IsNullOrWhiteSpace(dto.EofficeNo))
+            {
+                return Json(new { success = false, message = "Invalid payload." });
+            }
+
+            var upload = _context.UgPrintedUploads
+                .FirstOrDefault(x => x.Id == dto.Id && x.CollegeCode == dto.CollegeCode);
+
+            if (upload == null)
+                return Json(new { success = false, message = "Upload record not found for this college." });
+
+            upload.ReferenceId = dto.ReferenceId.Trim();
+            upload.EofficeNo = dto.EofficeNo.Trim();   // NEW
+            _context.SaveChanges();
+
+            return Json(new { success = true });
+        }
+
+        public class SaveReferenceDto
+        {
+            public int Id { get; set; }
+            public string? CollegeCode { get; set; }
+            public string? ReferenceId { get; set; }
+            public string? EofficeNo { get; set; }     // NEW
         }
     }
 }

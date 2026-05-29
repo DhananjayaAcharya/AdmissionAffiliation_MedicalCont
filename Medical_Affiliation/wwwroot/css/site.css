@@ -20,3 +20,57 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.letter-header-block {
+    border-bottom: 2px solid #6E1B2A;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+.letter-head-grid {
+    display: grid;
+    grid-template-columns: 82px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.head-logo-wrap {
+    width: 82px;
+    height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.head-logo {
+    width: 74px;
+    height: 74px;
+    object-fit: contain;
+    display: block;
+}
+
+.head-text-wrap h2 {
+    margin: 0 0 2px 0;
+    font-size: 14pt;
+    line-height: 1.2;
+    color: #6E1B2A;
+    text-transform: uppercase;
+}
+
+.addr {
+    margin: 0;
+    font-family: "DM Sans", sans-serif;
+    font-size: 8.4pt;
+    color: #5C5C5C;
+}
+
+.dept-line {
+    margin: 3px 0 0 0;
+    font-family: "DM Sans", sans-serif;
+    font-size: 8.4pt;
+    font-weight: 700;
+    color: #6E1B2A;
+    text-transform: uppercase;
+}
