@@ -1,0 +1,40 @@
+CREATE TABLE [dbo].[LIC_TA_DA_Edit_Log](
+    [LogId] [int] IDENTITY(1,1) NOT NULL,
+    [ApprovalId] [int] NOT NULL,
+    [AcademicYear] [nvarchar](20) NULL,
+    [FacultyCode] [int] NULL,
+    [CollegeCode] [nvarchar](50) NULL,
+    [MemberName] [nvarchar](200) NULL,
+    [TypeOfMembers] [nvarchar](100) NULL,
+    [MobileNo] [nvarchar](20) NULL,
+    [IsBanglore] [bit] NULL,
+    [Division] [nvarchar](100) NULL,
+    [Old_Kilometers] [decimal](18, 2) NULL,
+    [New_Kilometers] [decimal](18, 2) NULL,
+    [Old_ReturnKilometers] [decimal](18, 2) NULL,
+    [New_ReturnKilometers] [decimal](18, 2) NULL,
+    [Old_TravelCost] [decimal](18, 2) NULL,
+    [New_TravelCost] [decimal](18, 2) NULL,
+    [Old_DACost] [decimal](18, 2) NULL,
+    [New_Dacost] [decimal](18, 2) NULL,
+    [Old_LCACost] [decimal](18, 2) NULL,
+    [New_Lcacost] [decimal](18, 2) NULL,
+    [Old_IsLCA] [bit] NULL,
+    [New_IsLca] [bit] NULL,
+    [Old_AirRoadCost] [decimal](18, 2) NULL,
+    [New_AirRoadCost] [decimal](18, 2) NULL,
+    [Old_AirFair] [decimal](18, 2) NULL,
+    [New_AirFair] [decimal](18, 2) NULL,
+    [Old_TotalClaimAmount] [decimal](18, 2) NULL,
+    [New_TotalClaimAmount] [decimal](18, 2) NULL,
+    [ChangedFields] [nvarchar](max) NULL,
+    [EditedBy] [nvarchar](100) NULL,
+    [EditorDesignation] [nvarchar](100) NULL,
+    [EditedAt] [datetime] NOT NULL,
+    [EditedAtStage] [nvarchar](100) NULL,
+PRIMARY KEY CLUSTERED 
+(
+    [LogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
