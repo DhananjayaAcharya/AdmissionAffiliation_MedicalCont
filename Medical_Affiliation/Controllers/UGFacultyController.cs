@@ -158,8 +158,13 @@ namespace Medical_Affiliation.Controllers
                     .SelectMany(g => g.Select(f => new
                     {
                         id = f.Faculty.Id,
-                        departmentCode = g.Key.Department,
-                        designationCode = g.Key.Designation,
+                        // departmentCode = g.Key.Department,
+                        departmentCode = f.Faculty.DepartmentCode,
+                        departmentName = g.Key.Department,
+
+                        designationCode = f.Faculty.DesignationCode,
+                        designationName = g.Key.Designation,
+                        // designationCode = g.Key.Designation,
                         designationOrder = g.Key.DesignationCode,
                         nameOftheFaculty = f.Faculty.NameOftheFaculty ?? "",
                         dob = f.Faculty.Dob ?? "",
@@ -211,8 +216,13 @@ namespace Medical_Affiliation.Controllers
                                select new
                                {
                                    Id = faculty.Id,
+
+                                   DepartmentCode = faculty.DepartmentCode,
                                    DepartmentName = dept.DepartmentName ?? faculty.DepartmentCode,
+
+                                   DesignationCode = faculty.DesignationCode,
                                    DesignationName = desig.DesignationName ?? faculty.DesignationCode,
+
                                    DesignationOrder = faculty.DesignationCode,
                                    NameOftheFaculty = faculty.NameOftheFaculty ?? "",
                                    Dob = faculty.Dob ?? "",
@@ -237,8 +247,11 @@ namespace Medical_Affiliation.Controllers
                     {
                         slNo = index + 1,
                         id = x.Id,
-                        departmentCode = x.DepartmentName,
-                        designationCode = x.DesignationName,
+                        departmentCode = x.DepartmentCode,
+                        departmentName = x.DepartmentName,
+
+                        designationCode = x.DesignationCode,
+                        designationName = x.DesignationName,
                         nameOftheFaculty = x.NameOftheFaculty,
                         dob = x.Dob,
                         dateOfAppointment = x.DateOfAppointment,
@@ -812,7 +825,20 @@ namespace Medical_Affiliation.Controllers
             public int Id { get; set; }
             public string? CollegeCode { get; set; }
             public string? ReferenceId { get; set; }
-            public string? EofficeNo { get; set; }     // NEW
+            public string? EofficeNo { get; set; }
+        }
+
+
+        public IActionResult FacultyList()
+        {
+            ViewBag.CollegeName =
+                HttpContext.Session.GetString("CollegeName") ?? "";
+
+            ViewBag.CollegeCode =
+                HttpContext.Session.GetString("CollegeCode") ?? "";
+
+            return View();
+
         }
     }
 }
