@@ -102,6 +102,36 @@ namespace Medical_Affiliation.Controllers
                 context.HttpContext.Session.SetString("CourseLevel", levelFromUrl);
             }
 
+            if (FacultyCode == "2")
+            {
+                var controller = context.RouteData.Values["controller"]?.ToString();
+                var action = context.RouteData.Values["action"]?.ToString();
+
+                var excludedRoutes = new List<(string Controller, string Action)>
+                {
+                    ("ContinuousAffiliationIncreaseintake", "IncreaseIntake"),
+                    ("CollegeLogin", "Dashboard"),
+                    ("Common", "IntakePrerequisite")
+                };
+
+                bool isExcluded = excludedRoutes.Any(x =>
+                    x.Controller.Equals(controller, StringComparison.OrdinalIgnoreCase) &&
+                    x.Action.Equals(action, StringComparison.OrdinalIgnoreCase));
+
+                bool hasIntakeData = _context.AcademicIntakes
+                    .Any(x => x.CollegeCode == CollegeCode);
+
+                if (!hasIntakeData && !isExcluded)
+                {
+                    context.Result = new ViewResult
+                    {
+                        ViewName = "~/Views/Shared/IntakePrerequisite.cshtml"
+                    };
+
+                    return;
+                }
+            }
+
             Console.WriteLine($"BaseController: Auth successful - CollegeCode: {CollegeCode}");
 
             base.OnActionExecuting(context);

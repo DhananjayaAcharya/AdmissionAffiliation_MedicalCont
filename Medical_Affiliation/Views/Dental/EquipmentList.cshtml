@@ -844,3 +844,24 @@
     });
 
 </script>
+@if (TempData["Success"] != null)
+{
+    <script>
+        Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: '@Html.Raw(TempData["Success"])'
+        });
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '@Html.Raw(TempData["Error"])'
+        });
+    </script>
+}

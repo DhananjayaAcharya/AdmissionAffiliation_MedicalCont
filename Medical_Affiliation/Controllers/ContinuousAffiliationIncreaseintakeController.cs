@@ -527,14 +527,39 @@ namespace Medical_Affiliation.Controllers
             string facultyCode,
             string collegeCode,
             List<AcademicIntake> target)
-        {
-            if (rows == null) return;
-            foreach (var r in rows)
-            {
-                if (string.IsNullOrWhiteSpace(r.CourseCode)) continue;
+                {
+                    if (rows == null) return;
+
+                    foreach (var r in rows)
+                    {
+                        if (string.IsNullOrWhiteSpace(r.CourseCode))
+                            continue;
+
+                bool hasIntakeData =
+                          (r.AY2024_ExistingIntake ?? 0) > 0
+                       || (r.AY2024_IncreaseIntake ?? 0) > 0
+                       || (r.AY2025_ExistingIntake ?? 0) > 0
+                       || (r.AY2025_LopNmcIntake ?? 0) > 0
+                       || (r.AY2026_AddRequestedIntake ?? 0) > 0
+                       || (r.AY2027_AddRequestedIntake ?? 0) > 0;
+
+                bool hasDocuments =
+                           r.AY2025_NmcDocument != null
+                        || r.AY2025_LopDocument != null
+                        || r.AY2025_LopDentalDocument != null
+                        || r.AY2025_DCIDocument != null
+                        || r.AY2025_KSDCDocument != null
+                        || r.AY2026_DCIDocument != null
+                        || r.AY2026_KSDCDocument != null
+                        || r.AY2027_DCIDocument != null
+                        || r.AY2027_KSDCDocument != null;
+
+                if (!hasIntakeData && !hasDocuments)
+                    continue;
+
                 target.Add(await MapToEntity(facultyCode, collegeCode, r));
-            }
-        }
+                    }
+                }
 
         /// <summary>
         /// Populates all ViewModel collections from the database.
@@ -609,6 +634,15 @@ namespace Medical_Affiliation.Controllers
                 var levelCourses = allCourses
                     .Where(c => c.CourseLevel == level)
                     .ToList();
+
+                var existingLevelIntakes =
+                (
+                    from e in existingIntakes
+                    join c in allCourses
+                        on int.Parse(e.Courses) equals c.CourseCode
+                    where c.CourseLevel == level
+                    select e
+                ).ToList();
 
                 // If intake details exist → use them
                 if (intakeDetails.Any())
@@ -687,7 +721,7 @@ namespace Medical_Affiliation.Controllers
                                  existing?.Ay2027TotalIntake ?? 0
                         };
                 }
-                else if (existingIntakes.Any())
+                else if (existingLevelIntakes.Any())
                 {
                     return
                         from c in levelCourses

@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Academic Intake – Continuous Affiliation";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -353,8 +354,8 @@
 
                             @if (Model.FacultyId == 2)
                             {
-                                <th style="text-align:center">LOP Document</th>
-                                <th style="text-align:center">DCI Document</th>
+                                <th style="text-align:center">LOP Document<span style="color: red">*</span></th>
+                                <th style="text-align:center">DCI Document<span style="color: red">*</span></th>
                                 @* <th style="text-align:center">KSDC Document</th> *@
                             }
                             else
@@ -524,23 +525,28 @@
             }
         </div>
     </div>
-        <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
+        @if(facultyCode == "2")
+        {
+            <div class="d-flex justify-content-end mt-4 pt-3" style="border-top:1px solid #dae2f4;">
 
-                <!-- 🔙 PREVIOUS -->
-                <a href="@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")"
-                   class="btn btn-prev">
-                    ← Previous
-                </a>
+                    <!-- 🔙 PREVIOUS -->
+                    @* <a href="@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")"
+                       class="btn btn-prev">
+                        ← Previous
+                    </a> *@
 
-                <!-- 🔜 NEXT -->
-                <a href="@Url.Action("CoursesOffered", "AffiliationSS")"
-                   class="btn btn-next">
-                    Next →
-                </a>
+                    <!-- 🔜 NEXT -->
+            <a href="@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")"
+                       class="btn btn-next">
+                        Next →
+                    </a>
 
             </div>
+        }
 
-        <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
+        @if(facultyCode == "1")
+        {
+            <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
 
             @{
                 var rawLevels = Context.Session.GetString("ExistingCourseLevels");
@@ -605,6 +611,7 @@
             </a>
 
         </div>
+        }
     </div>
 </form>
 
@@ -657,12 +664,12 @@
                         }
                         
                         <th class="g25">Total</th>
-                        <th class="g25">LOP Date</th>
+                        <th class="g25">LOP Date<span style="color: red">*</span></th>
                       
                         @if (Model.FacultyId == 2)
                         {
-                            <th class="g25">LOP Document</th>
-                            <th class="g25">DCI Document</th>
+                            <th class="g25">LOP Document <span style="color: red">*</span></th>
+                            <th class="g25">DCI Document <span style="color: red">*</span></th>
                             // <th class="g25">KSDC Document</th>
                         }
                         else
@@ -674,7 +681,7 @@
                         <th class="g26">Total</th>
                         @if (Model.FacultyId == 2)
                         {
-                            <th class="g26">DCI Document</th>
+                            <th class="g26">DCI Document <span style="color: red">*</span></th>
                             // <th class="g26">KSDC Document</th>
                         }
                         <th class="g26">Existing</th>
@@ -682,7 +689,7 @@
                         <th class="g26">Total</th>
                         @if (Model.FacultyId == 2)
                         {
-                            <th class="g26">DCI Document</th>
+                            <th class="g26">DCI Document <span style="color: red">*</span></th>
                             // <th class="g26">KSDC Document</th>
                         }
                         
@@ -701,6 +708,18 @@
                                     @c.CourseName
                                     <input type="hidden" name="@(p).CourseCode" value="@c.CourseCode" />
                                     <input type="hidden" name="@(p).CourseName" value="@c.CourseName" />
+
+                                    <input type="hidden" class="has-lop-2025"
+                                           value="@c.HasLopDocument.ToString().ToLower()" />
+
+                                    <input type="hidden" class="has-dci-2025"
+                                           value="@c.HasAY2025DciDocument.ToString().ToLower()" />
+
+                                    <input type="hidden" class="has-dci-2026"
+                                           value="@c.HasAY2026DciDocument.ToString().ToLower()" />
+
+                                    <input type="hidden" class="has-dci-2027"
+                                           value="@c.HasAY2027DciDocument.ToString().ToLower()" />
                                 </td>
                                 @* 2024-25 *@
                                 @if (Model.FacultyId != 2)
@@ -1143,11 +1162,99 @@
         });
     });
 
-    // SAVE SPINNER
-        document.getElementById('intakeForm')?.addEventListener('submit', function () {
+    document.getElementById('intakeForm')?.addEventListener('submit', function (e) {
+
+        let errors = [];
+
+        document.querySelectorAll('table.t tbody tr').forEach((row) => {
+
+            const courseName =
+                row.querySelector('.cn')?.childNodes[0]?.textContent.trim()
+                || 'Course';
+
+            const hasLop2025 =
+                row.querySelector('.has-lop-2025')?.value === 'true';
+
+            const hasDci2025 =
+                row.querySelector('.has-dci-2025')?.value === 'true';
+
+            const hasDci2026 =
+                row.querySelector('.has-dci-2026')?.value === 'true';
+
+            const hasDci2027 =
+                row.querySelector('.has-dci-2027')?.value === 'true';
+
+            // AY 2025-26
+            const lopIntake =
+                parseInt(row.querySelector('[data-r="l25"]')?.value || 0);
+
+            if (lopIntake > 0) {
+
+                const lopUploaded =
+                    row.querySelector('input[name*="AY2025_LopDentalDocument"]')?.files.length > 0;
+
+                const dci2025Uploaded =
+                    row.querySelector('input[name*="AY2025_DCIDocument"]')?.files.length > 0;
+
+                if (!lopUploaded && !hasLop2025) {
+                    errors.push(`${courseName} - AY 2025 LOP Document required`);
+                }
+
+                if (!dci2025Uploaded && !hasDci2025) {
+                    errors.push(`${courseName} - AY 2025 DCI Document required`);
+                }
+            }
+
+            // AY 2026-27
+            const add2026 =
+                parseInt(row.querySelector('[data-r="r26"]')?.value || 0);
+
+            if (add2026 > 0) {
+
+                const dci2026Uploaded =
+                    row.querySelector('input[name*="AY2026_DCIDocument"]')?.files.length > 0;
+
+                if (!dci2026Uploaded && !hasDci2026) {
+                    errors.push(`${courseName} - AY 2026 DCI Document required`);
+                }
+            }
+
+            // AY 2027-28
+            const add2027 =
+                parseInt(row.querySelector('[data-r="r27"]')?.value || 0);
+
+            if (add2027 > 0) {
+
+                const dci2027Uploaded =
+                    row.querySelector('input[name*="AY2027_DCIDocument"]')?.files.length > 0;
+
+                if (!dci2027Uploaded && !hasDci2027) {
+                    errors.push(`${courseName} - AY 2027 DCI Document required`);
+                }
+            }
+        });
+
+        if (errors.length > 0) {
+
+            e.preventDefault();
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Mandatory Documents Missing',
+                html: errors.join('<br>'),
+                width: 700
+            });
+
+            return false;
+        }
+
+        // Spinner after validation success
         const btn = document.getElementById('sBtn');
+
         if (btn) {
-            btn.innerHTML = '<svg class="spin" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg> Saving…';
+            btn.innerHTML =
+                '<svg class="spin" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg> Saving…';
+
             btn.disabled = true;
         }
     });
