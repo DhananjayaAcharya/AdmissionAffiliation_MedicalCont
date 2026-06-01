@@ -1,0 +1,727 @@
+﻿@{
+    ViewData["Title"] = "Designation Wise Faculty Count";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Designation Wise Faculty Count</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: #f1f5f9;
+                font-family: 'DM Sans', sans-serif;
+                color: #1e293b;
+            }
+
+            .wrap {
+                max-width: 1400px;
+                margin: auto;
+                padding: 2rem;
+            }
+
+            /* ── Top bar ── */
+            .topbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-bottom: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #7B1C2E;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .page-sub {
+                font-size: 14px;
+                color: #64748b;
+                margin-top: 4px;
+            }
+
+            .topbar-actions {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+
+            /* ── Buttons ── */
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 9px 18px;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                border: none;
+                text-decoration: none;
+                transition: opacity 0.15s, transform 0.1s;
+            }
+
+                .btn:active {
+                    transform: scale(0.97);
+                }
+
+            .btn-primary {
+                background: #7B1C2E;
+                color: #fff;
+            }
+
+                .btn-primary:hover {
+                    background: #5e1422;
+                }
+
+            .btn-green {
+                background: #16a34a;
+                color: #fff;
+            }
+
+                .btn-green:hover {
+                    background: #15803d;
+                }
+
+            .btn-red {
+                background: #dc2626;
+                color: #fff;
+            }
+
+                .btn-red:hover {
+                    background: #b91c1c;
+                }
+
+            .btn-outline {
+                background: #fff;
+                color: #1e293b;
+                border: 1px solid #e2e8f0;
+            }
+
+                .btn-outline:hover {
+                    background: #f8fafc;
+                }
+
+            /* ── Cards ── */
+            .card {
+                background: #fff;
+                border-radius: 16px;
+                border: 1px solid #e2e8f0;
+            }
+
+            /* ── Filter ── */
+            .filter-card {
+                padding: 1.25rem 1.5rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .filter-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .filter-row {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+
+                .filter-row select {
+                    flex: 1;
+                    height: 44px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    padding: 0 14px;
+                    font-size: 14px;
+                    color: #1e293b;
+                    background: #f8fafc;
+                    outline: none;
+                    transition: border-color 0.15s, box-shadow 0.15s;
+                }
+
+                    .filter-row select:focus {
+                        border-color: #7B1C2E;
+                        box-shadow: 0 0 0 3px rgba(123,28,46,.12);
+                        background: #fff;
+                    }
+
+            /* ── Stats grid ── */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 14px;
+                margin-bottom: 1.25rem;
+            }
+
+            .stat-card {
+                padding: 1.1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
+
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                flex-shrink: 0;
+            }
+
+            .icon-blue {
+                background: #dbeafe;
+                color: #1d4ed8;
+            }
+
+            .icon-amber {
+                background: #fef3c7;
+                color: #b45309;
+            }
+
+            .icon-green {
+                background: #dcfce7;
+                color: #15803d;
+            }
+
+            .stat-val {
+                font-size: 1.6rem;
+                font-weight: 700;
+                color: #1e293b;
+                line-height: 1.1;
+            }
+
+            .stat-lbl {
+                font-size: 12px;
+                color: #64748b;
+                margin-top: 3px;
+            }
+
+            /* ── Table card ── */
+            .table-card {
+                overflow: hidden;
+            }
+
+            .table-topbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 1.5rem;
+                border-bottom: 1px solid #f1f5f9;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .table-title {
+                font-size: 15px;
+                font-weight: 600;
+                color: #1e293b;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .college-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: #fef3c7;
+                color: #92400e;
+                padding: 3px 10px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-left: 6px;
+            }
+
+            .search-wrap {
+                position: relative;
+            }
+
+                .search-wrap i {
+                    position: absolute;
+                    left: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #94a3b8;
+                    font-size: 15px;
+                }
+
+                .search-wrap input {
+                    height: 36px;
+                    width: 220px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 9px;
+                    padding: 0 10px 0 34px;
+                    font-size: 13px;
+                    color: #1e293b;
+                    background: #f8fafc;
+                    outline: none;
+                    transition: border-color .15s, box-shadow .15s;
+                }
+
+                    .search-wrap input:focus {
+                        border-color: #7B1C2E;
+                        box-shadow: 0 0 0 3px rgba(123,28,46,.1);
+                        background: #fff;
+                    }
+
+            /* ── Table ── */
+            .modern-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+                .modern-table thead {
+                    background: #7B1C2E;
+                }
+
+                    .modern-table thead th {
+                        color: #fff;
+                        font-size: 13px;
+                        font-weight: 600;
+                        padding: 12px 16px;
+                        text-align: left;
+                    }
+
+                .modern-table tbody tr {
+                    border-bottom: 1px solid #f1f5f9;
+                    transition: background .1s;
+                }
+
+                    .modern-table tbody tr:last-child {
+                        border-bottom: none;
+                    }
+
+                    .modern-table tbody tr:hover {
+                        background: #fafafa;
+                    }
+
+                .modern-table td {
+                    padding: 12px 16px;
+                    font-size: 14px;
+                    color: #1e293b;
+                }
+
+                .modern-table tfoot tr {
+                    border-top: 2px solid #e2e8f0;
+                }
+
+                .modern-table tfoot th {
+                    padding: 12px 16px;
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    background: #f8fafc;
+                }
+
+            /* ── Row elements ── */
+            .rank-dot {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: #f1f5f9;
+                color: #475569;
+                font-size: 12px;
+                font-weight: 700;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .count-badge {
+                display: inline-flex;
+                align-items: center;
+                background: #eef2ff;
+                color: #3730a3;
+                padding: 4px 14px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 700;
+            }
+
+            .bar-cell {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .bar-bg {
+                flex: 1;
+                max-width: 130px;
+                height: 6px;
+                background: #f1f5f9;
+                border-radius: 4px;
+            }
+
+            .bar-fill {
+                height: 6px;
+                background: linear-gradient(90deg, #7B1C2E, #b83050);
+                border-radius: 4px;
+                transition: width .6s ease;
+            }
+
+            .pct-label {
+                font-size: 12px;
+                color: #94a3b8;
+                min-width: 34px;
+            }
+
+            /* ── Empty / loading states ── */
+            .empty-state {
+                text-align: center;
+                padding: 64px 20px;
+            }
+
+                .empty-state i {
+                    font-size: 44px;
+                    color: #cbd5e1;
+                }
+
+                .empty-state h3 {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #475569;
+                    margin: 14px 0 6px;
+                }
+
+                .empty-state p {
+                    font-size: 14px;
+                    color: #94a3b8;
+                }
+
+            /* ── Responsive ── */
+            @@media (max-width: 768px) {
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .topbar {
+                    flex-direction: column;
+                }
+
+                .filter-row {
+                    flex-direction: column;
+                }
+
+                    .filter-row select {
+                        width: 100%;
+                    }
+
+                .search-wrap input {
+                    width: 100%;
+                }
+
+                .table-topbar {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+            }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+
+        <!-- ── Top bar ── -->
+        <div class="topbar">
+            <div>
+                <div class="page-title">
+                    <i class="bi bi-bar-chart-line-fill"></i>
+                    Designation Wise Faculty Analytics
+                </div>
+                <div class="page-sub">Faculty strength distribution across designations</div>
+            </div>
+
+            <div class="topbar-actions">
+                <button class="btn btn-green" onclick="exportToExcel()">
+                    <i class="bi bi-file-earmark-excel-fill"></i> Excel
+                </button>
+                <button class="btn btn-red" onclick="exportToPDF()">
+                    <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+                </button>
+                <a href="@Url.Action("UniversityDashboard", "Home")" class="btn btn-primary">
+                    <i class="bi bi-house-door-fill"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- ── Filter ── -->
+        <div class="card filter-card">
+            <div class="filter-label">
+                <i class="bi bi-building"></i> Select College
+            </div>
+            <div class="filter-row">
+                <select id="collegeSelect">
+                    <option value="">— Choose a college —</option>
+                    @foreach (var college in ViewBag.Colleges)
+                    {
+                        <option value="@college.CollegeCode">@college.CollegeName</option>
+                    }
+                </select>
+                <button class="btn btn-primary" style="height:44px;white-space:nowrap" onclick="loadDesignationCount()">
+                    <i class="bi bi-search"></i> Fetch Report
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Stat cards ── -->
+        <div class="stats-grid">
+            <div class="card stat-card">
+                <div class="stat-icon icon-blue">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-val" id="totalFaculty">—</div>
+                    <div class="stat-lbl">Total Faculty</div>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-icon icon-amber">
+                    <i class="bi bi-award-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-val" id="totalDesignation">—</div>
+                    <div class="stat-lbl">Designations</div>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-icon icon-green">
+                    <i class="bi bi-bar-chart-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-val" id="avgFaculty">—</div>
+                    <div class="stat-lbl">Avg / Designation</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Table ── -->
+        <div class="card table-card">
+
+            <div class="table-topbar">
+                <div class="table-title">
+                    <i class="bi bi-table"></i>
+                    Designation Distribution
+                    <span id="collegePill"></span>
+                </div>
+                <div class="search-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="searchBox" placeholder="Filter designations…"
+                           oninput="filterTable()" />
+                </div>
+            </div>
+
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th style="width:56px">#</th>
+                        <th>Designation</th>
+                        <th>Faculty Count</th>
+                        <th>Distribution</th>
+                    </tr>
+                </thead>
+                <tbody id="designationBody">
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <i class="bi bi-bar-chart-line"></i>
+                                <h3>No Report Generated</h3>
+                                <p>Select a college and click <strong>Fetch Report</strong></p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2">Total</th>
+                        <th id="grandTotal">—</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- ── Libraries ── -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        let designationData = [];
+        let maxCount = 0;
+
+        async function loadDesignationCount() {
+
+        const sel = document.getElementById('collegeSelect');
+        const collegeCode = sel.value;
+        const collegeName = sel.options[sel.selectedIndex].text;
+
+        if (!collegeCode) {
+        alert('Please select a college.');
+        return;
+        }
+
+        // Reset search
+        document.getElementById('searchBox').value = '';
+
+        // Loading state
+        document.getElementById('designationBody').innerHTML = `
+        <tr>
+        <td colspan="4" style="text-align:center;padding:48px;color:#94a3b8;font-size:14px">
+        <i class="bi bi-hourglass-split" style="font-size:28px;display:block;margin-bottom:10px"></i>
+        Loading report…
+        </td>
+        </tr>`;
+
+        try {
+        const response = await fetch('@Url.Action("GetDesignationWiseCount", "Home")?collegeCode=' + collegeCode);
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.message);
+
+        designationData = result.data;
+        renderTable(result.data, collegeName);
+
+        } catch (error) {
+        console.error(error);
+        document.getElementById('designationBody').innerHTML = `
+        <tr>
+        <td colspan="4">
+        <div class="empty-state">
+        <i class="bi bi-x-circle-fill" style="color:#dc2626"></i>
+        <h3>Unable to Load Report</h3>
+        <p>${error.message}</p>
+        </div>
+        </td>
+        </tr>`;
+        }
+        }
+
+        function renderTable(data, collegeName) {
+
+        const active = data.filter(x => x.count > 0);
+        const total  = active.reduce((s, x) => s + x.count, 0);
+        maxCount     = active.length ? Math.max(...active.map(x => x.count)) : 0;
+
+        // College pill in header
+        const pill = document.getElementById('collegePill');
+        pill.innerHTML = collegeName
+        ? `<span class="college-pill"><i class="bi bi-building" style="font-size:11px"></i> ${collegeName}</span>`
+        : '';
+
+        if (!active.length) {
+        document.getElementById('designationBody').innerHTML = `
+        <tr>
+        <td colspan="4">
+        <div class="empty-state">
+        <i class="bi bi-exclamation-circle"></i>
+        <h3>No Faculty Records Found</h3>
+        <p>No data available for <strong>${collegeName}</strong></p>
+        </div>
+        </td>
+        </tr>`;
+        ['totalFaculty','totalDesignation','avgFaculty','grandTotal']
+        .forEach(id => document.getElementById(id).innerText = '0');
+        return;
+        }
+
+        document.getElementById('designationBody').innerHTML = active.map((x, i) => {
+        const pct     = total > 0 ? Math.round(x.count / total * 100) : 0;
+        const barWidth = maxCount > 0 ? Math.round(x.count / maxCount * 100) : 0;
+        return `
+        <tr data-name="${x.designationName.toLowerCase()}">
+        <td><span class="rank-dot">${i + 1}</span></td>
+        <td style="font-weight:500">
+        <i class="bi bi-person-badge-fill" style="color:#7B1C2E;margin-right:8px;font-size:15px"></i>
+        ${x.designationName}
+        </td>
+        <td><span class="count-badge">${x.count}</span></td>
+        <td>
+        <div class="bar-cell">
+        <div class="bar-bg">
+        <div class="bar-fill" style="width:${barWidth}%"></div>
+        </div>
+        <span class="pct-label">${pct}%</span>
+        </div>
+        </td>
+        </tr>`;
+        }).join('');
+
+        const avg = (total / active.length).toFixed(1);
+        document.getElementById('totalFaculty').innerText    = total;
+        document.getElementById('totalDesignation').innerText = active.length;
+        document.getElementById('avgFaculty').innerText       = avg;
+        document.getElementById('grandTotal').innerText       = total;
+        }
+
+        function filterTable() {
+        const q = document.getElementById('searchBox').value.toLowerCase();
+        document.querySelectorAll('#designationBody tr[data-name]').forEach(row => {
+        row.style.display = row.dataset.name.includes(q) ? '' : 'none';
+        });
+        }
+
+        function exportToExcel() {
+        if (!designationData.length) { alert('Please fetch report first.'); return; }
+
+        const ws = XLSX.utils.json_to_sheet(
+        designationData.map(x => ({ Designation: x.designationName, 'Faculty Count': x.count }))
+        );
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Designation Count');
+        XLSX.writeFile(wb, 'DesignationWiseFacultyCount.xlsx');
+        }
+
+        function exportToPDF() {
+        if (!designationData.length) { alert('Please fetch report first.'); return; }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFontSize(16);
+        doc.text('Designation Wise Faculty Count Report', 14, 15);
+
+        doc.autoTable({
+        startY: 25,
+        head: [['#', 'Designation', 'Faculty Count']],
+        body: designationData.map((x, i) => [i + 1, x.designationName, x.count]),
+        headStyles: { fillColor: [123, 28, 46] }
+        });
+
+        doc.save('DesignationWiseFacultyCount.pdf');
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,899 @@
+﻿@{
+    ViewData["Title"] = "Faculty List";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faculty Master Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+        --navy: #0f172a;
+        --navy2: #1e293b;
+        --blue: #2563eb;
+        --blue-lt: #dbeafe;
+        --blue-mid: #93c5fd;
+        --green: #16a34a;
+        --green-lt: #dcfce7;
+        --amber: #d97706;
+        --amber-lt: #fef3c7;
+        --violet: #7c3aed;
+        --violet-lt: #ede9fe;
+        --red: #dc2626;
+        --red-lt: #fee2e2;
+        --slate: #64748b;
+        --border: #e2e8f0;
+        --bg: #f1f5f9;
+        --surface: #ffffff;
+        --text: #0f172a;
+        --text2: #475569;
+        }
+
+        * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+        }
+
+        body {
+        font-family: 'DM Sans',sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh
+        }
+
+        /* ── NAV ── */
+        .nav {
+        background: var(--navy);
+        padding: 0 32px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        }
+
+        .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 14px
+        }
+
+        .nav-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #fff;
+        }
+
+        .nav-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        line-height: 1.2
+        }
+
+        .nav-sub {
+        font-size: 11.5px;
+        color: #94a3b8;
+        margin-top: 1px
+        }
+
+        .nav-home {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(255,255,255,.12);
+        color: #e2e8f0;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .2s;
+        }
+
+        .nav-home:hover {
+        background: rgba(255,255,255,.16)
+        }
+
+        /* ── LAYOUT ── */
+        .wrap {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 28px 24px
+        }
+
+        /* ── STATS ── */
+        .stats {
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 16px;
+        margin-bottom: 24px
+        }
+
+        .stat {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: transform .2s,box-shadow .2s;
+        }
+
+        .stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0,0,0,.08)
+        }
+
+        .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        }
+
+        .stat-val {
+        font-size: 26px;
+        font-weight: 600;
+        line-height: 1;
+        display: block
+        }
+
+        .stat-lbl {
+        font-size: 11.5px;
+        color: var(--slate);
+        font-weight: 500;
+        margin-top: 3px;
+        display: block
+        }
+
+        /* ── FILTER CARD ── */
+        .filter-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 18px;
+        }
+
+        .filter-row {
+        display: grid;
+        grid-template-columns: 1.4fr repeat(5,minmax(0,1fr));
+        gap: 12px
+        }
+
+        .fi {
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+        }
+
+        .fi label {
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--slate);
+        text-transform: uppercase;
+        letter-spacing: .06em
+        }
+
+        .fi-search-wrap {
+        position: relative
+        }
+
+        .fi-search-wrap .bi {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--slate);
+        font-size: 14px;
+        pointer-events: none
+        }
+
+        .ctrl {
+        height: 38px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 0 11px;
+        font-size: 13px;
+        font-family: 'DM Sans',sans-serif;
+        background: #fafbfc;
+        color: var(--text);
+        width: 100%;
+        transition: border-color .2s,box-shadow .2s;
+        appearance: none;
+        -webkit-appearance: none;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        }
+
+        .ctrl:focus {
+        outline: none;
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+        background: #fff
+        }
+
+        .fi-search-wrap input.ctrl {
+        padding-left: 32px
+        }
+
+        select.ctrl {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 28px;
+        }
+
+        /* ── TOOLBAR ── */
+        .toolbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 14px
+        }
+
+        .btn-exp {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'DM Sans',sans-serif;
+        cursor: pointer;
+        transition: opacity .2s,transform .15s;
+        }
+
+        .btn-exp:hover {
+        opacity: .88;
+        transform: translateY(-1px)
+        }
+
+        .btn-exp:active {
+        transform: scale(.97)
+        }
+
+        .btn-xlsx {
+        background: #16a34a;
+        color: #fff
+        }
+
+        .btn-pdf {
+        background: #dc2626;
+        color: #fff
+        }
+
+        /* ── TABLE ── */
+        .tbl-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden
+        }
+
+        .tbl-scroll {
+        overflow-x: auto
+        }
+
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1280px
+        }
+
+        thead {
+        background: #f8fafc;
+        border-bottom: 2px solid var(--border)
+        }
+
+        th {
+        padding: 12px 14px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        color: var(--slate);
+        text-align: left;
+        white-space: nowrap;
+        }
+
+        td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 12.5px;
+        vertical-align: middle;
+        color: var(--text);
+        }
+
+        tbody tr:last-child td {
+        border-bottom: none
+        }
+
+        tbody tr {
+        transition: background .15s
+        }
+
+        tbody tr:hover td {
+        background: #f8fbff
+        }
+
+        .name-cell {
+        font-weight: 600;
+        color: var(--navy2)
+        }
+
+        .college-cell {
+        font-size: 12px;
+        color: var(--text2);
+        line-height: 1.35;
+        max-width: 140px
+        }
+
+        .mono {
+        font-family: ui-monospace,monospace;
+        font-size: 11.5px;
+        letter-spacing: .02em
+        }
+
+        /* ── BADGES ── */
+        .bdg {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.5
+        }
+
+        .bdg-dept {
+        background: var(--blue-lt);
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe
+        }
+
+        .bdg-perm {
+        background: var(--green-lt);
+        color: #15803d;
+        border: 1px solid #bbf7d0
+        }
+
+        .bdg-cont {
+        background: var(--amber-lt);
+        color: #b45309;
+        border: 1px solid #fde68a
+        }
+
+        .bdg-oth {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid var(--border)
+        }
+
+        .bdg-sub {
+        background: var(--violet-lt);
+        color: #5b21b6;
+        border: 1px solid #ddd6fe
+        }
+
+        /* ── PHOTO ── */
+        .faculty-photo {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid var(--border)
+        }
+
+        .photo-placeholder {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--blue-lt);
+        color: #1d4ed8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        }
+
+        /* ── PAGINATION ── */
+        .pgbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px;
+        background: #f8fafc;
+        border-top: 1px solid var(--border);
+        }
+
+        .pg-info {
+        font-size: 12px;
+        color: var(--slate);
+        font-weight: 500
+        }
+
+        .pg-btns {
+        display: flex;
+        gap: 5px
+        }
+
+        .pgb {
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        border-radius: 7px;
+        font-size: 12.5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all .15s;
+        color: var(--text);
+        font-family: 'DM Sans',sans-serif;
+        }
+
+        .pgb.active {
+        background: var(--navy);
+        color: #fff;
+        border-color: var(--navy)
+        }
+
+        .pgb:hover:not(.active) {
+        background: #f1f5f9
+        }
+
+        .pgb:disabled {
+        opacity: .4;
+        pointer-events: none
+        }
+
+        .pgb-dots {
+        border: none;
+        background: none;
+        color: var(--slate);
+        cursor: default
+        }
+
+        /* ── EMPTY ── */
+        .empty td {
+        text-align: center;
+        padding: 48px;
+        color: var(--slate);
+        font-size: 13px
+        }
+
+        .empty i {
+        font-size: 32px;
+        display: block;
+        margin-bottom: 8px;
+        opacity: .4
+        }
+
+        /* ── ANIM ── */
+        @@keyframes fadeIn {
+        from {
+        opacity: 0;
+        transform: translateY(8px)
+        }
+
+        to {
+        opacity: 1;
+        transform: translateY(0)
+        }
+        }
+
+        .stat {
+        animation: fadeIn .4s ease both
+        }
+
+        .stat:nth-child(1) {
+        animation-delay: .05s
+        }
+
+        .stat:nth-child(2) {
+        animation-delay: .1s
+        }
+
+        .stat:nth-child(3) {
+        animation-delay: .15s
+        }
+
+        .stat:nth-child(4) {
+        animation-delay: .2s
+        }
+
+        /* ── RESPONSIVE ── */
+        @@media(max - width:900px) {
+        .stats {
+        grid-template-columns: repeat(2,1fr)
+        }
+
+        .filter-row {
+        grid-template-columns: 1fr 1fr
+        }
+
+        .wrap {
+        padding: 16px
+        }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="nav-icon"><i class="bi bi-mortarboard-fill"></i></div>
+            <div>
+                <div class="nav-title">All Faculty Details Report</div>
+                <div class="nav-sub">University Faculty Management Dashboard</div>
+            </div>
+        </div>
+        <a href="@Url.Action("UniversityDashboard", "Home")" class="nav-home">
+            <i class="bi bi-house-door-fill"></i> Dashboard
+        </a>
+    </nav>
+
+    <div class="wrap">
+
+        <!-- STATS -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-icon" style="background:var(--blue-lt);color:#1d4ed8"><i class="bi bi-people-fill"></i></div>
+                <div><span class="stat-val" id="sTotal">—</span><span class="stat-lbl">Total Faculty</span></div>
+            </div>
+            <div class="stat">
+                <div class="stat-icon" style="background:var(--green-lt);color:#15803d"><i class="bi bi-patch-check-fill"></i></div>
+                <div><span class="stat-val" id="sPerm">—</span><span class="stat-lbl">Permanent</span></div>
+            </div>
+            <div class="stat">
+                <div class="stat-icon" style="background:var(--amber-lt);color:#b45309"><i class="bi bi-clock-history"></i></div>
+                <div><span class="stat-val" id="sCont">—</span><span class="stat-lbl">Contract</span></div>
+            </div>
+            <div class="stat">
+                <div class="stat-icon" style="background:var(--violet-lt);color:#5b21b6"><i class="bi bi-building"></i></div>
+                <div><span class="stat-val" id="sDepts">—</span><span class="stat-lbl">Departments</span></div>
+            </div>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filter-card">
+            <div class="filter-row">
+                <div class="fi">
+                    <label>Search</label>
+                    <div class="fi-search-wrap">
+                        <i class="bi bi-search"></i>
+                        <input id="srch" type="text" class="ctrl" placeholder="Name, PAN, mobile, reg no…">
+                    </div>
+                </div>
+                <div class="fi">
+                    <label>1. College</label>
+                    <select id="fCol" class="ctrl"><option value="">All Colleges</option></select>
+                </div>
+                <div class="fi">
+                    <label>2. Department</label>
+                    <select id="fDept" class="ctrl"><option value="">All Departments</option></select>
+                </div>
+                <div class="fi">
+                    <label>3. Designation</label>
+                    <select id="fDesig" class="ctrl"><option value="">All Designations</option></select>
+                </div>
+                <div class="fi">
+                    <label>4. Employment</label>
+                    <select id="fNat" class="ctrl">
+                        <option value="">All Types</option>
+                        <option>Permanent</option>
+                        <option>Contract</option>
+                        <option>Others</option>
+                    </select>
+                </div>
+                <div class="fi" style="justify-content:flex-end">
+                    <label>&nbsp;</label>
+                    <button id="btnFetch" class="btn-exp btn-xlsx" style="height:38px">
+                        <i class="bi bi-search"></i> Fetch Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPORT TOOLBAR -->
+        <div class="toolbar">
+            <button class="btn-exp btn-xlsx" onclick="exportExcel()">
+                <i class="bi bi-file-earmark-excel-fill"></i> Excel
+            </button>
+            <button class="btn-exp btn-pdf" onclick="exportPDF()">
+                <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+            </button>
+        </div>
+
+        <!-- TABLE -->
+        <div class="tbl-card">
+            <div class="tbl-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>College</th>
+                            <th>Department</th>
+                            <th>Faculty Name</th>
+                            <th>Designation</th>
+                            <th>DOB</th>
+                            <th>Appointment</th>
+                            <th>Mobile</th>
+                            <th>PAN</th>
+                            <th>Reg. No</th>
+                            <th>AEBAS ID</th>
+                            <th>Qualification</th>
+                            <th>Employment</th>
+                            <th>Experience</th>
+                            <th>Photo</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tBody">
+                        <tr class="empty"><td colspan="16"><i class="bi bi-arrow-repeat"></i>Loading faculty records…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pgbar">
+                <span class="pg-info" id="pgInfo"></span>
+                <div class="pg-btns" id="pgBtns"></div>
+            </div>
+        </div>
+
+    </div><!-- /wrap -->
+
+    <script>
+        let allFaculty = [], filteredFaculty = [], currentPage = 1;
+        const PER_PAGE = 10;
+
+        /* ── RENDER TABLE ── */
+        function renderTable() {
+        const tbody = document.getElementById('tBody');
+        const start = (currentPage - 1) * PER_PAGE;
+        const page  = filteredFaculty.slice(start, start + PER_PAGE);
+
+        if (!page.length) {
+        tbody.innerHTML = `<tr class="empty"><td colspan="16"><i class="bi bi-inbox"></i>No matching records found.</td></tr>`;
+        renderPagination(); return;
+        }
+
+        tbody.innerHTML = page.map((f, i) => {
+        const emp = (f.natureOfEmployment || '').toLowerCase();
+        const empCls = emp === 'permanent' ? 'bdg-perm' : emp === 'contract' ? 'bdg-cont' : 'bdg-oth';
+        const photo = f.photoFilePath
+        ? `<img src="${f.photoFilePath}" class="faculty-photo" alt="photo"/>`
+        : `<div class="photo-placeholder"><i class="bi bi-person-fill"></i></div>`;
+        return `<tr>
+        <td style="color:var(--slate);font-weight:500">${start + i + 1}</td>
+        <td class="college-cell">${f.collegeName || '—'}</td>
+        <td><span class="bdg bdg-dept">${f.departmentName || '—'}</span></td>
+        <td class="name-cell">${f.nameOftheFaculty || '—'}</td>
+        <td style="font-size:12px">${f.designationName || '—'}</td>
+        <td style="white-space:nowrap;font-size:12px">${f.dob || '—'}</td>
+        <td style="white-space:nowrap;font-size:12px">${f.dateOfAppointment || '—'}</td>
+        <td class="mono">${f.mobileNo || '—'}</td>
+        <td class="mono">${f.panNo || '—'}</td>
+        <td class="mono">${f.stateCouncilRegNo || '—'}</td>
+        <td class="mono">${f.aebasAttendId || '—'}</td>
+        <td style="font-size:12px">${f.professionalQualification || '—'}</td>
+        <td><span class="bdg ${empCls}">${f.natureOfEmployment || '—'}</span></td>
+        <td style="white-space:nowrap;font-weight:500">${f.teachingExpInYrs || '0'} Yrs</td>
+        <td>${photo}</td>
+        <td><span class="bdg bdg-sub">Submitted</span></td>
+        </tr>`;
+        }).join('');
+
+        renderPagination();
+        }
+
+        /* ── PAGINATION ── */
+        function renderPagination() {
+        const total = Math.ceil(filteredFaculty.length / PER_PAGE);
+        const s = (currentPage - 1) * PER_PAGE;
+        document.getElementById('pgInfo').textContent =
+        filteredFaculty.length
+        ? `Showing ${s + 1}–${Math.min(filteredFaculty.length, s + PER_PAGE)} of ${filteredFaculty.length} records`
+        : 'No records';
+
+        const container = document.getElementById('pgBtns');
+        container.innerHTML = '';
+
+        const addBtn = (label, page, disabled = false, isDots = false) => {
+        const b = document.createElement('button');
+        b.className = 'pgb' + (page === currentPage ? ' active' : '') + (isDots ? ' pgb-dots' : '');
+        b.textContent = label;
+        b.disabled = disabled;
+        if (!isDots) b.onclick = () => { currentPage = page; renderTable(); };
+        container.appendChild(b);   
+        };
+
+        addBtn('‹', currentPage - 1, currentPage === 1);
+        for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || Math.abs(i - currentPage) <= 1) {
+        addBtn(i, i);
+        } else if (Math.abs(i - currentPage) === 2) {
+        addBtn('…', null, true, true);
+        }
+        }
+        addBtn('›', currentPage + 1, currentPage === total || total === 0);
+        }
+
+        /* ── STATS ── */
+        function updateStats() {
+        document.getElementById('sTotal').textContent = allFaculty.length;
+        document.getElementById('sPerm').textContent  = allFaculty.filter(f => f.natureOfEmployment === 'Permanent').length;
+        document.getElementById('sCont').textContent  = allFaculty.filter(f => f.natureOfEmployment === 'Contract').length;
+        document.getElementById('sDepts').textContent = new Set(allFaculty.map(f => f.departmentName).filter(Boolean)).size;
+        }
+
+        /* ── DROPDOWNS ── */
+        function populateColleges() {
+        const sel = document.getElementById('fCol');
+        [...new Set(allFaculty.map(f => f.collegeName))].filter(Boolean).sort()
+        .forEach(v => sel.add(new Option(v, v)));
+        }
+
+        function updateDepts() {
+        const col  = document.getElementById('fCol').value;
+        const sel  = document.getElementById('fDept');
+        sel.innerHTML = '<option value="">All Departments</option>';
+        const src  = col ? allFaculty.filter(f => f.collegeName === col) : allFaculty;
+        [...new Set(src.map(f => f.departmentName))].filter(Boolean).sort()
+        .forEach(v => sel.add(new Option(v, v)));
+        }
+
+        function populateDesignations() {
+        const sel = document.getElementById('fDesig');
+        [...new Set(allFaculty.map(f => f.designationName))].filter(Boolean).sort()
+        .forEach(v => sel.add(new Option(v, v)));
+        }
+
+        /* ── FILTERS ── */
+        function applyFilters() {
+        const q     = document.getElementById('srch').value.toLowerCase().trim();
+        const col   = document.getElementById('fCol').value;
+        const dept  = document.getElementById('fDept').value;
+        const desig = document.getElementById('fDesig').value;
+        const nat   = document.getElementById('fNat').value;
+
+        filteredFaculty = allFaculty.filter(f => {
+        const hay = [f.nameOftheFaculty, f.collegeName, f.departmentName, f.designationName,
+        f.mobileNo, f.panNo, f.stateCouncilRegNo, f.aebasAttendId,
+        f.professionalQualification].filter(Boolean).join(' ').toLowerCase();
+        return (!q     || hay.includes(q))
+        && (!col   || f.collegeName      === col)
+        && (!dept  || f.departmentName   === dept)
+        && (!desig || f.designationName  === desig)
+        && (!nat   || f.natureOfEmployment === nat);
+        });
+
+        currentPage = 1;
+        renderTable();
+        }
+
+        /* ── EXPORT EXCEL ── */
+        function exportExcel() {
+        const rows = filteredFaculty.map(f => ({
+        College: f.collegeName || '', Department: f.departmentName || '',
+        'Faculty Name': f.nameOftheFaculty || '', Designation: f.designationName || '',
+        DOB: f.dob || '', 'Appointment Date': f.dateOfAppointment || '',
+        Mobile: f.mobileNo || '', PAN: f.panNo || '',
+        'Registration No': f.stateCouncilRegNo || '', 'AEBAS ID': f.aebasAttendId || '',
+        Qualification: f.professionalQualification || '',
+        Employment: f.natureOfEmployment || '', 'Experience (Yrs)': f.teachingExpInYrs || ''
+        }));
+        const ws = XLSX.utils.json_to_sheet(rows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Faculty');
+        XLSX.writeFile(wb, 'FacultyReport.xlsx');
+        }
+
+        /* ── EXPORT PDF ── */
+        function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape');
+        doc.setFontSize(14);
+        doc.text('Faculty Master Report', 14, 14);
+        doc.autoTable({
+        startY: 22,
+        styles: { fontSize: 6.5, cellPadding: 2 },
+        headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        head: [['College','Department','Faculty Name','Designation','DOB','Appointment','Mobile','PAN','Reg No','AEBAS ID','Qualification','Employment','Experience']],
+        body: filteredFaculty.map(f => [
+        f.collegeName||'', f.departmentName||'', f.nameOftheFaculty||'', f.designationName||'',
+        f.dob||'', f.dateOfAppointment||'', f.mobileNo||'', f.panNo||'',
+        f.stateCouncilRegNo||'', f.aebasAttendId||'', f.professionalQualification||'',
+        f.natureOfEmployment||'', (f.teachingExpInYrs||'0')+' Yrs'
+        ])
+        });
+        doc.save('FacultyReport.pdf');
+        }
+
+        /* ── EVENT LISTENERS ── */
+        // document.getElementById('fCol').addEventListener('change', () => { updateDepts(); applyFilters(); });
+        // ['fDept','fDesig','fNat'].forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
+        // document.getElementById('srch').addEventListener('input', applyFilters);
+
+        document.getElementById('fCol')
+        .addEventListener('change', updateDepts);
+
+
+        document.getElementById('btnFetch')
+        .addEventListener('click', function () {
+
+        applyFilters();
+        updateStats();
+
+        });
+
+        /* ── INIT ── */
+        async function init() {
+        try {
+        const res  = await fetch('@Url.Action("GetAllFacultyReport", "Home")');
+        const text = await res.text();
+        const json = JSON.parse(text);
+        if (json.success && json.data) {
+        allFaculty = json.data;
+        } else {
+        throw new Error('API returned no data');
+        }
+        } catch (err) {
+        console.error('Faculty fetch error:', err);
+        document.getElementById('tBody').innerHTML =
+        `<tr class="empty"><td colspan="16"><i class="bi bi-exclamation-triangle"></i>Failed to load data. Check the API endpoint.</td></tr>`;
+        return;
+        }
+        filteredFaculty = [];
+
+        populateColleges();
+        populateDesignations();
+        updateDepts();
+
+        document.getElementById('tBody').innerHTML =
+        `
+        <tr class="empty">
+        <td colspan="16">
+        <i class="bi bi-search"></i>
+        Select filters and click Fetch Data
+        </td>
+
+        </tr>
+        `;
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -72,9 +72,15 @@ function renderUploadTable(rows, collegeName, collegeCode) {
 
         return `<tr>
             <td>${i + 1}</td>
-            <td><strong>${escHtml(fName)}</strong></td>
+         
             <td>${formatDate(uDate)}</td>
-            <td>${escHtml(uBy)}</td>
+           <td>
+                <a href="javascript:void(0)"
+                   onclick="showFacultyModal('${safeCollegeCode}','${safeCollegeName}')"
+                   style="color:#0d6efd;text-decoration:underline;font-weight:600;">
+                   ${escHtml(uBy)}
+                </a>
+            </td>
             <td><span class="badge-status ${isApproved ? "badge-verified" : "badge-pending"}">${isApproved ? "&#10003;" : "&#9679;"} ${escHtml(displayStatus)}</span></td>
             <td style="display:flex; gap:8px; align-items:center;">
                 <button class="btn-view" onclick="viewDocument('${safeFileUrl}','${safeFileName}',${id})"><i class="bi bi-eye" style="margin-right:4px;"></i>View</button>
@@ -83,7 +89,7 @@ function renderUploadTable(rows, collegeName, collegeCode) {
         </tr>`;
     }).join("");
 
-    wrap.innerHTML = '<table class="rguhs-table"><thead><tr><th>#</th><th>File Name</th><th>Upload Date</th><th>Uploaded By</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + rowsHtml + "</tbody></table>";
+    wrap.innerHTML = '<table class="rguhs-table"><thead><tr><th>#</th><th>Upload Date</th><th>Uploaded By</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + rowsHtml + "</tbody></table>";
 }
 
 function confirmApproval(collegeName, collegeCode, uploadId, existingReferenceId, existingEofficeNo) {
@@ -387,4 +393,104 @@ function formatDate(d) {
         if (isNaN(parsed.getTime())) return d;
         return parsed.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
     } catch (e) { return d; }
+}
+
+function showFacultyModal(collegeCode, collegeName) {
+
+    const title = document.getElementById("facultyModalTitle");
+    const body = document.getElementById("facultyModalBody");
+
+    if (!title || !body) {
+        console.error("Faculty modal elements not found");
+        return;
+    }
+
+    title.innerText = "Faculty Details - " + collegeName;
+
+    body.innerHTML =
+        '<div class="text-center p-3">Loading...</div>';
+
+    openModal("facultyModal");
+
+    fetch(getFacultyListUrl + "?collegeCode=" + encodeURIComponent(collegeCode))
+        .then(r => {
+            if (!r.ok) throw new Error("Failed to load faculty");
+            return r.json();
+        })
+        .then(data => {
+
+            if (!data || data.length === 0) {
+                document.getElementById("facultyModalBody").innerHTML =
+                    "<p>No faculty records found.</p>";
+                return;
+            }
+
+            let html = `
+                <table  class="faculty-table" id="facultyTable">
+                    <thead>
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Name</th>
+                            <th>Designation</th>
+                            <th>Department</th>
+                            <th>AEBAS ID</th>
+                            <th>KMC No</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.forEach((f, index) => {
+
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${f.name || f.Name || ''}</td>
+                        <td>${f.designation || f.Designation || ''}</td>
+                        <td>${f.department || f.Department || ''}</td>
+                        <td>${f.aebasAttendId || f.AEBASAttendId || ''}</td>
+                        <td>${f.stateCouncilRegNo || f.StateCouncilRegNo || ''}</td>
+                    </tr>
+                `;
+            });
+
+            html += "</tbody></table>";
+
+            document.getElementById("facultyModalBody").innerHTML = html;
+        })
+        .catch(err => {
+            document.getElementById("facultyModalBody").innerHTML =
+                `<div class="alert alert-danger">${err.message}</div>`;
+        });
+}
+
+function filterFacultyTable() {
+
+    const input = document.getElementById("facultySearch");
+    const filter = input.value.toLowerCase();
+
+    const table = document.getElementById("facultyTable");
+
+    if (!table) return;
+
+    const rows = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < rows.length; i++) {
+
+        let found = false;
+
+        const cells = rows[i].getElementsByTagName("td");
+
+        for (let j = 0; j < cells.length; j++) {
+
+            const txt = cells[j].textContent || cells[j].innerText;
+
+            if (txt.toLowerCase().indexOf(filter) > -1) {
+                found = true;
+                break;
+            }
+        }
+
+        rows[i].style.display = found ? "" : "none";
+    }
 }

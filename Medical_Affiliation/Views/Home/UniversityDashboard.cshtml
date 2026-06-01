@@ -1148,6 +1148,264 @@ h2 {
 }
 .letter-meta-left { text-align: left; max-width: 65%; }
 .letter-meta-right { text-align: right; min-width: 30%; }
+
+/* Style for the All Faculty Details Button */
+.btn-all-faculty {
+    background: var(--gold);
+    color: var(--maroon-dark);
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.6rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+    white-space: nowrap;
+}
+
+.btn-all-faculty:hover {
+    background: var(--gold-light);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.uni-logo-area{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.uni-logo-img{
+    width:70px;
+    height:70px;
+    object-fit:contain;
+    border-radius:50%;
+    background:white;
+    padding:3px;
+    border:2px solid #e5e7eb;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+
+
+
+
+.uni-header{
+    /* background:linear-gradient(135deg,#ffffff,#f8fafc); */
+    border-bottom:1px solid #e2e8f0;
+    padding:18px 28px;
+    box-shadow:0 2px 10px rgba(0,0,0,.04);
+}
+
+            .page-nav {
+                padding: 16px 40px 0;
+                display: flex;
+                gap: 12px;
+                align-items: center;
+            }
+
+.btn-all-faculty{
+    background:#C8991A;
+    color:#5A1220;
+    border:none;
+    padding:14px 24px;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:700;
+    box-shadow:0 6px 18px rgba(200,153,26,.25);
+}
+
+.logout-text-link{
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.2);
+    color: #fff;
+    border-radius: 24px;
+    padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.logout-text-link:hover{
+    background: rgba(255,255,255,.15);
+    transform: translateY(-1px);
+}
+
+            .btn-designation-report {
+                background: #7B1C2E;
+                color: #fff;
+                border: none;
+                padding: 14px 24px;
+                border-radius: 12px;
+                font-size: 1rem;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                box-shadow: 0 6px 18px rgba(123,28,46,.25);
+                transition: all .2s ease;
+            }
+
+                .btn-designation-report:hover {
+                    background: #5A1220;
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 24px rgba(123,28,46,.35);
+                }
+
+            /* Faculty Modal */
+            .faculty-modal-box {
+                width: 95vw;
+                max-width: 1400px;
+                max-height: 92vh;
+                overflow: hidden;
+                border-radius: 18px;
+                background: #fff;
+            }
+
+            /* Header */
+            .faculty-modal-header {
+                background: linear-gradient(135deg,#7B1C2E,#5A1220);
+                color: #fff;
+                padding: 20px 28px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+                .faculty-modal-header h4 {
+                    margin: 0;
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    font-family: 'EB Garamond', serif;
+                }
+
+            .faculty-count {
+                margin-top: 4px;
+                font-size: .85rem;
+                opacity: .9;
+            }
+
+            .faculty-close-btn {
+                border: none;
+                background: rgba(255,255,255,.15);
+                color: white;
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: .2s;
+            }
+
+                .faculty-close-btn:hover {
+                    background: rgba(255,255,255,.25);
+                    transform: rotate(90deg);
+                }
+
+            /* Search */
+            .faculty-search-section {
+                padding: 16px 24px;
+                border-bottom: 1px solid #e5e7eb;
+                background: #fafafa;
+            }
+
+            .faculty-search-wrapper {
+                position: relative;
+            }
+
+                .faculty-search-wrapper i {
+                    position: absolute;
+                    left: 14px;
+                    top: 12px;
+                    color: #6b7280;
+                }
+
+                .faculty-search-wrapper input {
+                    width: 100%;
+                    padding: 10px 14px 10px 40px;
+                    border: 1px solid #d1d5db;
+                    border-radius: 10px;
+                    font-size: .9rem;
+                }
+
+                    .faculty-search-wrapper input:focus {
+                        outline: none;
+                        border-color: #7B1C2E;
+                        box-shadow: 0 0 0 3px rgba(123,28,46,.1);
+                    }
+
+            /* Table Container */
+            .faculty-table-container {
+                max-height: 68vh;
+                overflow-y: auto;
+            }
+
+            /* Loading */
+            .faculty-loading {
+                text-align: center;
+                padding: 50px;
+                color: #6b7280;
+            }
+
+            /* Faculty Table */
+            .faculty-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+                .faculty-table thead {
+                    position: sticky;
+                    top: 0;
+                    z-index: 100;
+                }
+
+                .faculty-table th {
+                    background: #f8f5f2;
+                    color: #5A1220;
+                    font-weight: 700;
+                    padding: 14px;
+                    border-bottom: 2px solid #ddd;
+                    text-align: left;
+                }
+
+                .faculty-table td {
+                    padding: 12px 14px;
+                    border-bottom: 1px solid #f1f1f1;
+                }
+
+                .faculty-table tbody tr:hover {
+                    background: #fffaf2;
+                }
+
+                .faculty-table tbody tr:nth-child(even) {
+                    background: #fafafa;
+                }
+
+            /* Badges */
+            .designation-badge {
+                background: #fff4d6;
+                color: #9a6700;
+                padding: 5px 10px;
+                border-radius: 20px;
+                font-size: .8rem;
+                font-weight: 600;
+            }
+
+            .department-badge {
+                background: #e0f2fe;
+                color: #0369a1;
+                padding: 5px 10px;
+                border-radius: 20px;
+                font-size: .8rem;
+                font-weight: 600;
+            }
     </style>
 </head>
 <body>
@@ -1155,20 +1413,53 @@ h2 {
     <div class="uni-header">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div class="uni-logo-area">
-                <div class="uni-emblem">R</div>
+                <img src="~/images/newlogo.jpeg"
+                     alt="RGUHS Logo"
+                     class="uni-logo-img" />
+
                 <div>
-                    <div class="uni-title">Rajiv Gandhi University of Health Sciences</div>
-                    <div class="uni-subtitle">University Administrative Portal · Karnataka</div>
+                    <div class="uni-title">
+                        Rajiv Gandhi University of Health Sciences
+                    </div>
+
+                    <div class="uni-subtitle">
+                        University Administrative Portal · Karnataka
+                    </div>
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:1rem;">
                 <span class="uni-badge"><i class="bi bi-shield-check" style="margin-right:4px;"></i> University Director</span>
-                <a asp-controller="Account" asp-action="Logout" class="logout-text-link">
-                    <i class="bi bi-box-arrow-right"></i> Sign Out
-                </a>
+                <form asp-controller="Admin"
+          asp-action="Logout"
+          method="post"
+          style="margin:0;">
+
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="logout-text-link">
+            <i class="bi bi-box-arrow-right"></i>
+            Sign Out
+        </button>
+    </form>
             </div>
         </div>
     </div>
+
+  <div class="page-nav">
+
+    <button class="btn-all-faculty" onclick="fetchAllFaculty()">
+        <i class="bi bi-people-fill"></i>
+        All Faculty Details
+    </button>
+
+    <button class="btn-designation-report"
+            onclick="window.location.href='@Url.Action("DesignationWiseFacultyCount","Home")'">
+        <i class="bi bi-bar-chart-fill"></i>
+        Designation Wise Count
+    </button>
+
+</div>
+
 
     <div style="padding:2rem;">
         <div class="main-card" style="margin-bottom:2rem;">
@@ -1189,9 +1480,15 @@ h2 {
                         }
                     </select>
                 </div>
-                <button class="btn-fetch" onclick="fetchUploads()">
-                    <i class="bi bi-arrow-clockwise" style="font-size:1rem;"></i> Fetch Uploads
-                </button>
+                <!-- Action Buttons Container -->
+                <div style="display: flex; gap: 0.75rem; align-items: flex-end;">
+                    <button class="btn-fetch" onclick="fetchUploads()">
+                        <i class="bi bi-arrow-clockwise" style="font-size:1rem;"></i> Fetch Uploads
+                    </button>
+
+                    <!-- NEW BUTTON ADDED HERE -->
+                    
+                </div>
             </div>
         </div>
 
@@ -1256,6 +1553,47 @@ h2 {
             </div>
         </div>
     </div>
+
+    <!-- Faculty Details Modal -->
+    <div class="modal-overlay" id="facultyModal">
+        <div class="modal-box faculty-modal-box">
+
+            <!-- Header -->
+            <div class="faculty-modal-header">
+                <div>
+                    <h4 id="facultyModalTitle">Faculty Details</h4>
+                    
+                </div>
+
+                <button class="faculty-close-btn"
+                        onclick="closeModal('facultyModal')">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="faculty-search-section">
+                <div class="faculty-search-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text"
+                           id="facultySearch"
+                           placeholder="Search by Name, Department, Designation, KMC No..."
+                           onkeyup="filterFacultyTable()" />
+                </div>
+            </div>
+
+            <!-- Table Area -->
+            <div id="facultyModalBody" class="faculty-table-container">
+                <div class="faculty-loading">
+                    <i class="bi bi-arrow-clockwise animate-spin"></i>
+                    Loading Faculty Details...
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
     <script>
 
         const getCollegeUploadsUrl =
@@ -1272,13 +1610,20 @@ h2 {
 
             const saveReferenceUrl = '@Url.Action("SaveReferenceId", "UGFaculty")';
 
+            function fetchAllFaculty() {
+    // Redirects to the All Faculty list page
+                    window.location.href = '@Url.Action("AllFacultyList", "Home")'; 
+            }
+
+
             const rguhsLogoUrl = '@Url.Content("~/images/newLogo.jpeg")';
 const rguhsLogoFallbackUrl = '@Url.Content("~/images/logo.jpg")';
 const rguhsWatermarkUrl = '@Url.Content("~/images/newLogo.jpeg")';
 
     </script>
 
-    <script src="~/js/university-dashboard.js"></script>
+  @*   <script src="~/js/university-dashboard.js"></script> *@
     <script src="~/js/university-dashboard.js" asp-append-version="true"></script>
+
 </body>
 </html>

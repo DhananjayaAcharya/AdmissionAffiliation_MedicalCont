@@ -136,5 +136,161 @@ namespace Medical_Affiliation.Controllers
 
             return View(uploadedColleges);
         }
+
+
+
+        public async Task<IActionResult> AllFacultyList()
+        {
+
+            string collegeCode = HttpContext.Session.GetString("CollegeCode");
+            if (!string.IsNullOrEmpty(collegeCode))
+            {
+                // 1. Find college details by code
+                var college = await _context.AffiliationCollegeMasters
+                    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode);
+
+                // 2. Set session so the JS LoadFaculty() knows which college to fetch
+                //HttpContext.Session.SetString("CollegeCode", collegeCode);
+                //AHttpContext.Session.SetString("CollegeName", college?.CollegeName ?? "Unknown");
+            }
+
+            // 3. Pass the full list of colleges to the ViewBag for the dropdown
+            ViewBag.Colleges = await _context.AffiliationCollegeMasters.ToListAsync();
+
+            return View();
+        }
+
+        
+        [HttpGet]
+        [Route("GetAllFacultyReport")]
+        public async Task<IActionResult> GetAllFacultyReport()
+        {
+            try
+            {
+                var departments = await _context.DepartmentMastersForUgs
+                                .AsNoTracking()
+                                .ToListAsync();
+
+                var designations = await _context.UgdesignationMasters
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var colleges = await _context.AffiliationCollegeMasters
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var faculties = await _context.UgFacultyDetails
+                    .Where(f => f.IsDeclared==true )
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var rawData = (from faculty in faculties
+                               join col in colleges
+                                   on faculty.CollegeCode equals col.CollegeCode into colJoin
+                               from col in colJoin.DefaultIfEmpty()
+
+                               join dept in departments
+                                   on faculty.DepartmentCode equals dept.DepartmentCode into deptJoin
+                               from dept in deptJoin.DefaultIfEmpty()
+
+                               join desig in designations
+                                   on faculty.DesignationCode equals desig.DesignationId into desigJoin
+                               from desig in desigJoin.DefaultIfEmpty()
+
+                               select new
+                               {
+                                   Id = faculty.Id,
+                                   CollegeName = col?.CollegeName,
+                                   DepartmentName = dept?.DepartmentName,
+                                   DesignationName = desig?.DesignationName,
+                                   NameOftheFaculty = faculty.NameOftheFaculty,
+                                   MobileNo = faculty.MobileNo,
+                                   PanNo = faculty.Panno,
+
+                                   DOB = faculty.Dob,
+                                   DateOfAppointment = faculty.DateOfAppointment,
+                                   StateCouncilRegNo = faculty.StateCouncilRegNo,
+                                   AEBASAttendId = faculty.AebasattendId,
+                                   ProfessionalQualification = faculty.ProfessionalQualification,
+
+                                   NatureOfEmployment = faculty.NatureOfEmployment,
+                                   TeachingExpInYrs = faculty.TeachingExpInYrs,
+                                   PhotoFilePath = faculty.PhotoFilePath
+                               })
+               .GroupBy(x => x.Id)
+               .Select(g => g.First())
+               .ToList();
+
+                return Json(new { success = true, data = rawData });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> DesignationWiseFacultyCount()
+        {
+            ViewBag.Colleges = await (
+                        from f in _context.UgFacultyDetails
+                        join c in _context.AffiliationCollegeMasters
+                            on f.CollegeCode equals c.CollegeCode
+                        where f.IsDeclared == true
+                        group c by new
+                        {
+                            c.CollegeCode,
+                            c.CollegeName
+                        }
+                        into g
+                        orderby g.Key.CollegeName
+                        select new
+                        {
+                            CollegeCode = g.Key.CollegeCode,
+                            CollegeName = g.Key.CollegeName
+                        }
+                    ).ToListAsync();
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDesignationWiseCount(string collegeCode)
+        {
+            try
+            {
+                var result =
+                    from d in _context.UgdesignationMasters
+
+                    join f in _context.UgFacultyDetails
+                            .Where(x =>
+                                x.IsDeclared == true &&
+                                x.CollegeCode == collegeCode)
+                    on d.DesignationId equals f.DesignationCode
+                    into facultyGroup
+
+                    orderby d.Order
+
+                    select new
+                    {
+                        d.DesignationId,
+                        d.DesignationName,
+                        Count = facultyGroup.Count()
+                    };
+
+                return Json(new
+                {
+                    success = true,
+                    data = await result.ToListAsync()
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }
