@@ -1,0 +1,944 @@
+
+@model Medical_Affiliation.Models.ApplicationStatusReportVM
+@{
+    ViewData["Title"] = "Dental Application Completion Report";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dental Application Completion Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+   <style>
+    :root {
+        --navy: #0c1f3f;
+        --navy2: #1a3461;
+        --gold: #c9903a;
+        --gold2: #e8b45a;
+        --bg-light: #f8fafc;
+        --white: #fff;
+        --border: #e2e8f0;
+        --green: #1a7a4a;
+        --amber: #d97706;
+        --red: #c0392b;
+        --text: #1e293b;
+        --muted: #64748b;
+        --radius: 12px;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--bg-light);
+        color: var(--text);
+        min-height: 100vh;
+    }
+
+    /* --- HEADER --- */
+    .rpt-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+        padding: 20px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 4px solid var(--gold);
+    }
+
+    .rpt-header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .rpt-header-icon {
+        width: 48px;
+        height: 48px;
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .rpt-header-icon svg { width: 24px; height: 24px; fill: var(--gold); }
+    .rpt-header h1 { font-family: 'Syne', sans-serif; font-size: 1.4rem; color: #fff; font-weight: 700; }
+    .rpt-header p { font-size: .7rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: .05em; }
+
+    .rpt-body {
+        max-width: 1400px;
+        margin: 10px auto;
+        padding: 0 30px 60px;
+    }
+
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 55% 40%;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .filter-panel {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        height: fit-content;
+    }
+
+    .filter-panel h3 {
+        margin-bottom: 20px;
+        color: var(--navy);
+        font-family: 'Syne', sans-serif;
+    }
+
+    .filter-panel form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .filter-panel input,
+    .filter-panel select {
+        width: 100%;
+    }
+
+    .dashboard-right {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* --- PROFESSIONAL KPI CARDS (Image 2) --- */
+    .summary-row {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+
+    .summary-row{
+        display: flex;
+    }
+
+    .sum-row{
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+    }
+
+    .sum-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 5px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.2s ease;
+        border: 1px solid var(--border);
+    }
+
+    .sum-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.08); }
+
+    /* Specific Backgrounds for Highlighting */
+    .sum-card.total { background-color: #f1f5f9; }
+    .sum-card.done { background-color: #f0fdf4; }
+    .sum-card.prog { background-color: #fffbeb; }
+    .sum-card.none { background-color: #fef2f2; }
+
+    .sum-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        background: white;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border);
+    }
+
+    .sum-info{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .sum-val {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--navy);
+        line-height: 1;
+    }
+
+    .sum-lbl {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-top: 4px;
+    }
+
+    /* --- CHART --- */
+    .charts-row {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 60px;
+    }
+
+    .chart-card-centered {
+        width: 100%;
+        max-width: 600px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 30px;
+        box-shadow: var(--shadow-md);
+        text-align: center;
+    }
+
+    .chart-card-centered h3 {
+        font-family: 'Syne', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: var(--navy);
+        border-bottom: 3px solid var(--gold);
+        padding-bottom: 8px;
+        display: inline-block;
+    }
+
+    .chart-wrap {
+        position: relative;
+        height: 260px;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* --- FILTER BAR --- */
+    .filter-bar {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .search-box { display: flex; gap: 8px; flex: 1; min-width: 300px; }
+    .filter-bar input[type=text] {
+        flex: 1;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: .85rem;
+        background: #fbfcfd;
+    }
+
+    .btn-search {
+        background: var(--navy);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .search-col{
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: .8rem;
+        background: #fbfcfd;
+    }
+    .sum-row{
+        display: flex;
+        gap: 2px;
+    }
+    .filter-btn {
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--muted);
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: .75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+        background: var(--navy);
+        color: #fff;
+        border-color: var(--navy);
+    }
+
+    .filter-btn.done-btn.active { background: var(--green); border-color: var(--green); }
+    .filter-btn.prog-btn.active { background: var(--amber); border-color: var(--amber); }
+    .filter-btn.none-btn.active { background: var(--red); border-color: var(--red); }
+
+    .sort-select {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: .8rem;
+        background: #fbfcfd;
+    }
+
+    /* FIX 1: Professional PDF Button (Image 1) */
+    .export-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        
+    }
+
+    .btn-export {
+        padding: 7px 16px;
+        font-size: .75rem;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .btn-export:hover {
+        background: #f8fafc;
+        border-color: var(--navy);
+        color: var(--navy);
+    }
+
+    /* --- TABLE SECTION --- */
+    .college-table-wrap {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+
+    /* FIX 3: Professional Header Font (Image 4) */
+    .college-table-wrap h3 {
+        font-family: 'Syne', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 22px 24px;
+        color: var(--navy);
+        border-bottom: 1px solid var(--border);
+        letter-spacing: -0.01em;
+    }
+
+    table.ct {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table.ct thead th {
+        background: #f8fafc;
+        padding: 14px 16px;
+        font-size: .65rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border-bottom: 2px solid var(--border);
+        text-align: left;
+    }
+
+    table.ct tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.1s;
+    }
+
+    table.ct tbody tr:hover { background: #fcfdfe; }
+    table.ct td { padding: 16px; vertical-align: middle; font-size: .85rem; }
+
+    .ct-name { font-weight: 600; color: var(--navy); font-size: 0.9rem; }
+    .ct-code { font-size: .7rem; color: var(--muted); }
+
+    .prog-wrap { display: flex; align-items: center; gap: 10px; }
+    .prog-track { flex: 1; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; min-width: 80px; }
+    .prog-fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
+    .prog-fill.done { background: var(--green); }
+    .prog-fill.high { background: var(--green); }
+    .prog-fill.mid { background: var(--amber); }
+    .prog-fill.low { background: var(--red); }
+    .prog-txt { font-size: .75rem; font-weight: 700; min-width: 36px; text-align: right; }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: .65rem;
+        font-weight: 600;
+    }
+    .status-badge.done { background: #dcfce7; color: var(--green); }
+    .status-badge.prog { background: #fef3c7; color: var(--amber); }
+    .status-badge.none { background: #fee2e2; color: var(--red); }
+
+    .detail-btn {
+        border: 1px solid var(--border);
+        background: var(--white);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: .7rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--navy);
+        transition: 0.2s;
+    }
+    .detail-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .btn-logout {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid rgba(255,255,255,0.3);
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-logout:hover { background: var(--red); border-color: var(--red); }
+
+    /* MODAL STYLES */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        z-index: 9999;
+        backdrop-filter: blur(8px);
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background: var(--white);
+        width: 600px;
+        max-width: 90%;
+        border-radius: var(--radius);
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        display: flex;
+        flex-direction: column;
+        max-height: 85vh;
+        position: relative;
+    }
+    .modal-header {
+        padding: 20px 24px;
+        background: var(--navy);
+        color: white;
+        border-radius: var(--radius) var(--radius) 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .modal-header h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; margin: 0; }
+    .close-modal { font-size: 1.5rem; cursor: pointer; color: rgba(255,255,255,0.6); transition: 0.2s; }
+    .close-modal:hover { color: #fff; }
+    .modal-body { padding: 24px; overflow-y: auto; background: #fcfcfc; }
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        background: #fff;
+        border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .btn-download-img, .btn-download-pdf {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        border: 1px solid var(--border);
+    }
+    .btn-download-img { background: #f1f5f9; color: var(--navy); }
+    .btn-download-pdf { background: var(--navy); color: white; }
+
+    /* PDF PRINT FIXES */
+    @@media print {
+        .filter-bar, .rpt-header-left svg, .btn-logout {
+            display: none !important;
+        }
+        body { 
+            background: white; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact;
+        }
+        .rpt-body { 
+            margin: 0; 
+            padding: 12mm; 
+        }
+        .college-table-wrap { 
+            box-shadow: none; 
+            border: 1px solid #000; 
+            width: 100%;
+        }
+        .detail-btn {
+            display: inline-block !important;
+            visibility: visible !important;
+            border: 1px solid #000 !important;
+            background: white !important;
+            color: black !important;
+        }
+        table.ct {
+            width: 100%;
+            table-layout: fixed;
+        }
+        table.ct th, table.ct td {
+            font-size: 10px;
+            padding: 6px;
+        }
+    }
+
+    @@page {
+        size: auto;
+        margin: 15mm; 
+    }
+    </style>
+
+<body>
+
+    <div class="rpt-header">
+        <div class="rpt-header-left">
+            <div class="rpt-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" /></svg>
+            </div>
+            <div style="display: inline-block;">
+                <h1 style="margin:0;">Dental Application Completion Report</h1>
+                <p>Continuous Affiliation · Admin Dashboard · @DateTime.Now.ToString("dd MMM yyyy")</p>
+            </div>
+        </div>
+        <div class="rpt-header-right">
+            <a href="@Url.Action("AdminDashboard", "Admin")" class="btn-logout">
+                <span>Logout</span> ⏻
+            </a>
+        </div>
+    </div>
+
+    <div class="rpt-body">
+
+        <div class="dashboard-layout">
+
+            <!-- LEFT FILTER PANEL -->
+            <div class="filter-panel">
+
+                <h3> <span class="px-4 py-2" style="background: lightseablue">Home</span> Filters</h3>
+
+                <form method="get" asp-action="ApplicationStatusReport" id="filterForm">
+
+                    <select name="selectedFaculty" class="sort-select">
+                        <option value="">Select Faculty</option>
+                        @foreach (var f in Model.Faculties)
+                        {
+                            <option value="@f.Value"
+                                    selected="@(Model.SelectedFaculty == f.Value)">
+                                @f.Text
+                            </option>
+                        }
+                    </select>
+
+                    <select name="selectedCollege" class="sort-select">
+                        @foreach (var c in Model.CollegesDropdown)
+                        {
+                            <option value="@c.Value"
+                                    selected="@(Model.SelectedCollege == c.Value)">
+                                @c.Text
+                            </option>
+                        }
+                    </select>
+
+                    <input type="text"
+                           name="search"
+                           class="search-col"
+                           placeholder="Search College"
+                           value="@Model.Search" />
+
+                    <select name="filterStatus" class="sort-select">
+                        <option value="">All Status</option>
+                        <option value="complete">Completed</option>
+                        <option value="inprogress">In Progress</option>
+                        <option value="notstarted">Not Started</option>
+                    </select>
+
+                    <select name="sortBy" class="sort-select">
+                        <option value="pct_desc">Most Complete First</option>
+                        <option value="pct_asc">Least Complete First</option>
+                        <option value="name">College Name A-Z</option>
+                    </select>
+
+                    <button type="submit" class="btn-search">
+                        Apply Filters
+                    </button>
+
+                    <button type="button"
+                            class="btn-export"
+                            onclick="exportPDF()">
+                        📄 Export PDF
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- RIGHT SIDE STARTS HERE -->
+            <div class="dashboard-right">
+                <!-- Summary Cards (Image 2) -->
+                <div class="summary-row">
+                    <div class="sum-row">
+                        <div class="sum-card total">
+                            <div class="sum-icon" style="background: #e0f2fe;">🏫</div>
+                            <div class="sum-info">
+                                <div class="sum-lbl">Total Colleges :-</div>
+                                <div class="sum-val">@Model.TotalColleges</div>
+                            </div>
+                        </div>
+                        <div class="sum-card done">
+                            <div class="sum-icon" style="background: #dcfce7;">✅</div>
+                            <div class="sum-info">
+                                <div class="sum-lbl">Fully Completed :-</div>
+                                <div class="sum-val" style="color:var(--green);">@Model.FullyCompleted</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sum-row">
+                        <div class="sum-card prog">
+                            <div class="sum-icon" style="background: #fef3c7;">⏳</div>
+                            <div class="sum-info">
+                                <div class="sum-lbl">In Progress :-</div>
+                                <div class="sum-val" style="color:var(--amber);">@Model.InProgress</div>
+                            </div>
+                        </div>
+                        <div class="sum-card none">
+                            <div class="sum-icon" style="background: #fee2e2;">❌</div>
+                            <div class="sum-info">
+                                <div class="sum-lbl">Not Started :-</div>
+                                <div class="sum-val" style="color:var(--red);">@Model.NotStarted</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="charts-row">
+                    <div class="chart-card-centered">
+                        <h3 style="font-family: 'Syne', sans-serif;">
+                            @{
+                                string dynamicTitle = "";
+                                if (!string.IsNullOrEmpty(Model.SelectedCollege) && Model.SelectedCollege != "ALL")
+                                {
+                                    var collegeName = Model.Colleges.FirstOrDefault()?.CollegeName ?? "College";
+                                    dynamicTitle = $"{collegeName} Completion";
+                                }
+                                else if (!string.IsNullOrEmpty(Model.SelectedFaculty))
+                                {
+                                    var facultyName = Model.Faculties.FirstOrDefault(f => f.Value == Model.SelectedFaculty)?.Text ?? "Faculty";
+                                    dynamicTitle = $"{facultyName} Colleges Completion";
+                                }
+                                else
+                                {
+                                    dynamicTitle = "Overall College Completion";
+                                }
+                            }
+                            @dynamicTitle
+                        </h3>
+                        <div class="chart-wrap">
+                            <canvas id="overallChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="college-table-wrap" id="printableArea">
+            <!-- FIX 3: Professional Font Header (Image 4) -->
+            <h3 style="font-family: 'Syne', sans-serif; letter-spacing: -0.01em; padding-left: 24px;">
+                College-wise Status — @Model.Colleges.Count college(s) shown
+            </h3>
+
+            @if (!Model.Colleges.Any())
+            {
+                <div class="empty-state">
+                    <p>No colleges match the current filters.</p>
+                </div>
+            }
+            else
+            {
+                <table class="ct" id="mainTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>College</th>
+                            <th>Phone Number</th>
+                            <th>Pages Filled</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                            <th style="text-align:center;">Details</th> 
+                        </tr>
+                    </thead>
+                    <tbody >
+                        @for (int i = 0; i < Model.Colleges.Count; i++)
+                        {
+                            var col = Model.Colleges[i];
+                            var pct = col.Percentage;
+                            var fillCls = pct == 100 ? "done" : pct >= 50 ? "high" : pct > 0 ? "mid" : "low";
+                            var statusLbl = pct == 100 ? "Complete" : pct > 0 ? "In Progress" : "Not Started";
+                            var statusCls = pct == 100 ? "done" : pct > 0 ? "prog" : "none";
+                            var rowId = $"detail-{i}";
+
+                            <tr>
+                                <td style="color:var(--muted);font-size:.8rem;">@(i + 1)</td>
+                                <td>
+                                    <div class="ct-name">@col.CollegeName</div>
+                                    <div class="ct-code">@col.CollegeCode</div>
+                                </td>
+                                <td>@col.PhoneNumber</td>
+                                <td><strong style="color:var(--navy);">@col.DoneSteps</strong> <span style="color:var(--muted);"> / @col.TotalSteps</span></td>
+                                <td style="min-width:160px;">
+                                    <div class="prog-wrap">
+                                        <div class="prog-track"><div class="prog-fill @fillCls" style="width:@pct%"></div></div>
+                                        <span class="prog-txt">@pct%</span>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge @statusCls">@statusLbl</span></td>
+                                <td style="text-align: center;">
+                                    <button class="detail-btn" onclick="toggleDetail('@rowId', '@col.CollegeCode', '@col.CollegeName')">▼ View</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody
+                </table>
+            }
+        </div>
+    </div>
+
+    <!-- Modal Pop-up HTML -->
+    <div id="detailsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">College Completion Details</h3>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <div class="loader">Loading details...</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-download-img" onclick="downloadAsImage()">🖼️ Download as Image</button>
+                <button class="btn-download-pdf" onclick="downloadAsPDF()">📄 Download as PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        new Chart(document.getElementById('overallChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Completed', 'In Progress', 'Not Started'],
+                datasets: [{
+                    label: 'Total Colleges',
+                    data: [
+                        @Model.FullyCompleted,
+                        @Model.InProgress,
+                        @Model.NotStarted
+                    ],
+                    backgroundColor: [
+                        '#1a7a4a',
+                        '#d97706',
+                        '#c0392b'
+                    ],
+                    borderRadius: 8,
+                    barThickness: 60
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#0c1f3f',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: function (value) {
+                            return value;
+                        }
+                    }
+                },
+
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Status'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grace: '20%',
+                        title: {
+                            display: true,
+                            text: 'Total Colleges'
+                        },
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+        async function toggleDetail(id, collegeCode, collegeName) {
+            const modal = document.getElementById('detailsModal');
+            const body = document.getElementById('modalBody');
+            const title = document.getElementById('modalTitle');
+            title.innerText = collegeName;
+            modal.style.display = 'flex';
+            body.innerHTML = '<div class="loader">Loading details...</div>';
+
+            try {
+                const response = await fetch(`/CA_ApplicationStatusReport/GetCollegeDetails?collegeCode=${collegeCode}`);
+                const data = await response.json();
+
+                let headerHtml = `
+                    <div id="captureHeader" style="text-align:center; margin-bottom:20px; border-bottom:2px solid var(--navy); padding-bottom:10px;">
+                        <h2 style="color:var(--navy); font-family:'Syne',sans-serif; margin:0; font-size:1.4rem;">${collegeName}</h2>
+                        <p style="color:var(--muted); font-size:0.8rem; margin-top:5px;">College Code: ${collegeCode} | Completion Report</p>
+                    </div>`;
+
+                let stepsHtml = '';
+                data.forEach(grp => {
+                    stepsHtml += `<div class="step-group-title" style="color:var(--muted); font-weight:bold; margin-top:15px; font-size:0.7rem; text-transform:uppercase;">${grp.groupName}</div>`;
+                    stepsHtml += `<div class="step-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:5px;">`;
+                    grp.steps.forEach(step => {
+                        const cls = step.completed ? 'done' : 'pend';
+                        const icon = step.completed ? '✓' : '○';
+                        stepsHtml += `<span class="step-pill ${cls}" style="padding:5px 10px; border-radius:5px; font-size:0.7rem; border:1px solid #ddd; display:inline-flex; align-items:center; gap:5px; background:${step.completed?'#e6f4ee':'#fde8e8'}; color:${step.completed?'#1a7a4a':'#c0392b'}">
+                                    <span class="dot" style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span> ${icon} ${step.label}
+                                 </span>`;
+                    });
+                    stepsHtml += `</div>`;
+                });
+                body.innerHTML = headerHtml + stepsHtml;
+            } catch (error) {
+                body.innerHTML = `<div style="color:red; padding:20px;">Error loading data.</div>`;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        async function captureFullElement(element) {
+            const originalStyle = element.style.cssText;
+            element.style.overflow = 'visible';
+            element.style.maxHeight = 'none';
+            element.style.height = 'auto';
+            element.style.display = 'block';
+
+            try {
+                const canvas = await html2canvas(element, { 
+                    scale: 2, 
+                    backgroundColor: '#fafaf9',
+                    useCORS: true,
+                    logging: false,
+                    windowHeight: element.scrollHeight 
+                });
+                return canvas;
+            } finally {
+                element.style.cssText = originalStyle;
+            }
+        }
+
+        async function downloadAsImage() {
+            const element = document.getElementById('modalBody');
+            try {
+                const canvas = await captureFullElement(element);
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = 'College_Status_Details.png';
+                link.click();
+            } catch (e) {
+                alert("Failed to capture image.");
+            }
+        }
+
+        async function downloadAsPDF() {
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('modalBody');
+            try {
+                const canvas = await captureFullElement(element);
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgProps = pdf.getImageProperties(imgData);
+                const imgCrosspointHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                let heightLeft = imgCrosspointHeight;
+                let position = 0;
+                while (heightLeft > 0) {
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgCrosspointHeight);
+                    heightLeft -= pdfHeight;
+                    position -= pdfHeight;
+                    if (heightLeft > 0) pdf.addPage();
+                }
+                const pdfBlob = pdf.output('bloburl');
+                window.open(pdfBlob, '_blank');
+                closeModal();
+            } catch (e) {
+                alert("Failed to generate PDF.");
+            }
+        }
+
+        function exportPDF() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

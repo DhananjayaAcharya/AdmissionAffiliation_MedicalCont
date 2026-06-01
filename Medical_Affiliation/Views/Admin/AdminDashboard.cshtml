@@ -855,12 +855,19 @@
                     <i class="bi bi-bar-chart-fill"></i> Application Status Report
                 </a>
 
-                @* --- Dental Updated Application Fill Status Report Link --- *@
-                @* <a asp-controller="MedicalSuperAdmin"
-                   asp-action="Dashboard"
+                @* --- Updated Application Fill Status Report Link --- *@
+                <a asp-controller="DentalApplicationStatusReport"
+                   asp-action="ApplicationStatusReport"
                    class="action-btn">
                     <i class="bi bi-bar-chart-fill"></i>Dental Application Status Report
-                </a> *@
+                </a>
+
+                @* --- Dental Updated Intake Status Report Link --- *@
+                <a asp-controller="DentalSuperAdmin"
+                   asp-action="Dashboard"
+                   class="action-btn">
+                    <i class="bi bi-bar-chart-fill"></i>Dental Intake Status Report
+                </a>
 
             </div>
 
