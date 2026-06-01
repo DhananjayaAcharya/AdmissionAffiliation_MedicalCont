@@ -752,7 +752,11 @@
             <a class="sidebar-link" href="@Url.Action("NodalOfficersForAdmin", "Admin")">
                 <i class="bi bi-person-badge-fill"></i> Nodal Officers
             </a>
-
+            <a asp-controller="Admin"
+               asp-action="TalukMapping"
+               class="sidebar-link">
+                <i class="bi bi-bar-chart-fill"></i> Taluks Mapping
+            </a>
             <div class="sidebar-divider"></div>
             <div class="sidebar-section-label">Reports</div>
 
@@ -850,6 +854,13 @@
                    class="action-btn">
                     <i class="bi bi-bar-chart-fill"></i> Application Status Report
                 </a>
+
+                @* --- Dental Updated Application Fill Status Report Link --- *@
+                @* <a asp-controller="MedicalSuperAdmin"
+                   asp-action="Dashboard"
+                   class="action-btn">
+                    <i class="bi bi-bar-chart-fill"></i>Dental Application Status Report
+                </a> *@
 
             </div>
 

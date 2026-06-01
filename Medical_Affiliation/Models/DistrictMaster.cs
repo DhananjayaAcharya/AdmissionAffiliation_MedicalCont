@@ -14,4 +14,6 @@ public partial class DistrictMaster
     public string ToPostalCode { get; set; } = null!;
 
     public string StateId { get; set; } = null!;
+
+    public virtual ICollection<HospitalDetailsForAffiliation> HospitalDetailsForAffiliations { get; set; } = new List<HospitalDetailsForAffiliation>();
 }

@@ -109,13 +109,5 @@ public partial class AffInstitutionsDetail
 
     public string? DocumentDataPath { get; set; }
 
-    public DateTime? CreatedOn { get; set; }
-
-    public string? Ipaddress { get; set; }
-
-    public string? Browser { get; set; }
-
-    public string? DeviceType { get; set; }
-
-    public byte[] RowTimestamp { get; set; } = null!;
+    public bool IsDraft { get; set; }
 }

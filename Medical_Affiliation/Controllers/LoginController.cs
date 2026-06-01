@@ -939,6 +939,10 @@ namespace Medical_Affiliation.Controllers
                 passwordHasher.HashPassword(college, model.UpdatedPassword);
 
             await _context.SaveChangesAsync();
+            if (string.IsNullOrEmpty(college.DistrictId) || string.IsNullOrEmpty(college.TalukId))
+            {
+                TempData["ShowLocationPopup"] = true;
+            }
 
             TempData["ChangedPassword"] = "Password updated successfully";
 

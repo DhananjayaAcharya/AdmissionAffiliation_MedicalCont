@@ -30,9 +30,9 @@ public class AdminLoginViewModel
 }
 
 
-public class DashboardViewModel
-{
-    public string CollegeName { get; set; }
-    public string FacultyName { get; set; }
-}
+//public class DashboardViewModel
+//{
+//    public string CollegeName { get; set; }
+//    public string FacultyName { get; set; }
+//}
 

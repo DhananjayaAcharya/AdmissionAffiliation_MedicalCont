@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
 using System.Globalization;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.CookiePolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -323,7 +324,7 @@ app.UseAuthorization();
 app.UseStaticFiles(); // for wwwroot if needed
 
 // ===== D:\MedicalUGFacultyList Mapping =====
-var medicalPath = @"D:\MedicalUGFacultyList";
+var medicalPath = @"E:\MedicalUGFacultyList";
 
 // Auto create folders if not exists
 if (!Directory.Exists(medicalPath))

@@ -1,0 +1,156 @@
+﻿@model TalukMappingViewModel
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header">
+            <h4>District Taluk Mapping</h4>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-4">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        District
+                    </label>
+
+                    <select id="districtDropdown"
+                            class="form-select">
+
+                        <option value="">
+                            Select District
+                        </option>
+
+                        @foreach (var district in Model.Districts)
+                        {
+                            <option value="@district.DistrictId">
+                                @district.DistrictName
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div id="talukContainer" class="row">
+            </div>
+
+            <div class="mt-4 text-end">
+
+                <button type="button"
+                        class="btn btn-primary"
+                        onclick="saveMappings()">
+
+                    Save Mapping
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    document.getElementById("districtDropdown")
+        .addEventListener("change", loadTaluks);
+
+    function loadTaluks() {
+
+        const districtId =
+            document.getElementById("districtDropdown").value;
+
+        if (!districtId)
+            return;
+
+        const url =
+            '@Url.Action("GetTaluksForDistrict", "Admin")'
+            + '?districtId='
+            + districtId;
+
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+
+                let html = '';
+
+                data.forEach(taluk => {
+
+                    html += `
+                        <div class="col-md-4 mb-2">
+
+                            <div class="form-check">
+
+                                <input
+                                    class="form-check-input taluk-checkbox"
+                                    type="checkbox"
+                                    value="${taluk.talukId}"
+                                    ${taluk.isSelected ? 'checked' : ''}>
+
+                                <label class="form-check-label">
+
+                                    ${taluk.talukName}
+
+                                </label>
+
+                            </div>
+
+                        </div>
+                    `;
+                });
+
+                document.getElementById("talukContainer")
+                    .innerHTML = html;
+            });
+    }
+
+    function saveMappings() {
+
+        const districtId =
+            document.getElementById("districtDropdown").value;
+
+        const selectedTaluks =
+            Array.from(
+                document.querySelectorAll(
+                    '.taluk-checkbox:checked'
+                )
+            )
+            .map(x => x.value);
+
+        fetch(
+            '@Url.Action("SaveDistrictTalukMapping", "Admin")',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    districtId: districtId,
+                    selectedTalukIds: selectedTaluks
+                })
+            })
+            .then(r => r.json())
+            .then(result => {
+
+                if (!result.success)
+                {
+                    alert(result.message);
+                    return;
+                }
+
+                alert(result.message);
+            });
+    }
+
+</script>

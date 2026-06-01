@@ -68,6 +68,4 @@ public partial class LicclaimDetail
     public byte[]? AttendenceDoc { get; set; }
 
     public DateOnly? InspectionDate { get; set; }
-
-    public string? AcademicYear { get; set; }
 }

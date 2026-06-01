@@ -311,7 +311,7 @@ namespace Admission_Affiliation.Controllers
                         });
 
                     HttpContext.Session.SetString("FacultyId", user.Faculty.ToString());
-                    HttpContext.Session.SetString("IsAdmin", "true");
+                    //HttpContext.Session.SetString("IsAdmin", "true");
 
                     return RedirectToAction("ApplicationStatusReport", "CA_ApplicationStatusReport");
                 }
@@ -1072,6 +1072,7 @@ namespace Admission_Affiliation.Controllers
             }
 
             ViewBag.IsAdmin = Convert.ToInt32(facultyId) > 98;
+            HttpContext.Session.SetString("IsAdmin", Convert.ToInt32(facultyId) > 98 ? "true": "false");
             ViewBag.FacultyId = facultyId;
             ViewBag.Faculties = _context.Faculties
                 .OrderBy(e => e.FacultyName)
@@ -1691,6 +1692,133 @@ namespace Admission_Affiliation.Controllers
             return File(fileBytes, "application/pdf");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> TalukMapping()
+        {
+            var model = new TalukMappingViewModel
+            {
+                Districts = await _context.DistrictMasters
+                    .OrderBy(x => x.DistrictName)
+                    .ToListAsync()
+            };
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> SaveDistrictTalukMapping(  [FromBody] SaveTalukMappingViewModel model)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(model.DistrictId))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Please select District."
+                    });
+                }
+
+                // Move existing taluks to selected district
+                if (model.SelectedTalukIds != null && model.SelectedTalukIds.Any())
+                {
+                    var selectedTaluks = await _context.TalukMasters
+                        .Where(x => model.SelectedTalukIds.Contains(x.TalukId))
+                        .ToListAsync();
+
+                    foreach (var taluk in selectedTaluks)
+                    {
+                        // If mapped to another district, it will be moved automatically
+                        taluk.DistrictId = model.DistrictId;
+                    }
+                }
+
+                // Add new taluks or move existing ones
+                if (model.NewTaluks != null && model.NewTaluks.Any())
+                {
+                    int maxTalukNumber = 0;
+
+                    var talukIds = await _context.TalukMasters
+                        .Select(x => x.TalukId)
+                        .ToListAsync();
+
+                    foreach (var talukId in talukIds)
+                    {
+                        if (!string.IsNullOrWhiteSpace(talukId) &&
+                            talukId.StartsWith("T") &&
+                            int.TryParse(talukId.Substring(1), out int num))
+                        {
+                            maxTalukNumber = Math.Max(maxTalukNumber, num);
+                        }
+                    }
+
+                    int nextTalukNumber = maxTalukNumber + 1;
+
+                    foreach (var talukName in model.NewTaluks
+                                 .Where(x => !string.IsNullOrWhiteSpace(x)))
+                    {
+                        var trimmedTalukName = talukName.Trim();
+
+                        var existingTaluk = await _context.TalukMasters
+                            .FirstOrDefaultAsync(x =>
+                                x.TalukName.ToLower() == trimmedTalukName.ToLower());
+
+                        if (existingTaluk != null)
+                        {
+                            // Taluk already exists, move it to selected district
+                            existingTaluk.DistrictId = model.DistrictId;
+                        }
+                        else
+                        {
+                            var maxId = await _context.TalukMasters.MaxAsync(x => x.Id);
+
+                            _context.TalukMasters.Add(new TalukMaster
+                            {
+                                Id = maxId + 1,
+                                TalukId = $"T{nextTalukNumber:D3}",
+                                TalukName = trimmedTalukName,
+                                DistrictId = model.DistrictId
+                            });
+
+                            nextTalukNumber++;
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Taluk mapping saved successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTaluksForDistrict(string districtId)
+        {
+            var taluks = await _context.TalukMasters
+                .OrderBy(x => x.TalukName)
+                .Select(x => new
+                {
+                    talukId = x.TalukId,
+                    talukName = x.TalukName,
+                    isSelected = x.DistrictId == districtId
+                })
+                .ToListAsync();
+
+            return Json(taluks);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

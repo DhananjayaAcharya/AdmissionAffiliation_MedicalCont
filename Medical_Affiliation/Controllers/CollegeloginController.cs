@@ -140,10 +140,62 @@ namespace Admission_Affiliation.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
+            var model = new DashboardViewModel
+            {
+                CollegeCode = college.CollegeCode,
+                CollegeName = college.CollegeName,
+                DistrictId = college.DistrictId,
+                TalukId = college.TalukId,
+
+                Districts = _context.DistrictMasters
+                    .OrderBy(x => x.DistrictName)
+                    .ToList()
+            };
+
             TempData["ShowWelcomePopup"] = string.IsNullOrEmpty(college.ChangedPassword);
             TempData["CollegeName"] = collegeName;
+            if (string.IsNullOrEmpty(college.DistrictId) || string.IsNullOrEmpty(college.TalukId))
+            {
+                TempData["ShowLocationPopup"] = true;
+            }
 
-            return View();
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateLocation(string CollegeCode, string DistrictId,  string TalukId)
+        {
+            if (string.IsNullOrWhiteSpace(CollegeCode))
+            {
+                TempData["Error"] = "Invalid College.";
+                return RedirectToAction("Dashboard", "CollegeLogin");
+            }
+
+            if (string.IsNullOrWhiteSpace(DistrictId) ||
+                string.IsNullOrWhiteSpace(TalukId))
+            {
+                TempData["Error"] = "Please select both District and Taluk.";
+                return RedirectToAction("Dashboard", "CollegeLogin");
+            }
+
+            var college = await _context.AffiliationCollegeMasters
+                .FirstOrDefaultAsync(x => x.CollegeCode == CollegeCode);
+
+            if (college == null)
+            {
+                TempData["Error"] = "College not found.";
+                return RedirectToAction("Dashboard", "CollegeLogin");
+            }
+
+            college.DistrictId = DistrictId;
+            college.TalukId = TalukId;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Location details updated successfully.";
+
+            return RedirectToAction("Dashboard", "CollegeLogin");
         }
 
         [HttpPost]
@@ -1164,6 +1216,22 @@ namespace Admission_Affiliation.Controllers
                 TempData["ValidationErrors"] = JsonSerializer.Serialize(new List<string> { $"Failed to create ZIP archive: {ex.Message}" });
                 return RedirectToAction("GetExpectedDetails");
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTaluks(string districtId)
+        {
+            var taluks = await _context.TalukMasters
+                .AsNoTracking()
+                .Where(x => x.DistrictId == districtId)
+                .Select(x => new
+                {
+                    talukId = x.TalukId,
+                    talukName = x.TalukName
+                })
+                .ToListAsync();
+
+            return Json(taluks);
         }
 
         [HttpGet]

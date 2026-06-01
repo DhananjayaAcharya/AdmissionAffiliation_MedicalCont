@@ -66,6 +66,3 @@ VALUES
 (2,	'Audio Visual');
 
 --------------------------------
-
-  ALTER TABLE [dbo].[Affiliation_CourseDetails]
-  ADD  DateOfLOPRenewalDCIKSDC nvarchar(250) null;

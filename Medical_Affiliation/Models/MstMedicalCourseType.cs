@@ -23,5 +23,5 @@ public partial class MstMedicalCourseType
 
     public DateTime? ModifiedDate { get; set; }
 
-    public int? FacultyCode { get; set; }
+    public int FacultyCode { get; set; }
 }

@@ -1,0 +1,1497 @@
+﻿@model Medical_Affiliation.Models.MedicalDashboardViewModel
+@{
+    ViewBag.Title = "Medical Colleges — Super Admin Dashboard";
+   
+    Layout = null;
+
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+    :root {
+        --navy-950: #03060f;
+        --navy-900: #060d1f;
+        --navy-800: #0a1630;
+        --navy-700: #0f2248;
+        --blue-400: #2d62c8;
+        --blue-300: #4a7dd8;
+        --blue-200: #8ab0eb;
+        --blue-100: #d4e4f9;
+        --gold-600: #8a6200;
+        --gold-500: #b07d00;
+        --gold-400: #c99210;
+        --gold-300: #e0ac2a;
+        --gold-200: #f0cc6b;
+        --gold-100: #fdf0c0;
+        --neutral-50: #f8f9fc;
+        --neutral-100: #f0f2f8;
+        --neutral-200: #e2e6f0;
+        --neutral-300: #c8cedf;
+        --neutral-400: #8f9ab5;
+        --neutral-500: #5e6b88;
+        --neutral-700: #2a3450;
+        --neutral-900: #0f1624;
+        --white: #ffffff;
+        --surface: #f4f6fc;
+        --fd: 'Playfair Display', serif;
+        --fb: 'DM Sans', sans-serif;
+        --fm: 'DM Mono', monospace;
+        --r: 10px;
+        --r-lg: 16px;
+        --r-xl: 24px;
+        --shadow-xs: 0 1px 3px rgba(6,13,31,.06);
+        --shadow-sm: 0 2px 8px rgba(6,13,31,.08), 0 1px 3px rgba(6,13,31,.05);
+        --shadow-md: 0 4px 20px rgba(6,13,31,.10);
+        --shadow-lg: 0 12px 40px rgba(6,13,31,.14);
+    }
+
+    /* MAIN TABLE ZEBRA STRIPING */
+    .data-table tbody tr:nth-child(even) {
+        background-color: var(--neutral-50);
+    }
+
+    .data-table tbody tr:nth-child(odd) {
+        background-color: var(--white);
+    }
+
+    /* PAGE SIZE SELECT STYLE */
+    .pg-size-select {
+        padding: 4px 8px;
+        border: 1px solid var(--neutral-200);
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: var(--fb);
+        background: var(--white);
+        cursor: pointer;
+    }
+
+    /* RESTORE CARD LOOK (Image 4/5) */
+    .filter-panel, .table-section {
+        background: var(--white) !important;
+        border: 1px solid var(--neutral-200) !important;
+        box-shadow: var(--shadow-sm) !important;
+    }
+
+    /* MODAL DESIGN FIXES (Image 1) */
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    /* THE COURSE GROUP WRAPPER (Rounded, Colored backgrounds) */
+    .course-group {
+        background: #fcfcfd;
+        border: 1px solid var(--neutral-200);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: var(--shadow-xs);
+    }
+
+        .course-group.ug-group {
+            background: #f8fbff;
+            border-color: #bfdbfe;
+        }
+
+        .course-group.pg-group {
+            background: #fdfaff;
+            border-color: #e9d5ff;
+        }
+
+    .course-sec-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        padding: 0 5px;
+    }
+
+    .course-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        border: none !important;
+        background: transparent !important;
+    }
+
+        .course-tbl thead tr {
+            background: var(--navy-800);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .course-tbl th {
+            padding: 12px;
+            color: rgba(255,255,255,.6);
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .course-tbl td {
+            padding: 12px;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        /* Zebra striping for Modal Table */
+        .course-tbl tbody tr:nth-child(even) {
+            background: rgba(0,0,0,0.02);
+        }
+
+    /* FOOTER BUTTONS (Reference style) */
+    .btn-modal-pdf {
+        background: linear-gradient(135deg, var(--navy-700), var(--navy-800));
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--r);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(15,34,72,0.2);
+    }
+
+    .btn-modal-close2 {
+        background: var(--white);
+        color: var(--neutral-500);
+        border: 1.5px solid var(--neutral-200);
+        padding: 10px 20px;
+        border-radius: var(--r);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    body {
+        font-family: var(--fb);
+        background: var(--neutral-50);
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    /* ══════════════ PAGE CONTAINERS (Restoring Image 4/5 look) ══════════════ */
+    .stats-strip {
+        background: var(--navy-700);
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        z-index: 10;
+    }
+
+    .stats-inner {
+        display: flex;
+        padding: 0 40px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .stat-item {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 24px;
+        border-right: 1px solid rgba(255,255,255,.07);
+    }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: rgba(224,172,42,.1);
+        border: 1px solid rgba(224,172,42,.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .stat-icon i {
+            color: var(--gold-300);
+            font-size: 17px;
+        }
+
+        .stat-icon.blue {
+            background: rgba(45,98,200,.12);
+            border-color: rgba(45,98,200,.25);
+        }
+
+            .stat-icon.blue i {
+                color: #93c5fd;
+            }
+
+        .stat-icon.purple {
+            background: rgba(124,58,237,.12);
+            border-color: rgba(124,58,237,.25);
+        }
+
+            .stat-icon.purple i {
+                color: #a78bfa;
+            }
+
+        .stat-icon.green {
+            background: rgba(26,122,74,.12);
+            border-color: rgba(26,122,74,.3);
+        }
+
+            .stat-icon.green i {
+                color: #6ee7b7;
+            }
+
+    .stat-num {
+        font-family: var(--fd);
+        font-size: 28px;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .stat-lbl {
+        font-size: 9.5px;
+        color: rgba(255,255,255,.34);
+        text-transform: uppercase;
+    }
+
+    .page-body {
+        padding: 28px 40px 60px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Filter Panel - Restored "Card" look */
+    .filter-panel {
+        background: var(--white);
+        border: 1px solid var(--neutral-200);
+        border-radius: var(--r-lg);
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm); /* Added shadow back */
+    }
+
+    .filter-title {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--neutral-400);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+        .filter-group label {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--neutral-500);
+        }
+
+    .filter-select {
+        padding: 9px 14px;
+        border: 1.5px solid var(--neutral-200);
+        border-radius: var(--r);
+        font-size: 13px;
+        font-family: var(--fb);
+        min-width: 180px;
+        cursor: pointer;
+    }
+
+    .search-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 220px;
+    }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 9px 14px 9px 38px;
+            border: 1.5px solid var(--neutral-200);
+            border-radius: var(--r);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .search-wrap .si {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neutral-400);
+        }
+
+    .btn-apply {
+        background: var(--navy-700);
+        color: #fff;
+        border: none;
+        padding: 9px 22px;
+        border-radius: var(--r);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-reset {
+        background: var(--white);
+        color: var(--neutral-500);
+        border: 1.5px solid var(--neutral-200);
+        padding: 9px 16px;
+        border-radius: var(--r);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Table Section - Restored "Card" look */
+    .table-section {
+        background: var(--white);
+        border: 1px solid var(--neutral-200);
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow-sm); /* Added shadow back */
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 16px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--neutral-200);
+        background: var(--surface);
+    }
+
+    .table-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .table-title h3 {
+            font-family: var(--fd);
+            font-size: 17px;
+            color: var(--navy-700);
+            font-weight: 600;
+        }
+
+    .count-pill {
+        background: var(--navy-800);
+        color: var(--gold-300);
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 12px;
+        border-radius: 4px;
+        font-family: var(--fm);
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .btn-dl {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: var(--r);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1.5px solid;
+    }
+
+    .btn-dl-pdf {
+        background: #fff5f5;
+        border-color: #fecaca;
+        color: #991b1b;
+    }
+
+    .btn-dl-xl {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #166534;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+        .data-table thead tr {
+            background: var(--navy-800);
+        }
+
+        .data-table thead th {
+            padding: 11px 16px;
+            color: rgba(255,255,255,.5);
+            font-size: 9.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--neutral-200);
+            cursor: pointer;
+        }
+
+            .data-table tbody tr:hover {
+                background: #eff6ff;
+            }
+
+        .data-table tbody td {
+            padding: 12px 16px;
+            color: var(--neutral-700);
+        }
+
+    .td-name {
+        font-weight: 600;
+        color: var(--navy-700);
+    }
+
+    .td-town {
+        font-size: 11px;
+        color: var(--neutral-400);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .seat-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 52px;
+        height: 28px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: var(--fm);
+    }
+
+    .seat-ug {
+        background: #eff6ff;
+        color: var(--blue-400);
+        border: 1px solid #bfdbfe;
+    }
+
+    .seat-pg {
+        background: #fdf4ff;
+        color: #7c3aed;
+        border: 1px solid #e9d5ff;
+    }
+
+    .seat-zero {
+        background: var(--neutral-100);
+        color: var(--neutral-400);
+        border: 1px solid var(--neutral-200);
+    }
+
+    .td-center {
+        text-align: center;
+    }
+
+    .view-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--blue-400);
+        background: var(--blue-100);
+        border: 1px solid #bfdbfe;
+        border-radius: 5px;
+        padding: 4px 12px;
+        cursor: pointer;
+    }
+
+    .pagination-bar {
+        padding: 14px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid var(--neutral-200);
+        background: var(--surface);
+    }
+
+    .pg-info {
+        font-size: 12px;
+        color: var(--neutral-500);
+    }
+
+    .pg-controls {
+        display: flex;
+        gap: 4px;
+    }
+
+    .pg-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1.5px solid var(--neutral-200);
+        background: var(--white);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .pg-btn.active {
+            background: var(--navy-700);
+            color: #fff;
+            border-color: var(--navy-700);
+        }
+
+    /* ════════════════ MODAL (Image 1 & 2 Fixes) ════════════════ */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(3,6,15,.75);
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .25s;
+    }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+    .modal-box {
+        background: var(--white);
+        border-radius: 24px;
+        width: 100%;
+        max-width: 800px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform: translateY(20px);
+        transition: transform .3s;
+    }
+
+    .modal-overlay.open .modal-box {
+        transform: translateY(0);
+    }
+
+    .modal-hdr {
+        background: linear-gradient(135deg, var(--navy-800), var(--navy-700));
+        padding: 25px 30px;
+        position: relative;
+        color: #fff;
+    }
+
+    .modal-eyebrow {
+        font-size: 9px;
+        color: rgba(255,255,255,.4);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+
+    .modal-college-name {
+        font-family: var(--fd);
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .modal-subtitle {
+        margin-top: 10px;
+        display: flex;
+        gap: 15px;
+        font-size: 11px;
+        color: rgba(255,255,255,.5);
+    }
+
+    /* FIX 1: Close Button Position (Top Right) */
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background .2s;
+    }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+    .modal-stats {
+        display: flex;
+        background: var(--neutral-50);
+        border-bottom: 1px solid var(--neutral-200);
+    }
+
+    .mstat {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        border-right: 1px solid var(--neutral-200);
+    }
+
+    .mstat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--navy-800);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold-300);
+    }
+
+    .mstat-num {
+        font-family: var(--fd);
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--navy-700);
+    }
+
+    .mstat-lbl {
+        font-size: 9px;
+        color: var(--neutral-400);
+        text-transform: uppercase;
+    }
+
+    .modal-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px;
+        background: var(--white);
+    }
+
+    .course-sec-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        padding: 10px 0;
+    }
+
+        .course-sec-head h4 {
+            font-family: var(--fd);
+            font-size: 17px;
+            color: var(--navy-700);
+            margin: 0;
+        }
+
+    /* FIX 2 & 3: Table Borders and Zebra Striping */
+    .course-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+        border: 1px solid var(--neutral-200);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .course-tbl thead tr {
+            background: var(--navy-800);
+        }
+
+        .course-tbl th {
+            padding: 12px 15px;
+            color: rgba(255,255,255,.6);
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .course-tbl td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--neutral-200); /* Ensures bottom border for every row */
+            color: var(--neutral-700);
+        }
+        /* Zebra Striping */
+        .course-tbl tbody tr:nth-child(even) {
+            background-color: var(--neutral-50);
+        }
+
+        .course-tbl tbody tr:nth-child(odd) {
+            background-color: var(--white);
+        }
+
+    .i-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 26px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-family: var(--fm);
+    }
+
+    .i-ug {
+        background: #eff6ff;
+        color: var(--blue-400);
+        border: 1px solid #bfdbfe;
+    }
+
+    .i-pg {
+        background: #fdf4ff;
+        color: #7c3aed;
+        border: 1px solid #e9d5ff;
+    }
+
+    /* FIX 4: Modal Footer Buttons (Image 6 Style) */
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid var(--neutral-200);
+        background: var(--surface);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-footer-btns {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-modal-pdf {
+        background: linear-gradient(135deg, var(--navy-700), var(--navy-800));
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--r);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(15,34,72,0.2);
+        transition: opacity .2s;
+    }
+
+        .btn-modal-pdf:hover {
+            opacity: 0.9;
+        }
+
+    .btn-modal-close2 {
+        background: var(--white);
+        color: var(--neutral-500);
+        border: 1.5px solid var(--neutral-200);
+        padding: 10px 20px;
+        border-radius: var(--r);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all .2s;
+    }
+
+        .btn-modal-close2:hover {
+            border-color: var(--neutral-400);
+            color: var(--neutral-900);
+        }
+
+    .toast {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: var(--navy-800);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: var(--r);
+        z-index: 9999;
+        transform: translateY(80px);
+        opacity: 0;
+        transition: all .3s;
+        border-left: 3px solid var(--gold-300);
+    }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+    /* ===== DASHBOARD HEADER FORCE OVERRIDE ===== */
+
+    .dash-header {
+        background: #0a1630 !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .header-inner {
+        padding: 22px 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 24px !important;
+    }
+
+    .univ-name {
+        color: #ffffff !important;
+        font-family: 'Playfair Display', serif !important;
+        font-size: 32px !important;
+        font-weight: 600 !important;
+    }
+
+    .univ-eyebrow {
+        color: #e0ac2a !important;
+    }
+
+    .univ-sub {
+        color: rgba(255,255,255,.75) !important;
+    }
+
+    .header-badges {
+        display: flex !important;
+        gap: 8px !important;
+    }
+
+    .hbadge {
+        color: #fff !important;
+    }
+
+    .header-status {
+        color: #fff !important;
+    }
+
+    .btn-portal {
+        background: #e0ac2a !important;
+        color: #0a1630 !important;
+    }
+</style>
+
+<div class="dash-header">
+    <div class="header-inner">
+        <div class="header-mono">🏛️</div>
+        <div class="header-rule"></div>
+        <div class="header-text">
+            <div class="univ-eyebrow">Rajiv Gandhi University of Health Sciences</div>
+            <div class="univ-name">Medical Colleges — Super Admin Dashboard</div>
+            <div class="univ-sub"><i class="bi bi-geo-alt-fill" style="color:var(--blue-200);font-size:10px;"></i> Karnataka, India &nbsp;·&nbsp; Academic Year 2026–27</div>
+            <div class="header-badges">
+                <span class="hbadge hbadge-gold"><i class="bi bi-shield-check"></i> Admin Access</span>
+                <span class="hbadge hbadge-blue"><i class="bi bi-mortarboard"></i> Faculty: Medical</span>
+                <span class="hbadge hbadge-green"><i class="bi bi-database-check"></i> Live Data</span>
+            </div>
+        </div>
+        <div class="header-cta">
+            <button class="btn-portal"><i class="bi bi-person-badge"></i> Admin Portal</button>
+            <div class="header-status"><div class="pulse-dot"></div> System Online</div>
+        </div>
+    </div>
+</div>
+<div class="header-stripe"></div>
+
+
+@* ── STATS STRIP (Stretched Full Width) ────────────────────────────────── *@
+<div class="stats-strip">
+    <div class="stats-inner">
+        <div class="stat-item">
+            <div class="stat-icon"><i class="bi bi-building"></i></div>
+            <div><div class="stat-num">@Model.Stats.TotalColleges</div><div class="stat-lbl">Total Colleges</div></div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon blue"><i class="bi bi-mortarboard"></i></div>
+            <div><div class="stat-num">@Model.Stats.TotalUGSeats.ToString("N0")</div><div class="stat-lbl">Total UG Seats</div></div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon purple"><i class="bi bi-award"></i></div>
+            <div><div class="stat-num">@Model.Stats.TotalPGSeats.ToString("N0")</div><div class="stat-lbl">Total PG Seats</div></div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon green"><i class="bi bi-geo-alt"></i></div>
+            <div><div class="stat-num">@Model.Stats.DistrictsCovered</div><div class="stat-lbl">Districts Covered</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+    <div class="filter-panel">
+        <div class="filter-title"><i class="bi bi-funnel-fill"></i> Filter Colleges</div>
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>District</label>
+                <select class="filter-select" id="districtSelect">
+                    <option value="">— All Districts —</option>
+                    @foreach (var d in Model.Districts)
+                    {
+                        <option value="@d.DistrictID" @(Model.SelectedDistrict == d.DistrictID ? "selected" : "")>@d.DistrictName</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Taluk</label>
+                <select class="filter-select" id="talukSelect" disabled>
+                    <option value="">— Select District First —</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Sort Order</label>
+                <select class="filter-select" id="sortSelect" onchange="applyClientFilter()">
+                    <option value="asc">Name (A-Z)</option>
+                    <option value="desc">Name (Z-A)</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex:1;min-width:220px;">
+                <label>Search College</label>
+                <div class="search-wrap">
+                    <i class="bi bi-search si"></i>
+                    <input type="text" id="searchInput" value="@Model.SearchTerm" placeholder="College name or town..." />
+                </div>
+            </div>
+            <button class="btn-apply" onclick="applyFilters()"><i class="bi bi-search"></i> Search</button>
+            <button class="btn-reset" onclick="resetFilters()"><i class="bi bi-x-circle"></i> Reset</button>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <div class="table-header">
+            <div class="table-title">
+                <h3>Medical Affiliated Colleges</h3>
+                <span class="count-pill" id="countPill">0 COLLEGES</span>
+            </div>
+            <div class="table-actions">
+                <div class="pg-size-wrap">
+                    Show:
+                    <select class="pg-size-select" id="pgSizeSelect" onchange="onPageSizeChange()">
+                        <option value="10">1–10</option>
+                        <option value="25">1–25</option>
+                        <option value="50">1–50</option>
+                        <option value="100">1–100</option>
+                    </select>
+                </div>
+                <button class="btn-dl btn-dl-pdf" onclick="downloadListPDF()"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+                <button class="btn-dl btn-dl-xl" onclick="downloadListExcel()"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+            </div>
+        </div>
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sl.No</th>
+                        <th>College Name</th>
+                        <th class="td-center">UG Seats</th>
+                        <th class="td-center">PG Seats</th>
+                        <th class="td-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination-bar">
+            <div class="pg-info" id="pgInfo">Showing <strong>0–0</strong> of <strong>0</strong> colleges</div>
+            <div class="pg-controls" id="pgControls"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ════ CUSTOM HIGH-END MODAL (Image 1 Style) ════ -->
+<!-- ════ CUSTOM HIGH-END MODAL ════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal-box" id="modalBox">
+
+        <!-- Blue Header -->
+        <div class="modal-hdr">
+            <!-- FIX 1: X Close Button moved to top-right -->
+            <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+
+            <div class="modal-eyebrow"><i class="bi bi-building"></i> Affiliated College · RGUHS Karnataka</div>
+            <div class="modal-college-name" id="mCollegeName">—</div>
+            <div class="modal-subtitle">
+                <span class="modal-sub"><i class="bi bi-geo-alt-fill"></i><span id="mTown">—</span></span>
+                <span class="modal-sub"><i class="bi bi-mortarboard-fill"></i> Medical Faculty</span>
+            </div>
+        </div>
+
+        <!-- Summary Strip (Pills) -->
+        <div class="modal-stats">
+            <div class="mstat">
+                <div class="mstat-icon"><i class="bi bi-journal-text"></i></div>
+                <div><div class="mstat-num" id="mTotalCourses">—</div><div class="mstat-lbl">Total Courses</div></div>
+            </div>
+            <div class="mstat">
+                <div class="mstat-icon"><i class="bi bi-people-fill"></i></div>
+                <div><div class="mstat-num" id="mTotalIntake">—</div><div class="mstat-lbl">Total Intake</div></div>
+            </div>
+            <div class="mstat">
+                <div class="mstat-icon ug"><i class="bi bi-mortarboard"></i></div>
+                <div><div class="mstat-num" id="mUGIntake">—</div><div class="mstat-lbl">UG Intake</div></div>
+            </div>
+            <div class="mstat">
+                <div class="mstat-icon pg"><i class="bi bi-award"></i></div>
+                <div><div class="mstat-num" id="mPGIntake">—</div><div class="mstat-lbl">PG Intake</div></div>
+            </div>
+        </div>
+
+        <!-- Course Table Section -->
+        <div class="modal-scroll" id="mBody">
+            <div class="modal-loading">
+                <div class="spin"></div>
+                <div>Loading course details...</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <div class="modal-source"><i class="bi bi-shield-check"></i> Data sourced from RGUHS Affiliation Records</div>
+            <div class="modal-footer-btns">
+                <button class="btn-modal-pdf" id="btnPDF" onclick="downloadCollegePDF()" disabled>
+                    <i class="bi bi-download"></i> Download PDF
+                </button>
+                <button class="btn-modal-close2" onclick="closeModal()">
+                    <i class="bi bi-x-circle"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+    var ALL_COLLEGES = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Colleges, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = null }));
+    var filtered = ALL_COLLEGES.slice();
+    var currentPage = 1;
+    var pageSize = 10;
+    var currentModalData = null;
+
+    (function initFilters() {
+    var savedDistrict = '@Html.Raw(Model.SelectedDistrict)';
+    var savedTaluk    = '@Html.Raw(Model.SelectedTaluk)';
+    if (savedDistrict) loadTaluks(savedDistrict, savedTaluk);
+    applyClientFilter();
+    })();
+
+    document.getElementById('districtSelect').addEventListener('change', function () {
+    loadTaluks(this.value, '');
+    applyClientFilter();
+    });
+    document.getElementById('talukSelect').addEventListener('change', function () { applyClientFilter(); });
+    document.getElementById('searchInput').addEventListener('input', function () { applyClientFilter(); });
+
+    function loadTaluks(districtId, selectTalukId) {
+    var sel = document.getElementById('talukSelect');
+    sel.innerHTML = '<option value="">Loading…</option>';
+    sel.disabled = true;
+    if (!districtId) {
+    sel.innerHTML = '<option value="">— Select District First —</option>';
+    return;
+    }
+    fetch('@Url.Action("GetTaluks", "MedicalSuperAdmin")?districtId=' + encodeURIComponent(districtId))
+    .then(r => r.json())
+    .then(res => {
+    sel.innerHTML = '<option value="">— All Taluks —</option>';
+    if (res.Success && res.Taluks) {
+    res.Taluks.forEach(t => {
+    var o = document.createElement('option');
+    o.value = t.TalukID; o.textContent = t.TalukName;
+    if (selectTalukId && t.TalukID === selectTalukId) o.selected = true;
+    sel.appendChild(o);
+    });
+    sel.disabled = false;
+    } else { sel.innerHTML = '<option value="">No taluks found</option>'; }
+    })
+    .catch(() => { sel.innerHTML = '<option value="">Error loading taluks</option>'; });
+    }
+
+    function applyClientFilter() {
+    var distId = document.getElementById('districtSelect').value.trim();
+    var talukId = document.getElementById('talukSelect').value.trim();
+    var q = document.getElementById('searchInput').value.trim().toLowerCase();
+    var sort = document.getElementById('sortSelect').value;
+
+    filtered = ALL_COLLEGES.filter(c => {
+    var mDist = !distId || (c.DistrictId && c.DistrictId.trim() === distId);
+    var mTaluk = !talukId || (c.TalukId && c.TalukId.trim() === talukId);
+    var mQ = !q || (c.CollegeName || '').toLowerCase().indexOf(q) > -1 || (c.CollegeTown || '').toLowerCase().indexOf(q) > -1;
+    return mDist && mTaluk && mQ;
+    });
+
+    filtered.sort((a, b) => {
+    var nA = (a.CollegeName || '').toLowerCase();
+    var nB = (b.CollegeName || '').toLowerCase();
+    return sort === 'asc' ? nA.localeCompare(nB) : nB.localeCompare(nA);
+    });
+
+    currentPage = 1;
+    renderTable();
+    }
+
+    function applyFilters() { applyClientFilter(); }
+    function resetFilters() {
+    document.getElementById('districtSelect').value = '';
+    document.getElementById('talukSelect').innerHTML = '<option value="">— Select District First —</option>';
+    document.getElementById('talukSelect').disabled = true;
+    document.getElementById('searchInput').value = '';
+    filtered = ALL_COLLEGES.slice();
+    currentPage = 1;
+    renderTable();
+    }
+
+    function renderTable() {
+    var tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    var total = filtered.length;
+
+    currentPage = Math.min(
+    currentPage,
+    Math.max(1, Math.ceil(total / pageSize))
+    );
+
+    document.getElementById('countPill').textContent = total + ' COLLEGES';
+    var totalPages = Math.max(1, Math.ceil(total / pageSize));
+    var start = (currentPage - 1) * pageSize;
+    var end = Math.min(start + pageSize, total);
+    var slice = filtered.slice(start, end);
+
+    if (slice.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="no-results"><h4>No colleges found</h4></td></tr>';
+    } else {
+    slice.forEach((c, idx) => {
+    var tr = document.createElement('tr');
+    tr.innerHTML = `<td class="td-sl">${start + idx + 1}</td>
+    <td><div class="td-name">${esc(c.CollegeName)}</div><div class="td-town"><i class="bi bi-geo-alt-fill"></i>${esc(c.CollegeTown)}</div></td>
+    <td class="td-center"><span class="seat-badge ${c.UGSeats > 0 ? 'seat-ug' : 'seat-zero'}">${c.UGSeats > 0 ? c.UGSeats : '—'}</span></td>
+    <td class="td-center"><span class="seat-badge ${c.PGSeats > 0 ? 'seat-pg' : 'seat-zero'}">${c.PGSeats > 0 ? c.PGSeats : '—'}</span></td>
+    <td class="td-center"><button class="view-btn" onclick="openModal('${esc(c.CollegeCode)}','${esc(c.CollegeName)}','${esc(c.CollegeTown)}')"><i class="bi bi-eye"></i> View Details</button></td>`;
+    tbody.appendChild(tr);
+    });
+    }
+    document.getElementById('pgInfo').innerHTML = `Showing <strong>${total === 0 ? 0 : start + 1}–${end}</strong> of <strong>${total}</strong> colleges`;
+    renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+
+    var ctrl = document.getElementById('pgControls');
+    ctrl.innerHTML = '';
+
+    // Previous
+    var prev = mkBtn('<i class="bi bi-chevron-left"></i>', currentPage === 1);
+
+    prev.onclick = function () {
+    if (currentPage > 1) {
+    currentPage--;
+    renderTable();
+    }
+    };
+
+    ctrl.appendChild(prev);
+
+    for (let p = 1; p <= totalPages; p++) {
+
+    if (
+    p === 1 ||
+    p === totalPages ||
+    (p >= currentPage - 2 && p <= currentPage + 2)
+    ) {
+
+    let btn = mkBtn(p, false);
+
+    if (p === currentPage)
+    btn.classList.add('active');
+
+    btn.onclick = function () {
+    currentPage = p;
+    renderTable();
+    };
+
+    ctrl.appendChild(btn);
+    }
+    else if (
+    p === currentPage - 3 ||
+    p === currentPage + 3
+    ) {
+    let dots = document.createElement('span');
+    dots.innerHTML = '...';
+    ctrl.appendChild(dots);
+    }
+    }
+
+    // Next
+    var next = mkBtn(
+    '<i class="bi bi-chevron-right"></i>',
+    currentPage === totalPages
+    );
+
+    next.onclick = function () {
+    if (currentPage < totalPages) {
+    currentPage++;
+    renderTable();
+    }
+    };
+
+    ctrl.appendChild(next);
+    }
+
+    function mkBtn(html, disabled) {
+    var b = document.createElement('button'); b.className = 'pg-btn'; b.innerHTML = html; b.disabled = disabled; return b;
+    }
+    function onPageSizeChange() { pageSize = parseInt(document.getElementById('pgSizeSelect').value); currentPage = 1; renderTable(); }
+
+        function openModal(code, name, town) {
+        document.getElementById('mCollegeName').textContent = name;
+        document.getElementById('mTown').textContent = town;
+        document.getElementById('modalOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // Load data...
+        fetch('@Url.Action("GetCollegeDetail", "MedicalSuperAdmin")?collegeCode=' + encodeURIComponent(code))
+            .then(r => r.json())
+            .then(res => {
+                if (res.Success) populateModal(res.Data);
+                else document.getElementById('mBody').innerHTML = 'Error loading data';
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+
+        function populateModal(data) {
+        currentModalData = data;
+        document.getElementById('mTotalCourses').textContent = data.TotalCourses;
+        document.getElementById('mTotalIntake').textContent  = data.TotalIntake;
+        document.getElementById('mUGIntake').textContent     = data.UGIntake;
+        document.getElementById('mPGIntake').textContent     = data.PGIntake;
+
+        var html = '';
+        if (data.UGCourses && data.UGCourses.length > 0) {
+            html += `<div class="course-group ug-group">
+                <div class="course-sec-head">
+                    <h4 style="color:var(--blue-400)"><i class="bi bi-mortarboard"></i> Under Graduate (UG) Courses</h4>
+                    <span class="cs-badge cs-badge-ug">${data.UGCourses.length} COURSES</span>
+                </div>
+                ${buildCourseTable(data.UGCourses, 'ug')}
+            </div>`;
+        }
+        if (data.PGCourses && data.PGCourses.length > 0) {
+            html += `<div class="course-group pg-group">
+                <div class="course-sec-head">
+                    <h4 style="color:#7c3aed"><i class="bi bi-award"></i> Post Graduate (PG) Courses</h4>
+                    <span class="cs-badge cs-badge-pg">${data.PGCourses.length} COURSES</span>
+                </div>
+                ${buildCourseTable(data.PGCourses, 'pg')}
+            </div>`;
+        }
+
+        if (!html) {
+            html = '<div style="padding:40px;text-align:center;color:var(--neutral-400);">No course intake data available.</div>';
+        }
+
+        document.getElementById('mBody').innerHTML = html;
+        document.getElementById('btnPDF').disabled = false;
+    }
+
+
+
+
+    function buildCourseTable(rows, level) {
+    var isUG = level === 'ug';
+    var h = `<table class="course-tbl"><thead><tr><th>SL</th><th>Course</th><th>Intake</th></tr></thead><tbody>`;
+    rows.forEach((r, i) => {
+    h += `<tr><td>${i+1}</td><td>${esc(r.CourseName)}</td><td><span class="i-badge ${r.PresentIntake > 0 ? (isUG ? 'i-ug' : 'i-pg') : 'i-zero'}">${r.PresentIntake}</span></td></tr>`;
+    });
+    return h + '</tbody></table>';
+    }
+
+    
+    function handleOverlayClick(e) { if (e.target.id === 'modalOverlay') closeModal(); }
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function isoDate() { return new Date().toISOString().slice(0,10); }
+    function showToast(m) { var t = document.getElementById('toast'); t.innerHTML = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+
+    function downloadCollegePDF() {
+    if (!currentModalData) return;
+    var d = currentModalData;
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    doc.setFillColor(10,22,48); doc.rect(0,0,210,28,'F');
+    doc.setTextColor(224,172,42); doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.text('RGUHS Karnataka', 14, 11);
+    doc.setTextColor(255,255,255); doc.setFontSize(11);
+    doc.text(d.CollegeName, 14, 19);
+    doc.setTextColor(150,170,200); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text((d.CollegeTown||'') + ' | Medical Faculty | Academic Year 2026–27', 14, 26);
+    doc.setFillColor(224,172,42); doc.rect(0,28,210,1.5,'F');
+
+    doc.setFillColor(248,249,252); doc.roundedRect(12,32,186,22,2,2,'F');
+    doc.setDrawColor(226,230,240); doc.roundedRect(12,32,186,22,2,2,'S');
+    [{label:'TOTAL COURSES',value:d.TotalCourses,x:14},{label:'TOTAL INTAKE',value:d.TotalIntake,x:66},
+    {label:'UG INTAKE',value:d.UGIntake,x:118},{label:'PG INTAKE',value:d.PGIntake,x:158}]
+    .forEach(function(b){
+    doc.setFontSize(17);doc.setFont('helvetica','bold');doc.setTextColor(15,34,72);
+    doc.text(String(b.value),b.x,44);
+    doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(120,130,160);
+    doc.text(b.label,b.x,50);
+    });
+
+    var y = 58;
+    function addSection(rows, level, color, labelTxt) {
+    if (!rows || !rows.length) return;
+    if (y > 240) { doc.addPage(); y = 14; }
+    var rgb = level === 'UG' ? [239,246,255] : [253,244,255];
+    doc.setFillColor(rgb[0],rgb[1],rgb[2]); doc.rect(12,y,186,7,'F');
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(color[0],color[1],color[2]);
+    doc.text(labelTxt, 16, y+5);
+    var intake = rows.reduce(function(s,r){return s+r.PresentIntake;},0);
+    doc.text(rows.length + ' COURSES | INTAKE: ' + intake, 180, y+5, {align:'right'});
+    y += 9;
+    doc.autoTable({
+    startY:y,
+    head:[['SL.','COURSE NAME','INTAKE']],
+    body:rows.map(function(r,i){return [i+1,r.CourseName,r.PresentIntake||0];}),
+    styles:{fontSize:9,cellPadding:3},
+    headStyles:{fillColor:[15,34,72],textColor:[180,200,230],fontStyle:'bold',fontSize:8},
+    alternateRowStyles:{fillColor:rgb},
+    columnStyles:{0:{cellWidth:14,halign:'center'},2:{cellWidth:22,halign:'center',fontStyle:'bold',textColor:color}},
+    margin:{left:12,right:12}
+    });
+    y = doc.lastAutoTable.finalY + 6;
+    }
+
+    addSection(d.UGCourses, 'UG', [45,98,200], 'UNDER GRADUATE (UG) COURSES');
+    addSection(d.PGCourses, 'PG', [124,58,237], 'POST GRADUATE (PG) COURSES');
+
+    var pc = doc.internal.getNumberOfPages();
+    for (var i = 1; i <= pc; i++) {
+    doc.setPage(i); doc.setFontSize(7); doc.setTextColor(160,160,160);
+    doc.text('Data sourced from RGUHS Affiliation Records | Confidential', 14, 290);
+    doc.text('Page ' + i + ' of ' + pc, 196, 290, {align:'right'});
+    }
+    doc.save('RGUHS_' + (d.CollegeName||'College').replace(/[^a-zA-Z0-9]/g,'_').substring(0,40) + '_' + isoDate() + '.pdf');
+    showToast('<i class="bi bi-check-circle"></i> College PDF downloaded');
+    }
+
+     //════════════════════════════════════════════════════════════════
+    // EXCEL — college list
+    // ════════════════════════════════════════════════════════════════
+    function downloadListExcel() {
+    var wb = XLSX.utils.book_new();
+    var data = [['Sl.No','College Name','Town','District','Taluk','UG Seats','PG Seats','Total Seats','College Code']];
+    filtered.forEach(function (c, i) {
+    data.push([i+1, c.CollegeName, c.CollegeTown, c.DistrictName || '', c.TalukName || '',
+    c.UGSeats||0, c.PGSeats||0, c.UGSeats + c.PGSeats, c.CollegeCode]);
+    });
+    var ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [{wch:6},{wch:52},{wch:18},{wch:22},{wch:20},{wch:10},{wch:10},{wch:12},{wch:12}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Medical Colleges');
+
+    var ugt = filtered.reduce(function(s,c){return s+c.UGSeats;},0);
+    var pgt = filtered.reduce(function(s,c){return s+c.PGSeats;},0);
+    var ws2 = XLSX.utils.aoa_to_sheet([
+    ['RGUHS Medical Colleges — Summary'],
+    ['Generated', new Date().toLocaleDateString('en-IN')],
+    ['Academic Year','2026–27'],[''],
+    ['Total Colleges', filtered.length],
+    ['Total UG Seats', ugt],['Total PG Seats', pgt],['Total Seats', ugt+pgt]
+    ]);
+    ws2['!cols'] = [{wch:25},{wch:15}];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Summary');
+    XLSX.writeFile(wb, 'RGUHS_Medical_Colleges_' + isoDate() + '.xlsx');
+    showToast('<i class="bi bi-check-circle"></i> Excel downloaded');
+    }
+
+    function downloadListPDF() {
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    doc.setFillColor(10,22,48); doc.rect(0,0,297,22,'F');
+    doc.setTextColor(224,172,42); doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text('RGUHS — Medical Affiliated Colleges', 14, 14);
+    doc.setTextColor(180,180,180); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('Academic Year 2026–27 | Faculty: Medical | Generated: ' + new Date().toLocaleDateString('en-IN'), 14, 20);
+
+    var rows = filtered.map(function (c, i) {
+    return [i+1, c.CollegeName, c.CollegeTown, c.DistrictName || '', c.TalukName || '',
+    c.UGSeats || '—', c.PGSeats || '—', (c.UGSeats + c.PGSeats) || '—'];
+    });
+
+    doc.autoTable({
+    startY: 26,
+    head: [['Sl.', 'College Name', 'Town', 'District', 'Taluk', 'UG Seats', 'PG Seats', 'Total']],
+    body: rows,
+    styles: { font: 'helvetica', fontSize: 9, cellPadding: 3 },
+    headStyles: { fillColor:[15,34,72], textColor:[200,200,200], fontStyle:'bold', fontSize:8 },
+    alternateRowStyles: { fillColor:[248,249,252] },
+    columnStyles: {
+    0: { cellWidth:12, halign:'center' },
+    5: { halign:'center', textColor:[45,98,200], fontStyle:'bold' },
+    6: { halign:'center', textColor:[124,58,237], fontStyle:'bold' },
+    7: { halign:'center', fontStyle:'bold' }
+    },
+    margin: { left:14, right:14 }
+    });
+
+    var pc = doc.internal.getNumberOfPages();
+    for (var i = 1; i <= pc; i++) {
+    doc.setPage(i); doc.setFontSize(7); doc.setTextColor(150,150,150);
+    doc.text('Page ' + i + ' of ' + pc, doc.internal.pageSize.width / 2,
+    doc.internal.pageSize.height - 6, { align: 'center' });
+    }
+    doc.save('RGUHS_Medical_Colleges_' + isoDate() + '.pdf');
+    showToast('<i class="bi bi-check-circle"></i> PDF downloaded');
+    }
+
+</script>
