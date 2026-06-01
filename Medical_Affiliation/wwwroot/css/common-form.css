@@ -255,3 +255,109 @@ body {
     transition: background 0.15s, color 0.15s, border-color 0.15s;
     font-family: 'DM Sans', sans-serif;
 }
+
+
+
+.intake-prerequisite-card {
+    text-align: center;
+    max-width: 950px;
+    margin: auto;
+    padding: 20px;
+}
+
+.warning-icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: rgba(184,136,42,.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.warning-icon i {
+    font-size: 2.4rem;
+    color: var(--gold);
+}
+
+.intake-prerequisite-card h2 {
+    color: var(--navy);
+    font-family: 'EB Garamond', serif;
+    font-size: 2rem;
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: .95rem;
+    max-width: 700px;
+    margin: auto auto 35px;
+}
+
+.workflow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin: 40px 0;
+}
+
+.workflow-step {
+    width: 150px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+}
+
+.workflow-step span {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    background: #e9edf4;
+    color: var(--navy);
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.workflow-step.active {
+    border: 2px solid var(--gold);
+    background: #fffdf8;
+}
+
+    .workflow-step.active span {
+        background: var(--gold);
+        color: white;
+    }
+
+.workflow-step h6 {
+    margin: 0;
+    font-size: .82rem;
+    color: var(--navy);
+}
+
+.workflow-arrow {
+    color: var(--gold);
+    font-size: 1.2rem;
+}
+
+.alert-box {
+    max-width: 750px;
+    margin: 20px auto 35px;
+    padding: 16px 20px;
+    border-left: 4px solid var(--gold);
+    background: #fffdf8;
+    color: var(--text);
+    text-align: left;
+    border-radius: 4px;
+}
+
+.alert-box i {
+    color: var(--gold);
+    margin-right: 8px;
+}

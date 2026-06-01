@@ -642,7 +642,7 @@
                     resource material, with audio-visual and internet facilities and an area of at least 150–160 Sq.m.
                 </div>
 
-                @if(facultyCode != "2"){
+                @if(facultyCode == "1"){
                     <div class="row g-3">
 
                         <!-- MEU Available -->
@@ -1100,7 +1100,7 @@
                 } else {
                     deuBlock.style.opacity = '0';
                     deuDisplays.forEach(el => el.classList.remove("active"));
-                    document.querySelectorAll('.deu-display').classList.remove("active");
+                    // document.querySelectorAll('.deu-display').classList.remove("active");
                     setTimeout(() => { deuBlock.style.display = 'none'; }, 220);
                     enableDeuFields(false);
                     deuArea.removeAttribute('required');
@@ -1115,9 +1115,14 @@
             if (deuYes) deuYes.addEventListener('change', handleDeuToggle);
             if (deuNo)  deuNo.addEventListener('change', handleDeuToggle);
 
-            handleMeuToggle();
+            if (meuBlock) {
+                handleMeuToggle();
+            }
 
-            handleDeuToggle();
+            if (deuBlock) {
+                handleDeuToggle();
+            }
+
             document.addEventListener("change", function (e) {
 
                 if (e.target.classList.contains("file-validate")) {

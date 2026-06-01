@@ -833,7 +833,7 @@ namespace Medical_Affiliation.Controllers
 
                             CollegeCode = collegeCode,
 
-                            HospitalDetailsId = hospital.HospitalDetailsId, // update dynamically if needed
+                            HospitalDetailsId = hospital?.HospitalDetailsId ?? 0, // update dynamically if needed
 
                             RequirementId = item.RequirementId,
 
