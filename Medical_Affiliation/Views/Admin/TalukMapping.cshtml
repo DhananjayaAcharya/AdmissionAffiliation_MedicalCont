@@ -41,6 +41,41 @@
             <div id="talukContainer" class="row">
             </div>
 
+            <hr />
+
+            <div class="row mt-3">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Add New Taluk
+                    </label>
+
+                    <div class="input-group">
+
+                        <input type="text"
+                               id="newTalukName"
+                               class="form-control"
+                               placeholder="Enter Taluk Name" />
+
+                        <button type="button"
+                                class="btn btn-success"
+                                onclick="addNewTaluk()">
+
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div id="newTaluksContainer"
+                 class="mt-3">
+            </div>
+
             <div class="mt-4 text-end">
 
                 <button type="button"
@@ -59,8 +94,9 @@
 
 </div>
 
-
 <script>
+
+    let newTaluks = [];
 
     document.getElementById("districtDropdown")
         .addEventListener("change", loadTaluks);
@@ -70,8 +106,11 @@
         const districtId =
             document.getElementById("districtDropdown").value;
 
-        if (!districtId)
+        if (!districtId) {
+
+            document.getElementById("talukContainer").innerHTML = "";
             return;
+        }
 
         const url =
             '@Url.Action("GetTaluksForDistrict", "Admin")'
@@ -89,19 +128,31 @@
                     html += `
                         <div class="col-md-4 mb-2">
 
-                            <div class="form-check">
+                            <div class="d-flex align-items-center">
 
-                                <input
-                                    class="form-check-input taluk-checkbox"
-                                    type="checkbox"
-                                    value="${taluk.talukId}"
-                                    ${taluk.isSelected ? 'checked' : ''}>
+                                <div class="form-check flex-grow-1">
 
-                                <label class="form-check-label">
+                                    <input
+                                        class="form-check-input taluk-checkbox"
+                                        type="checkbox"
+                                        value="${taluk.talukId}"
+                                        ${taluk.isSelected ? 'checked' : ''}>
 
-                                    ${taluk.talukName}
+                                    <label class="form-check-label">
 
-                                </label>
+                                        ${taluk.talukName}
+
+                                    </label>
+
+                                </div>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-danger ms-2"
+                                        onclick="deleteTaluk('${taluk.talukId}')">
+
+                                    Delete
+
+                                </button>
 
                             </div>
 
@@ -114,10 +165,111 @@
             });
     }
 
+    function addNewTaluk() {
+
+        const txt =
+            document.getElementById("newTalukName");
+
+        const talukName =
+            txt.value.trim();
+
+        if (!talukName) {
+
+            alert("Please enter Taluk Name.");
+            return;
+        }
+
+        if (newTaluks.some(x =>
+            x.toLowerCase() === talukName.toLowerCase())) {
+
+            alert("Taluk already added.");
+            return;
+        }
+
+        newTaluks.push(talukName);
+
+        renderNewTaluks();
+
+        txt.value = "";
+    }
+
+    function renderNewTaluks() {
+
+        let html = "";
+
+        newTaluks.forEach((taluk, index) => {
+
+            html += `
+                <span class="badge bg-success me-2 mb-2 p-2">
+
+                    ${taluk}
+
+                    <button type="button"
+                            class="btn-close btn-close-white ms-2"
+                            onclick="removeNewTaluk(${index})">
+                    </button>
+
+                </span>
+            `;
+        });
+
+        document.getElementById("newTaluksContainer")
+            .innerHTML = html;
+    }
+
+    function removeNewTaluk(index) {
+
+        newTaluks.splice(index, 1);
+
+        renderNewTaluks();
+    }
+
+    function deleteTaluk(talukId) {
+
+        if (!confirm("Are you sure you want to delete this Taluk?")) {
+            return;
+        }
+
+        fetch(
+            '@Url.Action("DeleteTaluk", "Admin")',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    talukId: talukId
+                })
+            })
+            .then(r => r.json())
+            .then(result => {
+
+                alert(result.message);
+
+                if (result.success) {
+
+                    loadTaluks();
+                }
+            })
+            .catch(error => {
+
+                console.error(error);
+
+                alert("Error deleting taluk.");
+            });
+    }
+
     function saveMappings() {
 
         const districtId =
             document.getElementById("districtDropdown").value;
+
+        if (!districtId) {
+
+            alert("Please select District.");
+            return;
+        }
 
         const selectedTaluks =
             Array.from(
@@ -131,25 +283,39 @@
             '@Url.Action("SaveDistrictTalukMapping", "Admin")',
             {
                 method: 'POST',
+
                 headers: {
                     'Content-Type': 'application/json'
                 },
 
                 body: JSON.stringify({
                     districtId: districtId,
-                    selectedTalukIds: selectedTaluks
+                    selectedTalukIds: selectedTaluks,
+                    newTaluks: newTaluks
                 })
             })
             .then(r => r.json())
             .then(result => {
 
-                if (!result.success)
-                {
+                if (!result.success) {
+
                     alert(result.message);
                     return;
                 }
 
                 alert(result.message);
+
+                newTaluks = [];
+
+                renderNewTaluks();
+
+                loadTaluks();
+            })
+            .catch(error => {
+
+                console.error(error);
+
+                alert("Error saving mappings.");
             });
     }
 

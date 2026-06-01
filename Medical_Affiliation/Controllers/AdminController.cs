@@ -1775,7 +1775,7 @@ namespace Admission_Affiliation.Controllers
 
                             _context.TalukMasters.Add(new TalukMaster
                             {
-                                Id = maxId + 1,
+                                //Id = maxId + 1,
                                 TalukId = $"T{nextTalukNumber:D3}",
                                 TalukName = trimmedTalukName,
                                 DistrictId = model.DistrictId
@@ -1792,6 +1792,44 @@ namespace Admission_Affiliation.Controllers
                 {
                     success = true,
                     message = "Taluk mapping saved successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteTaluk( [FromBody] DeleteTalukViewModel model)
+        {
+            try
+            {
+                var taluk = await _context.TalukMasters
+                    .FirstOrDefaultAsync(x => x.TalukId == model.TalukId);
+
+                if (taluk == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Taluk not found."
+                    });
+                }
+
+                _context.TalukMasters.Remove(taluk);
+
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Taluk deleted successfully."
                 });
             }
             catch (Exception ex)

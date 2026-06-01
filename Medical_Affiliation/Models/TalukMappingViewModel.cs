@@ -7,6 +7,10 @@
 
         public List<DistrictMaster> Districts { get; set; } = new();
     }
+    public class DeleteTalukViewModel
+    {
+        public string TalukId { get; set; } = string.Empty;
+    }
 
     public class SaveTalukMappingViewModel
     {
