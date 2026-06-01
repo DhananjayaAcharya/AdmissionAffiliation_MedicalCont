@@ -1,4 +1,4 @@
-@model Medical_Affiliation.Models.LicTadaDashboardVM
+﻿@model Medical_Affiliation.Models.LicTadaDashboardVM
 @{
     Layout = null;
     var userName = ViewBag.UserName as string ?? "SO/AS/AO";
@@ -218,7 +218,7 @@
             var rmk = prompt('Approval remarks (optional):') || '';
             if (!confirm('APPROVE this claim?')) return;
             btn.disabled = true; btn.textContent = '⏳';
-            fetch('/LicTada/AOApprove', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'id='+id+'&remarks='+encodeURIComponent(rmk) })
+            fetch('/LicTada/AOAction', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'id='+id+'&action=Approved&remarks='+encodeURIComponent(rmk) })
             .then(r => r.json()).then(res => {
                 if (res.success) { ltToast('✅ Approved — sent to FO2', 'ok'); fadeRow(btn); }
                 else { ltToast('Approval failed.', 'err'); btn.disabled = false; btn.textContent = '✅ Approve'; }
@@ -229,7 +229,7 @@
             if (!rmk || !rmk.trim()) { ltToast('Remarks required.', 'err'); return; }
             if (!confirm('REJECT this claim?')) return;
             btn.disabled = true; btn.textContent = '⏳';
-            fetch('/LicTada/AOReject', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'id='+id+'&remarks='+encodeURIComponent(rmk) })
+            fetch('/LicTada/AOAction', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'id='+id+'&action=Rejected&remarks='+encodeURIComponent(rmk) })
             .then(r => r.json()).then(res => {
                 if (res.success) { ltToast('Rejected.', 'err'); fadeRow(btn); }
                 else { ltToast('Reject failed.', 'err'); btn.disabled = false; btn.textContent = '❌ Reject'; }
@@ -332,9 +332,31 @@
                 console.error(err);
             });
         }
+                function ltAssignCW(id) {
+            const cwUserId = document.getElementById('cwUser_' + id).value;
+            if (!cwUserId) { ltToast('Select Case Worker', 'err'); return; }
+
+            fetch('/LicTada/SOAssignCW', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + encodeURIComponent(id)
+                    + '&cwUserId=' + encodeURIComponent(cwUserId)
+                    + '&remarks=' + encodeURIComponent('')
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) ltToast('Assigned to Case Worker', 'ok');
+                else ltToast(res.message || 'Assign failed', 'err');
+            });
+        }
+
     </script>
 </body>
 </html>
+
+
+
+
 
 
 

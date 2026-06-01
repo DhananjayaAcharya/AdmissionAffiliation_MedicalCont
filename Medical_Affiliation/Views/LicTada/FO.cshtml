@@ -335,7 +335,7 @@
             fetch('/LicTada/ForwardToCW', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body:    'id=' + id + '&remarks=&routedTo=' + encodeURIComponent(routedTo)
+                body:    'id=' + id + '&remarks=&routedToUserId=' + encodeURIComponent(routedTo)
             })
             .then(function (r) { return r.json(); })
             .then(function (res) {

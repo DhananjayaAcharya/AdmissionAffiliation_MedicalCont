@@ -133,6 +133,7 @@ namespace Medical_Affiliation.Controllers
         {
             if (!IsRole("Finance"))
                 return Content("<div class='lt-empty'>⚠️ Not authorized.</div>");
+            ViewBag.ForwardUsers = _svc.GetForwardRoutingUsers();
             return PartialView("_GridFOFresh",
                 _svc.GetFOFreshRecords(year, faculty, college));
         }
@@ -147,12 +148,35 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpPost]
-        public IActionResult ForwardToCW(int id, string remarks, string routedTo)
+        public IActionResult ForwardToCW(int id, string remarks, string? routedToUserId, string? routedTo)
         {
             if (!IsRole("Finance"))
                 return Json(new { success = false, message = "Not authorized." });
-            bool ok = _svc.ForwardToCW(id, remarks ?? "", routedTo ?? "");
-            return Json(new { success = ok });
+
+            // Backward compatible: accept either routedToUserId or routedTo
+            if (string.IsNullOrWhiteSpace(routedToUserId))
+                routedToUserId = routedTo;
+
+            if (!int.TryParse(routedToUserId, out var soUserId) || soUserId <= 0)
+                return Json(new { success = false, message = "Please select SO/AS/AO user." });
+
+            int.TryParse(HttpContext.Session.GetString("UserId"), out var actionByUserId);
+            bool ok = _svc.ForwardToCW(id, remarks ?? "", soUserId, actionByUserId, "FO");
+            return Json(new { success = ok, message = ok ? "Forwarded" : "Forward failed" });
+        }
+
+        [HttpPost]
+        public IActionResult SOAssignCW(int id, string cwUserId, string remarks)
+        {
+            if (!IsRole("AO"))
+                return Json(new { success = false, message = "Not authorized." });
+
+            if (!int.TryParse(cwUserId, out var parsedCwUserId) || parsedCwUserId <= 0)
+                return Json(new { success = false, message = "Please select Case Worker." });
+
+            int.TryParse(HttpContext.Session.GetString("UserId"), out var actionByUserId);
+            bool ok = _svc.SOAssignCW(id, parsedCwUserId, remarks ?? "", actionByUserId, "SO/AS/AO");
+            return Json(new { success = ok, message = ok ? "Assigned to CW" : "Assignment failed" });
         }
 
         [HttpPost]
@@ -198,8 +222,9 @@ namespace Medical_Affiliation.Controllers
         {
             if (!IsRole("CaseWorker"))
                 return Content("<div class='lt-empty'>⚠️ Not authorized.</div>");
+            int.TryParse(HttpContext.Session.GetString("UserId"), out var userId);
             return PartialView("_GridCW",
-                _svc.GetCWRecords(year, faculty, college));
+                _svc.GetCWRecords(year, faculty, college, userId));
         }
 
         [HttpPost]
@@ -255,8 +280,10 @@ namespace Medical_Affiliation.Controllers
         {
             if (!IsRole("AO"))
                 return Content("<div class='lt-empty'>⚠️ Not authorized.</div>");
+            int.TryParse(HttpContext.Session.GetString("UserId"), out var userId);
+            ViewBag.CWUsers = _svc.GetCWUsers();
             return PartialView("_GridAO",
-                _svc.GetAORecords(year, faculty, college));
+                _svc.GetAORecords(year, faculty, college, userId));
         }
 
         [HttpPost]
@@ -399,5 +426,23 @@ namespace Medical_Affiliation.Controllers
             var logs = _svc.GetEditLog(id);
             return Json(logs);
         }
+
+        [HttpGet]
+        public IActionResult GetSOUsers()
+        {
+            if (!IsRole("Finance"))
+                return Json(new List<object>());
+            return Json(_svc.GetSOUsers());
+        }
+
+        [HttpGet]
+        public IActionResult GetCWUsers()
+        {
+            if (!IsRole("AO"))
+                return Json(new List<object>());
+            return Json(_svc.GetCWUsers());
+        }
     }
 }
+
+

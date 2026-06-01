@@ -521,6 +521,61 @@
             orderedPhysicalSteps.Concat(remainingPhysicalSteps));
     }
 
+
+    // ======================================================
+    // DENTAL - FINAL ORDER FOR INTAKE/BASIC DETAILS
+    // ======================================================
+
+    if (facultyCode == "2")
+    {
+        // Move Course-wise Intake Details to Basic Details and make it first
+        var intakeStep = allSteps.FirstOrDefault(x => x.Key == "IntakeDetails");
+
+        if (intakeStep != null)
+        {
+            allSteps.Remove(intakeStep);
+
+            intakeStep.Group = "Basic Details";
+
+            allSteps.Insert(0, intakeStep);
+        }
+
+        // Keep UG/PG/SS/Faculty Repository under Intake Details
+        var intakeOrder = new List<string>
+        {
+            "BDSDetails",
+            "PgCourses",
+            "SsCoursesApplied",
+            "DentalFacultyDetails"
+        };
+
+        var intakeSteps = allSteps
+            .Where(x => x.Group == "Intake Details")
+            .ToList();
+
+        var orderedIntakeSteps = intakeOrder
+            .Select(key => intakeSteps.FirstOrDefault(x => x.Key == key))
+            .Where(x => x != null)
+            .ToList();
+
+        var remainingIntakeSteps = intakeSteps
+            .Where(x => !intakeOrder.Contains(x.Key))
+            .ToList();
+
+        allSteps.RemoveAll(x => x.Group == "Intake Details");
+
+        var basicLastIndex = allSteps
+            .Select((step, index) => new { step, index })
+            .Where(x => x.step.Group == "Basic Details")
+            .Select(x => x.index)
+            .LastOrDefault();
+
+        allSteps.InsertRange(
+            basicLastIndex + 1,
+            orderedIntakeSteps.Concat(remainingIntakeSteps)
+        );
+    }
+
     var groupedSteps = allSteps
             .GroupBy(s => s.Group)
             .ToList();

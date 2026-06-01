@@ -3368,10 +3368,17 @@ namespace Medical_Affiliation.Controllers
 
                 //return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
                 //return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+                var courseLevels = await GetSortedCourseLevels();
+
                 if(facultyCode == "2")
                 {
-
-                    return RedirectToAction("PgCourses", "AffiliationPgCourse");
+                    if(courseLevels.Any(x => x.Equals("PG", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return RedirectToAction("PgCourses", "AffiliationPgCourse");
+                    } else
+                    {
+                        return RedirectToAction("TeachingFacultyDetails", "DentalRepository");
+                    }
                 }
                 return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
 

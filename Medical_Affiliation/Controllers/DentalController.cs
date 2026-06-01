@@ -273,83 +273,95 @@ namespace Medical_Affiliation.Controllers
 
         // Saves the input data to the DB-First table
         [HttpPost]
-        public async Task<IActionResult> SaveEquipment( string deptCode,  List<EquipmentRowVM> data)
+        public async Task<IActionResult> SaveEquipment(string deptCode, List<EquipmentRowVM> data)
         {
-            string collegeCode = CollegeCode;
-            int facultyCode = Convert.ToInt32(FacultyCode);
-
-            if (data == null || !data.Any())
+            try
             {
-                return Json(new
+                string collegeCode = CollegeCode;
+                int facultyCode = Convert.ToInt32(FacultyCode);
+
+                if (string.IsNullOrWhiteSpace(deptCode))
                 {
-                    success = false,
-                    message = "No data received"
-                });
-            }
-
-            // Fetch all existing records once
-            var existingRecords = await _context.DentalCollegeEquipmentDetails
-                .Where(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.DepartmentCode == deptCode)
-                .ToListAsync();
-
-            // Fetch all master equipment once
-            var equipmentIds = data.Select(x => x.EquipmentId).ToList();
-
-            var masterEquipment = await _context.MstEquipmentDeptWises
-                .Where(x => equipmentIds.Contains(x.Id))
-                .ToDictionaryAsync(x => x.Id);
-
-            foreach (var item in data)
-            {
-                var existingRecord = existingRecords
-                    .FirstOrDefault(x => x.EquipmentId == item.EquipmentId);
-
-                if (existingRecord != null)
-                {
-                    // UPDATE
-                    existingRecord.OneUnitExisting = item.OneUnitExisting;
-                    existingRecord.TwoUnitExisting = item.TwoUnitExisting;
-                    existingRecord.UpdatedDate = DateTime.Now;
+                    TempData["Error"] = "Department code is missing.";
+                    return RedirectToAction("EquipmentList");
                 }
-                else
-                {
-                    // MASTER LOOKUP
-                    masterEquipment.TryGetValue(item.EquipmentId, out var master);
 
-                    // INSERT
-                    var newEntry = new DentalCollegeEquipmentDetail
+                if (data == null || !data.Any())
+                {
+                    TempData["Error"] = "No equipment data received.";
+                    return RedirectToAction("EquipmentList");
+                }
+
+                var existingRecords = await _context.DentalCollegeEquipmentDetails
+                    .Where(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.DepartmentCode == deptCode)
+                    .ToListAsync();
+
+                var equipmentIds = data.Select(x => x.EquipmentId).ToList();
+
+                var masterEquipment = await _context.MstEquipmentDeptWises
+                    .Where(x => equipmentIds.Contains(x.Id))
+                    .ToDictionaryAsync(x => x.Id);
+
+                foreach (var item in data)
+                {
+                    var existingRecord = existingRecords
+                        .FirstOrDefault(x => x.EquipmentId == item.EquipmentId);
+
+                    if (existingRecord != null)
                     {
-                        CollegeCode = collegeCode,
-                        FacultyCode = facultyCode,
-                        DepartmentCode = deptCode,
+                        existingRecord.OneUnitExisting = item.OneUnitExisting;
+                        existingRecord.TwoUnitExisting = item.TwoUnitExisting;
+                        existingRecord.UpdatedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        masterEquipment.TryGetValue(item.EquipmentId, out var master);
 
-                        EquipmentId = item.EquipmentId,
-                        EquipmentName = item.EquipmentName,
+                        var newEntry = new DentalCollegeEquipmentDetail
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyCode = facultyCode,
+                            DepartmentCode = deptCode,
 
-                        OneUnitRequirement = master?.OneUnitRequirement,
-                        TwoUnitRequirement = master?.TwoUnitRequirement,
+                            EquipmentId = item.EquipmentId,
+                            EquipmentName = item.EquipmentName,
 
-                        OneUnitExisting = item.OneUnitExisting,
-                        TwoUnitExisting = item.TwoUnitExisting,
+                            OneUnitRequirement = master?.OneUnitRequirement,
+                            TwoUnitRequirement = master?.TwoUnitRequirement,
 
-                        CreatedDate = DateTime.Now,
-                        IsActive = true
-                    };
+                            OneUnitExisting = item.OneUnitExisting,
+                            TwoUnitExisting = item.TwoUnitExisting,
 
-                    _context.DentalCollegeEquipmentDetails.Add(newEntry);
+                            CreatedDate = DateTime.Now,
+                            IsActive = true
+                        };
+
+                        _context.DentalCollegeEquipmentDetails.Add(newEntry);
+                    }
                 }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SelectedDept"] = deptCode;
+                TempData["Success"] = "Equipment data saved successfully.";
+
+                return RedirectToAction("EquipmentList");
             }
-
-            await _context.SaveChangesAsync();
-
-            TempData["SelectedDept"] = deptCode;
-
-            TempData["SuccessMessage"] = "Equipment data saved successfully!";
-            return RedirectToAction("EquipmentList");
+            catch (DbUpdateException ex)
+            {
+                // Log ex
+                TempData["Error"] = "Database error occurred while saving equipment data.";
+                return RedirectToAction("EquipmentList");
+            }
+            catch (Exception ex)
+            {
+                // Log ex
+                TempData["Error"] = $"Unexpected error: {ex.Message}";
+                return RedirectToAction("EquipmentList");
+            }
         }
-
 
 
         [HttpGet]

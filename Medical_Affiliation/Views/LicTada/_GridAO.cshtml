@@ -1,5 +1,5 @@
-@model List<Medical_Affiliation.Models.LicTadaGridRow>
-
+﻿@model List<Medical_Affiliation.Models.LicTadaGridRow>
+@{ var cwUsers = ViewBag.CWUsers as IEnumerable<Medical_Affiliation.Services.LicTadaService.WorkflowUserItem>; }
 @if (Model == null || !Model.Any())
 {
     <div class="lt-empty">
@@ -152,6 +152,23 @@ else
                             else { <span class="amt-chip amt-empty">—</span> }
                         </td>
                         <td>
+                            @if (cwUsers != null)
+                            {
+                                <div style="display:flex;flex-direction:column;gap:6px;min-width:170px;margin-bottom:4px">
+                                    <select id="cwUser_@r.MemberId" style="padding:4px 6px;border:1px solid #e2e8f0;border-radius:6px;font-size:11px">
+                                        <option value="">Select CW</option>
+                                        @foreach (var u in cwUsers)
+                                        {
+                                            <option value="@u.Id">@u.UserName (@u.Designation)</option>
+                                        }
+                                    </select>
+                                    <button type="button"
+                                            onclick="ltAssignCW('@r.MemberId')"
+                                            style="padding:4px 8px;border:1px solid #c4b5fd;background:#ede9fe;color:#6d28d9;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">
+                                        Assign CW
+                                    </button>
+                                </div>
+                            }
                             @if (!string.IsNullOrWhiteSpace(r.SenetMember))
                             { <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#94a3b8">Click name →</span> }
                         </td>
@@ -215,5 +232,7 @@ else
         </span>
     </div>
 }
+
+
 
 

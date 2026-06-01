@@ -1,0 +1,99 @@
+﻿@{
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["Title"] = "Course Intake Required";
+}
+@{
+    ViewData["Title"] = "Course Intake Details Required";
+}
+
+<style>
+    .form-wrap{
+        padding: 2rem 12px 0px;
+    }
+    .form-card {
+        padding: 2rem 24px 2rem;
+    }
+</style>
+
+<div class="page-shell">
+
+    <div class="form-wrap">
+        <div class="form-card">
+
+            <div class="section-label">
+                <div class="section-label-line"></div>
+                <span class="section-label-text">
+                    Mandatory First Step
+                </span>
+                <div class="section-label-line"></div>
+            </div>
+
+            <div class="intake-prerequisite-card">
+
+                <div class="warning-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+
+                <h2>Course-wise Intake Details Required</h2>
+
+                <p class="subtitle">
+                    Before proceeding with Affiliation / Admission sections,
+                    please complete the Course-wise Intake Details.
+                </p>
+
+                <div class="workflow">
+
+                    <div class="workflow-step active">
+                        <span>1</span>
+                        <h6>Course Intake</h6>
+                    </div>
+
+                    <div class="workflow-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <div class="workflow-step">
+                        <span>2</span>
+                        <h6>Academic Details</h6>
+                    </div>
+
+                    <div class="workflow-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <div class="workflow-step">
+                        <span>3</span>
+                        <h6>Infrastructure</h6>
+                    </div>
+
+                    <div class="workflow-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <div class="workflow-step">
+                        <span>4</span>
+                        <h6>Submission</h6>
+                    </div>
+
+                </div>
+
+                <div class="alert-box">
+                    <i class="fas fa-circle-info"></i>
+                    Course Levels (UG / PG / SS) are generated based on
+                    Intake Details. Other sections cannot be accessed until
+                    Intake information is saved.
+                </div>
+
+                <a asp-controller="ContinuousAffiliationIncreaseintake"
+                   asp-action="IncreaseIntake"
+                   class="btn-next">
+                    Proceed to Course Intake Details
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
