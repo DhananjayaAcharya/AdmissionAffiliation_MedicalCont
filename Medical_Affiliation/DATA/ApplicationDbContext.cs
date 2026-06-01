@@ -293,7 +293,11 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<LicModeofTravel> LicModeofTravels { get; set; }
 
+    public virtual DbSet<LicTaDaEditLog> LicTaDaEditLogs { get; set; }
+
     public virtual DbSet<LicTaDaEditedFinanceLog> LicTaDaEditedFinanceLogs { get; set; }
+
+    public virtual DbSet<LicWorkflowMovementLog> LicWorkflowMovementLogs { get; set; }
 
     public virtual DbSet<LicclaimDetail> LicclaimDetails { get; set; }
 
@@ -3993,6 +3997,74 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Modeoftravel).HasMaxLength(150);
         });
 
+        modelBuilder.Entity<LicTaDaEditLog>(entity =>
+        {
+            entity.HasKey(e => e.LogId).HasName("PK__LIC_TA_D__5E548648DDF0992C");
+
+            entity.ToTable("LIC_TA_DA_Edit_Log");
+
+            entity.Property(e => e.AcademicYear).HasMaxLength(20);
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.Division).HasMaxLength(100);
+            entity.Property(e => e.EditedAt).HasColumnType("datetime");
+            entity.Property(e => e.EditedAtStage).HasMaxLength(100);
+            entity.Property(e => e.EditedBy).HasMaxLength(100);
+            entity.Property(e => e.EditorDesignation).HasMaxLength(100);
+            entity.Property(e => e.MemberName).HasMaxLength(200);
+            entity.Property(e => e.MobileNo).HasMaxLength(20);
+            entity.Property(e => e.NewAirFair)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("New_AirFair");
+            entity.Property(e => e.NewAirRoadCost)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("New_AirRoadCost");
+            entity.Property(e => e.NewDacost)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("New_Dacost");
+            entity.Property(e => e.NewIsLca).HasColumnName("New_IsLca");
+            entity.Property(e => e.NewKilometers)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("New_Kilometers");
+            entity.Property(e => e.NewLcacost)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("New_Lcacost");
+            entity.Property(e => e.NewReturnKilometers)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("New_ReturnKilometers");
+            entity.Property(e => e.NewTotalClaimAmount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("New_TotalClaimAmount");
+            entity.Property(e => e.NewTravelCost)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("New_TravelCost");
+            entity.Property(e => e.OldAirFair)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Old_AirFair");
+            entity.Property(e => e.OldAirRoadCost)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Old_AirRoadCost");
+            entity.Property(e => e.OldDacost)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Old_DACost");
+            entity.Property(e => e.OldIsLca).HasColumnName("Old_IsLCA");
+            entity.Property(e => e.OldKilometers)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Old_Kilometers");
+            entity.Property(e => e.OldLcacost)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Old_LCACost");
+            entity.Property(e => e.OldReturnKilometers)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Old_ReturnKilometers");
+            entity.Property(e => e.OldTotalClaimAmount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Old_TotalClaimAmount");
+            entity.Property(e => e.OldTravelCost)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Old_TravelCost");
+            entity.Property(e => e.TypeOfMembers).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<LicTaDaEditedFinanceLog>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -4040,6 +4112,32 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.UpdatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<LicWorkflowMovementLog>(entity =>
+        {
+            entity.HasKey(e => e.MovementId).HasName("PK__LIC_Work__D1822446B2DCEAEF");
+
+            entity.ToTable("LIC_Workflow_Movement_Log");
+
+            entity.Property(e => e.ActionAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ActionByDesignation)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.ActionType)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.FromStage)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.Remarks)
+                .HasMaxLength(1000)
+                .IsUnicode(false);
+            entity.Property(e => e.ToStage)
+                .HasMaxLength(30)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<LicclaimDetail>(entity =>
@@ -4108,6 +4206,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.CurrentStage)
+                .HasMaxLength(30)
+                .IsUnicode(false);
             entity.Property(e => e.Dacost)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("DACost");
@@ -4171,6 +4272,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("FO_Level2_ApprovedStatus");
+            entity.Property(e => e.FoRoutedToUserId).HasColumnName("FO_RoutedToUserId");
             entity.Property(e => e.FromPlace).HasMaxLength(200);
             entity.Property(e => e.IsLca).HasColumnName("IsLCA");
             entity.Property(e => e.Kilometers).HasColumnType("decimal(10, 2)");
@@ -4187,6 +4289,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ReturnFromPlace).HasMaxLength(200);
             entity.Property(e => e.ReturnKilometers).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.ReturnToPlace).HasMaxLength(200);
+            entity.Property(e => e.SoAssignedCwuserId).HasColumnName("SO_AssignedCWUserId");
             entity.Property(e => e.ToPlace).HasMaxLength(200);
             entity.Property(e => e.TotalClaimAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TravelCost).HasColumnType("decimal(18, 2)");

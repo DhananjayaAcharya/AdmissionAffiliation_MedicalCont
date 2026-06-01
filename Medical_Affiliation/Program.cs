@@ -81,8 +81,9 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
 });
-
 
 // =============================================
 // 🔥 DATA PROTECTION
@@ -190,10 +191,12 @@ foreach (var s in authSchemes)
         options.LoginPath = s.Login;
         options.LogoutPath = s.Logout;
         options.AccessDeniedPath = s.AccessDenied;
+
         options.Cookie.Name = s.Cookie;
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
         options.Cookie.Path = "/";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(s.ExpireMinutes);
         options.SlidingExpiration = true;
@@ -229,6 +232,13 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
+});
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.Secure = CookieSecurePolicy.Always;
+    options.HttpOnly = HttpOnlyPolicy.Always;
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
 });
 
 // =============================================
@@ -271,6 +281,7 @@ app.UseStaticFiles();
 var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
 app.UseRequestLocalization(locOptions.Value);
 
+app.UseCookiePolicy();
 
 app.UseRouting();
 
@@ -312,7 +323,7 @@ app.UseAuthorization();
 app.UseStaticFiles(); // for wwwroot if needed
 
 // ===== D:\MedicalUGFacultyList Mapping =====
-var medicalPath = @"E:\MedicalUGFacultyList";
+var medicalPath = @"D:\MedicalUGFacultyList";
 
 // Auto create folders if not exists
 if (!Directory.Exists(medicalPath))

@@ -1,4 +1,8 @@
 @model List<Medical_Affiliation.Models.LicTadaGridRow>
+@{
+    var forwardUsers = ViewBag.ForwardUsers as List<Medical_Affiliation.Models.LicTadaDDItem>
+                      ?? new List<Medical_Affiliation.Models.LicTadaDDItem>();
+}
 
 @if (Model == null || !Model.Any())
 {
@@ -152,13 +156,16 @@ else
                         </td>
                         <td rowspan="3" style="border-left:1px solid #f1f5f9;vertical-align:middle;min-width:260px">
                             <select class="route-sel" id="routeUser_@r.MemberId">
-                                <option value="">-- Select SO/AS/AO --</option>
-                                <option value="SO">SO</option>
-                                <option value="AS">AS</option>
-                                <option value="AO">AO</option>
+                                <option value="">-- Select SO/AO --</option>
+                                @foreach (var u in forwardUsers)
+                                {
+                                    <option value="@u.Value">@u.Text</option>
+                                }
                             </select>
-                            <button class="btn-fwd" id="btnFwd_@r.MemberId" onclick="ltForward('@r.MemberId', this, document.getElementById('routeUser_@r.MemberId').value)">
-                                📤 Forward to SO/AS/AO
+                            <button class="btn-fwd"
+                                    id="btnFwd_@r.MemberId"
+                                    onclick="ltForward('@r.MemberId', this, document.getElementById('routeUser_@r.MemberId').value)">
+                                📤 Forward
                             </button>
                         </td>
                     </tr>

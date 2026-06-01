@@ -80,7 +80,7 @@ namespace Medical_Affiliation.Services
             public string Address { get; set; } = "";
             public string ModeOfTravel { get; set; } = "";
             public DateOnly? InspectionDate { get; set; } = null;
-            public decimal? Old_TotalClaimAmount { get; set; } = null ;
+            public decimal? Old_TotalClaimAmount { get; set; } = null;
 
         }
 
@@ -120,7 +120,7 @@ namespace Medical_Affiliation.Services
                     Address = S(dr, "Address"),
                     ModeOfTravel = S(dr, "ModeOfTravel"),
                     InspectionDate = dr["InspectionDate"] == DBNull.Value
-                    
+
     ? (DateOnly?)null
     : DateOnly.FromDateTime(Convert.ToDateTime(dr["InspectionDate"])),
                     Old_TotalClaimAmount = M(dr, "Old_TotalClaimAmount"),
@@ -173,7 +173,7 @@ namespace Medical_Affiliation.Services
                         Email = first.Email,
                         Address = first.Address,
                         ModeOfTravel = first.ModeOfTravel,
-                        InspectionDate =first.InspectionDate,
+                        InspectionDate = first.InspectionDate,
                         SenetMemberOldAmount = senate?.Old_TotalClaimAmount ?? 0m,
                         AcMemberOldAmount = ac?.Old_TotalClaimAmount ?? 0m,
                         SubjectExpertiseOldAmount = expert?.Old_TotalClaimAmount ?? 0m,
@@ -312,6 +312,35 @@ ORDER BY ac.CollegeName", con);
                 });
             return list;
         }
+
+        public List<LicTadaDDItem> GetForwardRoutingUsers()
+        {
+            var list = new List<LicTadaDDItem>();
+            using var con = new SqlConnection(_conn);
+            using var cmd = new SqlCommand(@"
+                SELECT Id,
+                       ISNULL(UserName,'') AS UserName,
+                       ISNULL(FinanceDesignation,'') AS FinanceDesignation
+                FROM [Admission_Affiliation].[dbo].[TblRguhsFacultyUser]
+                WHERE IsFinance = 1
+                  AND FinanceDesignation IN ('SO','AO','AS')
+                ORDER BY FinanceDesignation, UserName", con);
+            con.Open();
+            using var dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                var id = N(dr, "Id");
+                var user = S(dr, "UserName");
+                var desig = S(dr, "FinanceDesignation");
+                if (id <= 0 || string.IsNullOrWhiteSpace(user)) continue;
+                list.Add(new LicTadaDDItem
+                {
+                    Value = id.ToString(),
+                    Text = $"{desig} - {user}"
+                });
+            }
+            return list;
+        }
         /// <summary>
         /// Returns the WHERE clause fragment that matches exactly
         /// the records visible in each role's grid query.
@@ -319,36 +348,19 @@ ORDER BY ac.CollegeName", con);
         private static string BuildRoleWhereClause(string? role) => role switch
         {
             "FO_Fresh" =>
-                @"ca.CollegeCode IN (
-            SELECT CollegeCode
-            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-            WHERE DR_ApprovalStatus IS NOT NULL AND DR_ApprovalStatus <> ''
-              AND (FO_Level1_ApprovedStatus IS NULL OR FO_Level1_ApprovedStatus = '')
-        )",
+                @"ca.DR_ApprovalStatus IS NOT NULL
+          AND ca.DR_ApprovalStatus <> ''
+          AND (ca.FO_Level1_ApprovedStatus IS NULL OR ca.FO_Level1_ApprovedStatus = '')",
 
             "FO_Final" =>
-                @"ca.CollegeCode IN (
-            SELECT CollegeCode
-            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-            WHERE F_AO_SP_Approved_Status IN ('Approved','Rejected')
-              AND (FO_Level2_ApprovedStatus IS NULL OR FO_Level2_ApprovedStatus = '')
-        )",
+                @"ca.CurrentStage = 'FO_FINAL'
+          AND (ca.FO_Level2_ApprovedStatus IS NULL OR ca.FO_Level2_ApprovedStatus = '')",
 
             "CaseWorker" =>
-                @"ca.CollegeCode IN (
-            SELECT CollegeCode
-            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-            WHERE FO_Level1_ApprovedStatus = 'AssignedToCW'
-              AND (F_CaseWorker_Approve_Status IS NULL OR F_CaseWorker_Approve_Status = '')
-        )",
+                @"ca.CurrentStage = 'CW'",
 
             "AO" =>
-                @"ca.CollegeCode IN (
-            SELECT CollegeCode
-            FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-            WHERE F_CaseWorker_Approve_Status IN ('Verified','Rejected')
-              AND (F_AO_SP_Approved_Status IS NULL OR F_AO_SP_Approved_Status = '')
-        )",
+                @"ca.CurrentStage IN ('SO_ROUTING','SO_VERIFY')",
 
             "Cashier" =>
                 @"ca.FO_Level2_ApprovedStatus = 'Approved'
@@ -377,11 +389,9 @@ ORDER BY ac.CollegeName", con);
                        ca.InspectionDate
                 FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
                 INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
-                WHERE ca.CollegeCode IN (
-                    SELECT CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                    WHERE DR_ApprovalStatus IS NOT NULL AND DR_ApprovalStatus <> ''
-                      AND (FO_Level1_ApprovedStatus IS NULL OR FO_Level1_ApprovedStatus = '')
-                )
+                WHERE ca.DR_ApprovalStatus IS NOT NULL
+                  AND ca.DR_ApprovalStatus <> ''
+                  AND (ca.FO_Level1_ApprovedStatus IS NULL OR ca.FO_Level1_ApprovedStatus = '')
                 AND (@Year    IS NULL OR ca.AcademicYear = @Year)
                 AND (@Faculty IS NULL OR ca.FacultyCode  = @Faculty)
                 AND (@College IS NULL OR ca.CollegeCode  = @College)
@@ -418,6 +428,9 @@ ORDER BY ac.CollegeName", con);
         }
 
         public List<LicTadaGridRow> GetCWRecords(string? year, string? faculty, string? college)
+            => GetCWRecords(year, faculty, college, 0);
+
+        public List<LicTadaGridRow> GetCWRecords(string? year, string? faculty, string? college, int userId)
         {
             const string sql = @"
                 SELECT ca.Id,
@@ -432,19 +445,47 @@ ORDER BY ac.CollegeName", con);
                    ca.InspectionDate
                 FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
                 INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
-                WHERE ca.CollegeCode IN (
-                    SELECT CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                    WHERE FO_Level1_ApprovedStatus = 'AssignedToCW'
-                      AND (F_CaseWorker_Approve_Status IS NULL OR F_CaseWorker_Approve_Status = '')
-                )
+                WHERE ca.CurrentStage = 'CW'
+                  AND (@UserId = 0 OR ca.CurrentOwnerUserId = @UserId)
                 AND (@Year    IS NULL OR ca.AcademicYear = @Year)
                 AND (@Faculty IS NULL OR ca.FacultyCode  = @Faculty)
                 AND (@College IS NULL OR ca.CollegeCode  = @College)
                 ORDER BY ac.CollegeName";
-            return GroupToGrid(ExecRawMembers(sql, year, faculty, college));
+            var list = new List<RawMemberRow>();
+            using var con = new SqlConnection(_conn);
+            using var cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@UserId", userId);
+            cmd.Parameters.AddWithValue("@Year", string.IsNullOrEmpty(year) ? (object)DBNull.Value : year);
+            cmd.Parameters.AddWithValue("@Faculty", string.IsNullOrEmpty(faculty) ? (object)DBNull.Value : faculty);
+            cmd.Parameters.AddWithValue("@College", string.IsNullOrEmpty(college) ? (object)DBNull.Value : college);
+            con.Open();
+            using var dr = cmd.ExecuteReader();
+            while (dr.Read())
+                list.Add(new RawMemberRow
+                {
+                    Id = N(dr, "Id"),
+                    CollegeCode = S(dr, "CollegeCode"),
+                    CollegeName = S(dr, "CollegeName"),
+                    CollegeTown = S(dr, "CollegeTown"),
+                    AcademicYear = S(dr, "AcademicYear"),
+                    TypeOfMembers = S(dr, "TypeOfMembers"),
+                    MemberName = S(dr, "memberName"),
+                    MobileNo = S(dr, "MobileNo"),
+                    TotalClaimAmount = M(dr, "TotalClaimAmount"),
+                    CaseWorkerRemarks = S(dr, "CaseWorkerRemarks"),
+                    FO_Level2_Status = S(dr, "FO_Level2_Status"),
+                    Cashier_Status = S(dr, "Cashier_Status"),
+                    InspectionDate = dr["InspectionDate"] == DBNull.Value
+                        ? (DateOnly?)null
+                        : DateOnly.FromDateTime(Convert.ToDateTime(dr["InspectionDate"]))
+                });
+            return GroupToGrid(list);
         }
 
         public List<LicTadaGridRow> GetAORecords(string? year, string? faculty, string? college)
+            => GetAORecords(year, faculty, college, 0);
+
+        public List<LicTadaGridRow> GetAORecords(string? year, string? faculty, string? college, int userId)
         {
             const string sql = @"
                 SELECT ca.Id,
@@ -459,16 +500,41 @@ ORDER BY ac.CollegeName", con);
                     ca.InspectionDate
                 FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] ca
                 INNER JOIN dbo.Affiliation_College_Master ac ON ac.CollegeCode = ca.CollegeCode
-                WHERE ca.CollegeCode IN (
-                    SELECT CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                    WHERE F_CaseWorker_Approve_Status IN ('Verified','Rejected')
-                      AND (F_AO_SP_Approved_Status IS NULL OR F_AO_SP_Approved_Status = '')
-                )
+                WHERE ca.CurrentStage IN ('SO_ROUTING','SO_VERIFY')
+                  AND (@UserId = 0 OR ca.CurrentOwnerUserId = @UserId)
                 AND (@Year    IS NULL OR ca.AcademicYear = @Year)
                 AND (@Faculty IS NULL OR ca.FacultyCode  = @Faculty)
                 AND (@College IS NULL OR ca.CollegeCode  = @College)
                 ORDER BY ac.CollegeName";
-            return GroupToGrid(ExecRawMembers(sql, year, faculty, college));
+            var list = new List<RawMemberRow>();
+            using var con = new SqlConnection(_conn);
+            using var cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@UserId", userId);
+            cmd.Parameters.AddWithValue("@Year", string.IsNullOrEmpty(year) ? (object)DBNull.Value : year);
+            cmd.Parameters.AddWithValue("@Faculty", string.IsNullOrEmpty(faculty) ? (object)DBNull.Value : faculty);
+            cmd.Parameters.AddWithValue("@College", string.IsNullOrEmpty(college) ? (object)DBNull.Value : college);
+            con.Open();
+            using var dr = cmd.ExecuteReader();
+            while (dr.Read())
+                list.Add(new RawMemberRow
+                {
+                    Id = N(dr, "Id"),
+                    CollegeCode = S(dr, "CollegeCode"),
+                    CollegeName = S(dr, "CollegeName"),
+                    CollegeTown = S(dr, "CollegeTown"),
+                    AcademicYear = S(dr, "AcademicYear"),
+                    TypeOfMembers = S(dr, "TypeOfMembers"),
+                    MemberName = S(dr, "memberName"),
+                    MobileNo = S(dr, "MobileNo"),
+                    TotalClaimAmount = M(dr, "TotalClaimAmount"),
+                    CaseWorkerRemarks = S(dr, "CaseWorkerRemarks"),
+                    FO_Level2_Status = S(dr, "FO_Level2_Status"),
+                    Cashier_Status = S(dr, "Cashier_Status"),
+                    InspectionDate = dr["InspectionDate"] == DBNull.Value
+                        ? (DateOnly?)null
+                        : DateOnly.FromDateTime(Convert.ToDateTime(dr["InspectionDate"]))
+                });
+            return GroupToGrid(list);
         }
 
         public List<LicTadaGridRow> GetCashierRecords(string? year, string? faculty, string? college)
@@ -729,49 +795,127 @@ ORDER BY ac.CollegeName", con);
 
         public bool ForwardToCW(int id, string remarks)
         {
-            return ForwardToCW(id, remarks, "");
+            return ForwardToCW(id, remarks, 0, 0, "FO");
         }
 
         public bool ForwardToCW(int id, string remarks, string routedTo)
         {
+            int.TryParse(routedTo, out var soUserId);
+            return ForwardToCW(id, remarks, soUserId, 0, "FO");
+        }
+
+        public bool ForwardToCW(int id, string remarks, int soUserId, int actionByUserId, string designation)
+        {
             using var con = new SqlConnection(_conn);
             con.Open();
-
-            string collegeCode = "";
-            string academicYear = "";
-
-            using (var cmd = new SqlCommand(@"
-                SELECT TOP 1 CollegeCode, AcademicYear
-                FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                WHERE Id = @Id", con))
+            using var txn = con.BeginTransaction();
+            try
             {
-                cmd.Parameters.AddWithValue("@Id", id);
-                using var dr = cmd.ExecuteReader();
-                if (!dr.Read()) return false;
-                collegeCode = dr.IsDBNull(0) ? "" : dr.GetValue(0)?.ToString() ?? "";
-                academicYear = dr.IsDBNull(1) ? "" : dr.GetValue(1)?.ToString() ?? "";
-            }
+                string collegeCode = "";
+                string academicYear = "";
 
-            if (string.IsNullOrEmpty(collegeCode)) return false;
+                using (var getCmd = new SqlCommand(@"
+                    SELECT TOP 1 CollegeCode, AcademicYear
+                    FROM [Admission_Affiliation].[dbo].[LICCollegeApproval]
+                    WHERE Id = @Id", con, txn))
+                {
+                    getCmd.Parameters.AddWithValue("@Id", id);
+                    using var dr = getCmd.ExecuteReader();
+                    if (!dr.Read()) { txn.Rollback(); return false; }
+                    collegeCode = dr["CollegeCode"]?.ToString() ?? "";
+                    academicYear = dr["AcademicYear"]?.ToString() ?? "";
+                }
 
-            using (var cmd = new SqlCommand(@"
-                UPDATE [Admission_Affiliation].[dbo].[LICCollegeApproval]
-                SET FO_Level1_ApprovedStatus = 'AssignedToCW',
-                    FO_Level1_Remarks        = @Remarks,
-                    FO_Level1_ForwardedDate  = GETDATE(),
-                    UpdatedDate              = GETDATE()
-                WHERE CollegeCode  = @CollegeCode
-                  AND AcademicYear = @AcademicYear
-                  AND (FO_Level1_ApprovedStatus IS NULL OR FO_Level1_ApprovedStatus = '')", con))
-            {
-                var normalizedRoute = string.IsNullOrWhiteSpace(routedTo) ? "SO/AS/AO" : routedTo.Trim();
+                if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(academicYear))
+                {
+                    txn.Rollback();
+                    return false;
+                }
+
+                var routeLabel = soUserId > 0 ? $"UserId:{soUserId}" : "SO/AS/AO";
                 var composedRemarks = string.IsNullOrWhiteSpace(remarks)
-                    ? $"Routed by FO to {normalizedRoute}"
-                    : $"{remarks} | Routed by FO to {normalizedRoute}";
-                cmd.Parameters.AddWithValue("@Remarks", composedRemarks);
-                cmd.Parameters.AddWithValue("@CollegeCode", collegeCode);
-                cmd.Parameters.AddWithValue("@AcademicYear", academicYear);
-                return cmd.ExecuteNonQuery() > 0;
+                    ? $"Routed by FO to {routeLabel}"
+                    : $"{remarks} | Routed by FO to {routeLabel}";
+
+                using (var updCmd = new SqlCommand(@"
+                    UPDATE [Admission_Affiliation].[dbo].[LICCollegeApproval]
+                    SET FO_Level1_ApprovedStatus = 'AssignedToSO',
+                        FO_Level1_Remarks        = @Remarks,
+                        FO_Level1_ForwardedDate  = GETDATE(),
+                        FO_RoutedToUserId        = @SOUserId,
+                        CurrentOwnerUserId       = @SOUserId,
+                        CurrentStage             = 'SO_ROUTING',
+                        UpdatedDate              = GETDATE()
+                    WHERE CollegeCode  = @CollegeCode
+                      AND AcademicYear = @AcademicYear
+                      AND DR_ApprovalStatus IS NOT NULL
+                      AND DR_ApprovalStatus <> ''", con, txn))
+                {
+                    updCmd.Parameters.AddWithValue("@Remarks", composedRemarks);
+                    updCmd.Parameters.AddWithValue("@SOUserId", soUserId > 0 ? soUserId : (object)DBNull.Value);
+                    updCmd.Parameters.AddWithValue("@CollegeCode", collegeCode);
+                    updCmd.Parameters.AddWithValue("@AcademicYear", academicYear);
+                    if (updCmd.ExecuteNonQuery() <= 0) { txn.Rollback(); return false; }
+                }
+
+                txn.Commit();
+                return true;
+            }
+            catch
+            {
+                try { txn.Rollback(); } catch { }
+                return false;
+            }
+        }
+
+        public bool SOAssignCW(int id, int cwUserId, string remarks, int actionByUserId, string designation)
+        {
+            using var con = new SqlConnection(_conn);
+            con.Open();
+            using var txn = con.BeginTransaction();
+
+            try
+            {
+                if (cwUserId <= 0) { txn.Rollback(); return false; }
+
+                using (var cmd = new SqlCommand(@"
+                    UPDATE dbo.LICCollegeApproval
+                    SET SO_AssignedCWUserId      = @CWUserId,
+                        FO_Level1_ApprovedStatus = 'AssignedToCW',
+                        CurrentOwnerUserId       = @CWUserId,
+                        CurrentStage             = 'CW',
+                        UpdatedDate              = GETDATE()
+                    WHERE CollegeCode = (SELECT TOP 1 CollegeCode FROM dbo.LICCollegeApproval WHERE Id = @Id)
+                      AND AcademicYear = (SELECT TOP 1 AcademicYear FROM dbo.LICCollegeApproval WHERE Id = @Id)
+                      AND CurrentStage = 'SO_ROUTING'", con, txn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.Parameters.AddWithValue("@CWUserId", cwUserId);
+                    if (cmd.ExecuteNonQuery() <= 0) { txn.Rollback(); return false; }
+                }
+
+                using (var log = new SqlCommand(@"
+                    INSERT INTO dbo.LIC_Workflow_Movement_Log
+                    (ApprovalId, FromStage, ToStage, FromUserId, ToUserId, ActionType, Remarks, ActionByUserId, ActionByDesignation)
+                    VALUES
+                    (@ApprovalId, 'SO_ROUTING', 'CW', @FromUserId, @ToUserId, 'ASSIGN', @Remarks, @ActionByUserId, @Desig)", con, txn))
+                {
+                    log.Parameters.AddWithValue("@ApprovalId", id);
+                    log.Parameters.AddWithValue("@FromUserId", actionByUserId > 0 ? actionByUserId : (object)DBNull.Value);
+                    log.Parameters.AddWithValue("@ToUserId", cwUserId);
+                    log.Parameters.AddWithValue("@Remarks", remarks ?? "");
+                    log.Parameters.AddWithValue("@ActionByUserId", actionByUserId > 0 ? actionByUserId : 0);
+                    log.Parameters.AddWithValue("@Desig", designation ?? "");
+                    log.ExecuteNonQuery();
+                }
+
+                txn.Commit();
+                return true;
+            }
+            catch
+            {
+                try { txn.Rollback(); } catch { }
+                return false;
             }
         }
 
@@ -1230,8 +1374,11 @@ ORDER BY ac.CollegeName", con);
                     F_CaseWorker_Approve_Remarks = @Remarks,
                     F_CaseWorker_Approved_Date   = GETDATE(),
                     FO_Level1_ApprovedStatus     = 'CWReviewed',
+                    CurrentStage                 = 'SO_VERIFY',
+                    CurrentOwnerUserId           = FO_RoutedToUserId,
                     UpdatedDate                  = GETDATE()
-                WHERE Id = @Id", con);
+                WHERE CollegeCode = (SELECT TOP 1 CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)
+                  AND AcademicYear = (SELECT TOP 1 AcademicYear FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
             cmd.Parameters.AddWithValue("@Id", id);
             con.Open();
@@ -1247,8 +1394,11 @@ ORDER BY ac.CollegeName", con);
                     F_CaseWorker_Approve_Remarks = @Remarks,
                     F_CaseWorker_Approved_Date   = GETDATE(),
                     FO_Level1_ApprovedStatus     = 'CWReviewed',
+                    CurrentStage                 = 'SO_VERIFY',
+                    CurrentOwnerUserId           = FO_RoutedToUserId,
                     UpdatedDate                  = GETDATE()
-                WHERE Id = @Id", con);
+                WHERE CollegeCode = (SELECT TOP 1 CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)
+                  AND AcademicYear = (SELECT TOP 1 AcademicYear FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
             cmd.Parameters.AddWithValue("@Id", id);
             con.Open();
@@ -1264,8 +1414,11 @@ ORDER BY ac.CollegeName", con);
                     F_AO_SP_Approved_Remarks = @Remarks,
                     F_AO_SP_Approved_Date    = GETDATE(),
                     FO_Level1_ApprovedStatus = 'SOReviewed',
+                    CurrentStage             = 'FO_FINAL',
+                    CurrentOwnerUserId       = NULL,
                     UpdatedDate              = GETDATE()
-                WHERE Id = @Id", con);
+                WHERE CollegeCode = (SELECT TOP 1 CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)
+                  AND AcademicYear = (SELECT TOP 1 AcademicYear FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
             cmd.Parameters.AddWithValue("@Id", id);
             con.Open();
@@ -1281,8 +1434,11 @@ ORDER BY ac.CollegeName", con);
                     F_AO_SP_Approved_Remarks = @Remarks,
                     F_AO_SP_Approved_Date    = GETDATE(),
                     FO_Level1_ApprovedStatus = 'SOReviewed',
+                    CurrentStage             = 'CW',
+                    CurrentOwnerUserId       = SO_AssignedCWUserId,
                     UpdatedDate              = GETDATE()
-                WHERE Id = @Id", con);
+                WHERE CollegeCode = (SELECT TOP 1 CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)
+                  AND AcademicYear = (SELECT TOP 1 AcademicYear FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
             cmd.Parameters.AddWithValue("@Id", id);
             con.Open();
@@ -1298,8 +1454,11 @@ ORDER BY ac.CollegeName", con);
                     FO_Level2_ApprovedRemarks = @Remarks,
                     FO_Level2_ApprovedDate    = GETDATE(),
                     FO_Level1_ApprovedStatus  = 'FOFinalApproved',
+                    CurrentStage              = 'CASHIER',
+                    CurrentOwnerUserId        = NULL,
                     UpdatedDate               = GETDATE()
-                WHERE Id = @Id", con);
+                WHERE CollegeCode = (SELECT TOP 1 CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)
+                  AND AcademicYear = (SELECT TOP 1 AcademicYear FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
             cmd.Parameters.AddWithValue("@Id", id);
             con.Open();
@@ -1314,9 +1473,14 @@ ORDER BY ac.CollegeName", con);
                 SET FO_Level2_ApprovedStatus  = 'Rejected',
                     FO_Level2_ApprovedRemarks = @Remarks,
                     FO_Level2_ApprovedDate    = GETDATE(),
-                    FO_Level1_ApprovedStatus  = 'FORejectedToDirector',
+                    FO_Level1_ApprovedStatus  = 'ReworkFromFOFinal',
+                    F_CaseWorker_Approve_Status = NULL,
+                    F_AO_SP_Approved_Status     = NULL,
+                    CurrentStage                = 'SO_ROUTING',
+                    CurrentOwnerUserId          = FO_RoutedToUserId,
                     UpdatedDate               = GETDATE()
-                WHERE Id = @Id", con);
+                WHERE CollegeCode = (SELECT TOP 1 CollegeCode FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)
+                  AND AcademicYear = (SELECT TOP 1 AcademicYear FROM [Admission_Affiliation].[dbo].[LICCollegeApproval] WHERE Id = @Id)", con);
             cmd.Parameters.AddWithValue("@Remarks", remarks ?? "");
             cmd.Parameters.AddWithValue("@Id", id);
             con.Open();
@@ -1510,6 +1674,63 @@ ORDER BY ac.CollegeName", con);
                 catch { failed++; }
             }
             return (paid, failed);
+        }
+
+        public class WorkflowUserItem
+        {
+            public int Id { get; set; }
+            public string UserName { get; set; } = "";
+            public string Designation { get; set; } = "";
+        }
+
+        public List<WorkflowUserItem> GetSOUsers()
+        {
+            var list = new List<WorkflowUserItem>();
+            using var con = new SqlConnection(_conn);
+            using var cmd = new SqlCommand(@"
+        SELECT Id, ISNULL(UserName,'') AS UserName, ISNULL(FinanceDesignation,'') AS FinanceDesignation
+        FROM dbo.TblRguhsFacultyUser
+        WHERE IsActive = 1
+          AND ISNULL(IsFinance,0) = 1
+          AND FinanceDesignation IN ('SO','AS','AO')
+        ORDER BY UserName", con);
+            con.Open();
+            using var dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                list.Add(new WorkflowUserItem
+                {
+                    Id = N(dr, "Id"),
+                    UserName = S(dr, "UserName"),
+                    Designation = S(dr, "FinanceDesignation")
+                });
+            }
+            return list;
+        }
+
+        public List<WorkflowUserItem> GetCWUsers()
+        {
+            var list = new List<WorkflowUserItem>();
+            using var con = new SqlConnection(_conn);
+            using var cmd = new SqlCommand(@"
+        SELECT Id, ISNULL(UserName,'') AS UserName, ISNULL(FinanceDesignation,'') AS FinanceDesignation
+        FROM dbo.TblRguhsFacultyUser
+        WHERE IsActive = 1
+          AND ISNULL(IsFinance,0) = 1
+          AND FinanceDesignation = 'CW'
+        ORDER BY UserName", con);
+            con.Open();
+            using var dr = cmd.ExecuteReader();
+            while (dr.Read())
+            {
+                list.Add(new WorkflowUserItem
+                {
+                    Id = N(dr, "Id"),
+                    UserName = S(dr, "UserName"),
+                    Designation = S(dr, "FinanceDesignation")
+                });
+            }
+            return list;
         }
     }
 }
