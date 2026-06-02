@@ -648,9 +648,13 @@ namespace Medical_Affiliation.Controllers
                 if (intakeDetails.Any())
                 {
                     return
-                        from d in intakeDetails.Where(d => int.TryParse(d.CourseCode, out _))
-                        let codeInt = int.Parse(d.CourseCode!)
-                        join c in levelCourses on codeInt equals c.CourseCode
+                        from c in levelCourses
+
+                        join d in intakeDetails
+                        on c.CourseCode.ToString() equals d.CourseCode into dj
+
+                        from detail in dj.DefaultIfEmpty()
+
                         join e in existingIntakes
                             on c.CourseCode.ToString() equals e.Courses into ej
                         from existing in ej.DefaultIfEmpty()
@@ -681,17 +685,16 @@ namespace Medical_Affiliation.Controllers
                                     existing.Ay2027Dcidocument.Length > 0,
 
                             // 2024-25
-                            AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
+                            AY2024_ExistingIntake = detail?.ExistingIntake ?? 0,
                             AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
                             AY2024_TotalIntake =
                                 existing?.Ay2024TotalIntake
-                                ?? d.ExistingIntake.GetValueOrDefault(),
+                                ?? detail?.ExistingIntake ?? 0,
 
                             // 2025-26
                             AY2025_ExistingIntake =
                                 existing?.Ay2025ExistingIntake
-                                ?? d.ExistingIntake
-                                ?? 0,
+                                ?? detail?.ExistingIntake ?? 0,
 
                             AY2025_LopNmcIntake =
                                 existing?.Ay2025LopNmcIntake ?? 0,
@@ -726,79 +729,59 @@ namespace Medical_Affiliation.Controllers
                     return
                         from c in levelCourses
                         join e in existingIntakes
-                            on c.CourseCode.ToString() equals e.Courses
-                        where c.CourseLevel == level
+                            on c.CourseCode.ToString() equals e.Courses into ej
+                        from existing in ej.DefaultIfEmpty()
 
                         select new IntakeByLevelViewModel1
                         {
-                            Id = e.Id,
+                            Id = existing?.Id ?? 0,
 
                             CourseCode = c.CourseCode.ToString(),
                             CourseName = c.CourseName,
 
                             HasNmcDocument =
-                                e.Ay2025NmcDocument != null &&
-                                e.Ay2025NmcDocument.Length > 0,
+                                existing?.Ay2025NmcDocument != null &&
+                                existing.Ay2025NmcDocument.Length > 0,
 
-                            HasLopDocument =
-                                !string.IsNullOrWhiteSpace(e.Ay2025LopDentalDocument),
+                            HasLopDocument =!string.IsNullOrWhiteSpace(existing?.Ay2025LopDentalDocument),
 
-                            HasAY2025DciDocument =
-                                !string.IsNullOrWhiteSpace(e.Ay2025Dcidocument),
+                            HasAY2025DciDocument = !string.IsNullOrWhiteSpace(existing?.Ay2025Dcidocument),
 
-                            HasAY2025KsdcDocument =
-                                !string.IsNullOrWhiteSpace(e.Ay2025Ksdcdocument),
+                            HasAY2025KsdcDocument = !string.IsNullOrWhiteSpace(existing?.Ay2025Ksdcdocument),
 
-                            HasAY2026DciDocument =
-                                !string.IsNullOrWhiteSpace(e.Ay2026Dcidocument),
+                            HasAY2026DciDocument =  !string.IsNullOrWhiteSpace(existing?.Ay2026Dcidocument),
 
-                            HasAY2026KsdcDocument =
-                                !string.IsNullOrWhiteSpace(e.Ay2026Ksdcdocument),
+                            HasAY2026KsdcDocument = !string.IsNullOrWhiteSpace(existing?.Ay2026Ksdcdocument),
 
-                            HasAY2027DciDocument =
-                                !string.IsNullOrWhiteSpace(e.Ay2027Dcidocument),
+                            HasAY2027DciDocument = !string.IsNullOrWhiteSpace(existing?.Ay2027Dcidocument),
 
-                            HasAY2027KsdcDocument =
-                                !string.IsNullOrWhiteSpace(e.Ay2027Ksdcdocument),
+                            HasAY2027KsdcDocument = !string.IsNullOrWhiteSpace(existing?.Ay2027Ksdcdocument),
 
-                            AY2024_ExistingIntake =
-                                e.Ay2024ExistingIntake,
+                            AY2024_ExistingIntake = existing?.Ay2024ExistingIntake ?? 0,
 
-                            AY2024_IncreaseIntake =
-                                e.Ay2024IncreaseIntake,
+                            AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
 
-                            AY2024_TotalIntake =
-                                e.Ay2024TotalIntake,
+                            AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? 0,
 
-                            AY2025_ExistingIntake =
-                                e.Ay2025ExistingIntake,
+                            AY2025_ExistingIntake =  existing?.Ay2025ExistingIntake ?? 0,
 
-                            AY2025_LopNmcIntake =
-                                e.Ay2025LopNmcIntake,
+                            AY2025_LopNmcIntake =  existing?.Ay2025LopNmcIntake ?? 0,
 
-                            AY2025_TotalIntake =
-                                e.Ay2025TotalIntake,
+                            AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
 
-                            AY2025_LopDate =
-                                e.Ay2025LopDate,
+                            AY2025_LopDate = existing?.Ay2025LopDate,
 
-                            AY2026_ExistingIntake =
-                                e.Ay2026ExistingIntake,
+                            AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
 
-                            AY2026_AddRequestedIntake =
-                                e.Ay2026AddRequestedIntake,
+                            AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
 
-                            AY2026_TotalIntake =
-                                e.Ay2026TotalIntake,
+                            AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0,
 
-                            AY2027_ExistingIntake =
-                                e.Ay2027ExistingIntake,
+                            AY2027_ExistingIntake = existing?.Ay2027ExistingIntake ?? 0,
 
-                            AY2027_AddRequestedIntake =
-                                e.Ay2027AddRequestedIntake,
+                            AY2027_AddRequestedIntake = existing?.Ay2027AddRequestedIntake ?? 0,
 
-                            AY2027_TotalIntake =
-                                e.Ay2027TotalIntake
+                            AY2027_TotalIntake = existing?.Ay2027TotalIntake ?? 0
                         };
                 }
 

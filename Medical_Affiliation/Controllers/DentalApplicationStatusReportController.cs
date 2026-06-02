@@ -76,16 +76,18 @@ namespace Medical_Affiliation.Controllers
             string? selectedCollege)
         {
 
-            var facultyList = await _context.Faculties
-            .Where(f => f.Status == "Active" &&
-                   (f.FacultyId == 1 || f.FacultyId == 2))
-            .OrderBy(f => f.FacultyId)
-            .Select(f => new SelectListItem
+
+            selectedFaculty = "2";
+
+            var facultyList = new List<SelectListItem>
             {
-                Value = f.FacultyId.ToString(),
-                Text = f.FacultyName
-            })
-            .ToListAsync();
+                new SelectListItem
+                {
+                    Value = "2",
+                    Text = "Dental",
+                    Selected = true
+                }
+            };
 
             var collegeDropdown = new List<SelectListItem>
             {
@@ -96,30 +98,20 @@ namespace Medical_Affiliation.Controllers
                 }
             };
 
-            if (!string.IsNullOrEmpty(selectedFaculty))
-            {
-                var colleges = await _context.AffiliationCollegeMasters
-                    .Where(c => c.FacultyCode == selectedFaculty)
-                    .OrderBy(c => c.CollegeName)
-                    .Select(c => new SelectListItem
-                    {
-                        Value = c.CollegeCode,
-                        Text = c.CollegeName
-                    })
-                    .ToListAsync();
+            var colleges = await _context.AffiliationCollegeMasters
+                .Where(c => c.FacultyCode == "2")
+                .OrderBy(c => c.CollegeName)
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CollegeCode,
+                    Text = c.CollegeName
+                })
+                .ToListAsync();
 
-                collegeDropdown.AddRange(colleges);
-            }
+            collegeDropdown.AddRange(colleges);
             List<CollegeStatusRowVM> reportRows;
 
-            if (!string.IsNullOrEmpty(selectedFaculty))
-            {
-                reportRows = await GetReportData(selectedFaculty, selectedCollege);
-            }
-            else
-            {
-                reportRows = await GetReportData(null, null);
-            }
+            reportRows = await GetReportData("2", selectedCollege);
 
             int globalTotal = reportRows.Count;
             int globalComplete = reportRows.Count(r => r.Percentage == 100);
@@ -143,13 +135,22 @@ namespace Medical_Affiliation.Controllers
                 };
             }
 
-            var finalList = sortBy switch
+            var finalList = filteredRows.OrderBy(r => r.CollegeName).ToList();
+
+            if (sortBy == "pct_desc")
             {
-                "name" => filteredRows.OrderBy(r => r.CollegeName).ToList(),
-                "pct_asc" => filteredRows.OrderBy(r => r.Percentage).ToList(),
-                "pct_desc" => filteredRows.OrderByDescending(r => r.Percentage).ToList(),
-                _ => filteredRows.OrderByDescending(r => r.Percentage).ToList()
-            };
+                finalList = finalList
+                    .OrderByDescending(r => r.Percentage)
+                    .ThenBy(r => r.CollegeName)
+                    .ToList();
+            }
+            else if (sortBy == "pct_asc")
+            {
+                finalList = finalList
+                    .OrderBy(r => r.Percentage)
+                    .ThenBy(r => r.CollegeName)
+                    .ToList();
+            }
 
             return View(new ApplicationStatusReportVM
             {

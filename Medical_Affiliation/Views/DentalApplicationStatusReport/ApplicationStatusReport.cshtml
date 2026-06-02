@@ -560,15 +560,8 @@
 
                 <form method="get" asp-action="ApplicationStatusReport" id="filterForm">
 
-                    <select name="selectedFaculty" class="sort-select">
-                        <option value="">Select Faculty</option>
-                        @foreach (var f in Model.Faculties)
-                        {
-                            <option value="@f.Value"
-                                    selected="@(Model.SelectedFaculty == f.Value)">
-                                @f.Text
-                            </option>
-                        }
+                    <select name="selectedFaculty" class="sort-select" readonly>
+                        <option value="2" selected>Dental</option>
                     </select>
 
                     <select name="selectedCollege" class="sort-select">
@@ -585,6 +578,7 @@
                            name="search"
                            class="search-col"
                            placeholder="Search College"
+                           id="collegeSearch"
                            value="@Model.Search" />
 
                     <select name="filterStatus" class="sort-select">
@@ -594,10 +588,11 @@
                         <option value="notstarted">Not Started</option>
                     </select>
 
-                    <select name="sortBy" class="sort-select">
-                        <option value="pct_desc">Most Complete First</option>
-                        <option value="pct_asc">Least Complete First</option>
-                        <option value="name">College Name A-Z</option>
+                    <select name="filterStatus" class="sort-select">
+                        <option value="" selected="@(string.IsNullOrEmpty(Model.FilterStatus))">All Status</option>
+                        <option value="complete" selected="@(Model.FilterStatus == "complete")">Completed</option>
+                        <option value="inprogress" selected="@(Model.FilterStatus == "inprogress")">In Progress</option>
+                        <option value="notstarted" selected="@(Model.FilterStatus == "notstarted")">Not Started</option>
                     </select>
 
                     <button type="submit" class="btn-search">
@@ -684,8 +679,15 @@
         </div>
         
         <div class="college-table-wrap" id="printableArea">
+            <div style="padding:15px 24px; border-bottom:1px solid #e2e8f0;">
+                <input type="text"
+                       id="collegeSearch"
+                       class="search-col"
+                       placeholder="Search College Name or Code..."
+                       style="width:350px;" />
+            </div>
             <!-- FIX 3: Professional Font Header (Image 4) -->
-            <h3 style="font-family: 'Syne', sans-serif; letter-spacing: -0.01em; padding-left: 24px;">
+            <h3 style="font-family: 'Syne', sans-serif; letter-spacing: -0.01em; padding-left: 24px;" id="collegeCountHeader">
                 College-wise Status — @Model.Colleges.Count college(s) shown
             </h3>
 
@@ -709,7 +711,7 @@
                             <th style="text-align:center;">Details</th> 
                         </tr>
                     </thead>
-                    <tbody >
+                    <tbody id="collegeTableBody">
                         @for (int i = 0; i < Model.Colleges.Count; i++)
                         {
                             var col = Model.Colleges[i];
@@ -739,7 +741,7 @@
                                 </td>
                             </tr>
                         }
-                    </tbody
+                    </tbody >
                 </table>
             }
         </div>
@@ -939,6 +941,36 @@
         function exportPDF() {
             window.print();
         }
+
+    </script>
+    <script>
+        document.getElementById("collegeSearch").addEventListener("keyup", function () {
+
+            const searchText = this.value.toLowerCase();
+            const rows = document.querySelectorAll("#collegeTableBody tr");
+
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+
+                const collegeName =
+                    row.querySelector(".ct-name")?.innerText.toLowerCase() || "";
+
+                const collegeCode =
+                    row.querySelector(".ct-code")?.innerText.toLowerCase() || "";
+
+                const match =
+                    collegeName.includes(searchText) ||
+                    collegeCode.includes(searchText);
+
+                row.style.display = match ? "" : "none";
+
+                if (match) visibleCount++;
+            });
+
+            document.getElementById("collegeCountHeader").innerText =
+                `College-wise Status — ${visibleCount} college(s) shown`;
+        });
     </script>
 </body>
 </html>
