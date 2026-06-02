@@ -46,7 +46,8 @@ namespace Medical_Affiliation.Controllers
                         CollegeIntake = c.CollegeIntake,
                         RguhsIntake = c.RguhsIntake,
                         DateofLOP = p?.DateofLOP,
-                        DateofRecognitionByNMC = p?.DateofRecognitionByNMC
+                        DateofRecognitionByNMC = p?.DateofRecognitionByNMC,
+                        DateofRecognitionByDCI = p?.DateofRecognitionByDCI
                     };
                 })
                 .ToList();
@@ -94,6 +95,30 @@ namespace Medical_Affiliation.Controllers
                                           }
                                           ).ToListAsync();
 
+
+            // Fallback to AcademicIntake
+            if (!getDegreeCourses.Any())
+            {
+                getDegreeCourses = await (
+                    from ai in _context.AcademicIntakes
+                    join ms in _context.MstCourses
+                        on ai.Courses equals ms.CourseCode.ToString()
+                    where ai.CollegeCode == collegeCode
+                          && ai.FacultyCode == facultyCode.ToString()
+                          && ms.CoursePrefix != "Diploma"
+                          && ms.CourseLevel != "UG"
+                    select new PgCourseVm
+                    {
+                        CourseCode = ai.Courses ?? "",
+                        CourseName = ms.CourseName,
+                        CourseLevel = ms.CourseLevel,
+                        CoursePrefix = ms.CoursePrefix,
+                        CollegeIntake = ai.Ay2026TotalIntake // choose the appropriate intake field
+                    }
+                )
+                .Distinct()
+                .ToListAsync();
+            }
             return getDegreeCourses;
         }
 
@@ -115,6 +140,29 @@ namespace Medical_Affiliation.Controllers
                                                CollegeIntake = cc.PresentIntake
                                            }
                                           ).ToListAsync();
+
+            if (!getDiplomaCourses.Any())
+            {
+                getDiplomaCourses = await (
+                    from ai in _context.AcademicIntakes
+                    join ms in _context.MstCourses
+                        on ai.Courses equals ms.CourseCode.ToString()
+                    where ai.CollegeCode == collegeCode
+                          && ai.FacultyCode == facultyCode.ToString()
+                          && ms.CoursePrefix == "Diploma"
+                    select new PgCourseVm
+                    {
+                        CourseCode = ai.Courses ?? "",
+                        CourseName = ms.CourseName,
+                        CourseLevel = ms.CourseLevel,
+                        CoursePrefix = ms.CoursePrefix,
+                        CollegeIntake = ai.Ay2026TotalIntake // replace if another year is required
+                    }
+                )
+                .Distinct()
+                .ToListAsync();
+            }
+
             return getDiplomaCourses;
         }
 
@@ -145,7 +193,31 @@ namespace Medical_Affiliation.Controllers
                 }
             ).ToListAsync();
 
-            var result = new List<PgCourseParticularsVm>();
+            if (!allCourses.Any())
+            {
+                var facultyCode = _userContext.FacultyId;
+
+                allCourses = await (
+                    from ai in _context.AcademicIntakes
+                    join ms in _context.MstCourses
+                        on ai.Courses equals ms.CourseCode.ToString()
+                    where ai.CollegeCode == collegeCode
+                          && ai.FacultyCode == facultyCode.ToString()
+                    select new PgCourseVm
+                    {
+                        CourseCode = ai.Courses ?? "",
+                        CourseName = ms.CourseName,
+                        CourseLevel = ms.CourseLevel,
+                        CoursePrefix = ms.CoursePrefix,
+                        CollegeIntake = ai.Ay2026TotalIntake, // use required year
+                        RguhsIntake = ai.Ay2026ExistingIntake // use required year
+                    }
+                )
+                .Distinct()
+                .ToListAsync();
+            }
+
+                var result = new List<PgCourseParticularsVm>();
 
             // 3️⃣ Overlay existing data (if any)
             foreach (var course in allCourses)
@@ -156,7 +228,13 @@ namespace Medical_Affiliation.Controllers
                     {
                         CourseCode = course.CourseCode,
                         DateofLOP = existing.Lopdate,
-                        DateofRecognitionByNMC = existing.DateofRecognitionByNmc,
+                        DateofRecognitionByNMC = FacultyCode == "1"
+                            ? existing.DateofRecognitionByNmc
+                            : null,
+
+                        DateofRecognitionByDCI = FacultyCode == "2"
+                            ? existing.DateofRecognitionByDci
+                            : null,
                         CourseLevel = course.CourseLevel,
                         CourseName = course.CourseName,
                         CoursePrefix = course.CoursePrefix,
@@ -221,6 +299,48 @@ namespace Medical_Affiliation.Controllers
                 };
 
             var result = await pgCoursesQuery.ToListAsync();
+            if (!result.Any() && facultyCode == 2)
+            {
+                result = await (
+                    from ai in _context.AcademicIntakes
+                    join cm in _context.MstCourses
+                        on ai.Courses equals cm.CourseCode.ToString()
+
+                    join gok in _context.AffiliationPgSsCourseDetailsForGoks
+                        .Where(e => e.CollegeCode == collegeCode)
+                        on ai.Courses equals gok.CourseCode into gokGroup
+
+                    from gok in gokGroup.DefaultIfEmpty()
+
+                    where ai.CollegeCode == collegeCode
+                          && ai.FacultyCode == facultyCode.ToString()
+                          && cm.CourseLevel == "PG"
+
+                    select new PgCoursesGokVM
+                    {
+                        CollegeCode = collegeCode,
+                        CourseCode = ai.Courses ?? "",
+                        CourseName = gok != null ? gok.CourseName : cm.CourseName,
+                        CourseLevel = gok != null ? gok.CourseLevel : cm.CourseLevel,
+                        CoursePrefix = gok != null ? gok.CoursePrefix : cm.CoursePrefix,
+
+                        CollegeIntake = gok != null
+                            ? gok.PresentIntake
+                            : ai.Ay2026TotalIntake,
+
+                        RguhsIntake = gok != null
+                            ? gok.PresentIntake
+                            : ai.Ay2026ExistingIntake,
+
+                        HasGOKDocument = gok != null
+                            && gok.DocumentofGokpath != null
+                            && gok.DocumentofGokpath.Length > 0,
+
+                        AcademicYear = gok != null ? gok.AcademicYear : null,
+                        DateofGOK = gok != null ? gok.Gokdate : null
+                    }
+                ).ToListAsync();
+            }
             return result;
         }
 
@@ -256,6 +376,46 @@ namespace Medical_Affiliation.Controllers
                 };
 
             var result = await pgCourseswithRguhs.ToListAsync();
+            if (!result.Any() && facultyCode == "2")
+            {
+                result = await (
+                    from ai in _context.AcademicIntakes
+                    join mst in _context.MstCourses
+                        on ai.Courses equals mst.CourseCode.ToString()
+
+                    join rguhsCourses in _context.AffiliationPgSsCourseDetailsRguhs
+                        .Where(e => e.CollegeCode == collegeCode)
+                        on ai.Courses equals rguhsCourses.CourseCode into rguhsCoursesGroup
+
+                    from rguhsCourses in rguhsCoursesGroup.DefaultIfEmpty()
+
+                    where ai.CollegeCode == collegeCode
+                          && ai.FacultyCode == facultyCode
+                          && mst.CourseLevel == "PG"
+
+                    select new PgCoursesWithRGUHSPermission
+                    {
+                        CollegeCode = collegeCode,
+
+                        CourseCode = rguhsCourses != null
+                            ? rguhsCourses.CourseCode
+                            : ai.Courses!,
+
+                        CourseName = mst.CourseName,
+                        CourseLevel = mst.CourseLevel,
+                        CoursePrefix = mst.CoursePrefix,
+
+                        RguhsIntake = rguhsCourses != null
+                            ? rguhsCourses.RguhsIntake
+                            : ai.Ay2026ExistingIntake, // change year if needed
+
+                        HasRguhsDocument =
+                            rguhsCourses != null &&
+                            rguhsCourses.RguhssupportingDocumentPath != null &&
+                            rguhsCourses.RguhssupportingDocumentPath.Length > 0
+                    }
+                ).ToListAsync();
+            }
             return result;
         }
 
@@ -317,8 +477,16 @@ namespace Medical_Affiliation.Controllers
                     continue;
 
                 // Ignore empty rows (optional safety)
-                if (course.DateofLOP == null && course.DateofRecognitionByNMC == null)
+                if ((FacultyCode == "1" &&
+                         course.DateofLOP == null &&
+                         course.DateofRecognitionByNMC == null)
+                     ||
+                        (FacultyCode == "2" &&
+                         course.DateofLOP == null &&
+                         course.DateofRecognitionByDCI == null))
+                {
                     continue;
+                }
 
                 var existing = await _context.AffiliationPgSsCourseDetails
                     .FirstOrDefaultAsync(x =>
@@ -340,7 +508,8 @@ namespace Medical_Affiliation.Controllers
                         PresentIntake = course.CollegeIntake,
                         RguhsIntake = course.RguhsIntake,
                         Lopdate = course.DateofLOP,
-                        DateofRecognitionByNmc = course.DateofRecognitionByNMC
+                        DateofRecognitionByNmc = course.DateofRecognitionByNMC,
+                        DateofRecognitionByDci = course.DateofRecognitionByDCI
                     });
                 }
                 else
@@ -348,6 +517,7 @@ namespace Medical_Affiliation.Controllers
                     // UPDATE
                     existing.Lopdate = course.DateofLOP;
                     existing.DateofRecognitionByNmc = course.DateofRecognitionByNMC;
+                    existing.DateofRecognitionByDci = course.DateofRecognitionByDCI;
                 }
             }
 

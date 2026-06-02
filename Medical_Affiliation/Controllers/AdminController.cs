@@ -1152,6 +1152,7 @@ namespace Admission_Affiliation.Controllers
 
             ViewBag.IsAdmin = Convert.ToInt32(facultyId) > 98;
             HttpContext.Session.SetString("IsAdmin", Convert.ToInt32(facultyId) > 98 ? "true": "false");
+            HttpContext.Session.SetString("IsAdmin", Convert.ToInt32(facultyId) > 98 ? "true": "false");
             ViewBag.FacultyId = facultyId;
             ViewBag.Faculties = _context.Faculties
                 .OrderBy(e => e.FacultyName)

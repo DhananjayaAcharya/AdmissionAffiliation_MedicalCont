@@ -36,6 +36,7 @@
 
         public DateOnly? DateofLOP { get; set; }
         public DateOnly? DateofRecognitionByNMC { get; set; }
+        public DateOnly? DateofRecognitionByDCI { get; set; }
 
     }
 
