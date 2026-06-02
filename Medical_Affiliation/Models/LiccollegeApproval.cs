@@ -100,12 +100,4 @@ public partial class LiccollegeApproval
     public DateOnly? InspectionDate { get; set; }
 
     public DateTime? LicApprovalUploadedOn { get; set; }
-
-    public int? FoRoutedToUserId { get; set; }
-
-    public int? SoAssignedCwuserId { get; set; }
-
-    public int? CurrentOwnerUserId { get; set; }
-
-    public string? CurrentStage { get; set; }
 }

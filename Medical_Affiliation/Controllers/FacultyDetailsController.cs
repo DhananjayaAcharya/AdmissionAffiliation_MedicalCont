@@ -221,41 +221,50 @@ namespace Medical_Affiliation.Controllers
             return View(vmList);
         }
 
-        private async Task<string?> SaveFacultyFileAsync(
-    IFormFile? file,
-    string subFolder,
-    string facultyCode)
+        private async Task<string?> SaveFacultyFileAsync(IFormFile? file,string subFolder,string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            // Select root path based on faculty
+            var extension = Path.GetExtension(file.FileName)
+                                .ToLowerInvariant();
+
+            // Faculty documents are PDFs only
+            if (extension != ".pdf")
+            {
+                throw new Exception("Only PDF files are allowed.");
+            }
+
+            if (file.ContentType != "application/pdf")
+            {
+                throw new Exception("Invalid file type.");
+            }
+
+            // 5 MB limit
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                throw new Exception("File size cannot exceed 5 MB.");
+            }
+
             string rootPath = facultyCode == "2"
                 ? BaseDentalPath
                 : BaseMedicalPath;
 
-            // FacultyDetails folder
             string basePath =
                 Path.Combine(rootPath, "FacultyDetails");
 
-            // Dynamic subfolder
             string fullFolder =
                 Path.Combine(basePath, subFolder);
 
-            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            // Generate unique file name
             string fileName =
-                Guid.NewGuid().ToString() +
-                Path.GetExtension(file.FileName);
+                $"{Guid.NewGuid()}.pdf";
 
-            // Full file path
             string fullPath =
                 Path.Combine(fullFolder, fileName);
 
-            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);

@@ -55,7 +55,9 @@ namespace Medical_Affiliation.Models
 
     public class UpdatePassword
     {
-        public string CollegeCode { get; set; }
+        public string? CollegeCode { get; set; }
         public string UpdatedPassword { get; set; }
+
+       // public string CurrentPassword { get; set; }
     }
 }

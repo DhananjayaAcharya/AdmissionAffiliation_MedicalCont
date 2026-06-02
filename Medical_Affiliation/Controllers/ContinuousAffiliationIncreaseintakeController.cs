@@ -293,10 +293,29 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
-        protected async Task<string?> SaveFileAsync( IFormFile? file,   string folderName)
+        protected async Task<string?> SaveFileAsync(
+     IFormFile? file,
+     string folderName)
         {
             if (file == null || file.Length == 0)
                 return null;
+
+            const long maxSize = 5 * 1024 * 1024; // 5 MB
+
+            var extension = Path.GetExtension(file.FileName)
+                                .ToLowerInvariant();
+
+            // PDF only
+            if (extension != ".pdf")
+                throw new Exception("Only PDF files are allowed.");
+
+            // Content Type Validation
+            if (file.ContentType != "application/pdf")
+                throw new Exception("Invalid file type.");
+
+            // File Size Validation
+            if (file.Length > maxSize)
+                throw new Exception("File size cannot exceed 5 MB.");
 
             var folderPath = Path.Combine(BaseDentalPath, folderName);
 
@@ -304,9 +323,10 @@ namespace Medical_Affiliation.Controllers
                 Directory.CreateDirectory(folderPath);
 
             var fileName =
-                $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                $"{Guid.NewGuid()}.pdf";
 
-            var fullPath = Path.Combine(folderPath, fileName);
+            var fullPath =
+                Path.Combine(folderPath, fileName);
 
             using var stream = new FileStream(fullPath, FileMode.Create);
 
@@ -405,6 +425,20 @@ namespace Medical_Affiliation.Controllers
         {
             if (file == null || file.Length == 0)
                 return null;
+
+            const long maxSize = 5 * 1024 * 1024;
+
+            var extension = Path.GetExtension(file.FileName)
+                                .ToLowerInvariant();
+
+            if (extension != ".pdf")
+                throw new Exception("Only PDF files are allowed.");
+
+            if (file.ContentType != "application/pdf")
+                throw new Exception("Invalid file type.");
+
+            if (file.Length > maxSize)
+                throw new Exception("File size cannot exceed 5 MB.");
 
             using var ms = new MemoryStream();
 

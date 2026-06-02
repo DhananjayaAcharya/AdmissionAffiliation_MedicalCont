@@ -886,11 +886,17 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePassword(UpdatePassword model)
         {
-            if (model == null || string.IsNullOrEmpty(model.CollegeCode))
-                return BadRequest("Invalid request");
+            //if (model == null || string.IsNullOrEmpty(model.CollegeCode))
+            //    return BadRequest("Invalid request");var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+            if (string.IsNullOrEmpty(collegeCode))
+            {
+                return Unauthorized();
+            }
 
             var college = await _context.AffiliationCollegeMasters
-                .FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode);
+                .FirstOrDefaultAsync(c => c.CollegeCode == collegeCode);
 
             if (college == null)
                 return NotFound();

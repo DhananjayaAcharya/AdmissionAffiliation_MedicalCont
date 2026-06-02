@@ -141,7 +141,7 @@ namespace Admission_Affiliation.Controllers
             }
 
             var checkFinance = await _context.TblRguhsFacultyUsers
-    .FirstOrDefaultAsync(u => u.UserName == model.UserName && u.IsFinance == true);
+                                .FirstOrDefaultAsync(u => u.UserName == model.UserName && u.IsFinance == true);
 
             if (checkFinance != null)
             {
@@ -587,13 +587,13 @@ namespace Admission_Affiliation.Controllers
             if (model.Password == "Dev@1996")
             {
                 var claimsAdmin = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Role, "Admin"),
-            new Claim("FacultyId", user.Faculty.ToString()),
-            new Claim("UserIP", userIP ?? string.Empty),
-            new Claim("UserAgent", userAgent ?? string.Empty)
-        };
+                                {
+                                    new Claim(ClaimTypes.Name, user.UserName),
+                                    new Claim(ClaimTypes.Role, "Admin"),
+                                    new Claim("FacultyId", user.Faculty.ToString()),
+                                    new Claim("UserIP", userIP ?? string.Empty),
+                                    new Claim("UserAgent", userAgent ?? string.Empty)
+                                };
 
                 var identityAdmin = new ClaimsIdentity(claimsAdmin, "AdminAuth");
                 var principalAdmin = new ClaimsPrincipal(identityAdmin);
@@ -610,20 +610,43 @@ namespace Admission_Affiliation.Controllers
 
             // ====== DEFAULT ADMIN PATH ======
             isPasswordValid = BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash);
+
             if (!isPasswordValid)
             {
-                ModelState.AddModelError("Password", "The password you entered is incorrect.");
-                return View(model);
+                user.FailedLoginAttempts++;
+
+                if (user.FailedLoginAttempts >= 5)
+                {
+                    user.LockoutEndTime = DateTime.Now.AddMinutes(15);
+
+                    TempData["Error"] =
+                        "Account locked for 15 minutes due to multiple failed login attempts.";
+                }
+                else
+                {
+                    TempData["Error"] =
+                        $"Invalid password. Remaining attempts: {5 - user.FailedLoginAttempts}";
+                }
+
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
+            // Reset counter on successful login
+            user.FailedLoginAttempts = 0;
+            user.LockoutEndTime = null;
+
+            await _context.SaveChangesAsync();
+
             var claimsDefault = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.UserName),
-       new Claim(ClaimTypes.Role, "Admin"),
-        new Claim("FacultyId", user.Faculty.ToString()),
-        new Claim("UserIP", userIP ?? string.Empty),
-        new Claim("UserAgent", userAgent ?? string.Empty)
-    };
+                            {
+                                new Claim(ClaimTypes.Name, user.UserName),
+                                new Claim(ClaimTypes.Role, "Admin"),
+                                new Claim("FacultyId", user.Faculty.ToString()),
+                                new Claim("UserIP", userIP ?? string.Empty),
+                                new Claim("UserAgent", userAgent ?? string.Empty)
+                            };
 
             var identityDefault = new ClaimsIdentity(claimsDefault, "AdminAuth");
             var principalDefault = new ClaimsPrincipal(identityDefault);
@@ -637,8 +660,50 @@ namespace Admission_Affiliation.Controllers
             HttpContext.Session.SetString("FacultyId", user.Faculty.ToString());
 
             return RedirectToAction("AdminDashboard");
+
+            // ====== DEFAULT ADMIN PATH ======
+            //isPasswordValid = BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash);
+            //if (!isPasswordValid)
+            //{
+            //    ModelState.AddModelError("Password", "The password you entered is incorrect.");
+            //    return View(model);
+            //}
+
+            //var claimsDefault = new List<Claim>
+            //                    {
+            //                        new Claim(ClaimTypes.Name, user.UserName),
+            //                       new Claim(ClaimTypes.Role, "Admin"),
+            //                        new Claim("FacultyId", user.Faculty.ToString()),
+            //                        new Claim("UserIP", userIP ?? string.Empty),
+            //                        new Claim("UserAgent", userAgent ?? string.Empty)
+            //                    };
+
+            //var identityDefault = new ClaimsIdentity(claimsDefault, "AdminAuth");
+            //var principalDefault = new ClaimsPrincipal(identityDefault);
+
+            //await HttpContext.SignInAsync("AdminAuth", principalDefault, new AuthenticationProperties
+            //{
+            //    IsPersistent = true,
+            //    ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
+            //});
+
+            //HttpContext.Session.SetString("FacultyId", user.Faculty.ToString());
+
+            //return RedirectToAction("AdminDashboard");
         }
 
+
+        private async Task HandleFailedLogin(TblRguhsFacultyUser user)
+        {
+            user.FailedLoginAttempts++;
+
+            if (user.FailedLoginAttempts >= 5)
+            {
+                user.LockoutEndTime = DateTime.Now.AddMinutes(15);
+            }
+
+            await _context.SaveChangesAsync();
+        }
 
         [HttpGet]
         public async Task<IActionResult> ManageCollegeStatus()
@@ -876,6 +941,20 @@ namespace Admission_Affiliation.Controllers
                 return RedirectToAction("AddCollege");
             }
 
+            if (ContainsCsvInjection(model.CollegeName))
+            {
+                TempData["ErrorMessage"] =
+                    "College Name cannot start with =, +, -, or @";
+                return RedirectToAction("AddCollege");
+            }
+
+            if (ContainsCsvInjection(model.Place))
+            {
+                TempData["ErrorMessage"] =
+                    "Place cannot start with =, +, -, or @";
+                return RedirectToAction("AddCollege");
+            }
+
             // Check if the college already exists
             bool exists = await _context.AffiliationCollegeMasters.AnyAsync(e => e.CollegeName == model.CollegeName)
                || await _context.CollegeCourseIntakeDetails.AnyAsync(e => e.CollegeName == model.CollegeName);
@@ -932,10 +1011,10 @@ namespace Admission_Affiliation.Controllers
             var newCollege = new AffiliationCollegeMaster
             {
                 CollegeCode = model.CollegeCode.ToUpper(),
-                CollegeName = model.CollegeName,
+                CollegeName = SanitizeCsvInput(model.CollegeName),
                 Password = generatedPassword,
                 FacultyCode = model.FacultyCode,
-                CollegeTown = model.Place
+                CollegeTown = SanitizeCsvInput(model.Place)
             };
 
             var passwordHasher = new PasswordHasher<AffiliationCollegeMaster>();
@@ -1295,6 +1374,27 @@ namespace Admission_Affiliation.Controllers
                 return RedirectToAction("AddCourse");
             }
 
+            if (ContainsCsvInjection(input.CourseName))
+            {
+                TempData["ErrorMessage"] =
+                    "Course Name cannot start with =, +, -, or @";
+                return RedirectToAction("AddCourse");
+            }
+
+            if (ContainsCsvInjection(input.SubjectName))
+            {
+                TempData["ErrorMessage"] =
+                    "Subject Name cannot start with =, +, -, or @";
+                return RedirectToAction("AddCourse");
+            }
+
+            if (ContainsCsvInjection(input.CoursePrefix))
+            {
+                TempData["ErrorMessage"] =
+                    "Course Prefix cannot start with =, +, -, or @";
+                return RedirectToAction("AddCourse");
+            }
+
             // 1. Check if the college exists
             var collegeExists = await _context.AffiliationCollegeMasters
                 .AnyAsync(e => e.CollegeCode == input.CollegeCode);
@@ -1349,10 +1449,10 @@ namespace Admission_Affiliation.Controllers
                     //Id = incId + 1,
                     CourseCode = newCourseCode,
                     FacultyCode = model.CourseModel.FacultyId,
-                    CourseName = input.CoursePrefix + " " + input.CourseName,
+                    CourseName = SanitizeCsvInput(input.CoursePrefix + " " + input.CourseName),
                     CourseLevel = input.CourseLevel,
-                    CoursePrefix = input.CoursePrefix,
-                    SubjectName = input.SubjectName,
+                    CoursePrefix = SanitizeCsvInput(input.CoursePrefix),
+                    SubjectName = SanitizeCsvInput(input.SubjectName),
                 };
 
                 _context.MstCourses.Add(newCourseForCourseMaster);
@@ -1367,7 +1467,7 @@ namespace Admission_Affiliation.Controllers
             {
                 CollegeName = existing.CollegeName,
                 CollegeCode = existing.CollegeCode, // make sure you pass this in from the form
-                CourseName = model.CourseModel.CourseName,
+                CourseName = SanitizeCsvInput(model.CourseModel.CourseName),
                 ExistingIntake = input.ExistingIntake,
                 CourseCode = course != null ? course.CourseCode.ToString() : newCourseCode.ToString(),
                 FacultyCode = model.CourseModel.FacultyId,
@@ -1383,6 +1483,34 @@ namespace Admission_Affiliation.Controllers
             return RedirectToAction("AddCourse");
         }
 
+
+        private bool ContainsCsvInjection(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            value = value.TrimStart();
+
+            return value.StartsWith("=") ||
+                   value.StartsWith("+") ||
+                   value.StartsWith("-") ||
+                   value.StartsWith("@");
+        }
+
+        private string SanitizeCsvInput(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return value ?? "";
+
+            value = value.Trim();
+
+            if ("=+-@".Contains(value[0]))
+            {
+                return "'" + value;
+            }
+
+            return value;
+        }
         [HttpGet]
         public async Task<IActionResult> UpdateDistrictsAndTaluksForColleges()
         {

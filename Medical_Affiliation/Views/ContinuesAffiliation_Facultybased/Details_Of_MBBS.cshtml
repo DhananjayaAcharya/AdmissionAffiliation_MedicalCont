@@ -485,5 +485,15 @@
             });
         </script>
     }
+    @if (TempData["Error"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid File',
+            text: '@TempData["Error"]'
+        });
+    </script>
+}
 </body>
 </html>

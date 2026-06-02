@@ -9,6 +9,7 @@ using System.Text.Json;
 
 namespace Medical_Affiliation.Controllers
 {
+    [Authorize(AuthenticationSchemes = "AdminAuth")]
     public class CA_ApplicationStatusReportController : Controller
     {
         private readonly ApplicationDbContext _context;
