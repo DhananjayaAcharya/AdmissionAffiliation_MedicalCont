@@ -504,7 +504,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("AcademicIntake");
 
-            entity.Property(e => e.Ay2024ExistingIntake).HasColumnName("AY2024_ExistingIntake");
+            entity.Property(e => e.Ay2024ExistingIntake).HasColumnName("AY2024_ExistingIntake     ");
             entity.Property(e => e.Ay2024IncreaseIntake).HasColumnName("AY2024_IncreaseIntake");
             entity.Property(e => e.Ay2024TotalIntake).HasColumnName("AY2024_TotalIntake");
             entity.Property(e => e.Ay2025Dcidocument)
