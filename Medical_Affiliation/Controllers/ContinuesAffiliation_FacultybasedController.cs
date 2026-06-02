@@ -3126,14 +3126,71 @@ namespace Medical_Affiliation.Controllers
                 entity.ActionTakenOnDeficiencies = model.ActionTakenOnDeficiencies;
 
                 // File: GOK Order (EC & FC)
-                // 🔥 File: GOK Order (EC & FC)
+                const long maxSize = 5 * 1024 * 1024; // 5 MB
+
+                // GOK Order
+                if (model.GOKorder != null)
+                {
+                    var ext = Path.GetExtension(model.GOKorder.FileName).ToLowerInvariant();
+
+                    if (ext != ".pdf" || model.GOKorder.ContentType != "application/pdf")
+                    {
+                        TempData["Error"] = "GOK Order must be a valid PDF file.";
+                        return View(model);
+                    }
+
+                    if (model.GOKorder.Length > maxSize)
+                    {
+                        TempData["Error"] = "GOK Order file size cannot exceed 5 MB.";
+                        return View(model);
+                    }
+                }
+
+                // Last Affiliation RGUHS
+                if (model.LastAffiliationRGUHSFile != null)
+                {
+                    var ext = Path.GetExtension(model.LastAffiliationRGUHSFile.FileName).ToLowerInvariant();
+
+                    if (ext != ".pdf" || model.LastAffiliationRGUHSFile.ContentType != "application/pdf")
+                    {
+                        TempData["Error"] = "Last Affiliation RGUHS document must be a valid PDF file.";
+                        return View(model);
+                    }
+
+                    if (model.LastAffiliationRGUHSFile.Length > maxSize)
+                    {
+                        TempData["Error"] = "Last Affiliation RGUHS file size cannot exceed 5 MB.";
+                        return View(model);
+                    }
+                }
+
+                // Previous Notification Files
+                if (model.PreviousNotificationFiles != null)
+                {
+                    var ext = Path.GetExtension(model.PreviousNotificationFiles.FileName).ToLowerInvariant();
+
+                    if (ext != ".pdf" || model.PreviousNotificationFiles.ContentType != "application/pdf")
+                    {
+                        TempData["Error"] = "Previous Notification document must be a valid PDF file.";
+                        return View(model);
+                    }
+
+                    if (model.PreviousNotificationFiles.Length > maxSize)
+                    {
+                        TempData["Error"] = "Previous Notification file size cannot exceed 5 MB.";
+                        return View(model);
+                    }
+                }
+                // GOK Order
                 if (model.GOKorder != null && model.GOKorder.Length > 0)
                 {
-                    var gokPath = await SaveCourseFileAsync(model.GOKorder, "GOKOrders", FacultyCode);
+                    var gokPath = await SaveCourseFileAsync(
+                        model.GOKorder,
+                        "GOKOrders",
+                        FacultyCode);
 
                     if (gokPath != null)
                     {
-                        // 🔹 Delete old file
                         if (!string.IsNullOrEmpty(entity.GokorderPath) &&
                             System.IO.File.Exists(entity.GokorderPath))
                         {
@@ -3144,10 +3201,14 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
 
-                // 🔥 File: Last Affiliation by RGUHS
-                if (model.LastAffiliationRGUHSFile != null && model.LastAffiliationRGUHSFile.Length > 0)
+                // Last Affiliation RGUHS
+                if (model.LastAffiliationRGUHSFile != null &&
+                    model.LastAffiliationRGUHSFile.Length > 0)
                 {
-                    var rguhsPath = await SaveCourseFileAsync(model.LastAffiliationRGUHSFile, "RGUHS", FacultyCode);
+                    var rguhsPath = await SaveCourseFileAsync(
+                        model.LastAffiliationRGUHSFile,
+                        "RGUHS",
+                        FacultyCode);
 
                     if (rguhsPath != null)
                     {
@@ -3161,10 +3222,14 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
 
-
-                if (model.PreviousNotificationFiles != null && model.PreviousNotificationFiles.Length > 0)
+                // Previous Notification
+                if (model.PreviousNotificationFiles != null &&
+                    model.PreviousNotificationFiles.Length > 0)
                 {
-                    var notificationPath = await SaveCourseFileAsync(model.PreviousNotificationFiles, "PreviousNotification", FacultyCode);
+                    var notificationPath = await SaveCourseFileAsync(
+                        model.PreviousNotificationFiles,
+                        "PreviousNotification",
+                        FacultyCode);
 
                     if (notificationPath != null)
                     {
@@ -3177,7 +3242,6 @@ namespace Medical_Affiliation.Controllers
                         entity.PreviousNotificationFilesPath = notificationPath;
                     }
                 }
-
 
 
                 if (existingEntity == null)

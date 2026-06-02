@@ -3,6 +3,7 @@
     ViewData["Title"] = "PG Course Affiliation";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var courseLevel= Context.Session.GetString("CourseLevel");
+    var facultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <!DOCTYPE html>
@@ -383,7 +384,14 @@
                                 <tr>
                                     <th>Course</th>
                                     <th>Date of LOP</th>
-                                    <th>Date of NMC Recognition</th>
+                                    @if(facultyCode == "1")
+                                    {
+                                        <th>Date of NMC Recognition</th>
+                                    }
+                                    @if(facultyCode == "2")
+                                    {
+                                        <th>Date of DCI Recognition</th>
+                                    }
                                 </tr>
                             </thead>
                             <tbody>
@@ -395,7 +403,14 @@
                                     <tr>
                                         <td>@course.CourseName</td>
                                         <td><input type="date" class="form-control" name="Courses[@index].DateofLOP" value="@(course.DateofLOP?.ToString("yyyy-MM-dd") ?? "")" /></td>
-                                        <td><input type="date" class="form-control" name="Courses[@index].DateofRecognitionByNMC" value="@(course.DateofRecognitionByNMC?.ToString("yyyy-MM-dd") ?? "")" /></td>
+                                        @if (facultyCode == "1")
+                                        {
+                                            <td><input type="date" class="form-control" name="Courses[@index].DateofRecognitionByNMC" value="@(course.DateofRecognitionByNMC?.ToString("yyyy-MM-dd") ?? "")" /></td>
+                                        }
+                                        @if (facultyCode == "2")
+                                        {
+                                            <td><input type="date" class="form-control" name="Courses[@index].DateofRecognitionByDCI" value="@(course.DateofRecognitionByDCI?.ToString("yyyy-MM-dd") ?? "")" /></td>
+                                        }
                                         <input type="hidden" name="Courses[@index].CourseCode" value="@course.CourseCode" />
                                         <input type="hidden" name="Courses[@index].CourseName" value="@course.CourseName" />
                                         <input type="hidden" name="Courses[@index].CourseLevel" value="@course.CourseLevel" />
@@ -581,8 +596,11 @@
         </div>
 
         <!-- Other NMC Permitted Courses -->
+
         <div class="section-card">
-            <form asp-action="SaveOtherDeptCourses" method="post" enctype="multipart/form-data">
+            @if(facultyCode == "1")
+            {
+                <form asp-action="SaveOtherDeptCourses" method="post" enctype="multipart/form-data">
                 <div class="section-header">
                     <div class="icon-wrap" style="background:#eaebee;">
                         <i class="bi bi-plus-circle" style="font-size:1.3rem; color:#2d3748;"></i>
@@ -650,6 +668,7 @@
                         </table>
                     </div>
                 </div>
+
                 <!-- Navigation -->
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 .5rem;">
                     @* <a asp-action="Aff_TrustMemberDetails" asp-controller="ContinuesAffiliation_Facultybased"
@@ -670,6 +689,17 @@
                        class="btn btn-primary">Next →</a>
                 </div>
             </form>
+            }
+            @if(facultyCode == "2"){
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 .5rem;">
+                    
+                    <a asp-action="Ug_Course_Details" asp-controller="ContinuesAffiliation_Facultybased"
+                       class="btn btn-ghost">← Previous</a>
+                   
+                    <a asp-action="TeachingFacultyDetails" asp-controller="DentalRepository"
+                       class="btn btn-primary">Next →</a>
+                </div>
+            }
         </div>
 
     </div>

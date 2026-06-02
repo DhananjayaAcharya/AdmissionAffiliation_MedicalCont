@@ -9,30 +9,16 @@
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
     var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
     var facultyCode = Context.Session.GetString("FacultyCode");
+    var levels = await (
+        from ai in _context.AcademicIntakes
+        join mc in _context.MstCourses
+            on ai.Courses equals mc.CourseCode.ToString()
+        where ai.CollegeCode == collegeCode
+              && ai.FacultyCode == facultyCode
+        select mc.CourseLevel
+    ).Distinct().ToListAsync();
 
-    var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
 
-    List<string> levels = new();
-
-    if (!string.IsNullOrEmpty(raw))
-    {
-        try
-        {
-            if (raw.Trim().StartsWith("["))
-            {
-                levels = JsonSerializer.Deserialize<List<string>>(raw)
-                         ?? new List<string>();
-            }
-            else
-            {
-                levels = raw.Split(',').ToList();
-            }
-        }
-        catch
-        {
-            levels = new List<string>();
-        }
-    }
 
     // fallback from AcademicIntake
     if (!levels.Any())
@@ -49,10 +35,6 @@
         .ToListAsync();
     }
 
-    levels = levels
-        .Select(x => x.Trim().ToUpper())
-        .Distinct()
-        .ToList();
 
 
     var doneSteps = _context.CaProgresses

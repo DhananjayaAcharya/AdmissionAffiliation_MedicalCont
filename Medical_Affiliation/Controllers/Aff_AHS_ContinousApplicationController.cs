@@ -1063,6 +1063,52 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
 
+            // ===== RATE LIMITING =====
+            var requestCount = HttpContext.Session.GetInt32("VehicleRequestCount") ?? 0;
+            var windowStart = HttpContext.Session.GetString("VehicleRequestWindow");
+
+            if (string.IsNullOrEmpty(windowStart))
+            {
+                HttpContext.Session.SetString(
+                    "VehicleRequestWindow",
+                    DateTime.UtcNow.ToString("O"));
+
+                HttpContext.Session.SetInt32(
+                    "VehicleRequestCount",
+                    1);
+            }
+            else
+            {
+                var startTime = DateTime.Parse(windowStart);
+
+                if ((DateTime.UtcNow - startTime).TotalSeconds <= 1)
+                {
+                    requestCount++;
+
+                    if (requestCount > 4)
+                    {
+                        TempData["Error"] =
+                            "Too many requests. Maximum 4 submissions allowed per minute.";
+
+                        return RedirectToAction("CA_VehicleDetails");
+                    }
+
+                    HttpContext.Session.SetInt32(
+                        "VehicleRequestCount",
+                        requestCount);
+                }
+                else
+                {
+                    HttpContext.Session.SetString(
+                        "VehicleRequestWindow",
+                        DateTime.UtcNow.ToString("O"));
+
+                    HttpContext.Session.SetInt32(
+                        "VehicleRequestCount",
+                        1);
+                }
+            }
+
             model.FacultyCode = facultyCode;
             model.CollegeCode = collegeCode;
 
