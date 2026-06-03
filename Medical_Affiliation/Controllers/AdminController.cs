@@ -1933,6 +1933,59 @@ namespace Admission_Affiliation.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateTaluk( [FromBody] UpdateTalukViewModel model)
+        {
+            try
+            {
+                var taluk = await _context.TalukMasters
+                    .FirstOrDefaultAsync(x => x.TalukId == model.TalukId);
+
+                if (taluk == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Taluk not found."
+                    });
+                }
+
+                if (model.TalukId != model.NewTalukId)
+                {
+                    bool exists = await _context.TalukMasters
+                        .AnyAsync(x => x.TalukId == model.NewTalukId);
+
+                    if (exists)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Taluk ID already exists."
+                        });
+                    }
+                }
+
+                taluk.TalukId = model.NewTalukId;
+                taluk.TalukName = model.TalukName;
+
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Taluk updated successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> DeleteTaluk( [FromBody] DeleteTalukViewModel model)

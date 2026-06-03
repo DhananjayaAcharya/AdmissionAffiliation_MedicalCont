@@ -27,8 +27,6 @@ public partial class TblRguhsFacultyUser
 
     public bool? IsSection { get; set; }
 
-    public bool? IsAdmin { get; set; }
-
     public int FailedLoginAttempts { get; set; }
 
     public DateTime? LockoutEndTime { get; set; }

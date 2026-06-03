@@ -96,7 +96,6 @@ if (!Directory.Exists(keysDirectory))
     Directory.CreateDirectory(keysDirectory);
 }
 
-
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
     .SetApplicationName("MedicalAffiliation");
@@ -325,7 +324,7 @@ app.UseAuthorization();
 app.UseStaticFiles(); // for wwwroot if needed
 
 // ===== D:\MedicalUGFacultyList Mapping =====
-var medicalPath = @"E:\MedicalUGFacultyList";
+var medicalPath = @"D:\MedicalUGFacultyList";
 
 // Auto create folders if not exists
 if (!Directory.Exists(medicalPath))
