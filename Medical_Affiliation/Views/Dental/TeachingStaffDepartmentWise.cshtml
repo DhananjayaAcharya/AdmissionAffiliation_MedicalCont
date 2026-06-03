@@ -460,6 +460,12 @@
         font-size: 0.8rem;
     }
 
+    .navigation-buttons{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     /* ── Collapsible dept ── */
     .dept-toggle-btn {
         background: none;
@@ -655,7 +661,7 @@
                                     <th rowspan="2">
                                         Total Experience
                                     </th>
-
+                                    <th rowspan="2">Action</th>
                                 </tr>
 
                                 <tr class="sub-row">
@@ -689,7 +695,27 @@
                                         <!-- FACULTY NAME -->
                                         <td>
 
-                                            <input asp-for="FacultyRows[i].NameOfFaculty" class="form-control"  readonly />
+                                            <select asp-for="FacultyRows[i].NameOfFaculty"
+                                                    class="form-select faculty-dropdown">
+
+                                                <option value="">-- Select Faculty --</option>
+
+                                                @foreach (var facultyItem in Model.FacultyList)
+                                                {
+                                                    if (facultyItem.Value?.Trim() == faculty.NameOfFaculty?.Trim())
+                                                    {
+                                                        <option value="@facultyItem.Value" selected="selected">
+                                                            @facultyItem.Text
+                                                        </option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@facultyItem.Value">
+                                                            @facultyItem.Text
+                                                        </option>
+                                                    }
+                                                }
+                                            </select>
 
                                         </td>
 
@@ -816,6 +842,10 @@
 
                                             <input asp-for="FacultyRows[i].Designations[j].DesignationName"
                                                    type="hidden" />
+
+                                            <input asp-for="FacultyRows[i].Designations[j].Id"
+                                                   type="hidden" />
+
                                         }
 
                                         <!-- TOTAL EXPERIENCE -->
@@ -825,6 +855,17 @@
                                                    class="form-control total-exp"
                                                    readonly />
 
+                                        </td>
+                                        <td>
+                                            <button type="button"
+                                                    class="btn btn-success btn-sm add-row">
+                                                +
+                                            </button>
+
+                                            <button type="button"
+                                                    class="btn btn-danger btn-sm delete-row">
+                                                -
+                                            </button>
                                         </td>
 
                                     </tr>
@@ -844,9 +885,6 @@
                 }
                 <!-- FOOTER -->
                 <div class="form-footer">
-
-                   
-
                 </div>
                 <div class="navigation-buttons">
                     <a asp-controller="Dental"
@@ -899,6 +937,89 @@
 
                 calculateExperience.call(input);
             });
+
+        document.addEventListener("click", function (e) {
+
+            if (!e.target.classList.contains("add-row"))
+                return;
+
+            const row = e.target.closest("tr");
+
+            const clone = row.cloneNode(true);
+
+            clone.querySelectorAll("select").forEach(s => {
+
+                if (!s.classList.contains("faculty-dropdown")) {
+                    s.value = "";
+                }
+            });
+
+            clone.querySelectorAll("input[type='date']").forEach(i => {
+                i.value = "";
+            });
+
+            clone.querySelectorAll("input[type='hidden']").forEach(h => {
+                if (h.name.endsWith(".Id")) {
+                    h.value = "0";
+                }
+            });
+
+            clone.querySelector(".total-exp").value = "";
+
+            row.after(clone);
+            clone.querySelectorAll(".date-input")
+                .forEach(function (input){
+                    input.addEventListener("change", calculateExperience)
+                })
+
+            reIndexRows();
+        });
+
+
+        document.addEventListener("click", function (e) {
+
+            if (!e.target.classList.contains("delete-row"))
+                return;
+
+            const rows = document.querySelectorAll("tbody tr");
+
+            // Keep at least one row
+            if (rows.length <= 1) {
+                alert("At least one row is required.");
+                return;
+            }
+
+            const row = e.target.closest("tr");
+
+            row.remove();
+
+            reIndexRows();
+        });
+
+        function reIndexRows() {
+
+            document.querySelectorAll("tbody tr")
+                .forEach((row, rowIndex) => {
+
+                    row.querySelector(".td-slno").textContent = rowIndex + 1;
+
+                    row.querySelectorAll("[name]").forEach(el => {
+
+                        el.name = el.name.replace(
+                            /FacultyRows\[\d+\]/,
+                            `FacultyRows[${rowIndex}]`
+                        );
+                    });
+
+                    row.querySelectorAll("[id]").forEach(el => {
+
+                        el.id = el.id.replace(
+                            /FacultyRows_\d+_/,
+                            `FacultyRows_${rowIndex}_`
+                        );
+                    });
+                });
+        }
 
         function calculateExperience() {
 
@@ -1071,4 +1192,13 @@
 
     });
 </script>
-
+@* @if (TempData["SuccessFaculty"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["SuccessFaculty"]'
+        });
+    </script>
+} *@

@@ -11,6 +11,7 @@ namespace Medical_Affiliation.Models
         public List<SelectListItem> Colleges { get; set; } = new();
         public List<DentalDesignationTeachingVm> DesignationHeaders { get; set; } = new();
         public List<SelectListItem> Departments { get; set; } = new();
+        public List<SelectListItem> FacultyList { get; set; } = new();
 
         public List<DentalFacultyTeachingVm> FacultyRows { get; set; } = new();
     }
@@ -49,5 +50,7 @@ namespace Medical_Affiliation.Models
         public DateTime? ToDate { get; set; }
 
         public decimal? TotalExperience { get; set; }
+
     }
+
 }
