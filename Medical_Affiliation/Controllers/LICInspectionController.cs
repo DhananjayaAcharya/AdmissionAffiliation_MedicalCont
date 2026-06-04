@@ -1138,8 +1138,7 @@ namespace Medical_Affiliation.Controllers
             decimal travelCost = applyTA ? (decimal)totalKm * LICClaimDetailsViewModel.RatePerKm : 0m;
             decimal daCostCalc = applyTA ? numberOfDays * daRate : 0m;
             decimal lcaCostCalc = applyLCA ? numberOfDays * lcaRate : 0m;
-
-            decimal collegeCost = LICClaimDetailsViewModel.CollegeAllowance; // ₹2,500 × 1
+            decimal collegeCost = LICClaimDetailsViewModel.CollegeAllowance; // ₹2,500
 
             decimal airFare = AirFareCost > 0 ? AirFareCost : 0m;
             decimal airRoad = 0m;
@@ -1313,57 +1312,71 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> DownloadBill(string collegeCode)
+        public async Task<IActionResult> DownloadBill(string? collegeCode)
         {
             var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
                 return RedirectToAction("Login");
 
-            var record = await _context.LicclaimDetails
+            var phoneTrimmed = phone;
+
+            var query = _context.LicclaimDetails
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone
-                                       && x.CollegeCode == collegeCode); // ← per-college
+                .Where(x => x.PhoneNumber == phoneTrimmed);
+
+            LicclaimDetail? record;
+
+            if (!string.IsNullOrWhiteSpace(collegeCode))
+            {
+                var code = collegeCode.Trim();
+                record = await query.FirstOrDefaultAsync(x => x.CollegeCode == code);
+            }
+            else
+            {
+                record = await query.FirstOrDefaultAsync();
+            }
+
             if (record?.UploadBills == null || record.UploadBills.Length == 0)
                 return NotFound("No bill uploaded.");
 
             var (contentType, extension) = DetectFileType(record.UploadBills);
-            return File(record.UploadBills, contentType, $"Bill_{phone}_{collegeCode}{extension}");
+
+            var safeCode = string.IsNullOrWhiteSpace(collegeCode) ? "NA" : collegeCode.Trim();
+            return File(record.UploadBills, contentType, $"Bill_{phone}_{safeCode}{extension}");
         }
 
         [HttpGet]
-        public async Task<IActionResult> DownloadAttendenceDoc(string collegeCode)
+        public async Task<IActionResult> DownloadAttendenceDoc(string? collegeCode)
         {
             var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
                 return RedirectToAction("Login");
 
-            var record = await _context.LicclaimDetails
+            var phoneTrimmed = phone;
+
+            var query = _context.LicclaimDetails
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone
-                                       && x.CollegeCode == collegeCode); // ← per-college
+                .Where(x => x.PhoneNumber == phoneTrimmed);
+
+            LicclaimDetail? record;
+
+            if (!string.IsNullOrWhiteSpace(collegeCode))
+            {
+                var code = collegeCode.Trim();
+                record = await query.FirstOrDefaultAsync(x => x.CollegeCode == code);
+            }
+            else
+            {
+                record = await query.FirstOrDefaultAsync();
+            }
+
             if (record?.AttendenceDoc == null || record.AttendenceDoc.Length == 0)
                 return NotFound("No attendance document uploaded.");
 
             var (contentType, extension) = DetectFileType(record.AttendenceDoc);
-            return File(record.AttendenceDoc, contentType, $"Attendance_{phone}_{collegeCode}{extension}");
-        }
 
-        [HttpGet]
-        public async Task<IActionResult> DownloadAttendenceDoc()
-        {
-            var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
-            if (string.IsNullOrWhiteSpace(phone))
-                return RedirectToAction("Login");
-
-            var record = await _context.LicclaimDetails
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone);
-
-            if (record?.AttendenceDoc == null || record.AttendenceDoc.Length == 0)
-                return NotFound("No attendance document uploaded.");
-
-            var (contentType, extension) = DetectFileType(record.AttendenceDoc);
-            return File(record.AttendenceDoc, contentType, $"Attendance_{phone}{extension}");
+            var safeCode = string.IsNullOrWhiteSpace(collegeCode) ? "NA" : collegeCode.Trim();
+            return File(record.AttendenceDoc, contentType, $"Attendance_{phone}_{safeCode}{extension}");
         }
 
         private static (string ContentType, string Extension) DetectFileType(byte[] data)

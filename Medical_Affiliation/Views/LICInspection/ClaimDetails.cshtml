@@ -2234,12 +2234,12 @@
                     Other Members
                 </a>
             }
-            <a class="nav-link" asp-action="MyStatus" asp-controller="LicStatusTracker">
+            @* <a class="nav-link" asp-action="MyStatus" asp-controller="LicStatusTracker">
                 <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Status Tracker
-            </a>
+            </a> *@
         </nav>
 
         <div class="sidebar-footer">
@@ -2546,18 +2546,18 @@
                                     <div class="field">
                                         <label class="field-lbl" id="lblBills">
                                             Upload Bills
-                                            <span style="text-transform:none;color:var(--t3);font-size:.6rem">(PDF only)</span>
+                                            <span style="text-transform:none;color:var(--t3);font-size:.6rem">(PDF, JPG, PNG, DOC, DOCX)</span>
                                             <span class="req" id="billsReqMark" style="display:none">*</span>
                                         </label>
                                         <div id="fileDropWrapper">
                                             <div class="file-drop" id="fileDropEl" onclick="document.getElementById('fileInput').click()">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#94A3B8" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                                                 <div class="file-drop-body">
-                                                    <div class="file-drop-main">Click to upload PDF</div>
-                                                    <div class="file-drop-sub">Max 5 MB · PDF only</div>
+                                                    <div class="file-drop-main">Click to upload Bill</div>
+                                                    <div class="file-drop-sub">Max 5 MB · PDF, JPG, PNG, DOC, DOCX</div>
                                                 </div>
                                             </div>
-                                            <input type="file" id="fileInput" name="UploadBillsFile" accept=".pdf"
+                                            <input type="file" id="fileInput" name="UploadBillsFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                                                    onchange="showFileName(this,'fileChosen'); validateBillFile()" style="display:none" />
                                             <span class="file-chosen" id="fileChosen"></span>
                                         </div>
@@ -3013,12 +3013,10 @@
                                                 <td>
                                                     @if (s.UploadBills?.Length > 0)
                                                     {
-                                                        <a asp-action="DownloadBill" asp-controller="LICInspection"
+                                                        <a asp-action="DownloadBill"
+                                                           asp-controller="LICInspection"
                                                            asp-route-collegeCode="@s.CollegeCode"
                                                            target="_blank" class="existing-bill">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                                            </svg>
                                                             View
                                                         </a>
                                                     }
@@ -3223,11 +3221,13 @@
                         showErr('errBills', 'File size exceeds 5 MB — please upload a smaller file');
                         return false;
                     }
-                    if (!f.name.toLowerCase().endsWith('.pdf')) {
-                        $('fileDropEl').classList.add('drop-invalid');
-                        showErr('errBills', 'Only PDF files are accepted for bills');
-                        return false;
-                    }
+                                const ext = f.name.toLowerCase().split('.').pop();
+            const allowed = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+            if (!allowed.includes(ext)) {
+                $('fileDropEl').classList.add('drop-invalid');
+                showErr('errBills', 'Only PDF, JPG, PNG, DOC, DOCX files are accepted for bills');
+                return false;
+            }
                 }
                 return ok;
             }
