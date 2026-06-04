@@ -593,7 +593,7 @@ namespace Medical_Affiliation.Controllers
                         LicApprovalFile = fileBytes,
                         LicApprovalFileName = licFile.FileName,
                         LicApprovalUploadedOn = DateTime.Now
-   
+
                     });
                 }
             }

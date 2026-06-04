@@ -1037,19 +1037,12 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
 
             // ── 5. Build model — identity + collections only ──────────────────────
-            // Form fields intentionally left blank so the form is always fresh.
-            // Saved data is visible in the Saved Claim Details table below.
             var model = new LICClaimDetailsViewModel
             {
-                // Identity — always from LicInspections
                 MemberName = member.Name,
                 TypeofMember = member.TypeofMember,
                 PhoneNumber = member.PhoneNumber,
-
-                // Default days to 1
                 NumberOfDays = 1,
-
-                // Collections
                 SavedClaims = savedClaims,
                 HasUploadedBill = savedClaims.Any(r => r.UploadBills?.Length > 0),
                 HasUploadedAttendence = savedClaims.Any(r => r.AttendenceDoc?.Length > 0),
@@ -1064,24 +1057,14 @@ namespace Medical_Affiliation.Controllers
 
             // ── 7. College dropdown ───────────────────────────────────────────────
             model.CollegeOptions = assignedColleges
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CollegeCode,
-                    Text = c.CollegeName
-                })
+                .Select(c => new SelectListItem { Value = c.CollegeCode, Text = c.CollegeName })
                 .Where(x => !submittedCodes.Contains(x.Value))
                 .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
                 .ToList();
 
             // ── 8. All colleges for saved-claims name lookup ──────────────────────
-            // Full list — no faculty filter, no exclusions — so every saved claim
-            // row can resolve its college code to a display name.
             model.AllCollegeOptions = assignedColleges
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CollegeCode,
-                    Text = c.CollegeName
-                })
+                .Select(c => new SelectListItem { Value = c.CollegeCode, Text = c.CollegeName })
                 .ToList();
 
             // ── 9. Mode of travel options ─────────────────────────────────────────
@@ -1094,250 +1077,243 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> ClaimDetails(
-    LICClaimDetailsViewModel model,
-    IFormFile? UploadBillsFile,
-    IFormFile? AttendenceDocFile,
-    [FromForm] decimal DACost,
-    [FromForm] decimal LCACost,
-    [FromForm] decimal AirFareCost,
-    [FromForm] decimal AirRoadCost,
-    [FromForm] string? Division,
-    [FromForm] bool IsLCA)
-{
-    // ── 1. Resolve phone ──────────────────────────────────────────────────
-    var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
-    if (string.IsNullOrWhiteSpace(phone))
-        return RedirectToAction("Login");
-
-    // ── 2. Load member ────────────────────────────────────────────────────
-    var memberInfo = await _context.LicInspections
-        .AsNoTracking()
-        .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone);
-    if (memberInfo == null)
-        return RedirectToAction("Login");
-
-    string role       = memberInfo.TypeofMember?.Trim() ?? "";
-    string memberName = memberInfo.Name?.Trim() ?? "";
-
-    var assignedCols = await GetAssignedCollegesAsync(role, phone);
-    string assignedCsv = string.Join(",", assignedCols.Select(c => c.CollegeCode));
-
-    // ── 3. Determine IsBangalore ──────────────────────────────────────────
-    bool isBangaloreChk = Request.Form["IsBangalore"]
-        .ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
-
-    bool isBangaloreAuto = !string.IsNullOrWhiteSpace(model.ToPlace) &&
-        Regex.IsMatch(model.ToPlace.Trim(), "bangalore|bengaluru", RegexOptions.IgnoreCase);
-
-    bool isBangalore = isBangaloreChk || isBangaloreAuto;
-
-    // ── 4. Distances ──────────────────────────────────────────────────────
-    double onwardKm = model.Kilometers ?? 0;
-    double returnKm = double.TryParse(model.ReturnKilometers, out var rk) ? rk : 0;
-    double totalKm  = onwardKm + returnKm;
-
-    // ── 5. Rates ──────────────────────────────────────────────────────────
-    decimal daRate      = isBangalore ? 1500m : 900m;
-    decimal lcaRate     = isBangalore ? 500m  : 300m;
-    decimal airRoadRate = isBangalore ? 2000m : 750m;
-
-    // ── 6. Days ───────────────────────────────────────────────────────────
-    int numberOfDays = model.NumberOfDays > 0 ? model.NumberOfDays : 1;
-
-    // ── 7. Apply 40 km rule ───────────────────────────────────────────────
-    const double lcaThreshold = 40.0;
-    bool applyLCA = totalKm > 0 && totalKm <= lcaThreshold;
-    bool applyTA  = totalKm > lcaThreshold;
-
-    // ── 8. Calculate components ───────────────────────────────────────────
-    decimal travelCost  = applyTA  ? (decimal)totalKm * LICClaimDetailsViewModel.RatePerKm : 0m;
-    decimal daCostCalc  = applyTA  ? numberOfDays * daRate  : 0m;
-    decimal lcaCostCalc = applyLCA ? numberOfDays * lcaRate : 0m;
-
-    // ── Always 1 college per claim — never multiply by total assigned count ──
-    decimal collegeCost = LICClaimDetailsViewModel.CollegeAllowance; // ₹2,500 × 1
-
-    decimal airFare = AirFareCost > 0 ? AirFareCost : 0m;
-    decimal airRoad = 0m;
-
-    var selectedModes = model.ModeOfTravel ?? new List<string>();
-    bool airSelected = selectedModes.Any(m => m.Equals("Air", StringComparison.OrdinalIgnoreCase));
-    if (airSelected)
-        airRoad = AirRoadCost > 0 ? AirRoadCost : airRoadRate;
-
-    // ── 9. Grand total — only this single claim's components ──────────────
-    model.TotalCost = travelCost + daCostCalc + lcaCostCalc
-                    + collegeCost + airFare + airRoad;
-
-    // ── 10. Populate summary on model ─────────────────────────────────────
-    model.TravelCost      = travelCost;
-    model.DACost          = daCostCalc;
-    model.LCACost         = lcaCostCalc;
-    model.CollegeCost     = collegeCost;
-    model.AirFareCost     = airFare;
-    model.AirRoadCost     = airRoad;
-    model.Division        = isBangalore ? "bangalore" : "other";
-    model.IsLCA           = applyLCA;
-    model.NumberOfDaysSaved = numberOfDays;
-
-    // ── 11. Validate uploaded files ───────────────────────────────────────
-    if (UploadBillsFile != null && UploadBillsFile.Length > 0)
-    {
-        var ext = Path.GetExtension(UploadBillsFile.FileName).ToLowerInvariant();
-        var allowedExts = new HashSet<string> { ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx" };
-        if (!allowedExts.Contains(ext))
-            ModelState.AddModelError("UploadBills", "Only PDF, JPG, PNG, DOC, or DOCX files are allowed.");
-        if (UploadBillsFile.Length > 5 * 1024 * 1024)
-            ModelState.AddModelError("UploadBills", "File size must not exceed 5 MB.");
-    }
-
-    if (AttendenceDocFile != null && AttendenceDocFile.Length > 0)
-    {
-        var ext = Path.GetExtension(AttendenceDocFile.FileName).ToLowerInvariant();
-        var allowedExts = new HashSet<string> { ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx" };
-        if (!allowedExts.Contains(ext))
-            ModelState.AddModelError("AttendenceDoc", "Only PDF, JPG, PNG, DOC, or DOCX files are allowed.");
-        if (AttendenceDocFile.Length > 5 * 1024 * 1024)
-            ModelState.AddModelError("AttendenceDoc", "File size must not exceed 5 MB.");
-    }
-
-    ModelState.Remove("NumberOfDays");
-
-    // ── 12. Return view on validation failure ─────────────────────────────
-    if (!ModelState.IsValid)
-    {
-        model.AssignedColleges = assignedCols;
-
-        var collegesForDropdown = string.IsNullOrWhiteSpace(model.Faculty)
-            ? assignedCols
-            : await GetCollegesByFacultyAsync(model.Faculty, assignedCols);
-
-        model.CollegeOptions = collegesForDropdown
-            .Select(c => new SelectListItem { Value = c.CollegeCode, Text = c.CollegeName })
-            .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
-            .ToList();
-
-        // ── All colleges for name lookup in saved-claims table ────────────
-        model.AllCollegeOptions = assignedCols
-            .Select(c => new SelectListItem
-            {
-                Value = c.CollegeCode,
-                Text  = c.CollegeName
-            })
-            .ToList();
-
-        model.ModeOfTravelOptions = await GetTravelModesAsync(null);
-        model.FacultyOptions      = await GetFacultyOptionsAsync(model.Faculty);
-        model.SavedClaims         = await _context.LicclaimDetails
-            .AsNoTracking()
-            .Where(x => x.PhoneNumber.Trim() == phone)
-            .ToListAsync();
-        model.HasUploadedBill       = model.SavedClaims.Any(r => r.UploadBills?.Length > 0);
-        model.HasUploadedAttendence = model.SavedClaims.Any(r => r.AttendenceDoc?.Length > 0);
-        model.isBanglore            = isBangalore;
-        return View(model);
-    }
-
-    // ── 13. Resolve selected college ──────────────────────────────────────
-    var selectedCollege = await _context.LicInspectionCollegeDetails
-        .AsNoTracking()
-        .Where(x => x.Collegecode == model.CollegeCode)
-        .Select(x => new { x.Collegecode, x.Collegename })
-        .FirstOrDefaultAsync();
-
-    // ── 14. Find or create record (one row per inspector per college) ──────
-    var existing = await _context.LicclaimDetails
-        .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone
-                               && x.CollegeCode == model.CollegeCode);
-    if (existing == null)
-    {
-        existing = new LicclaimDetail
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClaimDetails(
+            LICClaimDetailsViewModel model,
+            IFormFile? UploadBillsFile,
+            IFormFile? AttendenceDocFile,
+            [FromForm] decimal DACost,
+            [FromForm] decimal LCACost,
+            [FromForm] decimal AirFareCost,
+            [FromForm] decimal AirRoadCost,
+            [FromForm] string? Division,
+            [FromForm] bool IsLCA)
         {
-            PhoneNumber = phone,
-            CreatedDate = DateTime.Now
-        };
-        _context.LicclaimDetails.Add(existing);
-    }
+            // ── 1. Resolve phone ──────────────────────────────────────────────────
+            var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
+            if (string.IsNullOrWhiteSpace(phone))
+                return RedirectToAction("Login");
 
-    // ── 15. Map all fields ────────────────────────────────────────────────
-    existing.MemberName      = memberName;
-    existing.TypeofMember    = role;
-    existing.PhoneNumber     = phone;
-    existing.ModeOfTravel    = string.Join(",", selectedModes);
-    existing.CollegeCode     = selectedCollege?.Collegecode;
-    existing.AssignedColleges = assignedCsv;
-    existing.AirFare         = airFare > 0 ? airFare.ToString("F2") : null;
+            // ── 2. Load member ────────────────────────────────────────────────────
+            var memberInfo = await _context.LicInspections
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone);
+            if (memberInfo == null)
+                return RedirectToAction("Login");
 
-    // Onward
-    existing.FromPlace  = model.FromPlace;
-    existing.ToPlace    = model.ToPlace;
-    existing.Kilometers = (decimal?)model.Kilometers;
+            string role = memberInfo.TypeofMember?.Trim() ?? "";
+            string memberName = memberInfo.Name?.Trim() ?? "";
 
-    // Return
-    existing.ReturnFromPlace    = model.ReturnFromPlace;
-    existing.ReturnToPlace      = model.ReturnToPlace;
-    existing.ReturnKilometers   = returnKm > 0 ? (decimal?)returnKm : null;
-    existing.NoofDays           = numberOfDays.ToString();
+            var assignedCols = await GetAssignedCollegesAsync(role, phone);
+            string assignedCsv = string.Join(",", assignedCols.Select(c => c.CollegeCode));
 
-    existing.IsBanglore  = isBangalore;
-    existing.TotalCost   = model.TotalCost;
-    existing.UpdatedDate = DateTime.Now;
+            // ── 3. Determine IsBangalore ──────────────────────────────────────────
+            bool isBangaloreChk = Request.Form["IsBangalore"]
+                .ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
 
-    // Summary breakdown
-    existing.TravelCost  = travelCost;
-    existing.Dacost      = daCostCalc;
-    existing.Lcacost     = lcaCostCalc;
-    existing.CollegeCost = collegeCost;   // always ₹2,500
-    existing.AirFareCost = airFare;
-    existing.AirRoadCost = airRoad;
-    existing.Division    = isBangalore ? "bangalore" : "other";
-    existing.IsLca       = applyLCA;
-    existing.NumberOfDays = numberOfDays;
+            bool isBangaloreAuto = !string.IsNullOrWhiteSpace(model.ToPlace) &&
+                Regex.IsMatch(model.ToPlace.Trim(), "bangalore|bengaluru", RegexOptions.IgnoreCase);
 
-    // New fields
-    existing.Faculty        = model.Faculty;
-    existing.InspectionDate = model.InspectionDate;
+            bool isBangalore = isBangaloreChk || isBangaloreAuto;
 
-    // ── 16. File uploads ──────────────────────────────────────────────────
-    if (UploadBillsFile != null && UploadBillsFile.Length > 0)
-    {
-        using var ms = new MemoryStream();
-        await UploadBillsFile.CopyToAsync(ms);
-        existing.UploadBills = ms.ToArray();
-    }
+            // ── 4. Distances ──────────────────────────────────────────────────────
+            double onwardKm = model.Kilometers ?? 0;
+            double returnKm = double.TryParse(model.ReturnKilometers, out var rk) ? rk : 0;
+            double totalKm = onwardKm + returnKm;
 
-    if (AttendenceDocFile != null && AttendenceDocFile.Length > 0)
-    {
-        using var ms = new MemoryStream();
-        await AttendenceDocFile.CopyToAsync(ms);
-        existing.AttendenceDoc = ms.ToArray();
-    }
+            // ── 5. Rates ──────────────────────────────────────────────────────────
+            decimal daRate = isBangalore ? 1500m : 900m;
+            decimal lcaRate = isBangalore ? 500m : 300m;
+            decimal airRoadRate = isBangalore ? 2000m : 750m;
 
-    // ── 17. Save ──────────────────────────────────────────────────────────
-    await _context.SaveChangesAsync();
+            // ── 6. Days ───────────────────────────────────────────────────────────
+            int numberOfDays = model.NumberOfDays > 0 ? model.NumberOfDays : 1;
 
-    string allowanceType = applyLCA
-        ? $"LCA ({numberOfDays} day(s) × ₹{lcaRate:N0}): ₹{lcaCostCalc:N2}"
-        : $"DA  ({numberOfDays} day(s) × ₹{daRate:N0}): ₹{daCostCalc:N2}";
+            // ── 7. Apply 40 km rule ───────────────────────────────────────────────
+            const double lcaThreshold = 40.0;
+            bool applyLCA = totalKm > 0 && totalKm <= lcaThreshold;
+            bool applyTA = totalKm > lcaThreshold;
 
-    string divisionLabel = isBangalore ? "Bangalore Division" : "Other Division";
+            // ── 8. Calculate components ───────────────────────────────────────────
+            decimal travelCost = applyTA ? (decimal)totalKm * LICClaimDetailsViewModel.RatePerKm : 0m;
+            decimal daCostCalc = applyTA ? numberOfDays * daRate : 0m;
+            decimal lcaCostCalc = applyLCA ? numberOfDays * lcaRate : 0m;
 
-    TempData["Message"] =
-        $"Claim saved for {selectedCollege?.Collegename} [{divisionLabel}] — " +
-        $"Onward: {onwardKm} km | Return: {returnKm} km | " +
-        $"TA: ₹{travelCost:N2} | {allowanceType} | " +
-        $"College Allowance (1 × ₹2,500): ₹{collegeCost:N2} | " +
-        $"Air Fare: ₹{airFare:N2} | Air Road: ₹{airRoad:N2} | " +
-        $"Grand Total: ₹{model.TotalCost:N2}";
+            decimal collegeCost = LICClaimDetailsViewModel.CollegeAllowance; // ₹2,500 × 1
 
-    return RedirectToAction("ClaimDetails");
-}
+            decimal airFare = AirFareCost > 0 ? AirFareCost : 0m;
+            decimal airRoad = 0m;
 
+            var selectedModes = model.ModeOfTravel ?? new List<string>();
+            bool airSelected = selectedModes.Any(m => m.Equals("Air", StringComparison.OrdinalIgnoreCase));
+            if (airSelected)
+                airRoad = AirRoadCost > 0 ? AirRoadCost : airRoadRate;
+
+            // ── 9. Grand total ────────────────────────────────────────────────────
+            model.TotalCost = travelCost + daCostCalc + lcaCostCalc
+                            + collegeCost + airFare + airRoad;
+
+            // ── 10. Populate summary on model ─────────────────────────────────────
+            model.TravelCost = travelCost;
+            model.DACost = daCostCalc;
+            model.LCACost = lcaCostCalc;
+            model.CollegeCost = collegeCost;
+            model.AirFareCost = airFare;
+            model.AirRoadCost = airRoad;
+            model.Division = isBangalore ? "bangalore" : "other";
+            model.IsLCA = applyLCA;
+            model.NumberOfDaysSaved = numberOfDays;
+
+            // ── 11. Validate uploaded files ───────────────────────────────────────
+            var allowedExts = new HashSet<string> { ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx" };
+
+            if (UploadBillsFile != null && UploadBillsFile.Length > 0)
+            {
+                var ext = Path.GetExtension(UploadBillsFile.FileName).ToLowerInvariant();
+                if (!allowedExts.Contains(ext))
+                    ModelState.AddModelError("UploadBills", "Only PDF, JPG, PNG, DOC, or DOCX files are allowed.");
+                if (UploadBillsFile.Length > 5 * 1024 * 1024)
+                    ModelState.AddModelError("UploadBills", "File size must not exceed 5 MB.");
+            }
+
+            if (AttendenceDocFile != null && AttendenceDocFile.Length > 0)
+            {
+                var ext = Path.GetExtension(AttendenceDocFile.FileName).ToLowerInvariant();
+                if (!allowedExts.Contains(ext))
+                    ModelState.AddModelError("AttendenceDoc", "Only PDF, JPG, PNG, DOC, or DOCX files are allowed.");
+                if (AttendenceDocFile.Length > 5 * 1024 * 1024)
+                    ModelState.AddModelError("AttendenceDoc", "File size must not exceed 5 MB.");
+            }
+
+            ModelState.Remove("NumberOfDays");
+
+            // ── 12. Return view on validation failure ─────────────────────────────
+            if (!ModelState.IsValid)
+            {
+                model.AssignedColleges = assignedCols;
+
+                var collegesForDropdown = string.IsNullOrWhiteSpace(model.Faculty)
+                    ? assignedCols
+                    : await GetCollegesByFacultyAsync(model.Faculty, assignedCols);
+
+                model.CollegeOptions = collegesForDropdown
+                    .Select(c => new SelectListItem { Value = c.CollegeCode, Text = c.CollegeName })
+                    .Prepend(new SelectListItem { Value = "", Text = "-- Select College --" })
+                    .ToList();
+
+                model.AllCollegeOptions = assignedCols
+                    .Select(c => new SelectListItem { Value = c.CollegeCode, Text = c.CollegeName })
+                    .ToList();
+
+                model.ModeOfTravelOptions = await GetTravelModesAsync(null);
+                model.FacultyOptions = await GetFacultyOptionsAsync(model.Faculty);
+                model.SavedClaims = await _context.LicclaimDetails
+                    .AsNoTracking()
+                    .Where(x => x.PhoneNumber.Trim() == phone)
+                    .ToListAsync();
+                model.HasUploadedBill = model.SavedClaims.Any(r => r.UploadBills?.Length > 0);
+                model.HasUploadedAttendence = model.SavedClaims.Any(r => r.AttendenceDoc?.Length > 0);
+                model.isBanglore = isBangalore;
+                return View(model);
+            }
+
+            // ── 13. Resolve selected college ──────────────────────────────────────
+            var selectedCollege = await _context.LicInspectionCollegeDetails
+                .AsNoTracking()
+                .Where(x => x.Collegecode == model.CollegeCode)
+                .Select(x => new { x.Collegecode, x.Collegename })
+                .FirstOrDefaultAsync();
+
+            // ── 14. Find or create record (one row per inspector per college) ──────
+            var existing = await _context.LicclaimDetails
+                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone
+                                       && x.CollegeCode == model.CollegeCode);
+            if (existing == null)
+            {
+                existing = new LicclaimDetail
+                {
+                    PhoneNumber = phone,
+                    CreatedDate = DateTime.Now
+                };
+                _context.LicclaimDetails.Add(existing);
+            }
+
+            // ── 15. Map all fields ────────────────────────────────────────────────
+            existing.MemberName = memberName;
+            existing.TypeofMember = role;
+            existing.PhoneNumber = phone;
+            existing.ModeOfTravel = string.Join(",", selectedModes);
+            existing.CollegeCode = selectedCollege?.Collegecode;
+            existing.AssignedColleges = assignedCsv;
+            existing.AirFare = airFare > 0 ? airFare.ToString("F2") : null;
+
+            // Onward
+            existing.FromPlace = model.FromPlace;
+            existing.ToPlace = model.ToPlace;
+            existing.Kilometers = (decimal?)model.Kilometers;
+
+            // Return
+            existing.ReturnFromPlace = model.ReturnFromPlace;
+            existing.ReturnToPlace = model.ReturnToPlace;
+            existing.ReturnKilometers = returnKm > 0 ? (decimal?)returnKm : null;
+            existing.NoofDays = numberOfDays.ToString();
+
+            existing.IsBanglore = isBangalore;
+            existing.TotalCost = model.TotalCost;
+            existing.UpdatedDate = DateTime.Now;
+
+            // Summary breakdown
+            existing.TravelCost = travelCost;
+            existing.Dacost = daCostCalc;
+            existing.Lcacost = lcaCostCalc;
+            existing.CollegeCost = collegeCost;
+            existing.AirFareCost = airFare;
+            existing.AirRoadCost = airRoad;
+            existing.Division = isBangalore ? "bangalore" : "other";
+            existing.IsLca = applyLCA;
+            existing.NumberOfDays = numberOfDays;
+
+            // New fields
+            existing.Faculty = model.Faculty;
+            existing.InspectionDate = model.InspectionDate;
+
+            // ── 16. File uploads ──────────────────────────────────────────────────
+            if (UploadBillsFile != null && UploadBillsFile.Length > 0)
+            {
+                using var ms = new MemoryStream();
+                await UploadBillsFile.CopyToAsync(ms);
+                existing.UploadBills = ms.ToArray();
+            }
+
+            if (AttendenceDocFile != null && AttendenceDocFile.Length > 0)
+            {
+                using var ms = new MemoryStream();
+                await AttendenceDocFile.CopyToAsync(ms);
+                existing.AttendenceDoc = ms.ToArray();
+            }
+
+            // ── 17. Save ──────────────────────────────────────────────────────────
+            await _context.SaveChangesAsync();
+
+            string allowanceType = applyLCA
+                ? $"LCA ({numberOfDays} day(s) × ₹{lcaRate:N0}): ₹{lcaCostCalc:N2}"
+                : $"DA  ({numberOfDays} day(s) × ₹{daRate:N0}): ₹{daCostCalc:N2}";
+
+            string divisionLabel = isBangalore ? "Bangalore Division" : "Other Division";
+
+            TempData["Message"] =
+                $"Claim saved for {selectedCollege?.Collegename} [{divisionLabel}] — " +
+                $"Onward: {onwardKm} km | Return: {returnKm} km | " +
+                $"TA: ₹{travelCost:N2} | {allowanceType} | " +
+                $"College Allowance (1 × ₹2,500): ₹{collegeCost:N2} | " +
+                $"Air Fare: ₹{airFare:N2} | Air Road: ₹{airRoad:N2} | " +
+                $"Grand Total: ₹{model.TotalCost:N2}";
+
+            return RedirectToAction("ClaimDetails");
+        }
 
         [HttpGet]
-        public async Task<IActionResult> DownloadBill()
+        public async Task<IActionResult> DownloadBill(string collegeCode)
         {
             var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
@@ -1345,14 +1321,31 @@ public async Task<IActionResult> ClaimDetails(
 
             var record = await _context.LicclaimDetails
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone);
-
+                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone
+                                       && x.CollegeCode == collegeCode); // ← per-college
             if (record?.UploadBills == null || record.UploadBills.Length == 0)
                 return NotFound("No bill uploaded.");
 
             var (contentType, extension) = DetectFileType(record.UploadBills);
+            return File(record.UploadBills, contentType, $"Bill_{phone}_{collegeCode}{extension}");
+        }
 
-            return File(record.UploadBills, contentType, $"Bill_{phone}{extension}");
+        [HttpGet]
+        public async Task<IActionResult> DownloadAttendenceDoc(string collegeCode)
+        {
+            var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
+            if (string.IsNullOrWhiteSpace(phone))
+                return RedirectToAction("Login");
+
+            var record = await _context.LicclaimDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.PhoneNumber.Trim() == phone
+                                       && x.CollegeCode == collegeCode); // ← per-college
+            if (record?.AttendenceDoc == null || record.AttendenceDoc.Length == 0)
+                return NotFound("No attendance document uploaded.");
+
+            var (contentType, extension) = DetectFileType(record.AttendenceDoc);
+            return File(record.AttendenceDoc, contentType, $"Attendance_{phone}_{collegeCode}{extension}");
         }
 
         [HttpGet]
@@ -1370,7 +1363,6 @@ public async Task<IActionResult> ClaimDetails(
                 return NotFound("No attendance document uploaded.");
 
             var (contentType, extension) = DetectFileType(record.AttendenceDoc);
-
             return File(record.AttendenceDoc, contentType, $"Attendance_{phone}{extension}");
         }
 
@@ -1391,25 +1383,21 @@ public async Task<IActionResult> ClaimDetails(
             if (data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47)
                 return ("image/png", ".png");
 
-            // DOC — D0 CF 11 E0 (OLE2 — old .doc format)
+            // DOC — D0 CF 11 E0 (OLE2)
             if (data[0] == 0xD0 && data[1] == 0xCF && data[2] == 0x11 && data[3] == 0xE0)
                 return ("application/msword", ".doc");
 
-            // DOCX — 50 4B 03 04 (ZIP-based — .docx is a ZIP)
+            // DOCX — 50 4B 03 04 (ZIP-based)
             if (data[0] == 0x50 && data[1] == 0x4B && data[2] == 0x03 && data[3] == 0x04)
                 return ("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx");
 
-            // Fallback
             return ("application/octet-stream", ".bin");
         }
 
         // ── AJAX: colleges filtered by selected faculty ───────────────────────────
-        // Called by JS when the user picks a faculty.
-        // Returns only the inspector's assigned colleges that belong to that faculty.
         [HttpGet]
         public async Task<IActionResult> GetCollegesByFaculty(string? facultyId)
         {
-            // ── Fix: use same claim name as Login/ClaimDetails ────────────────────
             var phone = User.FindFirst("PhoneNumber")?.Value?.Trim();
             if (string.IsNullOrWhiteSpace(phone))
                 return Json(new List<object>());
@@ -1420,19 +1408,14 @@ public async Task<IActionResult> ClaimDetails(
             if (member == null)
                 return Json(new List<object>());
 
-            // All colleges assigned to this inspector
-            // Senate Member filtering is now handled inside GetAssignedCollegesAsync
             var assignedColleges = await GetAssignedCollegesAsync(
                 member.TypeofMember?.Trim() ?? "", phone);
 
-            // If no faculty selected, return all assigned colleges
+            // No faculty selected → return all
             if (string.IsNullOrWhiteSpace(facultyId))
-            {
                 return Json(assignedColleges
                     .Select(c => new { value = c.CollegeCode, text = c.CollegeName }));
-            }
 
-            // Filter by faculty
             var filtered = await GetCollegesByFacultyAsync(facultyId, assignedColleges);
             return Json(filtered
                 .Select(c => new { value = c.CollegeCode, text = c.CollegeName }));
@@ -1444,29 +1427,22 @@ public async Task<IActionResult> ClaimDetails(
 
         /// <summary>
         /// Returns the list of colleges assigned to this inspector based on their role.
-        ///
-        /// TABLE  : LicInspectionCollegeDetails
-        /// FILTER : depends on TypeofMember (role)
-        ///
-        ///   role = "Academic Council"  → filter by AcMemberPhno
-        ///   role = "Senate Members"    → filter by SenetMemberPhNo
-        ///   role = "Subject Expertise" → filter by SubjectExpertisePhNo
-        ///   role = anything else       → returns empty list
-        ///
-        /// Each matching row gives one college (Collegecode + Collegename).
-        /// Results are ordered A→Z by college name.
+        /// role = "Academic Council"  → filter by AcMemberPhno
+        /// role = "Senate Members"    → filter by SenetMemberPhNo + OtherDetails cross-check
+        /// role = "Subject Expertise" → filter by SubjectExpertisePhNo
+        /// role = anything else       → returns empty list
         /// </summary>
         private async Task<List<AssignedCollegeItem>> GetAssignedCollegesAsync(string role, string phone)
         {
+            // Normalize phone input
+            phone = phone?.Trim() ?? string.Empty;
+
             var query = _context.LicInspectionCollegeDetails.AsNoTracking();
 
             // ── Senate Members ────────────────────────────────────────────────────
-            // Only show colleges where their data exists in LicInspectionOtherDetails
-            // (IsAttended check removed here — just existence in the table is enough)
             if (string.Equals(role, "Senate Members", StringComparison.OrdinalIgnoreCase))
             {
-                // Step 1: Get college codes that exist for this Senate Member
-                //         in LicInspectionOtherDetails
+                // Step 1: Get college codes that exist for this Senate Member in OtherDetails
                 var senatCollegeCodes = await _context.LicInspectionOtherDetails
                     .AsNoTracking()
                     .Where(x => x.Phonenumber.Trim() == phone)
@@ -1474,31 +1450,41 @@ public async Task<IActionResult> ClaimDetails(
                     .Distinct()
                     .ToListAsync();
 
-                // Step 2: If no data in LicInspectionOtherDetails → return empty
+                // Step 2: No data → return empty
                 if (!senatCollegeCodes.Any())
                     return new List<AssignedCollegeItem>();
 
-                // Step 3: Return only assigned colleges that exist in OtherDetails
-                return await query
-                    .Where(x => x.SenetMemberPhNo.ToString() == phone
-                             && senatCollegeCodes.Contains(x.Collegecode.Trim()))
-                    .OrderBy(x => x.Collegename)
+                // Step 3: Parse phone to numeric for column comparison
+                if (!long.TryParse(phone, out var senatPhoneNum))
+                    return new List<AssignedCollegeItem>();
+
+                // Step 4: Fetch matching colleges, then filter in memory (safe Trim)
+                var senateRaw = await query
+                    .Where(x => x.SenetMemberPhNo == senatPhoneNum)
                     .Select(x => new AssignedCollegeItem
                     {
                         CollegeName = x.Collegename,
                         CollegeCode = x.Collegecode
                     })
                     .ToListAsync();
+
+                return senateRaw
+                    .Where(x => senatCollegeCodes.Contains(x.CollegeCode?.Trim()))
+                    .OrderBy(x => x.CollegeName)
+                    .ToList();
             }
 
             // ── Academic Council & Subject Expertise ──────────────────────────────
-            // Display all assigned colleges directly — no extra condition
-            IQueryable<LicInspectionCollegeDetail> filtered = role switch
-            {
-                "Academic Council" => query.Where(x => x.AcMemberPhno.ToString() == phone),
-                "Subject Expertise" => query.Where(x => x.SubjectExpertisePhNo.ToString() == phone),
-                _ => Enumerable.Empty<LicInspectionCollegeDetail>().AsQueryable()
-            };
+            if (!long.TryParse(phone, out var phoneNum))
+                return new List<AssignedCollegeItem>();
+
+            IQueryable<LicInspectionCollegeDetail> filtered =
+                role.Trim().ToLowerInvariant() switch
+                {
+                    "academic council" => query.Where(x => x.AcMemberPhno == phoneNum),
+                    "subject expertise" => query.Where(x => x.SubjectExpertisePhNo == phoneNum),
+                    _ => Enumerable.Empty<LicInspectionCollegeDetail>().AsQueryable()
+                };
 
             return await filtered
                 .OrderBy(x => x.Collegename)
@@ -1510,18 +1496,8 @@ public async Task<IActionResult> ClaimDetails(
                 .ToListAsync();
         }
 
-
-
         /// <summary>
         /// Returns all available travel modes for the Mode-of-Travel multi-select dropdown.
-        ///
-        /// TABLE  : [Admission_Affiliation].[dbo].[LIC_ModeofTravel]
-        /// COLUMN : Modeoftravel
-        ///
-        /// The optional `selected` parameter pre-selects one item (used when
-        /// the controller wants a single-select scenario; for multi-select the
-        /// view handles selection via its own JS, so null is passed).
-        ///
         /// A blank "-- Select --" placeholder is prepended.
         /// </summary>
         private async Task<List<SelectListItem>> GetTravelModesAsync(string? selected)
@@ -1543,26 +1519,15 @@ public async Task<IActionResult> ClaimDetails(
                 .ToList();
         }
 
-
         /// <summary>
         /// Returns ALL active faculty for the Faculty dropdown.
-        /// No college filter — faculty is the INDEPENDENT (parent) dropdown.
-        /// College is the DEPENDENT (child) dropdown that reacts to faculty selection.
-        ///
-        /// TABLE  : [Admission_Affiliation].[dbo].[Faculty]
-        /// COLUMNS used:
-        ///   FacultyId   → SelectListItem.Value
-        ///   FacultyName → SelectListItem.Text
-        ///   Status      → filter: only rows where Status == "true"
-        ///
-        /// The optional `selectedFacultyId` pre-selects the saved value on page load.
-        /// A blank "-- Select Faculty --" placeholder is inserted at position 0.
+        /// Faculty is the independent (parent) dropdown; College depends on it.
         /// </summary>
         private async Task<List<SelectListItem>> GetFacultyOptionsAsync(string? selectedFacultyId)
         {
             var list = await _context.Faculties
                 .AsNoTracking()
-                .Where(f => f.Status == "Active" && f.FacultyId == 9)          // only active faculty
+                .Where(f => f.Status == "Active" && f.FacultyId == 9)
                 .OrderBy(f => f.FacultyName)
                 .Select(f => new SelectListItem
                 {
@@ -1576,54 +1541,36 @@ public async Task<IActionResult> ClaimDetails(
             return list;
         }
 
-
         /// <summary>
-        /// Returns the subset of an inspector's assigned colleges that belong
-        /// to the selected faculty.
-        ///
-        /// HOW THE LINK WORKS:
-        ///
-        ///   Faculty table                   LicInspectionCollegeDetails table
-        ///   ─────────────────               ──────────────────────────────────────────
-        ///   FacultyId  (PK)      ────────►  FacultyId  (FK)   ← the join column
-        ///   FacultyName                      Collegecode
-        ///   Status                           Collegename
-        ///                                    AcMemberPhno
-        ///                                    SenetMemberPhNo
-        ///                                    SubjectExpertisePhNo
-        ///
-        /// STEPS:
-        ///   1. Query LicInspectionCollegeDetails for all rows where FacultyId == facultyId
-        ///      → gives us a list of college codes linked to that faculty
-        ///   2. Intersect that list with `assignedColleges` (already fetched by
-        ///      GetAssignedCollegesAsync) so the inspector only sees colleges
-        ///      they are personally assigned to — never the full university list.
-        ///
-        /// ⚠️  IMPORTANT — adjust the property name if needed:
-        ///     c.FacultyId  →  replace with the actual EF property on
-        ///     LicInspectionCollegeDetail that holds the faculty reference.
-        ///     Common alternatives: c.FacultyCode, c.EMS_FacultyId, c.FacultyRefId
-        ///     Check your DbContext / entity class to confirm the exact name.
+        /// Returns the subset of an inspector's assigned colleges that belong to the selected faculty.
+        /// Step 1 — get all college codes linked to facultyId from LicInspectionCollegeDetails.
+        /// Step 2 — intersect with the inspector's own assigned colleges.
         /// </summary>
         private async Task<List<AssignedCollegeItem>> GetCollegesByFacultyAsync(
-            string facultyId,
-            List<AssignedCollegeItem> assignedColleges)
+    string facultyId,
+    List<AssignedCollegeItem> assignedColleges)
         {
-            // Step 1 — college codes linked to this faculty in the inspection table
+            if (!int.TryParse(facultyId, out var facultyIdInt))
+                return assignedColleges;
+
             var linkedCollegeCodes = await _context.LicInspectionCollegeDetails
                 .AsNoTracking()
-                .Where(c => c.Facultycode.ToString() == facultyId)  // ← adjust property name
-                .Select(c => c.Collegecode)
+                .Where(c => c.Facultycode == facultyIdInt)
+                .Select(c => c.Collegecode.Trim())
                 .Distinct()
                 .ToListAsync();
 
-            // Step 2 — keep only the inspector's own assigned colleges
+            // ── If Facultycode is not populated, fall back to all assigned colleges ──
+            if (!linkedCollegeCodes.Any())
+                return assignedColleges;
+
             return assignedColleges
-                .Where(c => linkedCollegeCodes.Contains(c.CollegeCode))
+                .Where(c => linkedCollegeCodes.Contains(c.CollegeCode?.Trim()))
                 .ToList();
         }
 
         #endregion
+
 
 
 
