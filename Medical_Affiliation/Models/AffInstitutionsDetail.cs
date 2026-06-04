@@ -109,5 +109,4 @@ public partial class AffInstitutionsDetail
 
     public string? DocumentDataPath { get; set; }
 
-    public bool IsDraft { get; set; }
 }
