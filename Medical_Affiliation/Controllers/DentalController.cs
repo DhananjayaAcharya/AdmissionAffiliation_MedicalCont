@@ -452,6 +452,18 @@ namespace Medical_Affiliation.Controllers
 
             ).ToListAsync();
 
+            vm.FacultyList = facultyList
+                .Where(x => !string.IsNullOrWhiteSpace(x.NameOfFaculty))
+                .Select(x => x.NameOfFaculty.Trim())
+                .Distinct()
+                .OrderBy(x => x)
+                .Select(x => new SelectListItem
+                {
+                    Value = x,
+                    Text = x
+                })
+                .ToList();
+
             // ✅ SAVED DATA
             var saved = await _context.TeachingStaffDepartmentWiseDetails
                 .Where(x =>
@@ -464,9 +476,8 @@ namespace Medical_Affiliation.Controllers
             // FACULTY GROUPING
             // =========================
 
-            var groupedFaculty = facultyList
-                .Where(x => !string.IsNullOrWhiteSpace(x.NameOfFaculty))
-                .GroupBy(x => x.NameOfFaculty.Trim())
+            var groupedFaculty = saved
+                .GroupBy(x => x.Id)
                 .ToList();
 
             // =========================
@@ -489,145 +500,70 @@ namespace Medical_Affiliation.Controllers
 
                 foreach (var header in designationMasters)
                 {
-                    // faculty detail for this designation
-                    var faculty = facultyGroup
+                    var existing = facultyGroup
                         .FirstOrDefault(x =>
-                            x.Designation == header.DesignationCode);
+                            x.DesignationCode == header.DesignationCode);
 
-                    // saved teaching staff detail
-                    var existing = saved
-                        .Where(x =>
-
-                            !string.IsNullOrWhiteSpace(x.NameOfFaculty) &&
-
-                            x.NameOfFaculty.Trim() ==
-                            firstFaculty.NameOfFaculty.Trim() &&
-
-                            x.DesignationCode ==
-                            header.DesignationCode)
-
-                        .OrderByDescending(x => x.Id)
-
-                        .FirstOrDefault();
-
-                    // =========================
-                    // EMPTY SLOT
-                    // =========================
-
-                    if (faculty == null && existing == null)
+                    if (existing == null)
                     {
                         facultyVm.Designations.Add(
                             new DentalDesignationTeachingVm
                             {
-                                DesignationCode =
-                                    header.DesignationCode,
-
-                                DesignationName =
-                                    header.DesignationName
+                                DesignationCode = header.DesignationCode,
+                                DesignationName = header.DesignationName
                             });
 
                         continue;
                     }
 
-                    // =========================
-                    // VIEWMODEL
-                    // =========================
-
-                    var vmDesignation =
-                        new DentalDesignationTeachingVm
-                        {
-                            Id = existing?.Id ?? 0,
-
-                            DesignationCode =
-                                header.DesignationCode,
-
-                            DesignationName =
-                                header.DesignationName,
-
-                            DepartmentCode =
-                                existing?.DepartmentCode,
-
-                            DepartmentName =
-                                faculty?.DepartmentName,
-
-                            CourseLevel =
-                                existing?.CourseLevel,
-
-                            TotalExperience =
-                                existing?.TotalExperience
-                        };
-
-                    // =========================
-                    // EXISTING SAVED DATA
-                    // =========================
-
-                    if (existing != null)
+                    var vmDesignation = new DentalDesignationTeachingVm
                     {
-                        // UG
-                        if (existing.CourseLevel == "UG")
-                        {
-                            vmDesignation.CollegeCode =
-                                existing.UgcollegeCode?.Trim();
+                        Id = existing.Id,
 
-                            vmDesignation.FromDate =
-                                existing.Ugfrom?.ToDateTime(TimeOnly.MinValue);
+                        DesignationCode = existing.DesignationCode,
 
-                            vmDesignation.ToDate =
-                                existing.Ugto?.ToDateTime(TimeOnly.MinValue);
-                        }
+                        DesignationName = existing.DesignationName,
 
-                        // PG
-                        else if (existing.CourseLevel == "PG")
-                        {
-                            vmDesignation.CollegeCode =
-                                existing.PgcollegeCode?.Trim();
+                        DepartmentCode = existing.DepartmentCode,
 
-                            vmDesignation.FromDate =
-                                existing.Pgfrom?.ToDateTime(TimeOnly.MinValue);
+                        CourseLevel = existing.CourseLevel,
 
-                            vmDesignation.ToDate =
-                                existing.Pgto?.ToDateTime(TimeOnly.MinValue);
-                        }
-                    }
+                        TotalExperience = existing.TotalExperience
+                    };
 
-                    // =========================
-                    // DEFAULT FACULTY DETAILS
-                    // =========================
-
-                    else if (faculty != null)
+                    if (existing.CourseLevel == "UG")
                     {
-                        vmDesignation.CourseLevel =
-                            faculty.CourseLevel;
-
                         vmDesignation.CollegeCode =
-                            collegeCode;
-
-                        vmDesignation.DepartmentCode =
-                            faculty.DepartmentDetails;
+                            existing.UgcollegeCode?.Trim();
 
                         vmDesignation.FromDate =
-                            faculty.From?.ToDateTime(TimeOnly.MinValue);
+                            existing.Ugfrom?.ToDateTime(TimeOnly.MinValue);
 
                         vmDesignation.ToDate =
-                            faculty.To?.ToDateTime(TimeOnly.MinValue);
+                            existing.Ugto?.ToDateTime(TimeOnly.MinValue);
+                    }
+                    else if (existing.CourseLevel == "PG")
+                    {
+                        vmDesignation.CollegeCode =
+                            existing.PgcollegeCode?.Trim();
+
+                        vmDesignation.FromDate =
+                            existing.Pgfrom?.ToDateTime(TimeOnly.MinValue);
+
+                        vmDesignation.ToDate =
+                            existing.Pgto?.ToDateTime(TimeOnly.MinValue);
                     }
 
-                    // =========================
-                    // ADD SLOT
-                    // =========================
-
-                    facultyVm.Designations
-                        .Add(vmDesignation);
+                    facultyVm.Designations.Add(vmDesignation);
                 }
-
                 vm.FacultyRows
                     .Add(facultyVm);
             }
 
-            vm.FacultyRows = vm.FacultyRows
-                .GroupBy(x => x.NameOfFaculty)
-                .Select(x => x.First())
-                .ToList();
+            //vm.FacultyRows = vm.FacultyRows
+            //    .GroupBy(x => x.NameOfFaculty)
+            //    .Select(x => x.First())
+            //    .ToList();
 
 
             return View(vm);
@@ -647,6 +583,29 @@ namespace Medical_Affiliation.Controllers
 
             if (vm?.FacultyRows == null || !vm.FacultyRows.Any())
                 return RedirectToAction("TeachingStaffDepartmentWise");
+
+
+            var postedIds = vm.FacultyRows
+                .SelectMany(x => x.Designations)
+                .Where(x => x.Id > 0)
+                .Select(x => x.Id)
+                .Distinct()
+                .ToList();
+
+
+            var recordsToDelete = await _context
+                .TeachingStaffDepartmentWiseDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    !postedIds.Contains(x.Id))
+                .ToListAsync();
+
+            if (recordsToDelete.Any())
+            {
+                _context.TeachingStaffDepartmentWiseDetails
+                    .RemoveRange(recordsToDelete);
+            }
 
             foreach (var faculty in vm.FacultyRows)
             {
@@ -674,16 +633,14 @@ namespace Medical_Affiliation.Controllers
                     // FIND EXISTING
                     // =========================
 
-                    var existing = await _context
-                        .TeachingStaffDepartmentWiseDetails
-                        .FirstOrDefaultAsync(x =>
+                    TeachingStaffDepartmentWiseDetail? existing = null;
 
-                            x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-
-                            x.NameOfFaculty == faculty.NameOfFaculty &&
-
-                            x.DesignationCode == des.DesignationCode);
+                    if (des.Id > 0)
+                    {
+                        existing = await _context
+                            .TeachingStaffDepartmentWiseDetails
+                            .FirstOrDefaultAsync(x => x.Id == des.Id);
+                    }
 
                     // =========================
                     // INSERT
@@ -711,6 +668,7 @@ namespace Medical_Affiliation.Controllers
                     // =========================
 
                     existing.DepartmentCode = des.DepartmentCode;
+                    existing.NameOfFaculty = faculty.NameOfFaculty;
 
                     existing.CourseLevel = des.CourseLevel;
 
@@ -759,6 +717,7 @@ namespace Medical_Affiliation.Controllers
                 }
             }
             await _context.SaveChangesAsync();
+            //TempData["SuccessFaculty"] = "Teaching staff details saved successfully.";
 
             return RedirectToAction("TeachingStaffDepartmentWise");
         }

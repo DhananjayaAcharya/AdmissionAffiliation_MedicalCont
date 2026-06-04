@@ -504,7 +504,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("AcademicIntake");
 
-            entity.Property(e => e.Ay2024ExistingIntake).HasColumnName("AY2024_ExistingIntake     ");
+            entity.Property(e => e.Ay2024ExistingIntake).HasColumnName("AY2024_ExistingIntake");
             entity.Property(e => e.Ay2024IncreaseIntake).HasColumnName("AY2024_IncreaseIntake");
             entity.Property(e => e.Ay2024TotalIntake).HasColumnName("AY2024_TotalIntake");
             entity.Property(e => e.Ay2025Dcidocument)
@@ -3127,8 +3127,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("DistrictMaster");
 
-
-            entity.HasIndex(e => e.DistrictName, "UQ__District__F4708CA4D5E346E7")
+            entity.HasIndex(e => e.DistrictName, "UQ__District__F4708CA46F0C9590")
                 .IsUnique()
                 .HasFillFactor(80);
 
@@ -3927,8 +3926,8 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LicTaDaEditLog>(entity =>
         {
+            entity.HasKey(e => e.LogId).HasName("PK__LIC_TA_D__5E548648777D12AF");
 
-            entity.HasKey(e => e.LogId).HasName("PK__LIC_TA_D__5E548648238EBF8C");
             entity.ToTable("LIC_TA_DA_Edit_Log");
 
             entity.Property(e => e.AcademicYear).HasMaxLength(20);
@@ -4044,8 +4043,8 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LicWorkflowMovementLog>(entity =>
         {
+            entity.HasKey(e => e.MovementId).HasName("PK__LIC_Work__D18224466C983E3C");
 
-            entity.HasKey(e => e.MovementId).HasName("PK__LIC_Work__D1822446B786199B");
             entity.ToTable("LIC_Workflow_Movement_Log");
 
             entity.Property(e => e.ActionAt)
@@ -4133,6 +4132,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.CurrentStage)
+                .HasMaxLength(30)
+                .IsUnicode(false);
             entity.Property(e => e.Dacost)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("DACost");
@@ -4196,6 +4198,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("FO_Level2_ApprovedStatus");
+            entity.Property(e => e.FoRoutedToUserId).HasColumnName("FO_RoutedToUserId");
             entity.Property(e => e.FromPlace).HasMaxLength(200);
             entity.Property(e => e.IsLca).HasColumnName("IsLCA");
             entity.Property(e => e.Kilometers).HasColumnType("decimal(10, 2)");
@@ -4212,6 +4215,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ReturnFromPlace).HasMaxLength(200);
             entity.Property(e => e.ReturnKilometers).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.ReturnToPlace).HasMaxLength(200);
+            entity.Property(e => e.SoAssignedCwuserId).HasColumnName("SO_AssignedCWUserId");
             entity.Property(e => e.ToPlace).HasMaxLength(200);
             entity.Property(e => e.TotalClaimAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TravelCost).HasColumnType("decimal(18, 2)");

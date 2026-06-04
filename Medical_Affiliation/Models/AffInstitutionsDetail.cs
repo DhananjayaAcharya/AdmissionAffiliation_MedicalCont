@@ -108,5 +108,4 @@ public partial class AffInstitutionsDetail
     public string? CourseLevel { get; set; }
 
     public string? DocumentDataPath { get; set; }
-
 }

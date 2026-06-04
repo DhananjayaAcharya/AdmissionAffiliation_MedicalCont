@@ -291,6 +291,161 @@ namespace Medical_Affiliation.Controllers
             });
         }
 
+
+        public async Task<IActionResult> Dashboard(
+    string districtId = "",
+    string talukId = "",
+    string search = "")
+        {
+            districtId = (districtId ?? "").Trim();
+            talukId = (talukId ?? "").Trim();
+            search = (search ?? "").Trim();
+
+            var vm = new MedicalDashboardViewModel
+            {
+                SearchTerm = search,
+                SelectedDistrict = districtId,
+                SelectedTaluk = talukId
+            };
+
+            vm.Districts = await _context.DistrictMasters
+                .AsNoTracking()
+                .OrderBy(d => d.DistrictName)
+                .Select(d => new DistrictItem
+                {
+                    DistrictID = d.DistrictId,
+                    DistrictName = d.DistrictName
+                })
+                .ToListAsync();
+
+            var collegeList = await _context.AffiliationCollegeMasters
+                .AsNoTracking()
+                .Where(c =>
+                    c.FacultyCode == DENTAL_FACULTY_CODE &&
+                    (c.Status == true || c.Status == null))
+                .OrderBy(c => c.CollegeName)
+                .Select(c => new
+                {
+                    c.CollegeCode,
+                    c.CollegeName,
+                    c.CollegeTown,
+                    c.DistrictId,
+                    c.TalukId
+                })
+                .ToListAsync();
+
+            if (!collegeList.Any())
+            {
+                vm.Colleges = new List<CollegeListItem>();
+                vm.Stats = await BuildStatsAsync();
+                return View(vm);
+            }
+
+            var collegeCodes = collegeList
+                .Select(c => c.CollegeCode)
+                .ToHashSet();
+
+            var allIntakes = await _context.CollegeCourseIntakeDetails
+                .AsNoTracking()
+                .Where(i => collegeCodes.Contains(i.CollegeCode))
+                .Select(i => new
+                {
+                    i.CollegeCode,
+                    i.CourseCode,
+                    i.CourseName,
+                    i.PresentIntake
+                })
+                .ToListAsync();
+
+
+            var levelLookup = await _context.MstCourses
+                .AsNoTracking()
+                .Where(x => x.FacultyCode == 1)
+                .GroupBy(x => x.CourseCode.ToString())
+                .ToDictionaryAsync(
+                    g => g.Key,
+                    g => g.First().CourseLevel);
+
+            var ugTotals = new Dictionary<string, int>();
+            var pgTotals = new Dictionary<string, int>();
+
+            foreach (var intake in allIntakes)
+            {
+                if (string.IsNullOrWhiteSpace(intake.CourseCode))
+                    continue;
+
+                if (levelLookup.TryGetValue(
+                        intake.CourseCode,
+                        out string level))
+                {
+                    if (level == "UG")
+                    {
+                        ugTotals[intake.CollegeCode] =
+                            ugTotals.GetValueOrDefault(intake.CollegeCode)
+                            + (intake.PresentIntake ?? 0);
+                    }
+                    else if (level == "PG")
+                    {
+                        pgTotals[intake.CollegeCode] =
+                            pgTotals.GetValueOrDefault(intake.CollegeCode)
+                            + (intake.PresentIntake ?? 0);
+                    }
+                }
+            }
+
+            var districtMap = await _context.DistrictMasters
+                .AsNoTracking()
+                .ToDictionaryAsync(
+                    d => d.DistrictId,
+                    d => d.DistrictName);
+
+            var talukMap = await _context.TalukMasters
+                .AsNoTracking()
+                .ToDictionaryAsync(
+                    t => t.TalukId,
+                    t => t.TalukName);
+
+            vm.Colleges = collegeList.Select(c => new CollegeListItem
+            {
+                CollegeCode = c.CollegeCode ?? "",
+                CollegeName = c.CollegeName ?? "",
+                CollegeTown = c.CollegeTown ?? "",
+                DistrictId = c.DistrictId?.Trim() ?? "",
+                DistrictName =
+                    districtMap.TryGetValue(
+                        c.DistrictId?.Trim() ?? "",
+                        out var dn)
+                        ? dn
+                        : "",
+
+                TalukId = c.TalukId?.Trim() ?? "",
+                TalukName =
+                    talukMap.TryGetValue(
+                        c.TalukId?.Trim() ?? "",
+                        out var tn)
+                        ? tn
+                        : "",
+
+                UGSeats =
+                    ugTotals.TryGetValue(
+                        c.CollegeCode,
+                        out var ug)
+                        ? ug
+                        : 0,
+
+                PGSeats =
+                    pgTotals.TryGetValue(
+                        c.CollegeCode,
+                        out var pg)
+                        ? pg
+                        : 0
+            }).ToList();
+
+            vm.Stats = await BuildStatsAsync();
+
+            return View(vm);
+        }
+
         private async Task<DashboardStats> BuildStatsAsync()
         {
             return await _cache.GetOrCreateAsync(

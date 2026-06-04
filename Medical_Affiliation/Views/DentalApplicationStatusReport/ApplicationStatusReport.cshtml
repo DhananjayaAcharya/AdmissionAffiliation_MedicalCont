@@ -55,6 +55,26 @@
         border-bottom: 4px solid var(--gold);
     }
 
+    .filter-header-container {
+        padding: 0.5rem 0; /* Equivalent to px-4 py-2 */
+        border-radius: 4px; /* Gives smooth edges */
+        display: inline-block; /* Ensures padding renders correctly */
+    }
+
+    .filter-home-link {
+    background-color: lightseagreen; /* Bootstrap dark gray hex code */
+        color: #ffffff; /* White text */
+        padding: 0.5rem 1.5rem; /* Equivalent to px-4 py-2 */
+        text-decoration: none; /* Removes the underline */
+        border-radius: 4px; /* Keeps design consistent */
+    }
+
+    .filter-home-link:hover {
+        background-color: #1c1f23; /* Darkens slightly on hover for better UX */
+        color: #ffffff;
+    }
+
+
     .rpt-header-left {
         display: flex;
         align-items: center;
@@ -556,7 +576,13 @@
             <!-- LEFT FILTER PANEL -->
             <div class="filter-panel">
 
-                <h3> <span class="px-4 py-2" style="background: lightseablue">Home</span> Filters</h3>
+                <h3>
+                    <span class="filter-header-container">
+                        <a asp-action="AdminDashboard" asp-controller="Admin" class="filter-home-link">Home</a>
+                    </span>
+                    Filters
+                </h3>
+
 
                 <form method="get" asp-action="ApplicationStatusReport" id="filterForm">
 

@@ -96,7 +96,6 @@ if (!Directory.Exists(keysDirectory))
     Directory.CreateDirectory(keysDirectory);
 }
 
-
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
     .SetApplicationName("MedicalAffiliation");

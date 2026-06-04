@@ -284,58 +284,89 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCollegeDetails(string collegeCode)
         {
-            // 1. Fail-Safe Level Detection using Mst_Course
-            var intakeData = await _context.CollegeCourseIntakeDetails
+            // 1. Get Course Codes from Intake Details
+            var courseCodes = await _context.CollegeCourseIntakeDetails
                 .Where(i => i.CollegeCode == collegeCode)
-                .Select(i => new { i.CourseCode })
+                .Select(i => i.CourseCode)
+                .Distinct()
                 .ToListAsync();
 
-            var courseMasters = await _context.MstCourses
-                .Select(m => new { m.CourseCode, m.CourseLevel })
-                .ToListAsync();
-
-            var levels = new List<string>();
-            foreach (var intake in intakeData)
+            // Fallback to Academic Intake if no Intake Details exist
+            if (!courseCodes.Any())
             {
-                var match = courseMasters.FirstOrDefault(m =>
-                    m.CourseCode.ToString().Trim().ToUpper() == intake.CourseCode.ToString().Trim().ToUpper());
-
-                if (match != null && !string.IsNullOrEmpty(match.CourseLevel))
-                {
-                    var lvl = match.CourseLevel.Trim().ToUpper();
-                    if (!levels.Contains(lvl)) levels.Add(lvl);
-                }
+                courseCodes = await _context.AcademicIntakes
+                    .Where(a => a.CollegeCode == collegeCode &&
+                                !string.IsNullOrEmpty(a.Courses))
+                    .Select(a => a.Courses!)
+                    .Distinct()
+                    .ToListAsync();
             }
-            if (!levels.Any()) levels.Add("UG");
 
-            // 2. Get completed steps
+            // 2. Get Levels directly from MstCourses
+            var levels = await _context.MstCourses
+                .Where(m => courseCodes.Contains(m.CourseCode.ToString()))
+                .Select(m => m.CourseLevel)
+                .Distinct()
+                .ToListAsync();
+
+            levels = levels
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim().ToUpper())
+                .Distinct()
+                .ToList();
+
+            if (!levels.Any())
+            {
+                levels.Add("UG");
+            }
+
+            // 3. Get completed steps
             var doneKeys = await _context.CaProgresses
                 .Where(x => x.CollegeCode == collegeCode && x.IsCompleted == true)
                 .Select(x => x.StepKey)
                 .ToListAsync();
 
-            // 3. Build the list of steps
-            // FIX: Added .Where(s => s.Key != "PreviewMode") to remove the Final Preview page
+            // 4. Build applicable steps
             var applicableSteps = AllSteps
                 .Where(s => s.Key != "PreviewMode")
                 .Select(s => (s.Key, s.Label, s.Group))
                 .ToList();
 
             if (levels.Contains("UG"))
-                applicableSteps.Add(("MBBSDetails", "UG Course Details", "Intake Details"));
+            {
+                applicableSteps.Add((
+                    "MBBSDetails",
+                    "UG Course Details",
+                    "Intake Details"));
+            }
 
             if (levels.Contains("PG"))
             {
-                applicableSteps.Add(("PgCourses", "PG Course Details", "Intake Details"));
-                applicableSteps.Add(("PGAcademicMatters", "PG Academic Performance", "Academic & Admin"));
+                applicableSteps.Add((
+                    "PgCourses",
+                    "PG Course Details",
+                    "Intake Details"));
+
+                applicableSteps.Add((
+                    "PGAcademicMatters",
+                    "PG Academic Performance",
+                    "Academic & Admin"));
             }
 
             if (levels.Contains("SS"))
             {
-                applicableSteps.Add(("SsCoursesApplied", "SS Course Details", "Intake Details"));
-                applicableSteps.Add(("SsCoursesOffered", "Courses Offered", "Intake Details"));
+                applicableSteps.Add((
+                    "SsCoursesApplied",
+                    "SS Course Details",
+                    "Intake Details"));
+
+                applicableSteps.Add((
+                    "SsCoursesOffered",
+                    "Courses Offered",
+                    "Intake Details"));
             }
 
+            // 5. Build grouped response
             var stepDetails = applicableSteps
                 .GroupBy(s => s.Group)
                 .Select(grp => new StepGroupVM
@@ -347,14 +378,11 @@ namespace Medical_Affiliation.Controllers
                         Label = s.Label,
                         Completed = doneKeys.Contains(s.Key)
                     }).ToList()
-                }).ToList();
+                })
+                .ToList();
 
             return Json(stepDetails);
         }
-
-
-
-
 
     }
 }

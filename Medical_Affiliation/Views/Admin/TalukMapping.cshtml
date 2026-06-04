@@ -1,4 +1,10 @@
 ﻿@model TalukMappingViewModel
+@{
+    ViewBag.Title = "Dental Colleges — Taluk Mapping";
+
+    // Layout = null;
+
+}
 
 <div class="container mt-4">
 
@@ -92,6 +98,59 @@
 
     </div>
 
+    <!-- Edit Taluk Modal -->
+    <div class="modal fade" id="editTalukModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Taluk</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" id="editTalukId" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Taluk ID</label>
+                        <input type="text"
+                               id="editTalukCode"
+                               class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Taluk Name</label>
+                        <input type="text"
+                               id="editTalukName"
+                               class="form-control" />
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            onclick="updateTaluk()">
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -138,11 +197,16 @@
                                         value="${taluk.talukId}"
                                         ${taluk.isSelected ? 'checked' : ''}>
 
-                                    <label class="form-check-label">
+                                        <label class="form-check-label taluk-editable"
+                                               ondblclick="openEditTaluk(
+                                                   '${taluk.talukId}',
+                                                   '${taluk.talukName.replace(/'/g, "\\'")}'
+                                               )"
+                                               style="cursor:pointer;">
 
-                                        ${taluk.talukName}
+                                            ${taluk.talukName}
 
-                                    </label>
+                                        </label>
 
                                 </div>
 
@@ -191,6 +255,75 @@
         renderNewTaluks();
 
         txt.value = "";
+    }
+
+    function openEditTaluk(talukId, talukName) {
+
+        document.getElementById("editTalukId").value = talukId;
+        document.getElementById("editTalukCode").value = talukId;
+        document.getElementById("editTalukName").value = talukName;
+
+        const modal =
+            new bootstrap.Modal(
+                document.getElementById("editTalukModal")
+            );
+
+        modal.show();
+    }
+
+    function updateTaluk() {
+
+        const talukId =
+            document.getElementById("editTalukId").value;
+
+        const talukCode =
+            document.getElementById("editTalukCode").value.trim();
+
+        const talukName =
+            document.getElementById("editTalukName").value.trim();
+
+        if (!talukCode || !talukName) {
+
+            alert("Taluk ID and Taluk Name are required.");
+            return;
+        }
+
+        fetch('@Url.Action("UpdateTaluk", "Admin")',
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    talukId: talukId,
+                    newTalukId: talukCode,
+                    talukName: talukName
+                })
+            })
+            .then(r => r.json())
+            .then(result => {
+
+                alert(result.message);
+
+                if (result.success) {
+
+                    bootstrap.Modal
+                        .getInstance(
+                            document.getElementById("editTalukModal")
+                        )
+                        .hide();
+
+                    loadTaluks();
+                }
+            })
+            .catch(error => {
+
+                console.error(error);
+
+                alert("Error updating Taluk.");
+            });
     }
 
     function renderNewTaluks() {
