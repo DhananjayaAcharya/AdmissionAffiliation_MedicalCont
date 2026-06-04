@@ -22,5 +22,9 @@
     </PackageReference>
     <PackageReference Include="QuestPDF" Version="2026.2.4" />
   </ItemGroup>
-
+	<ItemGroup>
+		<Reference Include="SecureConnectionLibrary">
+			<HintPath>Libraries\SecureConnectionLibrary.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 </Project>
