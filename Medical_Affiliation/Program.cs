@@ -7,17 +7,20 @@ using Medical_Affiliation.Services.Interfaces;
 using Medical_Affiliation.Services.UserContext;
 using Medical_Affiliation.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
+using SecureConnectionLibrary;
+using System.Data.Common;
 using System.Globalization;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.CookiePolicy;
-
+using SecureConnectionLibrary;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -67,10 +70,18 @@ QuestPDF.Settings.License = LicenseType.Community;
 // =============================================
 // 🔹 Database
 // =============================================
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+var encryptedConnectionString = builder.Configuration
+    .GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' not found.");
 
+var decryptedConnectionString =
+    ConnectionStringSecurity.Decrypt(encryptedConnectionString);
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(decryptedConnectionString);
+});
 
 // =============================================
 // 🔹 Session
@@ -324,7 +335,7 @@ app.UseAuthorization();
 app.UseStaticFiles(); // for wwwroot if needed
 
 // ===== D:\MedicalUGFacultyList Mapping =====
-var medicalPath = @"D:\MedicalUGFacultyList";
+var medicalPath = @"E:\MedicalUGFacultyList";
 
 // Auto create folders if not exists
 if (!Directory.Exists(medicalPath))
