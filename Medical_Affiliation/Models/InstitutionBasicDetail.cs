@@ -121,6 +121,14 @@ public partial class InstitutionBasicDetail
 
     public string? AuditStatementFilePath { get; set; }
 
+    public string? Ipaddress { get; set; }
+
+    public string? Browser { get; set; }
+
+    public string? DeviceType { get; set; }
+
+    public byte[] RowTimestamp { get; set; } = null!;
+
     public string? DcicertificateFilePath { get; set; }
 
     public string? KsdccertificateFilePath { get; set; }

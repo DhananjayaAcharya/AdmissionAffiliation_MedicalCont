@@ -68,6 +68,8 @@ namespace Admission_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AdminLogin(AdminLoginViewModel model)
         {
+            const string LoginErrorMessage = "Invalid Username or Password";
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -170,7 +172,7 @@ namespace Admission_Affiliation.Controllers
 
                 if (!isFinancePasswordValid)
                 {
-                    ModelState.AddModelError("Password", "The password you entered is incorrect.");
+                    ModelState.AddModelError("", LoginErrorMessage);
                     return View(model);
                 }
 
@@ -232,7 +234,7 @@ namespace Admission_Affiliation.Controllers
 
             if (user == null)
             {
-                ModelState.AddModelError("UserName", "The username you entered is incorrect.");
+                ModelState.AddModelError("", LoginErrorMessage);
                 return View(model);
             }
 
@@ -285,8 +287,8 @@ namespace Admission_Affiliation.Controllers
 
                     if (!isVCPasswordValid)
                     {
-                        ModelState.AddModelError("Password", "Incorrect password.");
-                        return View(model);
+                    ModelState.AddModelError("", LoginErrorMessage);
+                    return View(model);
                     }
 
                     await HttpContext.SignOutAsync("VCAuth");
@@ -416,7 +418,7 @@ namespace Admission_Affiliation.Controllers
 
                 if (!isPasswordValidForFellowship)
                 {
-                    ModelState.AddModelError("Password", "The password you entered is incorrect.");
+                    ModelState.AddModelError("", LoginErrorMessage);
                     return View(model);
                 }
 
@@ -481,7 +483,7 @@ namespace Admission_Affiliation.Controllers
 
                 if (!isDirectorPasswordValid)
                 {
-                    ModelState.AddModelError("", "Invalid credentials.");
+                    ModelState.AddModelError("", LoginErrorMessage);
                     return View(model);
                 }
 
@@ -557,7 +559,7 @@ namespace Admission_Affiliation.Controllers
 
                 if (!isPasswordValid)
                 {
-                    ModelState.AddModelError("password", "Incorrect password.");
+                    ModelState.AddModelError("", LoginErrorMessage);
                     return View(model);
                 }
 
@@ -619,13 +621,11 @@ namespace Admission_Affiliation.Controllers
                 {
                     user.LockoutEndTime = DateTime.Now.AddMinutes(15);
 
-                    TempData["Error"] =
-                        "Account locked for 15 minutes due to multiple failed login attempts.";
+                    TempData["Error"] = LoginErrorMessage;
                 }
                 else
                 {
-                    TempData["Error"] =
-                        $"Invalid password. Remaining attempts: {5 - user.FailedLoginAttempts}";
+                    TempData["Error"] = LoginErrorMessage;
                 }
 
                 await _context.SaveChangesAsync();
