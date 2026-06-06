@@ -568,6 +568,7 @@ namespace Medical_Affiliation.Controllers
                 {
                     existingCourse.SanctionedIntake = course.RguhsIntake;
                     existingCourse.AcademicYear = course.AcademicYear;
+                    existingCourse.Gokdate = course.DateofGOK;
 
                     if (path != null)
                     {
@@ -583,7 +584,7 @@ namespace Medical_Affiliation.Controllers
             }
 
             await _context.SaveChangesAsync();
-            TempData["GokSavemsg"] = "Details saved successfully";
+            TempData["GokSavemsg"] = "GOK Details saved successfully";
             return RedirectToAction(nameof(PgCourses));
         }
         public async Task<IActionResult> ViewGokDocument(string courseCode, string collegecode)
