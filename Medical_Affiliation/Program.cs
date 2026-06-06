@@ -335,7 +335,7 @@ app.UseAuthorization();
 app.UseStaticFiles(); // for wwwroot if needed
 
 // ===== D:\MedicalUGFacultyList Mapping =====
-var medicalPath = @"D:\MedicalUGFacultyList";
+var medicalPath = @"E:\MedicalUGFacultyList";
 
 // Auto create folders if not exists
 if (!Directory.Exists(medicalPath))
