@@ -9,18 +9,17 @@ using Medical_Affiliation.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
 using SecureConnectionLibrary;
-using System.Data.Common;
 using System.Globalization;
-using SecureConnectionLibrary;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -83,6 +82,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(decryptedConnectionString);
 });
 
+
 // =============================================
 // 🔹 Session
 // =============================================
@@ -96,6 +96,7 @@ builder.Services.AddSession(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
+
 
 // =============================================
 // 🔥 DATA PROTECTION
@@ -143,41 +144,34 @@ builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 var authSchemes = new[]
 {
     new { Scheme = CookieAuthenticationDefaults.AuthenticationScheme,
-          Cookie = ".AspNetCore.Cookies",   Login = "/LICInspection/Login",   Logout = "/LICInspection/Logout",  AccessDenied = "/LICInspection/AccessDenied", ExpireMinutes = 60 * 24 * 7  },
+          Cookie = ".AspNetCore.Cookies",   Login = "/LICInspection/Login",      Logout = "/LICInspection/Logout",    AccessDenied = "/LICInspection/AccessDenied", ExpireMinutes = 60 * 24 * 7  },
 
     new { Scheme = "LicInspectionAuth",
-          Cookie = "LicInspection.Cookie",  Login = "/LICInspection/Login",   Logout = "/LICInspection/Logout",  AccessDenied = "/LICInspection/AccessDenied", ExpireMinutes = 60 * 24 * 14 },
+          Cookie = "LicInspection.Cookie",  Login = "/LICInspection/Login",      Logout = "/LICInspection/Logout",    AccessDenied = "/LICInspection/AccessDenied", ExpireMinutes = 60 * 24 * 14 },
 
     new { Scheme = "SectionOfficerAuth",
-          Cookie = "SectionOfficer.Cookie", Login = "/Admin/UniversityLogin",  Logout = "/SectionOfficer/Logout", AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+          Cookie = "SectionOfficer.Cookie", Login = "/Admin/UniversityLogin",    Logout = "/SectionOfficer/Logout",   AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
 
     new { Scheme = "CollegeAuth",
-          Cookie = "College.Cookie",        Login = "/MainDashboard/MultiLogin", Logout = "/CollegeLogin/Logout", AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+          Cookie = "College.Cookie",        Login = "/MainDashboard/MultiLogin", Logout = "/CollegeLogin/Logout",     AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
 
     new { Scheme = "AdminAuth",
-          Cookie = "Admin.Cookie",          Login = "/Admin/UniversityLogin",  Logout = "/Admin/Logout",          AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+          Cookie = "Admin.Cookie",          Login = "/Admin/UniversityLogin",    Logout = "/Admin/Logout",            AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
 
     new { Scheme = "DirectorAuth",
-          Cookie = "Director.Cookie",       Login = "/Admin/AdminLogin",       Logout = "/Admin/Logout",          AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+          Cookie = "Director.Cookie",       Login = "/Admin/AdminLogin",         Logout = "/Admin/Logout",            AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
 
     new { Scheme = "DirectorAuth1",
-          Cookie = "LICDirector.Cookie",    Login = "/Admin/UniversityLogin",  Logout = "/LIC_Director/Logout",   AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+          Cookie = "LICDirector.Cookie",    Login = "/Admin/UniversityLogin",    Logout = "/LIC_Director/Logout",     AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
 
     new { Scheme = "LICSectionAuth",
-          Cookie = "Section.Cookie",        Login = "/Admin/UniversityLogin",  Logout = "/LIC_Director/Logout",   AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+          Cookie = "Section.Cookie",        Login = "/Admin/UniversityLogin",    Logout = "/LIC_Director/Logout",     AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
 
     new { Scheme = "FinanceAuth",
-          Cookie = "Finance.Cookie",        Login = "/Admin/AdminLogin",       Logout = "/Admin/FinanceLogout",   AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
-    
-    new
-{
-    Scheme = "VCAuth",
-    Cookie = ".VCAuth",
-    Login = "/MainDashboard/MultiLogin",
-    Logout = "/MainDashboard/Logout",
-    AccessDenied = "/MainDashboard/MultiLogin",
-    ExpireMinutes = 60
-},
+          Cookie = "Finance.Cookie",        Login = "/Admin/AdminLogin",         Logout = "/Admin/FinanceLogout",     AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+
+    new { Scheme = "VCAuth",
+          Cookie = ".VCAuth",               Login = "/MainDashboard/MultiLogin", Logout = "/MainDashboard/Logout",    AccessDenied = "/MainDashboard/MultiLogin",    ExpireMinutes = 60           },
 };
 
 var authBuilder = builder.Services.AddAuthentication(options =>
@@ -188,13 +182,6 @@ var authBuilder = builder.Services.AddAuthentication(options =>
     options.DefaultSignInScheme = "CollegeAuth";
     options.DefaultSignOutScheme = "CollegeAuth";
 });
-
-//var authBuilder = builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-//    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-//});
 
 foreach (var s in authSchemes)
 {
@@ -208,8 +195,8 @@ foreach (var s in authSchemes)
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-
         options.Cookie.Path = "/";
+
         options.ExpireTimeSpan = TimeSpan.FromMinutes(s.ExpireMinutes);
         options.SlidingExpiration = true;
     });
@@ -229,13 +216,36 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+
+// =============================================
+// 🔹 IIS / Request Body Size
+// =============================================
 builder.Services.Configure<IISServerOptions>(options =>
 {
     options.MaxRequestBodySize = 52428800; // 50 MB
 });
 
 
+// =============================================
+// ✅ FIX: Large Form Binding (60+ rows × 15 fields)
+// Default MVC limit = 1024 values → HTTP 400 with large tables
+// =============================================
+builder.Services.Configure<MvcOptions>(options =>
+{
+    options.MaxModelBindingCollectionSize = 5000;
+});
 
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.ValueCountLimit = 10000;
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = 104857600; // 100 MB (covers file uploads)
+});
+
+
+// =============================================
+// 🔹 Forwarded Headers
+// =============================================
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders =
@@ -246,12 +256,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
+
+// =============================================
+// 🔹 Cookie Policy
+// =============================================
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.Secure = CookieSecurePolicy.Always;
     options.HttpOnly = HttpOnlyPolicy.Always;
     options.MinimumSameSitePolicy = SameSiteMode.Lax;
 });
+
 
 // =============================================
 // 🔹 Build App
@@ -277,7 +292,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseDeveloperExceptionPage(); // TEMPORARY
+    app.UseDeveloperExceptionPage(); // TEMPORARY — swap to UseExceptionHandler in production
     // app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
@@ -332,27 +347,25 @@ app.UseMiddleware<Medical_Affiliation.Utilities.LicInspectionSessionMiddleware>(
 app.UseAuthorization();
 
 
-app.UseStaticFiles(); // for wwwroot if needed
+// =============================================
+// 🔹 Static Files (wwwroot + MedicalUGFacultyList)
+// =============================================
+app.UseStaticFiles();
 
-// ===== D:\MedicalUGFacultyList Mapping =====
 var medicalPath = @"D:\MedicalUGFacultyList";
 
-// Auto create folders if not exists
 if (!Directory.Exists(medicalPath))
-{
     Directory.CreateDirectory(medicalPath);
-}
 
 if (!Directory.Exists(Path.Combine(medicalPath, "Photos")))
-{
     Directory.CreateDirectory(Path.Combine(medicalPath, "Photos"));
-}
 
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(medicalPath),
     RequestPath = "/MedicalUGFacultyList"
 });
+
 
 // =============================================
 // 🔹 Routing

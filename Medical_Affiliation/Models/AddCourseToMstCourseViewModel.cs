@@ -41,7 +41,7 @@ public class CourseDetailsAhsViewModel
     public string RguhsNotificationNo { get; set; } // RGUHS Notification Number
 
     public IFormFile SupportingFile { get; set; }   // File upload (PDF, etc.)
-    public string UploadedFilePath { get; set; }    // To show "View" link
+    public string? UploadedFilePath { get; set; }    // To show "View" link
 }
 
 public class CourseFacultyListViewModel

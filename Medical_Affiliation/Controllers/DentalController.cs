@@ -370,9 +370,15 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
+            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+            {
+                TempData["Error"] = "Session expired. Please log in again.";
+                return RedirectToAction("Login", "Account");
+            }
+
             int.TryParse(facultyCode, out int facultyCodeInt);
 
-            // ✅ ALL DESIGNATIONS (except order 0)
+            // ── Designation headers ──────────────────────────────────────────────
             var designationMasters = await _context.DesignationMasters
                 .Where(x =>
                     x.FacultyCode == facultyCodeInt &&
@@ -380,109 +386,112 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(x => x.DesignationOrder)
                 .ToListAsync();
 
+            // ── Build base ViewModel ─────────────────────────────────────────────
             var vm = new DentalTeachingStaffVm
             {
                 CollegeCode = collegeCode,
                 FacultyCode = facultyCode,
 
-                // ✅ COLLEGES
                 Colleges = await _context.AffiliationCollegeMasters
-                        .Where(c => c.FacultyCode.ToString() == facultyCode)
-                        .OrderBy(c => c.CollegeName)
-                        .Select(c => new SelectListItem
-                        {
-                            Value = c.CollegeCode,
-                            Text = c.CollegeName
-                        })
-                        .Distinct()
-                        .ToListAsync(),
+                    .Where(c => c.FacultyCode.ToString() == facultyCode)
+                    .OrderBy(c => c.CollegeName)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CollegeCode,
+                        Text = c.CollegeName
+                    })
+                    .Distinct()
+                    .ToListAsync(),
 
-                // ✅ DEPARTMENTS
                 Departments = await _context.MstCourses
-                        .Where(x => x.FacultyCode == facultyCodeInt)
-                        .OrderBy(x => x.CourseName)
-                        .Select(x => new SelectListItem
-                        {
-                            Value = x.CourseCode.ToString(),
-                            Text = x.CourseName,
+                    .Where(x => x.FacultyCode == facultyCodeInt)
+                    .OrderBy(x => x.CourseName)
+                    .Select(x => new SelectListItem
+                    {
+                        Value = x.CourseCode.ToString(),
+                        Text = x.CourseName,
+                        Group = new SelectListGroup { Name = x.CourseLevel }
+                    })
+                    .ToListAsync(),
 
-                            // UG / PG
-                            Group = new SelectListGroup
-                            {
-                                Name = x.CourseLevel
-                            }
-                        })
-                        .ToListAsync(),
                 DesignationHeaders = designationMasters
-                        .Select(x => new DentalDesignationTeachingVm
-                        {
-                            DesignationCode = x.DesignationCode,
-                            DesignationName = x.DesignationName
-                        })
-                        .ToList()
+                    .Select(x => new DentalDesignationTeachingVm
+                    {
+                        DesignationCode = x.DesignationCode,
+                        DesignationName = x.DesignationName
+                    })
+                    .ToList()
             };
 
+            // ── Faculty raw list (LEFT JOIN in memory) ───────────────────────────
+            var facultyRaw = await _context.FacultyDetails
+                .Where(f =>
+                    f.CollegeCode == collegeCode &&
+                    f.FacultyCode == facultyCode &&
+                    f.IsRemoved != true)
+                .ToListAsync();
 
-            // ✅ FACULTY LIST
-            var facultyList = await (
-                from f in _context.FacultyDetails
+            var mstCourses = await _context.MstCourses
+                .Where(x => x.FacultyCode == facultyCodeInt)
+                .ToListAsync();
 
-                join c in _context.MstCourses
-                    on f.DepartmentDetails equals c.CourseCode.ToString()
+            var designationLookup = await _context.DesignationMasters
+                .Where(x =>
+                    x.FacultyCode == facultyCodeInt &&
+                    x.DesignationOrder != 0)
+                .ToListAsync();
 
-                join des in _context.DesignationMasters
-                        .Where(x => x.FacultyCode == facultyCodeInt && x.DesignationOrder != 0)
-                    on f.Designation equals des.DesignationCode
-
-                where f.CollegeCode == collegeCode
-                      && f.FacultyCode == facultyCode
-
-                select new
+            var facultyList = facultyRaw
+                .Where(f => !string.IsNullOrWhiteSpace(f.NameOfFaculty))
+                .Select(f =>
                 {
-                    f.NameOfFaculty,
+                    var course = mstCourses
+                        .FirstOrDefault(c => c.CourseCode.ToString() == f.DepartmentDetails);
 
-                    f.DepartmentDetails,
-                    DepartmentName = c.SubjectName,
-                    f.From,
-                    f.To,
-                    CourseLevel = c.CourseLevel,
-                    f.Designation,
-                    DesignationName = des.DesignationName
-                }
+                    var designation = designationLookup
+                        .FirstOrDefault(d => d.DesignationCode == f.Designation);
 
-            ).ToListAsync();
-
-            vm.FacultyList = facultyList
-                .Where(x => !string.IsNullOrWhiteSpace(x.NameOfFaculty))
-                .Select(x => x.NameOfFaculty.Trim())
-                .Distinct()
-                .OrderBy(x => x)
-                .Select(x => new SelectListItem
-                {
-                    Value = x,
-                    Text = x
+                    return new
+                    {
+                        f.NameOfFaculty,
+                        f.DepartmentDetails,
+                        DepartmentName = course?.CourseName ?? f.DepartmentDetails,
+                        CourseLevel = course?.CourseLevel ?? string.Empty,
+                        f.Designation,
+                        DesignationName = designation?.DesignationName ?? f.Designation,
+                        f.From,
+                        f.To
+                    };
                 })
                 .ToList();
 
-            // ✅ SAVED DATA
+            // ── FacultyList dropdown ─────────────────────────────────────────────
+            vm.FacultyList = facultyList
+                .Select(x => x.NameOfFaculty.Trim())
+                .Distinct()
+                .OrderBy(x => x)
+                .Select(x => new SelectListItem { Value = x, Text = x })
+                .ToList();
+
+            // ── Saved rows from DB ───────────────────────────────────────────────
             var saved = await _context.TeachingStaffDepartmentWiseDetails
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode)
                 .ToListAsync();
 
+            // ── Build FacultyRows ────────────────────────────────────────────────
 
-            // =========================
-            // FACULTY GROUPING
-            // =========================
+            // Names already covered by saved rows
+            var savedNames = saved
+                .Select(x => x.NameOfFaculty?.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+            // ① Rows from saved data
             var groupedFaculty = saved
-                .GroupBy(x => x.Id)
+                .GroupBy(x => x.NameOfFaculty)
                 .ToList();
-
-            // =========================
-            // BUILD FACULTY ROWS
-            // =========================
 
             foreach (var facultyGroup in groupedFaculty)
             {
@@ -494,77 +503,73 @@ namespace Medical_Affiliation.Controllers
                     Designations = new List<DentalDesignationTeachingVm>()
                 };
 
-                // =========================
-                // ALL DESIGNATION SLOTS
-                // =========================
-
                 foreach (var header in designationMasters)
                 {
                     var existing = facultyGroup
-                        .FirstOrDefault(x =>
-                            x.DesignationCode == header.DesignationCode);
+                        .FirstOrDefault(x => x.DesignationCode == header.DesignationCode);
 
                     if (existing == null)
                     {
-                        facultyVm.Designations.Add(
-                            new DentalDesignationTeachingVm
-                            {
-                                DesignationCode = header.DesignationCode,
-                                DesignationName = header.DesignationName
-                            });
-
+                        facultyVm.Designations.Add(new DentalDesignationTeachingVm
+                        {
+                            DesignationCode = header.DesignationCode,
+                            DesignationName = header.DesignationName
+                        });
                         continue;
                     }
 
                     var vmDesignation = new DentalDesignationTeachingVm
                     {
                         Id = existing.Id,
-
                         DesignationCode = existing.DesignationCode,
-
                         DesignationName = existing.DesignationName,
-
                         DepartmentCode = existing.DepartmentCode,
-
                         CourseLevel = existing.CourseLevel,
-
                         TotalExperience = existing.TotalExperience
                     };
 
                     if (existing.CourseLevel == "UG")
                     {
-                        vmDesignation.CollegeCode =
-                            existing.UgcollegeCode?.Trim();
-
-                        vmDesignation.FromDate =
-                            existing.Ugfrom?.ToDateTime(TimeOnly.MinValue);
-
-                        vmDesignation.ToDate =
-                            existing.Ugto?.ToDateTime(TimeOnly.MinValue);
+                        vmDesignation.CollegeCode = existing.UgcollegeCode?.Trim();
+                        vmDesignation.FromDate = existing.Ugfrom?.ToDateTime(TimeOnly.MinValue);
+                        vmDesignation.ToDate = existing.Ugto?.ToDateTime(TimeOnly.MinValue);
                     }
                     else if (existing.CourseLevel == "PG")
                     {
-                        vmDesignation.CollegeCode =
-                            existing.PgcollegeCode?.Trim();
-
-                        vmDesignation.FromDate =
-                            existing.Pgfrom?.ToDateTime(TimeOnly.MinValue);
-
-                        vmDesignation.ToDate =
-                            existing.Pgto?.ToDateTime(TimeOnly.MinValue);
+                        vmDesignation.CollegeCode = existing.PgcollegeCode?.Trim();
+                        vmDesignation.FromDate = existing.Pgfrom?.ToDateTime(TimeOnly.MinValue);
+                        vmDesignation.ToDate = existing.Pgto?.ToDateTime(TimeOnly.MinValue);
                     }
 
                     facultyVm.Designations.Add(vmDesignation);
                 }
-                vm.FacultyRows
-                    .Add(facultyVm);
+
+                vm.FacultyRows.Add(facultyVm);
             }
 
-            //vm.FacultyRows = vm.FacultyRows
-            //    .GroupBy(x => x.NameOfFaculty)
-            //    .Select(x => x.First())
-            //    .ToList();
+            // ② Seed rows for faculty who have NO saved data yet
+            var unseededNames = facultyList
+                .Select(f => f.NameOfFaculty.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(name => !savedNames.Contains(name))
+                .OrderBy(name => name);
 
+            foreach (var name in unseededNames)
+            {
+                var facultyVm = new DentalFacultyTeachingVm
+                {
+                    NameOfFaculty = name,
+                    Designations = designationMasters
+                        .Select(d => new DentalDesignationTeachingVm
+                        {
+                            DesignationCode = d.DesignationCode,
+                            DesignationName = d.DesignationName
+                        })
+                        .ToList()
+                };
+
+                vm.FacultyRows.Add(facultyVm);
+            }
 
             return View(vm);
         }
@@ -584,17 +589,16 @@ namespace Medical_Affiliation.Controllers
             if (vm?.FacultyRows == null || !vm.FacultyRows.Any())
                 return RedirectToAction("TeachingStaffDepartmentWise");
 
-
+            // ── Collect all Ids that were posted (existing records) ─────────────
             var postedIds = vm.FacultyRows
-                .SelectMany(x => x.Designations)
+                .SelectMany(x => x.Designations ?? new List<DentalDesignationTeachingVm>())
                 .Where(x => x.Id > 0)
                 .Select(x => x.Id)
                 .Distinct()
                 .ToList();
 
-
-            var recordsToDelete = await _context
-                .TeachingStaffDepartmentWiseDetails
+            // ── Delete rows that are no longer in the posted data ────────────────
+            var recordsToDelete = await _context.TeachingStaffDepartmentWiseDetails
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode &&
@@ -602,22 +606,16 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
 
             if (recordsToDelete.Any())
-            {
-                _context.TeachingStaffDepartmentWiseDetails
-                    .RemoveRange(recordsToDelete);
-            }
+                _context.TeachingStaffDepartmentWiseDetails.RemoveRange(recordsToDelete);
 
+            // ── Upsert each designation slot ─────────────────────────────────────
             foreach (var faculty in vm.FacultyRows)
             {
-                if (faculty.Designations == null)
-                    continue;
+                if (faculty.Designations == null) continue;
 
                 foreach (var des in faculty.Designations)
                 {
-                    // =========================
-                    // SKIP EMPTY BLOCK
-                    // =========================
-
+                    // Skip entirely empty slots
                     if (string.IsNullOrWhiteSpace(des.DesignationCode))
                         continue;
 
@@ -629,96 +627,60 @@ namespace Medical_Affiliation.Controllers
                         continue;
                     }
 
-                    // =========================
-                    // FIND EXISTING
-                    // =========================
-
+                    // Try to find existing DB record
                     TeachingStaffDepartmentWiseDetail? existing = null;
 
                     if (des.Id > 0)
                     {
-                        existing = await _context
-                            .TeachingStaffDepartmentWiseDetails
+                        existing = await _context.TeachingStaffDepartmentWiseDetails
                             .FirstOrDefaultAsync(x => x.Id == des.Id);
                     }
 
-                    // =========================
-                    // INSERT
-                    // =========================
-
+                    // Insert if not found
                     if (existing == null)
                     {
                         existing = new TeachingStaffDepartmentWiseDetail
                         {
                             CollegeCode = collegeCode,
                             FacultyCode = facultyCode,
-
                             NameOfFaculty = faculty.NameOfFaculty,
-
                             DesignationCode = des.DesignationCode,
                             DesignationName = des.DesignationName
                         };
-
-                        _context.TeachingStaffDepartmentWiseDetails
-                            .Add(existing);
+                        _context.TeachingStaffDepartmentWiseDetails.Add(existing);
                     }
 
-                    // =========================
-                    // COMMON
-                    // =========================
-
+                    // Common fields
                     existing.DepartmentCode = des.DepartmentCode;
                     existing.NameOfFaculty = faculty.NameOfFaculty;
-
                     existing.CourseLevel = des.CourseLevel;
-
                     existing.TotalExperience = des.TotalExperience;
 
-
-                    // =========================
-                    // UG SAVE
-                    // =========================
-
+                    // UG-specific fields
                     if (des.CourseLevel == "UG")
                     {
-                        existing.UgcollegeCode =
-                            des.CollegeCode;
-
-                        existing.Ugfrom =
-                            des.FromDate.HasValue
-                                ? DateOnly.FromDateTime(des.FromDate.Value)
-                                : null;
-
-                        existing.Ugto =
-                            des.ToDate.HasValue
-                                ? DateOnly.FromDateTime(des.ToDate.Value)
-                                : null;
+                        existing.UgcollegeCode = des.CollegeCode;
+                        existing.Ugfrom = des.FromDate.HasValue
+                            ? DateOnly.FromDateTime(des.FromDate.Value) : null;
+                        existing.Ugto = des.ToDate.HasValue
+                            ? DateOnly.FromDateTime(des.ToDate.Value) : null;
                     }
 
-                    // =========================
-                    // PG SAVE
-                    // =========================
-
+                    // PG-specific fields
                     else if (des.CourseLevel == "PG")
                     {
-                        existing.PgcollegeCode =
-                            des.CollegeCode;
-
-                        existing.Pgfrom =
-                            des.FromDate.HasValue
-                                ? DateOnly.FromDateTime(des.FromDate.Value)
-                                : null;
-
-                        existing.Pgto =
-                            des.ToDate.HasValue
-                                ? DateOnly.FromDateTime(des.ToDate.Value)
-                                : null;
+                        existing.PgcollegeCode = des.CollegeCode;
+                        existing.Pgfrom = des.FromDate.HasValue
+                            ? DateOnly.FromDateTime(des.FromDate.Value) : null;
+                        existing.Pgto = des.ToDate.HasValue
+                            ? DateOnly.FromDateTime(des.ToDate.Value) : null;
                     }
                 }
             }
-            await _context.SaveChangesAsync();
-            //TempData["SuccessFaculty"] = "Teaching staff details saved successfully.";
 
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Teaching staff details saved successfully.";
             return RedirectToAction("TeachingStaffDepartmentWise");
         }
 

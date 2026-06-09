@@ -110,7 +110,7 @@ namespace Medical_Affiliation.Controllers
 
             var (subjectsList, designationsList, departmentsList) = GetDropdowns(facultyCode);
 
-            // ✅ FIX 1: Exclude already-removed records
+            // Exclude already-removed records
             var facultyDetails = _context.FacultyDetails
                 .Where(f => f.CollegeCode == collegeCode
                          && f.FacultyCode == facultyCode
@@ -136,7 +136,7 @@ namespace Medical_Affiliation.Controllers
                 return View(vmList);
             }
 
-            // ✅ FIX 2: Join existing DB records with college data
+            // Join existing DB records with college data
             vmList = (from f1 in facultyDetails
                       join f2 in ahsFacultyWithCollege
                           on new { f1.Aadhaar, f1.Pan, f1.Designation }
@@ -150,7 +150,7 @@ namespace Medical_Affiliation.Controllers
                       from sub in gj.DefaultIfEmpty()
                       select new FacultyDetailsViewModel
                       {
-                          FacultyDetailId = f1.Id,           // ✅ Always carry DB Id
+                          FacultyDetailId = f1.Id,
                           NameOfFaculty = sub?.TeachingFacultyName ?? f1.NameOfFaculty,
                           Designation = sub?.Designation ?? f1.Designation,
                           Aadhaar = sub?.AadhaarNumber ?? f1.Aadhaar,
@@ -171,29 +171,27 @@ namespace Medical_Affiliation.Controllers
                           IsExaminer = f1.IsExaminer,
                           ExaminerFor = f1.ExaminerFor,
                           ExaminerForList = !string.IsNullOrEmpty(f1.ExaminerFor)
-                                                    ? f1.ExaminerFor.Split(',').ToList()
-                                                    : new List<string>(),
-
+                                                      ? f1.ExaminerFor.Split(',').ToList()
+                                                      : new List<string>(),
                           From = f1.From,
                           To = f1.To,
                           RemoveRemarks = f1.RemoveRemarks
                       }).ToList();
 
-            // ✅ FIX 3: For missingFaculty — try to find existing DB Id by Aadhaar+PAN
+            // For missing faculty — try to find existing DB Id by Aadhaar + PAN
             var missingFaculty = ahsFacultyWithCollege
                 .Where(f2 => !vmList.Any(v =>
                         v.Aadhaar == f2.AadhaarNumber &&
                         v.PAN == f2.Pannumber))
                 .Select(f2 =>
                 {
-                    // Look up DB record by Aadhaar + PAN to get the Id
                     var dbRecord = facultyDetails.FirstOrDefault(f =>
                         f.Aadhaar == f2.AadhaarNumber &&
                         f.Pan == f2.Pannumber);
 
                     return new FacultyDetailsViewModel
                     {
-                        FacultyDetailId = dbRecord?.Id ?? 0,   // ✅ Carry Id if found
+                        FacultyDetailId = dbRecord?.Id ?? 0,
                         NameOfFaculty = f2.TeachingFacultyName,
                         Designation = f2.Designation,
                         Aadhaar = f2.AadhaarNumber,
@@ -201,7 +199,6 @@ namespace Medical_Affiliation.Controllers
                         Subjects = subjectsList,
                         Designations = designationsList,
                         DepartmentDetails = departmentsList,
-
                     };
                 })
                 .ToList();
@@ -276,6 +273,7 @@ namespace Medical_Affiliation.Controllers
         // ──────────────────────────────────────────────────────────
         //  POST
         // ──────────────────────────────────────────────────────────
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]   // ✅ FIX: Added missing Authorize
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Repo_FacultyDetails(IList<FacultyDetailsViewModel> model)
@@ -297,13 +295,17 @@ namespace Medical_Affiliation.Controllers
             var activeRows = model.Where(m => string.IsNullOrWhiteSpace(m.RemoveRemarks)).ToList();
             var removedRows = model.Where(m => !string.IsNullOrWhiteSpace(m.RemoveRemarks)).ToList();
 
-            using var transaction = _context.Database.BeginTransaction();
+            // ✅ FIX: Use async transaction
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                var existingFaculty = _context.FacultyDetails
+                // ✅ FIX: Use async EF Core query
+                var existingFaculty = await _context.FacultyDetails
                     .Where(f => f.CollegeCode == collegeCode && f.FacultyCode == facultyCode)
-                    .ToList();
+                    .ToListAsync();
 
+                // ── Handle removed rows ──────────────────────────────────────────────
                 foreach (var m in removedRows)
                 {
                     var existing = FindExistingRecord(existingFaculty, m);
@@ -315,6 +317,7 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
 
+                // ── Handle active rows ───────────────────────────────────────────────
                 foreach (var m in activeRows)
                 {
                     string name = m.NameOfFaculty?.Trim() ?? "";
@@ -327,20 +330,23 @@ namespace Medical_Affiliation.Controllers
                     string recognizedPG = m.RecognizedPGTeacher?.Trim() ?? "";
                     string recognizedPhD = m.RecognizedPhDTeacher?.Trim() ?? "";
                     string litigation = m.LitigationPending?.Trim() ?? "";
-                    DateOnly? from = m?.From;
-                    DateOnly? to = m?.To;
+                    DateOnly? from = m.From;
+                    DateOnly? to = m.To;
 
-                    var guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs", FacultyCode);
-                    var phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs", FacultyCode);
-                    var litigPath = await SaveFacultyFileAsync(m.LitigationDoc, "LitigationDocs", FacultyCode);
+                    // ✅ FIX: Use local variable 'facultyCode' (not 'FacultyCode')
+                    var guidePath = await SaveFacultyFileAsync(m.GuideRecognitionDoc, "GuideDocs", facultyCode);
+                    var phdPath = await SaveFacultyFileAsync(m.PhDRecognitionDoc, "PhDDocs", facultyCode);
+                    var litigPath = await SaveFacultyFileAsync(m.LitigationDoc, "LitigationDocs", facultyCode);
+
                     string examinerFor = m.ExaminerForList != null && m.ExaminerForList.Any()
-                                            ? string.Join(",", m.ExaminerForList)
-                                            : null;
+                                             ? string.Join(",", m.ExaminerForList)
+                                             : null;
 
                     var existing = FindExistingRecord(existingFaculty, m);
 
                     if (existing != null)
                     {
+                        // ── Update existing record ───────────────────────────────────
                         existing.NameOfFaculty = name;
                         existing.Designation = designation;
                         existing.RecognizedPgTeacher = recognizedPG;
@@ -358,7 +364,7 @@ namespace Medical_Affiliation.Controllers
                         existing.From = from;
                         existing.To = to;
 
-                        // 🔥 GUIDE DOC
+                        // Guide doc — replace only if a new file was uploaded
                         if (guidePath != null)
                         {
                             if (!string.IsNullOrEmpty(existing.GuideRecognitionDocPath) &&
@@ -366,11 +372,10 @@ namespace Medical_Affiliation.Controllers
                             {
                                 System.IO.File.Delete(existing.GuideRecognitionDocPath);
                             }
-
                             existing.GuideRecognitionDocPath = guidePath;
                         }
 
-                        // 🔥 PHD DOC
+                        // PhD doc — replace only if a new file was uploaded
                         if (phdPath != null)
                         {
                             if (!string.IsNullOrEmpty(existing.PhDrecognitionDocPath) &&
@@ -378,11 +383,10 @@ namespace Medical_Affiliation.Controllers
                             {
                                 System.IO.File.Delete(existing.PhDrecognitionDocPath);
                             }
-
                             existing.PhDrecognitionDocPath = phdPath;
                         }
 
-                        // 🔥 LITIGATION DOC
+                        // Litigation doc — replace only if a new file was uploaded
                         if (litigPath != null)
                         {
                             if (!string.IsNullOrEmpty(existing.LitigationDocPath) &&
@@ -390,7 +394,6 @@ namespace Medical_Affiliation.Controllers
                             {
                                 System.IO.File.Delete(existing.LitigationDocPath);
                             }
-
                             existing.LitigationDocPath = litigPath;
                         }
 
@@ -398,6 +401,7 @@ namespace Medical_Affiliation.Controllers
                     }
                     else
                     {
+                        // ── Insert new record ────────────────────────────────────────
                         var faculty = new FacultyDetail
                         {
                             CollegeCode = collegeCode,
@@ -427,24 +431,22 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
 
-                _context.SaveChanges();
-                transaction.Commit();
+                // ✅ FIX: Use async SaveChanges and Commit
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-                if(facultyCode== "2")
+                if (facultyCode == "2")
                 {
                     return RedirectToAction("TeachingStaffDepartmentWise", "Dental");
                 }
-                //return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
+
                 return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 TempData["Error"] = "Error saving faculty records: " + ex.Message;
                 return RedirectToAction(nameof(Repo_FacultyDetails));
-
-                //return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
-
             }
         }
 

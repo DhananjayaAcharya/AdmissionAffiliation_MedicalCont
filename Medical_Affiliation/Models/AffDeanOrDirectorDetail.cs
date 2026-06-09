@@ -25,6 +25,16 @@ public partial class AffDeanOrDirectorDetail
 
     public string? CourseLevel { get; set; }
 
+    public DateTime? CreatedOn { get; set; }
+
+    public string? Ipaddress { get; set; }
+
+    public string? Browser { get; set; }
+
+    public string? DeviceType { get; set; }
+
+    public byte[] RowTimestamp { get; set; } = null!;
+
     public bool? RecognizedByDci { get; set; }
 
     public virtual ICollection<AffDeanAdministrativeExperience> AffDeanAdministrativeExperiences { get; set; } = new List<AffDeanAdministrativeExperience>();

@@ -63,8 +63,6 @@ public partial class HospitalDetailsForAffiliation
 
     public virtual ICollection<DentalWardBedDistribution> DentalWardBedDistributions { get; set; } = new List<DentalWardBedDistribution>();
 
-    public virtual DistrictMaster HospitalDistrict { get; set; } = null!;
-
     public virtual ICollection<HospitalDocumentsToBeUploaded> HospitalDocumentsToBeUploadeds { get; set; } = new List<HospitalDocumentsToBeUploaded>();
 
     public virtual ICollection<HospitalFacility> HospitalFacilities { get; set; } = new List<HospitalFacility>();
