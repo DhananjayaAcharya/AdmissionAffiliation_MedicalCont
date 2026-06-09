@@ -109,6 +109,7 @@ public partial class AffInstitutionsDetail
 
     public string? DocumentDataPath { get; set; }
 
+
     public DateTime? CreatedOn { get; set; }
 
     public string? Ipaddress { get; set; }
@@ -118,4 +119,5 @@ public partial class AffInstitutionsDetail
     public string? DeviceType { get; set; }
 
     public byte[] RowTimestamp { get; set; } = null!;
+
 }

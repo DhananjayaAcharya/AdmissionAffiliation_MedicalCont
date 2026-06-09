@@ -111,7 +111,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     ("ContinuousAffiliationIncreaseintake", "IncreaseIntake"),
                     ("CollegeLogin", "Dashboard"),
-                    ("Common", "IntakePrerequisite")
+                    ("Common", "IntakePrerequisite"),
+                    ("CollegeLogin", "GetTaluks")
                 };
 
                 bool isExcluded = excludedRoutes.Any(x =>

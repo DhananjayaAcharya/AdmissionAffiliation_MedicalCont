@@ -489,11 +489,13 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<UniversityImage> UniversityImages { get; set; }
 
+    public virtual DbSet<VehicleRequestLog> VehicleRequestLogs { get; set; }
+
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
 //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server= DESKTOP-HSD6G32;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
+//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -818,9 +820,6 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.AltEmailId).HasMaxLength(500);
             entity.Property(e => e.AltLandlineMobile).HasMaxLength(500);
-            entity.Property(e => e.Browser)
-                .HasMaxLength(200)
-                .IsUnicode(false);
             entity.Property(e => e.CollegeCode).HasMaxLength(500);
             entity.Property(e => e.CollegeUrl)
                 .HasMaxLength(250)
@@ -854,10 +853,6 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.HeadOfInstitutionMobNo)
                 .HasMaxLength(250)
                 .HasColumnName("HeadOfInstitution_Mob_NO");
-            entity.Property(e => e.Ipaddress)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("IPAddress");
             entity.Property(e => e.MinorityCategory).HasMaxLength(100);
             entity.Property(e => e.MobileNumber).HasMaxLength(500);
             entity.Property(e => e.NameOfInstitution).HasMaxLength(500);
@@ -3191,7 +3186,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("DistrictMaster");
 
-            entity.HasIndex(e => e.DistrictName, "UQ__District__F4708CA452576EBF")
+            entity.HasIndex(e => e.DistrictName, "UQ__District__F4708CA46F0C9590")
                 .IsUnique()
                 .HasFillFactor(80);
 
@@ -4004,6 +3999,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasName("PK__LIC_TA_D__5E5486483089C397")
                 .HasFillFactor(80);
 
+
             entity.ToTable("LIC_TA_DA_Edit_Log");
 
             entity.Property(e => e.AcademicYear).HasMaxLength(20);
@@ -4119,9 +4115,8 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LicWorkflowMovementLog>(entity =>
         {
-            entity.HasKey(e => e.MovementId)
-                .HasName("PK__LIC_Work__D182244614D2036C")
-                .HasFillFactor(80);
+            entity.HasKey(e => e.MovementId).HasName("PK__LIC_Work__D18224466C983E3C");
+
 
             entity.ToTable("LIC_Workflow_Movement_Log");
 
@@ -6199,6 +6194,21 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.FileName)
                 .HasMaxLength(200)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VehicleRequestLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__VehicleR__3214EC072BE3B0E1");
+
+            entity.ToTable("VehicleRequestLog");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.RequestTime).HasColumnType("datetime");
+            entity.Property(e => e.VehicleRegNo)
+                .HasMaxLength(50)
                 .IsUnicode(false);
         });
 

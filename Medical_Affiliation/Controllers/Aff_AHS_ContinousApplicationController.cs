@@ -1056,6 +1056,8 @@ namespace Medical_Affiliation.Controllers
             return View(vm);
         }
 
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CA_VehicleDetails(CA_VehicleDetailsViewModel model)
@@ -1063,59 +1065,69 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
 
-            // ===== RATE LIMITING =====
-            var requestCount = HttpContext.Session.GetInt32("VehicleRequestCount") ?? 0;
-            var windowStart = HttpContext.Session.GetString("VehicleRequestWindow");
-
-            if (string.IsNullOrEmpty(windowStart))
-            {
-                HttpContext.Session.SetString(
-                    "VehicleRequestWindow",
-                    DateTime.UtcNow.ToString("O"));
-
-                HttpContext.Session.SetInt32(
-                    "VehicleRequestCount",
-                    1);
-            }
-            else
-            {
-                var startTime = DateTime.Parse(windowStart);
-
-                if ((DateTime.UtcNow - startTime).TotalSeconds <= 1)
-                {
-                    requestCount++;
-
-                    if (requestCount > 4)
-                    {
-                        TempData["Error"] =
-                            "Too many requests. Maximum 4 submissions allowed per minute.";
-
-                        return RedirectToAction("CA_VehicleDetails");
-                    }
-
-                    HttpContext.Session.SetInt32(
-                        "VehicleRequestCount",
-                        requestCount);
-                }
-                else
-                {
-                    HttpContext.Session.SetString(
-                        "VehicleRequestWindow",
-                        DateTime.UtcNow.ToString("O"));
-
-                    HttpContext.Session.SetInt32(
-                        "VehicleRequestCount",
-                        1);
-                }
-            }
+            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode))
+                return RedirectToAction("Login", "Account");
 
             model.FacultyCode = facultyCode;
             model.CollegeCode = collegeCode;
 
-            // ✅ Normalize input
+            if (!ModelState.IsValid)
+            {
+                await LoadViewData(model, collegeCode, facultyCode, model.RegistrationNo);
+                return View(model);
+            }
+
             string normalizedInput = NormalizeVehicle(model.VehicleRegNo);
 
-            // ✅ Duplicate check (NO course level)
+            // ===== RATE LIMITING (4 requests per second) =====
+            var oneSecondAgo = DateTime.Now.AddSeconds(-1);
+
+            var requestCount = await _context.VehicleRequestLogs
+                .CountAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.RequestTime >= oneSecondAgo);
+
+            if (requestCount >= 4)
+            {
+                TempData["Error"] =
+                    "Too many requests. Please wait and try again.";
+
+                return RedirectToAction(nameof(CA_VehicleDetails));
+            }
+
+            // ===== DAILY LIMIT (6000 requests per day) =====
+            var today = DateTime.Today;
+
+            var todayCount = await _context.VehicleRequestLogs
+                .CountAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.RequestTime >= today);
+
+            if (todayCount >= 6000)
+            {
+                TempData["Error"] =
+                    "Daily request limit exceeded.";
+
+                return RedirectToAction(nameof(CA_VehicleDetails));
+            }
+
+            // ===== DUPLICATE REQUEST CHECK =====
+            var duplicateRequest = _context.VehicleRequestLogs
+                .AsEnumerable()
+                .Any(x =>
+                    NormalizeVehicle(x.VehicleRegNo) == normalizedInput &&
+                    x.CollegeCode == collegeCode &&
+                    x.RequestTime >= oneSecondAgo);
+
+            if (duplicateRequest)
+            {
+                TempData["Error"] =
+                    "Duplicate vehicle submission detected.";
+
+                return RedirectToAction(nameof(CA_VehicleDetails));
+            }
+
+            // ===== EXISTING VEHICLE CHECK =====
             var exists = _context.CaVehicleDetails
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
@@ -1126,16 +1138,10 @@ namespace Medical_Affiliation.Controllers
             if (exists)
             {
                 TempData["DuplicateVehicle"] = model.VehicleRegNo;
-                return RedirectToAction("CA_VehicleDetails");
+                return RedirectToAction(nameof(CA_VehicleDetails));
             }
 
-            if (!ModelState.IsValid)
-            {
-                await LoadViewData(model, collegeCode, facultyCode, model.RegistrationNo);
-                return View(model);
-            }
-
-            // ✅ Save
+            // ===== SAVE VEHICLE =====
             var entity = new CaVehicleDetail
             {
                 FacultyCode = facultyCode,
@@ -1152,12 +1158,120 @@ namespace Medical_Affiliation.Controllers
             };
 
             _context.CaVehicleDetails.Add(entity);
+
+            // ===== LOG REQUEST =====
+            _context.VehicleRequestLogs.Add(new VehicleRequestLog
+            {
+                CollegeCode = collegeCode,
+                VehicleRegNo = model.VehicleRegNo,
+                RequestTime = DateTime.Now
+            });
+
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Vehicle details saved successfully.";
 
-            return RedirectToAction("CA_VehicleDetails");
+            return RedirectToAction(nameof(CA_VehicleDetails));
         }
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> CA_VehicleDetails(CA_VehicleDetailsViewModel model)
+        //{
+        //    var facultyCode = HttpContext.Session.GetString("FacultyCode");
+        //    var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+        //    // ===== DATABASE RATE LIMITING =====
+        //    var oneMinuteAgo = DateTime.Now.AddMinutes(-1);
+
+        //    var requestCount = await _context.VehicleRequestLogs
+        //        .CountAsync(x =>
+        //            x.CollegeCode == collegeCode &&
+        //            x.RequestTime >= oneMinuteAgo);
+
+        //    if (requestCount >= 4)
+        //    {
+        //        TempData["Error"] =
+        //            "Too many requests. Please try again after a minute.";
+
+        //        return RedirectToAction("CA_VehicleDetails");
+        //    }
+
+        //    // ===== DUPLICATE VEHICLE REQUEST CHECK =====
+        //    var duplicateRequest = await _context.VehicleRequestLogs
+        //        .AnyAsync(x =>
+        //            x.VehicleRegNo == model.VehicleRegNo &&
+        //            x.CollegeCode == collegeCode &&
+        //            x.RequestTime >= oneMinuteAgo);
+
+        //    if (duplicateRequest)
+        //    {
+        //        TempData["Error"] =
+        //            "Duplicate vehicle submission detected.";
+
+        //        return RedirectToAction("CA_VehicleDetails");
+        //    }
+
+
+        //    model.FacultyCode = facultyCode;
+        //    model.CollegeCode = collegeCode;
+
+        //    // ✅ Normalize input
+        //    string normalizedInput = NormalizeVehicle(model.VehicleRegNo);
+
+        //    // ✅ Duplicate check (NO course level)
+        //    var exists = _context.CaVehicleDetails
+        //        .Where(x =>
+        //            x.CollegeCode == collegeCode &&
+        //            x.FacultyCode == facultyCode)
+        //        .AsEnumerable()
+        //        .Any(x => NormalizeVehicle(x.VehicleRegNo) == normalizedInput);
+
+        //    if (exists)
+        //    {
+        //        TempData["DuplicateVehicle"] = model.VehicleRegNo;
+        //        return RedirectToAction("CA_VehicleDetails");
+        //    }
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        await LoadViewData(model, collegeCode, facultyCode, model.RegistrationNo);
+        //        return View(model);
+        //    }
+
+        //    // ✅ Save
+        //    var entity = new CaVehicleDetail
+        //    {
+        //        FacultyCode = facultyCode,
+        //        CollegeCode = collegeCode,
+        //        VehicleRegNo = model.VehicleRegNo,
+        //        VehicleForCode = model.VehicleForCode,
+        //        SeatingCapacity = model.SeatingCapacity,
+        //        ValidityDate = model.ValidityDate.HasValue
+        //            ? DateOnly.FromDateTime(model.ValidityDate.Value)
+        //            : null,
+        //        RcBookStatus = model.RcBookStatus,
+        //        InsuranceStatus = model.InsuranceStatus,
+        //        DrivingLicenseStatus = model.DrivingLicenseStatus
+        //    };
+
+        //    _context.CaVehicleDetails.Add(entity);
+
+        //    // Log request for rate limiting
+        //    _context.VehicleRequestLogs.Add(new VehicleRequestLog
+        //    {
+        //        CollegeCode = collegeCode,
+        //        VehicleRegNo = model.VehicleRegNo,
+        //        RequestTime = DateTime.Now
+        //    });
+        //    await _context.SaveChangesAsync();
+
+        //    TempData["Success"] = "Vehicle details saved successfully.";
+
+        //    return RedirectToAction("CA_VehicleDetails");
+        //}
+
+
         // Helper to reload dropdown + existing list (used on error)
         private async Task LoadViewData(CA_VehicleDetailsViewModel model, string collegeCode, string facultyCode, string? regNo)
         {
