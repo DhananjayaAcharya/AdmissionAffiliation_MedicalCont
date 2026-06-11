@@ -706,7 +706,7 @@
                                 <td class="cc" style="color:var(--muted)">@(ri + 1)</td>
                                 <td class="cn">
                                     @c.CourseName
-                                    // <input type="hidden" name="@(p).CourseCode" value="@c.CourseCode" />
+                                    <input type="hidden" name="@(p).CourseCode" value="@c.CourseCode" />
                                     <input type="hidden" name="@(p).CourseName" value="@c.CourseName" />
 
                                     <input type="hidden" class="has-lop-2025"
@@ -1084,7 +1084,6 @@
         });
     });
     const facultyCode = '@facultyCode';
-    debugger;
     
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
