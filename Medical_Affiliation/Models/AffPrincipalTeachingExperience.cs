@@ -26,4 +26,8 @@ public partial class AffPrincipalTeachingExperience
     public decimal? TotalExperienceYears { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? UgCollegeCode { get; set; }
+
+    public string? PgCollegeCode { get; set; }
 }

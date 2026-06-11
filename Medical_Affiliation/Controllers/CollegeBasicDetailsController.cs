@@ -422,10 +422,10 @@ namespace Medical_Affiliation.Controllers
             {
                 vm.InstitutionId = entity.InstitutionId;
                 vm.NameOfInstitution = entity.NameOfInstitution ?? "";
-                vm.AddressOfInstitution = entity.AddressOfInstitution ?? "";
-                vm.VillageTownCity = entity.VillageTownCity ?? "";
-                vm.Taluk = entity.Taluk ?? "";
-                vm.District = entity.District ?? "";
+                //vm.AddressOfInstitution = entity.AddressOfInstitution ?? "";
+                //vm.VillageTownCity = entity.VillageTownCity ?? "";
+                //vm.Taluk = entity.Taluk ?? "";
+                //vm.District = entity.District ?? "";
                 vm.PinCode = entity.PinCode;
                 vm.MobileNumber = entity.MobileNumber;
                 vm.StdCode = entity.StdCode;
@@ -439,12 +439,12 @@ namespace Medical_Affiliation.Controllers
                 vm.IsMinorityInstitution = entity.IsMinorityInstitution ?? false;
                 vm.TrustName = entity.TrustName ?? "";
                 vm.PresidentName = entity.PresidentName ?? "";
-                vm.AadhaarNumber = entity.AadhaarNumber;
+             //   vm.AadhaarNumber = entity.AadhaarNumber;
                 vm.PANNumber = entity.Pannumber;
                 vm.RegistrationNumber = entity.RegistrationNumber;
                 vm.RegistrationDate = entity.RegistrationDate;
                 vm.Amendments = entity.Amendments ?? false;
-                vm.ExistingTrustName = entity.ExistingTrustName ?? "";
+             //   vm.ExistingTrustName = entity.ExistingTrustName ?? "";
                 vm.GOKObtainedTrustName = entity.GokobtainedTrustName ?? "";
                 vm.ChangesInTrustName = entity.ChangesInTrustName ?? false;
                 vm.OtherNursingCollegeInCity = entity.OtherNursingCollegeInCity ?? false;
@@ -459,7 +459,7 @@ namespace Medical_Affiliation.Controllers
                 vm.FinancingAuthorityName = entity.FinancingAuthorityName ?? "";
                 vm.CollegeStatus = entity.CollegeStatus;
                 vm.GovAutonomousCertNumber = entity.GovAutonomousCertNumber;
-                vm.KncCertificateNumber = entity.KncCertificateNumber;
+               // vm.KncCertificateNumber = entity.KncCertificateNumber;
 
                 // ✓ Convert int? → string? so it matches SelectListItem.Value format
                 vm.TypeOfInstitution = entity.TypeOfInstitution?.ToString();
@@ -516,13 +516,13 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.TypeOfInstitutionList));
             ModelState.Remove(nameof(vm.InstitutionId));
             ModelState.Remove(nameof(vm.AmendedDoc));
-            ModelState.Remove(nameof(vm.AadhaarFile));
+           // ModelState.Remove(nameof(vm.AadhaarFile));
             ModelState.Remove(nameof(vm.GovAutonomousCertFile));
             ModelState.Remove(nameof(vm.GovCouncilMembershipFile));
             ModelState.Remove(nameof(vm.GokOrderExistingCoursesFile));
             ModelState.Remove(nameof(vm.FirstAffiliationNotifFile));
             ModelState.Remove(nameof(vm.ContinuationAffiliationFile));
-            ModelState.Remove(nameof(vm.KncCertificateFile));
+           // ModelState.Remove(nameof(vm.KncCertificateFile));
             ModelState.Remove(nameof(vm.PANFile));
             ModelState.Remove(nameof(vm.BankStatementFile));
             ModelState.Remove(nameof(vm.RegistrationCertificateFile));
@@ -563,10 +563,10 @@ namespace Medical_Affiliation.Controllers
             // Map scalar fields
             entity.TypeOfInstitution = vm.TypeOfInstitution;
             entity.NameOfInstitution = vm.NameOfInstitution ?? "";
-            entity.AddressOfInstitution = vm.AddressOfInstitution ?? "";
-            entity.VillageTownCity = vm.VillageTownCity ?? "";
-            entity.Taluk = vm.Taluk ?? "";
-            entity.District = vm.District ?? "";
+            //entity.AddressOfInstitution = vm.AddressOfInstitution ?? "";
+            //entity.VillageTownCity = vm.VillageTownCity ?? "";
+            //entity.Taluk = vm.Taluk ?? "";
+            //entity.District = vm.District ?? "";
             entity.PinCode = vm.PinCode;
             entity.MobileNumber = vm.MobileNumber;
             entity.StdCode = vm.StdCode;
@@ -580,12 +580,12 @@ namespace Medical_Affiliation.Controllers
             entity.IsMinorityInstitution = vm.IsMinorityInstitution;
             entity.TrustName = vm.TrustName ?? "";
             entity.PresidentName = vm.PresidentName ?? "";
-            entity.AadhaarNumber = vm.AadhaarNumber;
+        //    entity.AadhaarNumber = vm.AadhaarNumber;
             entity.Pannumber = vm.PANNumber;
             entity.RegistrationNumber = vm.RegistrationNumber;
             entity.RegistrationDate = vm.RegistrationDate;
             entity.Amendments = vm.Amendments;
-            entity.ExistingTrustName = vm.ExistingTrustName ?? "";
+         //   entity.ExistingTrustName = vm.ExistingTrustName ?? "";
             entity.GokobtainedTrustName = vm.GOKObtainedTrustName ?? "";
             entity.ChangesInTrustName = vm.ChangesInTrustName;
             entity.OtherNursingCollegeInCity = vm.OtherNursingCollegeInCity;
@@ -600,7 +600,7 @@ namespace Medical_Affiliation.Controllers
             entity.FinancingAuthorityName = vm.FinancingAuthorityName ?? "";
             entity.CollegeStatus = vm.CollegeStatus;
             entity.GovAutonomousCertNumber = vm.GovAutonomousCertNumber;
-            entity.KncCertificateNumber = vm.KncCertificateNumber;
+         //   entity.KncCertificateNumber = vm.KncCertificateNumber;
 
             // ★ AssignFileIfProvided skips null/empty uploads — existing DB bytes are untouched
             var govAuto = await SaveFileAsync(GovAutonomousCertFile, "GovAutonomous", FacultyCode);
@@ -818,7 +818,8 @@ namespace Medical_Affiliation.Controllers
                     MobileNumber = x.MobileNumber,
                     Age = x.Age,
                     JoiningDateString = x.JoiningDate?.ToString("yyyy-MM-dd"),
-                    DesignationCode = x.DesignationId
+                    //DesignationCode = x.DesignationId
+                    Designation = x.Designation
                 }).ToList();
             }
             else
@@ -883,8 +884,8 @@ namespace Medical_Affiliation.Controllers
                 // ── Resolve designation name from the pre-loaded list ────────────────
                 // row.DesignationCode holds whatever value the <select> posted.
                 // We match against DesignationCode in the master table.
-                var matchedDesignation = allDesignations
-                    .FirstOrDefault(d => d.DesignationCode == row.DesignationCode);
+                //var matchedDesignation = allDesignations
+                //    .FirstOrDefault(d => d.DesignationCode == row.DesignationCode);
 
                 var entity = new ContinuationTrustMemberDetail
                 {
@@ -897,8 +898,8 @@ namespace Medical_Affiliation.Controllers
                     JoiningDate = joiningDate,
 
                     // ★ Save both the code (FK) and the resolved name
-                    DesignationId = row.DesignationCode,                      // the posted value
-                    Designation = matchedDesignation?.DesignationName ?? row.DesignationCode  // fallback to code if name not found
+                   // DesignationId = row.DesignationCode,                      // the posted value
+                   // Designation = matchedDesignation?.DesignationName ?? row.DesignationCode  // fallback to code if name not found
                 };
 
                 _context.ContinuationTrustMemberDetails.Add(entity);

@@ -353,7 +353,7 @@ app.UseAuthorization();
 app.UseStaticFiles();
 
 // ===== D:\MedicalUGFacultyList Mapping =====
-var medicalPath = @"E:\MedicalUGFacultyList";
+var medicalPath = @"D:\MedicalUGFacultyList";
 
 if (!Directory.Exists(medicalPath))
     Directory.CreateDirectory(medicalPath);

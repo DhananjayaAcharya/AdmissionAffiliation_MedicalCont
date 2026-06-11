@@ -468,6 +468,10 @@
             flex: 1;
             min-width: 0;
         }
+
+    #teachingExperienceTable .college-dropdown {
+        min-width: 250px;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
@@ -614,14 +618,17 @@
                             <thead>
                                 <tr>
                                     <th rowspan="2" style="width:4%">#</th>
-                                    <th rowspan="2" style="width:20%">Designation</th>
-                                    <th colspan="2" style="width:28%">UG Teaching</th>
-                                    <th colspan="2" style="width:28%">PG Teaching</th>
+                                    <th rowspan="2" style="width:60px">Designation</th>
+                                    <th colspan="3" style="width:28%">UG Teaching</th>
+                                    <th colspan="3" style="width:28%">PG Teaching</th>
                                     <th rowspan="2" style="width:14%">Total Exp. (Yrs)</th>
                                 </tr>
                                 <tr class="group-row">
+                                    <th>College</th>
                                     <th>From</th>
                                     <th>To</th>
+
+                                    <th>College</th>
                                     <th>From</th>
                                     <th>To</th>
                                 </tr>
@@ -639,12 +646,26 @@
                                             <span asp-validation-for="TeachingExperiences[i].Designation" class="text-danger"></span>
                                         </td>
                                         <td>
+                                            <select asp-for="TeachingExperiences[i].UGCollegeCode"
+                                                    asp-items="ViewBag.CollegeList"
+                                                    class="form-control college-dropdown">
+                                                <option value="">-- Select College --</option>
+                                            </select>
+                                        </td>
+                                        <td>
                                             <input asp-for="TeachingExperiences[i].UGFrom" type="date" class="form-control date-input" data-row="@i" data-type="ug-from" />
                                             <span asp-validation-for="TeachingExperiences[i].UGFrom" class="text-danger"></span>
                                         </td>
                                         <td>
                                             <input asp-for="TeachingExperiences[i].UGTo" type="date" class="form-control date-input" data-row="@i" data-type="ug-to" />
                                             <span asp-validation-for="TeachingExperiences[i].UGTo" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <select asp-for="TeachingExperiences[i].PGCollegeCode"
+                                                    asp-items="ViewBag.CollegeList"
+                                                    class="form-control college-dropdown">
+                                                <option value="">-- Select College --</option>
+                                            </select>
                                         </td>
                                         <td>
                                             <input asp-for="TeachingExperiences[i].PGFrom" type="date" class="form-control date-input" data-row="@i" data-type="pg-from" />
@@ -787,8 +808,15 @@
                 <tr>
                     <td class="sl-no">${idx + 1}</td>
                     <td><input name="TeachingExperiences[${idx}].Designation" class="form-control" /></td>
+                     <td> <select name="TeachingExperiences[${idx}].UGCollegeCode" class="form-control">${collegeOptions} </select></td>
                     <td><input name="TeachingExperiences[${idx}].UGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="ug-from" /></td>
                     <td><input name="TeachingExperiences[${idx}].UGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="ug-to" /></td>
+                    <td>
+                    <select name="TeachingExperiences[${idx}].PGCollegeCode"
+                    class="form-control">
+                    ${collegeOptions}
+                    </select>
+                    </td>
                     <td><input name="TeachingExperiences[${idx}].PGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="pg-from" /></td>
                     <td><input name="TeachingExperiences[${idx}].PGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="pg-to" /></td>
                     <td><input name="TeachingExperiences[${idx}].TotalExperienceYears" type="number" step="0.1" readonly class="form-control total-exp" data-row="${idx}" /></td>
@@ -833,10 +861,10 @@
                     const to   = row.find('td:nth-child(4) input[type="date"]').val();
                     if (from && to) total = yearsDiff(from, to);
                 } else {
-                    const ugFrom = row.find('td:nth-child(3) input[type="date"]').val();
-                    const ugTo   = row.find('td:nth-child(4) input[type="date"]').val();
-                    const pgFrom = row.find('td:nth-child(5) input[type="date"]').val();
-                    const pgTo   = row.find('td:nth-child(6) input[type="date"]').val();
+                    const ugFrom = row.find('td:nth-child(4) input[type="date"]').val();
+                    const ugTo   = row.find('td:nth-child(5) input[type="date"]').val();
+                    const pgFrom = row.find('td:nth-child(7) input[type="date"]').val();
+                    const pgTo   = row.find('td:nth-child(8) input[type="date"]').val();
                     if (ugFrom && ugTo) total += yearsDiff(ugFrom, ugTo);
                     if (pgFrom && pgTo) total += yearsDiff(pgFrom, pgTo);
                 }

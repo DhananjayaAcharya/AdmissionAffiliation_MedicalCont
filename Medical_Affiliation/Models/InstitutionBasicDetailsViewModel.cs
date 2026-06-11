@@ -110,7 +110,9 @@ namespace Medical_Affiliation.Models
         public string JoiningDateString { get; set; }
 
         // Bind dropdown value (store designation identifier/code as string)
-        public string? DesignationCode { get; set; }
+       // public string? DesignationCode { get; set; }
+
+        public String Designation { get; set; }
     }
 
     public class TrustMemberDetailsListVM
@@ -516,6 +518,9 @@ namespace Medical_Affiliation.Models
         public bool RecognizedByDCI { get; set; }
         public string UGYears { get; set; }
 
+        public string? UGCollegeCode { get; set; }
+        public string? PGCollegeCode { get; set; }
+
         // Child: Teaching
         public List<TeachingExperienceRow> TeachingExperiences { get; set; }
 
@@ -540,6 +545,9 @@ namespace Medical_Affiliation.Models
         public DateOnly? PGFrom { get; set; }
         public DateOnly? PGTo { get; set; }
         public decimal? TotalExperienceYears { get; set; }
+
+        public string? UGCollegeCode { get; set; }
+        public string? PGCollegeCode { get; set; }
     }
 
     public class AdministrativeExperienceRow

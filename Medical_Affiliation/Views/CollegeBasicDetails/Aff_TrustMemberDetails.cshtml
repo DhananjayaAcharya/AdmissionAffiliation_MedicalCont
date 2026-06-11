@@ -457,12 +457,12 @@
                                 <span asp-validation-for="Rows[i].TrustMemberName" class="text-danger"></span>
                             </td>
 
-                            <td style="min-width:160px;">
+                           @*  <td style="min-width:160px;">
                                 @Html.DropDownListFor(m => m.Rows[i].DesignationCode,
                                                                 Model.DesignationList,
                                                                 "— Select —",
                                                                 new { @class = "form-control" })
-                            </td>
+                            </td> *@
 
                             <td style="min-width:140px;">
                                 @Html.TextBoxFor(m => m.Rows[i].Qualification,

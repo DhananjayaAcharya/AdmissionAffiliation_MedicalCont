@@ -203,6 +203,23 @@ namespace Medical_Affiliation.Controllers
                 CollegeCode = collegeCode
             };
 
+            var affInstitution = await _context.AffInstitutionsDetails
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(x =>
+                                    x.CollegeCode.Trim() == collegeCode.Trim() &&
+                                    x.FacultyCode.Trim() == facultyCode.Trim());
+
+            // Get type from AffInstitutionsDetails
+            if (affInstitution != null &&
+                int.TryParse(affInstitution.TypeOfInstitution, out int institutionTypeId))
+            {
+                vm.TypeOfInstitution = await _context.MstInstitutionTypes
+                    .Where(x => x.InstitutionTypeId == institutionTypeId)
+                    .Select(x => x.InstitutionType)
+                    .FirstOrDefaultAsync();
+            }
+
+
             var entity = await _context.InstitutionBasicDetails
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x =>
@@ -213,10 +230,10 @@ namespace Medical_Affiliation.Controllers
             {
                 vm.InstitutionId = entity.InstitutionId;
                 vm.NameOfInstitution = entity.NameOfInstitution ?? "";
-                vm.AddressOfInstitution = entity.AddressOfInstitution ?? "";
-                vm.VillageTownCity = entity.VillageTownCity ?? "";
-                vm.Taluk = entity.Taluk ?? "";
-                vm.District = entity.District ?? "";
+                //vm.AddressOfInstitution = entity.AddressOfInstitution ?? "";
+                //vm.VillageTownCity = entity.VillageTownCity ?? "";
+                //vm.Taluk = entity.Taluk ?? "";
+                //vm.District = entity.District ?? "";
                 vm.PinCode = entity.PinCode;
                 vm.MobileNumber = entity.MobileNumber;
                 vm.StdCode = entity.StdCode;
@@ -230,12 +247,12 @@ namespace Medical_Affiliation.Controllers
                 vm.IsMinorityInstitution = entity.IsMinorityInstitution ?? false;
                 vm.TrustName = entity.TrustName ?? "";
                 vm.PresidentName = entity.PresidentName ?? "";
-                vm.AadhaarNumber = entity.AadhaarNumber;
+              //  vm.AadhaarNumber = entity.AadhaarNumber;
                 vm.PANNumber = entity.Pannumber;
                 vm.RegistrationNumber = entity.RegistrationNumber;
                 vm.RegistrationDate = entity.RegistrationDate;
                 vm.Amendments = entity.Amendments ?? false;
-                vm.ExistingTrustName = entity.ExistingTrustName ?? "";
+              //  vm.ExistingTrustName = entity.ExistingTrustName ?? "";
                 vm.GOKObtainedTrustName = entity.GokobtainedTrustName ?? "";
                 vm.ChangesInTrustName = entity.ChangesInTrustName ?? false;
                 vm.OtherNursingCollegeInCity = entity.OtherNursingCollegeInCity ?? false;
@@ -250,11 +267,13 @@ namespace Medical_Affiliation.Controllers
                 vm.HeadOfInstitutionName = entity.HeadOfInstitutionName ?? "";
                 vm.HeadOfInstitutionAddress = entity.HeadOfInstitutionAddress ?? "";
                 vm.FinancingAuthorityName = entity.FinancingAuthorityName ?? "";
-                vm.CollegeStatus = entity.CollegeStatus;
-                if(facultyCode == "1")
+                vm.CollegeStatus = string.IsNullOrWhiteSpace(entity.CollegeStatus)
+    ? "Active"
+    : entity.CollegeStatus;
+                if (facultyCode == "1")
                 {
                     vm.GovAutonomousCertNumber = entity.GovAutonomousCertNumber;
-                    vm.KncCertificateNumber = entity.KncCertificateNumber;
+                  //  vm.KncCertificateNumber = entity.KncCertificateNumber;
                 }
                 vm.hasDCIfile = !string.IsNullOrWhiteSpace(entity.DcicertificateFilePath);
                 vm.hasGovAutoCertFile = !string.IsNullOrWhiteSpace(entity.GovAutonomousCertFilePath);
@@ -262,9 +281,9 @@ namespace Medical_Affiliation.Controllers
                 vm.hasGokOrderExistingCoursesFile = !string.IsNullOrWhiteSpace(entity.GokOrderExistingCoursesFilePath);
                 vm.hasFirstAffiliationNotifFile = !string.IsNullOrWhiteSpace(entity.FirstAffiliationNotifFilePath);
                 vm.hasContinuationAffiliationFile = !string.IsNullOrWhiteSpace(entity.ContinuationAffiliationFilePath);
-                vm.hasKncCertificateFile = !string.IsNullOrWhiteSpace(entity.KncCertificateFilePath);
-                vm.hasAmendedDoc = !string.IsNullOrWhiteSpace(entity.AmendedDocPath); 
-                vm.hasAadhaarFile = !string.IsNullOrWhiteSpace(entity.AadhaarFilePath);
+                //   vm.hasKncCertificateFile = !string.IsNullOrWhiteSpace(entity.KncCertificateFilePath);
+                vm.hasAmendedDoc = !string.IsNullOrWhiteSpace(entity.AmendedDocPath);
+                //   vm.hasAadhaarFile = !string.IsNullOrWhiteSpace(entity.AadhaarFilePath);
                 vm.hasPANFile = !string.IsNullOrWhiteSpace(entity.PanfilePath);
                 vm.hasBankStatementFile = !string.IsNullOrWhiteSpace(entity.BankStatementFilePath);
                 vm.hasRegistrationCertificateFile = !string.IsNullOrWhiteSpace(entity.RegistrationCertificateFilePath);
@@ -272,7 +291,7 @@ namespace Medical_Affiliation.Controllers
                 vm.hasAuditStatementFile = !string.IsNullOrWhiteSpace(entity.AuditStatementFilePath);
 
                 // ✓ Convert int? → string? so it matches SelectListItem.Value format
-                vm.TypeOfInstitution = entity.TypeOfInstitution?.ToString();
+               // vm.TypeOfInstitution = entity.TypeOfInstitution?.ToString();
             }
             else
             {
@@ -282,6 +301,7 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefaultAsync();
 
                 vm.NameOfInstitution = collegeName ?? User.Identity?.Name ?? "";
+                vm.CollegeStatus = "Active";
             }
 
             // Build dropdown — int == int comparison, returns Value as string
@@ -367,9 +387,7 @@ namespace Medical_Affiliation.Controllers
                                 IFormFile? GokOrderExistingCoursesFile,
                                 IFormFile? FirstAffiliationNotifFile,
                                 IFormFile? ContinuationAffiliationFile,
-                                IFormFile? KncCertificateFile,
                                 IFormFile? AmendedDoc,
-                                IFormFile? AadhaarFile,
                                 IFormFile? PANFile,
                                 IFormFile? BankStatementFile,
                                 IFormFile? RegistrationCertificateFile,
@@ -392,13 +410,13 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.TypeOfInstitutionList));
             ModelState.Remove(nameof(vm.InstitutionId));
             ModelState.Remove(nameof(vm.AmendedDoc));
-            ModelState.Remove(nameof(vm.AadhaarFile));
+          //  ModelState.Remove(nameof(vm.AadhaarFile));
             ModelState.Remove(nameof(vm.GovAutonomousCertFile));
             ModelState.Remove(nameof(vm.GovCouncilMembershipFile));
             ModelState.Remove(nameof(vm.GokOrderExistingCoursesFile));
             ModelState.Remove(nameof(vm.FirstAffiliationNotifFile));
             ModelState.Remove(nameof(vm.ContinuationAffiliationFile));
-            ModelState.Remove(nameof(vm.KncCertificateFile));
+          //  ModelState.Remove(nameof(vm.KncCertificateFile));
             ModelState.Remove(nameof(vm.PANFile));
             ModelState.Remove(nameof(vm.BankStatementFile));
             ModelState.Remove(nameof(vm.RegistrationCertificateFile));
@@ -406,7 +424,7 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.AuditStatementFile));
             ModelState.Remove(nameof(vm.DCIcertificateFile));
             ModelState.Remove(nameof(vm.KSDCcertificateFile));
-            ModelState.Remove(nameof(vm.KncCertificateNumber));
+         //   ModelState.Remove(nameof(vm.KncCertificateNumber));
 
             if (!ModelState.IsValid)
             {
@@ -442,10 +460,10 @@ namespace Medical_Affiliation.Controllers
             // Map scalar fields
             entity.TypeOfInstitution = vm.TypeOfInstitution;
             entity.NameOfInstitution = vm.NameOfInstitution ?? "";
-            entity.AddressOfInstitution = vm.AddressOfInstitution ?? "";
-            entity.VillageTownCity = vm.VillageTownCity ?? "";
-            entity.Taluk = vm.Taluk ?? "";
-            entity.District = vm.District ?? "";
+            //entity.AddressOfInstitution = vm.AddressOfInstitution ?? "";
+            //entity.VillageTownCity = vm.VillageTownCity ?? "";
+            //entity.Taluk = vm.Taluk ?? "";
+            //entity.District = vm.District ?? "";
             entity.PinCode = vm.PinCode;
             entity.MobileNumber = vm.MobileNumber;
             entity.StdCode = vm.StdCode;
@@ -459,12 +477,12 @@ namespace Medical_Affiliation.Controllers
             entity.IsMinorityInstitution = vm.IsMinorityInstitution;
             entity.TrustName = vm.TrustName ?? "";
             entity.PresidentName = vm.PresidentName ?? "";
-            entity.AadhaarNumber = vm.AadhaarNumber;
+          //  entity.AadhaarNumber = vm.AadhaarNumber;
             entity.Pannumber = vm.PANNumber;
             entity.RegistrationNumber = vm.RegistrationNumber;
             entity.RegistrationDate = vm.RegistrationDate;
             entity.Amendments = vm.Amendments;
-            entity.ExistingTrustName = vm.ExistingTrustName ?? "";
+          //  entity.ExistingTrustName = vm.ExistingTrustName ?? "";
             entity.GokobtainedTrustName = vm.GOKObtainedTrustName ?? "";
             entity.ChangesInTrustName = vm.ChangesInTrustName;
             entity.OtherNursingCollegeInCity = vm.OtherNursingCollegeInCity;
@@ -478,9 +496,9 @@ namespace Medical_Affiliation.Controllers
             entity.HeadOfInstitutionName = vm.HeadOfInstitutionName ?? "";
             entity.HeadOfInstitutionAddress = vm.HeadOfInstitutionAddress ?? "";
             entity.FinancingAuthorityName = vm.FinancingAuthorityName ?? "";
-            entity.CollegeStatus = vm.CollegeStatus;
+            entity.CollegeStatus = "Active";
             entity.GovAutonomousCertNumber = vm.GovAutonomousCertNumber;
-            entity.KncCertificateNumber = vm.KncCertificateNumber;
+         //   entity.KncCertificateNumber = vm.KncCertificateNumber;
 
             // ★ AssignFileIfProvided skips null/empty uploads — existing DB bytes are untouched
             //await AssignFileIfProvided(GovAutonomousCertFile, b => entity.GovAutonomousCertFile = b);
@@ -539,13 +557,13 @@ namespace Medical_Affiliation.Controllers
 
             }
 
-            var knc = await SaveFileAsync(KncCertificateFile, "KNC", FacultyCode);
-            if (knc.path != null)
-            {
-                DeleteOldFile(entity.KncCertificateFilePath, FacultyCode);
-                entity.KncCertificateFilePath = knc.path;
+            //var knc = await SaveFileAsync(KncCertificateFile, "KNC", FacultyCode);
+            //if (knc.path != null)
+            //{
+            //    DeleteOldFile(entity.KncCertificateFilePath, FacultyCode);
+            //    entity.KncCertificateFilePath = knc.path;
 
-            }
+            //}
 
             var amend = await SaveFileAsync(AmendedDoc, "Amendments", FacultyCode);
             if (amend.path != null)
@@ -555,13 +573,13 @@ namespace Medical_Affiliation.Controllers
 
             }
 
-            var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar", FacultyCode);
-            if (aadhaar.path != null)
-            {
-                DeleteOldFile(entity.AadhaarFilePath, FacultyCode);
-                entity.AadhaarFilePath = aadhaar.path;
+            //var aadhaar = await SaveFileAsync(AadhaarFile, "Aadhaar", FacultyCode);
+            //if (aadhaar.path != null)
+            //{
+            //    DeleteOldFile(entity.AadhaarFilePath, FacultyCode);
+            //    entity.AadhaarFilePath = aadhaar.path;
 
-            }
+            //}
 
             var pan = await SaveFileAsync(PANFile, "PAN", FacultyCode);
             if (pan.path != null)
@@ -880,7 +898,7 @@ namespace Medical_Affiliation.Controllers
                 Rows = new List<TrustMemberDetailsRowVM>()
             };
 
-            vm.DesignationList = await GetDesignationListAsync(facultyCode);
+         //   vm.DesignationList = await GetDesignationListAsync(facultyCode);
 
             var existing = await _context.ContinuationTrustMemberDetails
                 .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode)
@@ -899,7 +917,8 @@ namespace Medical_Affiliation.Controllers
                     MobileNumber = x.MobileNumber,
                     Age = x.Age,
                     JoiningDateString = x.JoiningDate?.ToString("yyyy-MM-dd"),
-                    DesignationCode = x.DesignationId
+                    Designation = x.Designation
+                    // DesignationCode = x.DesignationId
                 }).ToList();
             }
             else
@@ -984,9 +1003,9 @@ namespace Medical_Affiliation.Controllers
                 return View(vm);
 
             // ── Load designations once ──
-            var allDesignations = await _context.DesignationMasters
-                .Where(d => d.FacultyCode.ToString() == facultyCode)
-                .ToListAsync();
+            //var allDesignations = await _context.DesignationMasters
+            //    .Where(d => d.FacultyCode.ToString() == facultyCode)
+            //    .ToListAsync();
 
             // ── Delete existing records for this college + faculty ──
             var existingList = await _context.ContinuationTrustMemberDetails
@@ -1012,8 +1031,8 @@ namespace Medical_Affiliation.Controllers
                     joiningDate = parsed;
                 }
 
-                var matchedDesignation = allDesignations
-                    .FirstOrDefault(d => d.DesignationCode == row.DesignationCode);
+             //   var matchedDesignation = allDesignations
+               //     .FirstOrDefault(d => d.DesignationCode == row.DesignationCode);
 
                 var entity = new ContinuationTrustMemberDetail
                 {
@@ -1024,8 +1043,9 @@ namespace Medical_Affiliation.Controllers
                     MobileNumber = row.MobileNumber,
                     Age = row.Age,
                     JoiningDate = joiningDate,
-                    DesignationId = row.DesignationCode,
-                    Designation = matchedDesignation?.DesignationName ?? string.Empty
+                    //  DesignationId = row.DesignationCode,
+                    //  Designation = matchedDesignation?.DesignationName ?? string.Empty
+                    Designation = row.Designation
                 };
 
                 _context.ContinuationTrustMemberDetails.Add(entity);
@@ -3503,6 +3523,19 @@ namespace Medical_Affiliation.Controllers
                 "CourseName"
             );
 
+            ViewBag.CollegeList = new SelectList(
+                                    _context.AffiliationCollegeMasters
+                                        .Where(x => x.FacultyCode.Trim() == facultyCode.Trim())
+                                        .OrderBy(x => x.CollegeName)
+                                        .Select(x => new
+                                        {
+                                            Value = x.CollegeCode,
+                                            Text = x.CollegeName
+                                        }),
+                                    "Value",
+                                    "Text"
+                                );
+
             // 🔍 Fetch existing dean/director record
             var dean = _context.AffDeanOrDirectorDetails
                 .FirstOrDefault(d => d.FacultyCode == facultyCode
@@ -3535,7 +3568,9 @@ namespace Medical_Affiliation.Controllers
                         UGTo = t.Ugto,
                         PGFrom = t.Pgfrom,
                         PGTo = t.Pgto,
-                        TotalExperienceYears = t.TotalExperienceYears
+                        TotalExperienceYears = t.TotalExperienceYears,
+                        UGCollegeCode = t.UgCollegeCode,
+                        PGCollegeCode = t.PgCollegeCode
                     })
                     .ToList();
 
@@ -3761,11 +3796,14 @@ namespace Medical_Affiliation.Controllers
                                 Facultycode = facultyCode,
                                 Collegecode = collegeCode,
                                 Designation = t.Designation?.Trim(),
+                                UgCollegeCode = t.UGCollegeCode,
+                                PgCollegeCode = t.PGCollegeCode,
                                 Ugfrom = t.UGFrom,
                                 Ugto = t.UGTo,
                                 Pgfrom = t.PGFrom,
                                 Pgto = t.PGTo,
                                 TotalExperienceYears = t.TotalExperienceYears ?? 0
+                               
                             });
                     }
                 }
@@ -3861,6 +3899,20 @@ namespace Medical_Affiliation.Controllers
                 "CourseName"
             );
 
+
+            ViewBag.CollegeList = new SelectList(
+                                    _context.AffiliationCollegeMasters
+                                        .Where(x => x.FacultyCode.Trim() == facultyCode.Trim())
+                                        .OrderBy(x => x.CollegeName)
+                                        .Select(x => new
+                                        {
+                                            Value = x.CollegeCode,
+                                            Text = x.CollegeName
+                                        }),
+                                    "Value",
+                                    "Text"
+                                );
+
             // 🔍 Fetch existing Dean/Principal
             var dean = _context.AffPrincipalDetails
                 .FirstOrDefault(x => x.FacultyCode == facultyCode
@@ -3898,7 +3950,9 @@ namespace Medical_Affiliation.Controllers
                         UGTo = t.Ugto,
                         PGFrom = t.Pgfrom,
                         PGTo = t.Pgto,
-                        TotalExperienceYears = t.TotalExperienceYears
+                        TotalExperienceYears = t.TotalExperienceYears,
+                        UGCollegeCode = t.UgCollegeCode,
+                        PGCollegeCode = t.PgCollegeCode,
                     });
                 }
 
@@ -4105,7 +4159,9 @@ namespace Medical_Affiliation.Controllers
                             Ugto = t.UGTo,
                             Pgfrom = t.PGFrom,
                             Pgto = t.PGTo,
-                            TotalExperienceYears = t.TotalExperienceYears ?? 0
+                            TotalExperienceYears = t.TotalExperienceYears ?? 0,
+                            UgCollegeCode = t.UGCollegeCode,
+                            PgCollegeCode = t.PGCollegeCode,
                         });
                     }
                 }

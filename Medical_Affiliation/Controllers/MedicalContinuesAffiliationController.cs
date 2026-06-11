@@ -82,10 +82,10 @@ namespace Medical_Affiliation.Controllers
                 vm.InstitutionId = existingInstitution.InstitutionId;
                 // NOTE: use vm.TypeOfInstitution to match View's asp-for
                 vm.TypeOfInstitution = existingInstitution.TypeOfInstitution;
-                vm.AddressOfInstitution = existingInstitution.AddressOfInstitution;
-                vm.VillageTownCity = existingInstitution.VillageTownCity;
-                vm.Taluk = existingInstitution.Taluk;
-                vm.District = existingInstitution.District;
+                //vm.AddressOfInstitution = existingInstitution.AddressOfInstitution;
+                //vm.VillageTownCity = existingInstitution.VillageTownCity;
+                //vm.Taluk = existingInstitution.Taluk;
+                //vm.District = existingInstitution.District;
                 vm.PinCode = existingInstitution.PinCode;
                 vm.MobileNumber = existingInstitution.MobileNumber;
                 vm.StdCode = existingInstitution.StdCode;
@@ -99,12 +99,12 @@ namespace Medical_Affiliation.Controllers
                 vm.IsMinorityInstitution = existingInstitution.IsMinorityInstitution ?? false;
                 vm.TrustName = existingInstitution.TrustName;
                 vm.PresidentName = existingInstitution.PresidentName;
-                vm.AadhaarNumber = existingInstitution.AadhaarNumber;
+              //  vm.AadhaarNumber = existingInstitution.AadhaarNumber;
                 vm.PANNumber = existingInstitution.Pannumber;
                 vm.RegistrationNumber = existingInstitution.RegistrationNumber;
                 vm.RegistrationDate = existingInstitution.RegistrationDate;
                 vm.Amendments = existingInstitution.Amendments ?? false;
-                vm.ExistingTrustName = existingInstitution.ExistingTrustName;
+              //  vm.ExistingTrustName = existingInstitution.ExistingTrustName;
                 vm.GOKObtainedTrustName = existingInstitution.GokobtainedTrustName;
                 vm.ChangesInTrustName = existingInstitution.ChangesInTrustName ?? false;
                 vm.OtherNursingCollegeInCity = existingInstitution.OtherNursingCollegeInCity ?? false;
@@ -119,7 +119,7 @@ namespace Medical_Affiliation.Controllers
                 vm.FinancingAuthorityName = existingInstitution.FinancingAuthorityName;
                 vm.CollegeStatus = existingInstitution.CollegeStatus;
                 vm.GovAutonomousCertNumber = existingInstitution.GovAutonomousCertNumber;
-                vm.KncCertificateNumber = existingInstitution.KncCertificateNumber;
+               // vm.KncCertificateNumber = existingInstitution.KncCertificateNumber;
             }
 
             // Dropdown: institution type (filtered by faculty)
@@ -243,9 +243,9 @@ namespace Medical_Affiliation.Controllers
                 var gokPath = await SaveFile(vm.GokOrderExistingCoursesFile, "GOK", FacultyCode);
                 var firstPath = await SaveFile(vm.FirstAffiliationNotifFile, "FirstAffiliation", FacultyCode);
                 var contPath = await SaveFile(vm.ContinuationAffiliationFile, "Continuation", FacultyCode);
-                var kncPath = await SaveFile(vm.KncCertificateFile, "KNC", FacultyCode);
+              //  var kncPath = await SaveFile(vm.KncCertificateFile, "KNC", FacultyCode);
                 var amendPath = await SaveFile(vm.AmendedDoc, "Amendments", FacultyCode);
-                var aadhaarPath = await SaveFile(vm.AadhaarFile, "Aadhaar", FacultyCode);
+                //  var aadhaarPath = await SaveFile(vm.AadhaarFile, "Aadhaar", FacultyCode);
                 var panPath = await SaveFile(vm.PANFile, "PAN", FacultyCode);
                 var bankPath = await SaveFile(vm.BankStatementFile, "Bank", FacultyCode);
                 var regPath = await SaveFile(vm.RegistrationCertificateFile, "Registration", FacultyCode);
@@ -258,9 +258,9 @@ namespace Medical_Affiliation.Controllers
                 if (gokPath != null) existingInstitution.GokOrderExistingCoursesFilePath = gokPath;
                 if (firstPath != null) existingInstitution.FirstAffiliationNotifFilePath = firstPath;
                 if (contPath != null) existingInstitution.ContinuationAffiliationFilePath = contPath;
-                if (kncPath != null) existingInstitution.KncCertificateFilePath = kncPath;
+                //   if (kncPath != null) existingInstitution.KncCertificateFilePath = kncPath;
                 if (amendPath != null) existingInstitution.AmendedDocPath = amendPath;
-                if (aadhaarPath != null) existingInstitution.AadhaarFilePath = aadhaarPath;
+                // if (aadhaarPath != null) existingInstitution.AadhaarFilePath = aadhaarPath;
                 if (panPath != null) existingInstitution.PanfilePath = panPath;
                 if (bankPath != null) existingInstitution.BankStatementFilePath = bankPath;
                 if (regPath != null) existingInstitution.RegistrationCertificateFilePath = regPath;
@@ -365,7 +365,7 @@ namespace Medical_Affiliation.Controllers
                     MobileNumber = x.MobileNumber,
                     Age = x.Age,
                     JoiningDateString = x.JoiningDate.HasValue ? x.JoiningDate.Value.ToString("yyyy-MM-dd") : null,
-                    DesignationCode = x.DesignationId // store DB string id/code directly
+                  //  DesignationCode = x.DesignationId // store DB string id/code directly
                 }).ToList();
             }
 
@@ -432,35 +432,35 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 // DesignationCode is stored as string in DB.DesignationId
-                var designationCode = string.IsNullOrWhiteSpace(row.DesignationCode) ? null : row.DesignationCode.Trim();
+              //  var designationCode = string.IsNullOrWhiteSpace(row.DesignationCode) ? null : row.DesignationCode.Trim();
 
                 // Optional: fetch designation text if you want to persist the human-readable name
-                string? designationName = null;
-                if (!string.IsNullOrWhiteSpace(designationCode))
-                {
-                    // Try DesignationMasters first
-                    var des = await _context.DesignationMasters.FirstOrDefaultAsync(dm => dm.DesignationCode == designationCode);
-                    if (des != null)
-                        designationName = des.DesignationName;
-                    else if (int.TryParse(designationCode, out var did))
-                    {
-                        // fallback to MstDesignations numeric id
-                        var md = await _context.MstDesignations.FindAsync(did);
-                        designationName = md?.DesignationName;
-                    }
-                }
+                //string? designationName = null;
+                //if (!string.IsNullOrWhiteSpace(designationCode))
+                //{
+                //    // Try DesignationMasters first
+                //    var des = await _context.DesignationMasters.FirstOrDefaultAsync(dm => dm.DesignationCode == designationCode);
+                //    if (des != null)
+                //        designationName = des.DesignationName;
+                //    else if (int.TryParse(designationCode, out var did))
+                //    {
+                //        // fallback to MstDesignations numeric id
+                //        var md = await _context.MstDesignations.FindAsync(did);
+                //        designationName = md?.DesignationName;
+                //    }
+                //}
 
                 var entity = new ContinuationTrustMemberDetail
                 {
                     FacultyCode = facultyCode,
                     CollegeCode = collegeCode,
                     TrustMemberName = row.TrustMemberName,
-                    Designation = designationName,
+                    Designation = row.Designation,
                     Qualification = row.Qualification,
                     MobileNumber = row.MobileNumber,
                     Age = row.Age,
                     JoiningDate = joiningDate,
-                    DesignationId = designationCode
+                   // DesignationId = designationCode
                 };
 
                 _context.ContinuationTrustMemberDetails.Add(entity);

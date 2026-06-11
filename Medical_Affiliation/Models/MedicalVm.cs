@@ -26,10 +26,10 @@ namespace Medical_Affiliation.Models
             public IEnumerable<SelectListItem>? TypeOfInstitutionList { get; set; }  // NO [Required]
 
             public string NameOfInstitution { get; set; }
-            public string AddressOfInstitution { get; set; }
-            public string VillageTownCity { get; set; }
-            public string Taluk { get; set; }
-            public string District { get; set; }
+           // public string AddressOfInstitution { get; set; }
+          //  public string VillageTownCity { get; set; }
+           // public string Taluk { get; set; }
+           // public string District { get; set; }
             public string PinCode { get; set; }
             public string MobileNumber { get; set; }
             public string StdCode { get; set; }
@@ -47,7 +47,8 @@ namespace Medical_Affiliation.Models
             // Trust / society
             public string TrustName { get; set; }
             public string PresidentName { get; set; }
-            public string AadhaarNumber { get; set; }
+
+        //    public string AadhaarNumber { get; set; }
             public string PANNumber { get; set; }
             public string RegistrationNumber { get; set; }
 
@@ -57,7 +58,7 @@ namespace Medical_Affiliation.Models
             // MUST be non-nullable for checkboxes
             public bool Amendments { get; set; }
 
-            public string ExistingTrustName { get; set; }
+          //  public string ExistingTrustName { get; set; }
             public string GOKObtainedTrustName { get; set; }
 
             // MUST be non-nullable for checkboxes
@@ -83,7 +84,7 @@ namespace Medical_Affiliation.Models
         // Document numbers
             [ValidateNever]
             public string GovAutonomousCertNumber { get; set; }
-            public string KncCertificateNumber { get; set; }
+          //  public string KncCertificateNumber { get; set; }
 
             // Files (IFormFile)
             public IFormFile GovAutonomousCertFile { get; set; }
@@ -96,14 +97,14 @@ namespace Medical_Affiliation.Models
         public bool hasFirstAffiliationNotifFile { get; set; }
             public IFormFile ContinuationAffiliationFile { get; set; }
         public bool hasContinuationAffiliationFile { get; set; }
-            public IFormFile KncCertificateFile { get; set; }
-        public bool hasKncCertificateFile { get; set; }
+          //  public IFormFile KncCertificateFile { get; set; }
+       // public bool hasKncCertificateFile { get; set; }
             public IFormFile KSDCcertificateFile { get; set; }
         public bool hasKSDCcertificateFile { get; set; }
             public IFormFile AmendedDoc { get; set; }
         public bool hasAmendedDoc { get; set; }
-            public IFormFile AadhaarFile { get; set; }
-        public bool hasAadhaarFile { get; set; }
+        //    public IFormFile AadhaarFile { get; set; }
+        //public bool hasAadhaarFile { get; set; }
             public IFormFile PANFile { get; set; }
         public bool hasPANFile { get; set; }
             public IFormFile BankStatementFile { get; set; }
@@ -140,7 +141,9 @@ namespace Medical_Affiliation.Models
         public string JoiningDateString { get; set; }
 
         // Bind dropdown value (store designation identifier/code as string)
-        public string? DesignationCode { get; set; }
+        // public string? DesignationCode { get; set; }
+
+        public string? Designation { get; set; }
     }
 
     public class Medical_TrustMemberDetailsListVM

@@ -670,6 +670,114 @@
             <input asp-for="FacultyCode" type="hidden" />
             <input asp-for="InstitutionId" type="hidden" />
 
+
+            <!-- ④ Trust / Society Details -->
+            <div class="section-card">
+                <div class="section-header sh-amber">
+                    <div class="icon-wrap"><i class="fas fa-shield-halved"></i></div>
+                    <h2>Trust / Society Details</h2>
+                    <span class="sh-sub">Governing body information</span>
+                </div>
+                <div class="section-body">
+                    <div class="fg fg-2">
+                        <div>
+                            <label asp-for="TrustName"><i class="fas fa-landmark"></i>Trust Name <span class="req">*</span></label>
+                            <input asp-for="TrustName" required />
+                            <span asp-validation-for="TrustName" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="PresidentName"><i class="fas fa-user-tie"></i>President Name <span class="req">*</span></label>
+                            <input asp-for="PresidentName" required />
+                            <span asp-validation-for="PresidentName" class="text-danger"></span>
+                        </div>
+                        @* <div>
+                            <label asp-for="AadhaarNumber"><i class="fas fa-id-card"></i>Aadhaar Number <span class="req">*</span></label>
+                            <input asp-for="AadhaarNumber" type="text" maxlength="12" pattern="^\d{12}$"
+                                   title="Aadhaar Number must be exactly 12 digits" required />
+                            <span asp-validation-for="AadhaarNumber" class="text-danger"></span>
+                        </div> *@
+                        <div>
+                            <label asp-for="PANNumber"><i class="fas fa-address-card"></i>PAN Number <span class="req">*</span></label>
+                            <input asp-for="PANNumber" type="text" maxlength="10" pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
+                                   style="text-transform: uppercase;" title="PAN format: ABCDE1234F" required />
+                            <span asp-validation-for="PANNumber" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="RegistrationNumber"><i class="fas fa-file-contract"></i>Registration Number <span class="req">*</span></label>
+                            <input asp-for="RegistrationNumber" required />
+                            <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="RegistrationDate"><i class="fas fa-calendar-check"></i>Registration Date <span class="req">*</span></label>
+                            <input asp-for="RegistrationDate" type="date" required />
+                            <span asp-validation-for="RegistrationDate" class="text-danger"></span>
+                        </div>
+                        @* <div>
+                            <label asp-for="ExistingTrustName"><i class="fas fa-clock-rotate-left"></i>Existing Trust Name</label>
+                            <input asp-for="ExistingTrustName" />
+                        </div> *@
+                        <div>
+                            <label asp-for="GOKObtainedTrustName"><i class="fas fa-certificate"></i>GOK Obtained Trust Name</label>
+                            <input asp-for="GOKObtainedTrustName" />
+                        </div>
+                        <div>
+                            <label asp-for="CategoryOfOrganisation"><i class="fas fa-layer-group"></i>Category of Organisation</label>
+                            <input asp-for="CategoryOfOrganisation" />
+                        </div>
+                    </div>
+
+                    <!-- Trust Flags -->
+                    <div class="flags-box" style="margin-top:16px;">
+                        <p class="flags-box-title">Trust Flags</p>
+                        <div class="check-group">
+                            <label class="check-label">
+                                <input asp-for="Amendments" type="checkbox" /> Amendments
+                            </label>
+                            <label class="check-label">
+                                <input asp-for="ChangesInTrustName" type="checkbox" /> Changes in Trust Name
+                            </label>
+                            <label class="check-label">
+                                <input asp-for="IsMinorityInstitution" type="checkbox" /> Minority Institution
+                            </label>
+                            <label class="check-label">
+                                <input asp-for="IsRuralInstitution" type="checkbox" /> Rural Institution
+                            </label>
+                            @if (facultyCode != "2")
+                            {
+                                <label class="check-label">
+                                    <input asp-for="OtherNursingCollegeInCity" type="checkbox" /> Other Nursing College in City
+                                </label>
+                            }
+                            else if (facultyCode == "2")
+                            {
+                                <label class="check-label">
+                                    <input asp-for="OtherDentalCollegeInCity" type="checkbox" /> Other Dental College in City
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    @if (facultyCode != "2")
+                    {
+                        <!-- Physiotherapy Radio -->
+                        <div style="margin-top:14px;">
+                            <label style="margin-bottom:8px;">
+                                <i class="fas fa-wheelchair"></i>Other Physiotherapy College in City <span class="req">*</span>
+                            </label>
+                            <div class="check-group">
+                                <label class="check-label">
+                                    <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="true" id="OtherPhysioYes" required /> Yes
+                                </label>
+                                <label class="check-label">
+                                    <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="false" id="OtherPhysioNo" required /> No
+                                </label>
+                            </div>
+                            <span asp-validation-for="OtherPhysiotherapyCollegeInCity" class="text-danger"></span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+
             <!-- ① Basic Institution Details -->
             <div class="section-card">
                 <div class="section-header sh-blue">
@@ -683,16 +791,14 @@
                             <label asp-for="TypeOfInstitution">
                                 <i class="fas fa-building-columns"></i>Type of Institution <span class="req">*</span>
                             </label>
-                            <select asp-for="TypeOfInstitution" asp-items="Model.TypeOfInstitutionList ?? new List<SelectListItem>()" required>
-                                <option value="">— Select Type —</option>
-                            </select>
+                            <input asp-for="TypeOfInstitution" readonly />
                             <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
                         </div>
                         <div>
                             <label asp-for="CollegeStatus">
                                 <i class="fas fa-circle-info"></i>College Status <span class="req">*</span>
                             </label>
-                            <input asp-for="CollegeStatus" required />
+                            <input asp-for="CollegeStatus" readonly />
                             <span asp-validation-for="CollegeStatus" class="text-danger"></span>
                         </div>
                     </div>
@@ -716,13 +822,13 @@
                                 <input asp-for="GovAutonomousCertNumber" maxlength="50" />
                                 <span asp-validation-for="GovAutonomousCertNumber" class="text-danger"></span>
                             </div>
-                            <div>
+                            @* <div>
                                 <label asp-for="KncCertificateNumber">
                                     <i class="fas fa-award"></i>KMC Certificate Number
                                 </label>
                                 <input asp-for="KncCertificateNumber" maxlength="50" />
                                 <span asp-validation-for="KncCertificateNumber" class="text-danger"></span>
-                            </div>
+                            </div> *@
                         </div>
                     } else if(facultyCode == "2"){
                         <div class="dci-cert">
@@ -750,7 +856,7 @@
             </div>
 
             <!-- ② Address & Geography -->
-            <div class="section-card">
+           @*  <div class="section-card">
                 <div class="section-header sh-slate">
                     <div class="icon-wrap"><i class="fas fa-map-location-dot"></i></div>
                     <h2>Address &amp; Geography</h2>
@@ -790,7 +896,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> *@
 
             <!-- ③ Contact & Communication -->
             <div class="section-card">
@@ -845,109 +951,7 @@
                 </div>
             </div>
 
-            <!-- ④ Trust / Society Details -->
-            <div class="section-card">
-                <div class="section-header sh-amber">
-                    <div class="icon-wrap"><i class="fas fa-shield-halved"></i></div>
-                    <h2>Trust / Society Details</h2>
-                    <span class="sh-sub">Governing body information</span>
-                </div>
-                <div class="section-body">
-                    <div class="fg fg-2">
-                        <div>
-                            <label asp-for="TrustName"><i class="fas fa-landmark"></i>Trust Name <span class="req">*</span></label>
-                            <input asp-for="TrustName" required />
-                            <span asp-validation-for="TrustName" class="text-danger"></span>
-                        </div>
-                        <div>
-                            <label asp-for="PresidentName"><i class="fas fa-user-tie"></i>President Name <span class="req">*</span></label>
-                            <input asp-for="PresidentName" required />
-                            <span asp-validation-for="PresidentName" class="text-danger"></span>
-                        </div>
-                        <div>
-                            <label asp-for="AadhaarNumber"><i class="fas fa-id-card"></i>Aadhaar Number <span class="req">*</span></label>
-                            <input asp-for="AadhaarNumber" type="text" maxlength="12" pattern="^\d{12}$"
-                                   title="Aadhaar Number must be exactly 12 digits" required />
-                            <span asp-validation-for="AadhaarNumber" class="text-danger"></span>
-                        </div>
-                        <div>
-                            <label asp-for="PANNumber"><i class="fas fa-address-card"></i>PAN Number <span class="req">*</span></label>
-                            <input asp-for="PANNumber" type="text" maxlength="10" pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
-                                   style="text-transform: uppercase;" title="PAN format: ABCDE1234F" required />
-                            <span asp-validation-for="PANNumber" class="text-danger"></span>
-                        </div>
-                        <div>
-                            <label asp-for="RegistrationNumber"><i class="fas fa-file-contract"></i>Registration Number <span class="req">*</span></label>
-                            <input asp-for="RegistrationNumber" required />
-                            <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
-                        </div>
-                        <div>
-                            <label asp-for="RegistrationDate"><i class="fas fa-calendar-check"></i>Registration Date <span class="req">*</span></label>
-                            <input asp-for="RegistrationDate" type="date" required />
-                            <span asp-validation-for="RegistrationDate" class="text-danger"></span>
-                        </div>
-                        <div>
-                            <label asp-for="ExistingTrustName"><i class="fas fa-clock-rotate-left"></i>Existing Trust Name</label>
-                            <input asp-for="ExistingTrustName" />
-                        </div>
-                        <div>
-                            <label asp-for="GOKObtainedTrustName"><i class="fas fa-certificate"></i>GOK Obtained Trust Name</label>
-                            <input asp-for="GOKObtainedTrustName" />
-                        </div>
-                        <div>
-                            <label asp-for="CategoryOfOrganisation"><i class="fas fa-layer-group"></i>Category of Organisation</label>
-                            <input asp-for="CategoryOfOrganisation" />
-                        </div>
-                    </div>
-
-                    <!-- Trust Flags -->
-                    <div class="flags-box" style="margin-top:16px;">
-                        <p class="flags-box-title">Trust Flags</p>
-                        <div class="check-group">
-                            <label class="check-label">
-                                <input asp-for="Amendments" type="checkbox" /> Amendments
-                            </label>
-                            <label class="check-label">
-                                <input asp-for="ChangesInTrustName" type="checkbox" /> Changes in Trust Name
-                            </label>
-                            <label class="check-label">
-                                <input asp-for="IsMinorityInstitution" type="checkbox" /> Minority Institution
-                            </label>
-                            <label class="check-label">
-                                <input asp-for="IsRuralInstitution" type="checkbox" /> Rural Institution
-                            </label>
-                            @if(facultyCode != "2"){
-                                <label class="check-label">
-                                    <input asp-for="OtherNursingCollegeInCity" type="checkbox" /> Other Nursing College in City
-                                </label>
-                            } else if(facultyCode == "2"){
-                                <label class="check-label">
-                                    <input asp-for="OtherDentalCollegeInCity" type="checkbox" /> Other Dental College in City
-                                </label>
-                            }
-                        </div>
-                    </div>
-                    @if (facultyCode != "2")
-                    {
-                        <!-- Physiotherapy Radio -->
-                        <div style="margin-top:14px;">
-                            <label style="margin-bottom:8px;">
-                                <i class="fas fa-wheelchair"></i>Other Physiotherapy College in City <span class="req">*</span>
-                            </label>
-                            <div class="check-group">
-                                <label class="check-label">
-                                    <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="true" id="OtherPhysioYes" required /> Yes
-                                </label>
-                                <label class="check-label">
-                                    <input asp-for="OtherPhysiotherapyCollegeInCity" type="radio" value="false" id="OtherPhysioNo" required /> No
-                                </label>
-                            </div>
-                            <span asp-validation-for="OtherPhysiotherapyCollegeInCity" class="text-danger"></span>
-                        </div>
-                    }
-                </div>
-            </div>
-
+           
             <!-- ⑤ Contact Person -->
             <div class="section-card">
                 <div class="section-header sh-green">
@@ -963,7 +967,7 @@
                             <span asp-validation-for="ContactPersonName" class="text-danger"></span>
                         </div>
                         <div>
-                            <label asp-for="ContactPersonRelation"><i class="fas fa-link"></i>Relation</label>
+                            <label asp-for="ContactPersonRelation"><i class="fas fa-link"></i>Designation</label>
                             <input asp-for="ContactPersonRelation" />
                         </div>
                         <div>
@@ -975,7 +979,7 @@
                     </div>
                 </div>
             </div>
-
+            dsafdszDSdsfsddsfsd
             <!-- ⑥ Academics & Administration -->
             <div class="section-card">
                 <div class="section-header sh-indigo">
@@ -1128,7 +1132,7 @@
 
                         @* KNC Certificate *@
                         @if(facultyCode != "2"){
-                            <div>
+                          @*   <div>
                                 <label><i class="fas fa-medal"></i>KMC Certificate</label>
                                 <div class="file-row">
                                     <input id="KncCertificateFile" name="KncCertificateFile" type="file" accept=".pdf" />
@@ -1146,7 +1150,7 @@
                                 {
                                     <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                                 }
-                            </div>
+                            </div> *@
                         }else if(facultyCode == "2"){
                             <div>
                                 <label><i class="fas fa-medal"></i>KSDC Certificate</label>
@@ -1190,7 +1194,7 @@
                         </div>
 
                         @* Aadhaar File *@
-                        <div>
+                        @* <div>
                             <label><i class="fas fa-id-card-clip"></i>Aadhaar File</label>
                             <div class="file-row">
                                 <input id="AadhaarFile" name="AadhaarFile" type="file" accept=".pdf" />
@@ -1208,7 +1212,7 @@
                             {
                                 <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                             }
-                        </div>
+                        </div> *@
 
                         @* PAN File *@
                         <div>
@@ -1349,7 +1353,7 @@
             var getTaluksUrl = '@Url.Action("GetTaluksByDistrictt", "ContinuesAffiliation_Facultybased")';
 
             // ✅ FIX 2: Serialize via Json.Serialize to safely handle nulls, apostrophes, special chars
-            var existingTaluk = @Html.Raw(Json.Serialize(Model.Taluk ?? ""));
+             
 
             function loadTaluks(selectedTaluk) {
             var district = $("#districtDropdown").val();

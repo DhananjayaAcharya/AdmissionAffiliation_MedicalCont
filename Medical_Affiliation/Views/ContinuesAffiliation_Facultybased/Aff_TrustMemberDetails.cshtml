@@ -558,11 +558,14 @@
                                         </td>
 
                                         <td>
-                                            @Html.DropDownListFor(m => m.Rows[i].DesignationCode,
-                                                Model.DesignationList,
-                                                "— Select Designation —",
-                                                new { @class = "form-control" })
-                                            @Html.ValidationMessageFor(m => m.Rows[i].DesignationCode, "", new { @class = "field-validation-error" })
+                                            @Html.TextBoxFor(m => m.Rows[i].Designation,
+                                                     new
+                                                     {
+                                                         @class = "form-control",
+                                                         placeholder = "Designation",
+                                                         maxlength = "100"
+                                                     })
+                                            @Html.ValidationMessageFor(m => m.Rows[i].Designation, "", new { @class = "field-validation-error" })
                                         </td>
 
                                         @{
@@ -689,12 +692,7 @@
             // server data. Reused in every dynamically-added row so the
             // Razor foreach loop does not run again on each click.
             // ─────────────────────────────────────────────────────────────
-            let desigOptions = `<option value="">— Select Designation —</option>`;
-            @foreach (var item in Model.DesignationList)
-            {
-                <text>desigOptions += `<option value="@Html.Raw(item.Value)">@Html.Raw(item.Text)</option>`;</text>
-            }
-
+           
             // ─────────────────────────────────────────────────────────────
             // Add New Row
             // ─────────────────────────────────────────────────────────────
@@ -717,11 +715,11 @@
                                name="Rows[${rowIndex}].TrustMemberName"
                                placeholder="Full Name" maxlength="100" />
                     </td>
-
                     <td>
-                        <select class="form-control" name="Rows[${rowIndex}].DesignationCode">
-                            ${desigOptions}
-                        </select>
+                        <input class="form-control"
+                               name="Rows[${rowIndex}].Designation"
+                               placeholder="Designation"
+                               maxlength="100" />
                     </td>
 
                     <td>

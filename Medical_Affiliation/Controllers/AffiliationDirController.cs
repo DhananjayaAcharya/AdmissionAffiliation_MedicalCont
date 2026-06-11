@@ -12,7 +12,7 @@ namespace Medical_Affiliation.Controllers
 {
     public class AffiliationDirController : Controller
     {
-
+        
         private readonly ApplicationDbContext _context;
 
         public AffiliationDirController(ApplicationDbContext context)
