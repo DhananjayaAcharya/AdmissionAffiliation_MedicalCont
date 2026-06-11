@@ -777,6 +777,9 @@
                                                             </option>
                                                         }
                                                     }
+                                                    <option value="OTHER_COLLEGE">
+                                                        + Add Outside Karnataka College
+                                                    </option>
 
                                                 </select>
 
@@ -917,6 +920,72 @@
 
             </form>
         </div><!-- /.form-card -->
+    </div>
+    <div class="modal fade"
+         id="otherCollegeModal"
+         tabindex="-1">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Add Outside Karnataka College
+                    </h5>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden"
+                           id="selectedCollegeDropdown" />
+
+                    <div class="mb-2">
+                        <label>College Name *</label>
+                        <input type="text"
+                               id="otherCollegeName"
+                               class="form-control" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label>College Town *</label>
+                        <input type="text"
+                               id="otherCollegeTown"
+                               class="form-control" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label>State</label>
+                        <input type="text"
+                               id="otherState"
+                               class="form-control" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label>District</label>
+                        <input type="text"
+                               id="otherDistrict"
+                               class="form-control" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label>Taluk</label>
+                        <input type="text"
+                               id="otherTaluk"
+                               class="form-control" />
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            id="saveOtherCollege"
+                            class="btn btn-primary">
+                        Save
+                    </button>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
 

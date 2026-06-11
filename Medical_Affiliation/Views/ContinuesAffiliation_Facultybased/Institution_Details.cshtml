@@ -25,6 +25,7 @@
             --ink: #0f1923;
             --ink-mid: #2e3d4f;
             --ink-muted: #6b7a8d;
+            --institution-name: #051f40;
             --border: #d4dae3;
             --bg: #f4f6f9;
             --surface: #ffffff;
@@ -336,6 +337,10 @@
             color: var(--ink-muted);
             cursor: not-allowed;
             background: #f0f2f5;
+        }
+
+        #NameOfInstitution{
+            color: var(--institution-name);
         }
 
         .field-hint {
@@ -874,10 +879,13 @@
                                         <option value="">— Select Taluk —</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label asp-for="StdCode">STD Code</label>
-                                    <input asp-for="StdCode" pattern="\d{2,4}" placeholder="e.g. 080" />
-                                </div>
+                                    <div>
+                                        <label asp-for="StdCode">STD Code</label>
+                                        <input asp-for="StdCode"
+                                               maxlength="5"
+                                               pattern="0\d{2,4}"
+                                               placeholder="e.g. 080" />
+                                    </div>
                                 <div>
                                     <label asp-for="MobileNumber">Mobile Number</label>
                                     <div class="mobile-group">
@@ -905,11 +913,14 @@
                                 </div>
                                 <div class="field-wrap" data-required data-label="Website">
                                     <label asp-for="Website">Website <span class="req">*</span></label>
-                                    <input asp-for="Website" type="url" placeholder="https://" />
+                                    <input asp-for="Website" placeholder="e.g. www.xyzcollege.edu" />
+                                    <span asp-validation-for="Website" class="text-danger"></span>
                                 </div>
                                 <div class="field-wrap" data-required data-label="College URL">
                                     <label asp-for="College_URL">College URL <span class="req">*</span></label>
-                                    <input asp-for="College_URL" type="url" placeholder="https://" />
+                                    <input asp-for="College_URL"
+                                            placeholder="e.g. www.xyzcollege.edu" />
+                                    <span asp-validation-for="College_URL" class="text-danger"></span>
                                 </div>
                                 <div class="field-wrap" data-required data-label="Survey No / PID No">
                                     <label asp-for="SurveyNoPidNo">Survey No / PID No <span class="req">*</span></label>
@@ -1352,7 +1363,7 @@
                    to it, focuses it, and shows toast + badge.
                 ══════════════════════════════════════════════ */
                 $('#institutionForm').on('submit', function (e) {
-
+                    debugger;
                     // Remove previous error states
                     document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
                     document.querySelectorAll('.field-focus-target').forEach(el => el.classList.remove('field-focus-target'));

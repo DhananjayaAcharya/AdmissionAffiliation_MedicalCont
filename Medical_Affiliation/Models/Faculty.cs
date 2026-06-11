@@ -17,6 +17,8 @@ public partial class Faculty
 
     public virtual ICollection<AffiliationFinalDeclaration> AffiliationFinalDeclarations { get; set; } = new List<AffiliationFinalDeclaration>();
 
+    public virtual ICollection<AffiliationOthersCollegeMaster> AffiliationOthersCollegeMasters { get; set; } = new List<AffiliationOthersCollegeMaster>();
+
     public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();
 
     public virtual ICollection<DentalChair> DentalChairs { get; set; } = new List<DentalChair>();

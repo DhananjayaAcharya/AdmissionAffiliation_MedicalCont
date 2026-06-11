@@ -2775,6 +2775,7 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.DocumentName));
             ModelState.Remove(nameof(vm.DocumentContentType));
             ModelState.Remove(nameof(vm.CourseApplied));
+            ModelState.Remove(nameof(vm.Fax));
 
             // 3. Return view with errors if validation fails
             if (!ModelState.IsValid)

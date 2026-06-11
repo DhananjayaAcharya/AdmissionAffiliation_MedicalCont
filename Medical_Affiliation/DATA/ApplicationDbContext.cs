@@ -68,6 +68,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AffiliationOtherCoursesPermittedByNmc> AffiliationOtherCoursesPermittedByNmcs { get; set; }
 
+    public virtual DbSet<AffiliationOthersCollegeMaster> AffiliationOthersCollegeMasters { get; set; }
+
     public virtual DbSet<AffiliationPayment> AffiliationPayments { get; set; }
 
     public virtual DbSet<AffiliationPgSsCourseDetail> AffiliationPgSsCourseDetails { get; set; }
@@ -492,9 +494,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=DESKTOP-5QKRQII\\MSSQLSERVER02;Database=Admission_Affiliation;Trusted_Connection=True;TrustServerCertificate=True;");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -706,6 +708,9 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Designation).HasMaxLength(100);
             entity.Property(e => e.Facultycode).HasMaxLength(100);
+            entity.Property(e => e.PgCollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
             entity.Property(e => e.PgCollegeCode)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -1308,6 +1313,33 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<AffiliationOthersCollegeMaster>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07FC88D9E1");
+
+            entity.ToTable("AffiliationOthersCollegeMaster");
+
+            entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6C402006D").IsUnique();
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CollegeName).HasMaxLength(500);
+            entity.Property(e => e.CollegeTown).HasMaxLength(250);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DistrictName).HasMaxLength(250);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.StateName).HasMaxLength(250);
+            entity.Property(e => e.TalukName).HasMaxLength(250);
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.AffiliationOthersCollegeMasters)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffiliationOthersCollegeMaster_Faculty");
         });
 
         modelBuilder.Entity<AffiliationPayment>(entity =>
@@ -6208,7 +6240,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<VehicleRequestLog>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__VehicleR__3214EC072BE3B0E1");
+            entity.HasKey(e => e.Id).HasName("PK__VehicleR__3214EC07DB0157EB");
 
             entity.ToTable("VehicleRequestLog");
 

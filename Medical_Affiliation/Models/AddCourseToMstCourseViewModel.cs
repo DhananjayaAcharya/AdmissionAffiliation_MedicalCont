@@ -343,13 +343,16 @@ public class InstitutionViewModel
     public string MobileNumber { get; set; }
 
     // ✅ STD
-    [RegularExpression(@"^\d{2,4}$", ErrorMessage = "STD code must be 2–4 digits")]
+    [RegularExpression(@"^0\d{2,4}$", ErrorMessage = "STD code must start with 0 and be 3–5 digits long.")]
+    [StringLength(5, MinimumLength = 3)]
     public string StdCode { get; set; }
-
-    public string Fax { get; set; }
+    public string? Fax { get; set; }
 
     // ✅ Website
-    [Url(ErrorMessage = "Invalid website URL")]
+    [RegularExpression(
+        @"^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+\/?$",
+        ErrorMessage = "Enter a valid website (e.g. www.xyzcollege.edu or https://www.xyzcollege.edu)"
+    )]
     public string Website { get; set; }
 
     public string SurveyNoPidNo { get; set; }
@@ -414,7 +417,10 @@ public class InstitutionViewModel
     public string HeadOfInstitution_Email { get; set; }
 
     // ✅ URLs
-    [Url(ErrorMessage = "Invalid URL")]
+    [RegularExpression(
+        @"^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+\/?$",
+        ErrorMessage = "Enter a valid URL (e.g. www.xyzcollege.edu or https://www.xyzcollege.edu)"
+    )]
     public string College_URL { get; set; }
 
     // ✅ Trust
