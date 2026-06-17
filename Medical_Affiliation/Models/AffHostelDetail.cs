@@ -70,4 +70,8 @@ public partial class AffHostelDetail
     public bool? MedicalFacilities { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? MenHostelAreaSqFt { get; set; }
+
+    public string? WomenHostelAreaSqFt { get; set; }
 }

@@ -297,6 +297,7 @@
     .data-table tbody tr {
         border-bottom: 1px solid #f0ece4;
         transition: background 0.12s;
+        background: #ebebeb;
     }
 
         .data-table tbody tr:last-child {
@@ -1258,6 +1259,79 @@
                 deptDropdown.value = "";
             }
         }
+
+        document.addEventListener("change", function (e) {
+
+            if (!e.target.classList.contains("college-dropdown"))
+                return;
+
+            if (e.target.value === "OTHER_COLLEGE") {
+
+                document.getElementById(
+                    "selectedCollegeDropdown"
+                ).value = e.target.name;
+
+                const modal =
+                    new bootstrap.Modal(
+                        document.getElementById(
+                            "otherCollegeModal"
+                        )
+                    );
+
+                modal.show();
+            }
+        });
+
+        document.getElementById("saveOtherCollege").addEventListener("click", function () {
+
+            $.ajax({
+                url: '/Dental/SaveOtherCollege',
+                type: 'POST',
+                data: {
+                    collegeName:
+                        $("#otherCollegeName").val(),
+                    collegeTown:
+                        $("#otherCollegeTown").val(),
+                    state:
+                        $("#otherState").val(),
+                    district:
+                        $("#otherDistrict").val(),
+                    taluk:
+                        $("#otherTaluk").val()
+                },
+                success: function (res) {
+
+                    if (!res.success)
+                        return;
+
+                    const dropdownName =
+                        $("#selectedCollegeDropdown").val();
+
+                    const dropdown =
+                        document.querySelector(
+                            `[name='${dropdownName}']`
+                        );
+
+                    const option =
+                        new Option(
+                            res.collegeName,
+                            res.collegeCode,
+                            true,
+                            true
+                        );
+
+                    dropdown.add(option);
+
+                    bootstrap.Modal
+                        .getInstance(
+                            document.getElementById(
+                                "otherCollegeModal"
+                            )
+                        )
+                        .hide();
+                }
+            });
+        });
 
     });
 </script>

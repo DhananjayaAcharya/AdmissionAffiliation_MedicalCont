@@ -386,6 +386,17 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(x => x.DesignationOrder)
                 .ToListAsync();
 
+
+            var otherColleges =
+                await _context.AffiliationOthersCollegeMasters
+                    .Where(x => x.FacultyCode.ToString() == facultyCode)
+                    .Select(x => new SelectListItem
+                    {
+                        Value = x.CollegeCode,
+                        Text = x.CollegeName
+                    })
+                    .ToListAsync();
+
             // ── Build base ViewModel ─────────────────────────────────────────────
             var vm = new DentalTeachingStaffVm
             {
@@ -422,6 +433,12 @@ namespace Medical_Affiliation.Controllers
                     })
                     .ToList()
             };
+            vm.Colleges = vm.Colleges
+                    .Concat(otherColleges)
+                    .GroupBy(x => x.Value)
+                    .Select(g => g.First())
+                    .OrderBy(x => x.Text)
+                    .ToList();
 
             // ── Faculty raw list (LEFT JOIN in memory) ───────────────────────────
             var facultyRaw = await _context.FacultyDetails
@@ -685,6 +702,51 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> SaveOtherCollege( SaveOtherCollegeVm vm)
+        {
+            var facultyCode =
+                HttpContext.Session.GetString("FacultyCode");
 
+            var lastCode =
+                await _context.AffiliationOthersCollegeMasters
+                .OrderByDescending(x => x.Id)
+                .Select(x => x.CollegeCode)
+                .FirstOrDefaultAsync();
+
+            int nextNo = 1;
+
+            if (!string.IsNullOrEmpty(lastCode))
+            {
+                nextNo =
+                    int.Parse(lastCode.Replace("OTH", "")) + 1;
+            }
+
+            string collegeCode =
+                $"OTH{nextNo:D3}";
+
+            var entity =
+                new AffiliationOthersCollegeMaster
+                {
+                    CollegeCode = collegeCode,
+                    FacultyCode = Convert.ToInt32(facultyCode),
+                    CollegeName = vm.CollegeName,
+                    CollegeTown = vm.CollegeTown,
+                    StateName = vm.State,
+                    DistrictName = vm.District,
+                    TalukName = vm.Taluk
+                };
+
+            _context.AffiliationOthersCollegeMasters.Add(entity);
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                collegeCode,
+                collegeName = vm.CollegeName
+            });
+        }
     }
 }

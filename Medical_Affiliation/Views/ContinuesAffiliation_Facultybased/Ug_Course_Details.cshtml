@@ -333,6 +333,7 @@
                             <!-- ✅ VIEW BUTTON -->
                             <a asp-action="PreviousNotification"
                                target="_blank"
+                               asp-route-courseId="@Model.CourseId"
                                class="btn btn-sm btn-outline-primary">
                                 View Previous Notification
                             </a>
@@ -398,6 +399,7 @@
                                     <!-- ✅ VIEW BUTTON -->
                                     <a asp-action="ViewGOKOrder"
                                        target="_blank"
+                                       asp-route-courseId="@Model.CourseId"
                                        class="btn btn-sm btn-outline-primary">
                                         View GOK Order
                                     </a>
@@ -437,6 +439,7 @@
                                     <!-- ✅ VIEW BUTTON -->
                                     <a asp-action="ViewLastAffiliation"
                                        target="_blank"
+                                       asp-route-courseId="@Model.CourseId"
                                        class="btn btn-sm btn-outline-primary">
                                         View Affilaition Document
                                     </a>

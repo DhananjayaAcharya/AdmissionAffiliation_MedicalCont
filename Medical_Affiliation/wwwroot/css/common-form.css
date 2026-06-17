@@ -256,6 +256,9 @@ body {
     font-family: 'DM Sans', sans-serif;
 }
 
+.section-block-body{
+    padding: 10px;
+}
 
 
 .intake-prerequisite-card {

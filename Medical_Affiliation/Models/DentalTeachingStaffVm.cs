@@ -23,6 +23,19 @@ namespace Medical_Affiliation.Models
         public List<DentalDesignationTeachingVm> Designations { get; set; } = new();
     }
 
+    public class SaveOtherCollegeVm
+    {
+        public string CollegeName { get; set; }
+
+        public string CollegeTown { get; set; }
+
+        public string? State { get; set; }
+
+        public string? District { get; set; }
+
+        public string? Taluk { get; set; }
+    }
+
 
     public class DentalDesignationTeachingVm
     {

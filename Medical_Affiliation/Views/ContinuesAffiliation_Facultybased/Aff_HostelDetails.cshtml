@@ -252,7 +252,7 @@
 
 
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-6 mb-3" id="builtUpAreaDiv">
                                 <label class="form-label required">Built-up Area (Sq Ft)</label>
                                 <input asp-for="Hostel.BuiltUpAreaSqFt" class="form-control" placeholder="e.g., 5000" />
                                 <span asp-validation-for="Hostel.BuiltUpAreaSqFt" class="text-danger"></span>
@@ -268,7 +268,23 @@
                                 <label class="toggle-pill" for="HasSeparateHostelNo">NO</label>
                             </div>
                         </div>
+                        <div class="row" id="separateHostelAreaDiv" style="display:none;">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label required">Men Hostel Area (Sq Ft)</label>
+                                <input asp-for="Hostel.MenHostelAreaSqFt"
+                                       class="form-control"
+                                       placeholder="e.g., 2500" />
+                                <span asp-validation-for="Hostel.MenHostelAreaSqFt" class="text-danger"></span>
+                            </div>
 
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label required">Women Hostel Area (Sq Ft)</label>
+                                <input asp-for="Hostel.WomenHostelAreaSqFt"
+                                       class="form-control"
+                                       placeholder="e.g., 2500" />
+                                <span asp-validation-for="Hostel.WomenHostelAreaSqFt" class="text-danger"></span>
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Separate Provision for Male/Female</label>
                             <div class="toggle-group">
@@ -521,6 +537,39 @@
                 }
             }
 
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            function toggleHostelArea() {
+                const selectedRadio = document.querySelector(
+                    'input[name="Hostel.HasSeparateHostel"]:checked'
+                );
+
+                const hasSeparateHostel =
+                    selectedRadio && selectedRadio.value === "true";
+
+                const separateAreaDiv = document.getElementById("separateHostelAreaDiv");
+                // const builtUpAreaDiv = document.getElementById("builtUpAreaDiv");
+
+                if (hasSeparateHostel) {
+                    separateAreaDiv.style.display = "flex"; // row
+                    // builtUpAreaDiv.style.display = "none";
+                } else {
+                    separateAreaDiv.style.display = "none";
+                    // builtUpAreaDiv.style.display = "block";
+                }
+            }
+
+            // Initial load
+            toggleHostelArea();
+
+            // Radio button change event
+            document.querySelectorAll('input[name="Hostel.HasSeparateHostel"]')
+                .forEach(radio => {
+                    radio.addEventListener("change", toggleHostelArea);
+                });
         });
     </script>
 }
