@@ -496,9 +496,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1329,19 +1329,13 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationOthersCollegeMaster>(entity =>
         {
-<<<<<<< Updated upstream
+
             entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07FC88D9E1");
 
             entity.ToTable("AffiliationOthersCollegeMaster");
 
             entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6C402006D").IsUnique();
-=======
-            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07E979F6A2");
 
-            entity.ToTable("AffiliationOthersCollegeMaster");
-
-            entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6502A85C7").IsUnique();
->>>>>>> Stashed changes
 
             entity.Property(e => e.CollegeCode)
                 .HasMaxLength(20)
@@ -1355,14 +1349,13 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.StateName).HasMaxLength(250);
             entity.Property(e => e.TalukName).HasMaxLength(250);
-<<<<<<< Updated upstream
+
 
             entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.AffiliationOthersCollegeMasters)
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AffiliationOthersCollegeMaster_Faculty");
-=======
->>>>>>> Stashed changes
+
         });
 
         modelBuilder.Entity<AffiliationPayment>(entity =>
