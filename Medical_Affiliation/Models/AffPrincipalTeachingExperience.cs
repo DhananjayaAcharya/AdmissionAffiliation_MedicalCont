@@ -30,4 +30,12 @@ public partial class AffPrincipalTeachingExperience
     public string? UgCollegeCode { get; set; }
 
     public string? PgCollegeCode { get; set; }
+
+    public string? OtherCollege { get; set; }
+
+    public DateOnly? FromDate { get; set; }
+
+    public DateOnly? ToDate { get; set; }
+
+    public string? ExpCollegeCode { get; set; }
 }

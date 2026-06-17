@@ -208,6 +208,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<ContinuationTrustMemberDetail> ContinuationTrustMemberDetails { get; set; }
 
+    public virtual DbSet<ContinuationTrustMemberDocument> ContinuationTrustMemberDocuments { get; set; }
+
     public virtual DbSet<CourseIntakeDetail> CourseIntakeDetails { get; set; }
 
     public virtual DbSet<CourseMaster> CourseMasters { get; set; }
@@ -650,7 +652,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CourseLevel)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+            entity.Property(e => e.ExpCollegeCode).HasMaxLength(50);
             entity.Property(e => e.Facultycode).HasMaxLength(100);
+            entity.Property(e => e.OtherCollege).HasMaxLength(250);
             entity.Property(e => e.PostHeld).HasMaxLength(250);
             entity.Property(e => e.TotalExperienceYears).HasColumnType("decimal(5, 2)");
 
@@ -707,7 +711,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.Designation).HasMaxLength(100);
+            entity.Property(e => e.ExpCollegeCode).HasMaxLength(50);
             entity.Property(e => e.Facultycode).HasMaxLength(100);
+            entity.Property(e => e.OtherCollege).HasMaxLength(250);
             entity.Property(e => e.PgCollegeCode)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -858,6 +864,8 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode).HasMaxLength(500);
             entity.Property(e => e.Fax).HasMaxLength(500);
             entity.Property(e => e.FinancingAuthority).HasMaxLength(500);
+            entity.Property(e => e.GovAutonomousCertNumber).HasMaxLength(100);
+            entity.Property(e => e.GovAutonomousCertPath).HasMaxLength(500);
             entity.Property(e => e.HeadAddress).HasMaxLength(500);
             entity.Property(e => e.HeadOfInstitution).HasMaxLength(500);
             entity.Property(e => e.HeadOfInstitutionEmail)
@@ -952,7 +960,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CourseLevel)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+            entity.Property(e => e.ExpCollegeCode).HasMaxLength(50);
             entity.Property(e => e.Facultycode).HasMaxLength(100);
+            entity.Property(e => e.OtherCollege).HasMaxLength(250);
             entity.Property(e => e.PostHeld).HasMaxLength(250);
             entity.Property(e => e.TotalExperienceYears).HasColumnType("decimal(5, 2)");
         });
@@ -985,7 +995,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.Designation).HasMaxLength(100);
+            entity.Property(e => e.ExpCollegeCode).HasMaxLength(50);
             entity.Property(e => e.Facultycode).HasMaxLength(100);
+            entity.Property(e => e.OtherCollege).HasMaxLength(250);
             entity.Property(e => e.PgCollegeCode)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -1317,11 +1329,19 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationOthersCollegeMaster>(entity =>
         {
+<<<<<<< Updated upstream
             entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07FC88D9E1");
 
             entity.ToTable("AffiliationOthersCollegeMaster");
 
             entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6C402006D").IsUnique();
+=======
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07E979F6A2");
+
+            entity.ToTable("AffiliationOthersCollegeMaster");
+
+            entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6502A85C7").IsUnique();
+>>>>>>> Stashed changes
 
             entity.Property(e => e.CollegeCode)
                 .HasMaxLength(20)
@@ -1335,11 +1355,14 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.StateName).HasMaxLength(250);
             entity.Property(e => e.TalukName).HasMaxLength(250);
+<<<<<<< Updated upstream
 
             entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.AffiliationOthersCollegeMasters)
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AffiliationOthersCollegeMaster_Faculty");
+=======
+>>>>>>> Stashed changes
         });
 
         modelBuilder.Entity<AffiliationPayment>(entity =>
@@ -2832,6 +2855,23 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TrustMemberName)
                 .HasMaxLength(200)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<ContinuationTrustMemberDocument>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Continua__3214EC076F9771F5");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.RegisteredTrustMemberDetailsPath).HasMaxLength(500);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<CourseIntakeDetail>(entity =>

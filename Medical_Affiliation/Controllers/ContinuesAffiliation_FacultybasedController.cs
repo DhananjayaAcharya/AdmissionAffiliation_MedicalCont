@@ -70,6 +70,8 @@ namespace Medical_Affiliation.Controllers
 
             return PhysicalFile(entity.PreviousNotificationFilesPath, "application/pdf");
         }
+
+
         public async Task<IActionResult> ViewGOKOrder()
         {
             var facultyCode = FacultyCode;
@@ -230,7 +232,7 @@ namespace Medical_Affiliation.Controllers
             {
                 vm.InstitutionId = entity.InstitutionId;
                 vm.NameOfInstitution = entity.NameOfInstitution ?? "";
-                //vm.AddressOfInstitution = entity.AddressOfInstitution ?? "";
+                vm.Address = entity.AddressOfInstitution ?? "";
                 //vm.VillageTownCity = entity.VillageTownCity ?? "";
                 //vm.Taluk = entity.Taluk ?? "";
                 //vm.District = entity.District ?? "";
@@ -277,7 +279,7 @@ namespace Medical_Affiliation.Controllers
                 }
                 vm.hasDCIfile = !string.IsNullOrWhiteSpace(entity.DcicertificateFilePath);
                 vm.hasGovAutoCertFile = !string.IsNullOrWhiteSpace(entity.GovAutonomousCertFilePath);
-                vm.hasGovCouncilMembershipFile = !string.IsNullOrWhiteSpace(entity.GovCouncilMembershipFilePath); 
+              //  vm.hasGovCouncilMembershipFile = !string.IsNullOrWhiteSpace(entity.GovCouncilMembershipFilePath); 
                 vm.hasGokOrderExistingCoursesFile = !string.IsNullOrWhiteSpace(entity.GokOrderExistingCoursesFilePath);
                 vm.hasFirstAffiliationNotifFile = !string.IsNullOrWhiteSpace(entity.FirstAffiliationNotifFilePath);
                 vm.hasContinuationAffiliationFile = !string.IsNullOrWhiteSpace(entity.ContinuationAffiliationFilePath);
@@ -287,7 +289,7 @@ namespace Medical_Affiliation.Controllers
                 vm.hasPANFile = !string.IsNullOrWhiteSpace(entity.PanfilePath);
                 vm.hasBankStatementFile = !string.IsNullOrWhiteSpace(entity.BankStatementFilePath);
                 vm.hasRegistrationCertificateFile = !string.IsNullOrWhiteSpace(entity.RegistrationCertificateFilePath);
-                vm.hasRegisteredTrustMemberDetails = !string.IsNullOrWhiteSpace(entity.RegisteredTrustMemberDetailsPath);
+                //vm.hasRegisteredTrustMemberDetails = !string.IsNullOrWhiteSpace(entity.RegisteredTrustMemberDetailsPath);
                 vm.hasAuditStatementFile = !string.IsNullOrWhiteSpace(entity.AuditStatementFilePath);
 
                 // ✓ Convert int? → string? so it matches SelectListItem.Value format
@@ -460,7 +462,7 @@ namespace Medical_Affiliation.Controllers
             // Map scalar fields
             entity.TypeOfInstitution = vm.TypeOfInstitution;
             entity.NameOfInstitution = vm.NameOfInstitution ?? "";
-            //entity.AddressOfInstitution = vm.AddressOfInstitution ?? "";
+            entity.AddressOfInstitution = vm.Address ?? "";
             //entity.VillageTownCity = vm.VillageTownCity ?? "";
             //entity.Taluk = vm.Taluk ?? "";
             //entity.District = vm.District ?? "";
@@ -472,7 +474,7 @@ namespace Medical_Affiliation.Controllers
             entity.EmailId = vm.EmailId;
             entity.AltLandlineOrMobile = vm.AltLandlineOrMobile;
             entity.AltEmailId = vm.AltEmailId;
-            entity.AcademicYearStarted = vm.AcademicYearStarted;
+           // entity.AcademicYearStarted = vm.AcademicYearStarted;
             entity.IsRuralInstitution = vm.IsRuralInstitution;
             entity.IsMinorityInstitution = vm.IsMinorityInstitution;
             entity.TrustName = vm.TrustName ?? "";
@@ -759,11 +761,12 @@ namespace Medical_Affiliation.Controllers
         }
 
         // ── Individual download endpoints ────────────────────────────────────────────
-        [HttpGet]
-        public Task<IActionResult> DownloadGovAutonomousCert(int id)   => ServeFileFromPath(id,FacultyCode, e => e.GovAutonomousCertFilePath);
+        //[HttpGet]
+        //public Task<IActionResult> DownloadGovAutonomousCert(int id)   => ServeFileFromPath(id,FacultyCode, e => e.GovAutonomousCertFilePath);
         
         [HttpGet]
         public Task<IActionResult> DownloadDCIcertificateFile(int id)   => ServeFileFromPath(id, FacultyCode, e => e.DcicertificateFilePath);
+
         
         [HttpGet]
         public Task<IActionResult> DownloadKSDCcertificateFile(int id)   => ServeFileFromPath(id, FacultyCode, e => e.KsdccertificateFilePath);
@@ -808,9 +811,9 @@ namespace Medical_Affiliation.Controllers
         public Task<IActionResult> DownloadRegistrationCertificate(int id)
             => ServeFileFromPath(id, FacultyCode, e => e.RegistrationCertificateFilePath);
 
-        [HttpGet]
-        public Task<IActionResult> DownloadRegisteredTrustMemberDetails(int id)
-            => ServeFileFromPath(id, FacultyCode, e => e.RegisteredTrustMemberDetailsPath);
+        //[HttpGet]
+        //public Task<IActionResult> DownloadRegisteredTrustMemberDetails(int id)
+        //    => ServeFileFromPath(id, FacultyCode, e => e.RegisteredTrustMemberDetailsPath);
 
         [HttpGet]
         public Task<IActionResult> DownloadAuditStatement(int id)
@@ -931,6 +934,15 @@ namespace Medical_Affiliation.Controllers
                 });
             }
 
+            var trustDoc = await _context.ContinuationTrustMemberDocuments
+                            .FirstOrDefaultAsync(x =>
+                                x.CollegeCode == collegeCode &&
+                                x.FacultyCode == facultyCode);
+
+            vm.hasRegisteredTrustMemberDetails =
+                trustDoc != null &&
+                !string.IsNullOrEmpty(trustDoc.RegisteredTrustMemberDetailsPath);
+
             return View(vm);
         }
 
@@ -939,7 +951,7 @@ namespace Medical_Affiliation.Controllers
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Aff_TrustMemberDetails(Medical_TrustMemberDetailsListVM vm)
+        public async Task<IActionResult> Aff_TrustMemberDetails(Medical_TrustMemberDetailsListVM vm, IFormFile? RegisteredTrustMemberDetails)
         {
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
@@ -1051,11 +1063,148 @@ namespace Medical_Affiliation.Controllers
                 _context.ContinuationTrustMemberDetails.Add(entity);
             }
 
+            // Trust Member PDF Upload
+            if (RegisteredTrustMemberDetails != null &&
+                RegisteredTrustMemberDetails.Length > 0)
+            {
+                var trustDoc = await _context.ContinuationTrustMemberDocuments
+                    .FirstOrDefaultAsync(x =>
+                        x.FacultyCode == facultyCode &&
+                        x.CollegeCode == collegeCode);
+
+                string rootPath = facultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
+
+                string folderPath = Path.Combine(
+                    rootPath,
+                    "TrustMemberDocuments");
+
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                // Delete old file if exists
+                if (trustDoc != null &&
+                    !string.IsNullOrWhiteSpace(trustDoc.RegisteredTrustMemberDetailsPath))
+                {
+                    string oldFile = Path.Combine(
+                        rootPath,
+                        trustDoc.RegisteredTrustMemberDetailsPath);
+
+                    if (System.IO.File.Exists(oldFile))
+                        System.IO.File.Delete(oldFile);
+                }
+
+                string extension = Path.GetExtension(
+                    RegisteredTrustMemberDetails.FileName);
+
+                string fileName =
+                    $"{collegeCode}_TrustMember_{DateTime.Now:yyyyMMddHHmmss}{extension}";
+
+                string physicalPath = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(physicalPath, FileMode.Create))
+                {
+                    await RegisteredTrustMemberDetails.CopyToAsync(stream);
+                }
+
+                // Store relative path in DB
+                string dbPath = physicalPath;
+
+                if (trustDoc == null)
+                {
+                    trustDoc = new ContinuationTrustMemberDocument
+                    {
+                        FacultyCode = facultyCode,
+                        CollegeCode = collegeCode,
+                        RegisteredTrustMemberDetailsPath = dbPath,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.ContinuationTrustMemberDocuments.Add(trustDoc);
+                }
+                else
+                {
+                    trustDoc.RegisteredTrustMemberDetailsPath = dbPath;
+                    trustDoc.UpdatedDate = DateTime.Now;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Trust member details saved successfully.";
 
             return RedirectToAction("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased");
+        }
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpGet]
+        public async Task<IActionResult> DeleteRegisteredTrustMemberDetails()
+        {
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
+
+            var doc = await _context.ContinuationTrustMemberDocuments
+                .FirstOrDefaultAsync(x =>
+                    x.FacultyCode == facultyCode &&
+                    x.CollegeCode == collegeCode);
+
+            if (doc == null)
+            {
+                TempData["Error"] = "Document record not found.";
+                return RedirectToAction(nameof(Aff_TrustMemberDetails));
+            }
+
+            // Delete physical file
+            if (!string.IsNullOrWhiteSpace(doc.RegisteredTrustMemberDetailsPath)
+                && System.IO.File.Exists(doc.RegisteredTrustMemberDetailsPath))
+            {
+                System.IO.File.Delete(doc.RegisteredTrustMemberDetailsPath);
+            }
+
+            // Option 1: Delete entire DB record
+            _context.ContinuationTrustMemberDocuments.Remove(doc);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Document deleted successfully.";
+
+            return RedirectToAction(nameof(Aff_TrustMemberDetails));
+        }
+
+        [HttpGet]
+        public Task<IActionResult> DownloadRegisteredTrustMemberDetails()
+        {
+            return ServeTrustDocument(FacultyCode, CollegeCode);
+        }
+
+        private async Task<IActionResult> ServeTrustDocument(
+    string facultyCode,
+    string collegeCode)
+        {
+            var doc = await _context.ContinuationTrustMemberDocuments
+                .FirstOrDefaultAsync(x =>
+                    x.FacultyCode == facultyCode &&
+                    x.CollegeCode == collegeCode);
+
+            if (doc == null)
+                return NotFound("Document record not found.");
+
+            var absolutePath = doc.RegisteredTrustMemberDetailsPath;
+
+            if (string.IsNullOrWhiteSpace(absolutePath))
+                return NotFound("No file path stored.");
+
+            if (!System.IO.File.Exists(absolutePath))
+                return NotFound($"File not found: {absolutePath}");
+
+            var stream = new FileStream(
+                absolutePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read);
+
+            return File(stream, "application/pdf");
         }
 
         private async Task<List<SelectListItem>> GetDesignationListAsync(string facultyCode)
@@ -2746,7 +2895,7 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueCountLimit = 100000)]
-        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile)
+        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile, IFormFile? GovAutonomousCertFile)
         {
             // 1. Re-apply session codes (never trust hidden fields for security)
             var courseLevel = CourseLevel;
@@ -2776,6 +2925,17 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.DocumentContentType));
             ModelState.Remove(nameof(vm.CourseApplied));
             ModelState.Remove(nameof(vm.Fax));
+
+            if (vm.TypeOfInstitution == "1" ||
+    vm.TypeOfInstitution == "11")
+            {
+                if (string.IsNullOrWhiteSpace(vm.GovAutonomousCertNumber))
+                {
+                    ModelState.AddModelError(
+                        nameof(vm.GovAutonomousCertNumber),
+                        "Certificate Number is required.");
+                }
+            }
 
             // 3. Return view with errors if validation fails
             if (!ModelState.IsValid)
@@ -2849,6 +3009,51 @@ namespace Medical_Affiliation.Controllers
                 entity.DocumentContentType = documentFile.ContentType;
             }
 
+
+            // ================================
+            // Gov Autonomous Certificate Upload
+            // ================================
+            if (GovAutonomousCertFile != null &&
+                GovAutonomousCertFile.Length > 0)
+            {
+                string rootPath = entity.FacultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
+
+                string basePath =
+                    Path.Combine(
+                        rootPath,
+                        "InstitutionDetails",
+                        "GovAutonomous");
+
+                if (!Directory.Exists(basePath))
+                {
+                    Directory.CreateDirectory(basePath);
+                }
+
+                if (!string.IsNullOrWhiteSpace(entity.GovAutonomousCertPath) &&
+                    System.IO.File.Exists(entity.GovAutonomousCertPath))
+                {
+                    System.IO.File.Delete(entity.GovAutonomousCertPath);
+                }
+
+                string fileName =
+                    Guid.NewGuid() +
+                    Path.GetExtension(
+                        GovAutonomousCertFile.FileName);
+
+                string fullPath =
+                    Path.Combine(basePath, fileName);
+
+                using (var stream =
+                       new FileStream(fullPath, FileMode.Create))
+                {
+                    await GovAutonomousCertFile.CopyToAsync(stream);
+                }
+
+                entity.GovAutonomousCertPath = fullPath;
+            }
+
             // 6. Map all other ViewModel fields → Entity
             MapViewModelToEntity(vm, entity);
 
@@ -2909,6 +3114,7 @@ namespace Medical_Affiliation.Controllers
         {
             return new InstitutionViewModel
             {
+                InstitutionId = e.InstitutionId,
                 CollegeCode = e.CollegeCode,
                 FacultyCode = e.FacultyCode,
                 CourseLevel = e.CourseLevel,
@@ -2958,7 +3164,9 @@ namespace Medical_Affiliation.Controllers
                 PrincipalMobileNumber = e.PrincipalMobileNumber,
                 PrincipalEmailId = e.PrincipalEmailId,
                 MinorityCategory = e.MinorityCategory,
-                RunningCourse = e.RunningCourse
+                RunningCourse = e.RunningCourse,
+                GovAutonomousCertNumber = e.GovAutonomousCertNumber,
+                 hasGovAutoCertFile = !string.IsNullOrWhiteSpace(e.GovAutonomousCertPath)
             };
         }
 
@@ -3009,6 +3217,7 @@ namespace Medical_Affiliation.Controllers
             e.PrincipalEmailId = vm.PrincipalEmailId;
             e.MinorityCategory = vm.MinorityCategory;
             e.RunningCourse = vm.RunningCourse;
+            e.GovAutonomousCertNumber =vm.GovAutonomousCertNumber;
         }
 
         private async Task<string?> SaveCourseFileAsync(
@@ -3052,6 +3261,56 @@ namespace Medical_Affiliation.Controllers
             }
 
             return fullPath;
+        }
+
+
+        private async Task<IActionResult> ServeInstitutionFileFromPath(
+    int id,
+    string facultyCode,
+    Func<AffInstitutionsDetail, string?> pathSelector)
+        {
+            var entity = await _context.AffInstitutionsDetails
+                .FirstOrDefaultAsync(x => x.InstitutionId == id);
+
+            if (entity == null)
+                return NotFound("Institution not found.");
+
+            var rawPath = pathSelector(entity);
+
+            if (string.IsNullOrWhiteSpace(rawPath))
+                return NotFound("No file path stored.");
+
+            if (!System.IO.File.Exists(rawPath))
+                return NotFound("File not found.");
+
+            var ext = Path.GetExtension(rawPath).ToLower();
+
+            var contentType = ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/pdf"
+            };
+
+            var stream = new FileStream(
+                rawPath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read);
+
+            return new FileStreamResult(stream, contentType)
+            {
+                FileDownloadName = null
+            };
+        }
+
+        [HttpGet]
+        public Task<IActionResult> DownloadGovAutonomousCert(int id)
+        {
+            return ServeInstitutionFileFromPath(
+                id,
+                FacultyCode,
+                e => e.GovAutonomousCertPath);
         }
 
         // GET: Load existing data
@@ -3537,6 +3796,27 @@ namespace Medical_Affiliation.Controllers
                                     "Text"
                                 );
 
+            if (facultyCode == "1")
+            {
+                ViewBag.DesignationList = new SelectList(new[]
+                {
+                    "JR (If Applicable)",
+                    "SR (If Applicable)",
+                    "Assistant Professor",
+                    "Associate Professor",
+                    "Professor"
+                });
+            }
+            else
+            {
+                ViewBag.DesignationList = new SelectList(new[]
+                {
+                    "Lecturer/Assistant Professor",
+                    "Reader/Associate Professor",
+                    "Professor"
+                });
+            }
+
             // 🔍 Fetch existing dean/director record
             var dean = _context.AffDeanOrDirectorDetails
                 .FirstOrDefault(d => d.FacultyCode == facultyCode
@@ -3565,13 +3845,20 @@ namespace Medical_Affiliation.Controllers
                     .Select(t => new TeachingExperienceRow
                     {
                         Designation = t.Designation,
-                        UGFrom = t.Ugfrom,
-                        UGTo = t.Ugto,
-                        PGFrom = t.Pgfrom,
-                        PGTo = t.Pgto,
-                        TotalExperienceYears = t.TotalExperienceYears,
-                        UGCollegeCode = t.UgCollegeCode,
-                        PGCollegeCode = t.PgCollegeCode
+                        CollegeCode=t.Collegecode,
+                        ExpCollegeCode = t.ExpCollegeCode,
+                        //UGFrom = t.Ugfrom,
+                        //UGTo = t.Ugto,
+                        //PGFrom = t.Pgfrom,
+                        //PGTo = t.Pgto,
+                        // TotalExperienceYears = t.TotalExperienceYears,
+                        // UGCollegeCode = t.UgCollegeCode,
+                        // PGCollegeCode = t.PgCollegeCode,
+                        OtherCollege = t.OtherCollege,
+                        FromDate = t.FromDate,
+                        ToDate = t.ToDate,
+                        TeachingExperienceYears = t.TotalExperienceYears
+
                     })
                     .ToList();
 
@@ -3582,6 +3869,8 @@ namespace Medical_Affiliation.Controllers
                     {
                         PostHeld = a.PostHeld,
                         FromDate = a.FromDate,
+                        ExpCollegeCode = a.ExpCollegeCode,
+                        OtherCollege = a.OtherCollege,
                         ToDate = a.ToDate,
                         TotalExperienceYears = a.TotalExperienceYears
                     })
@@ -3589,22 +3878,27 @@ namespace Medical_Affiliation.Controllers
             }
 
             // 🧱 If no teaching rows → add defaults
+            //if (!vm.TeachingExperiences.Any())
+            //{
+            //    if(facultyCode == "1")
+            //    {
+            //        vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "JR (If Applicable)" });
+            //        vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "SR (If Applicable)" });
+            //        vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Assistant Professor" });
+            //        vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Associate Professor" });
+            //        vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
+            //    }
+            //    if(facultyCode == "2")
+            //    {
+            //        vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Reader/Associate" });
+            //        vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Lecturer/Assistant Professor" });
+            //        vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
+            //    }
+            //}
+
             if (!vm.TeachingExperiences.Any())
             {
-                if(facultyCode == "1")
-                {
-                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "JR (If Applicable)" });
-                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "SR (If Applicable)" });
-                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Assistant Professor" });
-                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Associate Professor" });
-                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
-                }
-                if(facultyCode == "2")
-                {
-                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Reader/Associate" });
-                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Lecturer/Assistant Professor" });
-                    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
-                }
+                vm.TeachingExperiences.Add(new TeachingExperienceRow());
             }
 
             // 🧱 If no admin rows → add one empty row
@@ -3650,6 +3944,7 @@ namespace Medical_Affiliation.Controllers
                 LoadDropdowns(facultyCode, model.DeanQualification);
                 return View(model);
             }
+
 
             try
             {
@@ -3717,18 +4012,34 @@ namespace Medical_Affiliation.Controllers
                 if (model.TeachingExperiences != null && model.TeachingExperiences.Any())
                 {
                     // ✅ STEP 1: Filter only filled rows
+                    //var validRows = model.TeachingExperiences
+                    //    .Where(t =>
+                    //        !string.IsNullOrWhiteSpace(t.Designation) &&
+                    //        (
+                    //            t.UGFrom != null ||
+                    //            t.UGTo != null ||
+                    //            t.PGFrom != null ||
+                    //            t.PGTo != null ||
+                    //             t.FromDate != null ||
+                    //            t.ToDate != null ||
+                    //            (t.TeachingExperienceYears != null &&
+                    //             t.TeachingExperienceYears > 0)
+
+                    //        )
+                    //    )
+                    //    .ToList();
+
                     var validRows = model.TeachingExperiences
-                        .Where(t =>
-                            !string.IsNullOrWhiteSpace(t.Designation) &&
-                            (
-                                t.UGFrom != null ||
-                                t.UGTo != null ||
-                                t.PGFrom != null ||
-                                t.PGTo != null ||
-                                (t.TotalExperienceYears != null && t.TotalExperienceYears > 0)
-                            )
-                        )
-                        .ToList();
+                                    .Where(t =>
+                                        !string.IsNullOrWhiteSpace(t.Designation) &&
+                                        (
+                                            t.FromDate != null ||
+                                            t.ToDate != null ||
+                                            (t.TeachingExperienceYears != null &&
+                                             t.TeachingExperienceYears > 0)
+                                        )
+                                    )
+                                    .ToList();
 
                     // ✅ STEP 2: Validate experience years for known designations
                     foreach (var t in validRows)
@@ -3739,9 +4050,9 @@ namespace Medical_Affiliation.Controllers
                             desig.Contains("associate") ||
                             desig.Contains("professor"))
                         {
-                            if (t.TotalExperienceYears == null || t.TotalExperienceYears == 0)
+                            if (t.TeachingExperienceYears == null || t.TeachingExperienceYears == 0)
                             {
-                                ModelState.AddModelError("", $"Enter experience for {t.Designation}");
+                                ModelState.AddModelError("",$"Enter experience for {t.Designation}");
                             }
                         }
                     }
@@ -3773,6 +4084,17 @@ namespace Medical_Affiliation.Controllers
                         ModelState.AddModelError("", "Assistant Professor must be entered before Professor.");
                     }
 
+                    // STEP 4: Debug validation errors
+                    var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .Select(x => new
+                        {
+                            Key = x.Key,
+                            Errors = x.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                        })
+                        .ToList();
+
+
                     // ✅ STEP 4: Stop if validation fails
                     if (!ModelState.IsValid)
                     {
@@ -3784,10 +4106,17 @@ namespace Medical_Affiliation.Controllers
                     foreach (var t in model.TeachingExperiences)
                     {
                         // Skip completely empty rows
+                        //if (string.IsNullOrWhiteSpace(t.Designation) &&
+                        //    t.UGFrom == null && t.UGTo == null &&
+                        //    t.PGFrom == null && t.PGTo == null &&
+                        //    (t.TotalExperienceYears == null || t.TotalExperienceYears == 0))
+                        //    continue;
+
                         if (string.IsNullOrWhiteSpace(t.Designation) &&
-                            t.UGFrom == null && t.UGTo == null &&
-                            t.PGFrom == null && t.PGTo == null &&
-                            (t.TotalExperienceYears == null || t.TotalExperienceYears == 0))
+                        t.FromDate == null &&
+                        t.ToDate == null &&
+                        (t.TeachingExperienceYears == null ||
+                         t.TeachingExperienceYears == 0))
                             continue;
 
                         _context.AffDeanTeachingExperiences.Add(
@@ -3796,6 +4125,7 @@ namespace Medical_Affiliation.Controllers
                                 DeanId = existingDean.Id,
                                 Facultycode = facultyCode,
                                 Collegecode = collegeCode,
+                                ExpCollegeCode = t.ExpCollegeCode,
                                 Designation = t.Designation?.Trim(),
                                 UgCollegeCode = t.UGCollegeCode,
                                 PgCollegeCode = t.PGCollegeCode,
@@ -3803,8 +4133,15 @@ namespace Medical_Affiliation.Controllers
                                 Ugto = t.UGTo,
                                 Pgfrom = t.PGFrom,
                                 Pgto = t.PGTo,
-                                TotalExperienceYears = t.TotalExperienceYears ?? 0
-                               
+                                //TotalExperienceYears = t.TotalExperienceYears ?? 0,
+                                OtherCollege = t.OtherCollege,
+
+                                FromDate = t.FromDate,
+                                ToDate = t.ToDate,
+
+                                TotalExperienceYears =
+                                t.TeachingExperienceYears ?? 0
+
                             });
                     }
                 }
@@ -3827,6 +4164,8 @@ namespace Medical_Affiliation.Controllers
                                 Facultycode = facultyCode,
                                 Collegecode = collegeCode,
                                 PostHeld = a.PostHeld?.Trim(),
+                                ExpCollegeCode = a.ExpCollegeCode,
+                                OtherCollege = a.OtherCollege,
                                 FromDate = a.FromDate,
                                 ToDate = a.ToDate,
                                 TotalExperienceYears = a.TotalExperienceYears ?? 0
@@ -3914,6 +4253,28 @@ namespace Medical_Affiliation.Controllers
                                     "Text"
                                 );
 
+
+            if (facultyCode == "1")
+            {
+                ViewBag.DesignationList = new SelectList(new[]
+                {
+                    "JR (If Applicable)",
+                    "SR (If Applicable)",
+                    "Assistant Professor",
+                    "Associate Professor",
+                    "Professor"
+                });
+            }
+            else
+            {
+                ViewBag.DesignationList = new SelectList(new[]
+                {
+                    "Lecturer/Assistant Professor",
+                    "Reader/Associate Professor",
+                    "Professor"
+                });
+            }
+
             // 🔍 Fetch existing Dean/Principal
             var dean = _context.AffPrincipalDetails
                 .FirstOrDefault(x => x.FacultyCode == facultyCode
@@ -3947,13 +4308,18 @@ namespace Medical_Affiliation.Controllers
                     vm.TeachingExperiences.Add(new TeachingExperienceRow
                     {
                         Designation = t.Designation,
-                        UGFrom = t.Ugfrom,
-                        UGTo = t.Ugto,
-                        PGFrom = t.Pgfrom,
-                        PGTo = t.Pgto,
-                        TotalExperienceYears = t.TotalExperienceYears,
-                        UGCollegeCode = t.UgCollegeCode,
-                        PGCollegeCode = t.PgCollegeCode,
+                        //UGFrom = t.Ugfrom,
+                        //UGTo = t.Ugto,
+                        //PGFrom = t.Pgfrom,
+                        //PGTo = t.Pgto,
+                        //TotalExperienceYears = t.TotalExperienceYears,
+                        //UGCollegeCode = t.UgCollegeCode,
+                        //PGCollegeCode = t.PgCollegeCode,
+                        ExpCollegeCode=t.ExpCollegeCode,
+                        OtherCollege = t.OtherCollege,
+                        FromDate = t.FromDate,
+                        ToDate = t.ToDate,
+                        TeachingExperienceYears = t.TotalExperienceYears
                     });
                 }
 
@@ -3968,6 +4334,8 @@ namespace Medical_Affiliation.Controllers
                     vm.AdministrativeExperiences.Add(new AdministrativeExperienceRow
                     {
                         PostHeld = a.PostHeld,
+                        ExpCollegeCode = a.ExpCollegeCode,
+                        OtherCollege = a.OtherCollege,
                         FromDate = a.FromDate,
                         ToDate = a.ToDate,
                         TotalExperienceYears = a.TotalExperienceYears
@@ -3976,13 +4344,19 @@ namespace Medical_Affiliation.Controllers
             }
 
             // ➕ Default Teaching rows if no data exists
+            //if (!vm.TeachingExperiences.Any())
+            //{
+            //    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "JR (If Applicable)" });
+            //    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "SR (If Applicable)" });
+            //    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Assistant Professor" });
+            //    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Associate Professor" });
+            //    vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
+            //}
+
+
             if (!vm.TeachingExperiences.Any())
             {
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "JR (If Applicable)" });
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "SR (If Applicable)" });
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Assistant Professor" });
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Associate Professor" });
-                vm.TeachingExperiences.Add(new TeachingExperienceRow { Designation = "Professor" });
+                vm.TeachingExperiences.Add(new TeachingExperienceRow());
             }
 
             // ➕ Default Admin row if none exists
@@ -4077,18 +4451,30 @@ namespace Medical_Affiliation.Controllers
                 if (model.TeachingExperiences != null && model.TeachingExperiences.Any())
                 {
                     // ✅ STEP 1: Filter only filled rows
+                    //var validRows = model.TeachingExperiences
+                    //    .Where(t =>
+                    //        !string.IsNullOrWhiteSpace(t.Designation) &&
+                    //        (
+                    //            t.UGFrom != null ||
+                    //            t.UGTo != null ||
+                    //            t.PGFrom != null ||
+                    //            t.PGTo != null ||
+                    //            (t.TotalExperienceYears != null && t.TotalExperienceYears > 0)
+                    //        )
+                    //    )
+                    //    .ToList();
+
                     var validRows = model.TeachingExperiences
-                        .Where(t =>
-                            !string.IsNullOrWhiteSpace(t.Designation) &&
-                            (
-                                t.UGFrom != null ||
-                                t.UGTo != null ||
-                                t.PGFrom != null ||
-                                t.PGTo != null ||
-                                (t.TotalExperienceYears != null && t.TotalExperienceYears > 0)
-                            )
-                        )
-                        .ToList();
+                                   .Where(t =>
+                                       !string.IsNullOrWhiteSpace(t.Designation) &&
+                                       (
+                                           t.FromDate != null ||
+                                           t.ToDate != null ||
+                                           (t.TeachingExperienceYears != null &&
+                                            t.TeachingExperienceYears > 0)
+                                       )
+                                   )
+                                   .ToList();
 
                     // ✅ STEP 2: Validate experience years for known designations
                     foreach (var t in validRows)
@@ -4099,7 +4485,7 @@ namespace Medical_Affiliation.Controllers
                             desig.Contains("associate") ||
                             desig.Contains("professor"))
                         {
-                            if (t.TotalExperienceYears == null || t.TotalExperienceYears == 0)
+                            if (t.TeachingExperienceYears == null || t.TeachingExperienceYears == 0)
                             {
                                 ModelState.AddModelError("", $"Enter experience for {t.Designation}");
                             }
@@ -4144,11 +4530,20 @@ namespace Medical_Affiliation.Controllers
                     foreach (var t in model.TeachingExperiences)
                     {
                         // Skip completely empty rows
+                        //if (string.IsNullOrWhiteSpace(t.Designation) &&
+                        //    t.UGFrom == null && t.UGTo == null &&
+                        //    t.PGFrom == null && t.PGTo == null &&
+                        //    (t.TotalExperienceYears == null || t.TotalExperienceYears == 0))
+                        //    continue;
+
                         if (string.IsNullOrWhiteSpace(t.Designation) &&
-                            t.UGFrom == null && t.UGTo == null &&
-                            t.PGFrom == null && t.PGTo == null &&
-                            (t.TotalExperienceYears == null || t.TotalExperienceYears == 0))
+                            t.FromDate == null &&
+                            t.ToDate == null &&
+                            (t.TeachingExperienceYears == null ||
+                             t.TeachingExperienceYears == 0))
+                        {
                             continue;
+                        }
 
                         _context.AffPrincipalTeachingExperiences.Add(new AffPrincipalTeachingExperience
                         {
@@ -4156,13 +4551,25 @@ namespace Medical_Affiliation.Controllers
                             Facultycode = facultyCode,
                             Collegecode = collegeCode,
                             Designation = t.Designation?.Trim(),
-                            Ugfrom = t.UGFrom,
-                            Ugto = t.UGTo,
-                            Pgfrom = t.PGFrom,
-                            Pgto = t.PGTo,
-                            TotalExperienceYears = t.TotalExperienceYears ?? 0,
-                            UgCollegeCode = t.UGCollegeCode,
-                            PgCollegeCode = t.PGCollegeCode,
+                           // OtherCollege=t.OtherCollege,
+                            ExpCollegeCode=t.ExpCollegeCode,
+
+
+                            //Ugfrom = t.UGFrom,
+                            //Ugto = t.UGTo,
+                            //Pgfrom = t.PGFrom,
+                            //Pgto = t.PGTo,
+                            OtherCollege = t.OtherCollege,
+
+                            FromDate = t.FromDate,
+                            ToDate = t.ToDate,
+
+                            TotalExperienceYears =
+                                t.TeachingExperienceYears ?? 0
+
+                          //  TotalExperienceYears = t.TotalExperienceYears ?? 0,
+                            //UgCollegeCode = t.UGCollegeCode,
+                            //PgCollegeCode = t.PGCollegeCode,
                         });
                     }
                 }
@@ -4183,6 +4590,7 @@ namespace Medical_Affiliation.Controllers
                             DeanId = existingDean.Id,
                             Facultycode = facultyCode,
                             Collegecode = collegeCode,
+                            ExpCollegeCode=a.ExpCollegeCode,
                             PostHeld = a.PostHeld?.Trim(),
                             FromDate = a.FromDate,
                             ToDate = a.ToDate,

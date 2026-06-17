@@ -508,7 +508,7 @@ namespace Medical_Affiliation.Models
 
         public string? CourseLevel { get; set; }
         public string FacultyCode { get; set; }
-        public string CollegeCode { get; set; }
+        public string? CollegeCode { get; set; }
         public string DeanOrDirectorName { get; set; }
         public string DeanQualification { get; set; }
         public DateOnly? DeanQualificationDate { get; set; }
@@ -516,16 +516,24 @@ namespace Medical_Affiliation.Models
         public string DeanStateCouncilNumber { get; set; }
         public bool RecognizedByMCI { get; set; }
         public bool RecognizedByDCI { get; set; }
-        public string UGYears { get; set; }
+        public string? UGYears { get; set; }
 
         public string? UGCollegeCode { get; set; }
         public string? PGCollegeCode { get; set; }
+     
+        public string? OtherCollege { get; set; }
+
+        public DateOnly? FromDate { get; set; }
+        public DateOnly? ToDate { get; set; }
+
+        public string? ExpCollegeCode { get; set; }
+        public decimal? TeachingExperienceYears { get; set; }
 
         // Child: Teaching
-        public List<TeachingExperienceRow> TeachingExperiences { get; set; }
+        public List<TeachingExperienceRow>? TeachingExperiences { get; set; }
 
         // Child: Administrative
-        public List<AdministrativeExperienceRow> AdministrativeExperiences { get; set; }
+        public List<AdministrativeExperienceRow>? AdministrativeExperiences { get; set; }
 
         public DeanDetailsViewModel()
         {
@@ -548,6 +556,17 @@ namespace Medical_Affiliation.Models
 
         public string? UGCollegeCode { get; set; }
         public string? PGCollegeCode { get; set; }
+
+        
+
+        public string? OtherCollege { get; set; }
+
+        public DateOnly? FromDate { get; set; }
+        public DateOnly? ToDate { get; set; }
+
+        public decimal? TeachingExperienceYears { get; set; }
+
+        public string? ExpCollegeCode { get; set; }
     }
 
     public class AdministrativeExperienceRow
@@ -559,6 +578,10 @@ namespace Medical_Affiliation.Models
         public DateOnly? FromDate { get; set; }
         public DateOnly? ToDate { get; set; }
         public decimal? TotalExperienceYears { get; set; }
+        public string? ExpCollegeCode { get; set; }
+
+        public string? OtherCollege { get; set; }
+
     }
 
 }

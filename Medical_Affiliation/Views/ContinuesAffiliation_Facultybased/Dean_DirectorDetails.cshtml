@@ -596,7 +596,7 @@
                     <div class="section-block-body">
                         <table class="data-table" id="teachingExperienceTable">
                             <thead>
-                                <tr>
+                               @*  <tr>
                                     <th rowspan="2" style="width:4%">#</th>
                                     <th rowspan="2" style="min-width:160px;">Designation</th>
                                     <th colspan="3" style="width:28%">UG Teaching</th>
@@ -611,6 +611,15 @@
                                     <th>College</th>
                                     <th>From</th>
                                     <th>To</th>
+                                </tr> *@
+                                <tr>
+                                    <th>#</th>
+                                    <th>Designation</th>
+                                    <th>College</th>
+                                    <th>Other College</th>
+                                    <th>From Date</th>
+                                    <th>To Date</th>
+                                    <th>Teaching Exp. (Yrs)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -621,47 +630,52 @@
                                             @(i + 1)
                                             <input type="hidden" asp-for="TeachingExperiences[i].Id" />
                                         </td>
+
+                                        @* <td>
+                                            <input asp-for="TeachingExperiences[i].Designation"
+                                                   class="form-control" />
+                                        </td> *@
+
                                         <td>
-                                            <input asp-for="TeachingExperiences[i].Designation" class="form-control" />
-                                            <span asp-validation-for="TeachingExperiences[i].Designation" class="text-danger"></span>
+                                            <select asp-for="TeachingExperiences[i].Designation"
+                                                    asp-items="ViewBag.DesignationList"
+                                                    class="form-control college-dropdown">
+                                                <option value="">-- Select Designation --</option>
+                                            </select>
                                         </td>
+
                                         <td>
-                                            <select asp-for="TeachingExperiences[i].UGCollegeCode"
+                                            <select asp-for="TeachingExperiences[i].ExpCollegeCode"
                                                     asp-items="ViewBag.CollegeList"
                                                     class="form-control college-dropdown">
                                                 <option value="">-- Select College --</option>
                                             </select>
                                         </td>
+
                                         <td>
-                                            <input asp-for="TeachingExperiences[i].UGFrom" type="date" class="form-control date-input" data-row="@i" data-type="ug-from" />
-                                            <span asp-validation-for="TeachingExperiences[i].UGFrom" class="text-danger"></span>
+                                            <input asp-for="TeachingExperiences[i].OtherCollege"
+                                                   class="form-control" />
                                         </td>
+
                                         <td>
-                                            <input asp-for="TeachingExperiences[i].UGTo" type="date" class="form-control date-input" data-row="@i" data-type="ug-to" />
-                                            <span asp-validation-for="TeachingExperiences[i].UGTo" class="text-danger"></span>
+                                            <input asp-for="TeachingExperiences[i].FromDate"
+                                                   type="date"
+                                                   class="form-control date-input"
+                                                   data-row="@i" />
                                         </td>
+
                                         <td>
-                                            <select asp-for="TeachingExperiences[i].PGCollegeCode"
-                                                    asp-items="ViewBag.CollegeList"
-                                                    class="form-control college-dropdown">
-                                                <option value="">-- Select College --</option>
-                                            </select>
+                                            <input asp-for="TeachingExperiences[i].ToDate"
+                                                   type="date"
+                                                   class="form-control date-input"
+                                                   data-row="@i" />
                                         </td>
+
                                         <td>
-                                            <input asp-for="TeachingExperiences[i].PGFrom" type="date" class="form-control date-input" data-row="@i" data-type="pg-from" />
-                                            <span asp-validation-for="TeachingExperiences[i].PGFrom" class="text-danger"></span>
-                                        </td>
-                                        <td>
-                                            <input asp-for="TeachingExperiences[i].PGTo" type="date" class="form-control date-input" data-row="@i" data-type="pg-to" />
-                                            <span asp-validation-for="TeachingExperiences[i].PGTo" class="text-danger"></span>
-                                        </td>
-                                        <td>
-                                            <input asp-for="TeachingExperiences[i].TotalExperienceYears"
-                                                   type="number" step="any" readonly
-                                                   value="@(Model.TeachingExperiences[i].TotalExperienceYears?.ToString("0.0"))"
+                                            <input asp-for="TeachingExperiences[i].TeachingExperienceYears"
+                                                   readonly
                                                    class="form-control total-exp"
                                                    data-row="@i" />
-                                            <span asp-validation-for="TeachingExperiences[i].TotalExperienceYears" class="text-danger"></span>
                                         </td>
                                     </tr>
                                 }
@@ -686,11 +700,13 @@
                             <thead>
                                 <tr>
                                     <th style="width:5%">#</th>
-                                    <th style="width:36%">Post Held</th>
-                                    <th style="width:18%">From</th>
-                                    <th style="width:18%">To</th>
-                                    <th style="width:16%">Total Exp. (Yrs)</th>
-                                    <th style="width:7%"></th>
+                                    <th style="width:20%">Post Held</th>
+                                    <th style="width:20%">College</th>
+                                    <th style="width:20%">Other College</th>
+                                    <th style="width:12%">From</th>
+                                    <th style="width:12%">To</th>
+                                    <th style="width:8%">Total Exp.</th>
+                                    <th style="width:3%"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -701,27 +717,59 @@
                                             @(i + 1)
                                             <input type="hidden" asp-for="AdministrativeExperiences[i].Id" />
                                         </td>
+
                                         <td>
-                                            <input asp-for="AdministrativeExperiences[i].PostHeld" class="form-control" placeholder="Post held" />
-                                            <span asp-validation-for="AdministrativeExperiences[i].PostHeld" class="text-danger"></span>
+                                            <input asp-for="AdministrativeExperiences[i].PostHeld"
+                                                   class="form-control"
+                                                   placeholder="Post held" />
                                         </td>
+
                                         <td>
-                                            <input asp-for="AdministrativeExperiences[i].FromDate" type="date" class="form-control date-input" data-row="@i" data-table="admin" />
-                                            <span asp-validation-for="AdministrativeExperiences[i].FromDate" class="text-danger"></span>
+                                            <select asp-for="AdministrativeExperiences[i].ExpCollegeCode"
+                                                    asp-items="ViewBag.CollegeList"
+                                                    class="form-control ">
+                                                <option value="">-- Select College --</option>
+                                            </select>
                                         </td>
+
                                         <td>
-                                            <input asp-for="AdministrativeExperiences[i].ToDate" type="date" class="form-control date-input" data-row="@i" data-table="admin" />
-                                            <span asp-validation-for="AdministrativeExperiences[i].ToDate" class="text-danger"></span>
+                                            <input asp-for="AdministrativeExperiences[i].OtherCollege"
+                                                   class="form-control"
+                                                   placeholder="Other College" />
                                         </td>
+
+                                        <td>
+                                            <input asp-for="AdministrativeExperiences[i].FromDate"
+                                                   type="date"
+                                                   class="form-control date-input"
+                                                   data-row="@i"
+                                                   data-table="admin" />
+                                        </td>
+
+                                        <td>
+                                            <input asp-for="AdministrativeExperiences[i].ToDate"
+                                                   type="date"
+                                                   class="form-control date-input"
+                                                   data-row="@i"
+                                                   data-table="admin" />
+                                        </td>
+
                                         <td>
                                             <input asp-for="AdministrativeExperiences[i].TotalExperienceYears"
-                                                   type="number" step="any" readonly
+                                                   type="number"
+                                                   step="any"
+                                                   readonly
                                                    class="form-control total-exp"
-                                                   data-row="@i" data-table="admin" />
-                                            <span asp-validation-for="AdministrativeExperiences[i].TotalExperienceYears" class="text-danger"></span>
+                                                   data-row="@i"
+                                                   data-table="admin" />
                                         </td>
+
                                         <td style="text-align:center;">
-                                            <button type="button" class="btn-remove-row remove-row" title="Remove">&#8722;</button>
+                                            <button type="button"
+                                                    class="btn-remove-row remove-row"
+                                                    title="Remove">
+                                                &#8722;
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -798,27 +846,81 @@
             </text>
         }
 
+        var designationOptions = `
+        <option value="">-- Select Designation --</option>
+        @foreach (var item in (SelectList)ViewBag.DesignationList)
+        {
+            <text>
+                <option value="@item.Value">@item.Text</option>
+            </text>
+        }
+        `;
+
             // ── Add Teaching row ──
             $('#addTeachingRow').click(function () {
                 const idx = teachingRowIndex++;
-                const row = `
-                <tr>
-                    <td class="sl-no">${idx + 1}</td>
-                    <td><input name="TeachingExperiences[${idx}].Designation" class="form-control" /></td>
-                    <td> <select name="TeachingExperiences[${idx}].UGCollegeCode" class="form-control">${collegeOptions} </select></td>
-                    <td><input name="TeachingExperiences[${idx}].UGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="ug-from" /></td>
-                    <td><input name="TeachingExperiences[${idx}].UGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="ug-to" /></td>
+                // const row = `
+                // <tr>
+                //     <td class="sl-no">${idx + 1}</td>
+                //     <td><input name="TeachingExperiences[${idx}].Designation" class="form-control" /></td>
+                //     <td> <select name="TeachingExperiences[${idx}].UGCollegeCode" class="form-control">${collegeOptions} </select></td>
+                //     <td><input name="TeachingExperiences[${idx}].UGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="ug-from" /></td>
+                //     <td><input name="TeachingExperiences[${idx}].UGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="ug-to" /></td>
         
+                //     <td>
+                //     <select name="TeachingExperiences[${idx}].PGCollegeCode"
+                //     class="form-control">
+                //     ${collegeOptions}
+                //     </select>
+                //     </td>
+                //     <td><input name="TeachingExperiences[${idx}].PGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="pg-from" /></td>
+                //     <td><input name="TeachingExperiences[${idx}].PGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="pg-to" /></td>
+                //     <td><input name="TeachingExperiences[${idx}].TotalExperienceYears" type="number" step="0.1" readonly class="form-control total-exp" data-row="${idx}" /></td>
+                // </tr>`;
+        const row = `
+                    <tr>
+                    <td class="sl-no">${idx + 1}</td>
+
                     <td>
-                    <select name="TeachingExperiences[${idx}].PGCollegeCode"
+                    <select name="TeachingExperiences[${idx}].Designation"
+                    class="form-control">
+                    ${designationOptions}
+                    </select>
+                    </td>
+
+                    <td>
+                    <select name="TeachingExperiences[${idx}].ExpCollegeCode"
                     class="form-control">
                     ${collegeOptions}
                     </select>
                     </td>
-                    <td><input name="TeachingExperiences[${idx}].PGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="pg-from" /></td>
-                    <td><input name="TeachingExperiences[${idx}].PGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="pg-to" /></td>
-                    <td><input name="TeachingExperiences[${idx}].TotalExperienceYears" type="number" step="0.1" readonly class="form-control total-exp" data-row="${idx}" /></td>
-                </tr>`;
+
+                    <td>
+                    <input name="TeachingExperiences[${idx}].OtherCollege"
+                    class="form-control" />
+                    </td>
+
+                    <td>
+                    <input name="TeachingExperiences[${idx}].FromDate"
+                    type="date"
+                    class="form-control date-input"
+                    data-row="${idx}" />
+                    </td>
+
+                    <td>
+                    <input name="TeachingExperiences[${idx}].ToDate"
+                    type="date"
+                    class="form-control date-input"
+                    data-row="${idx}" />
+                    </td>
+
+                    <td>
+                    <input name="TeachingExperiences[${idx}].TeachingExperienceYears"
+                    readonly
+                    class="form-control total-exp"
+                    data-row="${idx}" />
+                    </td>
+                    </tr>`;
                 $('#teachingExperienceTable tbody').append(row);
                 updateSlNumbers('teachingExperienceTable');
             });
@@ -830,6 +932,18 @@
                 <tr>
                     <td class="sl-no">${idx + 1}</td>
                     <td><input name="AdministrativeExperiences[${idx}].PostHeld"  class="form-control" placeholder="Post held" /></td>
+                    <td>
+                    <select name="AdministrativeExperiences[${idx}].ExpCollegeCode"
+                    class="form-control">
+                    ${collegeOptions}
+                    </select>
+                    </td>
+
+                    <td>
+                    <input name="AdministrativeExperiences[${idx}].OtherCollege"
+                    class="form-control"
+                    placeholder="Other College" />
+                    </td>
                     <td><input name="AdministrativeExperiences[${idx}].FromDate"  type="date" class="form-control date-input" data-row="${idx}" data-table="admin" /></td>
                     <td><input name="AdministrativeExperiences[${idx}].ToDate"    type="date" class="form-control date-input" data-row="${idx}" data-table="admin" /></td>
                     <td><input name="AdministrativeExperiences[${idx}].TotalExperienceYears" type="number" step="0.1" readonly class="form-control total-exp" data-row="${idx}" data-table="admin" /></td>
@@ -849,27 +963,34 @@
             });
 
             // ── Calculate total experience ──
-            function calculateTotalExperience(el) {
-                const row      = el.closest('tr');
-                const rowIndex = el.data('row');
-                const isAdmin  = el.data('table') === 'admin';
-                let total      = 0;
+        function calculateTotalExperience(el) {
 
-                if (isAdmin) {
-                    const from = row.find('td:nth-child(3) input[type="date"]').val();
-                    const to   = row.find('td:nth-child(4) input[type="date"]').val();
-                    if (from && to) total = yearsDiff(from, to);
-                } else {
-                    const ugFrom = row.find('td:nth-child(4) input[type="date"]').val();
-                    const ugTo   = row.find('td:nth-child(5) input[type="date"]').val();
-                    const pgFrom = row.find('td:nth-child(7) input[type="date"]').val();
-                    const pgTo   = row.find('td:nth-child(8) input[type="date"]').val();
-                    if (ugFrom && ugTo) total += yearsDiff(ugFrom, ugTo);
-                    if (pgFrom && pgTo) total += yearsDiff(pgFrom, pgTo);
-                }
+        const row = el.closest('tr');
+        const isAdmin = el.data('table') === 'admin';
 
-                row.find(`.total-exp[data-row="${rowIndex}"]`).val(parseFloat(total.toFixed(1)));
-            }
+        let total = 0;
+
+        if (isAdmin) {
+
+        const from = row.find('td:nth-child(5) input').val();
+        const to   = row.find('td:nth-child(6) input').val();
+
+        if (from && to)
+        total = yearsDiff(from, to);
+
+        } else {
+
+        const from = row.find('td:nth-child(5) input').val();
+        const to   = row.find('td:nth-child(6) input').val();
+
+        if (from && to)
+        total = yearsDiff(from, to);
+        }
+
+        row.find('.total-exp').val(total.toFixed(1));
+        }
+
+
 
             function yearsDiff(from, to) {
                 return Math.max(0, (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24 * 365.25));

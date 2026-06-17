@@ -744,6 +744,53 @@
             .page-header-text h4 {
                 font-size: 1rem;
                 font-weight: 700;
+                
+            }
+
+            .file-row {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+
+                .file-row input[type="file"] {
+                    flex: 1;
+                }
+
+            .btn-view {
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: .75rem;
+                font-weight: 600;
+                padding: 7px 12px;
+                border-radius: 7px;
+                border: 1px solid var(--border);
+                background: var(--surface);
+                color: var(--ink-mid);
+                text-decoration: none;
+                white-space: nowrap;
+            }
+
+                .btn-view:hover {   
+                    border-color: var(--accent);
+                    color: var(--accent);
+                    background: var(--accent-lt);
+                }
+
+            .file-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: .7rem;
+                font-weight: 600;
+                color: #1e7e4e;
+                background: #eafaf1;
+                border: 1px solid #a9dfbf;
+                border-radius: 20px;
+                padding: 3px 10px;
+                margin-top: 6px;
             }
     </style>
     <link rel="stylesheet" href="~/css/common-form.css" />
@@ -801,20 +848,6 @@
                         </div>
                         <div class="section-body">
                             <div class="field-grid col-2">
-                                <div class="field-wrap" data-required data-label="Type of Institution">
-                                    <label asp-for="TypeOfInstitution">Type of Institution <span class="req">*</span></label>
-                                    <select asp-for="TypeOfInstitution" asp-items="Model.institutetypelist" id="typeOfInstitutionDropdown">
-                                        <option value="">— Select —</option>
-                                    </select>
-                                    <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Status of College">
-                                    <label asp-for="StatusOfCollege">Status of College <span class="req">*</span></label>
-                                    <select asp-for="StatusOfCollege" asp-items="Model.Institutestatuslist">
-                                        <option value="">— Select —</option>
-                                    </select>
-                                    <span asp-validation-for="StatusOfCollege" class="text-danger"></span>
-                                </div>
                                 <div class="field-wrap" data-required data-label="Name of Institution">
                                     <label asp-for="NameOfInstitution">Name of Institution <span class="req">*</span></label>
                                     <input asp-for="NameOfInstitution" maxlength="200" placeholder="Full legal name" readonly />
@@ -825,8 +858,72 @@
                                     <input asp-for="YearOfEstablishment" type="number" min="1900" max="2100" placeholder="e.g. 1995" />
                                     <span asp-validation-for="YearOfEstablishment" class="text-danger"></span>
                                 </div>
+                                <div class="field-wrap" data-required data-label="Type of Institution">
+                                    <label asp-for="TypeOfInstitution">Type of Institution <span class="req">*</span></label>
+                                    <select asp-for="TypeOfInstitution" asp-items="Model.institutetypelist" id="typeOfInstitutionDropdown">
+                                        <option value="">— Select —</option>
+                                    </select>
+                                    <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
+                                </div>
 
-                               
+
+                                <div class="field-wrap" data-required data-label="Status of College">
+                                    <label asp-for="StatusOfCollege">Status of College <span class="req">*</span></label>
+                                    <select asp-for="StatusOfCollege" asp-items="Model.Institutestatuslist">
+                                        <option value="">— Select —</option>
+                                    </select>
+                                    <span asp-validation-for="StatusOfCollege" class="text-danger"></span>
+                                </div>
+                                
+
+                                <div id="govAutoSection"
+                                     style="display:none; grid-column: span 2; margin-top:15px;">
+
+                                    <div class="field-grid col-2">
+
+                                        <div class="field-wrap">
+                                            <label>Gov Autonomous Cert Number</label>
+                                            <input asp-for="GovAutonomousCertNumber"
+                                                   maxlength="100"
+                                                   placeholder="Enter Certificate Number" />
+                                        </div>
+
+                                        <div class="field-wrap">
+                                            <label>
+                                                <i class="fas fa-file-shield"></i>
+                                                Gov Autonomous Certificate
+                                            </label>
+
+                                            <div class="file-row">
+                                                <input id="GovAutonomousCertFile"
+                                                       name="GovAutonomousCertFile"
+                                                       type="file"
+                                                       accept=".pdf" />
+
+                                                @if (Model.hasGovAutoCertFile)
+                                                {
+                                                    <a asp-action="DownloadGovAutonomousCert"
+                                                       asp-controller="ContinuesAffiliation_Facultybased"
+                                                       asp-route-id="@Model.InstitutionId"
+                                                       class="btn-view"
+                                                       target="_blank">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                }
+                                            </div>
+
+                                            @if (Model.hasGovAutoCertFile)
+                                            {
+                                                <span class="file-badge">
+                                                    <i class="fas fa-circle-check"></i>
+                                                    File already uploaded
+                                                </span>
+                                            }
+                                        </div>
+
+                                    </div>
+
+                                </div>
                                 <div class="field-wrap" data-required data-label="Running Course" style="grid-column: span 2;">
                                     <label asp-for="RunningCourse">Running Course <span class="req">*</span></label>
                                     <select asp-for="RunningCourse" asp-items="Model.CourseList" id="runningCourseDropdown">
@@ -836,7 +933,7 @@
                                 </div>
                             </div>
 
-                            <div class="field-grid col-1" style="margin-top:14px;">
+                            @* <div class="field-grid col-1" style="margin-top:14px;">
                                 <div class="field-wrap" data-required data-label="Address">
                                     <label asp-for="Address">Address <span class="req">*</span></label>
                                     <textarea asp-for="Address" rows="3" placeholder="Street / Area / Locality"></textarea>
@@ -853,10 +950,11 @@
                                     <input asp-for="PinCode" title="6-digit PIN" placeholder="000000" maxlength="6" />
                                     <span asp-validation-for="PinCode" class="text-danger"></span>
                                 </div>
-                            </div>
+                            </div> *@
                         </div>
                     </div>
 
+<<<<<<< Updated upstream
                     <!-- 2. Location & Contact -->
                     <div class="section-card" id="card-location">
                         <div class="section-header sh-slate">
@@ -929,6 +1027,9 @@
                             </div>
                         </div>
                     </div>
+=======
+                  
+>>>>>>> Stashed changes
 
                     <!-- 3. Head & Principal -->
                     <div class="section-card" id="card-head">
@@ -975,23 +1076,21 @@
                                     <input asp-for="Principal_Email" type="email" />
                                 </div>
                                 <div class="field-wrap" data-required data-label="Principal Alt. Mobile">
-                                    <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile <span class="req">*</span></label>
+                                    <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile</label>
                                     <div class="mobile-group">
                                         <span class="mobile-prefix">+91</span>
                                         <input asp-for="PrincipalMobileNumber" maxlength="10" oninput="validateMobile(this)" />
                                     </div>
                                 </div>
                                 <div class="field-wrap" data-required data-label="Principal Alt. Email">
-                                    <label asp-for="PrincipalEmailId">Principal Alt. Email <span class="req">*</span></label>
+                                    <label asp-for="PrincipalEmailId">Principal Alt. Email </label>
                                     <input asp-for="PrincipalEmailId" type="email" />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                </div><!-- /LEFT -->
-                <!-- ═══════════ RIGHT COLUMN ═══════════ -->
-                <div>
+
 
                     <!-- 4. Nodal Officer & Academic (Running Course REMOVED from here) -->
                     <div class="section-card" id="card-nodal">
@@ -1058,6 +1157,12 @@
                         </div>
                     </div>
 
+                </div><!-- /LEFT -->
+                <!-- ═══════════ RIGHT COLUMN ═══════════ -->
+                <div>
+
+                  
+
                     <!-- 5. Trust / Management — shown only when OrganizationCategory = 'P' -->
                     <div class="section-card trust-hidden" id="trustManagementSection">
                         <div class="section-header sh-blue">
@@ -1104,6 +1209,92 @@
                         </div>
                     </div>
 
+
+                    <!-- 2. Location & Contact -->
+                    <div class="section-card" id="card-location">
+                        <div class="section-header sh-slate">
+                            <div class="icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                            </div>
+                            <h2>College Location &amp; Contact</h2>
+                        </div>
+                        <div class="section-body">
+                            <div class="field-grid col-2">
+                                <div class="field-grid col-1" style="margin-top:14px;">
+                                    <div class="field-wrap" data-required data-label="Address">
+                                        <label asp-for="Address">Address <span class="req">*</span></label>
+                                        <textarea asp-for="Address" rows="3" placeholder="Street / Area / Locality"></textarea>
+                                        <span asp-validation-for="Address" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="field-grid col-2" style="margin-top:14px;">
+                                    <div>
+                                        <label asp-for="VillageTownCity">Village / Town / City</label>
+                                        <input asp-for="VillageTownCity" maxlength="100" />
+                                    </div>
+                                    <div class="field-wrap" data-required data-label="PIN Code">
+                                        <label asp-for="PinCode">PIN Code <span class="req">*</span></label>
+                                        <input asp-for="PinCode" title="6-digit PIN" placeholder="000000" maxlength="6" />
+                                        <span asp-validation-for="PinCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label asp-for="District">District</label>
+                                    <select asp-for="District" asp-items="Model.DistrictList" id="districtDropdown">
+                                        <option value="">— Select District —</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label asp-for="Taluk">Taluk</label>
+                                    <select asp-for="Taluk" id="talukDropdown" asp-items="Model.TalukList">
+                                        <option value="">— Select Taluk —</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label asp-for="StdCode">STD Code</label>
+                                    <input asp-for="StdCode" pattern="\d{2,4}" placeholder="e.g. 080" />
+                                </div>
+                                <div>
+                                    <label asp-for="MobileNumber">Mobile Number</label>
+                                    <div class="mobile-group">
+                                        <span class="mobile-prefix">+91</span>
+                                        <input asp-for="MobileNumber" maxlength="10" oninput="validateMobile(this)" placeholder="Enter 10-digit number" />
+                                    </div>
+                                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="AltLandlineMobile">Alternate / Landline</label>
+                                    <input asp-for="AltLandlineMobile" />
+                                </div>
+                                <div>
+                                    <label asp-for="Fax">Fax Number</label>
+                                    <input asp-for="Fax" />
+                                </div>
+                                <div class="field-wrap" data-required data-label="Email ID">
+                                    <label asp-for="EmailId">College Email ID <span class="req">*</span></label>
+                                    <input asp-for="EmailId" type="email" />
+                                    <span asp-validation-for="EmailId" class="text-danger"></span>
+                                </div>
+                                <div class="field-wrap" data-required data-label="Alternate Email">
+                                    <label asp-for="AltEmailId">Alternate Email </label>
+                                    <input asp-for="AltEmailId" type="email" />
+                                </div>
+                                <div class="field-wrap" data-required data-label="Website">
+                                    <label asp-for="Website">Website <span class="req">*</span></label>
+                                    <input asp-for="Website" type="url" placeholder="https://" />
+                                </div>
+                                <div class="field-wrap" data-required data-label="College URL">
+                                    <label asp-for="College_URL">College URL <span class="req">*</span></label>
+                                    <input asp-for="College_URL" type="url" placeholder="https://" />
+                                </div>
+                                <div class="field-wrap" data-required data-label="Survey No / PID No">
+                                    <label asp-for="SurveyNoPidNo">Survey No / PID No <span class="req">*</span></label>
+                                    <input asp-for="SurveyNoPidNo" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 6. Dean & Document Upload -->
                     <div class="section-card" id="card-dean">
                         <div class="section-header sh-blue">
@@ -1132,7 +1323,7 @@
                             </div>
 
                             <div style="margin-top:16px;">
-                                <label>Upload Application Order of Dean</label>
+                                <label>Upload Appointment Order of Dean</label>
                                 <div class="file-drop">
                                     <div class="file-drop-inner">
                                         <input type="file" id="documentFile" name="documentFile" accept=".pdf" />
@@ -1150,13 +1341,15 @@
                                     <div style="margin-top:10px;">
                                         <a href="@Url.Action("ViewDocument", "ContinuesAffiliation_Facultybased", new { id = Model.CollegeCode })"
                                            target="_blank" class="btn btn-ghost">
-                                            📄 View Application Order of Dean
+                                            📄 View Appointment Order of Dean
                                         </a>
                                     </div>
                                 }
                             </div>
                         </div>
                     </div>
+
+                   
 
                 </div><!-- /RIGHT -->
 
@@ -1494,6 +1687,30 @@
                 }
             }
 
+        </script>
+
+        <script>
+            $(document).ready(function () {
+
+            function toggleGovAutoSection() {
+
+            var institutionTypeId = $("#typeOfInstitutionDropdown").val();
+
+            // Government/Autonomous IDs
+            if (institutionTypeId === "1" || institutionTypeId === "11") {
+            $("#govAutoSection").show();
+            }
+            else {
+            $("#govAutoSection").hide();
+            }
+            }
+
+            toggleGovAutoSection();
+
+            $("#typeOfInstitutionDropdown").on("change", function () {
+            toggleGovAutoSection();
+            });
+            });
         </script>
     }
 </body>

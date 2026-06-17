@@ -23,5 +23,9 @@ public partial class AffDeanAdministrativeExperience
 
     public string? CourseLevel { get; set; }
 
+    public string? ExpCollegeCode { get; set; }
+
+    public string? OtherCollege { get; set; }
+
     public virtual AffDeanOrDirectorDetail? Dean { get; set; }
 }

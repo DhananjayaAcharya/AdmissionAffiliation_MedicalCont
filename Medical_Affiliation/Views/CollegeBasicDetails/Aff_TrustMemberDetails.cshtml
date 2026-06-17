@@ -392,6 +392,49 @@
         color: var(--navy-mid);
         font-weight: 600;
     }
+
+
+    .upload-section {
+        padding: 10px;
+    }
+
+        .upload-section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--navy);
+        }
+
+    .file-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-view {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 4px;
+        background: var(--navy);
+        color: #fff;
+        text-decoration: none;
+    }
+
+        .btn-view:hover {
+            color: #fff;
+            opacity: .9;
+        }
+
+    .file-badge {
+        display: inline-block;
+        margin-top: 8px;
+        color: var(--success);
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
 </style>
 
 <div class="page-shell">
@@ -408,7 +451,7 @@
         <!-- Form Card -->
         <div class="form-card">
 
-            @using (Html.BeginForm("Aff_TrustMemberDetails", "CollegeBasicDetails", FormMethod.Post))
+            @using (Html.BeginForm("Aff_TrustMemberDetails", "CollegeBasicDetails", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(m => m.FacultyCode)
@@ -490,6 +533,43 @@
                             </td>
                         </tr>
                                                 }
+
+                           <tr>
+                            <td colspan="8">
+                                <div class="upload-section">
+                                    <label>
+                                        <i class="fas fa-people-group"></i>
+                                        Registered Trust Member Details
+                                    </label>
+
+                                    <div class="file-row">
+                                        <input id="RegisteredTrustMemberDetails"
+                                               name="RegisteredTrustMemberDetails"
+                                               type="file"
+                                               accept=".pdf" />
+
+                                        @if (Model.hasRegisteredTrustMemberDetails)
+                                        {
+                                            <a asp-action="DownloadRegisteredTrustMemberDetails"
+                                               asp-controller="ContinuesAffiliation_Facultybased"
+                                               asp-route-id="@Model.InstitutionId"
+                                               class="btn-view"
+                                               target="_blank">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        }
+                                    </div>
+
+                                    @if (Model.hasRegisteredTrustMemberDetails)
+                                    {
+                                        <span class="file-badge">
+                                            <i class="fas fa-circle-check"></i>
+                                            File already uploaded
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                           </tr>
                     </tbody>
                 </table>
             </div>

@@ -118,4 +118,8 @@ public partial class AffInstitutionsDetail
     public string? DeviceType { get; set; }
 
     public byte[] RowTimestamp { get; set; } = null!;
+
+    public string? GovAutonomousCertPath { get; set; }
+
+    public string? GovAutonomousCertNumber { get; set; }
 }

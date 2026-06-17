@@ -313,6 +313,7 @@ public class FellowshipAcceptedRejectedListVm
 public class InstitutionViewModel
 {
     // Keys
+    public int InstitutionId { get; set; }
     public string CollegeCode { get; set; }
     public string FacultyCode { get; set; }
     public int? InstitutionTypeId { get; set; }
@@ -457,7 +458,17 @@ public class InstitutionViewModel
     public List<SelectListItem> institutetypelist { get; set; }
     public List<SelectListItem> Institutestatuslist { get; set; }
 
-  
+    public string? GovAutonomousCertNumber { get; set; }
+
+    [NotMapped]
+    public IFormFile? GovAutonomousCertFile { get; set; }
+
+    public bool hasGovAutoCertFile { get; set; }
+
+    // public string GovernmentCertifiedNumber { get; set; }
+
+
+
 }
 //public class InstitutionViewModel
 //{

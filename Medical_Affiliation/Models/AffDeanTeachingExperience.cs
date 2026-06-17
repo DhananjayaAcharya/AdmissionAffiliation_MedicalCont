@@ -31,5 +31,13 @@ public partial class AffDeanTeachingExperience
 
     public string? PgCollegeCode { get; set; }
 
+    public string? OtherCollege { get; set; }
+
+    public DateOnly? FromDate { get; set; }
+
+    public DateOnly? ToDate { get; set; }
+
+    public string? ExpCollegeCode { get; set; }
+
     public virtual AffDeanOrDirectorDetail? Dean { get; set; }
 }

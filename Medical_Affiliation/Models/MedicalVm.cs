@@ -20,16 +20,18 @@ namespace Medical_Affiliation.Models
 
             // Institution basic details
             //public string TypeOfOrganization { get; set; }
-            [Required(ErrorMessage = "Please select institution type")]  // Only on SELECTED value
+            
             public string? TypeOfInstitution { get; set; }
 
             public IEnumerable<SelectListItem>? TypeOfInstitutionList { get; set; }  // NO [Required]
 
-            public string NameOfInstitution { get; set; }
+            public string? NameOfInstitution { get; set; }
            // public string AddressOfInstitution { get; set; }
           //  public string VillageTownCity { get; set; }
            // public string Taluk { get; set; }
            // public string District { get; set; }
+
+            public string Address { get; set; }
             public string PinCode { get; set; }
             public string MobileNumber { get; set; }
             public string StdCode { get; set; }
@@ -38,7 +40,7 @@ namespace Medical_Affiliation.Models
             public string EmailId { get; set; }
             public string AltLandlineOrMobile { get; set; }
             public string AltEmailId { get; set; }
-            public string AcademicYearStarted { get; set; }
+            public string? AcademicYearStarted { get; set; }
 
             // MUST be non-nullable for checkboxes
             public bool IsRuralInstitution { get; set; }
@@ -62,9 +64,9 @@ namespace Medical_Affiliation.Models
             public string GOKObtainedTrustName { get; set; }
 
             // MUST be non-nullable for checkboxes
-            public bool ChangesInTrustName { get; set; }
-            public bool OtherNursingCollegeInCity { get; set; }
-            public bool OtherDentalCollegeInCity { get; set; }
+            public bool? ChangesInTrustName { get; set; }
+            public bool? OtherNursingCollegeInCity { get; set; }
+            public bool? OtherDentalCollegeInCity { get; set; }
 
             public string CategoryOfOrganisation { get; set; }
             public string ContactPersonName { get; set; }
@@ -72,36 +74,36 @@ namespace Medical_Affiliation.Models
             public string ContactPersonMobile { get; set; }
 
             // This was also bool? but is not rendered as checkbox in your view; keep as bool if you plan to use checkbox
-            public bool OtherPhysiotherapyCollegeInCity { get; set; }
+            public bool? OtherPhysiotherapyCollegeInCity { get; set; }
 
             // Courses and headings
-            public string CoursesAppliedText { get; set; }
-            public string HeadOfInstitutionName { get; set; }
-            public string HeadOfInstitutionAddress { get; set; }
-            public string FinancingAuthorityName { get; set; }
-            public string CollegeStatus { get; set; }
+            public string? CoursesAppliedText { get; set; }
+            public string? HeadOfInstitutionName { get; set; }
+            public string? HeadOfInstitutionAddress { get; set; }
+            public string? FinancingAuthorityName { get; set; }
+            public string? CollegeStatus { get; set; }
 
         // Document numbers
             [ValidateNever]
-            public string GovAutonomousCertNumber { get; set; }
+            public string? GovAutonomousCertNumber { get; set; }
           //  public string KncCertificateNumber { get; set; }
 
             // Files (IFormFile)
-            public IFormFile GovAutonomousCertFile { get; set; }
+            public IFormFile? GovAutonomousCertFile { get; set; }
         public bool hasGovAutoCertFile { get; set; }
-            public IFormFile GovCouncilMembershipFile { get; set; }
-        public bool hasGovCouncilMembershipFile { get; set; }
+            public IFormFile? GovCouncilMembershipFile { get; set; }
+        public bool? hasGovCouncilMembershipFile { get; set; }
             public IFormFile GokOrderExistingCoursesFile { get; set; }
         public bool hasGokOrderExistingCoursesFile { get; set; }
-            public IFormFile FirstAffiliationNotifFile { get; set; }
+            public IFormFile? FirstAffiliationNotifFile { get; set; }
         public bool hasFirstAffiliationNotifFile { get; set; }
-            public IFormFile ContinuationAffiliationFile { get; set; }
+            public IFormFile? ContinuationAffiliationFile { get; set; }
         public bool hasContinuationAffiliationFile { get; set; }
           //  public IFormFile KncCertificateFile { get; set; }
        // public bool hasKncCertificateFile { get; set; }
             public IFormFile KSDCcertificateFile { get; set; }
         public bool hasKSDCcertificateFile { get; set; }
-            public IFormFile AmendedDoc { get; set; }
+            public IFormFile? AmendedDoc { get; set; }
         public bool hasAmendedDoc { get; set; }
         //    public IFormFile AadhaarFile { get; set; }
         //public bool hasAadhaarFile { get; set; }
@@ -111,8 +113,8 @@ namespace Medical_Affiliation.Models
         public bool hasBankStatementFile { get; set; } 
             public IFormFile RegistrationCertificateFile { get; set; }
         public bool hasRegistrationCertificateFile { get; set; } 
-            public IFormFile RegisteredTrustMemberDetails { get; set; }
-        public bool hasRegisteredTrustMemberDetails { get; set; } 
+            public IFormFile? RegisteredTrustMemberDetails { get; set; }
+        public bool? hasRegisteredTrustMemberDetails { get; set; } 
         public IFormFile DCIcertificateFile { get; set; }
         public bool hasDCIfile { get; set; }
             public IFormFile AuditStatementFile { get; set; }
@@ -152,6 +154,11 @@ namespace Medical_Affiliation.Models
         public string CollegeCode { get; set; }   // if same for all rows, keep here
         public List<TrustMemberDetailsRowVM> Rows { get; set; } = new();
         public IEnumerable<SelectListItem> DesignationList { get; set; } = new List<SelectListItem>();
+
+        public IFormFile? RegisteredTrustMemberDetails { get; set; }
+
+        public bool hasRegisteredTrustMemberDetails { get; set; }
+        public int InstitutionId { get; set; }
     }
 }
 

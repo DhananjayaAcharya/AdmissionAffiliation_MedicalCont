@@ -22,4 +22,8 @@ public partial class AffPrincipalAdministrativeExperience
     public decimal? TotalExperienceYears { get; set; }
 
     public string? CourseLevel { get; set; }
+
+    public string? ExpCollegeCode { get; set; }
+
+    public string? OtherCollege { get; set; }
 }
