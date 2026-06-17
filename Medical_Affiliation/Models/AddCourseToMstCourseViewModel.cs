@@ -377,8 +377,8 @@ public class InstitutionViewModel
     public string? AltLandlineMobile { get; set; }
 
     [EmailAddress(ErrorMessage = "Invalid email")]
-    public string AltEmailId { get; set; }
-
+    public string? AltEmailId { get; set; }
+    
     public string HeadOfInstitution { get; set; }
     public string HeadAddress { get; set; }
 
@@ -443,10 +443,10 @@ public class InstitutionViewModel
 
     // ✅ Principal Alt
     [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
-    public string PrincipalMobileNumber { get; set; }
+    public string? PrincipalMobileNumber { get; set; }
 
     [EmailAddress(ErrorMessage = "Invalid email")]
-    public string PrincipalEmailId { get; set; }
+    public string? PrincipalEmailId { get; set; }
 
     public string MinorityCategory { get; set; }
     public string RunningCourse { get; set; }

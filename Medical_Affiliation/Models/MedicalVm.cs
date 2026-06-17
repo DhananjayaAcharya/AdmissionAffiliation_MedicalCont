@@ -38,8 +38,8 @@ namespace Medical_Affiliation.Models
             public string Fax { get; set; }
             public string Website { get; set; }
             public string EmailId { get; set; }
-            public string AltLandlineOrMobile { get; set; }
-            public string AltEmailId { get; set; }
+            public string? AltLandlineOrMobile { get; set; }
+            public string? AltEmailId { get; set; }
             public string? AcademicYearStarted { get; set; }
 
             // MUST be non-nullable for checkboxes
