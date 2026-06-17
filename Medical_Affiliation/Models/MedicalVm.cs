@@ -6,7 +6,7 @@ namespace Medical_Affiliation.Models
 {
     public class MedicalVm
     {
-            public int InstitutionId { get; set; }
+        public int InstitutionId { get; set; }
 
         // Codes
 
