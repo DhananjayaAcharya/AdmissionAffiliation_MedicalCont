@@ -956,7 +956,7 @@
 
 
                     <!-- 2. Location & Contact -->
-                    <div class="section-card" id="card-location">
+                    @* <div class="section-card" id="card-location">
                         <div class="section-header sh-slate">
                             <div class="icon-wrap">
                                 <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
@@ -1027,7 +1027,7 @@
                             </div>
                         </div>
                     </div>
-
+ *@
           
 
                     <!-- 3. Head & Principal -->
@@ -1074,14 +1074,14 @@
                                     <label asp-for="Principal_Email">Principal Email <span class="req">*</span></label>
                                     <input asp-for="Principal_Email" type="email" />
                                 </div>
-                                <div class="field-wrap" data-required data-label="Principal Alt. Mobile">
+                                <div class="field-wrap"  data-label="Principal Alt. Mobile">
                                     <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile</label>
                                     <div class="mobile-group">
                                         <span class="mobile-prefix">+91</span>
                                         <input asp-for="PrincipalMobileNumber" maxlength="10" oninput="validateMobile(this)" />
                                     </div>
                                 </div>
-                                <div class="field-wrap" data-required data-label="Principal Alt. Email">
+                                <div class="field-wrap" data-label="Principal Alt. Email">
                                     <label asp-for="PrincipalEmailId">Principal Alt. Email </label>
                                     <input asp-for="PrincipalEmailId" type="email" />
                                 </div>
@@ -1157,6 +1157,8 @@
                     </div>
 
                 </div><!-- /LEFT -->
+
+
                 <!-- ═══════════ RIGHT COLUMN ═══════════ -->
                 <div>
 
@@ -1249,6 +1251,18 @@
                                         <option value="">— Select Taluk —</option>
                                     </select>
                                 </div>
+                               @*  <div>
+                                    <label asp-for="District">District</label>
+                                    <select asp-for="District" asp-items="Model.DistrictList" id="districtDropdown">
+                                        <option value="">— Select District —</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label asp-for="Taluk">Taluk</label>
+                                    <select asp-for="Taluk" id="talukDropdown" asp-items="Model.TalukList">
+                                        <option value="">— Select Taluk —</option>
+                                    </select>
+                                </div> *@
                                 <div>
                                     <label asp-for="StdCode">STD Code</label>
                                     <input asp-for="StdCode" pattern="\d{2,4}" placeholder="e.g. 080" />
@@ -1274,7 +1288,7 @@
                                     <input asp-for="EmailId" type="email" />
                                     <span asp-validation-for="EmailId" class="text-danger"></span>
                                 </div>
-                                <div class="field-wrap" data-required data-label="Alternate Email">
+                                <div class="field-wrap"  data-label="Alternate Email">
                                     <label asp-for="AltEmailId">Alternate Email </label>
                                     <input asp-for="AltEmailId" type="email" />
                                 </div>
