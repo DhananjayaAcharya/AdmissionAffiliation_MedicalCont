@@ -510,60 +510,78 @@ namespace Medical_Affiliation.Controllers
                 .GroupBy(x => x.NameOfFaculty)
                 .ToList();
 
-            foreach (var facultyGroup in groupedFaculty)
+            var facultyGroups = saved
+    .GroupBy(x => x.NameOfFaculty)
+    .ToList();
+
+            foreach (var facultyGroup in facultyGroups)
             {
-                var firstFaculty = facultyGroup.First();
+                // Group records by designation
+                var designationRecordMap = facultyGroup
+                    .GroupBy(x => x.DesignationCode)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.ToList()
+                    );
 
-                var facultyVm = new DentalFacultyTeachingVm
+                // Find maximum occurrence count among designations
+                int rowCount = designationMasters
+                    .Select(d =>
+                        designationRecordMap.ContainsKey(d.DesignationCode)
+                            ? designationRecordMap[d.DesignationCode].Count
+                            : 0)
+                    .DefaultIfEmpty(1)
+                    .Max();
+
+                // Create required rows
+                for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
                 {
-                    NameOfFaculty = firstFaculty.NameOfFaculty,
-                    Designations = new List<DentalDesignationTeachingVm>()
-                };
-
-                foreach (var header in designationMasters)
-                {
-                    var existing = facultyGroup
-                        .FirstOrDefault(x => x.DesignationCode == header.DesignationCode);
-
-                    if (existing == null)
+                    var facultyVm = new DentalFacultyTeachingVm
                     {
-                        facultyVm.Designations.Add(new DentalDesignationTeachingVm
+                        NameOfFaculty = facultyGroup.Key,
+                        Designations = new List<DentalDesignationTeachingVm>()
+                    };
+
+                    foreach (var header in designationMasters)
+                    {
+                        var desVm = new DentalDesignationTeachingVm
                         {
                             DesignationCode = header.DesignationCode,
                             DesignationName = header.DesignationName
-                        });
-                        continue;
+                        };
+
+                        if (designationRecordMap.TryGetValue(
+                                header.DesignationCode,
+                                out var records)
+                            && rowIndex < records.Count)
+                        {
+                            var record = records[rowIndex];
+
+                            desVm.Id = record.Id;
+                            desVm.DepartmentCode = record.DepartmentCode;
+                            desVm.CourseLevel = record.CourseLevel;
+                            desVm.TotalExperience = record.TotalExperience;
+
+                            if (record.CourseLevel == "UG")
+                            {
+                                desVm.CollegeCode = record.UgcollegeCode;
+                                desVm.FromDate = record.Ugfrom?.ToDateTime(TimeOnly.MinValue);
+                                desVm.ToDate = record.Ugto?.ToDateTime(TimeOnly.MinValue);
+                            }
+                            else
+                            {
+                                desVm.CollegeCode = record.PgcollegeCode;
+                                desVm.FromDate = record.Pgfrom?.ToDateTime(TimeOnly.MinValue);
+                                desVm.ToDate = record.Pgto?.ToDateTime(TimeOnly.MinValue);
+                            }
+                        }
+
+                        facultyVm.Designations.Add(desVm);
                     }
 
-                    var vmDesignation = new DentalDesignationTeachingVm
-                    {
-                        Id = existing.Id,
-                        DesignationCode = existing.DesignationCode,
-                        DesignationName = existing.DesignationName,
-                        DepartmentCode = existing.DepartmentCode,
-                        CourseLevel = existing.CourseLevel,
-                        TotalExperience = existing.TotalExperience
-                    };
-
-                    if (existing.CourseLevel == "UG")
-                    {
-                        vmDesignation.CollegeCode = existing.UgcollegeCode?.Trim();
-                        vmDesignation.FromDate = existing.Ugfrom?.ToDateTime(TimeOnly.MinValue);
-                        vmDesignation.ToDate = existing.Ugto?.ToDateTime(TimeOnly.MinValue);
-                    }
-                    else if (existing.CourseLevel == "PG")
-                    {
-                        vmDesignation.CollegeCode = existing.PgcollegeCode?.Trim();
-                        vmDesignation.FromDate = existing.Pgfrom?.ToDateTime(TimeOnly.MinValue);
-                        vmDesignation.ToDate = existing.Pgto?.ToDateTime(TimeOnly.MinValue);
-                    }
-
-                    facultyVm.Designations.Add(vmDesignation);
+                    vm.FacultyRows.Add(facultyVm);
                 }
-
-                vm.FacultyRows.Add(facultyVm);
             }
-
             // ② Seed rows for faculty who have NO saved data yet
             var unseededNames = facultyList
                 .Select(f => f.NameOfFaculty.Trim())
@@ -701,6 +719,22 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction("TeachingStaffDepartmentWise");
         }
 
+        [HttpGet]
+        public IActionResult GetOtherColleges(int facultyCode)
+        {
+            var colleges = _context.AffiliationOthersCollegeMasters
+                .Where(x => x.FacultyCode == facultyCode)
+                .OrderBy(x => x.CollegeName)
+                .Select(x => new
+                {
+                    x.CollegeCode,
+                    x.CollegeName,
+                    x.CollegeTown
+                })
+                .ToList();
+
+            return Json(colleges);
+        }
 
         [HttpPost]
         public async Task<IActionResult> SaveOtherCollege( SaveOtherCollegeVm vm)

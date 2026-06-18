@@ -1,0 +1,501 @@
+﻿@model List<AffiliationOthersCollegeMaster>
+
+@{
+    ViewData["Title"] = "Outside Karnataka Colleges";
+}
+
+<style>
+
+    :root {
+        --navy: #0f2545;
+        --navy-light: #1b3b6f;
+        --gold: #c79a3b;
+        --gold-light: #e7c878;
+        --bg: #f6f8fc;
+        --white: #ffffff;
+        --border: #e5e7eb;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --success: #198754;
+        --danger: #dc3545;
+    }
+
+    body {
+        background: linear-gradient(135deg,#eef2f8 0%,#f8fafc 100%);
+    }
+
+    .page-card {
+        background: var(--white);
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(15,37,69,.08), 0 2px 10px rgba(15,37,69,.04);
+        border: 1px solid rgba(255,255,255,.8);
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 0;
+    }
+
+    .page-subtitle {
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .btn-home {
+        background: var(--navy);
+        border: none;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .btn-home:hover {
+        background: var(--navy-light);
+        color: white;
+    }
+
+    .btn-add {
+        background: linear-gradient( 135deg, var(--gold), var(--gold-light) );
+        border: none;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .btn-add:hover {
+        opacity: .9;
+        color: white;
+    }
+
+    .search-box {
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 12px 16px;
+        background: white;
+    }
+
+    .search-box:focus {
+        border-color: var(--navy);
+        box-shadow: 0 0 0 .15rem rgba(15,37,69,.15);
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,.04);
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+    }
+
+    .custom-table thead {
+        background: linear-gradient( 135deg, var(--navy), var(--navy-light) );
+    }
+
+    .custom-table thead th {
+        color: black;
+        font-weight: 600;
+        border: none;
+        padding: 16px;
+        white-space: nowrap;
+    }
+
+    .custom-table tbody td {
+        padding: 14px 16px;
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr {
+        transition: .2s;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f8fbff;
+    }
+
+    .custom-table tbody tr:nth-child(even) {
+        background: #fafbfd;
+    }
+
+    .college-code {
+        font-weight: 700;
+        color: var(--navy);
+    }
+
+    .btn-edit {
+        background: #e8f0ff;
+        color: #1f5ed8;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-weight: 600;
+    }
+
+    .btn-edit:hover {
+        background: #d9e6ff;
+    }
+
+    .btn-delete {
+        background: #ffe7ea;
+        color: #d63384;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-weight: 600;
+    }
+
+    .btn-delete:hover {
+        background: #ffd4db;
+    }
+
+    .modal-content {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,.15);
+    }
+
+    .modal-header {
+        background: linear-gradient( 135deg, var(--navy), var(--navy-light) );
+        color: white;
+        border: none;
+        padding: 18px 24px;
+    }
+
+    .modal-title {
+        font-weight: 700;
+    }
+
+    .modal-body {
+        padding: 25px;
+    }
+
+    .modal-body input {
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #d9dfe7;
+    }
+
+    .modal-body input:focus {
+        border-color: var(--navy);
+        box-shadow: 0 0 0 .15rem rgba(15,37,69,.15);
+    }
+
+    .modal-footer {
+        border: none;
+        padding: 18px 24px;
+    }
+
+    .btn-save {
+        background: linear-gradient( 135deg, var(--navy), var(--navy-light) );
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .btn-save:hover {
+        opacity: .95;
+        color: white;
+    }
+
+    .stats-badge {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #edf4ff;
+        color: var(--navy);
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+</style>
+
+<div class="container-fluid py-4">
+
+    <div class="page-card">
+        <div class="d-flex justify-content-between mb-3">
+
+            <h3 class="page-title">Outside Karnataka Colleges</h3>
+
+            <div>
+
+                <a asp-controller="Admin"
+                   asp-action="AdminDashboard"
+                   class="btn btn-secondary btn-home">
+                    Home
+                </a>
+
+                <button type="button"
+                        class="btn btn-success btn-add"
+                        onclick="openAddModal()">
+                    Add College
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="mb-3">
+
+            <input type="text"
+                   id="collegeSearch"
+                   class="form-control  search-box"
+                   placeholder="Search College..." />
+
+        </div>
+
+        <table class="table table-bordered table-striped  custom-table">
+
+            <thead>
+
+                <tr>
+                    <th>College Code</th>
+                    <th>College Name</th>
+                    <th>Town</th>
+                    <th>State</th>
+                    <th>District</th>
+                    <th>Taluk</th>
+                    <th width="150">Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="collegeTableBody">
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>@item.CollegeCode</td>
+                        <td>@item.CollegeName</td>
+                        <td>@item.CollegeTown</td>
+                        <td>@item.StateName</td>
+                        <td>@item.DistrictName</td>
+                        <td>@item.TalukName</td>
+
+                        <td>
+
+                            <button class="btn btn-primary btn-sm btn-edit"
+                                    onclick="editCollege(@item.Id)">
+                                Edit
+                            </button>
+
+                            <button class="btn btn-danger btn-sm btn-delete"
+                                    onclick="deleteCollege(@item.Id)">
+                                Delete
+                            </button>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+        <div class="modal fade"
+             id="collegeModal">
+
+            <div class="modal-dialog">
+
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5>College</h5>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <input type="hidden" id="Id" />
+
+                        <input type="text"
+                               id="CollegeName"
+                               class="form-control mb-2"
+                               placeholder="College Name">
+
+                        <input type="text"
+                               id="CollegeTown"
+                               class="form-control mb-2"
+                               placeholder="Town">
+
+                        <input type="text"
+                               id="StateName"
+                               class="form-control mb-2"
+                               placeholder="State">
+
+                        <input type="text"
+                               id="DistrictName"
+                               class="form-control mb-2"
+                               placeholder="District">
+
+                        <input type="text"
+                               id="TalukName"
+                               class="form-control mb-2"
+                               placeholder="Taluk">
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Close
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-primary btn-save"
+                                onclick="saveCollege()">
+                            Save
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function openAddModal() {
+
+        document.getElementById("Id").value = "";
+        document.getElementById("CollegeName").value = "";
+        document.getElementById("CollegeTown").value = "";
+        document.getElementById("StateName").value = "";
+        document.getElementById("DistrictName").value = "";
+        document.getElementById("TalukName").value = "";
+
+        new bootstrap.Modal(
+            document.getElementById("collegeModal")
+        ).show();
+    }
+
+    async function editCollege(id) {
+
+        const response =
+            await fetch('@Url.Action("GetOtherCollege", "Admin")?id=' + id);
+
+        const data =
+            await response.json();
+
+        document.getElementById("Id").value = data.id;
+        document.getElementById("CollegeName").value = data.collegeName;
+        document.getElementById("CollegeTown").value = data.collegeTown;
+        document.getElementById("StateName").value = data.stateName;
+        document.getElementById("DistrictName").value = data.districtName;
+        document.getElementById("TalukName").value = data.talukName;
+
+        new bootstrap.Modal(
+            document.getElementById("collegeModal")
+        ).show();
+    }
+
+    function saveCollege() {
+
+        $.post(
+            '@Url.Action("SaveOtherCollege", "Admin")',
+            {
+                Id: $("#Id").val(),
+                CollegeName: $("#CollegeName").val(),
+                CollegeTown: $("#CollegeTown").val(),
+                StateName: $("#StateName").val(),
+                DistrictName: $("#DistrictName").val(),
+                TalukName: $("#TalukName").val()
+            },
+            function () {
+                location.reload();
+            });
+    }
+
+    async function deleteCollege(id) {
+
+        const response =
+            await fetch(
+                '@Url.Action("CheckOtherCollegeUsage", "Admin")?id=' + id
+            );
+
+        const result =
+            await response.json();
+
+        if (!result.success)
+            return;
+
+        let message =
+            `College : ${result.collegeName}\n\n`;
+
+        if (result.usageCount > 0) {
+
+            message +=
+                `Used in ${result.usageCount} Teaching Staff records.\n\n`;
+
+            result.usages.forEach(x => {
+
+                message +=
+                    `${x.nameOfFaculty} - ${x.designationName}\n`;
+            });
+
+            message +=
+                "\nDeleting will remove these mappings.";
+        }
+        else {
+
+            message +=
+                "No usage found.";
+        }
+
+        if (!confirm(message))
+            return;
+
+        deleteCollegeConfirmed(id);
+    }
+
+
+    function deleteCollegeConfirmed(id) {
+
+        $.post(
+            '@Url.Action("DeleteOtherCollege", "Admin")',
+            { id: id },
+            function (res) {
+
+                if (res.success) {
+
+                    location.reload();
+                }
+            }
+        );
+    }
+    document.getElementById("searchCollege")
+        .addEventListener("keyup", function () {
+
+            const value =
+                this.value.toLowerCase();
+
+            document
+                .querySelectorAll("#collegeTable tr")
+                .forEach(row => {
+
+                    row.style.display =
+                        row.innerText
+                            .toLowerCase()
+                            .includes(value)
+                            ? ""
+                            : "none";
+                });
+        });
+
+</script>

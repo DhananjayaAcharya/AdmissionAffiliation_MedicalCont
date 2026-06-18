@@ -462,6 +462,16 @@
     #teachingExperienceTable .college-dropdown {
         min-width: 250px;
     }
+
+    #otherCollegeList {
+        border-radius: 5px;
+    }
+
+    #otherCollegeList button {
+        /* padding: 5px; */
+        color: lightseagreen;
+    }
+
 </style>
 
 
@@ -639,11 +649,8 @@
                                         <td>
                                             <select asp-for="TeachingExperiences[i].Designation"
                                                     asp-items="ViewBag.DesignationList"
-                                                    class="form-control college-dropdown">
-                                                <option value="">-- Select College --</option>
-                                                <option value="OTHER_COLLEGE">
-                                                    + Add Outside Karnataka College
-                                                </option>
+                                                    class="form-control">
+                                                <option value="">-- Select Designation --</option>
                                             </select>
                                         </td>
 
@@ -828,24 +835,19 @@
     <!-- Outside Karnataka College Modal -->
     <div class="modal fade"
          id="otherCollegeModal"
-         tabindex="-1"
-         aria-labelledby="otherCollegeModalLabel"
-         aria-hidden="true">
+         tabindex="-1">
 
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
 
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title"
-                        id="otherCollegeModalLabel">
-                        Add Outside Karnataka College
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Existing Outside Karnataka Colleges
                     </h5>
 
                     <button type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"
-                            aria-label="Close">
+                            class="btn-close"
+                            data-bs-dismiss="modal">
                     </button>
                 </div>
 
@@ -854,64 +856,66 @@
                     <input type="hidden"
                            id="selectedCollegeDropdown" />
 
-                    <div class="row">
+                    <!-- LIST SECTION -->
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" style="display: flex;">
-                                College Name <span class="text-danger">*</span>
-                            </label>
+                    <div id="otherCollegeListSection">
 
+                        <input type="text"
+                               id="otherCollegeSearch"
+                               class="form-control mb-3"
+                               placeholder="Search college... or select from below list" />
+
+                        <div id="otherCollegeList">
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <button type="button"
+                                    id="showAddCollegeForm"
+                                    class="btn btn-success">
+                                + Add New Outside Karnataka College
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- FORM SECTION -->
+
+                    <div id="otherCollegeFormSection"
+                         style="display:none;">
+
+                        <div class="mb-2">
+                            <label>College Name *</label>
                             <input type="text"
                                    id="otherCollegeName"
-                                   class="form-control"
-                                   maxlength="250"
-                                   required />
+                                   class="form-control" />
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" style="display: flex;">
-                                College Town <span class="text-danger">*</span>
-                            </label>
-
+                        <div class="mb-2">
+                            <label>College Town *</label>
                             <input type="text"
                                    id="otherCollegeTown"
-                                   class="form-control"
-                                   maxlength="100"
-                                   required />
+                                   class="form-control" />
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" style="display: flex;">
-                                State <span class="text-danger">*</span>
-                            </label>
-
+                        <div class="mb-2">
+                            <label>State</label>
                             <input type="text"
                                    id="otherState"
-                                   class="form-control"
-                                   maxlength="100"
-                                   required />
+                                   class="form-control" />
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" >
-                                District
-                            </label>
-
+                        <div class="mb-2">
+                            <label>District</label>
                             <input type="text"
                                    id="otherDistrict"
-                                   class="form-control"
-                                   maxlength="100" />
+                                   class="form-control" />
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">
-                                Taluk
-                            </label>
-
+                        <div class="mb-2">
+                            <label>Taluk</label>
                             <input type="text"
                                    id="otherTaluk"
-                                   class="form-control"
-                                   maxlength="100" />
+                                   class="form-control" />
                         </div>
 
                     </div>
@@ -923,19 +927,18 @@
                     <button type="button"
                             class="btn btn-secondary"
                             data-bs-dismiss="modal">
-                        Cancel
+                        Close
                     </button>
 
                     <button type="button"
-                            id="btnSaveOtherCollege"
+                            id="saveOtherCollege"
                             class="btn btn-primary">
-                        Save College
+                        Save
                     </button>
 
                 </div>
 
             </div>
-
         </div>
 
     </div>
@@ -948,10 +951,76 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(async function () {
             let teachingRowIndex = @Model.TeachingExperiences.Count;
             let adminRowIndex    = @Model.AdministrativeExperiences.Count;
 
+             async function loadOtherColleges() {
+
+                const listContainer =
+                    document.getElementById("otherCollegeList");
+
+                const facultyCode = '@facultyCode';
+                try {
+
+                    const response = await fetch(
+                         '@Url.Action("GetOtherColleges", "Dental")?facultyCode=' + facultyCode
+                    );
+
+                    allOtherColleges = await response.json();
+
+                    allOtherColleges.sort((a, b) =>
+                        a.collegeName.localeCompare(b.collegeName)
+                    );
+
+                    renderOtherColleges(allOtherColleges);
+                }
+                catch {
+
+                    listContainer.innerHTML =
+                        '<div class="text-danger">Failed to load colleges</div>';
+                }
+            }
+
+
+            let allOtherColleges = [];
+
+            function renderOtherColleges(colleges) {
+
+                const listContainer =
+                    document.getElementById("otherCollegeList");
+
+                listContainer.innerHTML = "";
+
+                if (!colleges || colleges.length === 0) {
+
+                    listContainer.innerHTML =
+                        '<div class="text-muted p-2">No colleges found</div>';
+
+                    return;
+                }
+
+                colleges.forEach(college => {
+
+                    const item =
+                        document.createElement("button");
+
+                    item.type = "button";
+
+                    item.className =
+                        "list-group-item list-group-item-action";
+
+                    item.textContent =
+                        `${college.collegeName} (${college.collegeTown})`;
+
+                    item.addEventListener("click", function () {
+
+                        selectOtherCollege(college);
+                    });
+
+                    listContainer.appendChild(item);
+                });
+            }
 
             // Auto-calculate total experience on date change
             $(document).on('change', '.date-input', function () {
@@ -1124,35 +1193,90 @@
             }
 
 
-            document.addEventListener("change", function (e) {
+           document.getElementById("otherCollegeSearch")
+            .addEventListener("input", function () {
+
+                const search =
+                    this.value.toLowerCase();
+
+                const filtered =
+                    allOtherColleges.filter(c =>
+                        c.collegeName.toLowerCase().includes(search) ||
+                        c.collegeTown.toLowerCase().includes(search)
+                    );
+
+                renderOtherColleges(filtered);
+            });
+
+            document.addEventListener("change", async function (e) {
 
                 if (!e.target.classList.contains("college-dropdown"))
                     return;
 
                 if (e.target.value === "OTHER_COLLEGE") {
 
-                    document
-                        .getElementById("selectedCollegeDropdown")
-                        .value = e.target.name;
+                    document.getElementById(
+                        "selectedCollegeDropdown"
+                    ).value = e.target.name;
 
-                    document
-                        .getElementById("selectedCollegeDropdown")
-                        .dataset.dropdownId = e.target.id;
+                    document.getElementById("otherCollegeListSection")
+                        .style.display = "block";
 
-                    document.getElementById("otherCollegeName").value = "";
-                    document.getElementById("otherCollegeTown").value = "";
-                    document.getElementById("otherState").value = "";
-                    document.getElementById("otherDistrict").value = "";
-                    document.getElementById("otherTaluk").value = "";
+                    document.getElementById("otherCollegeFormSection")
+                        .style.display = "none";
 
-                    const modal = new bootstrap.Modal(
-                        document.getElementById("otherCollegeModal")
-                    );
+                    document.getElementById("otherCollegeSearch").value = "";
+
+                    await loadOtherColleges();
+
+                    const modal =
+                        new bootstrap.Modal(
+                            document.getElementById(
+                                "otherCollegeModal"
+                            )
+                        );
 
                     modal.show();
                 }
-
             });
+
+            function selectOtherCollege(college)
+            {
+                const dropdownName =
+                    document.getElementById(
+                        "selectedCollegeDropdown"
+                    ).value;
+
+                const dropdown =
+                    document.querySelector(
+                        `[name="${dropdownName}"]`
+                    );
+
+                let option =
+                    Array.from(dropdown.options)
+                         .find(x => x.value === college.collegeCode);
+
+                if (!option)
+                {
+                    option = new Option(
+                        college.collegeName,
+                        college.collegeCode,
+                        true,
+                        true
+                    );
+
+                    dropdown.add(option);
+                }
+
+                dropdown.value = college.collegeCode;
+
+                bootstrap.Modal
+                    .getInstance(
+                        document.getElementById("otherCollegeModal")
+                    )
+                    .hide();
+            }
+
             document.getElementById("btnSaveOtherCollege")
                 .addEventListener("click", async function () {
 
@@ -1207,12 +1331,14 @@
                             return;
                         }
 
-                        const dropdownId =
+                        const dropdownName =
                             document.getElementById("selectedCollegeDropdown")
-                                .dataset.dropdownId;
+                                .value;
 
                         const dropdown =
-                            document.getElementById(dropdownId);
+                            document.querySelector(
+                                `[name="${dropdownName}"]`
+                            );
 
                         const option =
                             new Option(
@@ -1250,8 +1376,11 @@
                             )
                             .hide();
 
-                        alert("College added successfully.");
-                        location.reload();
+                        bootstrap.Modal
+                            .getInstance(
+                                document.getElementById("otherCollegeModal")
+                            )
+                            .hide();
 
                     }
                     catch (error) {

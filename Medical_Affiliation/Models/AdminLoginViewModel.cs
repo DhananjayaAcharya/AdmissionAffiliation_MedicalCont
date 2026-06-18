@@ -37,6 +37,23 @@ namespace Admission_Affiliation.Models
         public string? PrincipalName { get; set; }
     }
 
+    public class OtherCollegeVm
+    {
+        public int Id { get; set; }
+
+        public string CollegeCode { get; set; }
+
+        public string CollegeName { get; set; }
+
+        public string CollegeTown { get; set; }
+
+        public string StateName { get; set; }
+
+        public string DistrictName { get; set; }
+
+        public string TalukName { get; set; }
+    }
+
     public class CourseDetailForAdmin
     {
         public string? CourseName { get; set; }
