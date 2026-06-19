@@ -745,7 +745,7 @@ namespace Medical_Affiliation.Controllers
                         DesignationName = desig.DesignationName,
 
                         // UG / PG
-                        CourseLevel = dept.DepartmentCode == "DE000" ? "UG" : "PG",
+                        //CourseLevel = dept.DepartmentCode == "DE000" ? "UG" : "PG",
 
                         SeatSlabId = seatSlabId.ToString(),
 

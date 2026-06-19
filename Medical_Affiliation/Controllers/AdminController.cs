@@ -760,6 +760,175 @@ namespace Admission_Affiliation.Controllers
             return Ok();
         }
 
+        public async Task<IActionResult> ManageOtherCollegeStatus()
+        {
+            var colleges = await _context.AffiliationOthersCollegeMasters
+                .AsNoTracking()
+                .OrderBy(x => x.CollegeName)
+                .ToListAsync();
+
+            return View(colleges);
+        }
+
+        [HttpGet]
+        public IActionResult GetOtherCollege(int id)
+        {
+            var college =
+                _context.AffiliationOthersCollegeMasters
+                .Where(x => x.Id == id)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.CollegeName,
+                    x.CollegeTown,
+                    x.StateName,
+                    x.DistrictName,
+                    x.TalukName
+                })
+                .FirstOrDefault();
+
+            return Json(college);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveOtherCollege(SaveOtherCollegeVm vm)
+        {
+            var facultyCode =
+                HttpContext.Session.GetString("FacultyCode");
+
+            var lastCode =
+                await _context.AffiliationOthersCollegeMasters
+                .OrderByDescending(x => x.Id)
+                .Select(x => x.CollegeCode)
+                .FirstOrDefaultAsync();
+
+            int nextNo = 1;
+
+            if (!string.IsNullOrEmpty(lastCode))
+            {
+                nextNo =
+                    int.Parse(lastCode.Replace("OTH", "")) + 1;
+            }
+
+            string collegeCode =
+                $"OTH{nextNo:D3}";
+
+            var entity =
+                new AffiliationOthersCollegeMaster
+                {
+                    CollegeCode = collegeCode,
+                    FacultyCode = Convert.ToInt32(facultyCode),
+                    CollegeName = vm.CollegeName,
+                    CollegeTown = vm.CollegeTown,
+                    StateName = vm.State,
+                    DistrictName = vm.District,
+                    TalukName = vm.Taluk
+                };
+
+            _context.AffiliationOthersCollegeMasters.Add(entity);
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                collegeCode,
+                collegeName = vm.CollegeName
+            });
+        }
+
+        [HttpGet]
+        public IActionResult CheckOtherCollegeUsage(int id)
+        {
+            var college = _context
+                .AffiliationOthersCollegeMasters
+                .FirstOrDefault(x => x.Id == id);
+
+            if (college == null)
+                return Json(new { success = false });
+
+            var usages = _context
+                .TeachingStaffDepartmentWiseDetails
+                .Where(x =>
+                    x.CollegeCode == college.CollegeCode ||
+                    x.UgcollegeCode == college.CollegeCode ||
+                    x.PgcollegeCode == college.CollegeCode)
+                .Select(x => new
+                {
+                    x.NameOfFaculty,
+                    x.DepartmentCode,
+                    x.DesignationName,
+                    x.CourseLevel
+                })
+                .ToList();
+
+            return Json(new
+            {
+                success = true,
+                collegeName = college.CollegeName,
+                usageCount = usages.Count,
+                usages
+            });
+        }
+
+
+        [HttpPost]
+        public IActionResult DeleteOtherCollege(int id)
+        {
+            using var transaction = _context.Database.BeginTransaction();
+
+            try
+            {
+                var college = _context
+                    .AffiliationOthersCollegeMasters
+                    .FirstOrDefault(x => x.Id == id);
+
+                if (college == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "College not found."
+                    });
+                }
+
+                var collegeCode = college.CollegeCode;
+
+                var staffRecords = _context
+                    .TeachingStaffDepartmentWiseDetails
+                    .Where(x =>
+                        x.CollegeCode == collegeCode ||
+                        x.UgcollegeCode == collegeCode ||
+                        x.PgcollegeCode == collegeCode)
+                    .ToList();
+
+                _context.TeachingStaffDepartmentWiseDetails
+                    .RemoveRange(staffRecords);
+
+                _context.AffiliationOthersCollegeMasters
+                    .Remove(college);
+
+                _context.SaveChanges();
+
+                transaction.Commit();
+
+                return Json(new
+                {
+                    success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> ToggleCollegeStatus(string collegeCode)
         {
