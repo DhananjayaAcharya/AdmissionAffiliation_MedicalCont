@@ -25,7 +25,7 @@ namespace Medical_Affiliation.Services.Faculty
                             .Where(x => x.FacultyCode == facultyId.ToString())
                             .Select(x => new SkillsLabDisplayViewModel
                             {
-                                AnnualMbbsIntake = x.AnnualMbbsIntake,
+                                AnnualMbbsIntake = x.AnnualMbbsIntake ?? 0,
                                 TotalAreaAvailableSqm = x.TotalAreaAvailableSqm,
                                 TotalAreaRequiredSqm = x.TotalAreaRequiredSqm,
                                 TotalAreaDeficiencySqm = x.TotalAreaDeficiencySqm,

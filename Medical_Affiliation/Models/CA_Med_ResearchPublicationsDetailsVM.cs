@@ -77,4 +77,6 @@ namespace Medical_Affiliation.Models
         public List<string> ExistingCourseLevels { get; set; } = new List<string>();
 
     }
+
+
 }

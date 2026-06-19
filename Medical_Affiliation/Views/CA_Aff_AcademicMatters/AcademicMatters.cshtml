@@ -502,7 +502,7 @@
                 if (e.target.classList.contains("curriculum-file")) {
 
                     const file = e.target.files[0];
-                    const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+                    const maxSize = 5 * 1024 * 1024; // ✅ 2MB
 
                     if (file) {
 
@@ -511,7 +511,7 @@
                             Swal.fire({
                                 icon: "error",
                                 title: "File too large",
-                                text: "Maximum allowed size is 2MB"
+                                text: "Maximum allowed size is upto 5MB"
                             });
 
                             e.target.value = "";
@@ -548,7 +548,7 @@
                     }
 
                     // ✅ existing validation (keep your code)
-                    const maxSize = 2 * 1024 * 1024;
+                    const maxSize = 5 * 1024 * 1024;
 
                     if (file) {
 
@@ -556,7 +556,7 @@
                             Swal.fire({
                                 icon: "error",
                                 title: "File too large",
-                                text: "Maximum allowed size is 2MB"
+                                text: "Maximum allowed size is upto 5MB"
                             });
 
                             e.target.value = "";

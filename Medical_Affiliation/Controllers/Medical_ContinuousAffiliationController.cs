@@ -693,7 +693,7 @@ namespace Medical_Affiliation.Controllers
             // ================================
             // SERVER-SIDE CALCULATION
             // ================================
-            model.TotalAreaRequiredSqm = model.AnnualMbbsIntake * 1.2m;
+            model.TotalAreaRequiredSqm = ((facultyCode == "1" ? model.AnnualMbbsIntake : model.AnnualBdsIntake) ?? 0) * 1.2m;
             model.TotalAreaDeficiencySqm =
                 Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
 

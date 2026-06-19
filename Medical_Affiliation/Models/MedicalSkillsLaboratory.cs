@@ -9,7 +9,7 @@ public partial class MedicalSkillsLaboratory
 
     public string FacultyCode { get; set; } = null!;
 
-    public int AnnualMbbsIntake { get; set; }
+    public int? AnnualMbbsIntake { get; set; }
 
     public decimal TotalAreaAvailableSqm { get; set; }
 
@@ -52,4 +52,6 @@ public partial class MedicalSkillsLaboratory
     public bool SkillsLabEnabledForElearning { get; set; }
 
     public string? CollegeCode { get; set; }
+
+    public int? AnnualBdsIntake { get; set; }
 }

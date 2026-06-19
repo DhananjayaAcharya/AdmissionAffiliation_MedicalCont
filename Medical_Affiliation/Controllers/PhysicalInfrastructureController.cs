@@ -987,7 +987,8 @@ namespace Medical_Affiliation.Controllers
                 // =========================================
                 if (facultyCode == "2")
                 {
-                    int intake = 50;
+                    int intake = await GetAnnualIntakeAsync() ?? 50;
+                    emptyVm.AnnualBdsIntake = intake;
 
                     var masterLabs = await _context
                         .MstDentalPreClinicalAndSkillsLaboratoryAreaReqs
@@ -1021,6 +1022,7 @@ namespace Medical_Affiliation.Controllers
             var vm = new SkillsLabViewModel
             {
                 AnnualMbbsIntake = lab.AnnualMbbsIntake,
+                AnnualBdsIntake = lab.AnnualBdsIntake,
 
                 TotalAreaAvailableSqm = lab.TotalAreaAvailableSqm,
                 TotalAreaRequiredSqm = lab.TotalAreaRequiredSqm,
@@ -1099,7 +1101,7 @@ namespace Medical_Affiliation.Controllers
                     // LOAD MASTER DATA
                     // =========================================
 
-                    int intake = lab.AnnualMbbsIntake;
+                    int? intake = lab.AnnualBdsIntake;
 
                     var masterLabs = await _context
                         .MstDentalPreClinicalAndSkillsLaboratoryAreaReqs
@@ -1130,6 +1132,7 @@ namespace Medical_Affiliation.Controllers
                         .ToList();
                 }
             }
+            ModelState.Clear();
 
             return View(vm);
         }
@@ -1152,7 +1155,7 @@ namespace Medical_Affiliation.Controllers
             // ================================
             // SERVER-SIDE CALCULATION
             // ================================
-            model.TotalAreaRequiredSqm = model.AnnualMbbsIntake * 1.2m;
+            model.TotalAreaRequiredSqm = ((facultyCode=="1" ? model.AnnualMbbsIntake: model.AnnualBdsIntake) ?? 0) * 1.2m;
             model.TotalAreaDeficiencySqm =
                 Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
 
@@ -1172,7 +1175,15 @@ namespace Medical_Affiliation.Controllers
             // ================================
             // UPDATE FIELDS
             // ================================
-            lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
+            if(facultyCode == "1")
+            {
+                lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
+            }
+            else if(facultyCode == "2")
+            {
+                lab.AnnualBdsIntake = model.AnnualBdsIntake;
+
+            }
             lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;
             lab.TotalAreaRequiredSqm = model.TotalAreaRequiredSqm;
             lab.TotalAreaDeficiencySqm = model.TotalAreaDeficiencySqm;

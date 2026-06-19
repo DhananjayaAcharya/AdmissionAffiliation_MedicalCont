@@ -270,6 +270,7 @@ namespace Medical_Affiliation.Models
     {
         // Basic
         public int AnnualMbbsIntake { get; set; } // 100/150/200/250
+        public int AnnualBdsIntake { get; set; } // r0/100/150/200/250
 
         // Area
         public decimal TotalAreaAvailableSqm { get; set; }

@@ -8,9 +8,12 @@ namespace Medical_Affiliation.Models
     public class SkillsLabViewModel
     {
         // Basic
-        [Required(ErrorMessage = "Annual MBBS intake is required.")]
         [Range(100, 250, ErrorMessage = "Intake must be between 100 and 250.")]
-        public int AnnualMbbsIntake { get; set; } // 100/150/200/250
+        public int? AnnualMbbsIntake { get; set; } // 100/150/200/250
+
+
+        [Range(50, 250, ErrorMessage = "Intake must be between 50 and 250.")]
+        public int? AnnualBdsIntake { get; set; } // 50/100/150/200/250
 
         // Area
         [Required(ErrorMessage = "Available skills lab area is required.")]

@@ -620,8 +620,8 @@
                 return;
             }
 
-            if (file.size > 2 * 1024 * 1024) {
-                Swal.fire({ icon: 'error', title: 'File Too Large', text: 'File size must not exceed 2 MB.', confirmButtonColor: '#d33' });
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire({ icon: 'error', title: 'File Too Large', text: 'File size must not exceed 5 MB.', confirmButtonColor: '#d33' });
                 input.value = '';
                 if (display) display.style.display = 'none';
                 return;

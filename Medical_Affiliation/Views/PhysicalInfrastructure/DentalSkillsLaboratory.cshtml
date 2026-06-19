@@ -4,6 +4,7 @@
     ViewData["Title"] = "Skills Laboratory";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var courseLevel = Context.Session.GetString("CourseLevel");
+    var facultyCode = Context.Session.GetString("FacultyCode");
     var groupedLabs = Model.PreClinicalAndSkillsLabs
         .GroupBy(x => new
         {
@@ -591,7 +592,7 @@
         <!-- Form Card -->
         <div class="form-card">
 
-            <form id="skillsLabForm" asp-action="DentalSkillsLaboratory" enctype="multipart/form-data">
+            <form id="skillsLabForm" asp-action="DentalSkillsLaboratory" enctype="multipart/form-data" method="post">
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary(true, "", new { @class = "text-danger", style = "font-size:0.8rem;margin-bottom:12px;" })
 
@@ -615,14 +616,19 @@
                         <div class="field-grid g-4" style="margin-bottom:16px;">
                             <div class="field-group">
                                 <label class="form-label-text">Annual BDS Intake</label>
-                                <select class="form-select" asp-for="AnnualMbbsIntake" id="skillsIntake">
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                    <option value="150">150</option>
-                                    <option value="200">200</option>
-                                    <option value="250">250</option>
+                                <select class="form-select"
+                                        id="skillsIntake"
+                                        asp-for="AnnualBdsIntake"
+                                        asp-items="@(new SelectList(new[]
+                                                {
+                                                    new { Value = 50, Text = "50" },
+                                                    new { Value = 100, Text = "100" },
+                                                    new { Value = 150, Text = "150" },
+                                                    new { Value = 200, Text = "200" },
+                                                    new { Value = 250, Text = "250" }
+                                                }, "Value", "Text"))">
                                 </select>
-                                <span asp-validation-for="AnnualMbbsIntake" class="text-danger"></span>
+                                <span asp-validation-for="AnnualBdsIntake" class="text-danger"></span>
                             </div>
                             <div class="field-group">
                                 <label class="form-label-text">Area Available (Sq.m)</label>
@@ -1024,79 +1030,81 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-        const skillsIntake    = document.getElementById('skillsIntake');
-        const skillsAreaAvail = document.getElementById('skillsAreaAvail');
-        const skillsAreaReq   = document.getElementById('skillsAreaReq');
-        const skillsAreaDef   = document.getElementById('skillsAreaDef');
-        const sumReq          = document.getElementById('summaryRequired');
-        const sumAvail        = document.getElementById('summaryAvailable');
-        const sumDef          = document.getElementById('summaryDeficiency');
+            const skillsIntake    = document.getElementById('skillsIntake');
+            const skillsAreaAvail = document.getElementById('skillsAreaAvail');
+            const skillsAreaReq   = document.getElementById('skillsAreaReq');
+            const skillsAreaDef   = document.getElementById('skillsAreaDef');
+            // const sumReq          = document.getElementById('summaryRequired');
+            // const sumAvail        = document.getElementById('summaryAvailable');
+            // const sumDef          = document.getElementById('summaryDeficiency');
 
-        const form    = document.getElementById('skillsLabForm');
-        const saveBtn = document.getElementById('btnSave');
-        const spinner = document.getElementById('saveSpinner');
+            const form    = document.getElementById('skillsLabForm');
+            const saveBtn = document.getElementById('btnSave');
+            const spinner = document.getElementById('saveSpinner');
 
-        /* ── Area calculation ── */
-        function recalcSkillsArea() {
-        const intake = parseInt(skillsIntake.value) || 0;
-        const avail  = parseFloat(skillsAreaAvail.value) || 0;
-        const req    = intake <= 150 ? 600 : 800;
-        const def    = Math.max(0, req - avail);
+            /* ── Area calculation ── */
+            function recalcSkillsArea() {
+                const intake = parseInt(skillsIntake.value) || 0;
+                const avail  = parseFloat(skillsAreaAvail.value) || 0;
+                const req    = intake <= 150 ? 600 : 800;
+                const def    = Math.max(0, req - avail);
 
-        skillsAreaReq.value = req.toFixed(2);
-        skillsAreaDef.value = def.toFixed(2);
+                skillsAreaReq.value = req.toFixed(2);
+                skillsAreaDef.value = def.toFixed(2);
 
-        sumReq.textContent   = req.toFixed(2);
-        sumAvail.textContent = avail.toFixed(2);
-        sumDef.textContent   = def.toFixed(2);
-        sumDef.className     = 'summary-box-value ' + (def > 0 ? 'val-short' : 'val-ok');
-        }
+            // sumReq.textContent   = req.toFixed(2);
+            // sumAvail.textContent = avail.toFixed(2);
+            // sumDef.textContent   = def.toFixed(2);
+            // sumDef.className     = 'summary-box-value ' + (def > 0 ? 'val-short' : 'val-ok');
+            }
 
-        skillsIntake.addEventListener('change', recalcSkillsArea);
-        let timeout;
-        skillsAreaAvail.addEventListener('input', function () {
-        clearTimeout(timeout);
-        timeout = setTimeout(recalcSkillsArea, 300);
-        });
-        recalcSkillsArea();
+            skillsIntake.addEventListener('change', recalcSkillsArea);
+            let timeout;
 
-        /* ── Form submit ── */
-        form.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
+            skillsAreaAvail.addEventListener('input', function () {
+                clearTimeout(timeout);
+                timeout = setTimeout(recalcSkillsArea, 300);
+            });
 
-        if (!this.checkValidity()) {
-        this.reportValidity();
-        return;
-        }
+            recalcSkillsArea();
 
-        saveBtn.disabled = true;
-        spinner.classList.remove('d-none');
+            /* ── Form submit ── */
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
 
-        try {
-        const formData = new FormData(form);
-        await fetch(form.action, { method: 'POST', body: formData });
+                if (!this.checkValidity()) {
+                    this.reportValidity();
+                    return;
+                }
 
-        await Swal.fire({
-        icon: 'success',
-        title: 'Saved Successfully!',
-        text: 'Skills Laboratory details saved.',
-        confirmButtonColor: '#0f2545'
-        });
+                saveBtn.disabled = true;
+                spinner.classList.remove('d-none');
 
-        window.location.href = '@Url.Action("ChairDistribution", "PhysicalInfrastructure")';
-        } catch (err) {
-        Swal.fire({
-        icon: 'error',
-        title: 'Save Failed',
-        text: 'Please try again.',
-        confirmButtonColor: '#c0392b'
-        });
-        } finally {
-        saveBtn.disabled = false;
-        spinner.classList.add('d-none');
-        }
-        });
+                try {
+                    const formData = new FormData(form);
+                    await fetch(form.action, { method: 'POST', body: formData });
+
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Saved Successfully!',
+                        text: 'Skills Laboratory details saved.',
+                        confirmButtonColor: '#0f2545'
+                    });
+
+                    window.location.href = '@Url.Action("ChairDistribution", "PhysicalInfrastructure")';
+                } catch (err) {
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Save Failed',
+                    text: 'Please try again.',
+                    confirmButtonColor: '#c0392b'
+                });
+                } finally {
+                    saveBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            });
         });
     </script>
 }
