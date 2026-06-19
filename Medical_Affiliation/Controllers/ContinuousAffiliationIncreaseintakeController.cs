@@ -899,8 +899,8 @@ namespace Medical_Affiliation.Controllers
                             e.Ay2025NmcDocument.Length > 0,
 
                     HasLopDocument =
-                        e.Ay2025LopDocument != null &&
-                        e.Ay2025LopDocument.Length > 0,
+                        e.Ay2025LopDentalDocument != null &&
+                        e.Ay2025LopDentalDocument.Length > 0,
 
                     HasDciDocument =
                                 (e.Ay2025Dcidocument != null &&
