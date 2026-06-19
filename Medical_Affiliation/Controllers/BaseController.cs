@@ -79,6 +79,48 @@ namespace Medical_Affiliation.Controllers
             return levels;
         }
 
+        protected async Task<int?> GetAnnualIntakeAsync()
+        {
+            var intake = await _context.AcademicIntakes
+                .Where(x => x.CollegeCode == CollegeCode &&
+                            x.FacultyCode == FacultyCode)
+                .Select(x => (int?)x.Ay2026TotalIntake)
+                .FirstOrDefaultAsync();
+
+            return intake;
+        }
+
+        protected async Task<string?> SaveFileAndReturnPath( IFormFile? file, string subFolder, string? filePrefix = null)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            string basePath = FacultyCode == "2"
+                ? BaseDentalPath
+                : BaseMedicalPath;
+
+            // Creates:
+            // E:\Affiliation_Medical\DepartmentWisePublications\
+            string uploadFolder = Path.Combine(basePath, subFolder);
+
+            if (!Directory.Exists(uploadFolder))
+                Directory.CreateDirectory(uploadFolder);
+
+            string extension = Path.GetExtension(file.FileName);
+
+            string fileName = string.IsNullOrWhiteSpace(filePrefix)
+                ? $"{Guid.NewGuid()}{extension}"
+                : $"{filePrefix}_{Guid.NewGuid()}{extension}";
+
+            string fullPath = Path.Combine(uploadFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             Console.WriteLine("=== BaseController.OnActionExecuting HIT ===");

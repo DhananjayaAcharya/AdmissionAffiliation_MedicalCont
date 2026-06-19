@@ -397,6 +397,94 @@
             </div>
         </div>
 
+
+        <!-- Department-wise Research Publications -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="icon-wrap">
+                    <i class="bi bi-building" style="font-size:1.5rem; color:#1a4c8b;"></i>
+                </div>
+                <h2>Department-wise Research Publications</h2>
+            </div>
+
+            <div class="section-body">
+
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width:35%">Department</th>
+                            <th style="width:20%">No. of Publications</th>
+                            <th style="width:45%">Upload PDF</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (int i = 0; i < Model.DepartmentWisePublications.Count; i++)
+                        {
+                            <tr>
+
+                                <input type="hidden"
+                                       asp-for="DepartmentWisePublications[i].Id" />
+
+                                <td>
+                                    @Model.DepartmentWisePublications[i].DeptName
+
+                                    <input type="hidden"
+                                           asp-for="DepartmentWisePublications[i].DeptCode" />
+
+                                    <input type="hidden"
+                                           asp-for="DepartmentWisePublications[i].DeptName" />
+                                </td>
+                                <td>
+                                    <input asp-for="DepartmentWisePublications[i].PublicationsCount"
+                                           type="number"
+                                           min="0"
+                                           class="form-control" />
+
+                                    <span asp-validation-for="DepartmentWisePublications[i].PublicationsCount"
+                                          class="text-danger"></span>
+                                </td>
+
+                                <td>
+
+                                    <label for="deptPublicationPdf_@i"
+                                           class="custom-upload-btn">
+                                        <i class="bi bi-upload"></i> Choose File
+                                    </label>
+
+                                    <input type="file"
+                                           id="deptPublicationPdf_@i"
+                                           asp-for="DepartmentWisePublications[i].PublicationPdf"
+                                           accept="application/pdf"
+                                           onchange="handleFileChange(this,'deptPublicationPdfName_@i')" />
+
+                                    <span class="file-name-display"
+                                          id="deptPublicationPdfName_@i"
+                                          style="display:none;">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                        <span class="name-text"></span>
+                                    </span>
+
+                                    @if (!string.IsNullOrEmpty(Model.DepartmentWisePublications[i].PublicationPath))
+                                    {
+                                        <a asp-action="ViewDepartmentPublicationPdf"
+                                           asp-route-id="@Model.DepartmentWisePublications[i].Id"
+                                           target="_blank"
+                                           class="btn-view">
+                                            <i class="bi bi-eye"></i> View PDF
+                                        </a>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
         <div class="text-center mt-5">
             <button type="submit" class="btn btn-success-main">
                 <i class="bi bi-cloud-arrow-up me-2"></i>Save Research &amp; Publication Details

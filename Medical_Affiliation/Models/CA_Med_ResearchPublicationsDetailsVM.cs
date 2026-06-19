@@ -76,7 +76,31 @@ namespace Medical_Affiliation.Models
 
         public List<string> ExistingCourseLevels { get; set; } = new List<string>();
 
+        public List<DepartmentWisePublicationVM> DepartmentWisePublications { get; set; } = new();
+
     }
 
+
+    public class DepartmentWisePublicationVM
+    {
+        public int Id { get; set; }
+
+        public string? CollegeCode { get; set; }
+
+        public int FacultyCode { get; set; }
+
+        [Required(ErrorMessage = "Department is required")]
+        public string DeptCode { get; set; }
+
+        public string? DeptName { get; set; }
+
+        [Required(ErrorMessage = "Publication count is required")]
+        [Range(0, int.MaxValue, ErrorMessage = "Enter a valid publication count")]
+        public int PublicationsCount { get; set; }
+
+        public IFormFile? PublicationPdf { get; set; }
+
+        public string? PublicationPath { get; set; }
+    }
 
 }

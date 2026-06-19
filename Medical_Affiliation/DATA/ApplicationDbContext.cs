@@ -236,6 +236,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DepartmentWiseFacultyMaster> DepartmentWiseFacultyMasters { get; set; }
 
+    public virtual DbSet<DeptWisePublication> DeptWisePublications { get; set; }
+
     public virtual DbSet<DesignationMaster> DesignationMasters { get; set; }
 
     public virtual DbSet<DistrictMaster> DistrictMasters { get; set; }
@@ -496,9 +498,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -3244,6 +3246,29 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.SeatSlabId)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<DeptWisePublication>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__DeptWise__3214EC07A907224E");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeptCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.DeptName).HasMaxLength(200);
+            entity.Property(e => e.PublicationPath).HasMaxLength(500);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.DeptWisePublications)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DeptWisePublications_Faculty");
         });
 
         modelBuilder.Entity<DesignationMaster>(entity =>

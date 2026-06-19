@@ -31,6 +31,8 @@ public partial class Faculty
 
     public virtual ICollection<DentalWardBedDistribution> DentalWardBedDistributions { get; set; } = new List<DentalWardBedDistribution>();
 
+    public virtual ICollection<DeptWisePublication> DeptWisePublications { get; set; } = new List<DeptWisePublication>();
+
     public virtual ICollection<HealthCenterChp> HealthCenterChps { get; set; } = new List<HealthCenterChp>();
 
     public virtual ICollection<HospitalDocumentDetail> HospitalDocumentDetails { get; set; } = new List<HospitalDocumentDetail>();

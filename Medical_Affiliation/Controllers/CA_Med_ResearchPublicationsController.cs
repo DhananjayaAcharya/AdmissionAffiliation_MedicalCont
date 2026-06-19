@@ -97,6 +97,12 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(x => x.DepartmentName)
                 .ToListAsync();
 
+            // ── Department Wise Publications ─────────────────────────────
+            var savedDeptPublications = await _context.DeptWisePublications
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCodeInt)
+                .ToListAsync();
+
             var activityMasters = await _context.CaMstMedOtherAcademicActivities
                 .OrderBy(x => x.ActivityName)
                 .ToListAsync();
@@ -135,7 +141,31 @@ namespace Medical_Affiliation.Controllers
                         CommitteePdfName = saved?.CommitteePdfName,
                         CourseLevel = m.CourseLevel
                     };
-                }).ToList()
+                }).ToList(),
+
+                DepartmentWisePublications = departments
+                .Select(d =>
+                {
+                    var saved = savedDeptPublications
+                        .FirstOrDefault(x => x.DeptCode == d.DepartmentCode);
+
+                    return new DepartmentWisePublicationVM
+                    {
+                        Id = saved?.Id ?? 0,
+
+                        CollegeCode = collegeCode,
+
+                        FacultyCode = facultyCodeInt,
+
+                        DeptCode = d.DepartmentCode,
+
+                        DeptName = d.DepartmentName,
+
+                        PublicationsCount = saved?.PublicationsCount ?? 0,
+
+                        PublicationPath = saved?.PublicationPath
+                    };
+                }).ToList(),
             };
 
             return View(vm);
@@ -258,10 +288,79 @@ namespace Medical_Affiliation.Controllers
                     () => entity.ClinicalTrialsPdfName);
             
 
+            // ── Department Wise Publications ─────────────────────────────
+            if (model.DepartmentWisePublications != null &&  model.DepartmentWisePublications.Any())
+            {
+                int facultyCodeInt = Convert.ToInt32(facultyCode);
+
+                foreach (var item in model.DepartmentWisePublications)
+                {
+                    var deptEntity = await _context.DeptWisePublications
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCodeInt &&
+                            x.DeptCode == item.DeptCode);
+
+                    if (deptEntity == null)
+                    {
+                        deptEntity = new DeptWisePublication
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyCode = facultyCodeInt,
+                            DeptCode = item.DeptCode,
+                            CreatedDate = DateTime.Now
+                        };
+
+                        _context.DeptWisePublications.Add(deptEntity);
+                    }
+
+                    deptEntity.DeptName = item.DeptName;
+                    deptEntity.PublicationsCount = item.PublicationsCount;
+                    deptEntity.UpdatedDate = DateTime.Now;
+
+                    // Upload file and save only the path
+                    if (item.PublicationPdf != null && item.PublicationPdf.Length > 0)
+                    {
+                        deptEntity.PublicationPath = await SaveFileAndReturnPath( item.PublicationPdf, "DepartmentWisePublications", item.DeptCode);
+                    }
+                }
+
+            }
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Research and Publication details saved successfully.";
             return RedirectToAction(nameof(CA_Med_ResearchPublicationsDetails));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewDepartmentPublicationPdf(int id)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            var publication = await _context.DeptWisePublications
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == Convert.ToInt32(facultyCode));
+
+            if (publication == null ||
+                string.IsNullOrWhiteSpace(publication.PublicationPath))
+            {
+                return NotFound("PDF not found.");
+            }
+
+            if (!System.IO.File.Exists(publication.PublicationPath))
+            {
+                return NotFound("File does not exist on server.");
+            }
+
+            var stream = new FileStream(
+                publication.PublicationPath,
+                FileMode.Open,
+                FileAccess.Read);
+
+            return File(stream, "application/pdf");
         }
 
         // ─────────────────────────────────────────────────────────────────────
