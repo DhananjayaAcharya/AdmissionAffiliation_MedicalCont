@@ -55,6 +55,7 @@ builder.Services.AddScoped<AutoProgressFilter>();
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<AutoProgressFilter>();
+    options.MaxModelBindingCollectionSize = int.MaxValue; // ✅ MOVED HERE
 })
 .AddViewLocalization()
 .AddDataAnnotationsLocalization();
@@ -222,7 +223,7 @@ builder.Services.AddAuthorization(options =>
 // =============================================
 builder.Services.Configure<IISServerOptions>(options =>
 {
-    options.MaxRequestBodySize = 52428800; // 50 MB
+    options.MaxRequestBodySize = 104_857_600; // 100 MB
 });
 
 
@@ -230,16 +231,13 @@ builder.Services.Configure<IISServerOptions>(options =>
 // ✅ FIX: Large Form Binding (60+ rows × 15 fields)
 // Default MVC limit = 1024 values → HTTP 400 with large tables
 // =============================================
-builder.Services.Configure<MvcOptions>(options =>
-{
-    options.MaxModelBindingCollectionSize = 5000;
-});
-
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.ValueCountLimit = 10000;
-    options.ValueLengthLimit = int.MaxValue;
-    options.MultipartBodyLengthLimit = 104857600; // 100 MB (covers file uploads)
+    options.ValueCountLimit = int.MaxValue;         // ✅ unlimited field count
+    options.ValueLengthLimit = int.MaxValue;        // ✅ unlimited field value length
+    options.MultipartBodyLengthLimit = 104_857_600; // ✅ 100 MB for file uploads
+    options.MultipartHeadersCountLimit = int.MaxValue;
+    options.MultipartBoundaryLengthLimit = int.MaxValue;
 });
 
 
@@ -353,7 +351,7 @@ app.UseAuthorization();
 app.UseStaticFiles();
 
 // ===== D:\MedicalUGFacultyList Mapping =====
-var medicalPath = @"E:\MedicalUGFacultyList";
+var medicalPath = @"D:\MedicalUGFacultyList";
 
 if (!Directory.Exists(medicalPath))
     Directory.CreateDirectory(medicalPath);

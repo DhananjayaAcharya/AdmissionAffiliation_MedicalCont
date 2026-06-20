@@ -53,7 +53,9 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestSizeLimit(50_000_000)]
-        [RequestFormLimits(MultipartBodyLengthLimit = 50_000_000)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 50_000_000,
+                   ValueCountLimit = int.MaxValue,
+                   ValueLengthLimit = int.MaxValue)]
         public async Task<IActionResult> IncreaseIntake(AcademicIntakePageViewModel1 model)
         {
             // Always re-read from session; never trust hidden form fields as authority
