@@ -18,7 +18,11 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AcademicIntake> AcademicIntakes { get; set; }
 
+    public virtual DbSet<AcademicIntakeYearWise> AcademicIntakeYearWises { get; set; }
+
     public virtual DbSet<AcademicYear> AcademicYears { get; set; }
+
+    public virtual DbSet<AcademicYearMaster> AcademicYearMasters { get; set; }
 
     public virtual DbSet<AdministrativeFacilityType> AdministrativeFacilityTypes { get; set; }
 
@@ -498,9 +502,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Server=DESKTOP-5QKRQII\\MSSQLSERVER02;Database=Admission_Affiliation;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -553,6 +557,24 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FacultyCode).HasMaxLength(20);
         });
 
+        modelBuilder.Entity<AcademicIntakeYearWise>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC07D8F19A3D");
+
+            entity.ToTable("AcademicIntakeYearWise");
+
+            entity.Property(e => e.AcademicYear).HasMaxLength(20);
+            entity.Property(e => e.ApprovalType).HasMaxLength(50);
+            entity.Property(e => e.CollegeCode).HasMaxLength(20);
+            entity.Property(e => e.CourseCode).HasMaxLength(20);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DocumentPath).HasMaxLength(500);
+            entity.Property(e => e.FacultyCode).HasMaxLength(20);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+        });
+
         modelBuilder.Entity<AcademicYear>(entity =>
         {
             entity.HasKey(e => e.AcademicYearId)
@@ -584,6 +606,16 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(9)
                 .IsUnicode(false)
                 .HasColumnName("year_label");
+        });
+
+        modelBuilder.Entity<AcademicYearMaster>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC0754B8106F");
+
+            entity.ToTable("AcademicYearMaster");
+
+            entity.Property(e => e.AcademicYear).HasMaxLength(20);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<AdministrativeFacilityType>(entity =>
@@ -1334,11 +1366,11 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationOthersCollegeMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07FC88D9E1");
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07E979F6A2");
 
             entity.ToTable("AffiliationOthersCollegeMaster");
 
-            entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6C402006D").IsUnique();
+            entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6502A85C7").IsUnique();
 
             entity.Property(e => e.CollegeCode)
                 .HasMaxLength(20)
@@ -6306,7 +6338,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<VehicleRequestLog>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__VehicleR__3214EC07DB0157EB");
+            entity.HasKey(e => e.Id).HasName("PK__VehicleR__3214EC072BE3B0E1");
 
             entity.ToTable("VehicleRequestLog");
 

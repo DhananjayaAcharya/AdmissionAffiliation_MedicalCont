@@ -36,7 +36,7 @@ namespace Medical_Affiliation.Models
             public string MobileNumber { get; set; }
             public string StdCode { get; set; }
             public string Fax { get; set; }
-            public string Website { get; set; }
+            public string? Website { get; set; }
             public string EmailId { get; set; }
             public string? AltLandlineOrMobile { get; set; }
             public string? AltEmailId { get; set; }
@@ -61,7 +61,7 @@ namespace Medical_Affiliation.Models
             public bool Amendments { get; set; }
 
           //  public string ExistingTrustName { get; set; }
-            public string GOKObtainedTrustName { get; set; }
+            public string? GOKObtainedTrustName { get; set; }
 
             // MUST be non-nullable for checkboxes
             public bool? ChangesInTrustName { get; set; }
@@ -93,8 +93,8 @@ namespace Medical_Affiliation.Models
         public bool hasGovAutoCertFile { get; set; }
             public IFormFile? GovCouncilMembershipFile { get; set; }
         public bool? hasGovCouncilMembershipFile { get; set; }
-            public IFormFile GokOrderExistingCoursesFile { get; set; }
-        public bool hasGokOrderExistingCoursesFile { get; set; }
+            public IFormFile? GokOrderExistingCoursesFile { get; set; }
+        public bool? hasGokOrderExistingCoursesFile { get; set; }
             public IFormFile? FirstAffiliationNotifFile { get; set; }
         public bool hasFirstAffiliationNotifFile { get; set; }
             public IFormFile? ContinuationAffiliationFile { get; set; }

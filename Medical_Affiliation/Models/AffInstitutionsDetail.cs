@@ -31,15 +31,15 @@ public partial class AffInstitutionsDetail
 
     public string? Fax { get; set; }
 
-    public string? Website { get; set; }
+    public string Website { get; set; } = null!;
 
     public string? SurveyNoPidNo { get; set; }
 
-    public bool MinorityInstitute { get; set; }
+    public bool? MinorityInstitute { get; set; }
 
-    public bool AttachedToMedicalClg { get; set; }
+    public bool? AttachedToMedicalClg { get; set; }
 
-    public bool RuralInstitute { get; set; }
+    public bool? RuralInstitute { get; set; }
 
     public string YearOfEstablishment { get; set; } = null!;
 
@@ -49,13 +49,13 @@ public partial class AffInstitutionsDetail
 
     public string? AltEmailId { get; set; }
 
-    public string HeadOfInstitution { get; set; } = null!;
+    public string? HeadOfInstitution { get; set; }
 
-    public string HeadAddress { get; set; } = null!;
+    public string? HeadAddress { get; set; }
 
-    public string FinancingAuthority { get; set; } = null!;
+    public string? FinancingAuthority { get; set; }
 
-    public string StatusOfCollege { get; set; } = null!;
+    public string? StatusOfCollege { get; set; }
 
     public string? CourseApplied { get; set; }
 
