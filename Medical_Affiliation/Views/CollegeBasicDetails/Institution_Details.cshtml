@@ -796,18 +796,25 @@
                             <div style="margin-top:16px; background:#f8f9fc; border:1px solid var(--border); border-radius:8px; padding:14px;">
                                 <p style="font-size:.72rem;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Flags</p>
                                 <div style="display:flex;gap:28px;flex-wrap:wrap;">
+
+                                    <input type="hidden" asp-for="MinorityInstitute" value="false" />
                                     <label class="check-label">
-                                        <input asp-for="MinorityInstitute" type="checkbox" />
+                                        <input asp-for="MinorityInstitute" type="checkbox" value="true" />
                                         Minority Institution
                                     </label>
+
+                                    <input type="hidden" asp-for="AttachedToMedicalClg" value="false" />
                                     <label class="check-label">
-                                        <input asp-for="AttachedToMedicalClg" type="checkbox" />
+                                        <input asp-for="AttachedToMedicalClg" type="checkbox" value="true" />
                                         Attached to Medical College
                                     </label>
+
+                                    <input type="hidden" asp-for="RuralInstitute" value="false" />
                                     <label class="check-label">
-                                        <input asp-for="RuralInstitute" type="checkbox" />
+                                        <input asp-for="RuralInstitute" type="checkbox" value="true" />
                                         Rural Institution
                                     </label>
+
                                 </div>
                             </div>
                         </div>

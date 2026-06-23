@@ -358,9 +358,9 @@ public class InstitutionViewModel
 
     public string SurveyNoPidNo { get; set; }
 
-    public bool? MinorityInstitute { get; set; }
-    public bool? AttachedToMedicalClg { get; set; }
-    public bool? RuralInstitute { get; set; }
+    public bool MinorityInstitute { get; set; }
+    public bool AttachedToMedicalClg { get; set; }
+    public bool RuralInstitute { get; set; }
 
     // ✅ Year
     [Required(ErrorMessage = "Year is required")]
@@ -386,7 +386,7 @@ public class InstitutionViewModel
 
     [Required(ErrorMessage = "Status is required")]
     public string? StatusOfCollege { get; set; }
-
+        
     public string? CourseApplied { get; set; }
 
     public string? DocumentName { get; set; }

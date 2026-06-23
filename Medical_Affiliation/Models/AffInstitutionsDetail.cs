@@ -35,11 +35,11 @@ public partial class AffInstitutionsDetail
 
     public string? SurveyNoPidNo { get; set; }
 
-    public bool? MinorityInstitute { get; set; }
+    public bool MinorityInstitute { get; set; }
 
-    public bool? AttachedToMedicalClg { get; set; }
+    public bool AttachedToMedicalClg { get; set; }
 
-    public bool? RuralInstitute { get; set; }
+    public bool RuralInstitute { get; set; }
 
     public string YearOfEstablishment { get; set; } = null!;
 

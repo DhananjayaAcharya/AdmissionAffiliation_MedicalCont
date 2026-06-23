@@ -861,9 +861,28 @@
                     <div class="flags-row">
                         <p>Flags</p>
                         <div class="flags-inner">
-                            <label class="check-label"><input asp-for="MinorityInstitute" type="checkbox" /> Minority Institution</label>
-                            <label class="check-label"><input asp-for="AttachedToMedicalClg" type="checkbox" /> Attached to Medical College</label>
-                            <label class="check-label"><input asp-for="RuralInstitute" type="checkbox" /> Rural Institution</label>
+
+                            <input type="hidden" name="MinorityInstitute" value="false" />
+                            <label class="check-label">
+                                <input type="checkbox" name="MinorityInstitute" value="true"
+                                       @(Model.MinorityInstitute == true ? "checked" : "") />
+                                Minority Institution
+                            </label>
+
+                            <input type="hidden" name="AttachedToMedicalClg" value="false" />
+                            <label class="check-label">
+                                <input type="checkbox" name="AttachedToMedicalClg" value="true"
+                                       @(Model.AttachedToMedicalClg == true ? "checked" : "") />
+                                Attached to Medical College
+                            </label>
+
+                            <input type="hidden" name="RuralInstitute" value="false" />
+                            <label class="check-label">
+                                <input type="checkbox" name="RuralInstitute" value="true"
+                                       @(Model.RuralInstitute == true ? "checked" : "") />
+                                Rural Institution
+                            </label>
+
                         </div>
                     </div>
                 </div>

@@ -334,9 +334,9 @@ namespace Medical_Affiliation.Controllers
             e.Fax = vm.Fax;
             e.Website = vm.Website;
             e.SurveyNoPidNo = vm.SurveyNoPidNo;
-            e.MinorityInstitute = vm.MinorityInstitute??false;
-            e.AttachedToMedicalClg = vm.AttachedToMedicalClg ?? false;
-            e.RuralInstitute = vm.RuralInstitute ?? false;
+            e.MinorityInstitute = vm.MinorityInstitute;   // bool → bool, no ?? needed
+            e.AttachedToMedicalClg = vm.AttachedToMedicalClg;
+            e.RuralInstitute = vm.RuralInstitute;
             e.YearOfEstablishment = vm.YearOfEstablishment;
             e.EmailId = vm.EmailId;
             e.AltLandlineMobile = vm.AltLandlineMobile;

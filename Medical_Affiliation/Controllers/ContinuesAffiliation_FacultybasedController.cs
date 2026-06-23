@@ -2933,6 +2933,9 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.CourseApplied));
             ModelState.Remove(nameof(vm.Fax));
             ModelState.Remove(nameof(vm.StatusOfCollege));
+            ModelState.Remove(nameof(vm.MinorityInstitute));
+            ModelState.Remove(nameof(vm.AttachedToMedicalClg));
+            ModelState.Remove(nameof(vm.RuralInstitute));
 
             if (vm.TypeOfInstitution == "1" ||
     vm.TypeOfInstitution == "11")
@@ -3157,7 +3160,7 @@ namespace Medical_Affiliation.Controllers
                 HeadOfInstitution = e.HeadOfInstitution,
                 HeadAddress = e.HeadAddress,
                 FinancingAuthority = e.FinancingAuthority,
-             //   StatusOfCollege = e.StatusOfCollege,
+                StatusOfCollege = e.StatusOfCollege,
                 CourseApplied = e.CourseApplied,
                 DocumentName = e.DocumentName,
                 DocumentContentType = e.DocumentContentType,
@@ -3201,9 +3204,9 @@ namespace Medical_Affiliation.Controllers
             e.Fax = vm.Fax;
             e.Website = vm.Website;
             e.SurveyNoPidNo = vm.SurveyNoPidNo;
-            e.MinorityInstitute = vm.MinorityInstitute ?? false;
-            e.AttachedToMedicalClg = vm.AttachedToMedicalClg ?? false;
-            e.RuralInstitute = vm.RuralInstitute ?? false;
+            e.MinorityInstitute = vm.MinorityInstitute;
+            e.AttachedToMedicalClg = vm.AttachedToMedicalClg;
+            e.RuralInstitute = vm.RuralInstitute;
             e.YearOfEstablishment = vm.YearOfEstablishment;
             e.EmailId = vm.EmailId;
             e.AltLandlineMobile = vm.AltLandlineMobile;
@@ -3211,7 +3214,7 @@ namespace Medical_Affiliation.Controllers
             e.HeadOfInstitution = vm.HeadOfInstitution;
             e.HeadAddress = vm.HeadAddress;
             e.FinancingAuthority = vm.FinancingAuthority;
-          //  e.StatusOfCollege = vm.StatusOfCollege;
+            e.StatusOfCollege = vm.StatusOfCollege;
             e.CourseApplied = vm.CourseApplied;
             e.NodalOfficerName = vm.NodalOfficer_Name;
             e.NodalOfficerMobNumber = vm.NodalOfficer_Mob_Number;
