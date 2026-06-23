@@ -358,9 +358,9 @@ public class InstitutionViewModel
 
     public string SurveyNoPidNo { get; set; }
 
-    public bool MinorityInstitute { get; set; }
-    public bool AttachedToMedicalClg { get; set; }
-    public bool RuralInstitute { get; set; }
+    public bool? MinorityInstitute { get; set; }
+    public bool? AttachedToMedicalClg { get; set; }
+    public bool? RuralInstitute { get; set; }
 
     // ✅ Year
     [Required(ErrorMessage = "Year is required")]
@@ -379,13 +379,13 @@ public class InstitutionViewModel
     [EmailAddress(ErrorMessage = "Invalid email")]
     public string? AltEmailId { get; set; }
     
-    public string HeadOfInstitution { get; set; }
+    public string? HeadOfInstitution { get; set; }
     public string HeadAddress { get; set; }
 
     public string FinancingAuthority { get; set; }
 
     [Required(ErrorMessage = "Status is required")]
-    public string StatusOfCollege { get; set; }
+    public string? StatusOfCollege { get; set; }
 
     public string? CourseApplied { get; set; }
 
@@ -412,10 +412,10 @@ public class InstitutionViewModel
 
     // ✅ Head
     [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
-    public string HeadOfInstitution_Mob_NO { get; set; }
+    public string? HeadOfInstitution_Mob_NO { get; set; }
 
     [EmailAddress(ErrorMessage = "Invalid email")]
-    public string HeadOfInstitution_Email { get; set; }
+    public string? HeadOfInstitution_Email { get; set; }
 
     // ✅ URLs
     [RegularExpression(

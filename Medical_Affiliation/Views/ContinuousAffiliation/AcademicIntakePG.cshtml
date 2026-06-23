@@ -1,0 +1,474 @@
+﻿@model PgAcademicIntakeViewModel
+
+@{
+    ViewData["Title"] = "PG Academic Intake";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/common-form.css" />
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 6px;
+    }
+
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px);
+        }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+    }
+
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 36px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 28px 0 20px;
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    .section-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .section-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .section-block-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+        .data-table th {
+            background: linear-gradient(180deg, #f5f2ec 0%, #ede8df 100%);
+            padding: 12px 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--navy);
+            border-bottom: 2px solid var(--border);
+            text-align: left;
+        }
+
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f0ece4;
+        }
+
+    .form-control, .form-select {
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 8px 10px;
+        width: 100%;
+    }
+
+    .save-btn {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: white;
+        padding: 11px 32px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .intake-chip {
+        background: rgba(184, 136, 42, 0.15);
+        color: var(--gold);
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid rgba(184,136,42,0.3);
+    }
+
+    .table-responsive-custom {
+        overflow-x: auto;
+        overflow-y: hidden;
+        width: 100%;
+        padding-bottom: 10px;
+    }
+
+        .table-responsive-custom::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-track {
+            background: #ece7dd;
+            border-radius: 10px;
+        }
+
+        .table-responsive-custom::-webkit-scrollbar-thumb {
+            background: #9f9f9f;
+            border-radius: 10px;
+        }
+
+    .data-table {
+        min-width: 1250px;
+    }
+
+        .data-table th:nth-child(1),
+        .data-table td:nth-child(1) {
+            min-width: 170px;
+        }
+
+        .data-table th:nth-child(2),
+        .data-table td:nth-child(2),
+        .data-table th:nth-child(3),
+        .data-table td:nth-child(3),
+        .data-table th:nth-child(4),
+        .data-table td:nth-child(4) {
+            min-width: 170px;
+        }
+
+        .data-table th:nth-child(5),
+        .data-table td:nth-child(5) {
+            min-width: 180px;
+        }
+
+        .data-table th:nth-child(6),
+        .data-table td:nth-child(6) {
+            min-width: 180px;
+        }
+
+        .data-table th:nth-child(7),
+        .data-table td:nth-child(7) {
+            min-width: 250px;
+        }
+
+    .btn-info {
+        background: linear-gradient(135deg,#17a2b8,#0dcaf0);
+        border: none;
+        font-weight: 600;
+    }
+
+        .btn-info:hover {
+            opacity: .9;
+        }
+
+    .sub-title {
+        margin-top: 6px;
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+</style>
+
+<div class="page-shell">
+    <div class="page-container">
+
+        <div class="page-header">
+
+            <div class="header-title">PG Academic Intake Enhancement</div>
+        </div>
+
+        <div class="form-card">
+
+            <!-- Course Selection -->
+            <form method="get">
+                <div class="section-label">
+                    <span class="section-label-text">Select PG Course</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <div class="mb-4">
+                    <select asp-for="SelectedCourseCode"
+                            asp-items="Model.PgCourses"
+                            class="form-select"
+                            onchange="this.form.submit()">
+                        <option value="">-- Select Course --</option>
+                    </select>
+                </div>
+            </form>
+
+            @if (Model.Course != null)
+            {
+                <form method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Course.CourseCode" />
+
+                    <div class="section-block">
+                        <div class="section-block-header">
+                            <span class="section-block-title">@Model.Course.CourseName</span>
+
+                            <div class="sub-title">
+                                Year-wise Intake Details
+                            </div>
+                            <span class="intake-chip">
+                                Present Intake : @Model.Course.CurrentApprovedIntake
+                            </span>
+                        </div>
+
+                        <div class="section-block-body">
+                            <div class="table-responsive-custom">
+                            <table class="data-table" id="intakeTable">
+                                <thead>
+                                    <tr>
+                                        <th>Academic Year</th>
+                                        <th>Existing Intake</th>
+                                        <th>Additional Intake</th>
+                                        <th>Proposed Total Intake</th>
+                                        <th>Approval Authority</th>
+                                        <th>LOP Date</th>
+                                        <th>Supporting Document</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Course.YearWiseIntakes.Count; i++)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @Model.Course.YearWiseIntakes[i].AcademicYear
+                                                <input type="hidden" asp-for="Course.YearWiseIntakes[i].AcademicYear" />
+                                            </td>
+
+                                            <td>
+                                                <input name="Course.YearWiseIntakes[@i].ExistingIntake"
+                                                       value="@Model.Course.YearWiseIntakes[i].ExistingIntake"
+                                                       class="form-control existing"
+                                                @(i == 0 ? "" : "readonly") />
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Course.YearWiseIntakes[i].AdditionalIntake"
+                                                       class="form-control additional" />
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Course.YearWiseIntakes[i].TotalIntake"
+                                                       class="form-control total"
+                                                       readonly />
+                                            </td>
+
+                                                <td>
+                                                    <select asp-for="Course.YearWiseIntakes[i].ApprovalAuthority"
+                                                            class="form-select">
+
+                                                        @if (Model.Course.YearWiseIntakes[i].ApprovalAuthority == "NMC")
+                                                        {
+                                                            <option value="">-- Select --</option>
+                                                            <option value="NMC" selected>NMC</option>
+                                                            <option value="LOP">LOP</option>
+                                                            <option value="MCI">MCI</option>
+                                                        }
+                                                        else if (Model.Course.YearWiseIntakes[i].ApprovalAuthority == "LOP")
+                                                        {
+                                                            <option value="">-- Select --</option>
+                                                            <option value="NMC">NMC</option>
+                                                            <option value="LOP" selected>LOP</option>
+                                                            <option value="MCI">MCI</option>
+                                                        }
+                                                        else if (Model.Course.YearWiseIntakes[i].ApprovalAuthority == "MCI")
+                                                        {
+                                                            <option value="">-- Select --</option>
+                                                            <option value="NMC">NMC</option>
+                                                            <option value="LOP">LOP</option>
+                                                            <option value="MCI" selected>MCI</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="" selected>-- Select --</option>
+                                                            <option value="NMC">NMC</option>
+                                                            <option value="LOP">LOP</option>
+                                                            <option value="MCI">MCI</option>
+                                                        }
+
+                                                    </select>
+                                                </td>
+
+
+                                            <td>
+                                                <input asp-for="Course.YearWiseIntakes[i].LopDate"
+                                                       type="date"
+                                                       class="form-control" />
+                                            </td>
+
+                                                <td style="min-width:220px;">
+
+                                                    <input asp-for="Course.YearWiseIntakes[i].Document"
+                                                           type="file"
+                                                           class="form-control mb-2"
+                                                           accept=".pdf" />
+
+                                                    @if (!string.IsNullOrWhiteSpace(
+                                                            Model.Course.YearWiseIntakes[i].DocumentPath))
+                                                    {
+                                                        <a asp-action="ViewAcademicIntakeDocument"
+                                                           asp-route-courseCode="@Model.Course.CourseCode"
+                                                           asp-route-academicYear="@Model.Course.YearWiseIntakes[i].AcademicYear"
+                                                           class="btn btn-sm btn-info text-white w-100"
+                                                           target="_blank">
+                                                            <i class="bi bi-eye"></i> View Document
+                                                        </a>
+                                                    }
+
+                                                </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn save-btn">
+                            Save PG Intake Details
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            function recalculateRows() {
+
+                const rows =
+                    document.querySelectorAll(
+                        "tbody tr");
+
+                let previousTotal = 0;
+
+                rows.forEach((row, index) => {
+
+                    const existing =
+                        row.querySelector(".existing");
+
+                    const additional =
+                        row.querySelector(".additional");
+
+                    const total =
+                        row.querySelector(".total");
+
+                    if (!existing ||
+                        !additional ||
+                        !total)
+                        return;
+
+                    // First row - user editable
+                    if (index === 0) {
+                        previousTotal =
+                            parseInt(existing.value) || 0;
+                    }
+                    else {
+                        existing.value =
+                            previousTotal;
+                    }
+
+                    let additionalValue =
+                        parseInt(additional.value) || 0;
+
+                    let totalValue =
+                        parseInt(existing.value) +
+                        additionalValue;
+
+                    total.value = totalValue;
+
+                    previousTotal = totalValue;
+                });
+            }
+
+            // Initial calculation on page load
+            recalculateRows();
+
+            // Recalculate when first row Existing Intake changes
+            document.addEventListener(
+                "input",
+                function (e) {
+
+                    if (
+                        e.target.classList.contains(
+                            "existing") ||
+                        e.target.classList.contains(
+                            "additional")
+                    ) {
+                        recalculateRows();
+                    }
+                });
+        });
+    </script>
+}

@@ -281,8 +281,11 @@ namespace Medical_Affiliation.Controllers
                 }
                 vm.hasDCIfile = !string.IsNullOrWhiteSpace(entity.DcicertificateFilePath);
                 vm.hasGovAutoCertFile = !string.IsNullOrWhiteSpace(entity.GovAutonomousCertFilePath);
-                //  vm.hasGovCouncilMembershipFile = !string.IsNullOrWhiteSpace(entity.GovCouncilMembershipFilePath); 
-                vm.hasGokOrderExistingCoursesFile = !string.IsNullOrWhiteSpace(entity.GokOrderExistingCoursesFilePath);
+                //  vm.hasGovCouncilMembershipFile = !string.IsNullOrWhiteSpace(entity.GovCouncilMembershipFilePath);
+                if (facultyCode != "1")
+                {
+                    vm.hasGokOrderExistingCoursesFile = !string.IsNullOrWhiteSpace(entity.GokOrderExistingCoursesFilePath);
+                }
                 vm.hasFirstAffiliationNotifFile = !string.IsNullOrWhiteSpace(entity.FirstAffiliationNotifFilePath);
                 vm.hasContinuationAffiliationFile = !string.IsNullOrWhiteSpace(entity.ContinuationAffiliationFilePath);
                 //   vm.hasKncCertificateFile = !string.IsNullOrWhiteSpace(entity.KncCertificateFilePath);
@@ -414,13 +417,13 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.TypeOfInstitutionList));
             ModelState.Remove(nameof(vm.InstitutionId));
             ModelState.Remove(nameof(vm.AmendedDoc));
-            //  ModelState.Remove(nameof(vm.AadhaarFile));
+          //ModelState.Remove(nameof(vm.AadhaarFile));
             ModelState.Remove(nameof(vm.GovAutonomousCertFile));
             ModelState.Remove(nameof(vm.GovCouncilMembershipFile));
             ModelState.Remove(nameof(vm.GokOrderExistingCoursesFile));
             ModelState.Remove(nameof(vm.FirstAffiliationNotifFile));
             ModelState.Remove(nameof(vm.ContinuationAffiliationFile));
-            //  ModelState.Remove(nameof(vm.KncCertificateFile));
+          //ModelState.Remove(nameof(vm.KncCertificateFile));
             ModelState.Remove(nameof(vm.PANFile));
             ModelState.Remove(nameof(vm.BankStatementFile));
             ModelState.Remove(nameof(vm.RegistrationCertificateFile));
@@ -502,9 +505,8 @@ namespace Medical_Affiliation.Controllers
             entity.FinancingAuthorityName = vm.FinancingAuthorityName ?? "";
             entity.CollegeStatus = "Active";
             entity.GovAutonomousCertNumber = vm.GovAutonomousCertNumber;
-            //   entity.KncCertificateNumber = vm.KncCertificateNumber;
-
-            // ★ AssignFileIfProvided skips null/empty uploads — existing DB bytes are untouched
+            //entity.KncCertificateNumber = vm.KncCertificateNumber;
+            //AssignFileIfProvided skips null/empty uploads — existing DB bytes are untouched
             //await AssignFileIfProvided(GovAutonomousCertFile, b => entity.GovAutonomousCertFile = b);
             //await AssignFileIfProvided(GovCouncilMembershipFile, b => entity.GovCouncilMembershipFile = b);
             //await AssignFileIfProvided(GokOrderExistingCoursesFile, b => entity.GokOrderExistingCoursesFile = b);
@@ -2334,9 +2336,9 @@ namespace Medical_Affiliation.Controllers
                     vm.Fax = existingInstitution.Fax;
                     vm.Website = existingInstitution.Website;
                     vm.SurveyNoPidNo = existingInstitution.SurveyNoPidNo;
-                    vm.MinorityInstitute = existingInstitution.MinorityInstitute;
-                    vm.AttachedToMedicalClg = existingInstitution.AttachedToMedicalClg;
-                    vm.RuralInstitute = existingInstitution.RuralInstitute;
+                    vm.MinorityInstitute = (bool)existingInstitution.MinorityInstitute;
+                    vm.AttachedToMedicalClg = (bool)existingInstitution.AttachedToMedicalClg;
+                    vm.RuralInstitute = (bool)existingInstitution.RuralInstitute;
 
                     // YearOfEstablishment in DB may be stored as string (yyyy or yyyy-MM-dd). Preserve as-is.
                     vm.YearOfEstablishment = existingInstitution.YearOfEstablishment ?? string.Empty;
@@ -2930,6 +2932,7 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.DocumentContentType));
             ModelState.Remove(nameof(vm.CourseApplied));
             ModelState.Remove(nameof(vm.Fax));
+            ModelState.Remove(nameof(vm.StatusOfCollege));
 
             if (vm.TypeOfInstitution == "1" ||
     vm.TypeOfInstitution == "11")
@@ -2941,6 +2944,15 @@ namespace Medical_Affiliation.Controllers
                         "Certificate Number is required.");
                 }
             }
+
+            var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .Select(x => new
+                        {
+                            Field = x.Key,
+                            Errors = x.Value.Errors.Select(e => e.ErrorMessage)
+                        })
+                        .ToList();
 
             // 3. Return view with errors if validation fails
             if (!ModelState.IsValid)
@@ -3145,7 +3157,7 @@ namespace Medical_Affiliation.Controllers
                 HeadOfInstitution = e.HeadOfInstitution,
                 HeadAddress = e.HeadAddress,
                 FinancingAuthority = e.FinancingAuthority,
-                StatusOfCollege = e.StatusOfCollege,
+             //   StatusOfCollege = e.StatusOfCollege,
                 CourseApplied = e.CourseApplied,
                 DocumentName = e.DocumentName,
                 DocumentContentType = e.DocumentContentType,
@@ -3189,9 +3201,9 @@ namespace Medical_Affiliation.Controllers
             e.Fax = vm.Fax;
             e.Website = vm.Website;
             e.SurveyNoPidNo = vm.SurveyNoPidNo;
-            e.MinorityInstitute = vm.MinorityInstitute;
-            e.AttachedToMedicalClg = vm.AttachedToMedicalClg;
-            e.RuralInstitute = vm.RuralInstitute;
+            e.MinorityInstitute = vm.MinorityInstitute ?? false;
+            e.AttachedToMedicalClg = vm.AttachedToMedicalClg ?? false;
+            e.RuralInstitute = vm.RuralInstitute ?? false;
             e.YearOfEstablishment = vm.YearOfEstablishment;
             e.EmailId = vm.EmailId;
             e.AltLandlineMobile = vm.AltLandlineMobile;
@@ -3199,7 +3211,7 @@ namespace Medical_Affiliation.Controllers
             e.HeadOfInstitution = vm.HeadOfInstitution;
             e.HeadAddress = vm.HeadAddress;
             e.FinancingAuthority = vm.FinancingAuthority;
-            e.StatusOfCollege = vm.StatusOfCollege;
+          //  e.StatusOfCollege = vm.StatusOfCollege;
             e.CourseApplied = vm.CourseApplied;
             e.NodalOfficerName = vm.NodalOfficer_Name;
             e.NodalOfficerMobNumber = vm.NodalOfficer_Mob_Number;

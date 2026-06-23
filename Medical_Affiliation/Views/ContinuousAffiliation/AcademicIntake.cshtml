@@ -1,0 +1,487 @@
+﻿@model AcademicIntakeViewModel
+
+@{
+    ViewData["Title"] = "Academic Intake";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/common-form.css" />
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy: #0f2545;
+        --navy-mid: #1a3a6b;
+        --gold: #b8882a;
+        --gold-light: #d4a84b;
+        --cream: #f9f7f2;
+        --white: #ffffff;
+        --border: #ddd8cc;
+        --text: #1a1a1a;
+        --text-muted: #6b6358;
+        --danger: #c0392b;
+        --success: #1a6b3a;
+        --radius: 6px;
+    }
+
+    .page-shell {
+        background-color: var(--cream);
+        min-height: 100vh;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px);
+        }
+
+    .header-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.85rem;
+        font-weight: 500;
+        color: var(--white);
+        letter-spacing: 0.01em;
+    }
+
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 32px 36px 36px;
+        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 28px 0 20px;
+    }
+
+    .section-label-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .section-label-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    .section-block {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .section-block-header {
+        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        border-bottom: 2px solid var(--border);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .section-block-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .section-block-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 13px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+
+    .intake-chip {
+        background: rgba(184, 136, 42, 0.15);
+        color: var(--gold);
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid rgba(184,136,42,0.3);
+        white-space: nowrap;
+    }
+
+    .section-block-body {
+        padding: 24px;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+        .data-table th {
+            background: linear-gradient(180deg, #f5f2ec 0%, #ede8df 100%);
+            padding: 12px 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--navy);
+            border-bottom: 2px solid var(--border);
+            text-align: left;
+            width: 22%;
+        }
+
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f0ece4;
+        }
+
+    .form-control {
+        border: 1px solid #d9d3c8;
+        border-radius: 4px;
+        padding: 8px 10px;
+        width: 100%;
+    }
+
+    .save-btn {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        border: none;
+        color: white;
+        padding: 11px 32px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .academic-table-wrapper {
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .academic-table {
+        min-width: 1300px;
+    }
+
+    .document-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .file-input {
+        min-width: 220px;
+    }
+
+    .view-doc-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: #0dcaf0;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .view-doc-btn:hover {
+            background: #0aa2c0;
+            color: #fff;
+        }
+
+    .data-table th,
+    .data-table td {
+        white-space: nowrap;
+    }
+</style>
+
+<div class="page-shell">
+    <div class="page-container">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                ✓ @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <div class="page-header">
+            <div class="header-title">Academic Intake Enhancement</div>
+        </div>
+
+        <div class="form-card">
+            <form asp-action="AcademicIntake" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                @for (int i = 0; i < Model.Courses.Count; i++)
+                {
+                    <div class="section-label">
+                        <span class="section-label-text">Course @(i + 1)</span>
+                        <span class="section-label-line"></span>
+                    </div>
+
+                    <div class="section-block">
+                        <div class="section-block-header">
+                            <span class="section-block-title">@Model.Courses[i].CourseName</span>
+                            <span class="intake-chip">
+                                Present Intake : @Model.Courses[i].CurrentApprovedIntake
+                            </span>
+                        </div>
+
+                        <div class="section-block-body">
+
+                            <input asp-for="Courses[i].CourseCode" type="hidden" />
+
+                            @if (Model.Courses[i].PreviousTotalIntake > 0)
+                            {
+                                <h6 style="margin-bottom: 12px; font-weight: 600; color: var(--navy);">
+                                    Previous Approved Intake Details
+                                </h6>
+                                <table class="data-table mb-4">
+                                    <thead>
+                                        <tr>
+                                            <th>LOP Date</th>
+                                            <th>Existing Intake</th>
+                                            <th>Additional Intake</th>
+                                            <th>Total Intake</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>@(Model.Courses[i].PreviousLopDate?.ToString("dd/MM/yyyy"))</td>
+                                            <td>@Model.Courses[i].PreviousExistingIntake</td>
+                                            <td>@Model.Courses[i].PreviousAdditionalIntake</td>
+                                            <td><strong>@Model.Courses[i].PreviousTotalIntake</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            }
+
+                            <!-- Request Intake Enhancement - Table Layout -->
+                            <h6 style="margin:20px 0 12px;
+                                       font-weight:600;
+                                       color:var(--navy);">
+                                Academic Year Wise Intake Details
+                            </h6>
+
+                            <div class="table-responsive academic-table-wrapper">
+                                <table class="data-table academic-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Academic Year</th>
+                                            <th>Present Approved Intake</th>
+                                            <th>Additional Intake</th>
+                                            <th>Proposed Total Intake</th>
+                                            <th>Approval Type</th>
+                                            <th>LOP Date</th>
+                                            <th>Document</th>
+                                        </tr>
+                                    </thead>
+
+                                <tbody>
+
+                                    @for (int j = 0;
+                                           j < Model.Courses[i].YearWiseIntakes.Count;
+                                           j++)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                @Model.Courses[i].YearWiseIntakes[j].AcademicYear
+
+                                                <input type="hidden"
+                                                       asp-for="Courses[i].YearWiseIntakes[j].AcademicYear" />
+                                            </td>
+
+                                            <td>
+                                                    @if (j == 0)
+                                                    {
+                                                        <input asp-for="Courses[i].YearWiseIntakes[j].ExistingIntake"
+                                                               class="form-control existing" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <input asp-for="Courses[i].YearWiseIntakes[j].ExistingIntake"
+                                                               class="form-control existing"
+                                                               readonly />
+                                                    }
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Courses[i].YearWiseIntakes[j].AdditionalIntake"
+                                                       class="form-control additional" />
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Courses[i].YearWiseIntakes[j].TotalIntake"
+                                                       class="form-control total"
+                                                       readonly />
+                                            </td>
+
+                                            <td>
+                                                    <select asp-for="Courses[i].YearWiseIntakes[j].ApprovalAuthority"
+                                                            class="form-control">
+
+                                                        @if (Model.Courses[i].YearWiseIntakes[j].ApprovalAuthority == "NMC")
+                                                        {
+                                                            <option value="">-- Select --</option>
+                                                            <option value="NMC" selected>NMC</option>
+                                                            <option value="LOP">LOP</option>
+                                                            <option value="MCI">MCI</option>
+                                                        }
+                                                        else if (Model.Courses[i].YearWiseIntakes[j].ApprovalAuthority == "LOP")
+                                                        {
+                                                            <option value="">-- Select --</option>
+                                                            <option value="NMC">NMC</option>
+                                                            <option value="LOP" selected>LOP</option>
+                                                            <option value="MCI">MCI</option>
+                                                        }
+                                                        else if (Model.Courses[i].YearWiseIntakes[j].ApprovalAuthority == "MCI")
+                                                        {
+                                                            <option value="">-- Select --</option>
+                                                            <option value="NMC">NMC</option>
+                                                            <option value="LOP">LOP</option>
+                                                            <option value="MCI" selected>MCI</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="" selected>-- Select --</option>
+                                                            <option value="NMC">NMC</option>
+                                                            <option value="LOP">LOP</option>
+                                                            <option value="MCI">MCI</option>
+                                                        }
+                                                    </select>
+                                            </td>
+
+                                            <td>
+                                                <input asp-for="Courses[i].YearWiseIntakes[j].LopDate"
+                                                       type="date"
+                                                       class="form-control" />
+                                            </td>
+                                                <td>
+                                                    <div class="document-cell">
+
+                                                        <input asp-for="Courses[i].YearWiseIntakes[j].Document"
+                                                               type="file"
+                                                               class="form-control file-input" />
+
+                                                        @if (!string.IsNullOrWhiteSpace(
+                                                                Model.Courses[i].YearWiseIntakes[j].DocumentPath))
+                                                        {
+                                                            <a asp-action="ViewAcademicIntakeDocument"
+                                                               asp-route-courseCode="@Model.Courses[i].CourseCode"
+                                                               asp-route-academicYear="@Model.Courses[i].YearWiseIntakes[j].AcademicYear"
+                                                               target="_blank"
+                                                               class="view-doc-btn"
+                                                               title="View Document">
+
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
+                                                        }
+
+                                                    </div>
+                                                </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn save-btn">
+                        Save Academic Intake Details
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            function recalculateTable(table) {
+
+                let previousTotal = 0;
+
+                table.find("tbody tr").each(function (index) {
+
+                    let row = $(this);
+
+                    let existingInput = row.find(".existing");
+                    let additionalInput = row.find(".additional");
+                    let totalInput = row.find(".total");
+
+                    // First row - user editable
+                    if (index === 0) {
+                        previousTotal =
+                            parseInt(existingInput.val()) || 0;
+                    }
+                    else {
+                        existingInput.val(previousTotal);
+                    }
+
+                    let additional =
+                        parseInt(additionalInput.val()) || 0;
+
+                    let total =
+                        parseInt(existingInput.val()) + additional;
+
+                    totalInput.val(total);
+
+                    previousTotal = total;
+                });
+            }
+
+            $(".academic-table").each(function () {
+                recalculateTable($(this));
+            });
+
+            $(document).on(
+                "input",
+                ".existing, .additional",
+                function () {
+
+                    let table =
+                        $(this).closest("table");
+
+                    recalculateTable(table);
+                });
+        });
+    </script>
+}
