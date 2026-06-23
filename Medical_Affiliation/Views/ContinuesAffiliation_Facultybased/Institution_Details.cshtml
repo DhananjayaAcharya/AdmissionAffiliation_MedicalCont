@@ -44,7 +44,7 @@
             min-height: 100vh;
         }
 
-        /* ─── PAGE HEADER ─── */
+        /* PAGE HEADER */
         .page-header {
             background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
             padding: 1rem 2rem .6rem;
@@ -89,26 +89,26 @@
             text-transform: uppercase;
         }
 
-        /* ─── MAIN LAYOUT ─── */
+        .college-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .page-header-text h4 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        /* MAIN LAYOUT - single column */
         .form-wrap {
             max-width: 1240px;
             margin: 32px auto;
-            padding: 5rem 12px 0px;
+            padding: 5rem 12px 0;
         }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @@media (max-width: 900px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* ─── SECTION CARDS ─── */
+        /* SECTION CARDS */
         .section-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -118,17 +118,19 @@
             margin-bottom: 20px;
             animation: fadeUp .35s ease both;
         }
-
         @@keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         }
 
         .section-card:nth-child(1) {
@@ -220,47 +222,11 @@
             color: #1a7f7a;
         }
 
-        .sh-green .icon-wrap {
-            background: #e7f6ee;
-        }
-
-            .sh-green .icon-wrap svg {
-                fill: #1e7e4e;
-            }
-
-        .sh-green h2 {
-            color: #1e7e4e;
-        }
-
-        .sh-amber .icon-wrap {
-            background: #fdf3e0;
-        }
-
-            .sh-amber .icon-wrap svg {
-                fill: #a0660a;
-            }
-
-        .sh-amber h2 {
-            color: #a0660a;
-        }
-
-        .sh-dark .icon-wrap {
-            background: #eaebee;
-        }
-
-            .sh-dark .icon-wrap svg {
-                fill: #2d3748;
-            }
-
-        .sh-dark h2 {
-            color: #2d3748;
-        }
-
         .section-body {
             padding: 20px;
         }
 
-        /* ─── FORM FIELDS ─── */
+        /* FORM FIELDS */
         .field-grid {
             display: grid;
             gap: 14px;
@@ -279,10 +245,33 @@
             grid-template-columns: 1fr 1fr 1fr;
         }
 
-        @@media (max-width: 600px) {
-            .col-2, .col-3 {
-                grid-template-columns: 1fr;
-            }
+        .col-4 {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        @@media (max-width:1024px) {
+            .col-4
+
+        {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        }
+        @@media (max-width:900px) {
+            .col-3
+
+        {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        }
+        @@media (max-width:600px) {
+            .col-2,.col-3,.col-4
+
+        {
+            grid-template-columns: 1fr;
+        }
+
         }
 
         label {
@@ -304,14 +293,14 @@
         input[type="url"], input[type="date"], input[type="file"],
         select, textarea {
             width: 100%;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'DM Sans',sans-serif;
             font-size: .85rem;
             color: var(--ink);
             background: #fafbfc;
             border: 1px solid var(--border);
             border-radius: 7px;
             padding: 8px 12px;
-            transition: border-color .18s, box-shadow .18s, background .18s;
+            transition: border-color .18s,box-shadow .18s,background .18s;
             outline: none;
         }
 
@@ -339,14 +328,8 @@
             background: #f0f2f5;
         }
 
-        #NameOfInstitution{
+        #NameOfInstitution {
             color: var(--institution-name);
-        }
-
-        .field-hint {
-            font-size: .7rem;
-            color: var(--ink-muted);
-            margin-top: 4px;
         }
 
         .text-danger {
@@ -354,13 +337,6 @@
             font-size: .7rem;
             margin-top: 3px;
             display: block;
-        }
-
-        .check-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding-top: 4px;
         }
 
         .check-label {
@@ -384,13 +360,38 @@
                 padding: 0;
             }
 
+        /* FLAGS */
+        .flags-row {
+            margin-top: 16px;
+            background: #f8f9fc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+            .flags-row p {
+                font-size: .72rem;
+                font-weight: 600;
+                color: var(--ink-muted);
+                text-transform: uppercase;
+                letter-spacing: .04em;
+                margin-bottom: 10px;
+            }
+
+        .flags-inner {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        /* FILE DROP */
         .file-drop {
             border: 2px dashed var(--border);
             border-radius: 9px;
             padding: 22px 16px;
             text-align: center;
             cursor: pointer;
-            transition: border-color .2s, background .2s;
+            transition: border-color .2s,background .2s;
             background: #fafbfd;
         }
 
@@ -430,6 +431,52 @@
             color: var(--accent);
         }
 
+        .file-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+            .file-row input[type="file"] {
+                flex: 1;
+            }
+
+        .btn-view {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 7px 12px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--ink-mid);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+            .btn-view:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: var(--accent-lt);
+            }
+
+        .file-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .7rem;
+            font-weight: 600;
+            color: #1e7e4e;
+            background: #eafaf1;
+            border: 1px solid #a9dfbf;
+            border-radius: 20px;
+            padding: 3px 10px;
+            margin-top: 6px;
+        }
+
         .optional-badge {
             display: inline-flex;
             align-items: center;
@@ -447,7 +494,23 @@
             vertical-align: middle;
         }
 
-        /* ─── FOOTER ACTIONS ─── */
+        /* MOBILE PREFIX */
+        .mobile-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mobile-prefix {
+            padding: 8px 10px;
+            background: #eee;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        /* FOOTER */
         .form-footer {
             display: flex;
             justify-content: flex-end;
@@ -459,7 +522,7 @@
         }
 
         .btn {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'DM Sans',sans-serif;
             font-size: .83rem;
             font-weight: 600;
             border-radius: 8px;
@@ -485,7 +548,7 @@
             }
 
         .btn-primary {
-            background: linear-gradient(135deg, #1a4c8b, #1564c0);
+            background: linear-gradient(135deg,#1a4c8b,#1564c0);
             color: #fff;
             box-shadow: 0 3px 14px rgba(26,76,139,.3);
         }
@@ -499,68 +562,16 @@
                 transform: translateY(0);
             }
 
-        .mobile-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .mobile-prefix {
-            padding: 8px 10px;
-            background: #eee;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-
-        .course-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: .85rem;
-            font-weight: 600;
-            color: var(--accent);
-            background: var(--accent-lt);
-            padding: 8px 14px;
-            border-radius: 6px;
-            border: 1px solid #cfd8e6;
-        }
-
-        .course-section {
-            margin-top: 12px;
-            display: none;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-        }
-
-        .course-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .8rem;
-        }
-
-            .course-table th, .course-table td {
-                padding: 8px;
-                border: 1px solid var(--border);
-            }
-
-        /* ─── TRUST SECTION VISIBILITY ─── */
+        /* TRUST TOGGLE */
         #trustManagementSection {
-            transition: opacity .3s ease, transform .3s ease;
+            transition: opacity .3s ease,transform .3s ease;
         }
 
             #trustManagementSection.trust-hidden {
                 display: none !important;
             }
 
-        /* ══════════════════════════════════════════════
-                   VALIDATION STYLES
-                ══════════════════════════════════════════════ */
-
-        /* Invalid field */
+        /* VALIDATION */
         .field-invalid input:not([type="checkbox"]),
         .field-invalid select,
         .field-invalid textarea {
@@ -570,7 +581,6 @@
             animation: shakeField .38s ease;
         }
 
-        /* ── FOCUS RING: first invalid field gets a pulsing ring ── */
         .field-focus-target input:not([type="checkbox"]),
         .field-focus-target select,
         .field-focus-target textarea {
@@ -579,41 +589,43 @@
             background: #fff5f5 !important;
             animation: pulseRing 1.4s ease infinite;
         }
-
         @@keyframes pulseRing {
-            0%, 100% {
-                box-shadow: 0 0 0 3px rgba(229,62,62,.25);
-            }
+            0%,100%
 
-            50% {
-                box-shadow: 0 0 0 6px rgba(229,62,62,.12);
-            }
+        {
+            box-shadow: 0 0 0 3px rgba(229,62,62,.25);
         }
 
-        /* Shake */
+        50% {
+            box-shadow: 0 0 0 6px rgba(229,62,62,.12);
+        }
+
+        }
         @@keyframes shakeField {
-            0%, 100% {
-                transform: translateX(0);
-            }
+            0%,100%
 
-            20% {
-                transform: translateX(-6px);
-            }
-
-            40% {
-                transform: translateX(6px);
-            }
-
-            60% {
-                transform: translateX(-4px);
-            }
-
-            80% {
-                transform: translateX(4px);
-            }
+        {
+            transform: translateX(0);
         }
 
-        /* Inline error message */
+        20% {
+            transform: translateX(-6px);
+        }
+
+        40% {
+            transform: translateX(6px);
+        }
+
+        60% {
+            transform: translateX(-4px);
+        }
+
+        80% {
+            transform: translateX(4px);
+        }
+
+        }
+
         .field-err-msg {
             display: flex;
             align-items: center;
@@ -630,12 +642,11 @@
                 font-size: .75rem;
             }
 
-        /* Section card red left-accent when errors present */
         .section-card.has-error {
             border-left: 3px solid #e53e3e;
         }
 
-        /* ─── TOAST ─── */
+        /* TOAST */
         #validationToast {
             position: fixed;
             top: 80px;
@@ -659,17 +670,19 @@
                 display: flex;
                 animation: toastSlideIn .3s ease;
             }
-
         @@keyframes toastSlideIn {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
         }
 
         .toast-icon {
@@ -707,7 +720,7 @@
                 opacity: 1;
             }
 
-        /* ─── FLOATING MISSING BADGE ─── */
+        /* BADGE */
         #missingBadge {
             display: none;
             position: fixed;
@@ -733,72 +746,11 @@
                 display: block;
                 animation: fadeUp .3s ease;
             }
-
-            .college-name {
-                font-size: 1.5rem;
-                font-weight: 600;
-                color: #fff;
-                margin-bottom: 4px;
-            }
-
-            .page-header-text h4 {
-                font-size: 1rem;
-                font-weight: 700;
-                
-            }
-
-            .file-row {
-                display: flex;
-                gap: 8px;
-                align-items: center;
-            }
-
-                .file-row input[type="file"] {
-                    flex: 1;
-                }
-
-            .btn-view {
-                flex-shrink: 0;
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                font-size: .75rem;
-                font-weight: 600;
-                padding: 7px 12px;
-                border-radius: 7px;
-                border: 1px solid var(--border);
-                background: var(--surface);
-                color: var(--ink-mid);
-                text-decoration: none;
-                white-space: nowrap;
-            }
-
-                .btn-view:hover {   
-                    border-color: var(--accent);
-                    color: var(--accent);
-                    background: var(--accent-lt);
-                }
-
-            .file-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                font-size: .7rem;
-                font-weight: 600;
-                color: #1e7e4e;
-                background: #eafaf1;
-                border: 1px solid #a9dfbf;
-                border-radius: 20px;
-                padding: 3px 10px;
-                margin-top: 6px;
-            }
     </style>
     <link rel="stylesheet" href="~/css/common-form.css" />
-
 </head>
 <body>
 
-    <!-- ─── TOAST ─── -->
     <div id="validationToast">
         <span class="toast-icon">⚠</span>
         <div class="toast-body">
@@ -808,566 +760,380 @@
         <button class="toast-close" onclick="document.getElementById('validationToast').classList.remove('show')">✕</button>
     </div>
 
-    <!-- ─── FLOATING BADGE ─── -->
     <div id="missingBadge" onclick="scrollToFirstError()"></div>
 
-    <!-- PAGE HEADER -->
     <div class="page-header">
-        <div class="emblem">
-            <i class="fas fa-hospital"></i>
-        </div>
+        <div class="emblem"><i class="fas fa-hospital"></i></div>
         <div class="page-header-text">
             @if (!string.IsNullOrEmpty(collegeName))
             {
                 <div class="college-name">@collegeName</div>
             }
-
             <h4 class="text-white">Institution Details</h4>
         </div>
     </div>
 
-    <!-- FORM BODY -->
     <div class="form-wrap">
         <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:16px;font-size:.83rem;"></div>
 
         <form asp-action="Institution_Details" method="post" enctype="multipart/form-data" id="institutionForm" novalidate>
             @Html.AntiForgeryToken()
 
-            <div class="grid-2">
-
-                <!-- ═══════════ LEFT COLUMN ═══════════ -->
-                <div>
-
-                    <!-- 1. Basic Information -->
-                    <div class="section-card" id="card-basic">
-                        <div class="section-header sh-blue">
-                            <div class="icon-wrap">
-                                <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm-7 3a3 3 0 110 6 3 3 0 010-6zm6 13H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V20z" /></svg>
-                            </div>
-                            <h2>Basic Information</h2>
+            <!-- 1. BASIC INFORMATION -->
+            <div class="section-card" id="card-basic">
+                <div class="section-header sh-blue">
+                    <div class="icon-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm-7 3a3 3 0 110 6 3 3 0 010-6zm6 13H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V20z" /></svg>
+                    </div>
+                    <h2>Basic Information</h2>
+                </div>
+                <div class="section-body">
+                    <div class="field-grid col-4">
+                        <div class="field-wrap" data-required data-label="Name of Institution" style="grid-column:span 2;">
+                            <label asp-for="NameOfInstitution">Name of Institution <span class="req">*</span></label>
+                            <input asp-for="NameOfInstitution" maxlength="200" placeholder="Full legal name" readonly />
+                            <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
                         </div>
-                        <div class="section-body">
-                            <div class="field-grid col-2">
-                                <div class="field-wrap" data-required data-label="Name of Institution">
-                                    <label asp-for="NameOfInstitution">Name of Institution <span class="req">*</span></label>
-                                    <input asp-for="NameOfInstitution" maxlength="200" placeholder="Full legal name" readonly />
-                                    <span asp-validation-for="NameOfInstitution" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Year of Establishment">
-                                    <label asp-for="YearOfEstablishment">Year of Establishment <span class="req">*</span></label>
-                                    <input asp-for="YearOfEstablishment" type="number" min="1900" max="2100" placeholder="e.g. 1995" />
-                                    <span asp-validation-for="YearOfEstablishment" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Type of Institution">
-                                    <label asp-for="TypeOfInstitution">Type of Institution <span class="req">*</span></label>
-                                    <select asp-for="TypeOfInstitution" asp-items="Model.institutetypelist" id="typeOfInstitutionDropdown">
-                                        <option value="">— Select —</option>
-                                    </select>
-                                    <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
-                                </div>
-
-
-                                <div class="field-wrap" data-required data-label="Status of College">
-                                    <label asp-for="StatusOfCollege">Status of College <span class="req">*</span></label>
-                                    <select asp-for="StatusOfCollege" asp-items="Model.Institutestatuslist">
-                                        <option value="">— Select —</option>
-                                    </select>
-                                    <span asp-validation-for="StatusOfCollege" class="text-danger"></span>
-                                </div>
-                                
-
-                                <div id="govAutoSection"
-                                     style="display:none; grid-column: span 2; margin-top:15px;">
-
-                                    <div class="field-grid col-2">
-
-                                        <div class="field-wrap">
-                                            <label>Gov Autonomous Cert Number</label>
-                                            <input asp-for="GovAutonomousCertNumber"
-                                                   maxlength="100"
-                                                   placeholder="Enter Certificate Number" />
-                                        </div>
-
-                                        <div class="field-wrap">
-                                            <label>
-                                                <i class="fas fa-file-shield"></i>
-                                                Gov Autonomous Certificate
-                                            </label>
-
-                                            <div class="file-row">
-                                                <input id="GovAutonomousCertFile"
-                                                       name="GovAutonomousCertFile"
-                                                       type="file"
-                                                       accept=".pdf" />
-
-                                                @if (Model.hasGovAutoCertFile)
-                                                {
-                                                    <a asp-action="DownloadGovAutonomousCert"
-                                                       asp-controller="ContinuesAffiliation_Facultybased"
-                                                       asp-route-id="@Model.InstitutionId"
-                                                       class="btn-view"
-                                                       target="_blank">
-                                                        <i class="fas fa-eye"></i> View
-                                                    </a>
-                                                }
-                                            </div>
-
-                                            @if (Model.hasGovAutoCertFile)
-                                            {
-                                                <span class="file-badge">
-                                                    <i class="fas fa-circle-check"></i>
-                                                    File already uploaded
-                                                </span>
-                                            }
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                                <div class="field-wrap" data-required data-label="Running Course" style="grid-column: span 2;">
-                                    <label asp-for="RunningCourse">Running Course <span class="req">*</span></label>
-                                    <select asp-for="RunningCourse" asp-items="Model.CourseList" id="runningCourseDropdown">
-                                        <option value="">— Select —</option>
-                                    </select>
-                                    <span asp-validation-for="RunningCourse" class="text-danger"></span>
-                                </div>
-                            </div>
-
-                            @* <div class="field-grid col-1" style="margin-top:14px;">
-                                <div class="field-wrap" data-required data-label="Address">
-                                    <label asp-for="Address">Address <span class="req">*</span></label>
-                                    <textarea asp-for="Address" rows="3" placeholder="Street / Area / Locality"></textarea>
-                                    <span asp-validation-for="Address" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="field-grid col-2" style="margin-top:14px;">
-                                <div>
-                                    <label asp-for="VillageTownCity">Village / Town / City</label>
-                                    <input asp-for="VillageTownCity" maxlength="100" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="PIN Code">
-                                    <label asp-for="PinCode">PIN Code <span class="req">*</span></label>
-                                    <input asp-for="PinCode" title="6-digit PIN" placeholder="000000" maxlength="6" />
-                                    <span asp-validation-for="PinCode" class="text-danger"></span>
-                                </div>
-                            </div> *@
+                        <div class="field-wrap" data-required data-label="Year of Establishment">
+                            <label asp-for="YearOfEstablishment">Year of Establishment <span class="req">*</span></label>
+                            <input asp-for="YearOfEstablishment" type="number" min="1900" max="2100" placeholder="e.g. 1995" />
+                            <span asp-validation-for="YearOfEstablishment" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Running Course">
+                            <label asp-for="RunningCourse">Running Course <span class="req">*</span></label>
+                            <select asp-for="RunningCourse" asp-items="Model.CourseList" id="runningCourseDropdown">
+                                <option value="">— Select —</option>
+                            </select>
+                            <span asp-validation-for="RunningCourse" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Type of Institution">
+                            <label asp-for="TypeOfInstitution">Type of Institution <span class="req">*</span></label>
+                            <select asp-for="TypeOfInstitution" asp-items="Model.institutetypelist" id="typeOfInstitutionDropdown">
+                                <option value="">— Select —</option>
+                            </select>
+                            <span asp-validation-for="TypeOfInstitution" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Status of College">
+                            <label asp-for="StatusOfCollege">Status of College <span class="req">*</span></label>
+                            <select asp-for="StatusOfCollege" asp-items="Model.Institutestatuslist">
+                                <option value="">— Select —</option>
+                            </select>
+                            <span asp-validation-for="StatusOfCollege" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Financing Authority">
+                            <label asp-for="FinancingAuthority">Financing Authority <span class="req">*</span></label>
+                            <input asp-for="FinancingAuthority" />
+                        </div>
+                        <div class="field-wrap" data-label="Minority Category">
+                            <label asp-for="MinorityCategory">Minority Category</label>
+                            <input asp-for="MinorityCategory" placeholder="e.g. Linguistic / Religious" />
                         </div>
                     </div>
 
-
-                    <!-- 2. Location & Contact -->
-                    @* <div class="section-card" id="card-location">
-                        <div class="section-header sh-slate">
-                            <div class="icon-wrap">
-                                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                    <div id="govAutoSection" style="display:none; margin-top:16px;">
+                        <div class="field-grid col-2">
+                            <div class="field-wrap">
+                                <label>Gov Autonomous Cert Number</label>
+                                <input asp-for="GovAutonomousCertNumber" maxlength="100" placeholder="Enter Certificate Number" />
                             </div>
-                            <h2>Location &amp; Contact</h2>
-                        </div>
-                        <div class="section-body">
-                            <div class="field-grid col-2">
-                                <div>
-                                    <label asp-for="District">District</label>
-                                    <select asp-for="District" asp-items="Model.DistrictList" id="districtDropdown">
-                                        <option value="">— Select District —</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label asp-for="Taluk">Taluk</label>
-                                    <select asp-for="Taluk" id="talukDropdown" asp-items="Model.TalukList">
-                                        <option value="">— Select Taluk —</option>
-                                    </select>
-                                </div>
-                                    <div>
-                                        <label asp-for="StdCode">STD Code</label>
-                                        <input asp-for="StdCode"
-                                               maxlength="5"
-                                               pattern="0\d{2,4}"
-                                               placeholder="e.g. 080" />
-                                    </div>
-                                <div>
-                                    <label asp-for="MobileNumber">Mobile Number</label>
-                                    <div class="mobile-group">
-                                        <span class="mobile-prefix">+91</span>
-                                        <input asp-for="MobileNumber" maxlength="10" oninput="validateMobile(this)" placeholder="Enter 10-digit number" />
-                                    </div>
-                                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
-                                </div>
-                                <div>
-                                    <label asp-for="AltLandlineMobile">Alternate / Landline</label>
-                                    <input asp-for="AltLandlineMobile" />
-                                </div>
-                                <div>
-                                    <label asp-for="Fax">Fax Number</label>
-                                    <input asp-for="Fax" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Email ID">
-                                    <label asp-for="EmailId">Email ID <span class="req">*</span></label>
-                                    <input asp-for="EmailId" type="email" />
-                                    <span asp-validation-for="EmailId" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Alternate Email">
-                                    <label asp-for="AltEmailId">Alternate Email <span class="req">*</span></label>
-                                    <input asp-for="AltEmailId" type="email" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Website">
-                                    <label asp-for="Website">Website <span class="req">*</span></label>
-                                    <input asp-for="Website" placeholder="e.g. www.xyzcollege.edu" />
-                                    <span asp-validation-for="Website" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap" data-required data-label="College URL">
-                                    <label asp-for="College_URL">College URL <span class="req">*</span></label>
-                                    <input asp-for="College_URL"
-                                            placeholder="e.g. www.xyzcollege.edu" />
-                                    <span asp-validation-for="College_URL" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Survey No / PID No">
-                                    <label asp-for="SurveyNoPidNo">Survey No / PID No <span class="req">*</span></label>
-                                    <input asp-for="SurveyNoPidNo" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
- *@
-          
-
-                    <!-- 3. Head & Principal -->
-                    <div class="section-card" id="card-head">
-                        <div class="section-header sh-teal">
-                            <div class="icon-wrap">
-                                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
-                            </div>
-                            <h2>Head of Institution &amp; Principal</h2>
-                        </div>
-                        <div class="section-body">
-                            <div class="field-grid col-2">
-                                <div class="field-wrap" data-required data-label="Head of Institution">
-                                    <label asp-for="HeadOfInstitution">Head of Institution <span class="req">*</span></label>
-                                    <input asp-for="HeadOfInstitution" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Head Mobile No">
-                                    <label asp-for="HeadOfInstitution_Mob_NO">Head Mobile No <span class="req">*</span></label>
-                                    <div class="mobile-group">
-                                        <span class="mobile-prefix">+91</span>
-                                        <input asp-for="HeadOfInstitution_Mob_NO" maxlength="10" oninput="validateMobile(this)" />
-                                    </div>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Head Email">
-                                    <label asp-for="HeadOfInstitution_Email">Head Email <span class="req">*</span></label>
-                                    <input asp-for="HeadOfInstitution_Email" type="email" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Head Address">
-                                    <label asp-for="HeadAddress">Head Address <span class="req">*</span></label>
-                                    <textarea asp-for="HeadAddress" rows="2"></textarea>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Principal Name">
-                                    <label asp-for="Principal_Name">Principal Name <span class="req">*</span></label>
-                                    <input asp-for="Principal_Name" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Principal Mobile">
-                                    <label asp-for="Principal_Mob_No">Principal Mobile <span class="req">*</span></label>
-                                    <div class="mobile-group">
-                                        <span class="mobile-prefix">+91</span>
-                                        <input asp-for="Principal_Mob_No" maxlength="10" oninput="validateMobile(this)" />
-                                    </div>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Principal Email">
-                                    <label asp-for="Principal_Email">Principal Email <span class="req">*</span></label>
-                                    <input asp-for="Principal_Email" type="email" />
-                                </div>
-                                <div class="field-wrap"  data-label="Principal Alt. Mobile">
-                                    <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile</label>
-                                    <div class="mobile-group">
-                                        <span class="mobile-prefix">+91</span>
-                                        <input asp-for="PrincipalMobileNumber" maxlength="10" oninput="validateMobile(this)" />
-                                    </div>
-                                </div>
-                                <div class="field-wrap" data-label="Principal Alt. Email">
-                                    <label asp-for="PrincipalEmailId">Principal Alt. Email </label>
-                                    <input asp-for="PrincipalEmailId" type="email" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <!-- 4. Nodal Officer & Academic (Running Course REMOVED from here) -->
-                    <div class="section-card" id="card-nodal">
-                        <div class="section-header sh-blue">
-                            <div class="icon-wrap">
-                                <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 14.93V17a1 1 0 01-2 0v-.07A8.001 8.001 0 014.07 11H4a1 1 0 010-2h.07A8.001 8.001 0 0111 3.07V3a1 1 0 012 0v.07A8.001 8.001 0 0119.93 9H20a1 1 0 010 2h-.07A8.001 8.001 0 0113 16.93zM13 12a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
-                            </div>
-                            <h2>Nodal Officer &amp; Academic Info</h2>
-                        </div>
-                        <div class="section-body">
-                            <div class="field-grid col-2">
-                                <div class="field-wrap" data-required data-label="Nodal Officer Name">
-                                    <label asp-for="NodalOfficer_Name">Nodal Officer Name <span class="req">*</span></label>
-                                    <input asp-for="NodalOfficer_Name" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Nodal Officer Mobile">
-                                    <label asp-for="NodalOfficer_Mob_Number">Nodal Officer Mobile <span class="req">*</span></label>
-                                    <div class="mobile-group">
-                                        <span class="mobile-prefix">+91</span>
-                                        <input asp-for="NodalOfficer_Mob_Number" maxlength="10" oninput="validateMobile(this)" />
-                                    </div>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Nodal Officer Email" style="grid-column: span 2;">
-                                    <label asp-for="NodalOfficer_Email">Nodal Officer Email <span class="req">*</span></label>
-                                    <input asp-for="NodalOfficer_Email" type="email" />
-                                </div>
-
-                                @* <div style="grid-column: span 2;">
-                                    <div style="margin-top:10px;">
-                                        <div id="courseToggleBtn" class="course-toggle">
-                                            <span id="courseIcon">➕</span>
-                                            <span>View Course Applied For this College</span>
-                                        </div>
-                                        <div id="courseSection" class="course-section"></div>
-                                    </div>
-                                </div> *@
-
-                                <div class="field-wrap" data-required data-label="Financing Authority">
-                                    <label asp-for="FinancingAuthority">Financing Authority <span class="req">*</span></label>
-                                    <input asp-for="FinancingAuthority" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Minority Category">
-                                    <label asp-for="MinorityCategory">Minority Category (optional)</label>
-                                    <input asp-for="MinorityCategory" placeholder="e.g. Linguistic / Religious" />
-                                </div>
-                            </div>
-                            <div style="margin-top:16px; background:#f8f9fc; border:1px solid var(--border); border-radius:8px; padding:14px;">
-                                <p style="font-size:.72rem;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Flags</p>
-                                <div style="display:flex;gap:28px;flex-wrap:wrap;">
-                                    <label class="check-label">
-                                        <input asp-for="MinorityInstitute" type="checkbox" />
-                                        Minority Institution
-                                    </label>
-                                    <label class="check-label">
-                                        <input asp-for="AttachedToMedicalClg" type="checkbox" />
-                                        Attached to Medical College
-                                    </label>
-                                    <label class="check-label">
-                                        <input asp-for="RuralInstitute" type="checkbox" />
-                                        Rural Institution
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div><!-- /LEFT -->
-
-
-                <!-- ═══════════ RIGHT COLUMN ═══════════ -->
-                <div>
-
-                  
-
-                    <!-- 5. Trust / Management — shown only when OrganizationCategory = 'P' -->
-                    <div class="section-card trust-hidden" id="trustManagementSection">
-                        <div class="section-header sh-blue">
-                            <div class="icon-wrap">
-                                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l6 2.67V11c0 3.72-2.55 7.2-6 8.18C8.55 18.2 6 14.72 6 11V7.67L12 5z" /></svg>
-                            </div>
-                            <h2>Trust / Management Details <span class="optional-badge">Optional</span></h2>
-                        </div>
-                        <div class="section-body">
-                            <div class="field-grid col-2">
-                                <div class="field-wrap trust-field" data-label="Trust Name">
-                                    <label asp-for="TrustName">Trust Name</label>
-                                    <input asp-for="TrustName" />
-                                    <span asp-validation-for="TrustName" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap trust-field" data-label="Establishment Date">
-                                    <label asp-for="TrustEstablishmentDate">Establishment Date</label>
-                                    <input asp-for="TrustEstablishmentDate" type="date" />
-                                    <span asp-validation-for="TrustEstablishmentDate" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="field-grid col-1" style="margin-top:14px;">
-                                <div class="field-wrap trust-field" data-label="Trust Address">
-                                    <label asp-for="TrustAddress">Trust Address</label>
-                                    <textarea asp-for="TrustAddress" rows="2"></textarea>
-                                    <span asp-validation-for="TrustAddress" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="field-grid col-2" style="margin-top:14px;">
-                                <div class="field-wrap trust-field" data-label="President Name">
-                                    <label asp-for="TrustPresidentName">President Name</label>
-                                    <input asp-for="TrustPresidentName" />
-                                    <span asp-validation-for="TrustPresidentName" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap trust-field" data-label="President Contact">
-                                    <label asp-for="TrustPresidentContactNo">President Contact</label>
-                                    <div class="mobile-group">
-                                        <span class="mobile-prefix">+91</span>
-                                        <input asp-for="TrustPresidentContactNo" maxlength="10" oninput="validateMobile(this)" />
-                                    </div>
-                                    <span asp-validation-for="TrustPresidentContactNo" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- 2. Location & Contact -->
-                    <div class="section-card" id="card-location">
-                        <div class="section-header sh-slate">
-                            <div class="icon-wrap">
-                                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
-                            </div>
-                            <h2>College Location &amp; Contact</h2>
-                        </div>
-                        <div class="section-body">
-                            <div class="field-grid col-2">
-                                <div class="field-grid col-1" style="margin-top:14px;">
-                                    <div class="field-wrap" data-required data-label="Address">
-                                        <label asp-for="Address">Address <span class="req">*</span></label>
-                                        <textarea asp-for="Address" rows="3" placeholder="Street / Area / Locality"></textarea>
-                                        <span asp-validation-for="Address" class="text-danger"></span>
-                                    </div>
-                                </div>
-                                <div class="field-grid col-2" style="margin-top:14px;">
-                                    <div>
-                                        <label asp-for="VillageTownCity">Village / Town / City</label>
-                                        <input asp-for="VillageTownCity" maxlength="100" />
-                                    </div>
-                                    <div class="field-wrap" data-required data-label="PIN Code">
-                                        <label asp-for="PinCode">PIN Code <span class="req">*</span></label>
-                                        <input asp-for="PinCode" title="6-digit PIN" placeholder="000000" maxlength="6" />
-                                        <span asp-validation-for="PinCode" class="text-danger"></span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label asp-for="District">District</label>
-                                    <select asp-for="District" asp-items="Model.DistrictList" id="districtDropdown">
-                                        <option value="">— Select District —</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label asp-for="Taluk">Taluk</label>
-                                    <select asp-for="Taluk" id="talukDropdown" asp-items="Model.TalukList">
-                                        <option value="">— Select Taluk —</option>
-                                    </select>
-                                </div>
-                               @*  <div>
-                                    <label asp-for="District">District</label>
-                                    <select asp-for="District" asp-items="Model.DistrictList" id="districtDropdown">
-                                        <option value="">— Select District —</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label asp-for="Taluk">Taluk</label>
-                                    <select asp-for="Taluk" id="talukDropdown" asp-items="Model.TalukList">
-                                        <option value="">— Select Taluk —</option>
-                                    </select>
-                                </div> *@
-                                <div>
-                                    <label asp-for="StdCode">STD Code</label>
-                                    <input asp-for="StdCode" pattern="\d{2,4}" placeholder="e.g. 080" />
-                                </div>
-                                <div>
-                                    <label asp-for="MobileNumber">Mobile Number</label>
-                                    <div class="mobile-group">
-                                        <span class="mobile-prefix">+91</span>
-                                        <input asp-for="MobileNumber" maxlength="10" oninput="validateMobile(this)" placeholder="Enter 10-digit number" />
-                                    </div>
-                                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
-                                </div>
-                                <div>
-                                    <label asp-for="AltLandlineMobile">Alternate / Landline</label>
-                                    <input asp-for="AltLandlineMobile" />
-                                </div>
-                                <div>
-                                    <label asp-for="Fax">Fax Number</label>
-                                    <input asp-for="Fax" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Email ID">
-                                    <label asp-for="EmailId">College Email ID <span class="req">*</span></label>
-                                    <input asp-for="EmailId" type="email" />
-                                    <span asp-validation-for="EmailId" class="text-danger"></span>
-                                </div>
-                                <div class="field-wrap"  data-label="Alternate Email">
-                                    <label asp-for="AltEmailId">Alternate Email </label>
-                                    <input asp-for="AltEmailId" type="email" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Website">
-                                    <label asp-for="Website">Website <span class="req">*</span></label>
-                                    <input asp-for="Website" type="url" placeholder="https://" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="College URL">
-                                    <label asp-for="College_URL">College URL <span class="req">*</span></label>
-                                    <input asp-for="College_URL" type="url" placeholder="https://" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Survey No / PID No">
-                                    <label asp-for="SurveyNoPidNo">Survey No / PID No <span class="req">*</span></label>
-                                    <input asp-for="SurveyNoPidNo" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 6. Dean & Document Upload -->
-                    <div class="section-card" id="card-dean">
-                        <div class="section-header sh-blue">
-                            <div class="icon-wrap">
-                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" /></svg>
-                            </div>
-                            <h2>Dean &amp; Document Upload</h2>
-                        </div>
-                        <div class="section-body">
-                            <div class="field-grid col-3">
-                                <div class="field-wrap" data-required data-label="Dean Name">
-                                    <label asp-for="DeanName">Dean Name <span class="req">*</span></label>
-                                    <input asp-for="DeanName" />
-                                </div>
-                                <div class="field-wrap" data-required data-label="Dean Mobile">
-                                    <label asp-for="DeanMobileNumber">Dean Mobile <span class="req">*</span></label>
-                                    <div class="mobile-group">
-                                        <span class="mobile-prefix">+91</span>
-                                        <input asp-for="DeanMobileNumber" maxlength="10" oninput="validateMobile(this)" />
-                                    </div>
-                                </div>
-                                <div class="field-wrap" data-required data-label="Dean Email">
-                                    <label asp-for="DeanEmailId">Dean Email <span class="req">*</span></label>
-                                    <input asp-for="DeanEmailId" type="email" />
-                                </div>
-                            </div>
-
-                            <div style="margin-top:16px;">
-                                <label>Upload Appointment Order of Dean</label>
-                                <div class="file-drop">
-                                    <div class="file-drop-inner">
-                                        <input type="file" id="documentFile" name="documentFile" accept=".pdf" />
-                                        <div class="file-drop-icon">
-                                            <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" /></svg>
-                                        </div>
-                                        <p><strong>Click to upload</strong> or drag &amp; drop</p>
-                                        <p style="margin-top:4px;">PDF, JPG, PNG — max 2 MB</p>
-                                        <p id="fileName" style="margin-top:8px; color:green;"></p>
-                                    </div>
-                                </div>
-
-                                @if (!string.IsNullOrEmpty(Model.DocumentName))
-                                {
-                                    <div style="margin-top:10px;">
-                                        <a href="@Url.Action("ViewDocument", "ContinuesAffiliation_Facultybased", new { id = Model.CollegeCode })"
-                                           target="_blank" class="btn btn-ghost">
-                                            📄 View Appointment Order of Dean
+                            <div class="field-wrap">
+                                <label><i class="fas fa-file-shield"></i> Gov Autonomous Certificate</label>
+                                <div class="file-row">
+                                    <input id="GovAutonomousCertFile" name="GovAutonomousCertFile" type="file" accept=".pdf" />
+                                    @if (Model.hasGovAutoCertFile)
+                                    {
+                                        <a asp-action="DownloadGovAutonomousCert"
+                                           asp-controller="ContinuesAffiliation_Facultybased"
+                                           asp-route-id="@Model.InstitutionId"
+                                           class="btn-view" target="_blank">
+                                            <i class="fas fa-eye"></i> View
                                         </a>
-                                    </div>
+                                    }
+                                </div>
+                                @if (Model.hasGovAutoCertFile)
+                                {
+                                    <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
                                 }
                             </div>
                         </div>
                     </div>
 
-                   
+                    <div class="flags-row">
+                        <p>Flags</p>
+                        <div class="flags-inner">
+                            <label class="check-label"><input asp-for="MinorityInstitute" type="checkbox" /> Minority Institution</label>
+                            <label class="check-label"><input asp-for="AttachedToMedicalClg" type="checkbox" /> Attached to Medical College</label>
+                            <label class="check-label"><input asp-for="RuralInstitute" type="checkbox" /> Rural Institution</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                </div><!-- /RIGHT -->
+            <!-- 2. COLLEGE LOCATION & CONTACT -->
+            <div class="section-card" id="card-location">
+                <div class="section-header sh-slate">
+                    <div class="icon-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                    </div>
+                    <h2>College Location &amp; Contact</h2>
+                </div>
+                <div class="section-body">
+                    <div class="field-grid col-4">
+                        <div class="field-wrap" data-required data-label="Address" style="grid-column:span 2;">
+                            <label asp-for="Address">Address <span class="req">*</span></label>
+                            <textarea asp-for="Address" rows="3" placeholder="Street / Area / Locality"></textarea>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap">
+                            <label asp-for="VillageTownCity">Village / Town / City</label>
+                            <input asp-for="VillageTownCity" maxlength="100" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="PIN Code">
+                            <label asp-for="PinCode">PIN Code <span class="req">*</span></label>
+                            <input asp-for="PinCode" title="6-digit PIN" placeholder="000000" maxlength="6" />
+                            <span asp-validation-for="PinCode" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap">
+                            <label asp-for="District">District</label>
+                            <select asp-for="District" asp-items="Model.DistrictList" id="districtDropdown">
+                                <option value="">— Select District —</option>
+                            </select>
+                        </div>
+                        <div class="field-wrap">
+                            <label asp-for="Taluk">Taluk</label>
+                            <select asp-for="Taluk" id="talukDropdown" asp-items="Model.TalukList">
+                                <option value="">— Select Taluk —</option>
+                            </select>
+                        </div>
+                        <div class="field-wrap">
+                            <label asp-for="StdCode">STD Code</label>
+                            <input asp-for="StdCode" pattern="\d{2,4}" placeholder="e.g. 080" />
+                        </div>
+                        <div class="field-wrap">
+                            <label asp-for="MobileNumber">Mobile Number</label>
+                            <div class="mobile-group">
+                                <span class="mobile-prefix">+91</span>
+                                <input asp-for="MobileNumber" maxlength="10" oninput="validateMobile(this)" placeholder="10-digit number" />
+                            </div>
+                            <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap">
+                            <label asp-for="AltLandlineMobile">Alternate / Landline</label>
+                            <input asp-for="AltLandlineMobile" />
+                        </div>
+                        <div class="field-wrap">
+                            <label asp-for="Fax">Fax Number</label>
+                            <input asp-for="Fax" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="Email ID">
+                            <label asp-for="EmailId">College Email ID <span class="req">*</span></label>
+                            <input asp-for="EmailId" type="email" />
+                            <span asp-validation-for="EmailId" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap">
+                            <label asp-for="AltEmailId">Alternate Email</label>
+                            <input asp-for="AltEmailId" type="email" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="Website">
+                            <label asp-for="Website">Website <span class="req">*</span></label>
+                            <input asp-for="Website" type="url" placeholder="https://" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="College URL">
+                            <label asp-for="College_URL">College URL <span class="req">*</span></label>
+                            <input asp-for="College_URL" type="url" placeholder="https://" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="Survey No / PID No">
+                            <label asp-for="SurveyNoPidNo">Survey No / PID No <span class="req">*</span></label>
+                            <input asp-for="SurveyNoPidNo" />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            </div><!-- /grid-2 -->
-            <!-- FOOTER ACTIONS -->
+            <!-- 3. HEAD OF INSTITUTION & PRINCIPAL -->
+            <div class="section-card" id="card-head">
+                <div class="section-header sh-teal">
+                    <div class="icon-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
+                    </div>
+                    <h2>Head of Institution &amp; Principal</h2>
+                </div>
+                <div class="section-body">
+                    <div class="field-grid col-4">
+                        <div class="field-wrap" data-required data-label="Head of Institution">
+                            <label asp-for="HeadOfInstitution">Head of Institution <span class="req">*</span></label>
+                            <input asp-for="HeadOfInstitution" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="Head Mobile No">
+                            <label asp-for="HeadOfInstitution_Mob_NO">Head Mobile No <span class="req">*</span></label>
+                            <div class="mobile-group">
+                                <span class="mobile-prefix">+91</span>
+                                <input asp-for="HeadOfInstitution_Mob_NO" maxlength="10" oninput="validateMobile(this)" />
+                            </div>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Head Email">
+                            <label asp-for="HeadOfInstitution_Email">Head Email <span class="req">*</span></label>
+                            <input asp-for="HeadOfInstitution_Email" type="email" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="Head Address">
+                            <label asp-for="HeadAddress">Head Address <span class="req">*</span></label>
+                            <textarea asp-for="HeadAddress" rows="2"></textarea>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Principal Name">
+                            <label asp-for="Principal_Name">Principal Name <span class="req">*</span></label>
+                            <input asp-for="Principal_Name" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="Principal Mobile">
+                            <label asp-for="Principal_Mob_No">Principal Mobile <span class="req">*</span></label>
+                            <div class="mobile-group">
+                                <span class="mobile-prefix">+91</span>
+                                <input asp-for="Principal_Mob_No" maxlength="10" oninput="validateMobile(this)" />
+                            </div>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Principal Email">
+                            <label asp-for="Principal_Email">Principal Email <span class="req">*</span></label>
+                            <input asp-for="Principal_Email" type="email" />
+                        </div>
+                        <div class="field-wrap" data-label="Principal Alt. Mobile">
+                            <label asp-for="PrincipalMobileNumber">Principal Alt. Mobile</label>
+                            <div class="mobile-group">
+                                <span class="mobile-prefix">+91</span>
+                                <input asp-for="PrincipalMobileNumber" maxlength="10" oninput="validateMobile(this)" />
+                            </div>
+                        </div>
+                        <div class="field-wrap" data-label="Principal Alt. Email">
+                            <label asp-for="PrincipalEmailId">Principal Alt. Email</label>
+                            <input asp-for="PrincipalEmailId" type="email" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. NODAL OFFICER & ACADEMIC INFO -->
+            <div class="section-card" id="card-nodal">
+                <div class="section-header sh-blue">
+                    <div class="icon-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 14.93V17a1 1 0 01-2 0v-.07A8.001 8.001 0 014.07 11H4a1 1 0 010-2h.07A8.001 8.001 0 0111 3.07V3a1 1 0 012 0v.07A8.001 8.001 0 0119.93 9H20a1 1 0 010 2h-.07A8.001 8.001 0 0113 16.93zM13 12a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
+                    </div>
+                    <h2>Nodal Officer &amp; Academic Info</h2>
+                </div>
+                <div class="section-body">
+                    <div class="field-grid col-4">
+                        <div class="field-wrap" data-required data-label="Nodal Officer Name">
+                            <label asp-for="NodalOfficer_Name">Nodal Officer Name <span class="req">*</span></label>
+                            <input asp-for="NodalOfficer_Name" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="Nodal Officer Mobile">
+                            <label asp-for="NodalOfficer_Mob_Number">Nodal Officer Mobile <span class="req">*</span></label>
+                            <div class="mobile-group">
+                                <span class="mobile-prefix">+91</span>
+                                <input asp-for="NodalOfficer_Mob_Number" maxlength="10" oninput="validateMobile(this)" />
+                            </div>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Nodal Officer Email" style="grid-column:span 2;">
+                            <label asp-for="NodalOfficer_Email">Nodal Officer Email <span class="req">*</span></label>
+                            <input asp-for="NodalOfficer_Email" type="email" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. TRUST / MANAGEMENT (private institutions only) -->
+            <div class="section-card trust-hidden" id="trustManagementSection">
+                <div class="section-header sh-blue">
+                    <div class="icon-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l6 2.67V11c0 3.72-2.55 7.2-6 8.18C8.55 18.2 6 14.72 6 11V7.67L12 5z" /></svg>
+                    </div>
+                    <h2>Trust / Management Details <span class="optional-badge">Optional</span></h2>
+                </div>
+                <div class="section-body">
+                    <div class="field-grid col-4">
+                        <div class="field-wrap trust-field" data-label="Trust Name">
+                            <label asp-for="TrustName">Trust Name</label>
+                            <input asp-for="TrustName" />
+                            <span asp-validation-for="TrustName" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap trust-field" data-label="Establishment Date">
+                            <label asp-for="TrustEstablishmentDate">Establishment Date</label>
+                            <input asp-for="TrustEstablishmentDate" type="date" />
+                            <span asp-validation-for="TrustEstablishmentDate" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap trust-field" data-label="President Name">
+                            <label asp-for="TrustPresidentName">President Name</label>
+                            <input asp-for="TrustPresidentName" />
+                            <span asp-validation-for="TrustPresidentName" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap trust-field" data-label="President Contact">
+                            <label asp-for="TrustPresidentContactNo">President Contact</label>
+                            <div class="mobile-group">
+                                <span class="mobile-prefix">+91</span>
+                                <input asp-for="TrustPresidentContactNo" maxlength="10" oninput="validateMobile(this)" />
+                            </div>
+                            <span asp-validation-for="TrustPresidentContactNo" class="text-danger"></span>
+                        </div>
+                        <div class="field-wrap trust-field" data-label="Trust Address" style="grid-column:span 4;">
+                            <label asp-for="TrustAddress">Trust Address</label>
+                            <textarea asp-for="TrustAddress" rows="2"></textarea>
+                            <span asp-validation-for="TrustAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. DEAN & DOCUMENT UPLOAD -->
+            <div class="section-card" id="card-dean">
+                <div class="section-header sh-blue">
+                    <div class="icon-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" /></svg>
+                    </div>
+                    <h2>Dean &amp; Document Upload</h2>
+                </div>
+                <div class="section-body">
+                    <div class="field-grid col-4">
+                        <div class="field-wrap" data-required data-label="Dean Name">
+                            <label asp-for="DeanName">Dean Name <span class="req">*</span></label>
+                            <input asp-for="DeanName" />
+                        </div>
+                        <div class="field-wrap" data-required data-label="Dean Mobile">
+                            <label asp-for="DeanMobileNumber">Dean Mobile <span class="req">*</span></label>
+                            <div class="mobile-group">
+                                <span class="mobile-prefix">+91</span>
+                                <input asp-for="DeanMobileNumber" maxlength="10" oninput="validateMobile(this)" />
+                            </div>
+                        </div>
+                        <div class="field-wrap" data-required data-label="Dean Email" style="grid-column:span 2;">
+                            <label asp-for="DeanEmailId">Dean Email <span class="req">*</span></label>
+                            <input asp-for="DeanEmailId" type="email" />
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <label>Upload Appointment Order of Dean</label>
+                        <div class="file-drop">
+                            <div class="file-drop-inner">
+                                <input type="file" id="documentFile" name="documentFile" accept=".pdf" />
+                                <div class="file-drop-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" /></svg>
+                                </div>
+                                <p><strong>Click to upload</strong> or drag &amp; drop</p>
+                                <p style="margin-top:4px;">PDF, JPG, PNG — max 2 MB</p>
+                                <p id="fileName" style="margin-top:8px; color:green;"></p>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.DocumentName))
+                        {
+                            <div style="margin-top:10px;">
+                                <a href="@Url.Action("ViewDocument", "ContinuesAffiliation_Facultybased", new { id = Model.CollegeCode })"
+                                   target="_blank" class="btn btn-ghost">
+                                    📄 View Appointment Order of Dean
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
             <div class="form-footer">
                 <a asp-action="Dashboard" asp-controller="Collegelogin" class="btn btn-ghost">Cancel</a>
                 <button type="submit" id="saveBtn" class="btn btn-primary">Save &amp; Proceed →</button>
@@ -1383,27 +1149,16 @@
         <script>
             $(document).ready(function () {
 
-                /* ══════════════════════════════════════════════
-                   FILE UPLOAD VALIDATION
-                ══════════════════════════════════════════════ */
+                /* FILE UPLOAD */
                 const fileInput = document.getElementById("documentFile");
                 const fileNameDisplay = document.getElementById("fileName");
-
                 if (fileInput) {
                     fileInput.addEventListener("change", function () {
                         if (this.files.length > 0) {
                             const file = this.files[0];
-                            const maxSize = 2 * 1024 * 1024;
-
-                            if (file.size > maxSize) {
-                                Swal.fire({
-                                    icon: 'warning',
-                                    title: 'File too large',
-                                    text: 'File size should not exceed 2 MB.'
-                                });
-                                this.value = "";
-                                fileNameDisplay.textContent = "";
-                                return;
+                            if (file.size > 2 * 1024 * 1024) {
+                                Swal.fire({ icon: 'warning', title: 'File too large', text: 'File size should not exceed 2 MB.' });
+                                this.value = ""; fileNameDisplay.textContent = ""; return;
                             }
                             fileNameDisplay.textContent = "Selected: " + file.name;
                         } else {
@@ -1412,257 +1167,105 @@
                     });
                 }
 
-                /* ══════════════════════════════════════════════
-                   DISTRICT → TALUK AJAX
-                ══════════════════════════════════════════════ */
+                /* DISTRICT → TALUK */
                 $("#districtDropdown").change(function () {
                     var district = $(this).val();
                     $("#talukDropdown").html('<option>Loading...</option>');
-
                     if (district) {
-                        $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")',
-                            { district: district },
-                            function (data) {
-                                let html = '<option value="">— Select Taluk —</option>';
-                                $.each(data, function (i, item) {
-                                    html += `<option value="${item.value}">${item.text}</option>`;
-                                });
-                                $("#talukDropdown").html(html);
-                            });
+                        $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")', { district: district }, function (data) {
+                            let html = '<option value="">— Select Taluk —</option>';
+                            $.each(data, function (i, item) { html += `<option value="${item.value}">${item.text}</option>`; });
+                            $("#talukDropdown").html(html);
+                        });
                     } else {
                         $("#talukDropdown").html('<option value="">— Select Taluk —</option>');
                     }
                 });
 
-                /* ══════════════════════════════════════════════
-                   COURSE TOGGLE + LOAD
-                ══════════════════════════════════════════════ */
-                const courseToggleBtn = document.getElementById('courseToggleBtn');
-                const courseSection   = document.getElementById('courseSection');
-                const courseIcon      = document.getElementById('courseIcon');
-                let courseLoaded = false;
-
-                if (courseToggleBtn && courseSection) {
-                    courseToggleBtn.addEventListener('click', function () {
-                        let isVisible = courseSection.style.display === 'block';
-
-                        if (!isVisible) {
-                            courseSection.style.display = 'block';
-                            courseIcon.textContent = '➖';
-                            if (!courseLoaded) { loadCourses(); courseLoaded = true; }
-                        } else {
-                            courseSection.style.display = 'none';
-                            courseIcon.textContent = '➕';
-                        }
-                    });
-                }
-
-                function loadCourses() {
-                    $('#courseSection').html('<p style="padding:10px;">Loading...</p>');
-
-                    $.ajax({
-                        url: '@Url.Action("GetCoursesByCollege", "ContinuesAffiliation_Facultybased")',
-                        type: 'GET',
-                        success: function (res) {
-                            if (!res.success) {
-                                $('#courseSection').html(`<p style="color:red;">${res.message}</p>`);
-                                return;
-                            }
-                            if (res.data.length === 0) {
-                                $('#courseSection').html('<p style="padding:10px;">No courses found</p>');
-                                return;
-                            }
-
-                            let html = `
-                                <table class="course-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Course Name</th>
-                                            <th>Existing Intake</th>
-                                            <th>Present Intake</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
-
-                            $.each(res.data, function (i, item) {
-                                html += `<tr>
-                                    <td>${item.courseName}</td>
-                                    <td>${item.existingIntake}</td>
-                                    <td>${item.presentIntake}</td>
-                                </tr>`;
-                            });
-
-                            html += '</tbody></table>';
-                            $('#courseSection').html(html);
-                        },
-                        error: function () {
-                            $('#courseSection').html('<p style="color:red;padding:10px;">Error loading data</p>');
-                        }
-                    });
-                }
-
-                /* ══════════════════════════════════════════════
-                   TYPE OF INSTITUTION → TRUST SECTION TOGGLE
-                   Fetches OrganizationCategory from DB via AJAX.
-                   Shows Trust/Management section only when
-                   OrganizationCategory = 'P' (Private).
-                   Hides it when OrganizationCategory = 'G' (Govt).
-                ══════════════════════════════════════════════ */
+                /* TRUST SECTION TOGGLE */
                 const trustSection = document.getElementById('trustManagementSection');
 
                 function applyTrustVisibility(orgCategory) {
                     if (!trustSection) return;
-
                     const isPrivate = (orgCategory || '').trim().toUpperCase() === 'P';
-
                     if (isPrivate) {
                         trustSection.classList.remove('trust-hidden');
-                        // Re-enable fields so the user can fill them in (optional)
-                        trustSection.querySelectorAll('.trust-field input, .trust-field select, .trust-field textarea')
-                            .forEach(el => el.removeAttribute('disabled'));
+                        trustSection.querySelectorAll('.trust-field input,.trust-field select,.trust-field textarea').forEach(el => el.removeAttribute('disabled'));
                     } else {
                         trustSection.classList.add('trust-hidden');
-                        // Disable fields so they are excluded from server-side ModelState
-                        trustSection.querySelectorAll('.trust-field input, .trust-field select, .trust-field textarea')
-                            .forEach(el => el.setAttribute('disabled', 'disabled'));
+                        trustSection.querySelectorAll('.trust-field input,.trust-field select,.trust-field textarea').forEach(el => el.setAttribute('disabled', 'disabled'));
                     }
                 }
 
-                // On dropdown change → fetch category from server
                 $('#typeOfInstitutionDropdown').on('change', function () {
                     const selectedId = $(this).val();
-
-                    if (!selectedId) {
-                        // Nothing selected → hide trust section
-                        applyTrustVisibility('');
-                        return;
-                    }
-
+                    if (!selectedId) { applyTrustVisibility(''); return; }
                     $.ajax({
                         url: '@Url.Action("GetInstitutionOrgCategory", "ContinuesAffiliation_Facultybased")',
-                        type: 'GET',
-                        data: { institutionTypeId: selectedId },
-                        success: function (res) {
-                            if (res && res.success) {
-                                applyTrustVisibility(res.orgCategory);
-                            } else {
-                                applyTrustVisibility('');
-                            }
-                        },
-                        error: function () {
-                            applyTrustVisibility('');
-                        }
+                        type: 'GET', data: { institutionTypeId: selectedId },
+                        success: function (res) { applyTrustVisibility(res && res.success ? res.orgCategory : ''); },
+                        error: function () { applyTrustVisibility(''); }
                     });
                 });
 
-                // On page load, trigger change if a value is already selected (edit mode)
                 const initialTypeVal = $('#typeOfInstitutionDropdown').val();
-                if (initialTypeVal) {
-                    $('#typeOfInstitutionDropdown').trigger('change');
-                } else {
-                    applyTrustVisibility(''); // default hidden
-                }
+                if (initialTypeVal) { $('#typeOfInstitutionDropdown').trigger('change'); } else { applyTrustVisibility(''); }
 
-                /* ══════════════════════════════════════════════
-                   FORM SUBMIT — FOCUS VALIDATION
-                   Finds the FIRST empty required field, scrolls
-                   to it, focuses it, and shows toast + badge.
-                ══════════════════════════════════════════════ */
+                /* FORM VALIDATION */
                 $('#institutionForm').on('submit', function (e) {
-                    debugger;
-                    // Remove previous error states
                     document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
                     document.querySelectorAll('.field-focus-target').forEach(el => el.classList.remove('field-focus-target'));
                     document.querySelectorAll('.field-err-msg').forEach(el => el.remove());
                     document.querySelectorAll('.section-card.has-error').forEach(el => el.classList.remove('has-error'));
 
                     const trustVisible = !trustSection.classList.contains('trust-hidden');
-                    let errors = [];
-                    let firstErrorEl = null;
+                    let errors = [], firstErrorEl = null;
 
-                    // Collect all required field-wraps that are visible
                     document.querySelectorAll('.field-wrap[data-required]').forEach(wrap => {
-                        // Skip trust fields when trust section is hidden
                         if (!trustVisible && wrap.closest('#trustManagementSection')) return;
-
                         const input    = wrap.querySelector('input:not([type="checkbox"]):not([readonly]):not([disabled])');
                         const select   = wrap.querySelector('select:not([disabled])');
                         const textarea = wrap.querySelector('textarea:not([disabled])');
-
-                        const el     = input || select || textarea;
-                        const label  = wrap.dataset.label || 'Field';
-                        let isEmpty  = false;
-
-                        if (el) {
-                            const val = el.value ? el.value.trim() : '';
-                            isEmpty = val === '' || val === '0';
-                        }
-
-                        if (isEmpty) {
+                        const el       = input || select || textarea;
+                        const label    = wrap.dataset.label || 'Field';
+                        if (el && (el.value || '').trim() === '') {
                             wrap.classList.add('field-invalid');
-
-                            // Inline error msg
                             const msg = document.createElement('span');
                             msg.className = 'field-err-msg';
                             msg.textContent = `${label} is required.`;
                             wrap.appendChild(msg);
-
-                            // Mark parent card
                             const card = wrap.closest('.section-card');
                             if (card) card.classList.add('has-error');
-
                             errors.push(label);
-
                             if (!firstErrorEl) firstErrorEl = el;
                         }
                     });
 
                     if (errors.length > 0) {
                         e.preventDefault();
-
-                        // Focus + pulse ring on first error field
                         if (firstErrorEl) {
                             const wrap = firstErrorEl.closest('.field-wrap');
                             if (wrap) wrap.classList.add('field-focus-target');
-
-                            // Scroll with offset for fixed header
-                            const rect   = firstErrorEl.getBoundingClientRect();
-                            const offset = window.scrollY + rect.top - 100;
-                            window.scrollTo({ top: offset, behavior: 'smooth' });
-
-                            // Small delay so scroll finishes before focus
+                            window.scrollTo({ top: window.scrollY + firstErrorEl.getBoundingClientRect().top - 100, behavior: 'smooth' });
                             setTimeout(() => firstErrorEl.focus(), 380);
                         }
-
-                        // Toast
                         const count = errors.length;
-                        document.getElementById('toastMsg').textContent =
-                            `${count} required field${count > 1 ? 's' : ''} need attention.`;
-                        document.getElementById('toastSub').textContent =
-                            `First missing: ${errors[0]}`;
+                        document.getElementById('toastMsg').textContent = `${count} required field${count > 1 ? 's' : ''} need attention.`;
+                        document.getElementById('toastSub').textContent = `First missing: ${errors[0]}`;
                         document.getElementById('validationToast').classList.add('show');
-
-                        // Auto-hide toast after 5s
-                        setTimeout(() => {
-                            document.getElementById('validationToast').classList.remove('show');
-                        }, 5000);
-
-                        // Floating badge
+                        setTimeout(() => document.getElementById('validationToast').classList.remove('show'), 5000);
                         const badge = document.getElementById('missingBadge');
                         badge.textContent = `⚠ ${count} field${count > 1 ? 's' : ''} missing — click to jump`;
                         badge.classList.add('show');
                         setTimeout(() => badge.classList.remove('show'), 8000);
-
                         return false;
                     }
                 });
 
-                // When user starts fixing a field — clear its error state
-                document.querySelectorAll('.field-wrap[data-required] input, .field-wrap[data-required] select, .field-wrap[data-required] textarea')
-                    .forEach(el => {
-                        el.addEventListener('input', clearFieldError);
-                        el.addEventListener('change', clearFieldError);
-                    });
+                document.querySelectorAll('.field-wrap[data-required] input,.field-wrap[data-required] select,.field-wrap[data-required] textarea').forEach(el => {
+                    el.addEventListener('input', clearFieldError);
+                    el.addEventListener('change', clearFieldError);
+                });
 
                 function clearFieldError() {
                     const wrap = this.closest('.field-wrap');
@@ -1670,59 +1273,29 @@
                     wrap.classList.remove('field-invalid', 'field-focus-target');
                     const msg = wrap.querySelector('.field-err-msg');
                     if (msg) msg.remove();
-
-                    // Remove card error border only if no more errors in that card
                     const card = wrap.closest('.section-card');
-                    if (card && !card.querySelector('.field-invalid')) {
-                        card.classList.remove('has-error');
-                    }
+                    if (card && !card.querySelector('.field-invalid')) card.classList.remove('has-error');
                 }
+            });
 
-            }); // end document.ready
-
-            /* ══════════════════════════════════════════════
-               MOBILE VALIDATOR (GLOBAL)
-            ══════════════════════════════════════════════ */
-            function validateMobile(input) {
-                input.value = input.value.replace(/\D/g, '').slice(0, 10);
-            }
-
-            /* ══════════════════════════════════════════════
-               SCROLL TO FIRST ERROR (badge click)
-            ══════════════════════════════════════════════ */
+            function validateMobile(input) { input.value = input.value.replace(/\D/g, '').slice(0, 10); }
             function scrollToFirstError() {
-                const first = document.querySelector('.field-invalid input, .field-invalid select, .field-invalid textarea');
+                const first = document.querySelector('.field-invalid input,.field-invalid select,.field-invalid textarea');
                 if (first) {
-                    const rect   = first.getBoundingClientRect();
-                    const offset = window.scrollY + rect.top - 100;
-                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                    window.scrollTo({ top: window.scrollY + first.getBoundingClientRect().top - 100, behavior: 'smooth' });
                     setTimeout(() => first.focus(), 380);
                 }
             }
-
         </script>
 
         <script>
             $(document).ready(function () {
-
-            function toggleGovAutoSection() {
-
-            var institutionTypeId = $("#typeOfInstitutionDropdown").val();
-
-            // Government/Autonomous IDs
-            if (institutionTypeId === "1" || institutionTypeId === "11") {
-            $("#govAutoSection").show();
-            }
-            else {
-            $("#govAutoSection").hide();
-            }
-            }
-
-            toggleGovAutoSection();
-
-            $("#typeOfInstitutionDropdown").on("change", function () {
-            toggleGovAutoSection();
-            });
+                function toggleGovAutoSection() {
+                    var id = $("#typeOfInstitutionDropdown").val();
+                    (id === "1" || id === "11") ? $("#govAutoSection").show() : $("#govAutoSection").hide();
+                }
+                toggleGovAutoSection();
+                $("#typeOfInstitutionDropdown").on("change", toggleGovAutoSection);
             });
         </script>
     }
