@@ -3,6 +3,7 @@ using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
 using Medical_Affiliation.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -425,14 +426,15 @@ namespace Medical_Affiliation.Controllers
                     })
                     .ToListAsync(),
 
-                DesignationHeaders = designationMasters
-                    .Select(x => new DentalDesignationTeachingVm
-                    {
-                        DesignationCode = x.DesignationCode,
-                        DesignationName = x.DesignationName
-                    })
-                    .ToList()
             };
+
+            vm.Designations = designationMasters
+                .Select(x => new SelectListItem
+                {
+                    Text = x.DesignationName,
+                    Value = x.DesignationCode
+                }).ToList();
+
             vm.Colleges = vm.Colleges
                     .Concat(otherColleges)
                     .GroupBy(x => x.Value)
@@ -490,6 +492,8 @@ namespace Medical_Affiliation.Controllers
                 .Select(x => new SelectListItem { Value = x, Text = x })
                 .ToList();
 
+            //var facultyMasterRows = facultyList.GroupBy(x => x.NameOfFaculty).ToList();
+
             // ── Saved rows from DB ───────────────────────────────────────────────
             var saved = await _context.TeachingStaffDepartmentWiseDetails
                 .Where(x =>
@@ -506,81 +510,63 @@ namespace Medical_Affiliation.Controllers
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             // ① Rows from saved data
-            var groupedFaculty = saved
+            var facultyGroups = saved
                 .GroupBy(x => x.NameOfFaculty)
                 .ToList();
 
-            var facultyGroups = saved
-    .GroupBy(x => x.NameOfFaculty)
-    .ToList();
-
             foreach (var facultyGroup in facultyGroups)
             {
-                // Group records by designation
-                var designationRecordMap = facultyGroup
-                    .GroupBy(x => x.DesignationCode)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.ToList()
-                    );
+                var facultyInfo = facultyList
+                    .FirstOrDefault(x =>
+                    x.NameOfFaculty == facultyGroup.Key);
 
-                // Find maximum occurrence count among designations
-                int rowCount = designationMasters
-                    .Select(d =>
-                        designationRecordMap.ContainsKey(d.DesignationCode)
-                            ? designationRecordMap[d.DesignationCode].Count
-                            : 0)
-                    .DefaultIfEmpty(1)
-                    .Max();
-
-                // Create required rows
-                for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+                var facultyVm = new FacultyExperienceVm
                 {
-                    var facultyVm = new DentalFacultyTeachingVm
-                    {
-                        NameOfFaculty = facultyGroup.Key,
-                        Designations = new List<DentalDesignationTeachingVm>()
-                    };
+                    NameOfFaculty = facultyGroup.Key,
+                    DepartmentCode = facultyInfo?.DepartmentDetails,
+                    DepartmentName = facultyInfo?.DepartmentName
+                };
 
-                    foreach (var header in designationMasters)
+                facultyVm.Experiences = facultyGroup
+                    .Select(record =>
                     {
-                        var desVm = new DentalDesignationTeachingVm
+                        var detail = new FacultyExperienceDetailVm
                         {
-                            DesignationCode = header.DesignationCode,
-                            DesignationName = header.DesignationName
+                            Id = record.Id,
+                            DesignationCode = record.DesignationCode,
+                            DesignationName = record.DesignationName,
+                            CourseLevel = record.CourseLevel
                         };
 
-                        if (designationRecordMap.TryGetValue(
-                                header.DesignationCode,
-                                out var records)
-                            && rowIndex < records.Count)
+                        if (record.CourseLevel == "UG")
                         {
-                            var record = records[rowIndex];
-
-                            desVm.Id = record.Id;
-                            desVm.DepartmentCode = record.DepartmentCode;
-                            desVm.CourseLevel = record.CourseLevel;
-                            desVm.TotalExperience = record.TotalExperience;
-
-                            if (record.CourseLevel == "UG")
-                            {
-                                desVm.CollegeCode = record.UgcollegeCode;
-                                desVm.FromDate = record.Ugfrom?.ToDateTime(TimeOnly.MinValue);
-                                desVm.ToDate = record.Ugto?.ToDateTime(TimeOnly.MinValue);
-                            }
-                            else
-                            {
-                                desVm.CollegeCode = record.PgcollegeCode;
-                                desVm.FromDate = record.Pgfrom?.ToDateTime(TimeOnly.MinValue);
-                                desVm.ToDate = record.Pgto?.ToDateTime(TimeOnly.MinValue);
-                            }
+                            detail.CollegeCode = record.UgcollegeCode;
+                            detail.FromDate = record.Ugfrom?.ToDateTime(TimeOnly.MinValue);
+                            detail.ToDate = record.Ugto?.ToDateTime(TimeOnly.MinValue);
+                        }
+                        else
+                        {
+                            detail.CollegeCode = record.PgcollegeCode;
+                            detail.FromDate = record.Pgfrom?.ToDateTime(TimeOnly.MinValue);
+                            detail.ToDate = record.Pgto?.ToDateTime(TimeOnly.MinValue);
                         }
 
-                        facultyVm.Designations.Add(desVm);
-                    }
+                        if (detail.FromDate.HasValue &&
+                            detail.ToDate.HasValue &&
+                            detail.ToDate >= detail.FromDate)
+                        {
+                            detail.Experience = CalculateExperience(
+                                                            detail.FromDate.Value,
+                                                            detail.ToDate.Value);
+                        }
 
-                    vm.FacultyRows.Add(facultyVm);
-                }
+                        return detail;
+                    })
+                    .ToList();
+
+                facultyVm.TotalExperience = facultyGroup.First().TotalExperience ?? 0;
+
+                vm.FacultyRows.Add(facultyVm);
             }
             // ② Seed rows for faculty who have NO saved data yet
             var unseededNames = facultyList
@@ -588,25 +574,44 @@ namespace Medical_Affiliation.Controllers
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Where(name => !savedNames.Contains(name))
                 .OrderBy(name => name);
-
             foreach (var name in unseededNames)
             {
-                var facultyVm = new DentalFacultyTeachingVm
+                var facultyInfo = facultyList
+                    .FirstOrDefault(x => x.NameOfFaculty == name);
+
+
+                vm.FacultyRows.Add(new FacultyExperienceVm
                 {
                     NameOfFaculty = name,
-                    Designations = designationMasters
-                        .Select(d => new DentalDesignationTeachingVm
-                        {
-                            DesignationCode = d.DesignationCode,
-                            DesignationName = d.DesignationName
-                        })
-                        .ToList()
-                };
-
-                vm.FacultyRows.Add(facultyVm);
+                    DepartmentCode = facultyInfo?.DepartmentDetails,
+                    DepartmentName = facultyInfo?.DepartmentName,
+                    TotalExperience = 0,
+                    Experiences = new List<FacultyExperienceDetailVm>
+                    {
+                        new FacultyExperienceDetailVm()
+                    }
+                });
             }
 
+
             return View(vm);
+        }
+
+        private decimal CalculateExperience(DateTime from, DateTime to)
+        {
+            int years = to.Year - from.Year;
+            int months = to.Month - from.Month;
+
+            if (to.Day < from.Day)
+                months--;
+
+            if (months < 0)
+            {
+                years--;
+                months += 12;
+            }
+
+            return years + (months / 12m);
         }
 
         [HttpPost]
@@ -626,7 +631,7 @@ namespace Medical_Affiliation.Controllers
 
             // ── Collect all Ids that were posted (existing records) ─────────────
             var postedIds = vm.FacultyRows
-                .SelectMany(x => x.Designations ?? new List<DentalDesignationTeachingVm>())
+                .SelectMany(x => x.Experiences ?? new List<FacultyExperienceDetailVm>())
                 .Where(x => x.Id > 0)
                 .Select(x => x.Id)
                 .Distinct()
@@ -646,18 +651,18 @@ namespace Medical_Affiliation.Controllers
             // ── Upsert each designation slot ─────────────────────────────────────
             foreach (var faculty in vm.FacultyRows)
             {
-                if (faculty.Designations == null) continue;
+                if (faculty.Experiences == null) continue;
 
-                foreach (var des in faculty.Designations)
+                foreach (var exp in faculty.Experiences)
                 {
                     // Skip entirely empty slots
-                    if (string.IsNullOrWhiteSpace(des.DesignationCode))
+                    if (string.IsNullOrWhiteSpace(exp.DesignationCode))
                         continue;
 
-                    if (string.IsNullOrWhiteSpace(des.CourseLevel) &&
-                        string.IsNullOrWhiteSpace(des.CollegeCode) &&
-                        !des.FromDate.HasValue &&
-                        !des.ToDate.HasValue)
+                    if (string.IsNullOrWhiteSpace(exp.CourseLevel) &&
+                        string.IsNullOrWhiteSpace(exp.CollegeCode) &&
+                        !exp.FromDate.HasValue &&
+                        !exp.ToDate.HasValue)
                     {
                         continue;
                     }
@@ -665,10 +670,10 @@ namespace Medical_Affiliation.Controllers
                     // Try to find existing DB record
                     TeachingStaffDepartmentWiseDetail? existing = null;
 
-                    if (des.Id > 0)
+                    if (exp.Id > 0)
                     {
                         existing = await _context.TeachingStaffDepartmentWiseDetails
-                            .FirstOrDefaultAsync(x => x.Id == des.Id);
+                            .FirstOrDefaultAsync(x => x.Id == exp.Id);
                     }
 
                     // Insert if not found
@@ -679,36 +684,36 @@ namespace Medical_Affiliation.Controllers
                             CollegeCode = collegeCode,
                             FacultyCode = facultyCode,
                             NameOfFaculty = faculty.NameOfFaculty,
-                            DesignationCode = des.DesignationCode,
-                            DesignationName = des.DesignationName
+                            DesignationCode = exp.DesignationCode,
+                            DesignationName = exp.DesignationName
                         };
                         _context.TeachingStaffDepartmentWiseDetails.Add(existing);
                     }
 
                     // Common fields
-                    existing.DepartmentCode = des.DepartmentCode;
+                    existing.DepartmentCode = faculty.DepartmentCode;
                     existing.NameOfFaculty = faculty.NameOfFaculty;
-                    existing.CourseLevel = des.CourseLevel;
-                    existing.TotalExperience = des.TotalExperience;
+                    existing.CourseLevel = exp.CourseLevel;
+                    existing.TotalExperience = faculty.TotalExperience;
 
                     // UG-specific fields
-                    if (des.CourseLevel == "UG")
+                    if (exp.CourseLevel == "UG")
                     {
-                        existing.UgcollegeCode = des.CollegeCode;
-                        existing.Ugfrom = des.FromDate.HasValue
-                            ? DateOnly.FromDateTime(des.FromDate.Value) : null;
-                        existing.Ugto = des.ToDate.HasValue
-                            ? DateOnly.FromDateTime(des.ToDate.Value) : null;
+                        existing.UgcollegeCode = exp.CollegeCode;
+                        existing.Ugfrom = exp.FromDate.HasValue
+                            ? DateOnly.FromDateTime(exp.FromDate.Value) : null;
+                        existing.Ugto = exp.ToDate.HasValue
+                            ? DateOnly.FromDateTime(exp.ToDate.Value) : null;
                     }
 
                     // PG-specific fields
-                    else if (des.CourseLevel == "PG")
+                    else if (exp.CourseLevel == "PG")
                     {
-                        existing.PgcollegeCode = des.CollegeCode;
-                        existing.Pgfrom = des.FromDate.HasValue
-                            ? DateOnly.FromDateTime(des.FromDate.Value) : null;
-                        existing.Pgto = des.ToDate.HasValue
-                            ? DateOnly.FromDateTime(des.ToDate.Value) : null;
+                        existing.PgcollegeCode = exp.CollegeCode;
+                        existing.Pgfrom = exp.FromDate.HasValue
+                            ? DateOnly.FromDateTime(exp.FromDate.Value) : null;
+                        existing.Pgto = exp.ToDate.HasValue
+                            ? DateOnly.FromDateTime(exp.ToDate.Value) : null;
                     }
                 }
             }
@@ -717,6 +722,202 @@ namespace Medical_Affiliation.Controllers
 
             TempData["Success"] = "Teaching staff details saved successfully.";
             return RedirectToAction("TeachingStaffDepartmentWise");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFacultyExperience(string facultyName)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrWhiteSpace(facultyName))
+                return BadRequest();
+
+            var records = await _context.TeachingStaffDepartmentWiseDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.NameOfFaculty == facultyName)
+                .ToListAsync();
+
+            var facultyInfo = await _context.FacultyDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.NameOfFaculty == facultyName)
+                .FirstOrDefaultAsync();
+
+            string? departmentName = null;
+
+            if (!string.IsNullOrWhiteSpace(facultyInfo?.DepartmentDetails))
+            {
+                departmentName = await _context.MstCourses
+                    .Where(x =>
+                        x.CourseCode.ToString() ==
+                        facultyInfo.DepartmentDetails)
+                    .Select(x => x.CourseName)
+                    .FirstOrDefaultAsync();
+            }
+
+            var vm = new FacultyExperienceModalVm
+            {
+                NameOfFaculty = facultyName,
+                DepartmentCode = facultyInfo?.DepartmentDetails,
+                DepartmentName = departmentName
+            };
+
+            foreach (var record in records)
+            {
+                var detail = new FacultyExperienceDetailVm
+                {
+                    Id = record.Id,
+                    DesignationCode = record.DesignationCode,
+                    DesignationName = record.DesignationName,
+                    CourseLevel = record.CourseLevel
+                };
+
+                if (record.CourseLevel == "UG")
+                {
+                    detail.CollegeCode = record.UgcollegeCode;
+                    detail.FromDate = record.Ugfrom?.ToDateTime(TimeOnly.MinValue);
+                    detail.ToDate = record.Ugto?.ToDateTime(TimeOnly.MinValue);
+                }
+                else
+                {
+                    detail.CollegeCode = record.PgcollegeCode;
+                    detail.FromDate = record.Pgfrom?.ToDateTime(TimeOnly.MinValue);
+                    detail.ToDate = record.Pgto?.ToDateTime(TimeOnly.MinValue);
+                }
+
+                if (detail.FromDate.HasValue &&
+                    detail.ToDate.HasValue)
+                {
+                    detail.Experience =
+                        Convert.ToDecimal(
+                            (detail.ToDate.Value - detail.FromDate.Value).TotalDays
+                            / 365.2425);
+                }
+
+                vm.Experiences.Add(detail);
+            }
+
+            vm.TotalExperience =
+                vm.Experiences.Sum(x => x.Experience);
+
+            return Json(vm);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> SaveFacultyExperience(
+    [FromBody] FacultyExperienceModalVm vm)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (vm == null)
+                return BadRequest();
+
+            var postedIds = vm.Experiences
+                .Where(x => x.Id > 0)
+                .Select(x => x.Id)
+                .ToList();
+
+            var existingRecords = await _context
+                .TeachingStaffDepartmentWiseDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.NameOfFaculty == vm.NameOfFaculty)
+                .ToListAsync();
+
+            var recordsToDelete = existingRecords
+                .Where(x => !postedIds.Contains(x.Id))
+                .ToList();
+
+            if (recordsToDelete.Any())
+            {
+                _context
+                    .TeachingStaffDepartmentWiseDetails
+                    .RemoveRange(recordsToDelete);
+            }
+
+            var totalExp = vm.Experiences.Sum(x => x.Experience);
+
+
+            foreach (var exp in vm.Experiences)
+            {
+                TeachingStaffDepartmentWiseDetail? entity = null;
+
+                if (exp.Id > 0)
+                {
+                    entity = existingRecords
+                        .FirstOrDefault(x => x.Id == exp.Id);
+                }
+
+                if (entity == null)
+                {
+                    entity = new TeachingStaffDepartmentWiseDetail
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyCode = facultyCode,
+                        NameOfFaculty = vm.NameOfFaculty
+                    };
+
+                    _context
+                        .TeachingStaffDepartmentWiseDetails
+                        .Add(entity);
+                }
+
+                entity.NameOfFaculty = vm.NameOfFaculty;
+                entity.DepartmentCode = vm.DepartmentCode;
+                entity.DesignationCode = exp.DesignationCode;
+                entity.DesignationName = exp.DesignationName;
+                entity.CourseLevel = exp.CourseLevel;
+
+                entity.UgcollegeCode = null;
+                entity.PgcollegeCode = null;
+                entity.Ugfrom = null;
+                entity.Ugto = null;
+                entity.Pgfrom = null;
+                entity.Pgto = null;
+
+                if (exp.CourseLevel == "UG")
+                {
+                    entity.UgcollegeCode = exp.CollegeCode;
+                    entity.Ugfrom = exp.FromDate.HasValue
+                        ? DateOnly.FromDateTime(exp.FromDate.Value)
+                        : null;
+
+                    entity.Ugto = exp.ToDate.HasValue
+                        ? DateOnly.FromDateTime(exp.ToDate.Value)
+                        : null;
+                }
+                else if (exp.CourseLevel == "PG")
+                {
+                    entity.PgcollegeCode = exp.CollegeCode;
+                    entity.Pgfrom = exp.FromDate.HasValue
+                        ? DateOnly.FromDateTime(exp.FromDate.Value)
+                        : null;
+
+                    entity.Pgto = exp.ToDate.HasValue
+                        ? DateOnly.FromDateTime(exp.ToDate.Value)
+                        : null;
+                }
+
+                entity.TotalExperience = totalExp;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var totalExperience =
+                vm.Experiences.Sum(x => x.Experience);
+
+            return Json(new
+            {
+                success = true,
+                totalExperience
+            });
         }
 
         [HttpGet]

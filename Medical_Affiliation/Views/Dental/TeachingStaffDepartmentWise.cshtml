@@ -6,7 +6,7 @@
     var facultyCode = Context.Session.GetString("FacultyCode");
 
 
-    var designationHeaders = Model.DesignationHeaders;
+    // var designationHeaders = Model.DesignationHeaders;
 }
 
 <style>
@@ -655,230 +655,75 @@
                             <thead>
                                 <tr class="main-row">
 
-                                    <th rowspan="2">#</th>
+                                    <th >#</th>
 
-                                    <th rowspan="2" style="min-width:220px;">
+                                    <th  style="min-width:220px;">
                                         Faculty Name
                                     </th>
 
-                                    @foreach (var des in designationHeaders)
-                                    {
-                                        <th colspan="5">
-                                            @des.DesignationName
-                                        </th>
-                                    }
+                                    <th>Department</th>
 
-                                    <th rowspan="2">
+                                    <th >
                                         Total Experience
                                     </th>
-                                    <th rowspan="2">Action</th>
+                                    <th >Action</th>
                                 </tr>
 
-                                <tr class="sub-row">
-
-                                    @foreach (var des in designationHeaders)
-                                    {
-                                        <th>Course Level</th>
-                                        <th>College</th>
-                                        <th>Department</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                    }
-
-                                </tr>
                             </thead>
                             <tbody>
+
                                 @for (int i = 0; i < Model.FacultyRows.Count; i++)
                                 {
                                     var faculty = Model.FacultyRows[i];
-                                    var totalExp = faculty.Designations
-                                        .Where(x => x.TotalExperience.HasValue)
-                                        .Sum(x => x.TotalExperience.Value);
 
                                     <tr>
 
-                                        <!-- SL NO -->
                                         <td class="td-slno">
                                             @(i + 1)
                                         </td>
 
-                                        <!-- FACULTY NAME -->
                                         <td>
+                                            @faculty.NameOfFaculty
 
-                                            <select asp-for="FacultyRows[i].NameOfFaculty"
-                                                    class="form-select faculty-dropdown">
-
-                                                <option value="">-- Select Faculty --</option>
-
-                                                @foreach (var facultyItem in Model.FacultyList)
-                                                {
-                                                    if (facultyItem.Value?.Trim() == faculty.NameOfFaculty?.Trim())
-                                                    {
-                                                        <option value="@facultyItem.Value" selected="selected">
-                                                            @facultyItem.Text
-                                                        </option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@facultyItem.Value">
-                                                            @facultyItem.Text
-                                                        </option>
-                                                    }
-                                                }
-                                            </select>
-
+                                            <input type="hidden"
+                                                   asp-for="FacultyRows[i].NameOfFaculty" />
                                         </td>
 
-                                        <!-- DESIGNATION MATRIX -->
-                                        @for (int j = 0; j < faculty.Designations.Count; j++)
-                                        {
-                                            var des = faculty.Designations[j];
-
-                                            <!-- COURSE LEVEL -->
-                                            <td>
-
-                                                <select asp-for="FacultyRows[i].Designations[j].CourseLevel"
-                                                        class="form-select course-level-dropdown">
-
-                                                    <option value="">-- Select --</option>
-
-                                                    @if (des.CourseLevel == "UG")
-                                                    {
-                                                        <option value="UG" selected>UG</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="UG">UG</option>
-                                                    }
-
-                                                    @if (des.CourseLevel == "PG")
-                                                    {
-                                                        <option value="PG" selected>PG</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="PG">PG</option>
-                                                    }
-
-                                                </select>
-
-                                            </td>
-
-                                            <!-- COLLEGE -->
-                                            <td>
-
-                                                <select asp-for="FacultyRows[i].Designations[j].CollegeCode"
-                                                        class="form-select college-dropdown">
-
-                                                    <option value="">-- Select College --</option>
-
-                                                    @foreach (var college in Model.Colleges)
-                                                    {
-                                                        if (des.CollegeCode == college.Value)
-                                                        {
-                                                            <option value="@college.Value" selected>
-                                                                @college.Text
-                                                            </option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="@college.Value">
-                                                                @college.Text
-                                                            </option>
-                                                        }
-                                                    }
-                                                    <option value="OTHER_COLLEGE">
-                                                        + Add Outside Karnataka College
-                                                    </option>
-
-                                                </select>
-
-                                            </td>
-
-                                            <!-- DEPARTMENT -->
-                                            <td>
-
-                                                <select asp-for="FacultyRows[i].Designations[j].DepartmentCode"
-                                                        class="form-select department-dropdown">
-
-                                                    <option value="">-- Select Department --</option>
-
-                                                    @foreach (var dept in Model.Departments)
-                                                    {
-                                                        if (dept.Value == des.DepartmentCode)
-                                                        {
-                                                            <option value="@dept.Value"
-                                                                    selected
-                                                                    data-courselevel="@dept.Group?.Name">
-
-                                                                @dept.Text
-
-                                                            </option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="@dept.Value"
-                                                                    data-courselevel="@dept.Group?.Name">
-
-                                                                @dept.Text
-
-                                                            </option>
-                                                        }
-                                                    }
-
-                                                </select>
-
-                                            </td>
-
-                                            <!-- FROM -->
-                                            <td>
-
-                                                <input asp-for="FacultyRows[i].Designations[j].FromDate"
-                                                       type="date"
-                                                       class="form-control date-input" />
-
-                                            </td>
-
-                                            <!-- TO -->
-                                            <td>
-
-                                                <input asp-for="FacultyRows[i].Designations[j].ToDate"
-                                                       type="date"
-                                                       class="form-control date-input" />
-
-                                            </td>
-
-                                            <!-- HIDDEN -->
-
-                                            <input asp-for="FacultyRows[i].Designations[j].DesignationCode"
-                                                   type="hidden" />
-
-                                            <input asp-for="FacultyRows[i].Designations[j].DesignationName"
-                                                   type="hidden" />
-
-                                            <input asp-for="FacultyRows[i].Designations[j].Id"
-                                                   type="hidden" />
-
-                                        }
-
-                                        <!-- TOTAL EXPERIENCE -->
                                         <td>
+                                            @faculty.DepartmentName
 
-                                            <input value="@totalExp.ToString("0.00")"
+                                            <input type="hidden"
+                                                   asp-for="FacultyRows[i].DepartmentCode" />
+
+                                            <input type="hidden"
+                                                   asp-for="FacultyRows[i].DepartmentName" />
+                                        </td>
+
+                                        <td>
+                                            @{
+                                                var totalMonths = (int)Math.Round(faculty.TotalExperience * 12);
+
+                                                var years = totalMonths / 12;
+                                                var months = totalMonths % 12;
+
+                                                var yearsText = years == 1 ? "Year" : "Years";
+                                                var monthsText = months == 1 ? "Month" : "Months";
+                                            }
+
+                                            <input type="text"
+                                                   value="@($"{years} {yearsText} {months} {monthsText}")"
                                                    class="form-control total-exp"
                                                    readonly />
-
                                         </td>
+
                                         <td>
-                                            <button type="button"
-                                                    class="btn btn-success btn-sm add-row">
-                                                +
-                                            </button>
 
                                             <button type="button"
-                                                    class="btn btn-danger btn-sm delete-row">
-                                                -
+                                                    class="btn btn-primary manage-experience-btn"
+                                                    data-faculty="@faculty.NameOfFaculty">
+                                                Manage Experience
                                             </button>
+
                                         </td>
 
                                     </tr>
@@ -900,16 +745,16 @@
                 <div class="form-footer">
                 </div>
                 <div class="navigation-buttons">
-                    <a asp-controller="Dental"
+                    <a asp-controller="FacultyDetails"
                        asp-action="Repo_FacultyDetails"
                        class="btn-prev">← Previous</a>
 
-                    @if (Model.FacultyRows != null && Model.FacultyRows.Any())
+                    @* @if (Model.FacultyRows != null && Model.FacultyRows.Any())
                     {
                     <button type="submit" class="btn-save">
                         Save & Continue
                     </button>
-                    }
+                    } *@
 
                     @if (facultyCode == "1")
                     {
@@ -1040,10 +885,264 @@
         </div>
 
     </div>
-</div>
 
+    <div class="modal fade"
+         id="experienceModal"
+         tabindex="-1"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Faculty Experience Details
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden"
+                           id="currentFacultyName" />
+
+                    <input type="hidden"
+                           id="modalDepartmentCode" />
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-bold">
+                                Faculty Name
+                            </label>
+
+                            <input type="text"
+                                   id="modalFacultyName"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-bold">
+                                Department
+                            </label>
+
+                            <input type="text"
+                                   id="modalDepartmentName"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered align-middle">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th style="min-width:180px;">
+                                        Designation
+                                    </th>
+
+                                    <th style="min-width:120px;">
+                                        Course Level
+                                    </th>
+
+                                    <th style="min-width:250px;">
+                                        College
+                                    </th>
+
+                                    <th style="min-width:150px;">
+                                        From Date
+                                    </th>
+
+                                    <th style="min-width:150px;">
+                                        To Date
+                                    </th>
+
+                                    <th style="min-width:120px;">
+                                        Experience
+                                    </th>
+
+                                    <th style="width:100px;">
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="experienceRowsContainer">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <div class="me-auto">
+
+                        <strong>
+                            Total Experience :
+                        </strong>
+
+                        <span id="modalTotalExperience" data-value="0">
+                            0 Years 0 Months
+                        </span>
+
+
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-success"
+                            id="btnAddExperienceRow">
+
+                        + Add Row
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            id="btnSaveExperience">
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Close
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <template id="experienceRowTemplate">
+
+        <tr>
+            <input type="hidden"
+                   class="experience-id" />
+
+            <td>
+
+                <select class="form-select designation-dropdown">
+                    <option value="">-- Select --</option>
+                </select>
+
+            </td>
+
+            <td>
+
+                <select class="form-select courselevel-dropdown">
+
+                    <option value="">-- Select --</option>
+
+                    <option value="UG">
+                        UG
+                    </option>
+
+                    <option value="PG">
+                        PG
+                    </option>
+
+                </select>
+
+            </td>
+
+            <td>
+
+                <select class="form-select college-dropdown">
+
+                    <option value="">
+                        -- Select College --
+                    </option>
+
+                </select>
+
+            </td>
+
+            <td>
+
+                <input type="date"
+                       class="form-control from-date" />
+
+            </td>
+
+            <td>
+
+                <input type="date"
+                       class="form-control to-date" />
+
+            </td>
+
+            <td>
+
+                <input type="text"
+                       class="form-control experience-value"
+                       readonly />
+
+            </td>
+
+            <td class="text-center">
+
+                <button type="button"
+                        class="btn btn-danger btn-sm remove-exp-row">
+
+                    ×
+
+                </button>
+
+            </td>
+
+        </tr>
+
+    </template>
+</div>
 <script>
     document.addEventListener("DOMContentLoaded",  async function () {
+
+        const designations =
+            @Html.Raw(Json.Serialize(
+                            Model.Designations.Select(x => new
+                            {
+                                        value = x.Value,
+                                        text = x.Text
+                            })
+            ));
+
+        const colleges =
+            @Html.Raw(Json.Serialize(
+                            Model.Colleges.Select(x => new
+                            {
+                                        value = x.Value,
+                                        text = x.Text
+                            })
+            ));
 
         async function loadOtherColleges() {
 
@@ -1074,6 +1173,8 @@
 
 
         let allOtherColleges = [];
+        let activeCollegeDropdown = null;
+
 
         function renderOtherColleges(colleges) {
 
@@ -1111,19 +1212,12 @@
                 listContainer.appendChild(item);
             });
         }
-
+        const saveFacultyExperienceUrl = '@Url.Action("SaveFacultyExperience", "Dental")';
 
         function selectOtherCollege(college) {
 
-            const dropdownName =
-                document.getElementById(
-                    "selectedCollegeDropdown"
-                ).value;
-
             const dropdown =
-                document.querySelector(
-                    `[name="${dropdownName}"]`
-                );
+                activeCollegeDropdown;
 
             if (!dropdown)
                 return;
@@ -1140,7 +1234,6 @@
                     true,
                     true
                 );
-
                 dropdown.add(option);
             }
 
@@ -1154,306 +1247,36 @@
                 )
                 .hide();
         }
-
         // =========================
         // TOTAL EXPERIENCE
         // =========================
 
-        document.querySelectorAll(".date-input")
-            .forEach(function (input) {
+        document.getElementById("showAddCollegeForm").addEventListener("click", function () {
 
-                input.addEventListener(
-                    "change",
-                    calculateExperience
-                );
+            document.getElementById("otherCollegeListSection")
+                .style.display = "none";
 
-                calculateExperience.call(input);
-            });
-
-        document.addEventListener("click", function (e) {
-
-            if (!e.target.classList.contains("add-row"))
-                return;
-
-            const row = e.target.closest("tr");
-
-            const clone = row.cloneNode(true);
-
-            clone.querySelectorAll("select").forEach(s => {
-
-                if (!s.classList.contains("faculty-dropdown")) {
-                    s.value = "";
-                }
-            });
-
-            clone.querySelectorAll("input[type='date']").forEach(i => {
-                i.value = "";
-            });
-
-            clone.querySelectorAll("input[type='hidden']").forEach(h => {
-                if (h.name.endsWith(".Id")) {
-                    h.value = "0";
-                }
-            });
-
-            clone.querySelector(".total-exp").value = "";
-
-            row.after(clone);
-            clone.querySelectorAll(".date-input")
-                .forEach(function (input){
-                    input.addEventListener("change", calculateExperience)
-                })
-
-            reIndexRows();
+            document.getElementById("otherCollegeFormSection")
+                .style.display = "block";
         });
-
-
-        document.addEventListener("click", function (e) {
-
-            if (!e.target.classList.contains("delete-row"))
-                return;
-
-            const rows = document.querySelectorAll("tbody tr");
-
-            // Keep at least one row
-            if (rows.length <= 1) {
-                alert("At least one row is required.");
-                return;
-            }
-
-            const row = e.target.closest("tr");
-
-            row.remove();
-
-            reIndexRows();
-        });
-
-        function reIndexRows() {
-
-            document.querySelectorAll("tbody tr")
-                .forEach((row, rowIndex) => {
-
-                    row.querySelector(".td-slno").textContent = rowIndex + 1;
-
-                    row.querySelectorAll("[name]").forEach(el => {
-
-                        el.name = el.name.replace(
-                            /FacultyRows\[\d+\]/,
-                            `FacultyRows[${rowIndex}]`
-                        );
-                    });
-
-                    row.querySelectorAll("[id]").forEach(el => {
-
-                        el.id = el.id.replace(
-                            /FacultyRows_\d+_/,
-                            `FacultyRows_${rowIndex}_`
-                        );
-                    });
-                });
-        }
-
-        function calculateExperience() {
-
-            const row = this.closest("tr");
-
-            if (!row) return;
-
-            const dateInputs =
-                row.querySelectorAll(".date-input");
-
-            let totalYears = 0;
-
-            for (let i = 0; i < dateInputs.length; i += 2) {
-
-                const from = dateInputs[i]?.value ?? "";
-                const to   = dateInputs[i + 1]?.value ?? "";
-
-                if (!from || !to)
-                    continue;
-
-                const start = new Date(from);
-                const end   = new Date(to);
-
-                if (isNaN(start.getTime()) ||
-                    isNaN(end.getTime()) ||
-                    end < start)
-                    continue;
-
-                totalYears +=
-                    (end - start) /
-                    (1000 * 60 * 60 * 24 * 365.2425);
-            }
-
-            const expField =
-                row.querySelector(".total-exp");
-
-            if (expField) {
-
-                expField.value =
-                    totalYears.toFixed(2);
-
-                expField.style.background =
-                    "#d4edda";
-
-                setTimeout(() => {
-
-                    expField.style.background = "";
-
-                }, 500);
-            }
-        }
-
-        // =========================
-        // COURSE LEVEL FILTERING
-        // =========================
-
-        document.querySelectorAll(".course-level-dropdown")
-            .forEach(function (dropdown) {
-
-                dropdown.addEventListener(
-                    "change",
-                    handleCourseLevelChange
-                );
-
-                handleCourseLevelChange.call(dropdown);
-            });
-
-        function handleCourseLevelChange() {
-
-            const courseLevel = this.value;
-
-            const td = this.closest("td");
-
-            // =========================
-            // COLLEGE DROPDOWN
-            // =========================
-
-            const collegeDropdown =
-                td.nextElementSibling
-                  ?.querySelector(".college-dropdown");
-
-            if (collegeDropdown) {
-
-                const options =
-                    collegeDropdown.querySelectorAll("option");
-
-                options.forEach(function (option) {
-
-                    const levels =
-                        option.dataset.levels;
-
-                    // keep default option
-                    if (!levels) {
-
-                        option.hidden = false;
-                        return;
-                    }
-
-                    const allowedLevels =
-                        levels.split(',');
-
-                    if (!courseLevel) {
-
-                        option.hidden = false;
-                    }
-                    else {
-
-                        option.hidden =
-                            !allowedLevels.includes(courseLevel);
-                    }
-                });
-
-                // reset invalid selection
-                const selectedOption =
-                    collegeDropdown.selectedOptions[0];
-
-                if (selectedOption?.hidden) {
-
-                    collegeDropdown.value = "";
-                }
-            }
-
-            // =========================
-            // DEPARTMENT DROPDOWN
-            // =========================
-
-            const deptDropdown =
-                td.nextElementSibling
-                  ?.nextElementSibling
-                  ?.querySelector(".department-dropdown");
-
-            if (!deptDropdown)
-                return;
-
-            const options =
-                deptDropdown.querySelectorAll("option");
-
-            options.forEach(function (option) {
-
-                const optionLevel =
-                    option.dataset.courselevel;
-
-                // keep default option visible
-                if (!optionLevel) {
-
-                    option.hidden = false;
-                    return;
-                }
-
-                if (!courseLevel) {
-
-                    option.hidden = false;
-                }
-                else {
-
-                    option.hidden =
-                        optionLevel !== courseLevel;
-                }
-            });
-
-            // reset invalid department
-            const selectedDept =
-                deptDropdown.selectedOptions[0];
-
-            if (selectedDept?.hidden) {
-
-                deptDropdown.value = "";
-            }
-        }
-
-        document.getElementById("showAddCollegeForm")
-            .addEventListener("click", function () {
-
-                document.getElementById("otherCollegeListSection")
-                    .style.display = "none";
-
-                document.getElementById("otherCollegeFormSection")
-                    .style.display = "block";
-            });
 
         document.addEventListener("change", async function (e) {
 
-            if (!e.target.classList.contains("college-dropdown"))
+            if (e.target.value !== "OTHER_COLLEGE")
                 return;
 
-            if (e.target.value === "OTHER_COLLEGE") {
+            activeCollegeDropdown = e.target;
 
-                document.getElementById(
-                    "selectedCollegeDropdown"
-                ).value = e.target.name;
+            await loadOtherColleges();
 
-                await loadOtherColleges();
+            const modal =
+                new bootstrap.Modal(
+                    document.getElementById(
+                        "otherCollegeModal"
+                    )
+                );
 
-                const modal =
-                    new bootstrap.Modal(
-                        document.getElementById(
-                            "otherCollegeModal"
-                        )
-                    );
-
-                modal.show();
-            }
+            modal.show();
         });
 
         
@@ -1479,13 +1302,9 @@
                     if (!res.success)
                         return;
 
-                    const dropdownName =
-                        $("#selectedCollegeDropdown").val();
+                    const dropdown = activeCollegeDropdown;
 
-                    const dropdown =
-                        document.querySelector(
-                            `[name='${dropdownName}']`
-                        );
+                    if (!dropdown) return;
 
                     const option =
                         new Option(
@@ -1508,15 +1327,471 @@
             });
         });
 
+        document.addEventListener("click", async function (e) {
+
+            if (!e.target.classList.contains("manage-experience-btn"))
+                return;
+
+            const facultyName =
+                e.target.dataset.faculty;
+
+            const getFacultyExperienceUrl = '@Url.Action("GetFacultyExperience", "Dental")';
+
+            const response = await fetch(
+                `${getFacultyExperienceUrl}?facultyName=${encodeURIComponent(facultyName)}`
+            );
+
+            if (!response.ok) {
+                alert("Failed to load experience details.");
+                return;
+            }
+            const data = await response.json();
+
+            openExperienceModal(data);
+        });
+
+        function openExperienceModal(data) {
+
+            document.getElementById("currentFacultyName").value = data.nameOfFaculty ?? "";
+            document.getElementById("modalDepartmentCode").value = data.departmentCode ?? "";
+
+            document.getElementById("modalFacultyName").value = data.nameOfFaculty ?? "";
+
+            document.getElementById("modalDepartmentName").value = data.departmentName ?? "";
+
+            document.getElementById("modalTotalExperience").textContent = (data.totalExperience ?? 0).toFixed(2);
+
+            const tbody =  document.getElementById("experienceRowsContainer");
+
+            tbody.innerHTML = "";
+
+            if (!data.experiences || data.experiences.length === 0) {
+
+                addExperienceRow();
+
+            } else {
+
+                data.experiences.forEach(exp => {
+
+                    addExperienceRow(exp);
+
+                });
+            }
+
+            const modal =
+                new bootstrap.Modal(
+                    document.getElementById("experienceModal")
+                );
+
+            modal.show();
+        }
+
+        function addExperienceRow(exp = null) {
+
+            const template =
+                document.getElementById("experienceRowTemplate");
+
+
+            const tbody =
+                document.getElementById("experienceRowsContainer");
+
+            const clone =
+                template.content.cloneNode(true);
+
+            const row =
+                clone.querySelector("tr");
+
+            const idInput = row.querySelector(".experience-id");
+
+            const designationDropdown =
+                row.querySelector(".designation-dropdown");
+
+            const courseLevelDropdown =
+                row.querySelector(".courselevel-dropdown");
+
+            const collegeDropdown =
+                row.querySelector(".college-dropdown");
+
+            const fromDateInput =
+                row.querySelector(".from-date");
+
+            const toDateInput =
+                row.querySelector(".to-date");
+
+            const experienceInput =
+                row.querySelector(".experience-value");
+
+            // ======================
+            // Designations
+            // ======================
+
+            designations.forEach(d => {
+
+                designationDropdown.add(
+                    new Option(
+                        d.text,
+                        d.value
+                    )
+                );
+            });
+
+            
+
+            // ======================
+            // Colleges
+            // ======================
+
+            colleges.forEach(c => {
+
+                collegeDropdown.add(
+                    new Option(
+                        c.text,
+                        c.value
+                    )
+                );
+            });
+            
+            collegeDropdown.add(
+                            new Option(
+                                "+ Add Outside Karnataka College",
+                                "OTHER_COLLEGE"
+                            )
+                        );
+
+
+            // ======================
+            // Existing Data
+            // ======================
+
+            if (exp) {
+                idInput.value =  exp.id ?? 0;
+
+                designationDropdown.value =
+                    exp.designationCode ?? "";
+
+                courseLevelDropdown.value =
+                    exp.courseLevel ?? "";
+
+                collegeDropdown.value =
+                    exp.collegeCode ?? "";
+
+                if (exp.fromDate) {
+
+                    fromDateInput.value =
+                        exp.fromDate.substring(0, 10);
+                }
+
+                if (exp.toDate) {
+
+                    toDateInput.value =
+                        exp.toDate.substring(0, 10);
+                }
+
+                experienceInput.value =
+                    (exp.experience ?? 0).toFixed(2);
+            }
+
+            tbody.appendChild(row);
+
+            const rows =  tbody.querySelectorAll("tr");
+
+            rows.forEach((r, index) => {
+
+                const btn =
+                    r.querySelector(".remove-exp-row");
+
+                btn.style.display =
+                    index === 0 ? "none" : "";
+            });
+
+            calculateExperienceRow(row);
+        }
+
+
+        function calculateExperienceRow(row) {
+
+            const from =
+                row.querySelector(".from-date").value;
+
+            const to =
+                row.querySelector(".to-date").value;
+
+            const expField =
+                row.querySelector(".experience-value");
+
+            if (!from || !to) {
+
+                expField.value = "";
+                expField.dataset.value = "0";
+
+                updateModalTotalExperience();
+
+                return;
+            }
+
+            const start = new Date(from);
+            const end = new Date(to);
+
+            if (end < start) {
+
+                expField.value = "";
+                expField.dataset.value = "0";
+
+                updateModalTotalExperience();
+
+                return;
+            }
+
+            let years =
+                end.getFullYear() - start.getFullYear();
+
+            let months =
+                end.getMonth() - start.getMonth();
+
+            if (end.getDate() < start.getDate()) {
+                months--;
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            const numericExperience =
+                years + (months / 12);
+
+            expField.value =
+                `${years} Years ${months} Months`;
+
+            expField.dataset.value =
+                numericExperience.toFixed(2);
+
+            updateModalTotalExperience();
+        }
+        function updateModalTotalExperience() {
+
+            let total = 0;
+
+            document
+                .querySelectorAll(".experience-value")
+                .forEach(x => {
+
+                    total +=
+                        parseFloat(x.dataset.value || 0);
+                });
+
+            const totalMonths =
+                Math.round(total * 12);
+
+            const yearsPart =
+                Math.floor(totalMonths / 12);
+
+            const monthsPart =
+                totalMonths % 12;
+
+            const totalElement =
+                document.getElementById(
+                    "modalTotalExperience"
+                );
+
+            totalElement.textContent =
+                `${yearsPart} Years ${monthsPart} Months`;
+
+            totalElement.dataset.value =
+                total.toFixed(2);
+        }
+        document.getElementById("btnAddExperienceRow").addEventListener("click", function () {
+            addExperienceRow();
+        });
+
+        async function saveExperience() {
+
+            const facultyName =
+                document.getElementById("currentFacultyName").value;
+
+            const departmentName =
+                document.getElementById("modalDepartmentName").value;
+
+            const experiences = [];
+
+            document.querySelectorAll(
+                "#experienceRowsContainer tr"
+            ).forEach(row => {
+
+                experiences.push({
+
+                    id:
+                        parseInt(
+                            row.querySelector(".experience-id")?.value || 0
+                        ),
+
+                    designationCode:
+                        row.querySelector(".designation-dropdown")?.value,
+
+                    designationName:
+                        row.querySelector(".designation-dropdown")
+                            ?.selectedOptions[0]?.text ?? "",
+
+                    courseLevel:
+                        row.querySelector(".courselevel-dropdown")?.value,
+
+                    collegeCode:
+                        row.querySelector(".college-dropdown")?.value,
+
+                    fromDate:
+                        row.querySelector(".from-date")?.value || null,
+
+                    toDate:
+                        row.querySelector(".to-date")?.value || null,
+
+                    experience:
+                        parseFloat(
+                            row.querySelector(".experience-value")?.dataset.value || 0
+                        )
+                });
+            });
+            
+            const totalElement =
+                document.getElementById(
+                    "modalTotalExperience"
+                );
+
+            const payload = {
+
+                nameOfFaculty: facultyName,
+
+                departmentName: departmentName,
+                departmentCode:
+                    document.getElementById(
+                        "modalDepartmentCode"
+                    ).value,
+
+
+                totalExperience:
+                    parseFloat(
+                        totalElement.dataset.value || 0
+                    ),
+
+
+                experiences: experiences
+            };
+
+            try {
+
+                const token =
+                    document.querySelector(
+                        'input[name="__RequestVerificationToken"]'
+                    )?.value;
+
+                const response = await fetch(
+                    saveFacultyExperienceUrl,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "RequestVerificationToken": token
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                if (!response.ok) {
+
+                    alert("Failed to save experience.");
+
+                    return;
+                }
+
+                const result =
+                    await response.json();
+
+                if (!result.success) {
+
+                    alert("Failed to save.");
+
+                    return;
+                }
+                console.log(result.totalExperience);
+
+                updateMainGridTotal(
+                    facultyName,
+                    result.totalExperience
+                );
+
+                bootstrap.Modal
+                    .getInstance(
+                        document.getElementById(
+                            "experienceModal"
+                        )
+                    )
+                    .hide();
+
+                alert("Experience saved successfully.");
+
+            }
+            catch (err) {
+
+                console.error(err);
+
+                alert("Error while saving.");
+            }
+        }
+
+        function updateMainGridTotal(
+            facultyName,
+            totalExperience
+        ) {
+
+            const btn =
+                document.querySelector(
+                    `.manage-experience-btn[data-faculty="${facultyName}"]`
+                );
+
+            if (!btn)
+                return;
+
+            const row =
+                btn.closest("tr");
+
+            const totalBox =
+                row.querySelector(".total-exp");
+
+            if (!totalBox)
+                return;
+
+            const totalMonths =
+                Math.round(Number(totalExperience) * 12);
+
+            const years =
+                Math.floor(totalMonths / 12);
+
+            const months =
+                totalMonths % 12;
+
+            totalBox.value =
+                `${years} Year${years !== 1 ? "s" : ""} ${months} Month${months !== 1 ? "s" : ""}`;
+        }
+        document.getElementById("btnSaveExperience").addEventListener("click", saveExperience);
+
+        document.addEventListener("click", function (e) {
+
+            if (!e.target.classList.contains("remove-exp-row"))
+                return;
+
+            e.target.closest("tr").remove();
+
+            updateModalTotalExperience();
+        });
+        document.addEventListener("change", function (e) {
+
+            if (
+                e.target.classList.contains("from-date") ||
+                e.target.classList.contains("to-date")
+            ) {
+
+                calculateExperienceRow(
+                    e.target.closest("tr")
+                );
+            }
+        });
     });
 </script>
-@* @if (TempData["SuccessFaculty"] != null)
-{
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: '@TempData["SuccessFaculty"]'
-        });
-    </script>
-} *@
