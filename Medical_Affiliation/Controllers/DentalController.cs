@@ -580,12 +580,22 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefault(x => x.NameOfFaculty == name);
 
 
+                decimal totalExperience = 0;
+
+                if (facultyInfo?.From != null &&
+                    facultyInfo?.To != null)
+                {
+                    totalExperience = CalculateExperience(
+                        facultyInfo.From.Value.ToDateTime(TimeOnly.MinValue),
+                        facultyInfo.To.Value.ToDateTime(TimeOnly.MinValue));
+                }
+
                 vm.FacultyRows.Add(new FacultyExperienceVm
                 {
                     NameOfFaculty = name,
                     DepartmentCode = facultyInfo?.DepartmentDetails,
                     DepartmentName = facultyInfo?.DepartmentName,
-                    TotalExperience = 0,
+                    TotalExperience = totalExperience,
                     Experiences = new List<FacultyExperienceDetailVm>
                     {
                         new FacultyExperienceDetailVm()
@@ -765,6 +775,43 @@ namespace Medical_Affiliation.Controllers
                 DepartmentCode = facultyInfo?.DepartmentDetails,
                 DepartmentName = departmentName
             };
+
+            if (!records.Any() && facultyInfo != null)
+            {
+                string? courseLevel = null;
+
+                if (!string.IsNullOrWhiteSpace(facultyInfo.DepartmentDetails) &&
+                    int.TryParse(facultyInfo.DepartmentDetails, out int courseCode))
+                {
+                    courseLevel = await _context.MstCourses
+                        .Where(x => x.CourseCode == courseCode)
+                        .Select(x => x.CourseLevel)
+                        .FirstOrDefaultAsync();
+                }
+
+                var detail = new FacultyExperienceDetailVm
+                {
+                    DesignationCode = facultyInfo.Designation,
+                    CourseLevel = courseLevel, // derive if available
+                    CollegeCode = collegeCode,
+                    FromDate = facultyInfo.From?.ToDateTime(TimeOnly.MinValue),
+                    ToDate = facultyInfo.To?.ToDateTime(TimeOnly.MinValue)
+                };
+
+                if (detail.FromDate.HasValue &&
+                    detail.ToDate.HasValue)
+                {
+                    detail.Experience = CalculateExperience(
+                        detail.FromDate.Value,
+                        detail.ToDate.Value);
+                }
+
+                vm.Experiences.Add(detail);
+
+                vm.TotalExperience = detail.Experience;
+
+                return Json(vm);
+            }
 
             foreach (var record in records)
             {
