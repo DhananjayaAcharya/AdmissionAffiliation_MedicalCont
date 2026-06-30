@@ -2336,9 +2336,10 @@ namespace Medical_Affiliation.Controllers
                     vm.Fax = existingInstitution.Fax;
                     vm.Website = existingInstitution.Website;
                     vm.SurveyNoPidNo = existingInstitution.SurveyNoPidNo;
-                    vm.MinorityInstitute = (bool)existingInstitution.MinorityInstitute;
-                    vm.AttachedToMedicalClg = (bool)existingInstitution.AttachedToMedicalClg;
-                    vm.RuralInstitute = (bool)existingInstitution.RuralInstitute;
+                    // ✅ Fix for multipart/form-data bool checkbox binding bug
+                    vm.MinorityInstitute = existingInstitution.MinorityInstitute;
+                    vm.AttachedToMedicalClg = existingInstitution.AttachedToMedicalClg;
+                    vm.RuralInstitute = existingInstitution.RuralInstitute;
 
                     // YearOfEstablishment in DB may be stored as string (yyyy or yyyy-MM-dd). Preserve as-is.
                     vm.YearOfEstablishment = existingInstitution.YearOfEstablishment ?? string.Empty;
@@ -2936,9 +2937,9 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.MinorityInstitute));
             ModelState.Remove(nameof(vm.AttachedToMedicalClg));
             ModelState.Remove(nameof(vm.RuralInstitute));
+            ModelState.Remove(nameof(vm.GovAutonomousCertNumber));
 
-            if (vm.TypeOfInstitution == "1" ||
-    vm.TypeOfInstitution == "11")
+            if (vm.TypeOfInstitution == "1" || vm.TypeOfInstitution == "11")
             {
                 if (string.IsNullOrWhiteSpace(vm.GovAutonomousCertNumber))
                 {
@@ -2988,68 +2989,47 @@ namespace Medical_Affiliation.Controllers
             // 5. Handle document upload
             if (documentFile != null && documentFile.Length > 0)
             {
-                // Select root path based on faculty
                 string rootPath = entity.FacultyCode == "2"
                     ? BaseDentalPath
                     : BaseMedicalPath;
 
-                // InstitutionDetails folder
-                string basePath =
-                    Path.Combine(rootPath, "InstitutionDetails");
+                string basePath = Path.Combine(rootPath, "InstitutionDetails");
 
-                // Create folder if not exists
                 if (!Directory.Exists(basePath))
                     Directory.CreateDirectory(basePath);
 
-                // Delete old file
                 if (!string.IsNullOrEmpty(entity.DocumentDataPath) &&
                     System.IO.File.Exists(entity.DocumentDataPath))
                 {
                     System.IO.File.Delete(entity.DocumentDataPath);
                 }
 
-                // Generate unique file name
-                string fileName =
-                    Guid.NewGuid().ToString() +
-                    Path.GetExtension(documentFile.FileName);
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(documentFile.FileName);
+                string fullPath = Path.Combine(basePath, fileName);
 
-                // Full file path
-                string fullPath =
-                    Path.Combine(basePath, fileName);
-
-                // Save file
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     await documentFile.CopyToAsync(stream);
                 }
 
-                // Store values
                 entity.DocumentDataPath = fullPath;
                 entity.DocumentName = documentFile.FileName;
                 entity.DocumentContentType = documentFile.ContentType;
             }
 
-
             // ================================
             // Gov Autonomous Certificate Upload
             // ================================
-            if (GovAutonomousCertFile != null &&
-                GovAutonomousCertFile.Length > 0)
+            if (GovAutonomousCertFile != null && GovAutonomousCertFile.Length > 0)
             {
                 string rootPath = entity.FacultyCode == "2"
                     ? BaseDentalPath
                     : BaseMedicalPath;
 
-                string basePath =
-                    Path.Combine(
-                        rootPath,
-                        "InstitutionDetails",
-                        "GovAutonomous");
+                string basePath = Path.Combine(rootPath, "InstitutionDetails", "GovAutonomous");
 
                 if (!Directory.Exists(basePath))
-                {
                     Directory.CreateDirectory(basePath);
-                }
 
                 if (!string.IsNullOrWhiteSpace(entity.GovAutonomousCertPath) &&
                     System.IO.File.Exists(entity.GovAutonomousCertPath))
@@ -3057,16 +3037,10 @@ namespace Medical_Affiliation.Controllers
                     System.IO.File.Delete(entity.GovAutonomousCertPath);
                 }
 
-                string fileName =
-                    Guid.NewGuid() +
-                    Path.GetExtension(
-                        GovAutonomousCertFile.FileName);
+                string fileName = Guid.NewGuid() + Path.GetExtension(GovAutonomousCertFile.FileName);
+                string fullPath = Path.Combine(basePath, fileName);
 
-                string fullPath =
-                    Path.Combine(basePath, fileName);
-
-                using (var stream =
-                       new FileStream(fullPath, FileMode.Create))
+                using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     await GovAutonomousCertFile.CopyToAsync(stream);
                 }
@@ -3074,8 +3048,14 @@ namespace Medical_Affiliation.Controllers
                 entity.GovAutonomousCertPath = fullPath;
             }
 
-            // 6. Map all other ViewModel fields → Entity
+            // 6. Map all ViewModel fields → Entity
             MapViewModelToEntity(vm, entity);
+
+            // ✅ Fix: write checkboxes directly to entity after MapViewModelToEntity
+            // bypasses model binder's false values completely
+            entity.MinorityInstitute = Request.Form["MinorityInstitute"].Contains("true");
+            entity.AttachedToMedicalClg = Request.Form["AttachedToMedicalClg"].Contains("true");
+            entity.RuralInstitute = Request.Form["RuralInstitute"].Contains("true");
 
             // 7. Save with error handling
             try
@@ -3092,15 +3072,11 @@ namespace Medical_Affiliation.Controllers
             }
 
             // 8. Success – redirect based on OrganizationCategory (G / P)
-            //TempData["SuccessMessage"] = "Institution details saved successfully.";
-
             if (facultyCode == "2")
             {
                 return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
             }
 
-            // ✅ FIX 1: vm.TypeOfInstitution holds the selected InstitutionTypeId as a string
-            // ✅ FIX 2: Parse it to int before querying MstInstitutionTypes
             string orgCategory = null;
 
             if (int.TryParse(vm.TypeOfInstitution, out int selectedTypeId) && selectedTypeId > 0)
@@ -3111,24 +3087,19 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefault();
             }
 
-            // ✅ FIX 3: Explicit check for both G and P — no silent else fallthrough
             if (!string.IsNullOrWhiteSpace(orgCategory) && orgCategory.Trim() == "G")
             {
-                // Government → Dean / Director Details
                 return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
             }
             else if (!string.IsNullOrWhiteSpace(orgCategory) && orgCategory.Trim() == "P")
             {
-                // Private → Institute Details
                 return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
             }
             else
             {
-                // Fallback – orgCategory was null or unexpected value
                 return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
             }
         }
-
 
         private static InstitutionViewModel MapEntityToViewModel(AffInstitutionsDetail e)
         {
@@ -3204,9 +3175,9 @@ namespace Medical_Affiliation.Controllers
             e.Fax = vm.Fax;
             e.Website = vm.Website;
             e.SurveyNoPidNo = vm.SurveyNoPidNo;
-            e.MinorityInstitute = vm.MinorityInstitute;
-            e.AttachedToMedicalClg = vm.AttachedToMedicalClg;
-            e.RuralInstitute = vm.RuralInstitute;
+            // NOTE: MinorityInstitute, AttachedToMedicalClg, RuralInstitute are intentionally
+            // NOT mapped here — they are written directly to entity after this call
+            // using Request.Form to bypass model binder issues with multipart/form-data
             e.YearOfEstablishment = vm.YearOfEstablishment;
             e.EmailId = vm.EmailId;
             e.AltLandlineMobile = vm.AltLandlineMobile;
