@@ -17,20 +17,22 @@
         bool.TryParse(isSubmitDisplayString, out isSubmitDisplay);
     }
 
-    // Helper to check active link (optional improvement)
     string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 }
 
 <style>
     :root {
-        --sidebar-bg: #0f1e3a; /* deep navy */
-        --sidebar-accent: #097969; /* teal accent */
-        --sidebar-text: #e0f0ff;
-        --sidebar-hover: #1a355c;
-        --sidebar-active: #097969;
-        --sidebar-border: rgba(255,255,255,0.08);
+        --sidebar-bg: linear-gradient(180deg, #0b1729 0%, #0f1e3a 100%);
+        --sidebar-accent: #10a37f;
+        --sidebar-accent-light: #14c79a;
+        --sidebar-text: #cfe3f5;
+        --sidebar-text-muted: #8fa6c2;
+        --sidebar-hover: rgba(255, 255, 255, 0.06);
+        --sidebar-active: linear-gradient(135deg, #10a37f 0%, #0c8268 100%);
+        --sidebar-border: rgba(255, 255, 255, 0.08);
         --header-height-lg: 12vh;
+        --sidebar-radius: 10px;
     }
 
     .sidebar {
@@ -41,92 +43,206 @@
         height: calc(100vh - var(--header-height));
         background: var(--sidebar-bg);
         color: var(--sidebar-text);
-        box-shadow: 2px 0 20px rgba(0,0,0,0.35);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
         padding: 1.5rem 1rem;
         display: flex;
         flex-direction: column;
         z-index: 900;
         overflow-y: auto;
         border-right: 1px solid var(--sidebar-border);
-        transition: width 0.3s ease;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
     .sidebar-header {
         text-align: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1.2rem;
+        margin-bottom: 1.75rem;
+        padding-bottom: 1.1rem;
         border-bottom: 1px solid var(--sidebar-border);
     }
 
         .sidebar-header h4 {
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             font-weight: 700;
             margin: 0;
-            color: white;
-            letter-spacing: 0.5px;
+            color: #fff;
+            letter-spacing: 0.4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
+
+            .sidebar-header h4 i {
+                color: var(--sidebar-accent-light);
+                font-size: 1.4rem;
+            }
 
     .sidebar-menu {
         list-style: none;
         padding: 0;
         margin: 0;
+        flex: 1;
     }
 
     .sidebar-item {
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.3rem;
     }
 
     .sidebar-link {
         display: flex;
         align-items: center;
-        padding: 0.85rem 1.2rem;
+        padding: 0.78rem 1rem;
         color: var(--sidebar-text);
         text-decoration: none;
-        border-radius: 8px;
+        border-radius: var(--sidebar-radius);
         font-weight: 500;
-        font-size: 0.98rem;
-        transition: all 0.25s ease;
+        font-size: 0.94rem;
+        transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+        cursor: pointer;
+        user-select: none;
     }
 
-        .sidebar-link i {
+        .sidebar-link i:first-child {
             margin-right: 12px;
-            font-size: 1.15rem;
-            width: 24px;
+            font-size: 1.05rem;
+            width: 22px;
             text-align: center;
+            color: var(--sidebar-text-muted);
+            transition: color 0.2s ease;
         }
 
         .sidebar-link:hover {
             background: var(--sidebar-hover);
-            color: white;
-            transform: translateX(4px);
+            color: #fff;
         }
+
+            .sidebar-link:hover i:first-child {
+                color: var(--sidebar-accent-light);
+            }
 
         .sidebar-link.active {
             background: var(--sidebar-active);
-            color: white;
+            color: #fff;
             font-weight: 600;
+            box-shadow: 0 4px 14px rgba(16, 163, 127, 0.35);
+        }
+
+            .sidebar-link.active i:first-child {
+                color: #fff;
+            }
+
+        .sidebar-link .chevron {
+            margin-left: auto;
+            transition: transform 0.25s ease;
+            font-size: 0.78rem;
+            color: var(--sidebar-text-muted);
+        }
+
+        .sidebar-link.expanded .chevron {
+            transform: rotate(180deg);
+            color: var(--sidebar-accent-light);
         }
 
     .sidebar-footer {
-        margin-top: auto;
-        padding-top: 1.5rem;
+        margin-top: 1rem;
+        padding-top: 1.25rem;
         border-top: 1px solid var(--sidebar-border);
     }
 
     .sidebar-btn-password {
         width: 100%;
-        background: rgba(9,121,105,0.15);
+        background: rgba(16, 163, 127, 0.12);
         border: 1px solid var(--sidebar-accent);
-        color: var(--sidebar-accent);
+        color: var(--sidebar-accent-light);
         font-weight: 600;
-        padding: 0.75rem;
-        border-radius: 8px;
-        transition: all 0.3s;
+        font-size: 0.9rem;
+        padding: 0.7rem;
+        border-radius: var(--sidebar-radius);
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
         .sidebar-btn-password:hover {
             background: var(--sidebar-accent);
-            color: white;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(16, 163, 127, 0.35);
+        }
+
+    /* Custom dropdown panel (replaces native <select>) */
+    .affiliation-dropdown {
+        margin: 0.3rem 0 0.4rem 0.4rem;
+        padding: 0.35rem;
+        border-radius: var(--sidebar-radius);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--sidebar-border);
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height 0.28s ease, opacity 0.2s ease, padding 0.28s ease, margin 0.28s ease;
+    }
+
+        .affiliation-dropdown.open {
+            max-height: 320px;
+            opacity: 1;
+        }
+
+        .affiliation-dropdown.d-none-collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            border: none;
+        }
+
+    .affiliation-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.88rem;
+        color: var(--sidebar-text);
+        border-radius: 7px;
+        cursor: pointer;
+        transition: background 0.18s ease, color 0.18s ease;
+    }
+
+        .affiliation-option:hover {
+            background: rgba(16, 163, 127, 0.18);
+            color: #fff;
+        }
+
+        .affiliation-option.disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+            .affiliation-option.disabled:hover {
+                background: transparent;
+                color: var(--sidebar-text);
+            }
+
+        .affiliation-option i {
+            font-size: 0.7rem;
+            color: var(--sidebar-text-muted);
+        }
+
+    .affiliation-loading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.7rem 0.8rem;
+        font-size: 0.85rem;
+        color: var(--sidebar-text-muted);
+    }
+
+        .affiliation-loading .spinner-border {
+            width: 0.85rem;
+            height: 0.85rem;
+            border-width: 2px;
         }
 
     /* Mobile / responsive */
@@ -150,8 +266,8 @@
         }
 
         .sidebar-link {
-            font-size: 0.95rem;
-            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            padding: 0.7rem 0.9rem;
         }
     }
 
@@ -159,10 +275,12 @@
         .sidebar {
             height: calc(100vh - var(--header-height-lg));
             overflow-y: auto;
+            scrollbar-width: none;
         }
-        .sidebar::-webkit-scrollbar{
-            display: none;
-        }
+
+            .sidebar::-webkit-scrollbar {
+                display: none;
+            }
     }
 
     .sidebar .dropdown-menu {
@@ -174,19 +292,16 @@
     }
 
     .sidebar .dropdown-item {
-        color: #e0f0ff;
+        color: var(--sidebar-text);
         padding-left: 20px;
     }
 
         .sidebar .dropdown-item:hover {
-            background: #1a355c;
+            background: var(--sidebar-hover);
         }
 
     .d-none {
         display: none !important;
-    }
-
-    splay: none;
     }
 </style>
 
@@ -194,42 +309,28 @@
 {
     <aside class="sidebar">
         <div class="sidebar-header">
-            <h4>College Dashboard</h4>
+            <h4><i class="bi bi-mortarboard-fill"></i> College Dashboard</h4>
         </div>
 
-         <ul class="sidebar-menu">
-          @*  @if (facultyCode == "1")
-            {
-                /* <li class="sidebar-item">
-                    <a asp-controller="AcademicIntake" asp-action="AcademicIntakeData"
-                       class="sidebar-link @(currentController == "AcademicIntake" ? "active" : "")">
-                        <i class="bi bi-journal-text"></i>
-                        Application for Affiliation 2026-27
-                    </a>
-                </li> */
-            }
-            @if (facultyCode == "1")
-            {
-                <li class="sidebar-item">
-                    <a asp-controller="ContinuousAffiliationIncreaseintake" asp-action="IncreaseIntake"
-                       class="sidebar-link @(currentController == "AcademicIntake" ? "active" : "")">
-                        <i class="bi bi-journal-text"></i>
-                        Application for Increase Intake
-                    </a>
-                </li>
-            } *@
+        <ul class="sidebar-menu">
 
             @if (facultyCode == "1" || facultyCode == "2")
             {
                 <li class="sidebar-item">
-                    <a asp-controller="ContinuousAffiliationIncreaseintake"
-                           asp-action="IncreaseIntake"
-                           class="sidebar-link @(currentController == "CollegeBasicDetails" ? "active" : "")">
+                    <a href="#" id="admissionAffiliationToggle"
+                       class="sidebar-link @(currentController == "CollegeBasicDetails" ? "active" : "")"
+                       onclick="toggleAffiliationDropdown(event)">
 
                         <i class="bi bi-building"></i>
-                        College Basic Details
+                        Admission Affiliation
+                        <i class="bi bi-chevron-down chevron"></i>
                     </a>
+
+                    <div id="affiliationDropdownPanel" class="affiliation-dropdown d-none-collapsed">
+                        <!-- options injected here -->
+                    </div>
                 </li>
+
                 @if (facultyCode == "1")
                 {
                     <li class="sidebar-item">
@@ -238,7 +339,7 @@
                            class="sidebar-link @(currentController == "UGFaculty" ? "active" : "")">
 
                             <i class="bi bi-building"></i>
-                            Update UG Medical Faculty Details   
+                            Update UG Medical Faculty Details
                         </a>
                     </li>
                 }
@@ -262,19 +363,16 @@
                 </li>
             }
 
-           
-
             <!-- Digital Repository – shown conditionally based on faculty -->
-          
-
-            <!-- Update Password -->
-            <li class="sidebar-item sidebar-footer">
-                <button class="sidebar-btn-password" data-bs-toggle="modal" data-bs-target="#updatePasswordModal">
-                    <i class="bi bi-lock"></i> Update Password
-                </button>
-            </li>
 
         </ul>
+
+        <!-- Update Password -->
+        <div class="sidebar-footer">
+            <button class="sidebar-btn-password" data-bs-toggle="modal" data-bs-target="#updatePasswordModal">
+                <i class="bi bi-lock"></i> Update Password
+            </button>
+        </div>
     </aside>
 
     <!-- Update Password Modal -->
@@ -324,9 +422,6 @@
     </div>
 }
 
-
-
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const toggleBtn = document.querySelector(".toggle-password");
@@ -344,10 +439,100 @@
 
     function toggleMenu(e, id) {
         e.preventDefault();
-
         const menu = document.getElementById(id);
         if (!menu) return;
-
         menu.classList.toggle("d-none");
+    }
+
+    // ---- Admission Affiliation: custom dropdown, opens directly on first click ----
+
+    let affiliationTypesLoaded = false;
+    let affiliationOptionsCache = [];
+
+    const getAffiliationTypesUrl = '@Url.Action("GetAffiliationTypes", "ContinuesAffiliation_Facultybased")';
+
+    const affiliationRouteMap = {
+        "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")'
+        // "1": '@Url.Action("Institution_Details", "FreshAffiliation_Facultybased")',
+        // "3": '@Url.Action("Institution_Details", "EnhancementOfSeats_Facultybased")',
+        // "4": '@Url.Action("Institution_Details", "AdditionalCourses_Facultybased")',
+        // "5": '@Url.Action("Institution_Details", "ChangeOfName_Facultybased")',
+        // "6": '@Url.Action("Institution_Details", "ChangeOfAddress_Facultybased")',
+        // "7": '@Url.Action("Institution_Details", "ChangeOfNameAndAddress_Facultybased")',
+        // "8": '@Url.Action("Institution_Details", "RenewalOfConsent_Facultybased")',
+    };
+
+    function renderAffiliationOptions(items) {
+        const panel = document.getElementById("affiliationDropdownPanel");
+        panel.innerHTML = "";
+
+        if (!items || items.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "affiliation-loading";
+            empty.textContent = "No affiliation types available.";
+            panel.appendChild(empty);
+            return;
+        }
+
+        items.forEach(item => {
+            const opt = document.createElement("div");
+            const hasRoute = !!affiliationRouteMap[item.typeId];
+            opt.className = "affiliation-option" + (hasRoute ? "" : " disabled");
+            opt.innerHTML = '<i class="bi bi-dot"></i><span>' + item.typeDescription + '</span>';
+            opt.addEventListener("click", function () {
+                handleAffiliationTypeSelect(item.typeId);
+            });
+            panel.appendChild(opt);
+        });
+    }
+
+    function toggleAffiliationDropdown(e) {
+        e.preventDefault();
+
+        const panel = document.getElementById("affiliationDropdownPanel");
+        const toggleLink = document.getElementById("admissionAffiliationToggle");
+        const isOpen = panel.classList.contains("open");
+
+        if (isOpen) {
+            panel.classList.remove("open");
+            panel.classList.add("d-none-collapsed");
+            toggleLink.classList.remove("expanded");
+            return;
+        }
+
+        panel.classList.remove("d-none-collapsed");
+        panel.classList.add("open");
+        toggleLink.classList.add("expanded");
+
+        if (!affiliationTypesLoaded) {
+            panel.innerHTML = '<div class="affiliation-loading"><span class="spinner-border" role="status"></span> Loading...</div>';
+
+            fetch(getAffiliationTypesUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error("Network response was not ok");
+                    return res.json();
+                })
+                .then(data => {
+                    affiliationOptionsCache = data;
+                    affiliationTypesLoaded = true;
+                    renderAffiliationOptions(data);
+                })
+                .catch(err => {
+                    console.error("Failed to load affiliation types:", err);
+                    panel.innerHTML = '<div class="affiliation-loading">Failed to load. Try again.</div>';
+                });
+        } else {
+            renderAffiliationOptions(affiliationOptionsCache);
+        }
+    }
+
+    function handleAffiliationTypeSelect(typeId) {
+        if (!typeId) return;
+
+        if (affiliationRouteMap[typeId]) {
+            window.location.href = affiliationRouteMap[typeId];
+        } else {
+            alert("This affiliation type is not yet available.");
+        }
     }
 </script>

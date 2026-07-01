@@ -52,6 +52,18 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetAffiliationTypes()
+        {
+            var types = await _context.TypeOfAffiliations
+                .Select(t => new { t.TypeId, t.TypeDescription })
+                .OrderBy(t => t.TypeId)
+                .ToListAsync();
+
+            return Json(types);
+        }
+
+
+        [HttpGet]
         public async Task<IActionResult> PreviousNotification(string courseId)
         {
             var facultyCode = FacultyCode;
