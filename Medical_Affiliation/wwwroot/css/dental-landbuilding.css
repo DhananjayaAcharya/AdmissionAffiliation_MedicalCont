@@ -1,5 +1,5 @@
 ﻿body {
-    background: #f5f7fb;
+    background: #f8fbff;
     font-family: "Segoe UI", sans-serif;
 }
 
@@ -8,12 +8,12 @@
 ======================================================= */
 
 :root {
-    --navy: #0f2545;
-    --navy-light: #1d3f73;
-    --gold: #b8882a;
-    --gold-light: #d8b15a;
-    --border: #e5e7eb;
-    --bg-soft: #fafafa;
+    --navy: #102a43;
+    --navy-light: #2563eb;
+    --gold: #2563eb;
+    --gold-light: #60a5fa;
+    --border: #dbeafe;
+    --bg-soft: #f8fbff;
 }
 
 /* =======================================================
@@ -31,16 +31,16 @@
 ======================================================= */
 
 .lb-header {
-    background: linear-gradient(135deg, var(--navy), var(--navy-light));
-    /*    border-radius: 12px 12px 0 0;*/
+    background: #f8fbff;
     padding: 32px;
     padding-block: 1rem;
-    color: white;
+    color: #102a43;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     position: relative;
     overflow: hidden;
+    border-bottom: 1px solid #dbeafe;
 }
 
     .lb-header::after {
@@ -50,14 +50,14 @@
         left: 32px;
         right: 32px;
         height: 2px;
-        background: linear-gradient( 90deg, transparent, var(--gold), transparent );
+        background: linear-gradient( 90deg, transparent, var(--navy-light), transparent );
     }
 
 .lb-header-eyebrow {
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--gold-light);
+    color: var(--navy-light);
     margin-bottom: 12px;
     font-weight: 700;
 }
@@ -70,14 +70,15 @@
 
 .lb-header-subtitle {
     margin-top: 10px;
-    opacity: 0.8;
+    opacity: 0.85;
     font-size: 15px;
+    color: #475569;
 }
 
 .lb-header-badge {
-    background: rgba(184,136,42,0.15);
-    border: 1px solid rgba(184,136,42,0.45);
-    color: var(--gold-light);
+    background: #eef4ff;
+    border: 1px solid #dbeafe;
+    color: #2563eb;
     padding: 12px 18px;
     border-radius: 8px;
     font-weight: 700;
@@ -211,16 +212,17 @@
 }
 
 .save-btn {
-    background: linear-gradient( 135deg, var(--navy), var(--navy-light) );
+    background: #2563eb;
     border: none;
     padding: 11px 32px;
     font-weight: 700;
     border-radius: 8px;
     letter-spacing: 0.5px;
+    color: white;
 }
 
     .save-btn:hover {
-        background: linear-gradient( 135deg, var(--navy-light), var(--navy) );
+        background: #1d4ed8;
     }
 
 .btn-outline-secondary {
@@ -247,7 +249,7 @@
 }
 
 .upload-btn {
-    background: linear-gradient(135deg, #0f2545, #1d3f73);
+    background: #2563eb;
     color: white;
     padding: 9px 18px;
     border-radius: 8px;
@@ -255,6 +257,7 @@
     font-size: 14px;
     font-weight: 600;
     margin: 0;
+    border: none;
 }
 
     .upload-btn:hover {

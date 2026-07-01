@@ -293,22 +293,6 @@
 <body>
 
     <!-- PAGE HEADER -->
-    <div class="page-header">
-        <div class="emblem">
-            <i class="fas fa-book-open"></i>
-        </div>
-        <div class="page-header-text">
-            @if (!isDentalFaculty)
-            {
-                <h1>Medical Library</h1>
-            }
-            else
-            {
-                <h1>Dental Library</h1>
-            }
-            @* <p>RGUHS · Affiliation & Recognition Portal</p> *@
-        </div>
-    </div>
 
     <div class="form-wrap">
         <form asp-action="MedicalLibrary" method="post" enctype="multipart/form-data" id="libraryForm">

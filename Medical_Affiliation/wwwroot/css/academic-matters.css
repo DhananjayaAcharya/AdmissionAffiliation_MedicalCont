@@ -34,15 +34,15 @@
 }
 
     .custom-table th {
-        background: #1a4c8b;
-        color: #fff;
+        background: #eef2ff;
+        color: #102a43;
         padding: 10px;
         text-align: center;
     }
 
     .custom-table td {
         padding: 8px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .custom-table input,
@@ -50,7 +50,7 @@
         width: 100%;
         padding: 6px;
         border-radius: 6px;
-        border: 1px solid #ccc;
+        border: 1px solid #cbd5e1;
     }
 
 .btn {
@@ -60,7 +60,7 @@
 }
 
 .btn-primary {
-    background: #1a4c8b;
+    background: #2563eb;
     color: white;
 }
 
@@ -77,7 +77,7 @@
 .icon-wrap {
     width: 40px;
     height: 40px;
-    background: #e8edf7;
+    background: #eef2ff;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -532,30 +532,6 @@
 <body>
 
     <!-- ══ Header ══ -->
-    <header class="portal-header">
-        <a href="#" class="brand">
-            <div class="brand-emblem"><i class="bi bi-mortarboard-fill"></i></div>
-            <div class="brand-text">
-                <span class="brand-title">RGUHS Affiliation Portal</span>
-                <span class="brand-sub">Rajiv Gandhi University of Health Sciences</span>
-            </div>
-        </a>
-        <div class="header-meta">
-            @using System.Text.RegularExpressions
-            @{
-                var collegeFullName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName") ?? "";
-                var collegeName = Regex.Replace(collegeFullName, @"[\s\-:]*[A-Za-z]*\d{3,}\s*$", "").Trim();
-            }
-            @if (!string.IsNullOrEmpty(collegeName))
-            {
-                <span><i class="bi bi-building"></i> @collegeName</span>
-            }
-            <span><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd MMM yyyy")</span>
-            <form asp-controller="Login" asp-action="Login" method="post" class="m-0">
-                <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</button>
-            </form>
-        </div>
-    </header>
 
     <div class="page-shell">
         <main class="content-area">

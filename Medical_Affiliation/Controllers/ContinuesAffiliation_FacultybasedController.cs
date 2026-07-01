@@ -3000,7 +3000,7 @@ namespace Medical_Affiliation.Controllers
 
             // 5. Handle document upload
             if (documentFile != null && documentFile.Length > 0)
-            {
+            {       
                 string rootPath = entity.FacultyCode == "2"
                     ? BaseDentalPath
                     : BaseMedicalPath;
