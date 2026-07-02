@@ -4,6 +4,8 @@
     var facultyIntCode = string.IsNullOrEmpty(facultyCode) ? 0 : Convert.ToInt64(facultyCode);
     var CollegeName = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeName");
     var CollegeCode = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeCode");
+    var typeOfAffiliation = HttpContextAccessor.HttpContext?.Session?.GetString("TypeOfAffiliation")
+        ?? HttpContextAccessor.HttpContext?.User?.FindFirst("TypeOfAffiliation")?.Value;
     var logoutController = HttpContextAccessor.HttpContext?.Session?.GetString("logoutController");
     var typeOfAffiliationList = ViewData["TypeOfAffiliationList"] as List<SelectListItem>;
     Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
@@ -41,7 +43,7 @@
 </head>
 <body>
     <div class="page-wrapper">
-        <header class="modern-header">
+        <header class="modern-header" role="banner">
             <div class="modern-header-inner">
                 <div class="brand-block">
                     <img src="~/images/newLogo.jpeg" id="signupLogo" alt="University Logo" />
@@ -52,13 +54,18 @@
                 </div>
 
                 <div class="header-center">
-                    <div class="page-title">@ViewData["Title"]</div>
-                    <div class="page-subtitle">@Localizer["UniversityTitle"]</div>
-                    @if (!string.IsNullOrEmpty(CollegeCode) && !string.IsNullOrEmpty(CollegeName))
+                    @if (!string.IsNullOrEmpty(CollegeName))
+                    {
+                        <div class="page-title">@CollegeName</div>
+                    }
+                    <div class="page-subtitle">
+                        Affiliation Type: @(string.IsNullOrWhiteSpace(typeOfAffiliation) ? "Not available" : typeOfAffiliation)
+                    </div>
+                    @if (!string.IsNullOrEmpty(CollegeCode))
                     {
                         <div class="college-info">
                             <i class="fas fa-university"></i>
-                            <span>@CollegeName</span>
+                            <span>College Code: @CollegeCode</span>
                         </div>
                     }
                 </div>
@@ -83,33 +90,6 @@
                 </div>
             </div>
 
-            @if (string.IsNullOrEmpty(facultyCode))
-            {
-                <div class="navbar-wrap">
-                    <div class="container">
-                        <ul class="navbar-nav flex-row gap-4 justify-content-center">
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Index", "Home")">@Localizer["Nav_Home"]</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                                    @Localizer["Nav_Login"]
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="@Url.Action("Login", "Login")">@Localizer["Nav_Login_College"]</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("UniversityLogin", "Admin")">@Localizer["Nav_Login_University"]</a></li>
-                                    <li>
-                                        <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Auth", "LICInspection")">
-                                            <i class="fas fa-user-graduate me-2 text-primary"></i>
-                                            RGUHS Assignment
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            }
         </header>
 
         <div class="page-shell">
