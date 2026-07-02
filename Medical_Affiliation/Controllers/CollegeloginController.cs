@@ -142,14 +142,17 @@ namespace Admission_Affiliation.Controllers
                 TempData["LoginError"] = "College record not found.";
                 return RedirectToAction("Login", "Login");
             }
-
+            var detail = _context.DentalCollegeLandBuildingDetails
+                            .AsNoTracking()
+                            .FirstOrDefault(d => d.CollegeCode == collegeCode);
             var model = new DashboardViewModel
             {
                 CollegeCode = college.CollegeCode,
                 CollegeName = college.CollegeName,
                 DistrictId = college.DistrictId,
                 TalukId = college.TalukId,
-
+                Latitude = detail?.Latitude,
+                Longitude = detail?.Longitude,
                 Districts = _context.DistrictMasters
                     .OrderBy(x => x.DistrictName)
                     .ToList()
@@ -167,8 +170,16 @@ namespace Admission_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateLocation(string CollegeCode, string DistrictId,  string TalukId)
+        public async Task<IActionResult> UpdateLocation(
+            string CollegeCode,
+            string DistrictId,
+            string TalukId,
+            decimal? Latitude,          // <-- from the visible <input> fields
+            decimal? Longitude)         // <-- from the visible <input> fields
         {
+            // -------------------------------------------------
+            // 1️⃣  Basic validation
+            // -------------------------------------------------
             if (string.IsNullOrWhiteSpace(CollegeCode))
             {
                 TempData["Error"] = "Invalid College.";
@@ -182,6 +193,16 @@ namespace Admission_Affiliation.Controllers
                 return RedirectToAction("Dashboard", "CollegeLogin");
             }
 
+            // Latitude / Longitude are required for the land‑/building record
+            if (!Latitude.HasValue || !Longitude.HasValue)
+            {
+                TempData["Error"] = "Latitude and Longitude are required.";
+                return RedirectToAction("Dashboard", "CollegeLogin");
+            }
+
+            // -------------------------------------------------
+            // 2️⃣  Load the college (AffiliationCollegeMaster)
+            // -------------------------------------------------
             var college = await _context.AffiliationCollegeMasters
                 .FirstOrDefaultAsync(x => x.CollegeCode == CollegeCode);
 
@@ -191,16 +212,49 @@ namespace Admission_Affiliation.Controllers
                 return RedirectToAction("Dashboard", "CollegeLogin");
             }
 
+            // -------------------------------------------------
+            // 3️⃣  Update the college’s administrative data
+            // -------------------------------------------------
             college.DistrictId = DistrictId;
             college.TalukId = TalukId;
 
+            // -------------------------------------------------
+            // 4️⃣  Load (or create) the DentalCollegeLandBuildingDetail
+            // -------------------------------------------------
+            var detail = await _context.DentalCollegeLandBuildingDetails
+                .FirstOrDefaultAsync(d => d.CollegeCode == CollegeCode);
+
+            if (detail == null)
+            {
+                // If there is no detail row yet, create a new one.
+                // Adjust the property names if your table uses a different PK.
+                detail = new DentalCollegeLandBuildingDetail
+                {
+                    CollegeCode = CollegeCode
+                };
+                _context.DentalCollegeLandBuildingDetails.Add(detail);
+            }
+
+            // -------------------------------------------------
+            // 5️⃣  Store the latitude / longitude (and keep the
+            //     district/taluk values in sync if you wish)
+            // -------------------------------------------------
+            detail.Latitude = Latitude.Value;
+            detail.Longitude = Longitude.Value;
+
+            // Optional: keep the district/taluk also on the detail record
+            // (uncomment if you store them there as well)
+            // detail.DistrictId = int.Parse(DistrictId);
+            // detail.TalukId    = int.Parse(TalukId);
+
+            // -------------------------------------------------
+            // 6️⃣  Persist changes
+            // -------------------------------------------------
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Location details updated successfully.";
-
+            //TempData["Success"] = "Location details (coordinates, district & taluk) updated successfully.";l
             return RedirectToAction("Dashboard", "CollegeLogin");
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken] // optional for Logout
         public async Task<IActionResult> Logout()

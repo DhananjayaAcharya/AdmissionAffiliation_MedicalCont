@@ -502,9 +502,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=DESKTOP-5QKRQII\\MSSQLSERVER02;Database=Admission_Affiliation;Trusted_Connection=True;TrustServerCertificate=True;");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -559,7 +559,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AcademicIntakeYearWise>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC07D8F19A3D");
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC07B997FED5");
 
             entity.ToTable("AcademicIntakeYearWise");
 
@@ -610,7 +610,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AcademicYearMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC0754B8106F");
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC072FEEC0B4");
 
             entity.ToTable("AcademicYearMaster");
 
@@ -1366,11 +1366,11 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AffiliationOthersCollegeMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07E979F6A2");
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07FC88D9E1");
 
             entity.ToTable("AffiliationOthersCollegeMaster");
 
-            entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6502A85C7").IsUnique();
+            entity.HasIndex(e => e.CollegeCode, "UQ__Affiliat__F713DAB6C402006D").IsUnique();
 
             entity.Property(e => e.CollegeCode)
                 .HasMaxLength(20)
@@ -3060,11 +3060,13 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.LandUseCertificateDocumentPath)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+            entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.LectureHallAreaSqm).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.LibraryAreaSqm).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.LiftLicenseDocumentPath)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+            entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
             entity.Property(e => e.MuseumDemoRoomsAreaSqm).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.PreclinicalSkillLabAreaSqm).HasColumnType("decimal(10, 2)");
@@ -6338,7 +6340,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<VehicleRequestLog>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__VehicleR__3214EC072BE3B0E1");
+            entity.HasKey(e => e.Id).HasName("PK__VehicleR__3214EC07DB0157EB");
 
             entity.ToTable("VehicleRequestLog");
 
