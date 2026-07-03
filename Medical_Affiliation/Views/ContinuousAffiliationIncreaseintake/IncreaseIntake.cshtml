@@ -1,4 +1,5 @@
-﻿@model AcademicIntakePageViewModel1
+﻿@using System.Globalization
+@model AcademicIntakePageViewModel1
 
 @{
     ViewData["Title"] = "Academic Intake – Continuous Affiliation";
@@ -857,7 +858,7 @@
                                         </td>
                                     }
                                     <td style="text-align:center;color:var(--muted);font-size:.79rem">
-                                        @row.CreatedOn.ToString("dd MMM yyyy")
+                                        @row.CreatedOn.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)
                                     </td>
                                 </tr>
                                 si++;

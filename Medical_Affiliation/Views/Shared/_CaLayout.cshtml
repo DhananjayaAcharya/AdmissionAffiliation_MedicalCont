@@ -1,5 +1,22 @@
 ﻿@* Views/Shared/_CaLayout.cshtml *@
 @inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var affiliationTypeId = HttpContextAccessor.HttpContext?.Session.GetString("AffiliationTypeId");
+
+    var affiliationType = affiliationTypeId switch
+    {
+        "1" => "Fresh Affiliation",
+        "2" => "Continuation of Affiliation",
+        "3" => "Enhancement of Seats / Increase in Intake",
+        "4" => "Additional Courses for College",
+        "5" => "Change of Name of the College",
+        "6" => "Change of Address of the College",
+        "7" => "Change of Name and Address of the College",
+        "8" => "Renewal of Consent of Affiliation",
+        _ => ""
+    };
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
