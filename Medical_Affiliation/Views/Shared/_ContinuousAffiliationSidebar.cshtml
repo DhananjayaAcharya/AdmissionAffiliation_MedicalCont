@@ -18,6 +18,10 @@
         select mc.CourseLevel
     ).Distinct().ToListAsync();
 
+    var selectedLevel = Context.Session.GetString("SelectedCourseLevel")?.ToLower();
+
+    bool ShowUgTab = selectedLevel == "ug";
+    bool ShowPgTab = selectedLevel == "pg";
 
 
     // fallback from AcademicIntake
@@ -85,7 +89,7 @@
 
 
         // ================= ACADEMIC & ADMIN =================v v  v 
-        new StepItem{ Key="AcademicMatters", Label="UG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
+        new StepItem{ Key="AcademicMatters", Label="UG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters", Levels = new List<string>{ "UG" } },
         new StepItem{ Key="PGAcademicMatters", Label="PG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMattersPG", Levels = new List<string>{ "PG" } },
         new StepItem{ Key="Finance", Label="Financial Details", Group="Academic & Admin", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
         new StepItem{ Key="StaffDetails", Label="Staff Particular Details", Group="Academic & Admin", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
@@ -299,7 +303,7 @@
             });
     }
     // ✅ Add MBBS ONLY for UG
-    if (levels.Contains("UG") && facultyCode == "1")
+    if (ShowUgTab && facultyCode == "1")
     {
         allSteps.Insert(1, new StepItem
         {
@@ -310,7 +314,7 @@
             Act = "Details_Of_MBBS"
         });
     }
-    else if (levels.Contains("UG") && facultyCode == "2")
+    else if (ShowUgTab && facultyCode == "2")
     {
         allSteps.Insert(1, new StepItem
         {
@@ -340,7 +344,7 @@
     }
 
     // ✅ Add PG-specific steps
-    if (levels.Contains("PG"))
+    if (ShowPgTab)
     {
         var pgSteps = new List<StepItem>
         {
@@ -420,11 +424,13 @@
     string lastGroup = "";
 
     allSteps = allSteps
-    .Where(step =>
-        step.Levels == null || step.Levels.Count == 0   // ✅ default (UG/common)
-        || step.Levels.Any(l => levels.Contains(l))     // PG / SS match
-    )
-    .ToList();
+        .Where(step =>
+            step.Levels == null
+            || step.Levels.Count == 0
+            || step.Levels.Any(l =>
+                l.Equals(selectedLevel, StringComparison.OrdinalIgnoreCase))
+        )
+        .ToList();
 
     if (facultyCode == "2")
     {
@@ -995,7 +1001,7 @@
     <!-- Footer -->
     <div class="ca-sb-footer">
         <div style="text-align: center;">
-            <a asp-action="Dashboard" asp-controller="Collegelogin" style="font-size: .8rem; color: white; text-decoration: none; padding: 5px;"> Back To Dashboard</a>
+            <a asp-action="Dashboard" asp-controller="Collegelogin" style="font-size: .8rem; color: #0d47a1; text-decoration: none; padding: 5px;"> Back To Dashboard</a>
         </div>
     </div>
 

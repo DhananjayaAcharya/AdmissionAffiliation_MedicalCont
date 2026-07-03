@@ -91,6 +91,25 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public IActionResult SetCourseLevel(string level, string affiliationTypeId)
+        {
+            try
+            {
+                HttpContext.Session.SetString("SelectedCourseLevel", level.ToLowerInvariant());
+                HttpContext.Session.SetString("AffiliationTypeId", affiliationTypeId);
+
+                return RedirectToAction(
+                    "IncreaseIntake",
+                    "ContinuousAffiliationIncreaseintake");
+            }
+            catch (Exception ex)
+            {
+                return Content(ex.ToString());
+            }
+        }
+
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpPost]
         [ValidateAntiForgeryToken]
