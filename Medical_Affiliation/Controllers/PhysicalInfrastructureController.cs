@@ -171,7 +171,7 @@ namespace Medical_Affiliation.Controllers
                             .Select(c => c.Trim())
                             .Contains(course.CourseCode.ToString()));
 
-                    int seatCount = intake?.Ay2025TotalIntake ?? 0;
+                    int seatCount = intake?.Ay2026TotalIntake ?? 0;
 
                     // =================================================
                     // CALCULATE SEAT SLAB

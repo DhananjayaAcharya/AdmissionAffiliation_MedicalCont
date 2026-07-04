@@ -4989,6 +4989,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Sicu).HasColumnName("SICU");
             entity.Property(e => e.SkinVd).HasColumnName("SkinVD");
             entity.Property(e => e.TotalIcubeds).HasColumnName("TotalICUBeds");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.MedicalUgbedDistributions)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .HasConstraintName("FK_Medical_UGBedDistribution_TypeOfAffiliation");
         });
 
         modelBuilder.Entity<MstAdministration>(entity =>

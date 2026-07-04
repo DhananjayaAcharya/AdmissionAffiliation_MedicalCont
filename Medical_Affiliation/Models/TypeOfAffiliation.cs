@@ -31,6 +31,8 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<MedicalSkillsLaboratory> MedicalSkillsLaboratories { get; set; } = new List<MedicalSkillsLaboratory>();
 
+    public virtual ICollection<MedicalUgbedDistribution> MedicalUgbedDistributions { get; set; } = new List<MedicalUgbedDistribution>();
+
     public virtual ICollection<MstIndoorBedsDepartmentMaster> MstIndoorBedsDepartmentMasters { get; set; } = new List<MstIndoorBedsDepartmentMaster>();
 
     public virtual ICollection<MstIndoorBedsOccupancyMaster> MstIndoorBedsOccupancyMasters { get; set; } = new List<MstIndoorBedsOccupancyMaster>();

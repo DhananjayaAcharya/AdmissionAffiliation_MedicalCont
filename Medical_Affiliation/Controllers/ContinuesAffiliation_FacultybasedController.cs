@@ -5782,7 +5782,8 @@ namespace Medical_Affiliation.Controllers
             var existing = await _context.MedicalUgbedDistributions.FirstOrDefaultAsync(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
-                        x.CourseLevel == courseLevel);
+                        x.AffiliationTypeId == AffTypeId &&
+                        x.CourseLevel == SelectedCourseLevel);
 
 
             var vm = new MedicalUGBedDistributionVm();
@@ -5875,7 +5876,8 @@ namespace Medical_Affiliation.Controllers
                          .FirstOrDefaultAsync(x =>
                              x.CollegeCode == collegeCode &&
                              x.FacultyCode == facultyCode &&
-                             x.CourseLevel == courseLevel);
+                             x.AffiliationTypeId == AffTypeId &&
+                             x.CourseLevel == SelectedCourseLevel);
 
             if (entity == null)
             {
@@ -5883,7 +5885,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     CollegeCode = collegeCode,
                     FacultyCode = facultyCode,
-                    CourseLevel = courseLevel,
+                    CourseLevel = SelectedCourseLevel,
+                    AffiliationTypeId = AffTypeId,
                     CreatedDate = DateTime.Now
                 };
 

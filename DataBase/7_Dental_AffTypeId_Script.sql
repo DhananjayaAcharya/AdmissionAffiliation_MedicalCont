@@ -144,7 +144,27 @@ UNIQUE
 );
 ---------------------------------
 
-delete from [dbo].[DentalInfrastructure] 
+ALTER TABLE Medical_UGBedDistribution
+ADD AffiliationTypeId INT NULL;
+
+ALTER TABLE Medical_UGBedDistribution
+ADD CONSTRAINT FK_Medical_UGBedDistribution_TypeOfAffiliation
+FOREIGN KEY (AffiliationTypeId)
+REFERENCES TypeOfAffiliation(TypeId);
+
+UPDATE Medical_UGBedDistribution
+SET AffiliationTypeId = 2
+WHERE AffiliationTypeId IS NULL;
+
+-----------------------------------------
+
+select * from [dbo].[Medical_UGBedDistribution]
+
+SELECT * FROM [dbo].[UG_SeatSlabNormMaster]
+
+select * from DentalChairs where CollegeCode = 'd038'
+
+select *  from [dbo].[DentalInfrastructure] 
 where CollegeCode = 'd038' and AffiliationTypeId = 2 and courselevel = 'pg'
 
 EXEC sp_helpindex '[DentalCollegeLandBuildingDetail]';
