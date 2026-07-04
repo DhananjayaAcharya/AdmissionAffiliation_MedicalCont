@@ -25,6 +25,10 @@ public partial class DentalChair
 
     public string SeatSlabId { get; set; } = null!;
 
+    public int? AffiliationTypeId { get; set; }
+
+    public virtual TypeOfAffiliation? AffiliationType { get; set; }
+
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;

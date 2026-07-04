@@ -83,9 +83,15 @@ public partial class DentalCollegeLandBuildingDetail
 
     public DateTime? ModifiedOn { get; set; }
 
+    public int? AffiliationTypeId { get; set; }
+
     public decimal? Latitude { get; set; }
 
     public decimal? Longitude { get; set; }
+
+    public string? CourseLevel { get; set; }
+
+    public virtual TypeOfAffiliation? AffiliationType { get; set; }
 
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 
