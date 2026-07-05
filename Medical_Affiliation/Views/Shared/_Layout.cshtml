@@ -40,6 +40,29 @@
     <!-- SweetAlert2 11.26.18 (latest patch Feb 2026) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.18/dist/sweetalert2.min.css" />
 
+    <!-- Fixed/static header styles -->
+    <style>
+        .modern-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1030; /* sits above Bootstrap's default stacking */
+        }
+
+        /* Push page content below the fixed header so nothing hides underneath it */
+        .page-shell {
+            padding-top: 120px; /* adjust to match your actual rendered header height */
+        }
+
+        @@media (max-width: 768px) {
+            .page-shell {
+                padding-top: 170px; /* header wraps taller on small screens */
+            }
+        }
+    </style>
+
 </head>
 <body>
     <div class="page-wrapper">
@@ -54,10 +77,7 @@
                 </div>
 
                 <div class="header-center">
-                    @if (!string.IsNullOrEmpty(CollegeName))
-                    {
-                        <div class="page-title">@CollegeName</div>
-                    }
+                    <div class="page-title">@(string.IsNullOrEmpty(CollegeName) ? "—" : CollegeName)</div>
                     <div class="page-subtitle">
                         Affiliation Type: @(string.IsNullOrWhiteSpace(typeOfAffiliation) ? "Not available" : typeOfAffiliation)
                     </div>
@@ -174,4 +194,3 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
-

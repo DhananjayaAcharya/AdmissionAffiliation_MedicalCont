@@ -45,9 +45,10 @@
     }
 
     .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 24px;
+        width: 330% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
     /* Header */
@@ -333,6 +334,14 @@
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Learning Resources</div>
+                <div class="header-title">Library Details</div>
+                <div class="header-subtitle">Record the library inventory, digital resources, and departmental availability.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         <!-- Main Form Card -->
         <div class="form-card">
@@ -711,8 +720,8 @@
 
                 @if (facultyCode == "1")
                 {
-                <a asp-controller="CA_Aff_MedicalLibrary"
-                   asp-action="MedicalLibrary"
+                    <a asp-controller="FacultyDetails"
+                       asp-action="Repo_FacultyDetails"
                    class="btn-save">Next →</a>
                 }
 

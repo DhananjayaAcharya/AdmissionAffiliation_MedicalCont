@@ -48,14 +48,18 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 
 // =============================================
-// 🔹 MVC + AutoProgressFilter
+// 🔹 MVC + AutoProgressFilter + AuditLog Filters
 // =============================================
 builder.Services.AddScoped<AutoProgressFilter>();
+builder.Services.AddScoped<AuditExceptionFilter>();
+builder.Services.AddScoped<AuditActionFilter>();
 
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<AutoProgressFilter>();
-    options.MaxModelBindingCollectionSize = int.MaxValue; // ✅ MOVED HERE
+    options.Filters.Add<AuditExceptionFilter>();      // catches all unhandled exceptions
+    options.Filters.Add<AuditActionFilter>();         // audits [AuditAction] tagged actions
+    options.MaxModelBindingCollectionSize = int.MaxValue;
 })
 .AddViewLocalization()
 .AddDataAnnotationsLocalization();
@@ -136,6 +140,7 @@ builder.Services.AddScoped<ICAFacultyDesigNonTeaching, CAFacultyDesigNonTeaching
 builder.Services.AddScoped<IUserContext, SessionUserContext>();
 builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
 builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
 
 // =============================================

@@ -36,6 +36,14 @@
         --danger: #c0392b;
         --success: #1a6b3a;
         --radius: 6px;
+        /* ── White / professional theme tokens (page body only) ── */
+        --page-bg: #f5f6f8;
+        --panel-bg: #ffffff;
+        --panel-border: #e2e5ea;
+        --row-alt: #f8f9fb;
+        --row-hover: #eef2f8;
+        --text-muted-2: #6b7280;
+        --accent: #1a3a6b;
     }
 
     *, *::before, *::after {
@@ -45,24 +53,28 @@
     }
 
     body {
-        background-color: var(--cream);
+        background-color: var(--page-bg);
         font-family: 'DM Sans', sans-serif;
         color: var(--text);
     }
 
     .page-shell {
-        background-color: var(--cream);
+        background-color: var(--page-bg);
         min-height: 100vh;
         /* padding: 36px 0 48px; */
     }
 
+    /* Override any narrow container width coming from common-form.css
+           so the card uses the available screen width instead of shrinking
+           down to a single-column layout. */
     .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        /* padding: 0 24px; */
+        width: 330% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
-    /* ── Header ── */
+    /* ── Header (untouched) ── */
     .page-header {
         background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
         /* border-radius: 10px 10px 0 0; */
@@ -133,12 +145,12 @@
 
     /* ── Form Card ── */
     .form-card {
-        background: var(--white);
-        border: 1px solid var(--border);
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
         border-top: none;
         border-radius: 0 0 10px 10px;
         padding: 32px 36px 36px;
-        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+        box-shadow: 0 2px 10px rgba(15,37,69,0.05);
     }
 
     /* ── Section Label ── */
@@ -155,27 +167,27 @@
         font-weight: 600;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         white-space: nowrap;
     }
 
     .section-label-line {
         flex: 1;
         height: 1px;
-        background: linear-gradient(90deg, var(--border), transparent);
+        background: linear-gradient(90deg, var(--panel-border), transparent);
     }
 
     /* ── Section Block ── */
     .section-block {
-        border: 1px solid var(--border);
+        border: 1px solid var(--panel-border);
         border-radius: var(--radius);
         overflow: hidden;
         margin-bottom: 24px;
     }
 
     .section-block-header {
-        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
-        border-bottom: 2px solid var(--border);
+        background: #f8f9fb;
+        border-bottom: 2px solid var(--panel-border);
         padding: 10px 16px;
         display: flex;
         align-items: center;
@@ -199,7 +211,7 @@
             display: inline-block;
             width: 3px;
             height: 13px;
-            background: var(--gold);
+            background: var(--accent);
             border-radius: 2px;
         }
 
@@ -216,7 +228,7 @@
     }
 
         .data-table thead {
-            background: linear-gradient(180deg, #f5f2ec 0%, #ede8df 100%);
+            background: #f8f9fb;
         }
 
             .data-table thead th {
@@ -226,15 +238,15 @@
                 letter-spacing: 0.1em;
                 text-transform: uppercase;
                 color: var(--navy);
-                border-bottom: 2px solid var(--border);
-                border-right: 1px solid var(--border);
+                border-bottom: 2px solid var(--panel-border);
+                border-right: 1px solid var(--panel-border);
                 text-align: center;
                 white-space: nowrap;
                 vertical-align: middle;
             }
 
                 .data-table thead th:first-child {
-                    border-left: 3px solid var(--gold);
+                    border-left: 3px solid var(--accent);
                 }
 
                 .data-table thead th:last-child {
@@ -242,13 +254,13 @@
                 }
 
             .data-table thead tr.group-row th {
-                background: #ebe6db;
+                background: #f1f3f6;
                 font-size: 0.63rem;
                 padding: 6px 10px;
             }
 
         .data-table tbody tr {
-            border-bottom: 1px solid #f0ece4;
+            border-bottom: 1px solid #eef0f3;
             transition: background 0.15s;
         }
 
@@ -257,16 +269,16 @@
             }
 
             .data-table tbody tr:nth-child(even) {
-                background: #faf8f4;
+                background: var(--row-alt);
             }
 
             .data-table tbody tr:hover {
-                background: #f3eed8 !important;
+                background: var(--row-hover) !important;
             }
 
         .data-table td {
             padding: 8px 10px;
-            border-right: 1px solid #f0ece4;
+            border-right: 1px solid #eef0f3;
             vertical-align: middle;
         }
 
@@ -276,8 +288,8 @@
 
             .data-table td.sl-no {
                 text-align: center;
-                font-family: 'EB Garamond', serif;
-                font-size: 0.95rem;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.9rem;
                 color: var(--navy-mid);
                 font-weight: 600;
                 width: 48px;
@@ -286,7 +298,7 @@
     /* ── Form Controls ── */
     .form-control {
         width: 100%;
-        border: 1px solid #d9d3c8;
+        border: 1px solid #d5d8de;
         border-radius: 4px;
         padding: 6px 9px;
         font-size: 0.82rem;
@@ -303,15 +315,15 @@
         }
 
         .form-control[readonly] {
-            background: #f3f0e8;
-            color: var(--text-muted);
+            background: #f3f4f6;
+            color: var(--text-muted-2);
             cursor: default;
         }
 
     select.form-control {
         appearance: none;
         cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 9px center;
         padding-right: 28px;
@@ -341,7 +353,7 @@
 
     .form-check-label {
         font-size: 0.78rem;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         font-weight: 500;
     }
 
@@ -376,7 +388,7 @@
         height: 26px;
         border-radius: 50%;
         background: transparent;
-        border: 1.5px solid #e0bcbc;
+        border: 1.5px solid #e5c6c6;
         color: var(--danger);
         font-size: 1rem;
         font-weight: 700;
@@ -397,7 +409,7 @@
         justify-content: space-between;
         align-items: center;
         padding-top: 20px;
-        border-top: 1px solid var(--border);
+        border-top: 1px solid var(--panel-border);
         margin-top: 8px;
     }
 
@@ -406,8 +418,8 @@
         align-items: center;
         gap: 6px;
         background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
+        border: 1px solid var(--panel-border);
+        color: var(--text-muted-2);
         font-size: 0.82rem;
         font-weight: 500;
         padding: 8px 20px;
@@ -420,7 +432,7 @@
         .btn-prev:hover {
             border-color: var(--navy-mid);
             color: var(--navy);
-            background: #f3f0e8;
+            background: #f5f6f8;
             text-decoration: none;
         }
 
@@ -442,16 +454,6 @@
         position: relative;
         overflow: hidden;
     }
-
-        .btn-save::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--gold);
-        }
 
         .btn-save:hover {
             opacity: 0.9;
@@ -486,14 +488,21 @@
     }
 
     #teachingExperienceTable {
-    table-layout: fixed;
-}
-    
+        table-layout: fixed;
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
 <div class="page-shell">
     <div class="page-container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Staff Particulars</div>
+                <div class="header-title">Principal Details</div>
+                <div class="header-subtitle">Capture the principal’s qualifications, experience, and recognition details.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         @if (TempData["SuccessMessage"] != null)
         {
@@ -814,7 +823,8 @@
                            asp-action="Ug_Course_Details"
                            class="btn-next"> Next</a>
                     }
-                    @if(facultyCode != "2"){
+                    @if (facultyCode != "2")
+                    {
                         <a asp-controller="Medical_ContinuousAffiliation"
                            asp-action="Medical_LandBuildingdetails"
                            class="btn-next"> Next</a>
@@ -845,24 +855,25 @@
          let collegeOptions = `<option value="">-- Select College --</option>`;
          @foreach (var item in (SelectList)ViewBag.CollegeList)
          {
-                 <text>
-                         collegeOptions += `<option value="@item.Value">@Html.Raw(item.Text)</option>`;
-                 </text>
-         };
+                     <text>
+                                 collegeOptions += `<option value="@item.Value">@Html.Raw(item.Text)</option>`;
+                     </text>
+         }
+    ;
 
          var designationOptions = `
          <option value="">-- Select Designation --</option>
          @foreach (var item in (SelectList)ViewBag.DesignationList)
          {
-                 <text>
-                         <option value="@item.Value">@item.Text</option>
-                 </text>
+                     <text>
+                                 <option value="@item.Value">@item.Text</option>
+                     </text>
          }
          `;
 
 
             // ── Add Teaching row ──
-            $('#addTeachingRow').click(function () {        
+            $('#addTeachingRow').click(function () {
                 const idx = teachingRowIndex++;
                 // const row = `
                 // <tr>
@@ -871,7 +882,7 @@
                 //     <td> <select name="TeachingExperiences[${idx}].UGCollegeCode" class="form-control">${collegeOptions} </select></td>
                 //     <td><input name="TeachingExperiences[${idx}].UGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="ug-from" /></td>
                 //     <td><input name="TeachingExperiences[${idx}].UGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="ug-to" /></td>
-                       
+
                 //     <td>
                 //     <select name="TeachingExperiences[${idx}].PGCollegeCode"
                 //     class="form-control">

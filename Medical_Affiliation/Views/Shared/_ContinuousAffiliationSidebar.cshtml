@@ -1,376 +1,170 @@
 ﻿@* Views/Shared/_ContinuousAffiliationSidebar.cshtml *@
 @using Medical_Affiliation.DATA
 @inject IHttpContextAccessor HttpContextAccessor
-@inject ApplicationDbContext _context   // ✅ ADD
-@using System.Text.Json;
-@using Microsoft.EntityFrameworkCore;
+@inject ApplicationDbContext _context
+@using System.Text.Json
+@using Microsoft.EntityFrameworkCore
 
 @{
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
     var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
     var facultyCode = Context.Session.GetString("FacultyCode");
+
+    // ------------------------------------------------------------------
+    // Determine the course levels (UG / PG / SS) offered by this college
+    // so we can show/hide level-specific steps.
+    // ------------------------------------------------------------------
     var levels = await (
         from ai in _context.AcademicIntakes
-        join mc in _context.MstCourses
-            on ai.Courses equals mc.CourseCode.ToString()
-        where ai.CollegeCode == collegeCode
-              && ai.FacultyCode == facultyCode
+        join mc in _context.MstCourses on ai.Courses equals mc.CourseCode.ToString()
+        where ai.CollegeCode == collegeCode && ai.FacultyCode == facultyCode
         select mc.CourseLevel
     ).Distinct().ToListAsync();
 
-
-
-    // fallback from AcademicIntake
+    // Fallback: derive levels from sanctioned intake if the direct lookup found nothing
     if (!levels.Any())
     {
         levels = await (
             from ai in _context.AcademicIntakes
-            join cm in _context.MstCourses
-                on ai.Courses equals cm.CourseCode.ToString()
-            where ai.CollegeCode == collegeCode && ai.Ay2026TotalIntake > 0
+            join cm in _context.MstCourses on ai.Courses equals cm.CourseCode.ToString()
+            where ai.CollegeCode == collegeCode
+                  && ai.Ay2026TotalIntake > 0
                   && !string.IsNullOrEmpty(ai.Courses)
             select cm.CourseLevel
-        )
-        .Distinct()
-        .ToListAsync();
+        ).Distinct().ToListAsync();
     }
 
+    levels = levels
+        .Where(l => !string.IsNullOrWhiteSpace(l))
+        .Select(l => l.Trim().ToUpperInvariant())
+        .Distinct()
+        .ToList();
 
+    var selectedCourseLevel = HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel")?.Trim().ToUpperInvariant();
 
     var doneSteps = _context.CaProgresses
-    .Where(x => x.CollegeCode == collegeCode &&
-                levels.Contains(x.CourseLevel.Trim().ToUpper()) &&
-                x.IsCompleted == true)
-    .Select(x => x.StepKey)
-    .ToList();
+        .Where(x => x.CollegeCode == collegeCode
+                    && levels.Contains(x.CourseLevel.Trim().ToUpper())
+                    && x.IsCompleted == true)
+        .Select(x => x.StepKey)
+        .ToList();
 
     var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAct = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 
-    // ── Step definition ───────────────────────────────────────────────────
-    // Flat list — Physical Facilities sub-items are shown as individual steps
+    // ==================================================================
+    // STEP DEFINITION — flat list, grouped for display via `Group`
+    // ==================================================================
     var allSteps = new List<StepItem>
     {
-        // ================= BASIC DETAILS =================
+        // ---- Basic Details ----
         new StepItem{ Key="Institution", Label="Institution Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Institution_Details" },
         new StepItem{ Key="TrustDetails", Label="Trust Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_InstituteDetails" },
         new StepItem{ Key="TrustMemberDetails", Label="Trust Member Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
-
-        // 👇 CONDITIONAL STEP
-        // MBBS only for UG
-        // we will add below dynamically
-         // new { Key="FacultyDetails", Label="Faculty Details", Group="Basic Details", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
+        // MBBS/BDS course-details step is inserted dynamically below based on faculty + level
         new StepItem{ Key="DeanDetails", Label="Dean / Director Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
         new StepItem{ Key="PrincipalDetails", Label="Principal Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
 
-        // ================= STUDENT AMENITIES =================
+        // ---- Intake Details ----
         new StepItem{ Key="IntakeDetails", Label="Course-wise Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
-        new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered", Levels = new List<string>{ "SS" } },
+        new StepItem{ Key="SsCoursesOffered", Label="Affiliation – SS Courses", Group="Intake Details", Ctrl="AffiliationSS", Act="CoursesOffered", Levels = new List<string>{ "SS" } },
 
-
-        // ================= PHYSICAL INFRASTRUCTURE =================
-        // new StepItem{ Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
-        // new StepItem{ Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
-        // new StepItem{ Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
+        // ---- Physical Infrastructure ----
         new StepItem{ Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
         new StepItem{ Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
-        // new StepItem{ Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
         new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
-        // new StepItem{ Key="ChairDistribution", Label="Chair Distribution", Group="Physical Infrastructure", Ctrl="PhysicalInfrastructure", Act="ChairDistribution" },
-        // new StepItem{ Key="DepartmentUnits", Label="Department / Units", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
-        new StepItem{ Key="DepartmentUnits", Label="Department / Clinics/ Labs", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
+        new StepItem{ Key="DepartmentUnits", Label="Department / Clinics / Labs", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
         new StepItem{ Key="Hostel", Label="Hostel Details", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
-        new StepItem{ Key = "AssociatedInstitutions", Label = "Associated Institutions",   Group = "Physical Infrastructure", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
+        new StepItem{ Key="AssociatedInstitutions", Label="Associated Institutions", Group="Physical Infrastructure", Ctrl="AffiliationSS", Act="AssociatedInstitutions" },
 
-
-
-        // ================= ACADEMIC & ADMIN =================v v  v 
-        new StepItem{ Key="AcademicMatters", Label="UG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
-        new StepItem{ Key="PGAcademicMatters", Label="PG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMattersPG", Levels = new List<string>{ "PG" } },
+        // ---- Academic & Admin ----
+        new StepItem{ Key="AcademicMatters", Label="Academic Matters", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters", Levels = new List<string>{ "UG" } },
+        new StepItem{ Key="PGAcademicMatters", Label="Academic Matters PG", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMattersPG", Levels = new List<string>{ "PG" } },
         new StepItem{ Key="Finance", Label="Financial Details", Group="Academic & Admin", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
         new StepItem{ Key="StaffDetails", Label="Staff Particular Details", Group="Academic & Admin", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
 
-        // ================= RESEARCH & LIBRARY =================
+        // ---- Research & Library ----
         new StepItem{ Key="LibraryServices", Label="Library Services", Group="Research & Library", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
         new StepItem{ Key="Research", Label="Research & Publications", Group="Research & Library", Ctrl="CA_Med_ResearchPublications", Act="CA_Med_ResearchPublicationsDetails" },
         new StepItem{ Key="Library", Label="Library Details", Group="Research & Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
 
-        // ================= STUDENT & STAFF =================
+        // ---- Human Resources ----
         new StepItem{ Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
-        // new StepItem{ Key="TeachingStaff", Label="Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
         new StepItem{ Key="NonTeachingStaff", Label="Non-Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
-
-        // ================= STUDENT AMENITIES =================
-        // new StepItem{ Key="Hostel", Label="Hostel Details", Group="Student Amenities", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
-
-        // new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
-        // new { Key="Declaration", Label="Declaration", Group="Final Submission", Ctrl="AffiliationDeclaration", Act="Declaration" },
-
+        // ---- Final Preview ----
         new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
 
-    // ======================================================
-    // SKILLS / LAB STEP BASED ON FACULTY
-    // ======================================================
+    // ------------------------------------------------------------------
+    // Faculty-specific insertions (Dental = facultyCode "2")
+    // ------------------------------------------------------------------
+    bool isDental = facultyCode == "2";
 
+    // Classroom & Laboratory (placed relative to "EquipmentMaster")
     var skillsIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+    if (skillsIndex < 0) skillsIndex = allSteps.Count;
 
-    if (skillsIndex < 0)
+    allSteps.Insert(skillsIndex, isDental
+        ? new StepItem { Key = "DentalSkillsLab", Label = "Classroom & Laboratory", Group = "Physical Infrastructure", Ctrl = "PhysicalInfrastructure", Act = "DentalSkillsLaboratory" }
+        : new StepItem { Key = "SkillsLab", Label = "Classroom & Laboratory", Group = "Physical Infrastructure", Ctrl = "Medical_ContinuousAffiliation", Act = "Medical_SkillsLaboratory" });
+
+    // Vehicle Details — inserted right after Equipment for Dental, appended at the end otherwise
+    if (isDental)
     {
-        skillsIndex = allSteps.Count;
-    }
-
-    if (facultyCode == "2")
-    {
-        // Dental
-        allSteps.Insert(skillsIndex,
-
-            new StepItem
-            {
-                Key = "DentalSkillsLab",
-                Label = "Classroom & Laboratory",
-                Group = "Physical Infrastructure",
-                Ctrl = "PhysicalInfrastructure",
-                Act = "DentalSkillsLaboratory"
-            });
-    }
-    else
-    {
-        // Medical / Others
-        allSteps.Insert(skillsIndex,
-
-            new StepItem
-            {
-                Key = "SkillsLab",
-                Label = "Classroom & Laboratory",
-                Group = "Physical Infrastructure",
-                Ctrl = "Medical_ContinuousAffiliation",
-                Act = "Medical_SkillsLaboratory"
-            });
-    }
-
-    // ======================================================
-    // VEHICLE POSITION FOR DENTAL
-    // ======================================================
-
-    if (facultyCode == "2")
-    {
-        // place after Additional Equipment Details
         var vehicleIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
-
         if (vehicleIndex >= 0)
         {
-            allSteps.Insert(vehicleIndex + 1, new StepItem
-            {
-                Key = "Vehicle",
-                Label = "Vehicle Details",
-                Group = "Physical Infrastructure",
-                Ctrl = "Aff_AHS_ContinousApplication",
-                Act = "CA_VehicleDetails"
-            });
+            allSteps.Insert(vehicleIndex + 1, new StepItem { Key = "Vehicle", Label = "Vehicle Details", Group = "Physical Infrastructure", Ctrl = "Aff_AHS_ContinousApplication", Act = "CA_VehicleDetails" });
         }
     }
     else
     {
-        // existing order for all other faculties
-        allSteps.Add(new StepItem
-        {
-            Key = "Vehicle",
-            Label = "Vehicle Details",
-            Group = "Physical Infrastructure",
-            Ctrl = "Aff_AHS_ContinousApplication",
-            Act = "CA_VehicleDetails"
-        });
+        allSteps.Add(new StepItem { Key = "Vehicle", Label = "Vehicle Details", Group = "Physical Infrastructure", Ctrl = "Aff_AHS_ContinousApplication", Act = "CA_VehicleDetails" });
     }
 
-    // ======================================================
-    // LAND & BUILDING STEP BASED ON FACULTY
-    // ======================================================
+    // Land & Building — placed just before the Classroom/Lab step
+    var landInsertIndex = allSteps.FindIndex(x => x.Key == (isDental ? "DentalSkillsLab" : "SkillsLab"));
+    if (landInsertIndex < 0) landInsertIndex = allSteps.Count;
 
-    int insertIndex = -1;
+    allSteps.Insert(landInsertIndex, isDental
+        ? new StepItem { Key = "LandBuilding", Label = "Land & Building", Group = "Physical Infrastructure", Ctrl = "PhysicalInfrastructure", Act = "DentalCollegeLandBuildingDetail" }
+        : new StepItem { Key = "LandBuilding", Label = "Land & Building", Group = "Physical Infrastructure", Ctrl = "Medical_ContinuousAffiliation", Act = "Medical_LandBuildingdetails" });
 
-    if (facultyCode == "2")
-    {
-        insertIndex = allSteps.FindIndex(x => x.Key == "DentalSkillsLab");
-    }
-    else
-    {
-        insertIndex = allSteps.FindIndex(x => x.Key == "SkillsLab");
-    }
-
-    if (insertIndex < 0)
-    {
-        insertIndex = allSteps.Count;
-    }
-
-    if (facultyCode == "2")
-    {
-        // Dental
-        allSteps.Insert(insertIndex,
-
-            new StepItem
-            {
-                Key = "LandBuilding",
-                Label = "Land & Building",
-                Group = "Physical Infrastructure",
-                Ctrl = "PhysicalInfrastructure",
-                Act = "DentalCollegeLandBuildingDetail"
-            });
-    }
-    else
-    {
-        // Medical / Others
-        allSteps.Insert(insertIndex,
-
-            new StepItem
-            {
-                Key = "LandBuilding",
-                Label = "Land & Building",
-                Group = "Physical Infrastructure",
-                Ctrl = "Medical_ContinuousAffiliation",
-                Act = "Medical_LandBuildingdetails"
-            });
-    }
-
+    // Teaching Staff Dept Wise — placed just before Non-Teaching Staff
     var nonTeachingIndex = allSteps.FindIndex(x => x.Key == "NonTeachingStaff");
+    if (nonTeachingIndex < 0) nonTeachingIndex = allSteps.Count;
 
-    if (nonTeachingIndex < 0)
-    {
-        nonTeachingIndex = allSteps.Count;
-    }
+    allSteps.Insert(nonTeachingIndex, isDental
+        ? new StepItem { Key = "TeachingStaff", Label = "Teaching Staff Dept Wise", Group = "Human Resources", Ctrl = "Dental", Act = "TeachingStaffDepartmentWise" }
+        : new StepItem { Key = "TeachingStaff", Label = "Teaching Staff Dept Wise", Group = "Human Resources", Ctrl = "ContinuesAffiliation_Facultybased", Act = "TeachingStaffDepartmentWise" });
 
-    if (facultyCode == "2")
-    {
-        allSteps.Insert(nonTeachingIndex, new StepItem
-        {
-            Key = "TeachingStaff",
-            Label = "Teaching Staff Dept Wise",
-            Group = "Human Resources",
-            Ctrl = "Dental",
-            Act = "TeachingStaffDepartmentWise"
-        });
-    }
-    else
-    {
-        allSteps.Insert(nonTeachingIndex, new StepItem
-        {
-            Key = "TeachingStaff",
-            Label = "Teaching Staff Dept Wise",
-            Group = "Human Resources",
-            Ctrl = "ContinuesAffiliation_Facultybased",
-            Act = "TeachingStaffDepartmentWise"
-        });
-    }
-
+    // Equipment Details / Equipment List
     var equipmentIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+    if (equipmentIndex < 0) equipmentIndex = allSteps.Count;
 
-    if (equipmentIndex < 0)
-    {
-        equipmentIndex = allSteps.Count;
-    }
+    allSteps.Insert(equipmentIndex, isDental
+        ? new StepItem { Key = "DentalEquipmentDetails", Label = "Equipment List", Group = "Physical Infrastructure", Ctrl = "Dental", Act = "EquipmentList" }
+        : new StepItem { Key = "EquipmentDetails", Label = "Equipment Details", Group = "Physical Infrastructure", Ctrl = "Medical_ContinuousAffiliation", Act = "Medical_EquimentDetails" });
 
-    if (facultyCode == "2")
-    {
-        // Dental
-        allSteps.Insert(equipmentIndex,
-
-            new StepItem
-            {
-                Key = "DentalEquipmentDetails",
-                Label = "Equipment List",
-                Group = "Physical Infrastructure",
-                Ctrl = "Dental",
-                Act = "EquipmentList"
-            });
-    }
-    else
-    {
-        // Medical / Others
-        allSteps.Insert(equipmentIndex,
-
-            new StepItem
-            {
-                Key = "EquipmentDetails",
-                Label = "Equipment Details",
-                Group = "Physical Infrastructure",
-                Ctrl = "Medical_ContinuousAffiliation",
-                Act = "Medical_EquimentDetails"
-            });
-    }
-    // ✅ Add MBBS ONLY for UG
+    // UG course-details step (MBBS for Medical, BDS for Dental)
     if (levels.Contains("UG") && facultyCode == "1")
     {
-        allSteps.Insert(1, new StepItem
-        {
-            Key = "MBBSDetails",
-            Label = "UG Course Details",
-            Group = "Intake Details",
-            Ctrl = "ContinuesAffiliation_Facultybased",
-            Act = "Details_Of_MBBS"
-        });
+        allSteps.Insert(1, new StepItem { Key = "MBBSDetails", Label = "Details of MBBS Course", Group = "Intake Details", Ctrl = "ContinuesAffiliation_Facultybased", Act = "Details_Of_MBBS", Levels = new List<string>{ "UG" } });
     }
-    else if (levels.Contains("UG") && facultyCode == "2")
+    else if (levels.Contains("UG") && isDental)
     {
-        allSteps.Insert(1, new StepItem
-        {
-            Key = "BDSDetails",
-            Label = "UG Course Details",
-            Group = "Intake Details",
-            Ctrl = "ContinuesAffiliation_Facultybased",
-            Act = "Ug_Course_Details"
-        });
+        allSteps.Insert(1, new StepItem { Key = "BDSDetails", Label = "Details of BDS Course", Group = "Intake Details", Ctrl = "ContinuesAffiliation_Facultybased", Act = "Ug_Course_Details", Levels = new List<string>{ "UG" } });
     }
 
-    if (facultyCode == "2")
+    // Faculty Repository (Dental only)
+    if (isDental)
     {
         var intakeIndex = allSteps.FindIndex(x => x.Key == "IntakeDetails");
-
         if (intakeIndex >= 0)
         {
-            allSteps.Insert(intakeIndex + 1, new StepItem
-            {
-                Key = "DentalFacultyDetails",
-                Label = "Faculty Repository",
-                Group = "Intake Details",
-                Ctrl = "DentalRepository",
-                Act = "TeachingFacultyDetails"
-            });
+            allSteps.Insert(intakeIndex + 1, new StepItem { Key = "DentalFacultyDetails", Label = "Faculty Repository", Group = "Intake Details", Ctrl = "DentalRepository", Act = "TeachingFacultyDetails" });
         }
-    }
-
-    // ✅ Add PG-specific steps
-    if (levels.Contains("PG"))
-    {
-        var pgSteps = new List<StepItem>
-        {
-            // new
-            // {
-            //     Key = "PgCoursesOffered",
-            //     Label = "Courses Offered",
-            //     Group = "PG Details",
-            //     Ctrl = "AffiliationPgCourse",
-            //     Act = "PgCourses"
-            // },
-            new StepItem
-            {
-                Key = "PgCourses",
-                Label = "PG Course Details",
-                Group = "Intake Details",
-                Ctrl = "AffiliationPgCourse",
-                Act = "PgCourses",
-            },
-        };
-
-        // 👉 Find last index of "Basic Details"
-        var lastBasicIndex = allSteps
-            .Select((step, index) => new { step, index })
-            .Where(x => x.step.Group == "Basic Details")
-            .Select(x => x.index)
-            .LastOrDefault();
-
-        // 👉 Insert AFTER Basic Details
-        allSteps.InsertRange(lastBasicIndex + 1, pgSteps);
     }
 
     void InsertAfterBasicDetails(List<StepItem> newSteps)
@@ -385,197 +179,125 @@
             allSteps.InsertRange(lastBasicIndex + 1, newSteps);
     }
 
-    // ✅ SS Specific - Added your new tab "SS Courses Applied"
-    if (levels.Contains("SS"))
+    // PG-specific step
+    if (levels.Contains("PG"))
     {
-        var ssSteps = new List<StepItem>
+        InsertAfterBasicDetails(new List<StepItem>
         {
-            // new { Key = "SsCourseDetails",         Label = "Super Specialty Course Details",   Group = "SS Details", Ctrl = "AffiliationSS", Act = "SsCourses" },
-            // new StepItem{ Key = "SsAssociatedInstitutions", Label = "Associated Institutions",         Group = "SS Details", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
-
-            // ✅ NEW TAB YOU REQUESTED
-            new StepItem{ Key = "SsCoursesApplied",        Label = "SS Course Details",               Group = "Intake Details",
-                  Ctrl = "Aff_CA_SS_CoursesAppliedSS",
-                  Act = "CA_SS_CoursesApplied" }
-        };
-        InsertAfterBasicDetails(ssSteps);
+            new StepItem { Key = "PgCourses", Label = "PG Course Affiliation", Group = "Intake Details", Ctrl = "AffiliationPgCourse", Act = "PgCourses", Levels = new List<string>{ "PG" } },
+        });
     }
 
+    // Super Specialty (SS)-specific step
+    if (levels.Contains("SS"))
+    {
+        InsertAfterBasicDetails(new List<StepItem>
+        {
+            new StepItem { Key = "SsCoursesApplied", Label = "Super Specialty Courses", Group = "Intake Details", Ctrl = "Aff_CA_SS_CoursesAppliedSS", Act = "CA_SS_CoursesApplied", Levels = new List<string>{ "SS" } },
+        });
+    }
 
+    // Filter out steps that don't apply to the selected course level and the college's offered levels
+    allSteps = allSteps
+        .Where(step =>
+            step.Levels == null
+            || step.Levels.Count == 0
+            || step.Levels.Any(l =>
+                levels.Contains(l)
+                && (string.IsNullOrEmpty(selectedCourseLevel) || l.Equals(selectedCourseLevel, StringComparison.OrdinalIgnoreCase))
+            ))
+        .ToList();
 
-    // 🔥 Exclude IntakeDetails from progress
-    var progressSteps = allSteps
-    .Where(s => s.Key != "IntakeDetails")
-    .ToList();
-
+    // Progress % excludes the "Course-wise Intake Details" step
+    var progressSteps = allSteps.Where(s => s.Key != "IntakeDetails").ToList();
     int total = progressSteps.Count;
     int done = progressSteps.Count(s => doneSteps.Contains(s.Key));
     int pct = total > 0 ? (int)Math.Round((double)done / total * 100) : 0;
 
-    // int total = allSteps.Count;
-    // int done = allSteps.Count(s => doneSteps.Contains(s.Key));
-    // int pct = total > 0 ? (int)Math.Round((double)done / total * 100) : 0;
-
-    // Track which group label we last printed (for group headers)
-    string lastGroup = "";
-
-    allSteps = allSteps
-    .Where(step =>
-        step.Levels == null || step.Levels.Count == 0   // ✅ default (UG/common)
-        || step.Levels.Any(l => levels.Contains(l))     // PG / SS match
-    )
-    .ToList();
-
-    if (facultyCode == "2")
+    if (isDental)
     {
-        // Insert Chair Distribution after Classroom & Laboratory
+        // Chair Distribution — right after Classroom & Laboratory
         var chairIndex = allSteps.FindIndex(x => x.Key == "DentalSkillsLab");
-
         if (chairIndex >= 0)
         {
-            allSteps.Insert(chairIndex + 1, new StepItem
-            {
-                Key = "ChairDistribution",
-                Label = "Chair Distribution",
-                Group = "Physical Infrastructure",
-                Ctrl = "PhysicalInfrastructure",
-                Act = "ChairDistribution"
-            });
+            allSteps.Insert(chairIndex + 1, new StepItem { Key = "ChairDistribution", Label = "Chair Distribution", Group = "Physical Infrastructure", Ctrl = "PhysicalInfrastructure", Act = "ChairDistribution" });
         }
-    }
 
-    // skipped for Dental
-    if (facultyCode == "2")
-    {
-        allSteps = allSteps
-            .Where(x => x.Key != "AssociatedInstitutions")
-            .ToList();
-    }
+        // Associated Institutions is not applicable to Dental
+        allSteps = allSteps.Where(x => x.Key != "AssociatedInstitutions").ToList();
 
-    // ======================================================
-    // FINAL ORDER FIX FOR DENTAL
-    // ======================================================
-
-    if (facultyCode == "2")
-    {
+        // --- Final display order fix-ups for Dental ---
         var physicalOrder = new List<string>
         {
-            "ClinicalFacilities",
-            "LandBuilding",
-            "DentalSkillsLab",
-            "ChairDistribution",
-            "BedDistribution",
-            "Hostel",
-            "DepartmentUnits",
-            "DentalEquipmentDetails",
-            "EquipmentMaster",
-            "Vehicle"
+            "ClinicalFacilities", "LandBuilding", "DentalSkillsLab", "ChairDistribution",
+            "BedDistribution", "Hostel", "DepartmentUnits", "DentalEquipmentDetails",
+            "EquipmentMaster", "Vehicle"
         };
 
-        var physicalSteps = allSteps
-            .Where(x => x.Group == "Physical Infrastructure")
-            .ToList();
+        var physicalSteps = allSteps.Where(x => x.Group == "Physical Infrastructure").ToList();
+        var orderedPhysicalSteps = physicalOrder.Select(key => physicalSteps.FirstOrDefault(x => x.Key == key)).Where(x => x != null).ToList();
+        var remainingPhysicalSteps = physicalSteps.Where(x => !physicalOrder.Contains(x.Key)).ToList();
 
-        var orderedPhysicalSteps = physicalOrder
-            .Select(key => physicalSteps.FirstOrDefault(x => x.Key == key))
-            .Where(x => x != null)
-            .ToList();
-
-        // Remaining physical infra steps (if any)
-        var remainingPhysicalSteps = physicalSteps
-            .Where(x => !physicalOrder.Contains(x.Key))
-            .ToList();
-
-        // Remove all physical infra steps
         allSteps.RemoveAll(x => x.Group == "Physical Infrastructure");
+        var insertAt = allSteps.FindIndex(x => x.Group != "Basic Details" && x.Group != "Intake Details");
+        if (insertAt < 0) insertAt = allSteps.Count;
+        allSteps.InsertRange(insertAt, orderedPhysicalSteps.Concat(remainingPhysicalSteps));
 
-        // Find where Physical Infrastructure section originally started
-        var insertAt = allSteps.FindIndex(x => x.Group != "Basic Details"
-                                            && x.Group != "Intake Details");
-
-        if (insertAt < 0)
-        {
-            insertAt = allSteps.Count;
-        }
-
-        // Reinsert in exact order
-        allSteps.InsertRange(insertAt,
-            orderedPhysicalSteps.Concat(remainingPhysicalSteps));
-    }
-
-
-    // ======================================================
-    // DENTAL - FINAL ORDER FOR INTAKE/BASIC DETAILS
-    // ======================================================
-
-    if (facultyCode == "2")
-    {
-        // Move Course-wise Intake Details to Basic Details and make it first
+        // Move Course-wise Intake Details into Basic Details as the first step
         var intakeStep = allSteps.FirstOrDefault(x => x.Key == "IntakeDetails");
-
         if (intakeStep != null)
         {
             allSteps.Remove(intakeStep);
-
             intakeStep.Group = "Basic Details";
-
             allSteps.Insert(0, intakeStep);
         }
 
-        // Keep UG/PG/SS/Faculty Repository under Intake Details
-        var intakeOrder = new List<string>
-        {
-            "BDSDetails",
-            "PgCourses",
-            "SsCoursesApplied",
-            "DentalFacultyDetails"
-        };
-
-        var intakeSteps = allSteps
-            .Where(x => x.Group == "Intake Details")
-            .ToList();
-
-        var orderedIntakeSteps = intakeOrder
-            .Select(key => intakeSteps.FirstOrDefault(x => x.Key == key))
-            .Where(x => x != null)
-            .ToList();
-
-        var remainingIntakeSteps = intakeSteps
-            .Where(x => !intakeOrder.Contains(x.Key))
-            .ToList();
+        var intakeOrder = new List<string> { "BDSDetails", "PgCourses", "SsCoursesApplied", "DentalFacultyDetails" };
+        var intakeSteps = allSteps.Where(x => x.Group == "Intake Details").ToList();
+        var orderedIntakeSteps = intakeOrder.Select(key => intakeSteps.FirstOrDefault(x => x.Key == key)).Where(x => x != null).ToList();
+        var remainingIntakeSteps = intakeSteps.Where(x => !intakeOrder.Contains(x.Key)).ToList();
 
         allSteps.RemoveAll(x => x.Group == "Intake Details");
-
         var basicLastIndex = allSteps
             .Select((step, index) => new { step, index })
             .Where(x => x.step.Group == "Basic Details")
             .Select(x => x.index)
             .LastOrDefault();
-
-        allSteps.InsertRange(
-            basicLastIndex + 1,
-            orderedIntakeSteps.Concat(remainingIntakeSteps)
-        );
+        allSteps.InsertRange(basicLastIndex + 1, orderedIntakeSteps.Concat(remainingIntakeSteps));
     }
 
-    var groupedSteps = allSteps
-            .GroupBy(s => s.Group)
-            .ToList();
-
-
-
+    var groupedSteps = allSteps.GroupBy(s => s.Group).ToList();
 }
 <link rel="stylesheet" href="~/css/common-form.css" />
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
+    :root {
+        --ca-navy: #0d47a1;
+        --ca-navy-light: #1976d2;
+        --ca-ink: #0f172a;
+        --ca-text: #334155;
+        --ca-muted: #64748b;
+        --ca-faint: #94a3b8;
+        --ca-border: #e2e8f0;
+        --ca-bg-tint: #f8fafc;
+        --ca-accent-bg: #eff6ff;
+        --ca-accent-bg-strong: #e0efff;
+        --ca-success: #047857;
+        --ca-radius-sm: 6px;
+        --ca-radius-md: 8px;
+    }
+
     /* ══════════════════════════════
-                   CA SIDEBAR
-                ══════════════════════════════ */
+                       CA SIDEBAR
+           ══════════════════════════════ */
     .ca-sb {
         width: 18vw;
+        min-width: 260px;
+        max-width: 340px;
         min-height: 100vh;
+        height: 100vh;
         background: #ffffff;
         display: flex;
         flex-direction: column;
@@ -583,9 +305,8 @@
         font-family: 'DM Sans', sans-serif;
         position: sticky;
         top: 0;
-        height: 100vh;
         overflow-y: auto;
-        border-right: 1px solid #e2e8f0;
+        border-right: 1px solid var(--ca-border);
     }
 
         .ca-sb::-webkit-scrollbar {
@@ -600,16 +321,17 @@
     /* Brand */
     .ca-sb-top {
         padding: 20px 18px 14px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--ca-border);
         flex-shrink: 0;
     }
 
     .ca-sb-title {
         font-family: 'EB Garamond', serif;
-        font-size: 1.1rem;
-        color: #0f172a;
+        font-size: 1.15rem;
+        color: var(--ca-ink);
         font-weight: 600;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
+        line-height: 1.3;
     }
 
     .ca-sb-subtitle {
@@ -617,63 +339,43 @@
         font-weight: 600;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: #64748b;
+        color: var(--ca-muted);
         margin-top: 4px;
-    }
-
-    /* Level pill */
-    .ca-sb-level-row {
-        padding: 12px 18px;
-        border-bottom: 1px solid #e2e8f0;
-        flex-shrink: 0;
-    }
-
-    .ca-sb-level-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-        border-radius: 8px;
-        padding: 5px 14px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        color: #0d47a1;
-        text-transform: uppercase;
     }
 
     /* Progress */
     .ca-sb-prog {
         padding: 14px 18px 12px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--ca-border);
         flex-shrink: 0;
-        background: #f8fafc;
+        background: var(--ca-bg-tint);
     }
 
     .ca-sb-prog-top {
         display: flex;
         justify-content: space-between;
+        align-items: baseline;
         margin-bottom: 6px;
     }
 
     .ca-sb-prog-lbl {
-        font-size: 0.58rem;
+        font-size: 0.6rem;
         font-weight: 600;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: #64748b;
+        color: var(--ca-muted);
     }
 
     .ca-sb-prog-pct {
-        font-size: 0.68rem;
+        font-size: 0.78rem;
         font-weight: 700;
-        color: #0d47a1;
+        color: var(--ca-navy);
+        font-variant-numeric: tabular-nums;
     }
 
     .ca-sb-track {
-        height: 4px;
-        background: #e2e8f0;
+        height: 5px;
+        background: var(--ca-border);
         border-radius: 999px;
         overflow: hidden;
     }
@@ -681,91 +383,142 @@
     .ca-sb-fill {
         height: 100%;
         border-radius: 999px;
-        background: linear-gradient(90deg, #0d47a1, #1976d2);
+        background: linear-gradient(90deg, var(--ca-navy), var(--ca-navy-light));
         transition: width 0.4s ease;
     }
 
     .ca-sb-prog-note {
-        font-size: 0.58rem;
-        color: #94a3b8;
+        font-size: 0.62rem;
+        color: var(--ca-faint);
         text-align: right;
-        margin-top: 4px;
+        margin-top: 5px;
     }
 
-    /* Nav */
-    .ca-sb-nav {
+    /* Accordion / nav groups */
+    .accordion-container {
+        width: 100%;
         flex: 1;
-        list-style: none;
-        padding: 8px 0 16px;
-        margin: 0;
         overflow-y: auto;
+        padding-bottom: 8px;
     }
 
-        .ca-sb-nav::-webkit-scrollbar {
+        .accordion-container::-webkit-scrollbar {
             width: 6px;
         }
 
-        .ca-sb-nav::-webkit-scrollbar-thumb {
+        .accordion-container::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 999px;
         }
 
-    /* Group label (e.g. "Physical Facilities") */
-    .ca-sb-group-label {
-        font-size: 0.57rem;
-        font-weight: 700;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: #64748b;
-        padding: 12px 18px 4px;
+    .accordion-item {
+        background: transparent;
+        border-bottom: 1px solid var(--ca-border);
+    }
+
+    .accordion-header {
+        font-size: 0.86rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--ca-text);
+        padding: 12px 18px;
+        cursor: pointer;
         display: flex;
         align-items: center;
         gap: 8px;
+        background: #ffffff;
+        border: none;
+        width: 100%;
+        text-align: left;
+        font-family: 'DM Sans', sans-serif;
+        transition: color 0.15s;
     }
 
-        .ca-sb-group-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e2e8f0;
+        .accordion-header:hover {
+            color: var(--ca-navy);
         }
 
+        .accordion-header:focus-visible {
+            outline: 2px solid var(--ca-navy);
+            outline-offset: -2px;
+        }
+
+        .accordion-header.active-tab {
+            color: var(--ca-navy);
+            font-weight: 700;
+        }
+
+            .accordion-header.active-tab .toggle-icon {
+                transform: rotate(180deg);
+                color: var(--ca-navy);
+            }
+
+    .toggle-icon {
+        margin-left: auto;
+        font-size: 0.75rem;
+        color: var(--ca-muted);
+        transition: transform 0.3s ease;
+    }
+
+    .accordion-header:hover .toggle-icon {
+        color: var(--ca-navy);
+    }
+
+    .accordion-group-badge {
+        font-size: 0.62rem;
+        font-weight: 700;
+        color: var(--ca-muted);
+        background: var(--ca-bg-tint);
+        border: 1px solid var(--ca-border);
+        border-radius: 999px;
+        padding: 1px 7px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
     /* Step link */
+    .ca-sb-nav-list {
+        list-style: none;
+        margin: 0;
+        padding: 4px 0 8px;
+    }
+
     .ca-sb-link {
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 9px 14px;
+        padding: 8px 18px 8px 22px;
         text-decoration: none;
-        color: #334155;
+        color: var(--ca-text);
         font-size: 0.82rem;
         font-weight: 500;
-        transition: background 0.15s, color 0.15s;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
         border-left: 3px solid transparent;
     }
 
         .ca-sb-link:hover {
-            background: #eff6ff;
-            color: #0d47a1;
+            background: var(--ca-accent-bg);
+            color: var(--ca-navy);
             text-decoration: none;
         }
 
+        .ca-sb-link:focus-visible {
+            outline: 2px solid var(--ca-navy);
+            outline-offset: -2px;
+        }
+
         .ca-sb-link.is-active {
-            background: #e0efff;
-            border-left-color: #0d47a1;
-            color: #0d47a1;
+            background: var(--ca-accent-bg-strong);
+            border-left-color: var(--ca-navy);
+            color: var(--ca-navy);
             font-weight: 700;
-            padding-left: 11px;
+            padding-left: 19px;
         }
-
-        .ca-sb-link.is-sub {
-            padding-left: 32px;
-            font-size: 0.77rem;
-        }
-
-            .ca-sb-link.is-sub.is-active {
-                padding-left: 29px;
-            }
 
     /* Step dot */
     .ca-dot {
@@ -781,278 +534,215 @@
     }
 
     .ca-dot-done {
-        background: #047857;
+        background: var(--ca-success);
         color: #fff;
     }
 
     .ca-dot-current {
-        background: #0d47a1;
+        background: var(--ca-navy);
         color: #fff;
-        box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.2);
+        box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.18);
     }
 
     .ca-dot-pending {
         background: #f1f5f9;
         border: 1.5px solid #cbd5e1;
-        color: #94a3b8;
+        color: var(--ca-faint);
     }
 
     .ca-sb-check {
-        font-size: 0.6rem;
-        color: #047857;
+        font-size: 0.7rem;
+        color: var(--ca-success);
         margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .ca-sb-label {
+        flex: 1;
     }
 
     /* Footer */
     .ca-sb-footer {
         padding: 12px 18px;
-        border-top: 1px solid #e2e8f0;
+        border-top: 1px solid var(--ca-border);
         flex-shrink: 0;
-        background: #f8fafc;
+        background: var(--ca-bg-tint);
+        text-align: center;
     }
 
     .ca-sb-back {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        font-size: 0.74rem;
-        color: #475569;
+        gap: 6px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--ca-navy);
         text-decoration: none;
-        transition: color 0.15s;
+        padding: 6px 10px;
+        border-radius: var(--ca-radius-sm);
+        transition: background 0.15s, color 0.15s;
     }
 
         .ca-sb-back:hover {
-            color: #0d47a1;
+            background: var(--ca-accent-bg);
             text-decoration: none;
+            color: var(--ca-navy);
         }
 
-    .btn-logout {
-        background: transparent;
-        border: 1px solid #0d47a1;
-        color: #0d47a1;
-        border-radius: 7px;
-        padding: 6px 14px;
-        font-size: .78rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all .2s;
-        font-family: 'DM Sans', sans-serif;
-    }
-
-        .btn-logout:hover {
-            background: #0d47a1;
-            color: #fff;
+        .ca-sb-back:focus-visible {
+            outline: 2px solid var(--ca-navy);
+            outline-offset: 2px;
         }
 
-    .accordion-container {
-        width: 100%;
-    }
-
-    .accordion-item {
-        background: transparent;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .accordion-header {
-        font-size: 0.9rem;
-        font-weight: 500;
-        letter-spacing: .4px;
-        color: #334155;
-        padding: 12px 18px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: #ffffff;
-    }
-
-        .accordion-header:hover {
-            color: #0d47a1;
+    @@media (max-width: 991px) {
+        .ca-sb {
+            width: 100%;
+            max-width: none;
+            min-height: auto;
+            height: auto;
+            position: static;
         }
-
-    .accordion-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.35s ease;
-        padding-left: 10px;
     }
 
-    .tick {
-        color: #047857;
+    @@media (prefers-reduced-motion: reduce) {
+        .ca-sb-fill,
+        .accordion-content,
+        .toggle-icon,
+        .ca-sb-link {
+            transition: none;
+        }
     }
-
-    .tab-header.active-tab {
-        color: #0d47a1;
-        font-weight: 700;
-    }
-
-    .tab-header.active-tab .toggle-icon {
-        transform: rotate(180deg);
-        color: #0d47a1;
-    }
-
-    .toggle-icon {
-        margin-left: auto;
-        font-size: 0.8rem;
-        color: #64748b;
-        transition: transform 0.3s ease;
-    }
-
-    .accordion-header:hover .toggle-icon {
-        transform: rotate(180deg);
-        color: #0d47a1;
-    }
-
 </style>
 
-<aside class="ca-sb">
+<aside class="ca-sb" aria-label="Continuous affiliation navigation">
 
-    <!-- Brand -->
     <div class="ca-sb-top">
-        @* <div class="ca-sb-title">@collegeName</div> *@
         <div class="ca-sb-title">College Details</div>
-        @* <div class="ca-sb-subtitle">Faculty-Based Module</div> *@
     </div>
 
-    <!-- Level pill -->
-    @* <div class="ca-sb-level-row">
-        <span class="ca-sb-level-pill">
-            <i class="bi bi-mortarboard-fill"></i>
-            @level Programme
-        </span>
-    </div> *@
-
-    
-    <!-- Progress bar (UG and PG and SS) -->
     <div class="ca-sb-prog">
         <div class="ca-sb-prog-top">
             <span class="ca-sb-prog-lbl">Completion</span>
             <span class="ca-sb-prog-pct">@pct%</span>
         </div>
-        <div class="ca-sb-track">
+        <div class="ca-sb-track" role="progressbar" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100" aria-label="Application completion">
             <div class="ca-sb-fill" style="width:@pct%"></div>
         </div>
         <div class="ca-sb-prog-note">@done of @total steps completed</div>
     </div>
 
-    <!-- Step list (flat) -->
-    <div class="accordion-container">
+    <nav class="accordion-container" aria-label="Application steps">
         @foreach (var group in groupedSteps)
         {
             var groupId = group.Key.Replace(" ", "");
+            var groupDone = group.Count(s => doneSteps.Contains(s.Key));
+            var groupTotal = group.Count();
 
             <div class="accordion-item">
-                <!-- Accordion Header -->
-                <div class="accordion-header tab-header"
-                     data-tab="@groupId"
-                     onclick="toggleAccordion('@groupId')">
+                <button type="button"
+                        class="accordion-header tab-header"
+                        id="header-@groupId"
+                        data-tab="@groupId"
+                        aria-expanded="false"
+                        aria-controls="content-@groupId"
+                        onclick="toggleAccordion('@groupId')">
                     <span>@group.Key</span>
-                    <i class="bi bi-chevron-down toggle-icon"></i>
-                </div>
+                    <span class="accordion-group-badge">@groupDone/@groupTotal</span>
+                    <i class="bi bi-chevron-down toggle-icon" aria-hidden="true"></i>
+                </button>
 
-                <!-- Accordion Content -->
                 <div class="accordion-content tab-content"
                      id="content-@groupId"
+                     role="region"
+                     aria-labelledby="header-@groupId"
                      data-tab-content="@groupId">
-                    @foreach (var step in group)
-                    {
-                        var isActive =
-                            string.Equals(currentCtrl, step.Ctrl, StringComparison.OrdinalIgnoreCase)
-                            &&
-                            string.Equals(currentAct, step.Act, StringComparison.OrdinalIgnoreCase);
-                        var isDone = doneSteps.Contains(step.Key);
+                    <ul class="ca-sb-nav-list">
+                        @foreach (var step in group)
+                        {
+                            var isActive = string.Equals(currentCtrl, step.Ctrl, StringComparison.OrdinalIgnoreCase)
+                                           && string.Equals(currentAct, step.Act, StringComparison.OrdinalIgnoreCase);
+                            var isDone = doneSteps.Contains(step.Key);
 
-                        string dotCls = isActive ? "ca-dot ca-dot-current"
-                            : isDone ? "ca-dot ca-dot-done"
-                            : "ca-dot ca-dot-pending";
+                            string dotCls = isActive ? "ca-dot ca-dot-current" : isDone ? "ca-dot ca-dot-done" : "ca-dot ca-dot-pending";
+                            string linkCls = "ca-sb-link" + (isActive ? " is-active" : "");
 
-                        string linkCls = "ca-sb-link"
-                            + (isActive ? " is-active" : "");
-
-                        <a href="@Url.Action(step.Act, step.Ctrl)" class="@linkCls">
-
-                            <div class="@dotCls">
-                                @if (isDone)
-                                {
-                                    <text>&#10003;</text>
-                                }
-                            </div>
-
-                            <span style="flex:1;">@step.Label</span>
-
-                            @if (isDone && !isActive)
-                            {
-                                <span class="ca-sb-check">&#10003;</span>
-                            }
-                        </a>
-                    }
+                            <li>
+                                <a href="@Url.Action(step.Act, step.Ctrl)"
+                                   class="@linkCls"
+                                   aria-current="@(isActive ? "page" : null)">
+                                    <span class="@dotCls" aria-hidden="true">
+                                        @if (isDone)
+                                        {
+                                            <text>&#10003;</text>
+                                        }
+                                    </span>
+                                    <span class="ca-sb-label">@step.Label</span>
+                                    @if (isDone && !isActive)
+                                    {
+                                        <span class="ca-sb-check" aria-hidden="true">&#10003;</span>
+                                    }
+                                </a>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         }
-    </div>
+    </nav>
 
-
-    <!-- Footer -->
     <div class="ca-sb-footer">
-        <div style="text-align: center;">
-            <a asp-action="Dashboard" asp-controller="Collegelogin" style="font-size: .8rem; color: white; text-decoration: none; padding: 5px;"> Back To Dashboard</a>
-        </div>
+        <a asp-action="Dashboard" asp-controller="Collegelogin" class="ca-sb-back">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Back to Dashboard
+        </a>
     </div>
 
 </aside>
 
 <script>
-    
     function toggleAccordion(groupId) {
-
         const currentContent = document.querySelector(`[data-tab-content="${groupId}"]`);
         const currentHeader = document.querySelector(`[data-tab="${groupId}"]`);
-
         const isOpen = currentHeader.classList.contains("active-tab");
 
-        const allContents = document.querySelectorAll(".tab-content");
-        const allHeaders = document.querySelectorAll(".tab-header");
+        document.querySelectorAll(".tab-content").forEach(c => c.style.maxHeight = null);
+        document.querySelectorAll(".tab-header").forEach(h => {
+            h.classList.remove("active-tab");
+            h.setAttribute("aria-expanded", "false");
+        });
 
-        // Close all
-        allContents.forEach(c => c.style.maxHeight = null);
-        allHeaders.forEach(h => h.classList.remove("active-tab"));
-
-        // If it was already open → close only
         if (isOpen) {
             sessionStorage.removeItem("activeTab");
             return;
         }
 
-        // Otherwise open it
         sessionStorage.setItem("activeTab", groupId);
 
         if (currentContent) {
             currentContent.style.maxHeight = currentContent.scrollHeight + "px";
         }
-
         if (currentHeader) {
             currentHeader.classList.add("active-tab");
+            currentHeader.setAttribute("aria-expanded", "true");
         }
     }
 
-    // Auto-open active group
-    window.onload = function () {
+    // Auto-open the group containing the active step (or the last opened group)
+    window.addEventListener("DOMContentLoaded", function () {
+        let activeTab = sessionStorage.getItem("activeTab");
 
-    let activeTab = sessionStorage.getItem("activeTab");
-
-    // fallback → detect active step
-    if (!activeTab) {
-        const activeLink = document.querySelector(".ca-sb-link.is-active");
-        if (activeLink) {
-            const parent = activeLink.closest(".tab-content");
-            if (parent) {
-                activeTab = parent.getAttribute("data-tab-content");
+        if (!activeTab) {
+            const activeLink = document.querySelector(".ca-sb-link.is-active");
+            if (activeLink) {
+                const parent = activeLink.closest(".tab-content");
+                if (parent) {
+                    activeTab = parent.getAttribute("data-tab-content");
+                }
             }
         }
-    }
 
-    if (activeTab) {
-        toggleAccordion(activeTab);
-    }
-};
+        if (activeTab && document.querySelector(`[data-tab="${activeTab}"]`)) {
+            toggleAccordion(activeTab);
+        }
+    });
 </script>

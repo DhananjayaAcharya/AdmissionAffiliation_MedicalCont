@@ -27,7 +27,25 @@ namespace Medical_Affiliation.Services.UserContext
 
         public string SeatSlabId => User?.FindFirst("SeatSlabId")?.Value ?? "S01";
 
-        public int TypeOfAffiliation =>int.TryParse(User?.FindFirst("TypeOfAffiliation")?.Value, out var t) ? t : 2;
+        public int TypeOfAffiliation
+        {
+            get
+            {
+                var sessionValue = _httpContextAccessor.HttpContext?.Session.GetInt32("AffiliationType");
+                if (sessionValue.HasValue)
+                {
+                    return sessionValue.Value;
+                }
+
+                var sessionStringValue = _httpContextAccessor.HttpContext?.Session.GetString("TypeOfAffiliationId");
+                if (int.TryParse(sessionStringValue, out var sessionType))
+                {
+                    return sessionType;
+                }
+
+                return int.TryParse(User?.FindFirst("TypeOfAffiliation")?.Value, out var claimType) ? claimType : 2;
+            }
+        }
     }
 
 }

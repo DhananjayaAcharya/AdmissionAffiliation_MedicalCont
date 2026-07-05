@@ -44,9 +44,10 @@
     }
 
     .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        /* padding: 0 24px; */
+        width: 330% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
     /* Updated Header Content - Stacked Vertically on Left */
@@ -434,7 +435,14 @@
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
-        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Transport</div>
+                <div class="header-title">Vehicle Details</div>
+                <div class="header-subtitle">Register the vehicles available for students and staff, including validity and document status.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         <!-- Form Card -->
         <div class="form-card">
@@ -603,8 +611,8 @@
 
                 @if (facultyCode == "1")
                 {
-                    <a asp-controller="ContinuesAffiliation_Facultybased"
-                       asp-action="MedicalUGBedDistribution"
+                    <a asp-controller="CA_Aff_AcademicMatters"
+                       asp-action="AcademicMatters"
                        class="btn-next">Next →</a>
                 }
 

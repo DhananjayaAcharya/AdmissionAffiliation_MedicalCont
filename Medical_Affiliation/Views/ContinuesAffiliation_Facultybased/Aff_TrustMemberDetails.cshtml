@@ -22,6 +22,14 @@
         --danger: #c0392b;
         --success: #1a6b3a;
         --radius: 6px;
+        /* ── White / professional theme tokens (page body only) ── */
+        --page-bg: #f5f6f8;
+        --panel-bg: #ffffff;
+        --panel-border: #e2e5ea;
+        --row-alt: #f8f9fb;
+        --row-hover: #eef2f8;
+        --text-muted-2: #6b7280;
+        --accent: #1a3a6b;
     }
 
     *, *::before, *::after {
@@ -31,7 +39,7 @@
     }
 
     body {
-        background-color: var(--cream);
+        background-color: var(--page-bg);
         font-family: 'DM Sans', sans-serif;
         color: var(--text);
         min-height: 100vh;
@@ -39,12 +47,22 @@
 
     /* ── Page Shell ── */
     .page-shell {
-        background-color: var(--cream);
+        background-color: var(--page-bg);
         min-height: 100vh;
         padding: 0 0 48px;
     }
 
-    /* ── Header Banner ── */
+    /* Override any narrow container width coming from common-form.css
+           so the card uses the available screen width instead of shrinking
+           down to a single-column layout. */
+    .page-container {
+        width: 331% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
+    }
+
+    /* ── Header Banner (untouched) ── */
     .page-header {
         background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
         padding: 1rem 2rem .6rem;
@@ -52,25 +70,25 @@
         overflow: hidden;
     }
 
-    .page-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
-    }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-image: repeating-linear-gradient( -45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 36px );
+        }
 
-    .page-header::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 36px;
-        right: 36px;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 36px;
+            right: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
 
     .header-eyebrow {
         font-family: 'DM Sans', sans-serif;
@@ -118,12 +136,12 @@
 
     /* ── Card ── */
     .form-card {
-        background: var(--white);
-        border: 1px solid var(--border);
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
         border-top: none;
         border-radius: 0 0 10px 10px;
         padding: 32px 36px 36px;
-        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+        box-shadow: 0 2px 10px rgba(15,37,69,0.05);
     }
 
     /* ── Alert Boxes ── */
@@ -158,7 +176,7 @@
     .section-label-line {
         flex: 1;
         height: 1px;
-        background: linear-gradient(90deg, var(--border), transparent);
+        background: linear-gradient(90deg, var(--panel-border), transparent);
     }
 
     .section-label-text {
@@ -166,18 +184,19 @@
         font-weight: 600;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         white-space: nowrap;
     }
 
     /* ── Table ── */
     .table-wrap {
-        border: 1px solid var(--border);
+        border: 1px solid var(--panel-border);
         border-radius: var(--radius);
         overflow: hidden;
         margin-bottom: 20px;
         padding-bottom: 20px !important;
         padding-top: 2rem !important;
+        background: var(--panel-bg);
     }
 
     .data-table {
@@ -186,60 +205,60 @@
         font-size: 0.875rem;
     }
 
-    .data-table thead {
-        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
-    }
+        .data-table thead {
+            background: #f8f9fb;
+        }
 
-    .data-table thead th {
-        padding: 11px 12px;
-        font-size: 0.68rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--navy);
-        border-bottom: 2px solid var(--border);
-        white-space: nowrap;
-        text-align: left;
-    }
+            .data-table thead th {
+                padding: 11px 12px;
+                font-size: 0.68rem;
+                font-weight: 600;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--navy);
+                border-bottom: 2px solid var(--panel-border);
+                white-space: nowrap;
+                text-align: left;
+            }
 
-    .data-table thead th:first-child {
-        border-left: 3px solid var(--gold);
-    }
+                .data-table thead th:first-child {
+                    border-left: 3px solid var(--accent);
+                }
 
-    .data-table tbody tr {
-        transition: background 0.15s;
-        border-bottom: 1px solid #f0ece4;
-    }
+        .data-table tbody tr {
+            transition: background 0.15s;
+            border-bottom: 1px solid #eef0f3;
+        }
 
-    .data-table tbody tr:last-child {
-        border-bottom: none;
-    }
+            .data-table tbody tr:last-child {
+                border-bottom: none;
+            }
 
-    .data-table tbody tr:nth-child(even) {
-        background: #faf8f4;
-    }
+            .data-table tbody tr:nth-child(even) {
+                background: var(--row-alt);
+            }
 
-    .data-table tbody tr:hover {
-        background: #f3eed8 !important;
-    }
+            .data-table tbody tr:hover {
+                background: var(--row-hover) !important;
+            }
 
-    .data-table td {
-        padding: 8px 10px;
-        vertical-align: middle;
-    }
+        .data-table td {
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
 
-    .data-table td:first-child {
-        text-align: center;
-        font-weight: 600;
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        width: 48px;
-    }
+            .data-table td:first-child {
+                text-align: center;
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: var(--text-muted-2);
+                width: 48px;
+            }
 
     /* ── Inputs ── */
     .form-control {
         width: 100%;
-        border: 1px solid #d9d3c8;
+        border: 1px solid #d5d8de;
         border-radius: 4px;
         padding: 6px 9px;
         font-size: 0.85rem;
@@ -249,16 +268,16 @@
         transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-    .form-control:focus {
-        outline: none;
-        border-color: var(--navy-mid);
-        box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
-    }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--navy-mid);
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+        }
 
     select.form-control {
         cursor: pointer;
         appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 9px center;
         padding-right: 28px;
@@ -280,7 +299,7 @@
         height: 28px;
         border-radius: 50%;
         background: transparent;
-        border: 1.5px solid #e0bcbc;
+        border: 1.5px solid #e5c6c6;
         color: var(--danger);
         font-size: 1rem;
         font-weight: 600;
@@ -289,11 +308,11 @@
         line-height: 1;
     }
 
-    .btn-remove:hover {
-        background: var(--danger);
-        border-color: var(--danger);
-        color: #fff;
-    }
+        .btn-remove:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+        }
 
     /* ── Footer Controls ── */
     .form-footer {
@@ -301,7 +320,7 @@
         justify-content: space-between;
         align-items: center;
         padding-top: 20px;
-        border-top: 1px solid var(--border);
+        border-top: 1px solid var(--panel-border);
         margin-top: 4px;
     }
 
@@ -322,10 +341,10 @@
         letter-spacing: 0.04em;
     }
 
-    .btn-add:hover {
-        background: linear-gradient(135deg, var(--navy), var(--navy-mid));
-        color: #fff;
-    }
+        .btn-add:hover {
+            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+            color: #fff;
+        }
 
     .btn-add-icon {
         font-size: 1.1rem;
@@ -343,8 +362,8 @@
         align-items: center;
         gap: 6px;
         background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
+        border: 1px solid var(--panel-border);
+        color: var(--text-muted-2);
         font-size: 0.82rem;
         font-weight: 500;
         padding: 8px 20px;
@@ -354,11 +373,11 @@
         font-family: 'DM Sans', sans-serif;
     }
 
-    .btn-prev:hover {
-        border-color: var(--navy-mid);
-        color: var(--navy);
-        background: #f3f0e8;
-    }
+        .btn-prev:hover {
+            border-color: var(--navy-mid);
+            color: var(--navy);
+            background: #f5f6f8;
+        }
 
     .btn-save {
         display: inline-flex;
@@ -379,33 +398,23 @@
         overflow: hidden;
     }
 
-    .btn-save::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--gold);
-    }
-
-    .btn-save:hover {
-        opacity: 0.9;
-        box-shadow: 0 4px 14px rgba(15,37,69,0.3);
-    }
+        .btn-save:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 14px rgba(15,37,69,0.3);
+        }
 
     /* ── Empty state ── */
     .empty-notice {
         text-align: center;
         padding: 28px 16px;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         font-size: 0.85rem;
-        background: #faf8f4;
+        background: #f8f9fb;
     }
 
     .row-index {
-        font-family: 'EB Garamond', serif;
-        font-size: 0.95rem;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.9rem;
         color: var(--navy-mid);
         font-weight: 600;
     }
@@ -417,22 +426,22 @@
         max-width: 100%;
         border-radius: var(--radius);
         scrollbar-width: thin;
-        scrollbar-color: var(--gold) #e6e0d1;
+        scrollbar-color: var(--navy-mid) #eef0f3;
         margin-bottom: 20px !important;
     }
 
-    .table-scroll-wrapper::-webkit-scrollbar {
-        height: 6px;
-    }
+        .table-scroll-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
 
-    .table-scroll-wrapper::-webkit-scrollbar-thumb {
-        background-color: var(--gold);
-        border-radius: 4px;
-    }
+        .table-scroll-wrapper::-webkit-scrollbar-thumb {
+            background-color: var(--navy-mid);
+            border-radius: 4px;
+        }
 
-    .table-scroll-wrapper::-webkit-scrollbar-track {
-        background: #f0ece4;
-    }
+        .table-scroll-wrapper::-webkit-scrollbar-track {
+            background: #eef0f3;
+        }
 
     /* Ensure table doesn't break layout */
     .data-table {
@@ -441,13 +450,13 @@
         table-layout: fixed;
     }
 
-    /* Make header sticky when scrolling horizontally */
-    .data-table thead th {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
-    }
+        /* Make header sticky when scrolling horizontally */
+        .data-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f8f9fb;
+        }
 
     .btn-next {
         display: inline-flex;
@@ -463,52 +472,9 @@
         transition: opacity 0.15s, box-shadow 0.15s;
     }
 
-    .btn-next:hover {
-        opacity: 0.9;
-    }
-
-
-    .upload-section {
-        padding: 10px;
-    }
-
-        .upload-section label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--navy);
+        .btn-next:hover {
+            opacity: 0.9;
         }
-
-    .file-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .btn-view {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 12px;
-        border-radius: 4px;
-        background: var(--navy);
-        color: #fff;
-        text-decoration: none;
-    }
-
-        .btn-view:hover {
-            color: #fff;
-            opacity: .9;
-        }
-
-    .file-badge {
-        display: inline-block;
-        margin-top: 8px;
-        color: var(--success);
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
 
     .upload-section {
         padding: 10px;
@@ -555,8 +521,8 @@
     .trust-upload-row {
         margin: 16px;
         padding: 14px 16px;
-        background: #faf8f4;
-        border: 1px solid var(--border);
+        background: #f8f9fb;
+        border: 1px solid var(--panel-border);
         border-radius: var(--radius);
     }
 
@@ -619,7 +585,7 @@
     }
 
         .doc-action-link:hover {
-            color: var(--gold);
+            color: var(--navy-mid);
         }
 
         .doc-action-link.delete {
@@ -634,8 +600,14 @@
 
 <div class="page-shell">
     <div class="page-container">
-
-        <!-- ── Header ── -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Governance</div>
+                <div class="header-title">Trust Member Details</div>
+                <div class="header-subtitle">Record the governing trust members and their designated roles for the affiliation file.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         <!-- ── Form Card ── -->
         <div class="form-card">
@@ -694,7 +666,7 @@
                                 @for (int i = 0; i < Model.Rows.Count; i++)
                                 {
                                     <tr>
-                                        
+
                                         <td>
                                             <span class="row-index">@(i + 1)</span>
                                             @Html.HiddenFor(m => m.Rows[i].SlNo)
@@ -704,7 +676,8 @@
 
                                         <td>
                                             @Html.TextBoxFor(m => m.Rows[i].TrustMemberName,
-                                                new {
+                                                new
+                                                {
                                                     @class = "form-control",
                                                     placeholder = "Full Name",
                                                     maxlength = "100"
@@ -743,7 +716,8 @@
 
                                         <td>
                                             @Html.TextBoxFor(m => m.Rows[i].MobileNumber,
-                                                new {
+                                                new
+                                                {
                                                     @class = "form-control",
                                                     placeholder = "9876543210",
                                                     maxlength = "10"
@@ -753,7 +727,8 @@
 
                                         <td>
                                             @Html.TextBoxFor(m => m.Rows[i].Age,
-                                                new {
+                                                new
+                                                {
                                                     @class = "form-control",
                                                     type = "number",
                                                     min = "18",
@@ -765,7 +740,8 @@
 
                                         <td>
                                             @Html.TextBoxFor(m => m.Rows[i].JoiningDateString,
-                                                new {
+                                                new
+                                                {
                                                     @class = "form-control",
                                                     type = "date"
                                                 })
@@ -777,7 +753,7 @@
                                         </td>
                                     </tr>
                                 }
-                                
+
                             </tbody>
                         </table>
                     </div>
@@ -854,139 +830,139 @@
     <script>
         $(function () {
 
-            // Tracks the next index to use when a row is added.
-            // Initialised from the server-rendered row count so it never
-            // clashes with pre-existing Razor rows.
-            let rowIndex = @Model.Rows.Count;
+        // Tracks the next index to use when a row is added.
+        // Initialised from the server-rendered row count so it never
+        // clashes with pre-existing Razor rows.
+        let rowIndex = @Model.Rows.Count;
 
-            // ─────────────────────────────────────────────────────────────
-            // reindexRows()
-            // After every add or remove call this to close any index gaps.
-            // ASP.NET model binding requires a gapless 0-based sequence:
-            // Rows[0], Rows[1], Rows[2]...
-            // Any gap causes everything after it to be silently dropped.
-            // ─────────────────────────────────────────────────────────────
-            function reindexRows() {
-                $("#tblTrust tbody tr:not(#emptyRow)").each(function (index) {
+        // ─────────────────────────────────────────────────────────────
+        // reindexRows()
+        // After every add or remove call this to close any index gaps.
+        // ASP.NET model binding requires a gapless 0-based sequence:
+        // Rows[0], Rows[1], Rows[2]...
+        // Any gap causes everything after it to be silently dropped.
+        // ─────────────────────────────────────────────────────────────
+        function reindexRows() {
+        $("#tblTrust tbody tr:not(#emptyRow)").each(function (index) {
 
-                    // Update the visible serial number in the first cell
-                    $(this).find(".row-index").text(index + 1);
+        // Update the visible serial number in the first cell
+        $(this).find(".row-index").text(index + 1);
 
-                    // Re-stamp every input and select name with the new index
-                    $(this).find("input, select").each(function () {
-                        let name = $(this).attr("name");
-                        if (name) {
-                            $(this).attr("name", name.replace(/Rows\[\d+\]/, "Rows[" + index + "]"));
-                        }
-                    });
-                });
+        // Re-stamp every input and select name with the new index
+        $(this).find("input, select").each(function () {
+        let name = $(this).attr("name");
+        if (name) {
+        $(this).attr("name", name.replace(/Rows\[\d+\]/, "Rows[" + index + "]"));
+        }
+        });
+        });
 
-                // Keep rowIndex aligned with the actual DOM count so the next
-                // added row always gets a unique, correct index
-                rowIndex = $("#tblTrust tbody tr:not(#emptyRow)").length;
-            }
+        // Keep rowIndex aligned with the actual DOM count so the next
+        // added row always gets a unique, correct index
+        rowIndex = $("#tblTrust tbody tr:not(#emptyRow)").length;
+        }
 
-            // ─────────────────────────────────────────────────────────────
-            // Build designation <option> HTML exactly once from the Razor
-            // server data. Reused in every dynamically-added row so the
-            // Razor foreach loop does not run again on each click.
-            // ─────────────────────────────────────────────────────────────
-           
-            // ─────────────────────────────────────────────────────────────
-            // Add New Row
-            // ─────────────────────────────────────────────────────────────
-            $("#btnAddRow").on("click", function () {
+        // ─────────────────────────────────────────────────────────────
+        // Build designation <option> HTML exactly once from the Razor
+        // server data. Reused in every dynamically-added row so the
+        // Razor foreach loop does not run again on each click.
+        // ─────────────────────────────────────────────────────────────
 
-                // Remove the "no rows" placeholder row if it exists
-                $("#emptyRow").remove();
+        // ─────────────────────────────────────────────────────────────
+        // Add New Row
+        // ─────────────────────────────────────────────────────────────
+        $("#btnAddRow").on("click", function () {
 
-                let newRow = `
-                <tr>
-                    <td>
-                        <span class="row-index"></span>
-                        <input type="hidden" name="Rows[${rowIndex}].SlNo"        value="0" />
-                        <input type="hidden" name="Rows[${rowIndex}].FacultyCode" value="@Model.FacultyCode" />
-                        <input type="hidden" name="Rows[${rowIndex}].CollegeCode" value="@Model.CollegeCode" />
-                    </td>
+        // Remove the "no rows" placeholder row if it exists
+        $("#emptyRow").remove();
 
-                    <td>
-                        <input class="form-control"
-                               name="Rows[${rowIndex}].TrustMemberName"
-                               placeholder="Full Name" maxlength="100" />
-                    </td>
-                    <td>
-                        <input class="form-control"
-                               name="Rows[${rowIndex}].Designation"
-                               placeholder="Designation"
-                               maxlength="100" />
-                    </td>
+        let newRow = `
+        <tr>
+        <td>
+        <span class="row-index"></span>
+        <input type="hidden" name="Rows[${rowIndex}].SlNo"        value="0" />
+        <input type="hidden" name="Rows[${rowIndex}].FacultyCode" value="@Model.FacultyCode" />
+        <input type="hidden" name="Rows[${rowIndex}].CollegeCode" value="@Model.CollegeCode" />
+        </td>
 
-                    <td>
-                        <input class="form-control"
-                               name="Rows[${rowIndex}].Qualification"
-                               placeholder="e.g. MBBS, MD, PhD" maxlength="80" />
-                    </td>
+        <td>
+        <input class="form-control"
+        name="Rows[${rowIndex}].TrustMemberName"
+        placeholder="Full Name" maxlength="100" />
+        </td>
+        <td>
+        <input class="form-control"
+        name="Rows[${rowIndex}].Designation"
+        placeholder="Designation"
+        maxlength="100" />
+        </td>
 
-                    <td>
-                        <input class="form-control"
-                               name="Rows[${rowIndex}].MobileNumber"
-                               placeholder="9876543210" maxlength="10" />
-                    </td>
+        <td>
+        <input class="form-control"
+        name="Rows[${rowIndex}].Qualification"
+        placeholder="e.g. MBBS, MD, PhD" maxlength="80" />
+        </td>
 
-                    <td>
-                        <input class="form-control"
-                               name="Rows[${rowIndex}].Age"
-                               type="number" min="18" max="100" placeholder="Age" />
-                    </td>
+        <td>
+        <input class="form-control"
+        name="Rows[${rowIndex}].MobileNumber"
+        placeholder="9876543210" maxlength="10" />
+        </td>
 
-                    <td>
-                        <input class="form-control"
-                               name="Rows[${rowIndex}].JoiningDateString"
-                               type="date" />
-                    </td>
+        <td>
+        <input class="form-control"
+        name="Rows[${rowIndex}].Age"
+        type="number" min="18" max="100" placeholder="Age" />
+        </td>
 
-                    <td style="text-align:center;">
-                        <button type="button" class="btn-remove btn-remove-row" title="Remove">−</button>
-                    </td>
-                </tr>`;
+        <td>
+        <input class="form-control"
+        name="Rows[${rowIndex}].JoiningDateString"
+        type="date" />
+        </td>
 
-                $("#tblTrust tbody").append(newRow);
+        <td style="text-align:center;">
+        <button type="button" class="btn-remove btn-remove-row" title="Remove">−</button>
+        </td>
+        </tr>`;
 
-                // Always reindex after append so the new row gets a clean index
-                reindexRows();
-            });
+        $("#tblTrust tbody").append(newRow);
 
-            // ─────────────────────────────────────────────────────────────
-            // Remove Row
-            // ─────────────────────────────────────────────────────────────
-            $("#tblTrust").on("click", ".btn-remove-row", function () {
-                if (confirm("Are you sure you want to remove this member?")) {
+        // Always reindex after append so the new row gets a clean index
+        reindexRows();
+        });
 
-                    $(this).closest("tr").remove();
+        // ─────────────────────────────────────────────────────────────
+        // Remove Row
+        // ─────────────────────────────────────────────────────────────
+        $("#tblTrust").on("click", ".btn-remove-row", function () {
+        if (confirm("Are you sure you want to remove this member?")) {
 
-                    // Show the empty-state notice when no data rows remain
-                    if ($("#tblTrust tbody tr").length === 0) {
-                        $("#tblTrust tbody").html(`
-                            <tr id="emptyRow">
-                                <td colspan="8" class="empty-notice">
-                                    No trust members added yet.<br>
-                                    Click <strong>+ Add New Member</strong> to begin.
-                                </td>
-                            </tr>`);
-                    }
+        $(this).closest("tr").remove();
 
-                    // Always reindex after remove to close the index gap
-                    reindexRows();
-                }
-            });
+        // Show the empty-state notice when no data rows remain
+        if ($("#tblTrust tbody tr").length === 0) {
+        $("#tblTrust tbody").html(`
+        <tr id="emptyRow">
+        <td colspan="8" class="empty-notice">
+        No trust members added yet.<br>
+        Click <strong>+ Add New Member</strong> to begin.
+        </td>
+        </tr>`);
+        }
 
-            // ─────────────────────────────────────────────────────────────
-            // Final reindex immediately before the form POST (safety net).
-            // Catches any edge case where the DOM drifted out of sequence.
-            // ─────────────────────────────────────────────────────────────
-            $("form").on("submit", function () {
-                reindexRows();
-            });
+        // Always reindex after remove to close the index gap
+        reindexRows();
+        }
+        });
+
+        // ─────────────────────────────────────────────────────────────
+        // Final reindex immediately before the form POST (safety net).
+        // Catches any edge case where the DOM drifted out of sequence.
+        // ─────────────────────────────────────────────────────────────
+        $("form").on("submit", function () {
+        reindexRows();
+        });
 
         });
     </script>

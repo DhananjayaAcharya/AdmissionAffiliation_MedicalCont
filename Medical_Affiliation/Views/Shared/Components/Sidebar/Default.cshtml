@@ -230,6 +230,15 @@
             color: var(--sidebar-text-muted);
         }
 
+        .affiliation-option.selected {
+            background: rgba(16, 163, 127, 0.22);
+            color: #fff;
+        }
+
+            .affiliation-option.selected i {
+                color: var(--sidebar-accent-light);
+            }
+
     .affiliation-loading {
         display: flex;
         align-items: center;
@@ -327,7 +336,23 @@
                     </a>
 
                     <div id="affiliationDropdownPanel" class="affiliation-dropdown d-none-collapsed">
-                        <!-- options injected here -->
+                        <!-- affiliation type options injected here -->
+                    </div>
+                </li>
+
+                <!-- Course Level: hidden until an affiliation type is picked -->
+                <li class="sidebar-item" id="courseLevelItem" style="display:none;">
+                    <a href="#" id="courseLevelToggle"
+                       class="sidebar-link"
+                       onclick="toggleCourseLevelDropdown(event)">
+
+                        <i class="bi bi-list-ol"></i>
+                        Course Level
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </a>
+
+                    <div id="courseLevelDropdownPanel" class="affiliation-dropdown d-none-collapsed">
+                        <!-- course level options injected here -->
                     </div>
                 </li>
 
@@ -444,18 +469,29 @@
         menu.classList.toggle("d-none");
     }
 
-    // ---- Admission Affiliation: custom dropdown, opens directly on first click ----
+    // =====================================================================
+    // Admission Affiliation dropdown (Type of Affiliation)
+    // =====================================================================
 
     let affiliationTypesLoaded = false;
     let affiliationOptionsCache = [];
+    let selectedAffiliationTypeId = null;
 
-    const getAffiliationTypesUrl = '@Url.Action("GetAffiliationTypes", "ContinuesAffiliation_Facultybased")';
+    // Course Level dropdown
+    let courseLevelsLoaded = false;
+    let courseLevelOptionsCache = [];
+    let selectedCourseLevel = null;
 
+        const getAffiliationTypesUrl = '@Url.Action("GetAffiliationTypes", "ContinuesAffiliation_Facultybased")';
+    const getCourseLevelsUrl = '@Url.Action("GetCourseLevels", "ContinuesAffiliation_Facultybased")';
+    const setAffiliationTypeUrl = '@Url.Action("SetAffiliationType", "ContinuesAffiliation_Facultybased")';
+
+    // Map TypeId -> destination route. Only entries with a mapped route are selectable.
     const affiliationRouteMap = {
-        "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")'
-        // "1": '@Url.Action("Institution_Details", "FreshAffiliation_Facultybased")',
-        // "3": '@Url.Action("Institution_Details", "EnhancementOfSeats_Facultybased")',
-        // "4": '@Url.Action("Institution_Details", "AdditionalCourses_Facultybased")',
+        "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
+        "1": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
+        "3": '@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")',
+        "4": '@Url.Action("Institution_Details", "AdditionalCourses_Facultybased")',
         // "5": '@Url.Action("Institution_Details", "ChangeOfName_Facultybased")',
         // "6": '@Url.Action("Institution_Details", "ChangeOfAddress_Facultybased")',
         // "7": '@Url.Action("Institution_Details", "ChangeOfNameAndAddress_Facultybased")',
@@ -477,7 +513,10 @@
         items.forEach(item => {
             const opt = document.createElement("div");
             const hasRoute = !!affiliationRouteMap[item.typeId];
-            opt.className = "affiliation-option" + (hasRoute ? "" : " disabled");
+            const isSelected = selectedAffiliationTypeId == item.typeId;
+            opt.className = "affiliation-option"
+                + (hasRoute ? "" : " disabled")
+                + (isSelected ? " selected" : "");
             opt.innerHTML = '<i class="bi bi-dot"></i><span>' + item.typeDescription + '</span>';
             opt.addEventListener("click", function () {
                 handleAffiliationTypeSelect(item.typeId);
@@ -526,13 +565,143 @@
         }
     }
 
-    function handleAffiliationTypeSelect(typeId) {
+    async function handleAffiliationTypeSelect(typeId) {
         if (!typeId) return;
 
-        if (affiliationRouteMap[typeId]) {
-            window.location.href = affiliationRouteMap[typeId];
-        } else {
+        if (!affiliationRouteMap[typeId]) {
             alert("This affiliation type is not yet available.");
+            return;
         }
+
+        selectedAffiliationTypeId = typeId;
+
+        // Look up the human-readable label for this typeId from the cached list
+        const matched = affiliationOptionsCache.find(item => item.typeId == typeId);
+        const typeDescription = matched ? matched.typeDescription : null;
+
+        if (!typeDescription) {
+            alert("Unable to read the selected affiliation type. Please try again.");
+            return;
+        }
+
+        try {
+            const response = await fetch(setAffiliationTypeUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ typeId: Number(typeId), typeDescription: typeDescription })
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save affiliation type");
+            }
+
+            document.querySelectorAll('.ca-topbar-affiliation').forEach(el => {
+                el.textContent = 'Affiliation Type: ' + typeDescription;
+            });
+        } catch (err) {
+            console.error("Failed to save affiliation type to session:", err);
+            alert("Unable to save the affiliation type. Please try again.");
+            return;
+        }
+
+        // Re-render so the "selected" highlight shows, then collapse
+        renderAffiliationOptions(affiliationOptionsCache);
+
+        const affPanel = document.getElementById("affiliationDropdownPanel");
+        const affToggle = document.getElementById("admissionAffiliationToggle");
+        affPanel.classList.remove("open");
+        affPanel.classList.add("d-none-collapsed");
+        affToggle.classList.remove("expanded");
+
+        // A new affiliation type invalidates any previously selected course level
+        selectedCourseLevel = null;
+        courseLevelsLoaded = false;
+        courseLevelOptionsCache = [];
+
+        // Reveal Course Level item and auto-open it
+        const courseLevelItem = document.getElementById("courseLevelItem");
+        courseLevelItem.style.display = "block";
+
+        toggleCourseLevelDropdown({ preventDefault: function () {} });
+    }
+
+    // =====================================================================
+    // Course Level dropdown (populated from CollegeCourseIntakeDetails ⋈ Mst_Course)
+    // =====================================================================
+
+    function renderCourseLevelOptions(items) {
+        const panel = document.getElementById("courseLevelDropdownPanel");
+        panel.innerHTML = "";
+
+        if (!items || items.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "affiliation-loading";
+            empty.textContent = "No course levels available.";
+            panel.appendChild(empty);
+            return;
+        }
+
+        items.forEach(level => {
+            const opt = document.createElement("div");
+            const isSelected = selectedCourseLevel === level;
+            opt.className = "affiliation-option" + (isSelected ? " selected" : "");
+            opt.innerHTML = '<i class="bi bi-dot"></i><span>' + level + '</span>';
+            opt.addEventListener("click", function () {
+                handleCourseLevelSelect(level);
+            });
+            panel.appendChild(opt);
+        });
+    }
+
+    function toggleCourseLevelDropdown(e) {
+        e.preventDefault();
+
+        const panel = document.getElementById("courseLevelDropdownPanel");
+        const toggleLink = document.getElementById("courseLevelToggle");
+        const isOpen = panel.classList.contains("open");
+
+        if (isOpen) {
+            panel.classList.remove("open");
+            panel.classList.add("d-none-collapsed");
+            toggleLink.classList.remove("expanded");
+            return;
+        }
+
+        panel.classList.remove("d-none-collapsed");
+        panel.classList.add("open");
+        toggleLink.classList.add("expanded");
+
+        if (!courseLevelsLoaded) {
+            panel.innerHTML = '<div class="affiliation-loading"><span class="spinner-border" role="status"></span> Loading...</div>';
+
+            fetch(getCourseLevelsUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error("Network response was not ok");
+                    return res.json();
+                })
+                .then(data => {
+                    courseLevelOptionsCache = data;
+                    courseLevelsLoaded = true;
+                    renderCourseLevelOptions(data);
+                })
+                .catch(err => {
+                    console.error("Failed to load course levels:", err);
+                    panel.innerHTML = '<div class="affiliation-loading">Failed to load. Try again.</div>';
+                });
+        } else {
+            renderCourseLevelOptions(courseLevelOptionsCache);
+        }
+    }
+
+    function handleCourseLevelSelect(courseLevel) {
+        if (!selectedAffiliationTypeId || !courseLevel) return;
+
+        selectedCourseLevel = courseLevel;
+
+        const baseUrl = affiliationRouteMap[selectedAffiliationTypeId];
+        if (!baseUrl) return;
+
+        const separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
+        window.location.href = baseUrl + separator + 'courseLevel=' + encodeURIComponent(courseLevel);
     }
 </script>

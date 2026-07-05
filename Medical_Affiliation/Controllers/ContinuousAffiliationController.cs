@@ -17,7 +17,7 @@ namespace Medical_Affiliation.Controllers
         private readonly IUserContext __userContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ContinuousAffiliationController( ApplicationDbContext context): base(context)
+        public ContinuousAffiliationController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -132,7 +132,7 @@ namespace Medical_Affiliation.Controllers
 
             // Active Academic Years
             var activeYears = _context.AcademicYearMasters
-                .Where(x => x.IsActive==true)
+                .Where(x => x.IsActive == true)
                 .OrderBy(x => x.DisplayOrder)
                 .Select(x => x.AcademicYear)
                 .ToList();
@@ -212,7 +212,7 @@ namespace Medical_Affiliation.Controllers
                             AdditionalIntake = additionalIntake,
 
                             TotalIntake = totalIntake,
-                            ApprovalAuthority =saved?.ApprovalType?.Trim().ToUpper(),
+                            ApprovalAuthority = saved?.ApprovalType?.Trim().ToUpper(),
 
                             LopDate =
                                 saved?.LopDate != null
@@ -395,7 +395,7 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
-        public IActionResult ViewAcademicIntakeDocument(int courseCode,string academicYear)
+        public IActionResult ViewAcademicIntakeDocument(int courseCode, string academicYear)
         {
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -596,7 +596,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult>AcademicIntakePG(PgAcademicIntakeViewModel model)
+        public async Task<IActionResult> AcademicIntakePG(PgAcademicIntakeViewModel model)
         {
             var facultyCode =
                 HttpContext.Session.GetString("FacultyCode");

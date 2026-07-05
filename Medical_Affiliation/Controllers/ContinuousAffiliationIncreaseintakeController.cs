@@ -22,6 +22,8 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> IncreaseIntake()
         {
+            SetCourseLevelFromRequest();
+
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var collegeName = HttpContext.Session.GetString("CollegeName");

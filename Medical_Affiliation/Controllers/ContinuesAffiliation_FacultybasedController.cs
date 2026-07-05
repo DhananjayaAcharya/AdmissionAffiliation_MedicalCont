@@ -35,22 +35,6 @@ namespace Medical_Affiliation.Controllers
             TempData["Error"] = "Session expired. Please login again.";
             return RedirectToAction("Login", "Account");
         }
-        public IActionResult Index()
-        {
-            var model = new SidebarViewModel
-            {
-                TypeOfAffiliationList = _context.TypeOfAffiliations
-                    .Select(t => new SelectListItem
-                    {
-                        Value = t.TypeId.ToString(),
-                        Text = t.TypeDescription
-                    })
-                    .ToList()
-            };
-
-            return View(model);
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAffiliationTypes()
         {
@@ -62,6 +46,142 @@ namespace Medical_Affiliation.Controllers
             return Json(types);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SetAffiliationType([FromBody] AffiliationTypeSessionRequest request)
+        {
+            if (request == null || request.TypeId <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid affiliation type." });
+            }
+
+            var typeDescription = request.TypeDescription;
+
+            if (string.IsNullOrWhiteSpace(typeDescription))
+            {
+                typeDescription = await _context.TypeOfAffiliations
+                    .Where(t => t.TypeId == request.TypeId)
+                    .Select(t => t.TypeDescription)
+                    .FirstOrDefaultAsync();
+            }
+
+            if (string.IsNullOrWhiteSpace(typeDescription))
+            {
+                return NotFound(new { success = false, message = "Affiliation type not found." });
+            }
+
+            HttpContext.Session.SetInt32("AffiliationType", request.TypeId);
+            HttpContext.Session.SetString("TypeOfAffiliation", typeDescription);
+            HttpContext.Session.SetString("TypeOfAffiliationId", request.TypeId.ToString());
+
+            return Json(new
+            {
+                success = true,
+                typeId = request.TypeId,
+                typeDescription
+            });
+        }
+
+        public class AffiliationTypeSessionRequest
+        {
+            public int TypeId { get; set; }
+            public string? TypeDescription { get; set; }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DebugCourseLevels()
+        {
+            var facultyCodeStr = HttpContext.Session.GetString("FacultyCode")
+                                ?? User?.FindFirst("FacultyCode")?.Value;
+            var collegeCode = HttpContext.Session.GetString("CollegeCode")
+                                ?? User?.FindFirst("CollegeCode")?.Value;
+
+            if (string.IsNullOrEmpty(facultyCodeStr) || string.IsNullOrEmpty(collegeCode))
+            {
+                return Json(new
+                {
+                    error = "Session missing FacultyCode/CollegeCode",
+                    sessionFacultyCode = HttpContext.Session.GetString("FacultyCode"),
+                    sessionCollegeCode = HttpContext.Session.GetString("CollegeCode"),
+                    claimFacultyCode = User?.FindFirst("FacultyCode")?.Value,
+                    claimCollegeCode = User?.FindFirst("CollegeCode")?.Value
+                });
+            }
+
+            if (!int.TryParse(facultyCodeStr, out int facultyCode))
+            {
+                return Json(new { error = "FacultyCode is not numeric", facultyCodeStr });
+            }
+
+            // Raw intake rows for this faculty+college
+            var intakeRows = await _context.CollegeCourseIntakeDetails
+                .Where(i => i.FacultyCode == facultyCode && i.CollegeCode == collegeCode)
+                .Select(i => new { i.CourseCode, i.CourseName, i.FacultyCode, i.CollegeCode })
+                .ToListAsync();
+
+            // Raw Mst_Course rows for this faculty
+            var mstRows = await _context.MstCourses
+                .Where(c => c.FacultyCode == facultyCode)
+                .Select(c => new { c.CourseCode, c.CourseName, c.CourseLevel, c.FacultyCode })
+                .ToListAsync();
+
+            // The actual join used in GetCourseLevels
+            var joined = await (
+                from intake in _context.CollegeCourseIntakeDetails
+                join course in _context.MstCourses
+                    on intake.CourseCode equals course.CourseCode.ToString()
+                where intake.FacultyCode == facultyCode
+                      && intake.CollegeCode == collegeCode
+                      && course.FacultyCode == facultyCode
+                select new { intake.CourseCode, IntakeCourseName = intake.CourseName, course.CourseLevel }
+            ).ToListAsync();
+
+            return Json(new
+            {
+                resolvedFacultyCode = facultyCode,
+                resolvedCollegeCode = collegeCode,
+                intakeRowCount = intakeRows.Count,
+                intakeRows,
+                mstRowCount = mstRows.Count,
+                mstRows,
+                joinedRowCount = joined.Count,
+                joined
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCourseLevels()
+        {
+            var facultyCodeStr = HttpContext.Session.GetString("FacultyCode")
+                                ?? User?.FindFirst("FacultyCode")?.Value;
+            var collegeCode = HttpContext.Session.GetString("CollegeCode")
+                                ?? User?.FindFirst("CollegeCode")?.Value;
+
+            if (string.IsNullOrEmpty(facultyCodeStr) || string.IsNullOrEmpty(collegeCode))
+            {
+                return Json(new List<string>());
+            }
+
+            if (!int.TryParse(facultyCodeStr, out int facultyCode))
+            {
+                return Json(new List<string>());
+            }
+
+            var courseLevels = await (
+                from intake in _context.CollegeCourseIntakeDetails
+                join course in _context.MstCourses
+                    on intake.CourseCode equals course.CourseCode.ToString()
+                where intake.FacultyCode == facultyCode
+                      && intake.CollegeCode == collegeCode
+                      && course.FacultyCode == facultyCode
+                      && !string.IsNullOrEmpty(course.CourseLevel)
+                select course.CourseLevel
+            )
+            .Distinct()
+            .OrderBy(cl => cl)
+            .ToListAsync();
+
+            return Json(courseLevels);
+        }
 
         [HttpGet]
         public async Task<IActionResult> PreviousNotification(string courseId)
@@ -119,6 +239,7 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrEmpty(entity?.LastAffiliationRguhsfilePath) ||
                 !System.IO.File.Exists(entity.LastAffiliationRguhsfilePath))
                 return NotFound("File not found");
+
 
             Response.Headers["Content-Disposition"] = "inline";
 
@@ -658,7 +779,7 @@ namespace Medical_Affiliation.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                ContinuousAffiliationController.MarkDone(HttpContext, "Aff_InstituteDetails");
+                //ContinuousAffiliationController.MarkDone(HttpContext, "Aff_InstituteDetails");
 
                 // ★ After insert, push the new PK back so a page reload shows View buttons
                 vm.InstitutionId = entity.InstitutionId;
@@ -2852,8 +2973,11 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public IActionResult Institution_Details()
         {
-            // 1. Resolve session values
-            //var courseLevel = CourseLevel;
+            // 1. Persist selected course level from query string into session
+            SetCourseLevelFromRequest();
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            // 2. Resolve session values
             var facultyCode = User.FindFirst("FacultyCode")?.Value;
             var collegeCode = User.FindFirst("CollegeCode")?.Value;
 
@@ -3073,7 +3197,7 @@ namespace Medical_Affiliation.Controllers
             try
             {
                 _context.SaveChanges();
-                ContinuousAffiliationController.MarkDone(HttpContext, "Institution");
+                //ContinuousAffiliationController.MarkDone(HttpContext, "Institution");
             }
             catch (DbUpdateException ex)
             {

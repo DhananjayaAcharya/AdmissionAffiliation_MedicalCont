@@ -44,20 +44,37 @@ namespace Medical_Affiliation.Controllers
         {
             get
             {
-                var level = HttpContext.Request.Query["level"].ToString();
-
-                if (string.IsNullOrEmpty(level))
-                {
-                    level = HttpContext.Session.GetString("CourseLevel");
-                }
-
-                if (string.IsNullOrEmpty(level))
+                var level = HttpContext.Session.GetString("CourseLevel");
+                if (string.IsNullOrWhiteSpace(level))
                 {
                     level = User.FindFirst("CourseLevel")?.Value;
                 }
 
-                return string.IsNullOrWhiteSpace(level) ? "UG" : level;
+                return string.IsNullOrWhiteSpace(level) ? "UG" : level.Trim();
             }
+        }
+
+        protected void SetCourseLevelFromRequest()
+        {
+            var requestCourseLevel = HttpContext.Request.Query["courseLevel"].ToString();
+            if (string.IsNullOrEmpty(requestCourseLevel))
+            {
+                requestCourseLevel = HttpContext.Request.Query["level"].ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(requestCourseLevel))
+            {
+                return;
+            }
+
+            requestCourseLevel = requestCourseLevel.Trim().ToUpper();
+            var validLevels = new[] { "UG", "PG", "SS" };
+            if (!validLevels.Contains(requestCourseLevel))
+            {
+                return;
+            }
+
+            HttpContext.Session.SetString("CourseLevel", requestCourseLevel);
         }
 
         protected async Task<List<string>> GetSortedCourseLevels()

@@ -36,9 +36,10 @@
     }
 
     .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 24px;
+        width: 330% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
     .page-header {
@@ -212,6 +213,14 @@
 
 <div class="page-shell">
     <div class="page-container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Student Amenities</div>
+                <div class="header-title">Hostel Details</div>
+                <div class="header-subtitle">Provide hostel availability, capacity, and supporting infrastructure details.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         <div class="form-card">
             <form asp-action="Aff_HostelDetails" method="post" enctype="multipart/form-data">

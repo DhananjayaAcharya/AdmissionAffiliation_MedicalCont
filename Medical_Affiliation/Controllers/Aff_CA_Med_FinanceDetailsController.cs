@@ -297,7 +297,7 @@ namespace Medical_Affiliation.Controllers
 
             ContinuousAffiliationController.MarkDone(HttpContext, "FinancialDetails");
 
-            //return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
+            return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
             return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
         }
 
