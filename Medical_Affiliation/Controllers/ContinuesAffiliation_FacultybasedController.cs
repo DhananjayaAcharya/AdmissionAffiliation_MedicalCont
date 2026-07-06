@@ -66,29 +66,43 @@ namespace Medical_Affiliation.Controllers
             }
 
             // Keep session writes (harmless if session works)
-            HttpContext.Session.SetInt32("AffiliationType", request.TypeId);
+            HttpContext.Session.SetInt32("AffiliationType", affiliationTypeId);
             HttpContext.Session.SetString("TypeOfAffiliation", typeDescription);
-            HttpContext.Session.SetString("TypeOfAffiliationId", request.TypeId.ToString());
+            HttpContext.Session.SetString("TypeOfAffiliationId", affiliationTypeId.ToString());
+            HttpContext.Session.SetString("SelectedLevel", level);
 
-            // NEW: also persist via cookie as a reliable fallback
+            // Cookie fallback
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = false,           // must be readable if you ever need it client-side; set true if not needed
-                Secure = Request.IsHttps,   // matches current connection so it isn't silently dropped over http
+                HttpOnly = false,
+                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddHours(8),
-                Path = "/"                  // ensure it's available across the whole app, not just this sub-path
+                Path = "/"
             };
 
             Response.Cookies.Append("TypeOfAffiliation", typeDescription, cookieOptions);
-            Response.Cookies.Append("AffiliationTypeId", request.TypeId.ToString(), cookieOptions);
+            Response.Cookies.Append("AffiliationTypeId", affiliationTypeId.ToString(), cookieOptions);
+            Response.Cookies.Append("SelectedLevel", level, cookieOptions);
 
-            return Json(new
+            // NEW: redirect to the correct destination page based on affiliationTypeId
+            // (mirrors affiliationBaseUrlMap in the sidebar JS)
+            switch (affiliationTypeId)
             {
-                success = true,
-                typeId = request.TypeId,
-                typeDescription
-            });
+                case 1:
+                case 2:
+                    return RedirectToAction("Institution_Details", "ContinuesAffiliation_Facultybased", new { level });
+
+                case 3:
+                    return RedirectToAction("IncreaseIntake", "ContinuousAffiliationIncreaseintake", new { level });
+
+                case 4:
+                    return RedirectToAction("Index", "CourseAffiliation", new { level });
+
+                default:
+                    TempData["Error"] = "No destination configured for this affiliation type.";
+                    return RedirectToAction("Index", "Home");
+            }
         }
         public class AffiliationTypeSessionRequest
         {
