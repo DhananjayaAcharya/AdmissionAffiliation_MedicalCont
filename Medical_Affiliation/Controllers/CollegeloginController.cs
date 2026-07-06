@@ -83,8 +83,11 @@ namespace Admission_Affiliation.Controllers
             HttpContext.Session.SetString("ShowNodalOfficer", ShowNodalOfficer);
             HttpContext.Session.SetString("ShowIntakeDetails", ShowIntakeDetails);
             HttpContext.Session.SetString("ShowRepository", ShowRepository);
+            HttpContext.Session.SetString("CollegeName", user.CollegeName ?? "");
+            HttpContext.Session.SetString("CollegeCode", user.CollegeCode ?? "");
+            HttpContext.Session.SetString("FacultyCode", user.FacultyCode ?? "");
+            HttpContext.Session.SetString("TypeOfAffiliation", "College Affiliation");
 
-            
             await HttpContext.SignInAsync("CollegeAuth", principal,
                 new AuthenticationProperties
                 {

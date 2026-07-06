@@ -1,28 +1,58 @@
 ﻿@using System.Globalization
 @model AcademicIntakePageViewModel1
-
 @{
     ViewData["Title"] = "Academic Intake – Continuous Affiliation";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+
     var facultyCode = Context.Session.GetString("FacultyCode");
-    // -------------------------------------------------
-    // 2️⃣  Course level chosen in the sidebar (UG / PG)
-    // -------------------------------------------------
-    // If nothing is stored yet we fall‑back to UG – you can change the default if you wish.
-    var selectedLevel = Context.Session.GetString("SelectedCourseLevel") ?? "ug";
-
     bool showIncreaseIntake = Context.Session.GetString("AffiliationTypeId") == "3";
-    
 
-    // Normalise to lower‑case for safe comparison
-    selectedLevel = selectedLevel?.ToLowerInvariant() ?? "ug";
+    var rawExistingLevels = Context.Session.GetString("ExistingCourseLevels");
+    var selectedCourseLevel = Context.Session.GetString("SelectedCourseLevel")?
+                                    .Trim()
+                                    .ToUpper();
 
-    // -------------------------------------------------
-    // 3️⃣  Helper to decide whether a tab should be rendered
-    // -------------------------------------------------
-    bool ShowUgTab   = (facultyCode == "2") && (selectedLevel == "ug");
-    bool ShowPgTab   = (facultyCode == "2") && (selectedLevel == "pg");
-    bool ShowOtherTabs = facultyCode != "2";
+    List<string> existingLevels;
+
+    if (string.IsNullOrWhiteSpace(rawExistingLevels))
+    {
+        existingLevels = new List<string>();
+    }
+    else
+    {
+        try
+        {
+            existingLevels = System.Text.Json.JsonSerializer
+                .Deserialize<List<string>>(rawExistingLevels)?
+                .Select(x => x.Trim().ToUpper())
+                .Distinct()
+                .ToList()
+                ?? new List<string>();
+        }
+        catch
+        {
+            existingLevels = rawExistingLevels.Split(',')
+                .Select(x => x.Trim().ToUpper())
+                .Distinct()
+                .ToList();
+        }
+    }
+
+    bool hasLevelInfo = existingLevels.Any();
+
+    bool showUg;
+    bool showPg;
+    bool showSs;
+
+    showUg = selectedCourseLevel == "UG";
+    showPg = selectedCourseLevel == "PG";
+    showSs = facultyCode != "2" && selectedCourseLevel == "SS";
+
+    string defaultTab =
+        showUg ? "ug" :
+        showPg ? "pg" :
+        showSs ? "ss" :
+        "ug";
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -569,15 +599,16 @@
         font-family: 'DM Sans', sans-serif;
         text-decoration: none;
     }
-</style>
 
-@* ── PAGE HEADER ── *@
-<div class="ph">
-    <div class="phi">
-        <h4>Academic Year-wise Intake Details</h4>
-        <div class="ph-meta"></div>
-    </div>
-</div>
+    /* SAVED RECORDS EMPTY-FILTER STATE */
+    .empty-filtered {
+        text-align: center;
+        padding: 2rem;
+        color: var(--muted);
+        font-size: .87rem;
+        display: none;
+    }
+</style>
 
 @* ── ALERTS ── *@
 @if (TempData["SuccessMessage"] != null)
@@ -642,14 +673,26 @@
             </div>
 
             <div class="tabs">
-                @if (ShowOtherTabs)
+                @if (showUg)
                 {
-                    <button type="button" class="tb on" data-t="ug">
+                    <button type="button" class="tb @(defaultTab == "ug" ? "on" : "")" data-t="ug" data-level="UG">
                         UG Courses <span class="tc">@(Model.UgCourses?.Count ?? 0)</span>
+                    </button>
+                }
+                @if (showPg)
+                {
+                    <button type="button" class="tb @(defaultTab == "pg" ? "on" : "")" data-t="pg" data-level="PG">
+                        PG Courses <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
+                    </button>
+                }
+                @if (showSs)
+                {
+                    @* <button type="button" class="tb @(defaultTab == "ss" ? "on" : "")" data-t="ss" data-level="SS">
+                        SS Courses <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
                     </button>
                     <button type="button" class="tb" data-t="pg">
                         PG Courses <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
-                    </button>
+                    </button> *@
                     @if (Model.FacultyId != 2)
                     {
                         <button type="button" class="tb" data-t="ss">
@@ -657,7 +700,7 @@
                         </button>
                     }
                 }
-                else
+                @* else
                 {
                     @if (ShowUgTab)
                     {
@@ -671,13 +714,28 @@
                             PG Courses <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
                         </button>
                     }
-                }
+                } *@
             </div>
 
-
-            @if (ShowOtherTabs)   // Faculties 1 & 12 – keep the original three panels
+            @if (showUg)
             {
-                <div id="tp-ug" class="tp on">
+                <div id="tp-ug" class="tp @(defaultTab == "ug" ? "on" : "")">
+                    @{
+                        await RenderTable(Model.UgCourses, "UgCourses", showIncreaseIntake);
+                    }
+                </div>
+            }
+            @if (showPg)
+            {
+                <div id="tp-pg" class="tp @(defaultTab == "pg" ? "on" : "")">
+                    @{
+                        await RenderTable(Model.PgCourses, "PgCourses", showIncreaseIntake);
+                    }
+                </div>
+            }
+            @if (showSs)
+            {
+                <div id="tp-ss" class="tp @(defaultTab == "ss" ? "on" : "")">
                     @{
                         await RenderTable(Model.UgCourses, "UgCourses", showIncreaseIntake);
                     }
@@ -696,25 +754,7 @@
                     </div>
                 }
             }
-            else   // FacultyCode == "2" – render only the panel that matches the selected level
-            {
-                @if (ShowUgTab)
-                {
-                    <div id="tp-ug" class="tp on">
-                        @{
-                            await RenderTable(Model.UgCourses, "UgCourses", showIncreaseIntake);
-                        }
-                    </div>
-                }
-                else if (ShowPgTab)
-                {
-                    <div id="tp-pg" class="tp on">
-                        @{
-                            await RenderTable(Model.PgCourses, "PgCourses", showIncreaseIntake);
-                        }
-                    </div>
-                }
-            }
+            
 
 
             <div class="cf">
@@ -749,13 +789,13 @@
                     </svg>
                     Saved Intake Records
                 </h2>
-                <span class="bg sv">@(Model.SavedIntakes?.Count ?? 0) records</span>
+                <span class="bg sv" id="savedCount">@(Model.SavedIntakes?.Count ?? 0) records</span>
             </div>
 
             <div class="tw">
                 @if (Model.SavedIntakes != null && Model.SavedIntakes.Any())
                 {
-                    <table class="t st" style="width:100%">
+                    <table class="t st" style="width:100%" id="savedRecordsTable">
                         <thead>
                             <tr>
                                 <th>Slno</th>
@@ -793,7 +833,7 @@
                                                          ?.Where(r => 
                                                                  string.Equals(
                                                                      r.CourseLevel,
-                                                                     selectedLevel,
+                                                                     selectedCourseLevel,
                                                                      StringComparison.OrdinalIgnoreCase))
                                                          ?? Enumerable.Empty<SavedAcademicIntakeRowViewModel1>();
                                 }
@@ -806,8 +846,8 @@
                             }
                             @foreach (var row in rowsToShow)
                             {
-                                <tr>
-                                    <td style="color:var(--muted);text-align:center">@si</td>
+                                <tr data-level="@row.CourseLevel">
+                                    <td class="slno" style="color:var(--muted);text-align:center">@si</td>
                                     <td>
                                         <span class="bg @(row.CourseLevel == "UG" ? "ug" : row.CourseLevel == "PG" ? "pg" : "ss")">
                                             @row.CourseLevel
@@ -865,6 +905,9 @@
                             }
                         </tbody>
                     </table>
+                    <div class="empty-filtered" id="savedRecordsEmptyFiltered">
+                        <p>No saved records for this course level yet.</p>
+                    </div>
                 }
                 else
                 {
@@ -897,42 +940,15 @@
         {
             <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #dae2f4;">
                 @{
-                    var rawLevels = Context.Session.GetString("ExistingCourseLevels");
-                    List<string> levels;
-
-                    if (string.IsNullOrWhiteSpace(rawLevels))
-                    {
-                        levels = new List<string>();
-                    }
-                    else
-                    {
-                        try
-                        {
-                            levels = System.Text.Json.JsonSerializer
-                            .Deserialize<List<string>>(rawLevels)?
-                            .Select(x => x.Trim().ToUpper())
-                            .Distinct()
-                            .ToList()
-                            ?? new List<string>();
-                        }
-                        catch
-                        {
-                            levels = rawLevels.Split(',')
-                            .Select(x => x.Trim().ToUpper())
-                            .Distinct()
-                            .ToList();
-                        }
-                    }
-
                     string prevController;
                     string prevAction;
 
-                    if (levels.Contains("SS"))
+                    if (existingLevels.Contains("SS"))
                     {
                         prevController = "Aff_CA_SS_CoursesAppliedSS";
                         prevAction = "CA_SS_CoursesApplied";
                     }
-                    else if (levels.Contains("PG"))
+                    else if (existingLevels.Contains("PG"))
                     {
                         prevController = "AffiliationPgCourse";
                         prevAction = "PgCourses";
@@ -1016,7 +1032,7 @@
                         {
                             <th class="g25">NMC Document</th>
                         }
-                        @* 2026-27 sub-headers *@ 
+                        @* 2026-27 sub-headers *@
                         <th class="g26">Existing<br /><small style="font-weight:400;opacity:.75">(auto)</small></th>
                         @if (showIncreaseIntake)
                         {
@@ -1235,7 +1251,7 @@
                                 // </td>
 
                                 @* ── 2027-28 DCI Document (faculty-2 only) ── *@
-                                
+
                             </tr>
                             ri++;
                         }
@@ -1249,6 +1265,32 @@
 }
 
 <script>
+    // ── COURSE LEVEL FILTER FOR SAVED RECORDS ──
+    function filterSavedRecords(level) {
+        const table = document.getElementById('savedRecordsTable');
+        const emptyMsg = document.getElementById('savedRecordsEmptyFiltered');
+        const countBadge = document.getElementById('savedCount');
+        if (!table) return;
+
+        const rows = table.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            if (row.dataset.level === level) {
+                row.style.display = '';
+                visibleCount++;
+                const slnoCell = row.querySelector('.slno');
+                if (slnoCell) slnoCell.textContent = visibleCount;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+        table.style.display = visibleCount === 0 ? 'none' : '';
+        if (countBadge) countBadge.textContent = visibleCount + ' record' + (visibleCount === 1 ? '' : 's');
+    }
+
     // ── TABS ──
     document.querySelectorAll('.tb').forEach(b => {
         b.addEventListener('click', () => {
@@ -1256,7 +1298,14 @@
             document.querySelectorAll('.tp').forEach(x => x.classList.remove('on'));
             b.classList.add('on');
             document.getElementById('tp-' + b.dataset.t).classList.add('on');
+            filterSavedRecords(b.dataset.level);
         });
+    });
+
+    // Apply the filter once on load to match the default active tab (UG)
+    document.addEventListener('DOMContentLoaded', () => {
+        const activeTab = document.querySelector('.tb.on');
+        if (activeTab) filterSavedRecords(activeTab.dataset.level);
     });
 
     // ── RECALC ──
@@ -1327,32 +1376,32 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('change', function (e) {
-        if (e.target.classList.contains('file-validate')) {
-            const file = e.target.files[0];
-            const maxSize = 2 * 1024 * 1024; // 2 MB
+    if (e.target.classList.contains('file-validate')) {
+    const file = e.target.files[0];
+    const maxSize = 2 * 1024 * 1024; // 2 MB
 
-            if (file) {
-                if (file.size > maxSize) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'File too large',
-                        text: 'Maximum allowed size is 2MB'
-                    });
-                    e.target.value = '';
-                    return;
-                }
+    if (file) {
+    if (file.size > maxSize) {
+    Swal.fire({
+    icon: 'error',
+    title: 'File too large',
+    text: 'Maximum allowed size is 2MB'
+    });
+    e.target.value = '';
+    return;
+    }
 
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (ext !== 'pdf') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Invalid file',
-                        text: 'Only PDF files are allowed'
-                    });
-                    e.target.value = '';
-                    return;
-                }
-            }
-        }
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'pdf') {
+    Swal.fire({
+    icon: 'error',
+    title: 'Invalid file',
+    text: 'Only PDF files are allowed'
+    });
+    e.target.value = '';
+    return;
+    }
+    }
+    }
     });
 </script>

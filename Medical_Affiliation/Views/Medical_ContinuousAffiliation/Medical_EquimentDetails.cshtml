@@ -43,9 +43,10 @@
     }
 
     .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 24px;
+        width: 330% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
     /* ── Header ── */
@@ -465,14 +466,14 @@
 
 <div class="page-shell">
     <div class="page-container">
-
-        <!-- Header -->
-        @* <div class="page-header">
-            <div class="header-eyebrow">Continuous Affiliation · Physical Facilities</div>
-            <div class="header-title">Medical Equipment Details</div>
-            <div class="header-subtitle">Select a course and update equipment quantity availability</div>
-            <div class="header-badge">Equipment</div>
-        </div> *@
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Equipment Inventory</div>
+                <div class="header-title">Equipment Details</div>
+                <div class="header-subtitle">Select the course and update equipment availability and quantity requirements.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         <!-- Form Card -->
         <div class="form-card">
@@ -588,8 +589,8 @@
                 @* <button type="submit" class="btn-save">&#128190; Save</button> *@
 
                 <!-- 🔹 NEXT -->
-                <a asp-controller="ContinuationAffiliationClinicalFacilities"
-                   asp-action="ClinicalFacilities"
+            <a asp-controller="Medical_ContinuousAffiliation"
+               asp-action="Medical_EquipmentMaster"
                    class="btn-next">Next →</a>
 
             @* </div> *@

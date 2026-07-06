@@ -43,9 +43,10 @@
     }
 
     .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 24px;
+        width: 330% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
     /* ── Header ── */
@@ -507,8 +508,8 @@
                         <a asp-action="TeachingStaffDepartmentWise" class="btn-prev">← Previous</a>
                         <button type="submit" class="btn-save">&#128190; Save →</button>
                     @* </div> *@
-                    <a asp-controller="ContinuesAffiliation_Facultybased"
-                       asp-action="Aff_HostelDetails"
+                    <a asp-controller="CAPreview"
+                       asp-action="Preview"
                        class="btn-next">Next →</a>
 
                 </div>

@@ -158,48 +158,107 @@ WHERE AffiliationTypeId IS NULL;
 
 -----------------------------------------
 
-select * from [dbo].[Medical_UGBedDistribution]
 
-SELECT * FROM [dbo].[UG_SeatSlabNormMaster]
+CREATE TABLE [dbo].[AuditLogs]
+(
+    [AuditLogId]     BIGINT IDENTITY(1,1) NOT NULL,
 
-select * from DentalChairs where CollegeCode = 'd038'
+    -- Who / where
+    [UserId]         NVARCHAR(100)   NULL,        -- from claims (CollegeCode/FacultyCode/SuperAdmin id)
+    [UserName]       NVARCHAR(200)   NULL,
+    [Module]         NVARCHAR(100)   NULL,        -- 'AffiliationAdmin', 'CAModule', 'LICInspection'
+    [Action]         NVARCHAR(50)    NOT NULL,    -- 'Insert','Update','Delete','Login','StatusChange','ApiCall', etc.
 
-select *  from [dbo].[DentalInfrastructure] 
-where CollegeCode = 'd038' and AffiliationTypeId = 2 and courselevel = 'pg'
+    -- What kind of entry this is
+    [LogType]        NVARCHAR(20)    NOT NULL     -- 'Audit' | 'Error' | 'Exception' | 'Info'
+                       CONSTRAINT DF_AuditLogs_LogType DEFAULT ('Audit'),
+    [Status]         NVARCHAR(20)    NOT NULL     -- 'Success' | 'Failure'
+                       CONSTRAINT DF_AuditLogs_Status DEFAULT ('Success'),
 
-EXEC sp_helpindex '[DentalCollegeLandBuildingDetail]';
+    -- Business data (used for CRUD-type audit entries)
+    [TableName]      NVARCHAR(128)   NULL,
+    [RecordId]       NVARCHAR(100)   NULL,
+    [OldValues]      NVARCHAR(MAX)   NULL,        -- JSON snapshot before change
+    [NewValues]      NVARCHAR(MAX)   NULL,        -- JSON snapshot after change
 
-EXEC sp_helpindex 'DentalInfrastructure';
+    -- Error / exception data (used when LogType = 'Error' or 'Exception')
+    [ExceptionType]  NVARCHAR(300)   NULL,        -- e.g. 'System.ArgumentException'
+    [ExceptionMessage] NVARCHAR(1000) NULL,
+    [StackTrace]     NVARCHAR(MAX)   NULL,
+    [Source]         NVARCHAR(300)   NULL,        -- controller/action/method where it happened
+    [RequestPath]    NVARCHAR(500)   NULL,        -- e.g. '/api/College/UpdateEmail'
+    [RequestMethod]  NVARCHAR(10)    NULL,        -- GET/POST/PUT/DELETE
+
+    -- Common metadata
+    [Description]    NVARCHAR(500)   NULL,        -- human-readable summary
+    [IPAddress]      NVARCHAR(50)    NULL,
+    [UserAgent]      NVARCHAR(300)   NULL,
+    [CreatedAt]      DATETIME2(3)    NOT NULL CONSTRAINT DF_AuditLogs_CreatedAt DEFAULT (SYSUTCDATETIME()),
+
+    CONSTRAINT [PK_AuditLogs] PRIMARY KEY CLUSTERED ([AuditLogId] ASC),
+    CONSTRAINT [CK_AuditLogs_LogType] CHECK ([LogType] IN ('Audit','Error','Exception','Info')),
+    CONSTRAINT [CK_AuditLogs_Status] CHECK ([Status] IN ('Success','Failure'))
+);
+
+-- Indexes for common queries
+CREATE NONCLUSTERED INDEX [IX_AuditLogs_UserId]             ON [dbo].[AuditLogs] ([UserId]);
+CREATE NONCLUSTERED INDEX [IX_AuditLogs_TableName_RecordId] ON [dbo].[AuditLogs] ([TableName], [RecordId]);
+CREATE NONCLUSTERED INDEX [IX_AuditLogs_LogType_Status]     ON [dbo].[AuditLogs] ([LogType], [Status]);
+CREATE NONCLUSTERED INDEX [IX_AuditLogs_CreatedAt]          ON [dbo].[AuditLogs] ([CreatedAt] DESC);
 
 
-SELECT
-    CollegeCode,
-    FacultyCode,
-    AffiliationTypeId,
-    CourseLevel,
-    RequirementId,
-    SeatSlab,
-    COUNT(*) AS DuplicateCount
-FROM DentalInfrastructure
-GROUP BY
-    CollegeCode,
-    FacultyCode,
-    AffiliationTypeId,
-    CourseLevel,
-    RequirementId,
-    SeatSlab
-HAVING COUNT(*) > 1;
+-----------------------------------------
+
+ALTER TABLE [dbo].[Affiliation_College_Master]
+ADD CollegeEmail NVARCHAR(250) NULL;
+
+---------------------------------------
 
 
-SELECT *
-FROM DentalInfrastructure
-WHERE CollegeCode = 'D038'
-  AND FacultyCode = 2
-  AND AffiliationTypeId = 2
-  AND CourseLevel = 'PG'
-  AND RequirementId = 2
-  AND SeatSlab = 100
-ORDER BY Id;
+--select * from [dbo].[Medical_UGBedDistribution]
 
-DELETE FROM DentalInfrastructure
-WHERE Id = 1065;
+--SELECT * FROM [dbo].[UG_SeatSlabNormMaster]
+
+--select * from DentalChairs where CollegeCode = 'd038'
+
+--select *  from [dbo].[DentalInfrastructure] 
+--where CollegeCode = 'd038' and AffiliationTypeId = 2 and courselevel = 'pg';
+
+--SELECT * FROM Affiliation_College_Master WHERE FacultyCode=1
+
+--EXEC sp_helpindex '[DentalCollegeLandBuildingDetail]';
+
+--EXEC sp_helpindex 'DentalInfrastructure';
+
+
+--SELECT
+--    CollegeCode,
+--    FacultyCode,
+--    AffiliationTypeId,
+--    CourseLevel,
+--    RequirementId,
+--    SeatSlab,
+--    COUNT(*) AS DuplicateCount
+--FROM DentalInfrastructure
+--GROUP BY
+--    CollegeCode,
+--    FacultyCode,
+--    AffiliationTypeId,
+--    CourseLevel,
+--    RequirementId,
+--    SeatSlab
+--HAVING COUNT(*) > 1;
+
+
+--SELECT *
+--FROM DentalInfrastructure
+--WHERE CollegeCode = 'D038'
+--  AND FacultyCode = 2
+--  AND AffiliationTypeId = 2
+--  AND CourseLevel = 'PG'
+--  AND RequirementId = 2
+--  AND SeatSlab = 100
+--ORDER BY Id;
+
+--DELETE FROM DentalInfrastructure
+--WHERE Id = 1065;

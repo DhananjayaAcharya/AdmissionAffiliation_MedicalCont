@@ -11,15 +11,15 @@
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
     :root {
-        --navy: #0f2545;
-        --navy-mid: #1a3a6b;
-        --gold: #b8882a;
-        --gold-light: #d4a84b;
-        --cream: #f9f7f2;
+        --navy: #1e3a5f;
+        --navy-mid: #2c4c73;
+        --gold: #64748b; /* was gold accent → now a neutral slate accent */
+        --gold-light: #94a3b8; /* lighter slate, for badges/eyebrow text */
+        --cream: #ffffff; /* page background is now white, not cream */
         --white: #ffffff;
-        --border: #ddd8cc;
+        --border: #e2e5ea;
         --text: #1a1a1a;
-        --text-muted: #6b6358;
+        --text-muted: #6b7280;
         --danger: #c0392b;
         --success: #1a6b3a;
         --radius: 6px;
@@ -45,7 +45,7 @@
     }
 
     .page-container {
-        max-width: 1200px;
+        max-width: 1015px;
         margin: 0 auto;
         /* padding: 0 24px; */
     }
@@ -162,7 +162,7 @@
     }
 
     .section-block-header {
-        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        background: linear-gradient(180deg, #fff 0%, #fff 100%);
         border-bottom: 2px solid var(--border);
         padding: 10px 16px;
         display: flex;
@@ -204,7 +204,7 @@
     }
 
         .data-table thead {
-            background: linear-gradient(180deg, #f5f2ec 0%, #ede8df 100%);
+            background: linear-gradient(180deg, #fff 0%, #fff 100%);
         }
 
             .data-table thead th {
@@ -230,7 +230,7 @@
                 }
 
         .data-table tbody tr {
-            border-bottom: 1px solid #f0ece4;
+            border-bottom: 1px solid #fff;
             transition: background 0.15s;
         }
 
@@ -239,16 +239,16 @@
             }
 
             .data-table tbody tr:nth-child(even) {
-                background: #faf8f4;
+                background: #fff;
             }
 
             .data-table tbody tr:hover {
-                background: #f3eed8 !important;
+                background: #fff !important;
             }
 
         .data-table td {
             padding: 8px 10px;
-            border-right: 1px solid #f0ece4;
+            border-right: 1px solid #fff;
             vertical-align: middle;
         }
 
@@ -267,7 +267,7 @@
 
         /* Colspan group header rows */
         .data-table thead tr.group-row th {
-            background: #ebe6db;
+            background: #fff;
             font-size: 0.63rem;
             padding: 6px 10px;
         }
@@ -275,7 +275,7 @@
     /* ── Form Controls ── */
     .form-control {
         width: 100%;
-        border: 1px solid #d9d3c8;
+        border: 1px solid #fff;
         border-radius: 4px;
         padding: 6px 9px;
         font-size: 0.82rem;
@@ -292,7 +292,7 @@
         }
 
         .form-control[readonly] {
-            background: #f3f0e8;
+            background: #fff;
             color: var(--text-muted);
             cursor: default;
         }
@@ -366,7 +366,7 @@
         height: 26px;
         border-radius: 50%;
         background: transparent;
-        border: 1.5px solid #e0bcbc;
+        border: 1.5px solid #fff;
         color: var(--danger);
         font-size: 1rem;
         font-weight: 700;
@@ -477,6 +477,14 @@
 
 <div class="page-shell">
     <div class="page-container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Staff Particulars</div>
+                <div class="header-title">Dean / Director Details</div>
+                <div class="header-subtitle">Enter the dean or director qualifications, recognition, and statutory particulars.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         @if (TempData["SuccessMessage"] != null)
         {

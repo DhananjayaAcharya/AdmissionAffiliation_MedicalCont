@@ -100,6 +100,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AuditLog> AuditLogs { get; set; }
 
+    public virtual DbSet<AuditLog1> AuditLogs1 { get; set; }
+
     public virtual DbSet<BasicDetail> BasicDetails { get; set; }
 
     public virtual DbSet<BuildingTypeMaster> BuildingTypeMasters { get; set; }
@@ -1222,6 +1224,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
             entity.Property(e => e.ChangedPassword).HasMaxLength(50);
+            entity.Property(e => e.CollegeEmail).HasMaxLength(250);
             entity.Property(e => e.CollegeName).HasMaxLength(200);
             entity.Property(e => e.CollegeTown).HasMaxLength(200);
             entity.Property(e => e.DistrictId).HasMaxLength(150);
@@ -1790,6 +1793,47 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AuditLog_User");
+        });
+
+        modelBuilder.Entity<AuditLog1>(entity =>
+        {
+            entity.HasKey(e => e.AuditLogId);
+
+            entity.ToTable("AuditLogs");
+
+            entity.HasIndex(e => e.CreatedAt, "IX_AuditLogs_CreatedAt").IsDescending();
+
+            entity.HasIndex(e => new { e.LogType, e.Status }, "IX_AuditLogs_LogType_Status");
+
+            entity.HasIndex(e => new { e.TableName, e.RecordId }, "IX_AuditLogs_TableName_RecordId");
+
+            entity.HasIndex(e => e.UserId, "IX_AuditLogs_UserId");
+
+            entity.Property(e => e.Action).HasMaxLength(50);
+            entity.Property(e => e.CreatedAt)
+                .HasPrecision(3)
+                .HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.ExceptionMessage).HasMaxLength(1000);
+            entity.Property(e => e.ExceptionType).HasMaxLength(300);
+            entity.Property(e => e.Ipaddress)
+                .HasMaxLength(50)
+                .HasColumnName("IPAddress");
+            entity.Property(e => e.LogType)
+                .HasMaxLength(20)
+                .HasDefaultValue("Audit");
+            entity.Property(e => e.Module).HasMaxLength(100);
+            entity.Property(e => e.RecordId).HasMaxLength(100);
+            entity.Property(e => e.RequestMethod).HasMaxLength(10);
+            entity.Property(e => e.RequestPath).HasMaxLength(500);
+            entity.Property(e => e.Source).HasMaxLength(300);
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Success");
+            entity.Property(e => e.TableName).HasMaxLength(128);
+            entity.Property(e => e.UserAgent).HasMaxLength(300);
+            entity.Property(e => e.UserId).HasMaxLength(100);
+            entity.Property(e => e.UserName).HasMaxLength(200);
         });
 
         modelBuilder.Entity<BasicDetail>(entity =>

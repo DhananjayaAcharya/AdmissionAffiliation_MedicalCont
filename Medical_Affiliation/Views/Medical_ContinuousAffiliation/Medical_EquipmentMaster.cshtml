@@ -20,6 +20,12 @@
         --danger: #c0392b;
         --success: #1a6b3a;
         --radius: 6px;
+        /* ── White / professional theme tokens (page body only) ── */
+        --page-bg: #f5f6f8;
+        --panel-bg: #ffffff;
+        --panel-border: #e2e5ea;
+        --text-muted-2: #6b7280;
+        --accent: #1a3a6b;
     }
 
     *, *::before, *::after {
@@ -29,25 +35,28 @@
     }
 
     body {
-        background-color: var(--cream);
+        background-color: var(--page-bg);
         font-family: 'DM Sans', sans-serif;
         color: var(--text);
     }
 
     .page-shell {
-        background-color: var(--cream);
+        background-color: var(--page-bg);
         min-height: 100vh;
         padding: 36px 0 56px;
     }
 
-    /* Both header and form share the same centred max-width */
+    /* Both header and form share the same centred max-width.
+           Overrides any narrower width coming from common-form.css so the
+           card uses the available screen width. */
     .page-wrap {
-        /* max-width: 680px; */
-        margin: 0 auto;
-        /* padding: 0 24px; */
+        width: 100% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
-    /* ── Header ── */
+    /* ── Header (untouched) ── */
     .page-header {
         background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
         border-radius: 10px 10px 0 0;
@@ -103,12 +112,10 @@
 
     /* ── Form card ── */
     .form-card {
-        background: var(--white);
-        border: 1px solid var(--border);
-        border-top: none;
-        border-radius: 0 0 10px 10px;
-        padding: 32px 36px 36px;
-        box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+        width: 330% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
     /* ── Section label ── */
@@ -124,14 +131,14 @@
         font-weight: 600;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         white-space: nowrap;
     }
 
     .section-label-line {
         flex: 1;
         height: 1px;
-        background: linear-gradient(90deg, var(--border), transparent);
+        background: linear-gradient(90deg, var(--panel-border), transparent);
     }
 
     /* ── Field group ── */
@@ -147,7 +154,7 @@
         font-weight: 600;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         margin-bottom: 6px;
     }
 
@@ -160,7 +167,7 @@
     /* ── Form controls ── */
     .form-control, .form-select {
         width: 100%;
-        border: 1px solid #d9d3c8;
+        border: 1px solid #d5d8de;
         border-radius: 4px;
         padding: 10px 12px;
         font-size: 0.88rem;
@@ -179,7 +186,7 @@
     select.form-select {
         appearance: none;
         cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 12px center;
         padding-right: 34px;
@@ -207,7 +214,7 @@
         top: 50%;
         transform: translateY(-50%);
         font-size: 0.9rem;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         pointer-events: none;
     }
 
@@ -239,12 +246,12 @@
 
     /* Tip box */
     .tip-box {
-        background: #f3f0e8;
-        border-left: 3px solid var(--gold);
+        background: #f8f9fb;
+        border-left: 3px solid var(--accent);
         border-radius: var(--radius);
         padding: 10px 14px;
         font-size: 0.76rem;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         line-height: 1.6;
         margin-bottom: 20px;
     }
@@ -256,13 +263,13 @@
     /* Character counter */
     .char-counter {
         font-size: 0.65rem;
-        color: var(--text-muted);
+        color: var(--text-muted-2);
         text-align: right;
         margin-top: 4px;
     }
 
         .char-counter.near-limit {
-            color: var(--gold);
+            color: #b8862a;
         }
 
         .char-counter.at-limit {
@@ -288,16 +295,6 @@
         position: relative;
         overflow: hidden;
     }
-
-        .btn-save::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--gold);
-        }
 
         .btn-save:hover {
             opacity: 0.9;
@@ -331,14 +328,21 @@
         justify-content: flex-end;
         align-items: center;
         padding-top: 20px;
-        border-top: 1px solid var(--border);
+        border-top: 1px solid var(--panel-border);
         margin-top: 4px;
     }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-wrap">
-
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Equipment Inventory</div>
+                <div class="header-title">Equipment Master</div>
+                <div class="header-subtitle">Maintain the master list of equipment categories and their basic details.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         <!-- Form Card -->
         <div class="form-card">
@@ -395,22 +399,22 @@
 
                     <!-- 🔙 PREVIOUS -->
                     <a href="@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")"
-                        class="btn btn-secondary">
+                       class="btn btn-secondary">
                         ← Previous
                     </a>
 
                     @* <div> *@
-                        <!-- 💾 SAVE -->
-                        <button type="button" class="btn-save me-2" id="btnSave">
-                            <span class="btn-spinner" id="saveSpinner"></span>
-                            <span id="btnText">&#128190; Save Equipment</span>
-                        </button>
+                    <!-- 💾 SAVE -->
+                    <button type="button" class="btn-save me-2" id="btnSave">
+                        <span class="btn-spinner" id="saveSpinner"></span>
+                        <span id="btnText">&#128190; Save Equipment</span>
+                    </button>
 
-                        <!-- 🔜 NEXT -->
-                        <a href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")"
-                            class="btn btn-success">
-                            Next →
-                        </a>
+                    <!-- 🔜 NEXT -->
+                    <a href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")"
+                       class="btn btn-success">
+                        Next →
+                    </a>
                     @* </div> *@
 
                 </div>
@@ -428,63 +432,63 @@
         const charCounter = document.getElementById('charCounter');
 
         function updateCounter() {
-            const len = nameInput.value.length, max = 200;
-            charCounter.textContent = `${len} / ${max} characters`;
-            charCounter.className = 'char-counter' +
-                (len >= max ? ' at-limit' : len >= max * 0.8 ? ' near-limit' : '');
+        const len = nameInput.value.length, max = 200;
+        charCounter.textContent = `${len} / ${max} characters`;
+        charCounter.className = 'char-counter' +
+        (len >= max ? ' at-limit' : len >= max * 0.8 ? ' near-limit' : '');
         }
         nameInput?.addEventListener('input', updateCounter);
         updateCounter();
 
         document.getElementById('btnSave').addEventListener('click', async function () {
-            const dept = document.getElementById('deptSelect').value.trim();
-            const name = nameInput.value.trim();
+        const dept = document.getElementById('deptSelect').value.trim();
+        const name = nameInput.value.trim();
 
-            if (!dept || !name) {
-                Swal.fire({ icon:'warning', title:'Missing Fields',
-                    text:'Please select a department and enter the equipment name.',
-                    confirmButtonColor:'#0f2545' });
-                return;
-            }
+        if (!dept || !name) {
+        Swal.fire({ icon:'warning', title:'Missing Fields',
+        text:'Please select a department and enter the equipment name.',
+        confirmButtonColor:'#0f2545' });
+        return;
+        }
 
-            const result = await Swal.fire({
-                icon:'question', title:'Confirm Save',
-                html:`Save <strong>${name}</strong> to the selected department?`,
-                showCancelButton:true,
-                confirmButtonColor:'#1a6b3a', cancelButtonColor:'#6b6358',
-                confirmButtonText:'&#128190; Yes, Save', cancelButtonText:'Cancel'
-            });
-            if (!result.isConfirmed) return;
+        const result = await Swal.fire({
+        icon:'question', title:'Confirm Save',
+        html:`Save <strong>${name}</strong> to the selected department?`,
+        showCancelButton:true,
+        confirmButtonColor:'#1a6b3a', cancelButtonColor:'#6b6358',
+        confirmButtonText:'&#128190; Yes, Save', cancelButtonText:'Cancel'
+        });
+        if (!result.isConfirmed) return;
 
-            document.getElementById('saveSpinner').style.display = 'block';
-            document.getElementById('btnText').textContent = 'Saving...';
-            document.getElementById('btnSave').disabled = true;
-            document.getElementById('equipmentForm').submit();
+        document.getElementById('saveSpinner').style.display = 'block';
+        document.getElementById('btnText').textContent = 'Saving...';
+        document.getElementById('btnSave').disabled = true;
+        document.getElementById('equipmentForm').submit();
         });
 
         @if (TempData["Success"] != null)
         {
-                <text>
+            <text>
                 Swal.fire({ icon:'success', title:'Equipment Added!',
-                    text:'@TempData["Success"]', confirmButtonColor:'#1a6b3a',
-                    timer:3000, timerProgressBar:true });
-                </text>
+                text:'@TempData["Success"]', confirmButtonColor:'#1a6b3a',
+                timer:3000, timerProgressBar:true });
+            </text>
         }
         @if (TempData["Error"] != null)
         {
-                <text>
+            <text>
                 Swal.fire({ icon:'error', title:'Error',
-                    text:'@TempData["Error"]', confirmButtonColor:'#c0392b' });
-                </text>
+                text:'@TempData["Error"]', confirmButtonColor:'#c0392b' });
+            </text>
         }
 
         document.getElementById('deptSelect')?.addEventListener('change', () => {
-            const sp = document.querySelector("span[data-valmsg-for='DepartmentCode']");
-            if (sp) sp.textContent = '';
+        const sp = document.querySelector("span[data-valmsg-for='DepartmentCode']");
+        if (sp) sp.textContent = '';
         });
         nameInput?.addEventListener('input', () => {
-            const sp = document.querySelector("span[data-valmsg-for='EquipmentName']");
-            if (sp) sp.textContent = '';
+        const sp = document.querySelector("span[data-valmsg-for='EquipmentName']");
+        if (sp) sp.textContent = '';
         });
     </script>
 }

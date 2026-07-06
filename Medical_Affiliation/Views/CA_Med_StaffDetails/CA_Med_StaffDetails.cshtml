@@ -42,9 +42,10 @@
     }
 
     .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        /* padding: 0 24px; */
+        width: 330% !important;
+        max-width: 1500px !important;
+        margin: 0 auto !important;
+        padding: 0 24px !important;
     }
 
     /* Header */
@@ -289,13 +290,14 @@
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
     <div class="page-container">
-
-        @* <div class="page-header">
-            <div class="header-eyebrow">Continuous Affiliation · Staff Particulars</div>
-            <div class="header-title">Staff Details</div>
-            <div class="header-subtitle">Pay Scale and Other Staff Particulars</div>
-            <div class="header-badge">Staff Particulars</div>
-        </div> *@
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-eyebrow">Continuous Affiliation • Staff Particulars</div>
+                <div class="header-title">Staff Details</div>
+                <div class="header-subtitle">Capture pay-scale and staff particulars in a standardized format.</div>
+            </div>
+            <div class="header-badge">Official Form</div>
+        </div>
 
         <div class="form-card">
 
@@ -667,8 +669,8 @@
 
                 @if (facultyCode == "1")
                 {
-                <a asp-controller="CA_Med_ResearchPublications"
-                   asp-action="CA_Med_ResearchPublicationsDetails"
+                    <a asp-controller="CA_Aff_MedicalLibrary"
+                       asp-action="MedicalLibrary"
                    class="btn-save">Next →</a>
                 }
 

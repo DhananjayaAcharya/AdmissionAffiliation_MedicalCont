@@ -246,42 +246,40 @@
         }
 
 
-        /* --------------------------------------------------------------
-           UG / PG submenu (nested list) – visual polish
-           -------------------------------------------------------------- */
+    /* --------------------------------------------------------------
+               UG / PG submenu (nested list) – visual polish
+               -------------------------------------------------------------- */
 
-        /* Container that holds the UG/PG links */
-        .affiliation-submenu {
-            /* start hidden – the JS toggles the d-none class */
-            margin-top: 0.25rem;
-            padding-left: 1.5rem;          /* indentation */
-            background: rgba(255,255,255,0.02);
-            border-radius: var(--sidebar-radius);
-            overflow: hidden;              /* needed for height animation */
-            max-height: 0;                 /* collapsed height */
-            opacity: 0;
-            transition: max-height 0.25s ease,
-                        opacity 0.2s ease,
-                        padding 0.2s ease;
-        }
+    /* Container that holds the UG/PG links */
+    .affiliation-submenu {
+        /* start hidden – the JS toggles the d-none class */
+        margin-top: 0.25rem;
+        padding-left: 1.5rem; /* indentation */
+        background: rgba(255,255,255,0.02);
+        border-radius: var(--sidebar-radius);
+        overflow: hidden; /* needed for height animation */
+        max-height: 0; /* collapsed height */
+        opacity: 0;
+        transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+    }
 
         /* When the submenu should be visible */
         .affiliation-submenu.show {
-            max-height: 5rem;              /* enough for two links – adjust if you add more */
+            max-height: 6.5rem; /* enough for two links – adjust if you add more */
             opacity: 1;
             padding-left: 1.5rem;
         }
 
-        /* Individual UG / PG links */
-        .affiliation-subitem {
-            display: block;
-            padding: 0.45rem 0.6rem;
-            font-size: 0.84rem;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background 0.18s ease, color 0.18s ease;
-        }
+    /* Individual UG / PG links */
+    .affiliation-subitem {
+        display: block;
+        padding: 0.45rem 0.6rem;
+        font-size: 0.84rem;
+        color: var(--sidebar-text);
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background 0.18s ease, color 0.18s ease;
+    }
 
         .affiliation-subitem:hover {
             background: rgba(16,163,127,0.18);
@@ -295,16 +293,16 @@
             font-weight: 600;
         }
 
-        /* Small arrow indicator on the parent row – already present,
-           but we make it a little nicer */
-        .affiliation-option i.bi-chevron-right {
-            transition: transform 0.2s ease;
-        }
+    /* Small arrow indicator on the parent row – already present,
+               but we make it a little nicer */
+    .affiliation-option i.bi-chevron-right {
+        transition: transform 0.2s ease;
+    }
 
-        /* Rotate the chevron when the submenu is open */
-        .affiliation-option.expanded i.bi-chevron-right {
-            transform: rotate(90deg);
-        }
+    /* Rotate the chevron when the submenu is open */
+    .affiliation-option.expanded i.bi-chevron-right {
+        transform: rotate(90deg);
+    }
 
     /* Mobile / responsive */
     @@media (max-width: 991px) {
@@ -480,7 +478,7 @@
                 </form>
                 <!-- Hidden form that will POST the level & affiliation‑type id -->
                 <form id="setLevelForm"
-                      asp-controller="Dental"
+                      asp-controller="ContinuesAffiliation_Facultybased"
                       asp-action="SetCourseLevel"
                       method="post"
                       style="display:none;">
@@ -496,248 +494,271 @@
 }
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const toggleBtn = document.querySelector(".toggle-password");
-        const passwordInput = document.getElementById("NewPassword");
-        const toggleIcon = document.getElementById("toggleIcon");
+     document.addEventListener("DOMContentLoaded", function () {
+         const toggleBtn = document.querySelector(".toggle-password");
+         const passwordInput = document.getElementById("NewPassword");
+         const toggleIcon = document.getElementById("toggleIcon");
 
-        if (toggleBtn && passwordInput && toggleIcon) {
-            toggleBtn.addEventListener("click", function () {
-                const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-                passwordInput.setAttribute("type", type);
-                toggleIcon.className = type === "password" ? "bi bi-eye" : "bi bi-eye-slash";
-            });
-        }
-    });
+         if (toggleBtn && passwordInput && toggleIcon) {
+             toggleBtn.addEventListener("click", function () {
+                 const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+                 passwordInput.setAttribute("type", type);
+                 toggleIcon.className = type === "password" ? "bi bi-eye" : "bi bi-eye-slash";
+             });
+         }
+     });
 
-    function toggleMenu(e, id) {
-        e.preventDefault();
-        const menu = document.getElementById(id);
-        if (!menu) return;
-        menu.classList.toggle("d-none");
-    }
+     function toggleMenu(e, id) {
+         e.preventDefault();
+         const menu = document.getElementById(id);
+         if (!menu) return;
+         menu.classList.toggle("d-none");
+     }
 
-    // ---- Admission Affiliation: custom dropdown, opens directly on first click ----
+     // ---- Admission Affiliation: custom dropdown, opens directly on first click ----
 
-    let affiliationTypesLoaded = false;
-    let affiliationOptionsCache = [];
+     let affiliationTypesLoaded = false;
+     let affiliationOptionsCache = [];
 
-    const getAffiliationTypesUrl = '@Url.Action("GetAffiliationTypes", "ContinuesAffiliation_Facultybased")';
+     const getAffiliationTypesUrl = '@Url.Action("GetAffiliationTypes", "ContinuesAffiliation_Facultybased")';
 
-    const affiliationRouteMap = {
-        "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-        "3": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-        "4": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-        @* "1": '@Url.Action("Institution_Details", "FreshAffiliation_Facultybased")',
-        "5": '@Url.Action("Institution_Details", "ChangeOfName_Facultybased")',
-        "6": '@Url.Action("Institution_Details", "ChangeOfAddress_Facultybased")',
-        "7": '@Url.Action("Institution_Details", "ChangeOfNameAndAddress_Facultybased")',
+     const affiliationRouteMap = {
+         "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
+         "3": '@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")',
+         "4": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
+         @* "1": '@Url.Action("Institution_Details", "FreshAffiliation_Facultybased")',
+         "5": '@Url.Action("Institution_Details", "ChangeOfName_Facultybased")',
+         "6": '@Url.Action("Institution_Details", "ChangeOfAddress_Facultybased")',
+         "7": '@Url.Action("Institution_Details", "ChangeOfNameAndAddress_Facultybased")',
         "8": '@Url.Action("Institution_Details", "RenewalOfConsent_Facultybased")', *@
-    };
+     };
 
-    const affiliationBaseUrlMap = {
-        "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-        "3": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-        "4": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-    };
+     const affiliationBaseUrlMap = {
+         "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
+         "3": '@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")',
+         "4": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
+     };
 
-    // -----------------------------------------------------------------
-    // Map: level (ug / pg) → query‑string that will be appended to the base URL
-    // -----------------------------------------------------------------
-    const levelQueryMap = {
-        ug: "?level=ug",
-        pg: "?level=pg"
-    };
+     // -----------------------------------------------------------------
+     // Map: level (ug / pg) → query‑string that will be appended to the base URL
+     // -----------------------------------------------------------------
+     const levelQueryMap = {
+         ug: "?level=ug",
+         pg: "?level=pg",
+         ss: "?level=ss"
+     };
 
-    /* --------------------------------------------------------------
-       Render the affiliation types (parent rows) + their UG/PG sub‑menus
-       -------------------------------------------------------------- */
-    function renderAffiliationOptions(items) {
-        const panel = document.getElementById("affiliationDropdownPanel");
-        panel.innerHTML = "";
+     /* --------------------------------------------------------------
+        Render the affiliation types (parent rows) + their UG/PG sub‑menus
+        -------------------------------------------------------------- */
+     function renderAffiliationOptions(items) {
+         const panel = document.getElementById("affiliationDropdownPanel");
+         panel.innerHTML = "";
 
-        if (!items || items.length === 0) {
-            const empty = document.createElement("div");
-            empty.className = "affiliation-loading";
-            empty.textContent = "No affiliation types available.";
-            panel.appendChild(empty);
-            return;
-        }
+         if (!items || items.length === 0) {
+             const empty = document.createElement("div");
+             empty.className = "affiliation-loading";
+             empty.textContent = "No affiliation types available.";
+             panel.appendChild(empty);
+             return;
+         }
 
-        items.forEach(item => {
-            const hasRoute = !!affiliationBaseUrlMap[item.typeId];
-            const isDisabled = !hasRoute;               // disabled when we have no URL for it
+         items.forEach(item => {
+             const hasRoute = !!affiliationBaseUrlMap[item.typeId];
+             const isDisabled = !hasRoute;               // disabled when we have no URL for it
 
-            /* ---------- Parent row (affiliation type) ---------- */
-            const parentDiv = document.createElement("div");
-            parentDiv.className = `affiliation-option${isDisabled ? " disabled" : ""}`;
-            parentDiv.innerHTML = `
-                <i class="bi bi-dot"></i>
-                <span>${item.typeDescription}</span>
-                <i class="bi bi-chevron-right ms-auto"></i>
-            `;
-            parentDiv.dataset.typeId = item.typeId;      // store for later use
-            parentDiv.addEventListener("click", toggleUgPgSubmenu);
-            panel.appendChild(parentDiv);
+             /* ---------- Parent row (affiliation type) ---------- */
+             const parentDiv = document.createElement("div");
+             parentDiv.className = `affiliation-option${isDisabled ? " disabled" : ""}`;
+             parentDiv.innerHTML = `
+                 <i class="bi bi-dot"></i>
+                 <span>${item.typeDescription}</span>
+                 <i class="bi bi-chevron-right ms-auto"></i>
+             `;
+             parentDiv.dataset.typeId = item.typeId;      // store for later use
+             parentDiv.addEventListener("click", toggleUgPgSubmenu);
+             panel.appendChild(parentDiv);
 
-            /* ---------- Sub‑menu (UG / PG) – only for enabled rows ---------- */
-            const showSubMenu = "@facultyCode" === "2";    // Razor variable – true only for faculty 2
-            // We create the submenu **only** when the row is NOT disabled
+             /* ---------- Sub‑menu (UG / PG) – only for enabled rows ---------- */
+             const facultyCode = "@facultyCode";
+
+            const showSubMenu =
+                facultyCode === "1" ||
+                facultyCode === "2";
+
             const createSubMenu = !isDisabled && showSubMenu;
+            const getCourseLevelsUrl = '@Url.Action("GetCourseLevels", "ContinuesAffiliation_Facultybased")';
+
 
             if (createSubMenu) {
+
                 const subMenu = document.createElement("div");
-                // start hidden – the click‑handler will add the “show” class
                 subMenu.className = "affiliation-submenu";
                 subMenu.dataset.parentId = item.typeId;
 
-                // UG link
-                const ugLink = document.createElement("a");
-                ugLink.href = "#";
-                ugLink.className = "affiliation-subitem";
-                ugLink.dataset.level = "ug";
-                ugLink.textContent = "UG";
-                ugLink.addEventListener("click", navigateToLevel);
-                subMenu.appendChild(ugLink);
+                let levels = [];
 
-                // PG link
-                const pgLink = document.createElement("a");
-                pgLink.href = "#";
-                pgLink.className = "affiliation-subitem";
-                pgLink.dataset.level = "pg";
-                pgLink.textContent = "PG";
-                pgLink.addEventListener("click", navigateToLevel);
-                subMenu.appendChild(pgLink);
+                if (facultyCode === "2") {
+                    levels = ["ug", "pg"];
+                }
+                else if (facultyCode === "1") {
+                    fetch(getCourseLevelsUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(level => {
+                            const link = document.createElement("a");
+                            link.href = "#";
+                            link.className = "affiliation-subitem";
+                            link.dataset.level = level.toLowerCase();
+                            link.textContent = level;
+                            link.addEventListener("click", navigateToLevel);
+
+                            subMenu.appendChild(link);
+                        });
+                    });
+
+                    panel.appendChild(subMenu);
+                    return;
+
+                }
+                levels.forEach(level => {
+                    const link = document.createElement("a");
+                    link.href = "#";
+                    link.className = "affiliation-subitem";
+                    link.dataset.level = level;
+                    link.textContent = level.toUpperCase();
+                    link.addEventListener("click", navigateToLevel);
+
+                    subMenu.appendChild(link);
+                });
 
                 panel.appendChild(subMenu);
             }
-            // If the row is disabled we simply do **not** add a submenu element.
-        });
-    }
+             // If the row is disabled we simply do **not** add a submenu element.
+         });
+     }
 
-    /* --------------------------------------------------------------
-       Open/close a specific UG/PG submenu (accordion style)
-       -------------------------------------------------------------- */
-    function toggleUgPgSubmenu(e) {
-        e.stopPropagation();                     // stop bubbling to the document
-        const parent = e.currentTarget;
+     /* --------------------------------------------------------------
+        Open/close a specific UG/PG submenu (accordion style)
+        -------------------------------------------------------------- */
+     function toggleUgPgSubmenu(e) {
+         e.stopPropagation();                     // stop bubbling to the document
+         const parent = e.currentTarget;
 
-        // ---- 1️⃣  Ignore clicks on disabled rows ----
-        if (parent.classList.contains("disabled")) {
-            return;                               // do nothing – the option is not selectable
-        }
+         // ---- 1️⃣  Ignore clicks on disabled rows ----
+         if (parent.classList.contains("disabled")) {
+             return;                               // do nothing – the option is not selectable
+         }
 
-        const typeId = parent.dataset.typeId;
+         const typeId = parent.dataset.typeId;
 
-        const panel = document.getElementById("affiliationDropdownPanel");
-        const subMenu = panel.querySelector(
-            `.affiliation-submenu[data-parent-id="${typeId}"]`
-        );
-        if (!subMenu) return;                    // safety – should never happen for enabled rows
+         const panel = document.getElementById("affiliationDropdownPanel");
+         const subMenu = panel.querySelector(
+             `.affiliation-submenu[data-parent-id="${typeId}"]`
+         );
+         if (!subMenu) return;                    // safety – should never happen for enabled rows
 
-        // Close any other open submenu (accordion style)
-        document.querySelectorAll(".affiliation-submenu").forEach(m => {
-            if (m !== subMenu) m.classList.remove("show");
-        });
+         // Close any other open submenu (accordion style)
+         document.querySelectorAll(".affiliation-submenu").forEach(m => {
+             if (m !== subMenu) m.classList.remove("show");
+         });
 
-        // Toggle this one
-        subMenu.classList.toggle("show");
-    }
-
-
-    // --------------------------------------------------------------
-    // Helper: fetch the anti‑forgery token that MVC renders in the form
-    // --------------------------------------------------------------
-    function getAntiForgeryToken() {
-        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-        return tokenInput ? tokenInput.value : '';
-    }
-
-    /* --------------------------------------------------------------
-   Persist level & affiliation‑type‑id via a **normal form POST**
-   -------------------------------------------------------------- */
-    function navigateToLevel(e) {
-        e.preventDefault();
-        e.stopPropagation();               // stop bubbling to the parent row
-
-        const level      = e.currentTarget.dataset.level;          // "ug" or "pg"
-
-        // ---- 1️⃣ Get the affiliation‑type id from the submenu ----
-        const subMenu = e.currentTarget.closest('.affiliation-submenu');
-        if (!subMenu) {
-            console.error('Unable to find affiliation submenu for the clicked link');
-            return;
-        }
-        const typeId = subMenu.dataset.parentId;                  // e.g. "2"
-
-        // ---- 2️⃣ Resolve the target URL for this affiliation type ----
-        const baseUrl = affiliationBaseUrlMap[typeId];
-        if (!baseUrl) {
-            alert('No URL configured for this affiliation type.');
-            return;
-        }
-
-        // ---- 3️⃣ Fill the hidden form fields (level + affiliationTypeId) ----
-        document.getElementById('hiddenLevel').value = level;
-        document.getElementById('hiddenAffiliationId').value = typeId;
-        debugger;
-
-        // ---- 4️⃣ Submit the form – a normal browser POST, **no fetch/XHR** ----
-        document.getElementById('setLevelForm').submit();
-    }
+         // Toggle this one
+         subMenu.classList.toggle("show");
+     }
 
 
-    // --------------------------------------------------------------
-    // Toggle the main affiliation dropdown (unchanged)
-    // --------------------------------------------------------------
-    function toggleAffiliationDropdown(e) {
-        e.preventDefault();
-        debugger;
-        const panel = document.getElementById("affiliationDropdownPanel");
-        const toggleLink = document.getElementById("admissionAffiliationToggle");
-        const isOpen = panel.classList.contains("open");
+     // --------------------------------------------------------------
+     // Helper: fetch the anti‑forgery token that MVC renders in the form
+     // --------------------------------------------------------------
+     function getAntiForgeryToken() {
+         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+         return tokenInput ? tokenInput.value : '';
+     }
 
-        if (isOpen) {
-            panel.classList.remove("open");
-            panel.classList.add("d-none-collapsed");
-            toggleLink.classList.remove("expanded");
-            return;
-        }
+     /* --------------------------------------------------------------
+    Persist level & affiliation‑type‑id via a **normal form POST**
+    -------------------------------------------------------------- */
+     function navigateToLevel(e) {
+         e.preventDefault();
+         e.stopPropagation();               // stop bubbling to the parent row
 
-        panel.classList.remove("d-none-collapsed");
-        panel.classList.add("open");
-        toggleLink.classList.add("expanded");
+         const level      = e.currentTarget.dataset.level;          // "ug" or "pg"
 
-        if (!affiliationTypesLoaded) {
-            panel.innerHTML = '<div class="affiliation-loading"><span class="spinner-border" role="status"></span> Loading...</div>';
+         // ---- 1️⃣ Get the affiliation‑type id from the submenu ----
+         const subMenu = e.currentTarget.closest('.affiliation-submenu');
+         if (!subMenu) {
+             console.error('Unable to find affiliation submenu for the clicked link');
+             return;
+         }
+         const typeId = subMenu.dataset.parentId;                  // e.g. "2"
 
-            fetch(getAffiliationTypesUrl)
-                .then(res => {
-                    if (!res.ok) throw new Error("Network response was not ok");
-                    return res.json();
-                })
-                .then(data => {
-                    affiliationOptionsCache = data;
-                    affiliationTypesLoaded = true;
-                    renderAffiliationOptions(data);
-                })
-                .catch(err => {
-                    console.error("Failed to load affiliation types:", err);
-                    panel.innerHTML = '<div class="affiliation-loading">Failed to load. Try again.</div>';
-                });
-        } else {
-            renderAffiliationOptions(affiliationOptionsCache);
-        }
-    }
+         // ---- 2️⃣ Resolve the target URL for this affiliation type ----
+         const baseUrl = affiliationBaseUrlMap[typeId];
+         if (!baseUrl) {
+             alert('No URL configured for this affiliation type.');
+             return;
+         }
+
+         // ---- 3️⃣ Fill the hidden form fields (level + affiliationTypeId) ----
+         document.getElementById('hiddenLevel').value = level;
+         document.getElementById('hiddenAffiliationId').value = typeId;
+
+         // ---- 4️⃣ Submit the form – a normal browser POST, **no fetch/XHR** ----
+         document.getElementById('setLevelForm').submit();
+     }
 
 
-    function handleAffiliationTypeSelect(typeId) {
-        if (!typeId) return;
+     // --------------------------------------------------------------
+     // Toggle the main affiliation dropdown (unchanged)
+     // --------------------------------------------------------------
+     function toggleAffiliationDropdown(e) {
+         e.preventDefault();
+         const panel = document.getElementById("affiliationDropdownPanel");
+         const toggleLink = document.getElementById("admissionAffiliationToggle");
+         const isOpen = panel.classList.contains("open");
 
-        if (affiliationRouteMap[typeId]) {
-            window.location.href = affiliationRouteMap[typeId];
-        } else {
-            alert("This affiliation type is not yet available.");
-        }
-    }
+         if (isOpen) {
+             panel.classList.remove("open");
+             panel.classList.add("d-none-collapsed");
+             toggleLink.classList.remove("expanded");
+             return;
+         }
+
+         panel.classList.remove("d-none-collapsed");
+         panel.classList.add("open");
+         toggleLink.classList.add("expanded");
+
+         if (!affiliationTypesLoaded) {
+             panel.innerHTML = '<div class="affiliation-loading"><span class="spinner-border" role="status"></span> Loading...</div>';
+
+             fetch(getAffiliationTypesUrl)
+                 .then(res => {
+                     if (!res.ok) throw new Error("Network response was not ok");
+                     return res.json();
+                 })
+                 .then(data => {
+                     affiliationOptionsCache = data;
+                     affiliationTypesLoaded = true;
+                     renderAffiliationOptions(data);
+                 })
+                 .catch(err => {
+                     console.error("Failed to load affiliation types:", err);
+                     panel.innerHTML = '<div class="affiliation-loading">Failed to load. Try again.</div>';
+                 });
+         } else {
+             renderAffiliationOptions(affiliationOptionsCache);
+         }
+     }
+
+
+     function handleAffiliationTypeSelect(typeId) {
+         if (!typeId) return;
+
+         if (affiliationRouteMap[typeId]) {
+             window.location.href = affiliationRouteMap[typeId];
+         } else {
+             alert("This affiliation type is not yet available.");
+         }
+     }
 </script>
