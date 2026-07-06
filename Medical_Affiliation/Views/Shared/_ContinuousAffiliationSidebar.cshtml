@@ -304,9 +304,9 @@
         });
     }
 
-    // Insert Additional Courses step ONLY when:
-    // 1. User selected the Additional Courses affiliation type on the previous page
-    // 2. User is currently viewing the CourseAffiliation/Index page
+    // Insert Additional Courses step when either:
+    // - the user previously selected the 'Additional' affiliation type, OR
+    // - the current route is CourseAffiliation/Index (so the step remains visible when the user reloads the page)
     var sessionTypeOfAff = typeOfAffiliation;
     var currentController = ViewContext.RouteData.Values["Controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["Action"]?.ToString() ?? "";
@@ -314,11 +314,10 @@
     bool isAdditionalCoursesType = !string.IsNullOrWhiteSpace(sessionTypeOfAff) &&
                                         sessionTypeOfAff.IndexOf("Additional", StringComparison.OrdinalIgnoreCase) >= 0;
 
-    // Only show Additional Courses section when viewing the CourseAffiliation/Index page
     bool isOnAdditionalCoursesPage = currentController.Equals("CourseAffiliation", StringComparison.OrdinalIgnoreCase) &&
                                       currentAction.Equals("Index", StringComparison.OrdinalIgnoreCase);
 
-    if (isAdditionalCoursesType && isOnAdditionalCoursesPage)
+    if (isAdditionalCoursesType || isOnAdditionalCoursesPage)
     {
         InsertAfterBasicDetails(new List<StepItem>
         {
