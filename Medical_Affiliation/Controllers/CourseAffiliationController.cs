@@ -19,13 +19,31 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var typeOfAffiliation = HttpContext.Session.GetString("TypeOfAffiliation");
-            // Allow ?courseLevel=UG (or PG/SS) to override/set session value so links work without a prior session set
+            // Allow ?courseLevel=UG (or PG/SS) or ?level=UG to override/set session value
+            // and also accept a previously stored "SelectedLevel" session key.
             var queryCourseLevel = Request.Query["courseLevel"].ToString();
+            if (string.IsNullOrWhiteSpace(queryCourseLevel))
+            {
+                // some redirects use 'level' as the query param
+                queryCourseLevel = Request.Query["level"].ToString();
+            }
+
             if (!string.IsNullOrWhiteSpace(queryCourseLevel))
             {
                 HttpContext.Session.SetString("CourseLevel", queryCourseLevel.Trim());
             }
+
+            // Primary session key is CourseLevel; fall back to SelectedLevel for compatibility
             var courseLevel = HttpContext.Session.GetString("CourseLevel")?.Trim();
+            if (string.IsNullOrWhiteSpace(courseLevel))
+            {
+                var selected = HttpContext.Session.GetString("SelectedLevel");
+                if (!string.IsNullOrWhiteSpace(selected))
+                {
+                    courseLevel = selected.Trim();
+                    HttpContext.Session.SetString("CourseLevel", courseLevel);
+                }
+            }
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
             {
