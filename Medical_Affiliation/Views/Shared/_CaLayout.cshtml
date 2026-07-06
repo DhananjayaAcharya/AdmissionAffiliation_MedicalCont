@@ -1,11 +1,46 @@
 ﻿@* Views/Shared/_CaLayout.cshtml *@
 @inject IHttpContextAccessor HttpContextAccessor
+@inject Medical_Affiliation.DATA.ApplicationDbContext _context
+@using Microsoft.EntityFrameworkCore
 @{
-    var CollegeName = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeName");
-    var CollegeCode = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeCode");
+    var CollegeName = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeName")
+        ?? HttpContextAccessor.HttpContext?.User?.Identity?.Name;
+    var CollegeCode = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeCode")
+        ?? HttpContextAccessor.HttpContext?.User?.FindFirst("CollegeCode")?.Value;
+
+    // FIX: removed Session.GetString("AffiliationType") from this chain.
+    // AffiliationType is stored via Session.SetInt32(), never as a string.
+    // Reading an int key with GetString() returns garbled non-null text
+    // (raw bytes decoded as UTF8), which short-circuited the ?? chain and
+    // prevented the int-based lookup below from ever running.
     var typeOfAffiliation = HttpContextAccessor.HttpContext?.Session?.GetString("TypeOfAffiliation")
-        ?? HttpContextAccessor.HttpContext?.User?.FindFirst("TypeOfAffiliation")?.Value;
-    var courseLevel = HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel");
+    ?? HttpContextAccessor.HttpContext?.Request?.Cookies["TypeOfAffiliation"]
+    ?? HttpContextAccessor.HttpContext?.User?.FindFirst("TypeOfAffiliation")?.Value;
+
+    if (string.IsNullOrWhiteSpace(typeOfAffiliation))
+    {
+        var typeId = HttpContextAccessor.HttpContext?.Session?.GetInt32("AffiliationType");
+        if (!typeId.HasValue)
+        {
+            var typeIdString = HttpContextAccessor.HttpContext?.Session?.GetString("TypeOfAffiliationId")
+                               ?? HttpContextAccessor.HttpContext?.Request?.Cookies["AffiliationTypeId"];
+            if (!string.IsNullOrWhiteSpace(typeIdString) && int.TryParse(typeIdString, out var parsedId))
+            {
+                typeId = parsedId;
+            }
+        }
+
+        if (typeId.HasValue)
+        {
+            typeOfAffiliation = await _context.TypeOfAffiliations
+                .Where(t => t.TypeId == typeId.Value)
+                .Select(t => t.TypeDescription)
+                .FirstOrDefaultAsync();
+        }
+    }
+
+    var courseLevel = HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel")
+        ?? HttpContextAccessor.HttpContext?.User?.FindFirst("CourseLevel")?.Value;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -112,12 +147,12 @@
                     flex-direction: column;
                 }
 
-                .ca-shell > .sidebar {
-                    position: static;
-                    width: 100%;
-                    border-right: none;
-                    border-bottom: 1px solid rgba(0,0,0,0.06);
-                }
+                    .ca-shell > .sidebar {
+                        position: static;
+                        width: 100%;
+                        border-right: none;
+                        border-bottom: 1px solid rgba(0,0,0,0.06);
+                    }
             }
 
             .ca-topbar-left {
@@ -141,6 +176,7 @@
                 color: #fff;
                 font-weight: 700;
             }
+
             .ca-topbar-title h2 {
                 margin: 0;
                 font-size: 1.28rem;
@@ -155,6 +191,7 @@
                 font-size: 0.92rem;
                 font-weight: 500;
             }
+
             .ca-topbar-title p {
                 margin: 0.2rem 0 0;
                 color: rgba(255,255,255,0.86);
@@ -196,15 +233,15 @@
                 font-size: 0.87rem;
             }
 
-            .ca-topbar-meta span {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.45rem;
-                white-space: nowrap;
-                padding: 0.15rem 0.3rem;
-                border-radius: 0.7rem;
-                background: rgba(255,255,255,0.08);
-            }
+                .ca-topbar-meta span {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.45rem;
+                    white-space: nowrap;
+                    padding: 0.15rem 0.3rem;
+                    border-radius: 0.7rem;
+                    background: rgba(255,255,255,0.08);
+                }
 
             .ca-topbar-item-label,
             .ca-topbar-course,

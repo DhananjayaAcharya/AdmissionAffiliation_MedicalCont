@@ -24,6 +24,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AcademicYearMaster> AcademicYearMasters { get; set; }
 
+    public virtual DbSet<AddCoursedetail> AddCoursedetails { get; set; }
+
     public virtual DbSet<AdministrativeFacilityType> AdministrativeFacilityTypes { get; set; }
 
     public virtual DbSet<AffAdminTeachingBlock> AffAdminTeachingBlocks { get; set; }
@@ -630,6 +632,33 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.AcademicYear).HasMaxLength(20);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<AddCoursedetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__add_Cour__3214EC07CA8524EA");
+
+            entity.ToTable("add_Coursedetails");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<AdministrativeFacilityType>(entity =>
@@ -1798,7 +1827,6 @@ public partial class ApplicationDbContext : DbContext
         modelBuilder.Entity<AuditLog1>(entity =>
         {
             entity.HasKey(e => e.AuditLogId);
-            entity.Property(e => e.AuditLogId).ValueGeneratedOnAdd();
 
             entity.ToTable("AuditLogs");
 
@@ -6054,6 +6082,7 @@ public partial class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.StateName, "UQ__StateMas__554763154DC5877D")
                 .IsUnique()
                 .HasFillFactor(80);
+
             entity.Property(e => e.StateId)
                 .HasMaxLength(5)
                 .IsUnicode(false);

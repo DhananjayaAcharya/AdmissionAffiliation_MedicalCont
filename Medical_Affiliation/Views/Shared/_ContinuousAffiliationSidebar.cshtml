@@ -10,6 +10,37 @@
     var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
     var facultyCode = Context.Session.GetString("FacultyCode");
 
+    // FIX: removed Session.GetString("AffiliationType") from this chain.
+    // AffiliationType is stored via Session.SetInt32(), never as a string.
+    // Reading an int-backed key with GetString() decodes the raw bytes as
+    // UTF8 and returns garbled non-null/non-whitespace text, which
+    // short-circuited the ?? chain and skipped the int-based DB lookup below.
+    var typeOfAffiliation = HttpContextAccessor.HttpContext?.Session?.GetString("TypeOfAffiliation")
+    ?? HttpContextAccessor.HttpContext?.Request?.Cookies["TypeOfAffiliation"]
+    ?? HttpContextAccessor.HttpContext?.User?.FindFirst("TypeOfAffiliation")?.Value;
+
+    if (string.IsNullOrWhiteSpace(typeOfAffiliation))
+    {
+        var typeId = HttpContextAccessor.HttpContext?.Session?.GetInt32("AffiliationType");
+        if (!typeId.HasValue)
+        {
+            var typeIdString = HttpContextAccessor.HttpContext?.Session?.GetString("TypeOfAffiliationId")
+                               ?? HttpContextAccessor.HttpContext?.Request?.Cookies["AffiliationTypeId"];
+            if (!string.IsNullOrWhiteSpace(typeIdString) && int.TryParse(typeIdString, out var parsedId))
+            {
+                typeId = parsedId;
+            }
+        }
+
+        if (typeId.HasValue)
+        {
+            typeOfAffiliation = await _context.TypeOfAffiliations
+                .Where(t => t.TypeId == typeId.Value)
+                .Select(t => t.TypeDescription)
+                .FirstOrDefaultAsync();
+        }
+    }
+
     // ------------------------------------------------------------------
     // Determine the course levels (UG / PG / SS) offered by this college
     // so we can show/hide level-specific steps.
@@ -42,6 +73,29 @@
 
     var selectedCourseLevel = HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel")?.Trim().ToUpperInvariant();
 
+    var institutionRecord = await _context.AffInstitutionsDetails
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x =>
+            x.CollegeCode == collegeCode &&
+            x.FacultyCode == facultyCode &&
+            (string.IsNullOrWhiteSpace(selectedCourseLevel) || x.CourseLevel == selectedCourseLevel));
+
+    string? organizationCategory = null;
+    if (institutionRecord != null && int.TryParse(institutionRecord.TypeOfInstitution, out var selectedTypeId) && selectedTypeId > 0)
+    {
+        organizationCategory = await _context.MstInstitutionTypes
+            .AsNoTracking()
+            .Where(x => x.InstitutionTypeId == selectedTypeId)
+            .Select(x => x.OrganizationCategory)
+            .FirstOrDefaultAsync();
+    }
+
+    bool showTrustSteps = true;
+    if (!string.IsNullOrWhiteSpace(organizationCategory))
+    {
+        showTrustSteps = string.Equals(organizationCategory.Trim(), "P", StringComparison.OrdinalIgnoreCase);
+    }
+
     var doneSteps = _context.CaProgresses
         .Where(x => x.CollegeCode == collegeCode
                     && levels.Contains(x.CourseLevel.Trim().ToUpper())
@@ -59,8 +113,9 @@
     {
         // ---- Basic Details ----
         new StepItem{ Key="Institution", Label="Institution Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Institution_Details" },
-        new StepItem{ Key="TrustDetails", Label="Trust Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_InstituteDetails" },
-        new StepItem{ Key="TrustMemberDetails", Label="Trust Member Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
+        // Trust pages are shown only for private/other private-like institutions.
+        showTrustSteps ? new StepItem{ Key="TrustDetails", Label="Trust Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_InstituteDetails" } : null,
+        showTrustSteps ? new StepItem{ Key="TrustMemberDetails", Label="Trust Member Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" } : null,
         // MBBS/BDS course-details step is inserted dynamically below based on faculty + level
         new StepItem{ Key="DeanDetails", Label="Dean / Director Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
         new StepItem{ Key="PrincipalDetails", Label="Principal Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
@@ -95,6 +150,17 @@
         // ---- Final Preview ----
         new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
+
+    // ------------------------------------------------------------------
+    // FIX: Remove any null entries (from the conditional TrustDetails /
+    // TrustMemberDetails steps above) IMMEDIATELY, before any FindIndex,
+    // Insert, or lambda that reads x.Key touches this list. Doing this
+    // filtering later (as before) caused a NullReferenceException because
+    // FindIndex(x => x.Key == "...") evaluates the lambda against every
+    // element — including the literal nulls added when showTrustSteps
+    // was false.
+    // ------------------------------------------------------------------
+    allSteps = allSteps.Where(step => step != null).ToList();
 
     // ------------------------------------------------------------------
     // Faculty-specific insertions (Dental = facultyCode "2")
@@ -150,11 +216,11 @@
     // UG course-details step (MBBS for Medical, BDS for Dental)
     if (levels.Contains("UG") && facultyCode == "1")
     {
-        allSteps.Insert(1, new StepItem { Key = "MBBSDetails", Label = "Details of MBBS Course", Group = "Intake Details", Ctrl = "ContinuesAffiliation_Facultybased", Act = "Details_Of_MBBS", Levels = new List<string>{ "UG" } });
+        allSteps.Insert(1, new StepItem { Key = "MBBSDetails", Label = "Details of MBBS Course", Group = "Intake Details", Ctrl = "ContinuesAffiliation_Facultybased", Act = "Details_Of_MBBS", Levels = new List<string> { "UG" } });
     }
     else if (levels.Contains("UG") && isDental)
     {
-        allSteps.Insert(1, new StepItem { Key = "BDSDetails", Label = "Details of BDS Course", Group = "Intake Details", Ctrl = "ContinuesAffiliation_Facultybased", Act = "Ug_Course_Details", Levels = new List<string>{ "UG" } });
+        allSteps.Insert(1, new StepItem { Key = "BDSDetails", Label = "Details of BDS Course", Group = "Intake Details", Ctrl = "ContinuesAffiliation_Facultybased", Act = "Ug_Course_Details", Levels = new List<string> { "UG" } });
     }
 
     // Faculty Repository (Dental only)
@@ -194,6 +260,28 @@
         InsertAfterBasicDetails(new List<StepItem>
         {
             new StepItem { Key = "SsCoursesApplied", Label = "Super Specialty Courses", Group = "Intake Details", Ctrl = "Aff_CA_SS_CoursesAppliedSS", Act = "CA_SS_CoursesApplied", Levels = new List<string>{ "SS" } },
+        });
+    }
+
+    // Insert Additional Courses step ONLY when:
+    // 1. User selected the Additional Courses affiliation type on the previous page
+    // 2. User is currently viewing the CourseAffiliation/Index page
+    var sessionTypeOfAff = typeOfAffiliation;
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString() ?? "";
+
+    bool isAdditionalCoursesType = !string.IsNullOrWhiteSpace(sessionTypeOfAff) &&
+                                        sessionTypeOfAff.IndexOf("Additional", StringComparison.OrdinalIgnoreCase) >= 0;
+
+    // Only show Additional Courses section when viewing the CourseAffiliation/Index page
+    bool isOnAdditionalCoursesPage = currentController.Equals("CourseAffiliation", StringComparison.OrdinalIgnoreCase) &&
+                                      currentAction.Equals("Index", StringComparison.OrdinalIgnoreCase);
+
+    if (isAdditionalCoursesType && isOnAdditionalCoursesPage)
+    {
+        InsertAfterBasicDetails(new List<StepItem>
+        {
+            new StepItem { Key = "AdditionalCourses", Label = "Additional Courses", Group = "Intake Details", Ctrl = "CourseAffiliation", Act = "Index" },
         });
     }
 
@@ -290,8 +378,8 @@
     }
 
     /* ══════════════════════════════
-                       CA SIDEBAR
-           ══════════════════════════════ */
+                               CA SIDEBAR
+  ══════════════════════════════ */
     .ca-sb {
         width: 18vw;
         min-width: 260px;
@@ -341,6 +429,13 @@
         text-transform: uppercase;
         color: var(--ca-muted);
         margin-top: 4px;
+    }
+
+    .ca-sb-affiliation {
+        margin-top: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--ca-navy);
     }
 
     /* Progress */
@@ -618,6 +713,8 @@
 
     <div class="ca-sb-top">
         <div class="ca-sb-title">College Details</div>
+        <div class="ca-sb-subtitle">Type of Affiliation</div>
+        <div class="ca-sb-affiliation">@(string.IsNullOrWhiteSpace(typeOfAffiliation) ? "Not available" : typeOfAffiliation)</div>
     </div>
 
     <div class="ca-sb-prog">

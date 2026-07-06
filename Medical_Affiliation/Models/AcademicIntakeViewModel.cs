@@ -49,4 +49,25 @@
         // for displaying already uploaded file
         public string? DocumentPath { get; set; }
     }
+
+    public class CourseIntakeViewModel1
+    {
+        public string CourseCode { get; set; }
+        public string CourseName { get; set; }
+        public string CourseLevel { get; set; }
+        public bool IsAlreadyOffered { get; set; }
+        public bool AddCourseRequested { get; set; }
+        public int? RequestedCourseIntake { get; set; }
+    }
+
+    public class CollegeCourseListViewModel1
+    {
+        public string CollegeCode { get; set; }
+        public string FacultyCode { get; set; }
+        public string TypeOfAffiliation { get; set; }
+        public string CollegeName { get; set; }
+        public List<CourseIntakeViewModel1> AllCourses { get; set; } = new();
+        // Courses already requested by the college (read-only display on the page)
+        public List<CourseIntakeViewModel1> RequestedCourses { get; set; } = new();
+    }
 }

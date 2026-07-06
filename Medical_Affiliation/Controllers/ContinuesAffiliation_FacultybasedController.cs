@@ -69,9 +69,23 @@ namespace Medical_Affiliation.Controllers
                 return NotFound(new { success = false, message = "Affiliation type not found." });
             }
 
+            // Keep session writes (harmless if session works)
             HttpContext.Session.SetInt32("AffiliationType", request.TypeId);
             HttpContext.Session.SetString("TypeOfAffiliation", typeDescription);
             HttpContext.Session.SetString("TypeOfAffiliationId", request.TypeId.ToString());
+
+            // NEW: also persist via cookie as a reliable fallback
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = false,           // must be readable if you ever need it client-side; set true if not needed
+                Secure = Request.IsHttps,   // matches current connection so it isn't silently dropped over http
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTimeOffset.UtcNow.AddHours(8),
+                Path = "/"                  // ensure it's available across the whole app, not just this sub-path
+            };
+
+            Response.Cookies.Append("TypeOfAffiliation", typeDescription, cookieOptions);
+            Response.Cookies.Append("AffiliationTypeId", request.TypeId.ToString(), cookieOptions);
 
             return Json(new
             {
@@ -80,7 +94,6 @@ namespace Medical_Affiliation.Controllers
                 typeDescription
             });
         }
-
         public class AffiliationTypeSessionRequest
         {
             public int TypeId { get; set; }

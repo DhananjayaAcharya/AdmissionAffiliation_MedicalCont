@@ -1,0 +1,203 @@
+﻿@model Medical_Affiliation.Models.CollegeCourseListViewModel1
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Additional Course Affiliation";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var collegeName = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeName") ?? Model.CollegeName;
+    var courseLevel = HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel");
+}
+
+<style>
+    .ca-page {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .ca-page-card {
+        width: 100%;
+        max-width: 1160px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
+
+    .ca-page-header {
+        background: linear-gradient(135deg, #0f3b6b 0%, #1962b4 100%);
+        color: #fff;
+        padding: 1.35rem 1.6rem;
+        border-bottom: 4px solid #f0b429;
+    }
+
+    .ca-page-header h2 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 700;
+    }
+
+    .ca-page-header p {
+        margin: 0.2rem 0 0;
+        color: rgba(255,255,255,0.9);
+        font-size: 0.95rem;
+    }
+
+    .ca-page-body {
+        padding: 1.4rem 1.6rem 1.6rem;
+    }
+
+    .ca-section-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        background: #fcfdff;
+    }
+
+    .ca-section-card .card-header {
+        background: #f4f8fd;
+        padding: 0.9rem 1rem;
+        font-weight: 700;
+        color: #10406e;
+    }
+
+    .ca-section-card .card-body {
+        padding: 1rem;
+    }
+
+    .ca-nav-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.2rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .ca-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        margin-top: 0.5rem;
+        color: rgba(255,255,255,0.9);
+        font-size: 0.9rem;
+    }
+
+    .ca-summary span {
+        background: rgba(255,255,255,0.14);
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+    }
+</style>
+
+<div class="ca-page">
+    <div class="ca-page-card">
+        <div class="ca-page-header">
+            <h2>Additional Course Affiliation</h2>
+            <p>Select the courses you want to request for @collegeName.</p>
+            <div class="ca-summary">
+                @* <span>College: @Model.CollegeCode</span>
+                <span>Faculty: @Model.FacultyCode</span>
+                <span>Course Level: @(string.IsNullOrWhiteSpace(courseLevel) ? "Not selected" : courseLevel)</span> *@
+            </div>
+        </div>
+
+        <div class="ca-page-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+
+            <form asp-action="SaveRequestedCourses" asp-controller="CourseAffiliation" method="post">
+                @* Previously requested courses are now shown inline in the main list
+                   (pre-checked and editable). *@
+
+                @{
+                    var indexed = Model.AllCourses.Select((c, idx) => new { Course = c, Index = idx }).ToList();
+                    var groups = indexed.GroupBy(x => x.Course.CourseLevel);
+                }
+
+                @foreach (var group in groups)
+                {
+                    var offered = group.Where(x => x.Course.IsAlreadyOffered).ToList();
+                    var missing = group.Where(x => !x.Course.IsAlreadyOffered).ToList();
+
+                    <div class="ca-section-card">
+                        <div class="card-header">Course Level: @group.Key</div>
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">Courses Already Offered</h6>
+                            @if (offered.Any())
+                            {
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead>
+                                        <tr><th>Course Name</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in offered)
+                                        {
+                                            <tr>
+                                                <td>@item.Course.CourseName</td>
+                                            </tr>
+                                            <input type="hidden" asp-for="AllCourses[@item.Index].CourseCode" />
+                                            <input type="hidden" asp-for="AllCourses[@item.Index].CourseLevel" />
+                                            <input type="hidden" asp-for="AllCourses[@item.Index].IsAlreadyOffered" />
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-4"><em>This college does not offer any course under this level.</em></p>
+                            }
+
+                            <h6 class="fw-bold mb-3">Courses Not Yet Offered</h6>
+                            @if (missing.Any())
+                            {
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead>
+                                        <tr><th>Add?</th><th>Course Name</th><th>Requested Intake</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in missing)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" asp-for="AllCourses[@item.Index].AddCourseRequested" />
+                                                </td>
+                                                <td>
+                                                    @item.Course.CourseName
+                                                    <input type="hidden" asp-for="AllCourses[@item.Index].CourseCode" />
+                                                    <input type="hidden" asp-for="AllCourses[@item.Index].CourseLevel" />
+                                                    <input type="hidden" asp-for="AllCourses[@item.Index].IsAlreadyOffered" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" min="0" class="form-control form-control-sm"
+                                                           asp-for="AllCourses[@item.Index].RequestedCourseIntake" />
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p class="text-success"><em>This college already has all available courses under this level.</em></p>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="ca-nav-actions">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-arrow-left"></i> Previous
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        Next <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -111,6 +111,125 @@ namespace Medical_Affiliation.Services
             }
         }
 
+        // Session logging (login/logout)
+        public async Task LogSessionAsync(
+            string action,
+            string userId,
+            string? userName,
+            string sessionId,
+            bool success,
+            string? description,
+            HttpContext? httpContext)
+        {
+            var log = new AuditLog1
+            {
+                UserId = userId,
+                UserName = userName,
+                Module = "Authentication",
+                Action = action,
+                LogType = "Session",
+                Status = success ? "Success" : "Failure",
+                Description = description,
+                Source = $"Session: {sessionId}",
+                RequestPath = httpContext?.Request?.Path,
+                RequestMethod = httpContext?.Request?.Method,
+                Ipaddress = httpContext?.Connection?.RemoteIpAddress?.ToString(),
+                UserAgent = httpContext?.Request?.Headers["User-Agent"].ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            try
+            {
+                _context.AuditLogs1.Add(log);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Session audit logged - Action: {Action}, User: {User}", action, userName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save session audit log. Action: {Action}, User: {User}", action, userName);
+            }
+        }
+
+        // Database operation logging
+        public async Task LogDatabaseOperationAsync(
+            string operation,
+            string tableName,
+            string recordId,
+            object? oldValues,
+            object? newValues,
+            bool success,
+            HttpContext? httpContext)
+        {
+            var log = new AuditLog1
+            {
+                UserId = httpContext?.User?.FindFirst("CollegeCode")?.Value
+                         ?? httpContext?.User?.Identity?.Name,
+                UserName = httpContext?.User?.Identity?.Name,
+                Module = "Database",
+                Action = operation,
+                LogType = "DataModification",
+                Status = success ? "Success" : "Failure",
+                TableName = tableName,
+                RecordId = recordId,
+                OldValues = oldValues is null ? null : SafeSerialize(oldValues),
+                NewValues = newValues is null ? null : SafeSerialize(newValues),
+                Description = $"{operation} operation on table {tableName} (Record: {recordId})",
+                RequestPath = httpContext?.Request?.Path,
+                RequestMethod = httpContext?.Request?.Method,
+                Ipaddress = httpContext?.Connection?.RemoteIpAddress?.ToString(),
+                UserAgent = httpContext?.Request?.Headers["User-Agent"].ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            try
+            {
+                _context.AuditLogs1.Add(log);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save database operation audit log. Table: {Table}, Operation: {Operation}", tableName, operation);
+            }
+        }
+
+        // Custom event logging
+        public async Task LogEventAsync(
+            string eventType,
+            string eventName,
+            string? description,
+            object? data,
+            bool success,
+            HttpContext? httpContext)
+        {
+            var log = new AuditLog1
+            {
+                UserId = httpContext?.User?.FindFirst("CollegeCode")?.Value
+                         ?? httpContext?.User?.Identity?.Name,
+                UserName = httpContext?.User?.Identity?.Name,
+                Module = eventType,
+                Action = eventName,
+                LogType = "Event",
+                Status = success ? "Success" : "Failure",
+                Description = description,
+                OldValues = data is null ? null : SafeSerialize(data),
+                RequestPath = httpContext?.Request?.Path,
+                RequestMethod = httpContext?.Request?.Method,
+                Ipaddress = httpContext?.Connection?.RemoteIpAddress?.ToString(),
+                UserAgent = httpContext?.Request?.Headers["User-Agent"].ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            try
+            {
+                _context.AuditLogs1.Add(log);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save event audit log. Event: {EventType}/{EventName}", eventType, eventName);
+            }
+        }
+
         private static string SafeSerialize(object value)
         {
             try

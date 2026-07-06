@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.DATA;
+using Medical_Affiliation.Middleware;
 using Medical_Affiliation.Services;
 using Medical_Affiliation.Services.Faculty;
 using Medical_Affiliation.Services.Handlers;
@@ -53,12 +54,13 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddScoped<AutoProgressFilter>();
 builder.Services.AddScoped<AuditExceptionFilter>();
 builder.Services.AddScoped<AuditActionFilter>();
+builder.Services.AddScoped<ComprehensiveAuditActionFilter>();
 
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<AutoProgressFilter>();
-    options.Filters.Add<AuditExceptionFilter>();      // catches all unhandled exceptions
-    options.Filters.Add<AuditActionFilter>();         // audits [AuditAction] tagged actions
+    options.Filters.Add<AuditExceptionFilter>();              // catches all unhandled exceptions
+    options.Filters.Add<ComprehensiveAuditActionFilter>();    // logs all actions comprehensively
     options.MaxModelBindingCollectionSize = int.MaxValue;
 })
 .AddViewLocalization()
@@ -98,7 +100,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Allow both HTTP and HTTPS
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
@@ -337,6 +339,13 @@ app.Use(async (context, next) =>
 
 
 app.UseAuthentication();
+
+
+// =============================================
+// 🔹 Audit & Session Tracking Middlewares
+// =============================================
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
+app.UseMiddleware<SessionTrackingMiddleware>();
 
 
 // =============================================
