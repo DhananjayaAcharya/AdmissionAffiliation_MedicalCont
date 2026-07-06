@@ -879,9 +879,14 @@ namespace Medical_Affiliation.Controllers
             // 🔥 FILE PATH VARIABLE (IMPORTANT)
             string? filePath = null;
 
-            if (vm.MeuMembersListFile != null && vm.MeuMembersListFile.Length > 0)
+            if (vm.MeuMembersListFile != null && vm.MeuMembersListFile.Length > 0) 
             {
                 filePath = await SaveMeuFileAsync(vm.MeuMembersListFile);
+            }
+
+            if (vm.DeuMembersListFile != null && vm.DeuMembersListFile.Length > 0) 
+            {
+                filePath = await SaveMeuFileAsync(vm.DeuMembersListFile);
             }
 
             if (entity == null)
@@ -972,6 +977,7 @@ namespace Medical_Affiliation.Controllers
                     entity.DeuCoordinatorEmail = vm.DeuCoordinatorEmail;
                     entity.DeuCoordinatorDesignationDepartment = vm.DeuCoordinatorDesignationDepartment;
                     entity.DeuActivitiesLastAcademicYear = vm.DeuActivitiesLastAcademicYear;
+                    entity.HasDentalEducationUnit = vm.HasDentalEducationUnit;
 
                     // 🔥 UPDATE FILE
                     if (filePath != null)

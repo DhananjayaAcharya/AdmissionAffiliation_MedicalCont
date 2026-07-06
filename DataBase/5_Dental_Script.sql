@@ -66,3 +66,9 @@ CREATE TABLE DeptWisePublications
 
 
 SELECT * FROM DeptWisePublications
+
+
+INSERT INTO DesignationMaster
+(FacultyCode, DesignationCode, DesignationName, DesignationOrder)
+VALUES
+(2, 'D016', 'Vice-Principal', 6);

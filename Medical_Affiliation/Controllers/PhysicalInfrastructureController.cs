@@ -41,13 +41,17 @@ namespace Medical_Affiliation.Controllers
             var savedDentalChairs = await _context.DentalChairs
                                     .Where(x =>
                                         x.CollegeCode == collegeCode &&
-                                        x.FacultyCode == facultyCode)
+                                        x.FacultyCode == facultyCode &&
+                                        x.AffiliationTypeId == AffTypeId &&
+                                        x.CourseLevel == SelectedCourseLevel
+                                        )
                                     .ToListAsync();
 
             var collegeCourseExists = await _context.CollegeCourseIntakeDetails
                 .AnyAsync(x =>
                     x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode);
+                    x.FacultyCode == facultyCode
+                    );
 
             var hospital = await _context.HospitalDetailsForAffiliations.AsNoTracking().Where(e => e.CollegeCode == collegeCode).FirstOrDefaultAsync();
 
@@ -68,6 +72,7 @@ namespace Medical_Affiliation.Controllers
                     where mc.FacultyCode == facultyCode
                           && cc.CollegeCode == collegeCode
                           && cc.FacultyCode == facultyCode
+                          && mc.CourseLevel == SelectedCourseLevel
 
                     select mc
                 ).Distinct().ToListAsync();
@@ -84,7 +89,7 @@ namespace Medical_Affiliation.Controllers
                             .Select(c => c.Trim())
                             .Contains(course.CourseCode.ToString()));
 
-                    int seatCount = intake?.Ay2025TotalIntake ?? 0;
+                    int seatCount = intake?.Ay2026TotalIntake ?? 0;
                     if (seatCount <= 0)
                     {
                         continue;
@@ -150,6 +155,7 @@ namespace Medical_Affiliation.Controllers
                 var courses = await _context.MstCourses
                     .Where(x =>
                         x.FacultyCode == facultyCode &&
+                        x.CourseLevel == SelectedCourseLevel &&
                         courseCodes.Contains(x.CourseCode.ToString()))
                     .ToListAsync();
 
@@ -165,7 +171,7 @@ namespace Medical_Affiliation.Controllers
                             .Select(c => c.Trim())
                             .Contains(course.CourseCode.ToString()));
 
-                    int seatCount = intake?.Ay2025TotalIntake ?? 0;
+                    int seatCount = intake?.Ay2026TotalIntake ?? 0;
 
                     // =================================================
                     // CALCULATE SEAT SLAB
@@ -275,7 +281,9 @@ namespace Medical_Affiliation.Controllers
                         .FirstOrDefaultAsync(x =>
                             x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                            x.CourseCode == item.CourseCode);
+                            x.CourseCode == item.CourseCode &&
+                            x.AffiliationTypeId == AffTypeId
+                            );
 
                     // ============================================
                     // UPDATE
@@ -308,7 +316,8 @@ namespace Medical_Affiliation.Controllers
                             SeatSlabId = item.SeatSlabId,
 
                             ChairsRequired = item.ChairsRequired,
-                            ChairsExisting = item.ChairsExisting
+                            ChairsExisting = item.ChairsExisting,
+                            AffiliationTypeId = AffTypeId
                         });
                     }
                 }
@@ -421,7 +430,9 @@ namespace Medical_Affiliation.Controllers
             var existingData = await _context.DentalCollegeLandBuildingDetails
                 .FirstOrDefaultAsync(x =>
                     x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode);
+                    x.FacultyCode == facultyCode && 
+                    x.CourseLevel == SelectedCourseLevel &&
+                    x.AffiliationTypeId == AffTypeId);
 
 
             // ======================================================
@@ -441,6 +452,8 @@ namespace Medical_Affiliation.Controllers
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode &&
+                    x.AffiliationTypeId == AffTypeId &&
+                    x.CourseLevel == SelectedCourseLevel &&
                     x.SeatSlab == seatSlab)
                 .ToListAsync();
 
@@ -649,7 +662,10 @@ namespace Medical_Affiliation.Controllers
             var entity = await _context.DentalCollegeLandBuildingDetails
                 .FirstOrDefaultAsync(x =>
                     x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode);
+                    x.FacultyCode == facultyCode &&
+                    x.AffiliationTypeId == AffTypeId &&
+                    x.CourseLevel == SelectedCourseLevel
+                    );
 
             if (entity == null)
             {
@@ -657,6 +673,8 @@ namespace Medical_Affiliation.Controllers
 
                 entity.CollegeCode = collegeCode;
                 entity.FacultyCode = facultyCode;
+                entity.AffiliationTypeId = AffTypeId;
+                entity.CourseLevel = SelectedCourseLevel;
 
                 entity.CreatedOn = DateTime.Now;
 
@@ -806,6 +824,7 @@ namespace Medical_Affiliation.Controllers
             // ==============================
             // SAVE DENTAL INFRASTRUCTURE
             // ==============================
+            var selectedLevel = SelectedCourseLevel?.Trim().ToUpper();
 
             if (model.InfrastructureDetails != null &&
                 model.InfrastructureDetails.Any())
@@ -813,6 +832,8 @@ namespace Medical_Affiliation.Controllers
                 var existingInfrastructure = await _context.DentalInfrastructures
                     .Where(x =>
                         x.CollegeCode == collegeCode &&
+                        x.AffiliationTypeId == AffTypeId &&
+                        x.CourseLevel.ToUpper() == selectedLevel &&
                         x.FacultyCode == facultyCode)
                     .ToListAsync();
 
@@ -821,6 +842,8 @@ namespace Medical_Affiliation.Controllers
                     var existingInfra = existingInfrastructure
                         .FirstOrDefault(x =>
                             x.RequirementId == item.RequirementId &&
+                            x.CourseLevel.ToUpper() == selectedLevel &&
+                            x.AffiliationTypeId == AffTypeId &&
                             x.SeatSlab == item.SeatSlab);
 
                     if (existingInfra == null)
@@ -829,13 +852,14 @@ namespace Medical_Affiliation.Controllers
                         {
                             FacultyCode = facultyCode,
 
-                            AffiliationTypeId = hospital.AffiliationTypeId, // update dynamically if needed
+                            AffiliationTypeId = AffTypeId.Value, // update dynamically if needed
 
                             CollegeCode = collegeCode,
 
                             HospitalDetailsId = hospital?.HospitalDetailsId ?? 0, // update dynamically if needed
 
                             RequirementId = item.RequirementId,
+                            CourseLevel = SelectedCourseLevel.ToUpper(),
 
                             SeatSlab = item.SeatSlab,
 
@@ -976,7 +1000,7 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Login", "Account");
 
             var lab = await _context.MedicalSkillsLaboratories
-                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
+                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode && x.AffiliationTypeId == AffTypeId);
 
             if (lab == null)
             {
@@ -1160,7 +1184,7 @@ namespace Medical_Affiliation.Controllers
                 Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
 
             var lab = await _context.MedicalSkillsLaboratories
-                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
+                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode && x.AffiliationTypeId == AffTypeId);
 
             if (lab == null)
             {
@@ -1182,6 +1206,7 @@ namespace Medical_Affiliation.Controllers
             else if(facultyCode == "2")
             {
                 lab.AnnualBdsIntake = model.AnnualBdsIntake;
+                lab.AffiliationTypeId = AffTypeId;
 
             }
             lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;

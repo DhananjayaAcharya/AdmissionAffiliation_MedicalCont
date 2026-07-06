@@ -1,13 +1,17 @@
-﻿@model AcademicIntakePageViewModel1
-
+﻿@using System.Globalization
+@model AcademicIntakePageViewModel1
 @{
     ViewData["Title"] = "Academic Intake – Continuous Affiliation";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
-    var facultyCode = Context.Session.GetString("FacultyCode");
 
-    // ── Determine which course levels this college/session actually has ──
+    var facultyCode = Context.Session.GetString("FacultyCode");
+    bool showIncreaseIntake = Context.Session.GetString("AffiliationTypeId") == "3";
+
     var rawExistingLevels = Context.Session.GetString("ExistingCourseLevels");
-    var selectedCourseLevel = Context.Session.GetString("CourseLevel")?.Trim().ToUpper();
+    var selectedCourseLevel = Context.Session.GetString("SelectedCourseLevel")?
+                                    .Trim()
+                                    .ToUpper();
+
     List<string> existingLevels;
 
     if (string.IsNullOrWhiteSpace(rawExistingLevels))
@@ -35,28 +39,20 @@
     }
 
     bool hasLevelInfo = existingLevels.Any();
-    var validLevels = new[] { "UG", "PG", "SS" };
-    bool selectedLevelIsValid = !string.IsNullOrWhiteSpace(selectedCourseLevel) && validLevels.Contains(selectedCourseLevel);
-    bool selectedLevelAvailable = selectedLevelIsValid && existingLevels.Contains(selectedCourseLevel);
 
     bool showUg;
     bool showPg;
     bool showSs;
 
-    if (selectedLevelAvailable)
-    {
-        showUg = selectedCourseLevel == "UG";
-        showPg = selectedCourseLevel == "PG";
-        showSs = selectedCourseLevel == "SS" && Model.FacultyId != 2;
-    }
-    else
-    {
-        showUg = !hasLevelInfo || existingLevels.Contains("UG");
-        showPg = !hasLevelInfo || existingLevels.Contains("PG");
-        showSs = Model.FacultyId != 2 && (!hasLevelInfo || existingLevels.Contains("SS"));
-    }
+    showUg = selectedCourseLevel == "UG";
+    showPg = selectedCourseLevel == "PG";
+    showSs = facultyCode != "2" && selectedCourseLevel == "SS";
 
-    string defaultTab = showUg ? "ug" : (showPg ? "pg" : (showSs ? "ss" : "ug"));
+    string defaultTab =
+        showUg ? "ug" :
+        showPg ? "pg" :
+        showSs ? "ss" :
+        "ug";
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -691,17 +687,41 @@
                 }
                 @if (showSs)
                 {
-                    <button type="button" class="tb @(defaultTab == "ss" ? "on" : "")" data-t="ss" data-level="SS">
+                    @* <button type="button" class="tb @(defaultTab == "ss" ? "on" : "")" data-t="ss" data-level="SS">
                         SS Courses <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
                     </button>
+                    <button type="button" class="tb" data-t="pg">
+                        PG Courses <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
+                    </button> *@
+                    @if (Model.FacultyId != 2)
+                    {
+                        <button type="button" class="tb" data-t="ss">
+                            SS Courses <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
+                        </button>
+                    }
                 }
+                @* else
+                {
+                    @if (ShowUgTab)
+                    {
+                        <button type="button" class="tb on" data-t="ug">
+                            UG Courses <span class="tc">@(Model.UgCourses?.Count ?? 0)</span>
+                        </button>
+                    }
+                    else if (ShowPgTab)
+                    {
+                        <button type="button" class="tb on" data-t="pg">
+                            PG Courses <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
+                        </button>
+                    }
+                } *@
             </div>
 
             @if (showUg)
             {
                 <div id="tp-ug" class="tp @(defaultTab == "ug" ? "on" : "")">
                     @{
-                        await RenderTable(Model.UgCourses, "UgCourses");
+                        await RenderTable(Model.UgCourses, "UgCourses", showIncreaseIntake);
                     }
                 </div>
             }
@@ -709,7 +729,7 @@
             {
                 <div id="tp-pg" class="tp @(defaultTab == "pg" ? "on" : "")">
                     @{
-                        await RenderTable(Model.PgCourses, "PgCourses");
+                        await RenderTable(Model.PgCourses, "PgCourses", showIncreaseIntake);
                     }
                 </div>
             }
@@ -717,10 +737,25 @@
             {
                 <div id="tp-ss" class="tp @(defaultTab == "ss" ? "on" : "")">
                     @{
-                        await RenderTable(Model.SsCourses, "SsCourses");
+                        await RenderTable(Model.UgCourses, "UgCourses", showIncreaseIntake);
                     }
                 </div>
+                <div id="tp-pg" class="tp">
+                    @{
+                        await RenderTable(Model.PgCourses, "PgCourses", showIncreaseIntake);
+                    }
+                </div>
+                @if (Model.FacultyId != 2)
+                {
+                    <div id="tp-ss" class="tp">
+                        @{
+                            await RenderTable(Model.SsCourses, "SsCourses", showIncreaseIntake);
+                        }
+                    </div>
+                }
             }
+            
+
 
             <div class="cf">
                 <a href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")"
@@ -788,8 +823,28 @@
                         <tbody>
                             @{
                                 int si = 1;
+                                IEnumerable<SavedAcademicIntakeRowViewModel1> rowsToShow;
+
+                                if (facultyCode == "2")
+                                {
+                                    // Faculty 2 – show only the records whose CourseLevel matches the
+                                    // level the user picked in the sidebar (UG or PG).
+                                    rowsToShow = Model.SavedIntakes
+                                                         ?.Where(r => 
+                                                                 string.Equals(
+                                                                     r.CourseLevel,
+                                                                     selectedCourseLevel,
+                                                                     StringComparison.OrdinalIgnoreCase))
+                                                         ?? Enumerable.Empty<SavedAcademicIntakeRowViewModel1>();
+                                }
+                                else
+                                {
+                                    // Faculties 1 & 12 – keep the original behaviour (show everything).
+                                    rowsToShow = Model.SavedIntakes ?? Enumerable.Empty<SavedAcademicIntakeRowViewModel1>();
+                                }
+
                             }
-                            @foreach (var row in Model.SavedIntakes)
+                            @foreach (var row in rowsToShow)
                             {
                                 <tr data-level="@row.CourseLevel">
                                     <td class="slno" style="color:var(--muted);text-align:center">@si</td>
@@ -843,7 +898,7 @@
                                         </td>
                                     }
                                     <td style="text-align:center;color:var(--muted);font-size:.79rem">
-                                        @row.CreatedOn.ToString("dd MMM yyyy")
+                                        @row.CreatedOn.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)
                                     </td>
                                 </tr>
                                 si++;
@@ -919,7 +974,7 @@
 
 @* ── RAZOR HELPER ── *@
 @functions {
-    async Task RenderTable(IList<IntakeByLevelViewModel1>? list, string prefix)
+    async Task RenderTable(IList<IntakeByLevelViewModel1>? list, string prefix, bool showIncreaseIntake)
     {
         if (list == null || !list.Any())
         {
@@ -979,7 +1034,10 @@
                         }
                         @* 2026-27 sub-headers *@
                         <th class="g26">Existing<br /><small style="font-weight:400;opacity:.75">(auto)</small></th>
-                        <th class="g26">Requested Increase Intake</th>
+                        @if (showIncreaseIntake)
+                        {
+                            <th class="g26">Requested Increase Intake</th>
+                        }
                         <th class="g26">Total</th>
                         @if (Model.FacultyId == 2)
                         {
@@ -1127,12 +1185,16 @@
                                 </td>
 
                                 @* ── 2026-27 Add. Requested ── *@
+                                @if (showIncreaseIntake)
+                                {
+                                    
                                 <td class="cc">
                                     <input type="number" class="ni"
                                            name="@(p).AY2026_AddRequestedIntake"
                                            value="@c.AY2026_AddRequestedIntake"
                                            min="0" data-r="r26" />
                                 </td>
+                                }
 
                                 @* ── 2026-27 Total ── *@
                                 <td class="cc">

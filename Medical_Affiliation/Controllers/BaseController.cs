@@ -19,6 +19,10 @@ namespace Medical_Affiliation.Controllers
         }
         protected string? FacultyCode => User.FindFirst("FacultyCode")?.Value;
         protected string? CollegeCode => User.FindFirst("CollegeCode")?.Value;
+        protected int? AffTypeId => Convert.ToInt32(HttpContext.Session.GetString("AffiliationTypeId"));
+        protected int? NameOfAffiliationType => Convert.ToInt32(HttpContext.Session.GetString("TypeOfAffiliation"));
+
+        protected string? SelectedCourseLevel => HttpContext.Session.GetString("SelectedCourseLevel");
 
         protected string BaseMedicalPath
         {
@@ -176,6 +180,7 @@ namespace Medical_Affiliation.Controllers
             if (!string.IsNullOrEmpty(levelFromUrl))
             {
                 context.HttpContext.Session.SetString("CourseLevel", levelFromUrl);
+                context.HttpContext.Session.SetString("SelectedCourseLevel", levelFromUrl);
             }
 
             if (FacultyCode == "2")

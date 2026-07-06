@@ -47,26 +47,22 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SetAffiliationType([FromBody] AffiliationTypeSessionRequest request)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetCourseLevel(string level, int affiliationTypeId)
         {
-            if (request == null || request.TypeId <= 0)
+            if (string.IsNullOrWhiteSpace(level) || affiliationTypeId <= 0)
             {
-                return BadRequest(new { success = false, message = "Invalid affiliation type." });
+                return BadRequest("Invalid request.");
             }
 
-            var typeDescription = request.TypeDescription;
+            var typeDescription = await _context.TypeOfAffiliations
+                .Where(t => t.TypeId == affiliationTypeId)
+                .Select(t => t.TypeDescription)
+                .FirstOrDefaultAsync();
 
             if (string.IsNullOrWhiteSpace(typeDescription))
             {
-                typeDescription = await _context.TypeOfAffiliations
-                    .Where(t => t.TypeId == request.TypeId)
-                    .Select(t => t.TypeDescription)
-                    .FirstOrDefaultAsync();
-            }
-
-            if (string.IsNullOrWhiteSpace(typeDescription))
-            {
-                return NotFound(new { success = false, message = "Affiliation type not found." });
+                return NotFound("Affiliation type not found.");
             }
 
             // Keep session writes (harmless if session works)
@@ -192,9 +188,23 @@ namespace Medical_Affiliation.Controllers
             .Distinct()
             .OrderBy(cl => cl)
             .ToListAsync();
+            var order = new List<string> { "UG", "PG", "SS" };
+
+            courseLevels = courseLevels
+                .OrderBy(x => order.IndexOf(x.ToUpper()))
+                .ToList();
 
             return Json(courseLevels);
         }
+
+
+        public class AffiliationTypeRequest
+        {
+            public int AffiliationTypeId { get; set; }
+            public string? AffiliationTypeName { get; set; }
+        }
+
+        
 
         [HttpGet]
         public async Task<IActionResult> PreviousNotification(string courseId)
@@ -5919,7 +5929,8 @@ namespace Medical_Affiliation.Controllers
             var existing = await _context.MedicalUgbedDistributions.FirstOrDefaultAsync(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
-                        x.CourseLevel == courseLevel);
+                        x.AffiliationTypeId == AffTypeId &&
+                        x.CourseLevel == SelectedCourseLevel);
 
 
             var vm = new MedicalUGBedDistributionVm();
@@ -6012,7 +6023,8 @@ namespace Medical_Affiliation.Controllers
                          .FirstOrDefaultAsync(x =>
                              x.CollegeCode == collegeCode &&
                              x.FacultyCode == facultyCode &&
-                             x.CourseLevel == courseLevel);
+                             x.AffiliationTypeId == AffTypeId &&
+                             x.CourseLevel == SelectedCourseLevel);
 
             if (entity == null)
             {
@@ -6020,7 +6032,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     CollegeCode = collegeCode,
                     FacultyCode = facultyCode,
-                    CourseLevel = courseLevel,
+                    CourseLevel = SelectedCourseLevel,
+                    AffiliationTypeId = AffTypeId,
                     CreatedDate = DateTime.Now
                 };
 

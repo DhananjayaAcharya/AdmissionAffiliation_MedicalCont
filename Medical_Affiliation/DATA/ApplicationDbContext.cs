@@ -520,7 +520,7 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server= DESKTOP-VM4KIHQ;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
+        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -575,7 +575,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AcademicIntakeYearWise>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC072266F649");
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC071488372F");
 
             entity.ToTable("AcademicIntakeYearWise");
 
@@ -626,7 +626,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AcademicYearMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC079E4241B3");
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC07ED095DB3");
 
             entity.ToTable("AcademicYearMaster");
 
@@ -1253,7 +1253,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
             entity.Property(e => e.ChangedPassword).HasMaxLength(50);
-            entity.Property(e => e.CollegeEmail).HasMaxLength(255);
+            entity.Property(e => e.CollegeEmail).HasMaxLength(250);
             entity.Property(e => e.CollegeName).HasMaxLength(200);
             entity.Property(e => e.CollegeTown).HasMaxLength(200);
             entity.Property(e => e.DistrictId).HasMaxLength(150);
@@ -3217,6 +3217,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false);
 
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.DentalChairs)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .HasConstraintName("FK_DentalChairs_TypeOfAffiliation");
+
             entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalChairs)
                 .HasForeignKey(d => d.CollegeCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -3259,9 +3263,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("DentalCollegeLandBuildingDetail");
 
-            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode }, "UQ_DentalCollegeLandBuildingDetail")
-                .IsUnique()
-                .HasFillFactor(80);
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.AffiliationTypeId, e.CourseLevel }, "UQ_DentalCollegeLandBuildingDetail").IsUnique();
 
             entity.Property(e => e.ApprovedBuildingPlanDocumentPath)
                 .HasMaxLength(255)
@@ -3272,6 +3274,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
             entity.Property(e => e.CompletionCertificateDocumentPath)
                 .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
@@ -3327,6 +3332,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false);
 
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.DentalCollegeLandBuildingDetails)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .HasConstraintName("FK_DentalCollegeLandBuildingDetail_TypeOfAffiliation");
+
             entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalCollegeLandBuildingDetails)
                 .HasForeignKey(d => d.CollegeCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -3346,8 +3355,13 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("DentalInfrastructure");
 
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.AffiliationTypeId, e.CourseLevel, e.RequirementId, e.SeatSlab }, "UQ_DentalInfrastructure").IsUnique();
+
             entity.Property(e => e.AvailableAreaSqFt).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
             entity.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -4994,6 +5008,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TotalAreaAvailableSqm).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TotalAreaDeficiencySqm).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TotalAreaRequiredSqm).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.MedicalSkillsLaboratories)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .HasConstraintName("FK_Medical_SkillsLaboratory_TypeOfAffiliation");
         });
 
         modelBuilder.Entity<MedicalStudentPracticalLab>(entity =>
@@ -5044,6 +5062,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Sicu).HasColumnName("SICU");
             entity.Property(e => e.SkinVd).HasColumnName("SkinVD");
             entity.Property(e => e.TotalIcubeds).HasColumnName("TotalICUBeds");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.MedicalUgbedDistributions)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .HasConstraintName("FK_Medical_UGBedDistribution_TypeOfAffiliation");
         });
 
         modelBuilder.Entity<MstAdministration>(entity =>

@@ -299,7 +299,7 @@
         <div class="ca-topbar-right">
             <span class="ca-topbar-page">@ViewData["Title"]</span>
             <div class="ca-topbar-meta">
-                <span class="ca-topbar-course"><span class="ca-topbar-item-label">Applying Course Level:</span> @(string.IsNullOrWhiteSpace(courseLevel) ? "Not selected" : courseLevel)</span>
+                <span class="ca-topbar-course"><span class="ca-topbar-item-label">Applying Course Level:</span> @(string.IsNullOrWhiteSpace(courseLevel) ? "Not selected" : courseLevel.ToUpper())</span>
                 <span class="ca-topbar-affiliation"><span class="ca-topbar-item-label">Application Type:</span> @(string.IsNullOrWhiteSpace(typeOfAffiliation) ? "Not available" : typeOfAffiliation)</span>
             </div>
         </div>
