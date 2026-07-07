@@ -120,6 +120,10 @@
                                     <th>Type</th>
                                     @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
                                     {
+                                        if (Model.Sections[s].YearData[y].YearOfStudyId == 4)
+                                        {
+                                            continue;
+                                        }
                                         <th>@Model.Sections[s].YearData[y].YearName</th>
                                     }
                                 </tr>
@@ -132,6 +136,10 @@
                                     <td>Regular</td>
                                     @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
                                     {
+                                        if (Model.Sections[s].YearData[y].YearOfStudyId == 4)
+                                        {
+                                            continue;
+                                        }
                                         <td>
                                             <input type="hidden"
                                                    name="Sections[@s].YearData[@y].YearOfStudyId"
@@ -148,6 +156,10 @@
                                     <td>Repeater</td>
                                     @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
                                     {
+                                        if (Model.Sections[s].YearData[y].YearOfStudyId == 4)
+                                        {
+                                            continue;
+                                        }
                                         <td>
                                             <input type="number" min="0" name="Sections[@s].YearData[@y].RepeaterStudents"
                                                    value="@Model.Sections[s].YearData[y].RepeaterStudents" />
@@ -160,6 +172,10 @@
                                     <td>Passed</td>
                                     @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
                                     {
+                                        if (Model.Sections[s].YearData[y].YearOfStudyId == 4)
+                                        {
+                                            continue;
+                                        }
                                         <td>
                                             <input type="number" min="0" name="Sections[@s].YearData[@y].NumberOfStudentsPassed" value="@Model.Sections[s].YearData[y].NumberOfStudentsPassed" />
                                         </td>
@@ -171,6 +187,10 @@
                                     <td>Pass %</td>
                                     @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
                                     {
+                                        if (Model.Sections[s].YearData[y].YearOfStudyId == 4)
+                                        {
+                                            continue;
+                                        }
                                         <td>
                                             <input type="number" min="0" step="0.01" name="Sections[@s].YearData[@y].PassPercentage" value="@Model.Sections[s].YearData[y].PassPercentage" readonly />
                                         </td>
@@ -182,6 +202,10 @@
                                     <td>First Class</td>
                                     @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
                                     {
+                                        if (Model.Sections[s].YearData[y].YearOfStudyId == 4)
+                                        {
+                                            continue;
+                                        }
                                         <td>
                                             <input type="number" min="0" name="Sections[@s].YearData[@y].FirstClassCount" value="@Model.Sections[s].YearData[y].FirstClassCount" />
                                         </td>
@@ -193,6 +217,10 @@
                                     <td>Distinction</td>
                                     @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
                                     {
+                                        if (Model.Sections[s].YearData[y].YearOfStudyId == 4)
+                                        {
+                                            continue;
+                                        }
                                         <td>
                                             <input type="number" min="0" name="Sections[@s].YearData[@y].DistinctionCount" value="@Model.Sections[s].YearData[y].DistinctionCount" />
                                         </td>
@@ -204,6 +232,10 @@
                                     <td>Remarks</td>
                                     @for (int y = 0; y < Model.Sections[s].YearData.Count; y++)
                                     {
+                                        if (Model.Sections[s].YearData[y].YearOfStudyId == 4)
+                                        {
+                                            continue;
+                                        }
                                         <td>
                                             <input type="text" name="Sections[@s].YearData[@y].Remarks" value="@Model.Sections[s].YearData[y].Remarks" />
                                         </td>
@@ -321,6 +353,7 @@
             if (select) select.selectedIndex = 0;
         }
     });
+
     document.addEventListener("change", function (e) {
         if (e.target.matches("select[name*='Sections']")) {
 
@@ -347,24 +380,50 @@
 
             let colIndex = td.cellIndex;
 
-            let getVal = (rowName) => {
+            @* let getVal = (rowName) => {
                 let row = Array.from(table.rows).find(r => r.cells[0].innerText.includes(rowName));
                 return parseInt(row?.cells[colIndex]?.querySelector("input")?.value) || 0;
             };
 
             let regular = getVal("Regular");
             let repeater = getVal("Repeater");
-            let passed = getVal("Passed");
+            let passed = getVal("Passed"); *@
+
+
+            @* debugger; *@
+            const rows = table.querySelector("tbody").rows;
+
+            const regular =
+                parseInt(rows[0].cells[colIndex].querySelector('[name*="RegularStudents"]')?.value) || 0;
+
+            const repeater =
+                parseInt(rows[1].cells[colIndex].querySelector('[name*="RepeaterStudents"]')?.value) || 0;
+
+            const passed =
+                parseInt(rows[2].cells[colIndex].querySelector('[name*="NumberOfStudentsPassed"]')?.value) || 0;
+
+            console.log({
+                colIndex,
+                regular,
+                repeater,
+                passed
+            });
+
+            console.log(rows[0].cells[colIndex].innerHTML);
+            console.log(rows[1].cells[colIndex].innerHTML);
+            console.log(rows[2].cells[colIndex].innerHTML);
 
             let total = regular + repeater;
             let percent = total > 0 ? (passed / total) * 100 : 0;
 
-            let percentRow = Array.from(table.rows).find(r => r.cells[0].innerText.includes("Pass %"));
+            @* let percentRow = Array.from(table.rows).find(r => r.cells[0].innerText.includes("Pass %")); *@
 
-            if (percentRow) {
+            @* if (percentRow) {
                 let input = percentRow.cells[colIndex].querySelector("input");
                 input.value = percent.toFixed(2);
-            }
+            } *@
+
+            rows[3].cells[colIndex].querySelector("input").value = percent.toFixed(2);
         }
     });
 

@@ -815,10 +815,10 @@ namespace Medical_Affiliation.Controllers
                 vm.HasMeuMembersListFile = entity.MeuMembersListFilePath != null;
             } else if(facultyCode == "2")
             {
-                vm.HasDentalEducationUnit = entity.HasMedicalEducationUnit;
-                vm.DentalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm;
-                vm.DentalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual;
-                vm.DentalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet;
+                vm.HasDentalEducationUnit = entity.HasDentalEducationUnit;
+                vm.DentalEducationUnitAreaSqm = entity.DentalEducationUnitAreaSqm;
+                vm.DentalEducationUnitHasAudioVisual = entity.DentalEducationUnitHasAudioVisual;
+                vm.DentalEducationUnitHasInternet = entity.DentalEducationUnitHasInternet;
                 vm.DeuCoordinatorName = entity.DeuCoordinatorName;
                 vm.DeuCoordinatorPhone = entity.DeuCoordinatorPhone;
                 vm.DeuCoordinatorEmail = entity.DeuCoordinatorEmail;
@@ -882,6 +882,11 @@ namespace Medical_Affiliation.Controllers
             if (vm.MeuMembersListFile != null && vm.MeuMembersListFile.Length > 0)
             {
                 filePath = await SaveMeuFileAsync(vm.MeuMembersListFile);
+            }
+
+            if (vm.DeuMembersListFile != null && vm.DeuMembersListFile.Length > 0)
+            {
+                filePath = await SaveMeuFileAsync(vm.DeuMembersListFile);
             }
 
             if (entity == null)
@@ -964,6 +969,7 @@ namespace Medical_Affiliation.Controllers
                 }
                 else
                 {
+                    entity.HasDentalEducationUnit = vm.HasDentalEducationUnit;
                     entity.DentalEducationUnitAreaSqm = vm.DentalEducationUnitAreaSqm;
                     entity.DentalEducationUnitHasAudioVisual = vm.DentalEducationUnitHasAudioVisual ?? false;
                     entity.DentalEducationUnitHasInternet = vm.DentalEducationUnitHasInternet ?? false;

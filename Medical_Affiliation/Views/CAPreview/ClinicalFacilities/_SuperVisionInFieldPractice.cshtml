@@ -1,7 +1,10 @@
-﻿@model SuperVisionInFieldPracticeAreaDisplayVM
+﻿@using Microsoft.AspNetCore.Http
+@model SuperVisionInFieldPracticeAreaDisplayVM
 @* <link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" /> *@
 
-
+@{
+    var facultyCode = Context.Session.GetString("FacultyCode");
+}
  <!-- Body -->
 <div class="general-body">
 
@@ -108,12 +111,15 @@
     }
     else
     {
-        <div class="empty-state">
-            <i class="bi bi-inbox"></i>
-            <p class="mb-0">
-                No supervision details available for this hospital.
-            </p>
-        </div>
+        @if (facultyCode != "2" && facultyCode != "1")
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p class="mb-0">
+                    No supervision details available for this hospital.
+                </p>
+            </div>
+        }
     }
 
 </div>

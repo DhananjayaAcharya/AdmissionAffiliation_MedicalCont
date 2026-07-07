@@ -27,7 +27,7 @@ namespace Medical_Affiliation.Controllers
         {
             //var courseLevel = HttpContext.Session.GetString("CourseLevel");
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
+            int facultyId = Convert.ToInt32(FacultyCode ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
@@ -46,18 +46,14 @@ namespace Medical_Affiliation.Controllers
             //x.CurriculumId == curriculumId);
             var savedCurriculums = await _context.CaCourseCurricula
                 .Where(x => x.CollegeCode == model.CollegeCode &&
-                            x.FacultyId == model.FacultyId &&
-                            x.CourseLevel == model.CourseLevel &&
-                            x.AffiliationType == model.AffiliationType)
+                            x.FacultyId == facultyId)
                 .ToListAsync();
 
             // Load academic performance rows for this college/faculty/affiliation
             var academics = await _context.CaAcademicPerformances
-                .Where(x =>
+                .Where(x => 
                     x.CollegeCode == collegeCode &&
                     x.FacultyId == facultyId &&
-                    //x.CourseLevel == courseLevel &&
-                    x.AffiliationType == affiliationType &&
                     _yearIds.Any(y => y == x.YearOfStudyId))
                 .ToListAsync();
 
@@ -217,7 +213,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> AcademicMattersPG(string subjectCode = null)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
+            int facultyId = Convert.ToInt32(FacultyCode ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             string courseLevel = "PG";
@@ -413,36 +409,45 @@ namespace Medical_Affiliation.Controllers
             try
             {
                 // Academic rows: remove and re-add to keep simple
-                foreach (var posted in model.AcademicRows)
+                if (model.AcademicRows != null)
                 {
-                    var old = _context.CaAcademicPerformances.Where(x =>
-                        x.CollegeCode == model.CollegeCode &&
-                        x.FacultyId == model.FacultyId &&
-                        x.CourseLevel == courseLevel &&
-                        x.AffiliationType == model.AffiliationType &&
-                        x.YearOfStudyId == posted.YearOfStudyId);
 
-                    _context.CaAcademicPerformances.RemoveRange(old);
-
-                    var entity = new CaAcademicPerformance
+                    foreach (var posted in model.AcademicRows)
                     {
-                        CollegeCode = model.CollegeCode,
-                        FacultyId = model.FacultyId ?? 0,
-                        CourseLevel = courseLevel,
-                        AffiliationType = model.AffiliationType ?? 0,
-                        YearOfStudyId = posted.YearOfStudyId,
-                        RegularStudents = posted.RegularStudents,
-                        RepeaterStudents = posted.RepeaterStudents,
-                        NumberOfStudentsPassed = posted.NumberOfStudentsPassed,
-                        PassPercentage = posted.PassPercentage,
-                        FirstClassCount = posted.FirstClassCount,
-                        DistinctionCount = posted.DistinctionCount,
-                        Remarks = posted.Remarks,
-                        CreatedOn = DateTime.Now
-                    };
-                    _context.CaAcademicPerformances.Add(entity);
-                }
+                        var existing = await _context.CaAcademicPerformances
+                            .FirstOrDefaultAsync(x =>
+                                x.CollegeCode == model.CollegeCode &&
+                                x.FacultyId == model.FacultyId &&
+                                x.CourseLevel == courseLevel &&
+                                x.AffiliationType == model.AffiliationType &&
+                                x.YearOfStudyId == posted.YearOfStudyId);
 
+                        if (existing == null)
+                        {
+                            existing = new CaAcademicPerformance
+                            {
+                                CollegeCode = model.CollegeCode,
+                                FacultyId = model.FacultyId ?? 0,
+                                CourseLevel = courseLevel,
+                                AffiliationType = model.AffiliationType ?? 0,
+                                YearOfStudyId = posted.YearOfStudyId,
+                                CreatedOn = DateTime.Now
+                            };
+
+                            _context.CaAcademicPerformances.Add(existing);
+                        }
+
+                        existing.RegularStudents = posted.RegularStudents;
+                        existing.RepeaterStudents = posted.RepeaterStudents;
+                        existing.NumberOfStudentsPassed = posted.NumberOfStudentsPassed;
+                        existing.PassPercentage = posted.PassPercentage;
+                        existing.FirstClassCount = posted.FirstClassCount;
+                        existing.DistinctionCount = posted.DistinctionCount;
+                        existing.Remarks = posted.Remarks;
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
 
                 // ================= COURSE CURRICULUM (INSERT OR UPDATE) =================
                 if (model.CourseCurriculums != null)
@@ -452,8 +457,6 @@ namespace Medical_Affiliation.Controllers
                         var existing = _context.CaCourseCurricula.FirstOrDefault(x =>
                             x.CollegeCode == model.CollegeCode &&
                             x.FacultyId == model.FacultyId &&
-                            x.CourseLevel == courseLevel &&
-                            x.AffiliationType == model.AffiliationType &&
                             x.CurriculumId == row.CurriculumId
                         );
 
@@ -528,24 +531,38 @@ namespace Medical_Affiliation.Controllers
                     x.CourseLevel == courseLevel &&
                     x.AffiliationType == model.AffiliationType).ToList();
 
-                _context.CaExaminationSchemes.RemoveRange(oldSchemes);
 
                 if (postedSchemes != null)
                 {
                     foreach (var scheme in postedSchemes)
                     {
-                        if (!scheme.NumberOfStudents.HasValue) ;
+                        if (!scheme.NumberOfStudents.HasValue)
+                            continue;
 
-                        _context.CaExaminationSchemes.Add(new CaExaminationScheme
+                        var existing = await _context.CaExaminationSchemes
+                            .FirstOrDefaultAsync(x =>
+                                x.CollegeCode == model.CollegeCode &&
+                                x.FacultyId == model.FacultyId &&
+                                x.CourseLevel == courseLevel &&
+                                x.AffiliationType == model.AffiliationType &&
+                                x.SchemeId == scheme.SchemeId);
+
+                        if (existing == null)
                         {
-                            CollegeCode = model.CollegeCode,
-                            FacultyId = model.FacultyId ?? 0,
-                            CourseLevel = courseLevel,
-                            AffiliationType = model.AffiliationType ?? 0,
-                            SchemeId = (int)scheme.SchemeId,
-                            NumberOfStudents = scheme.NumberOfStudents.Value,
-                            CreatedOn = DateTime.Now
-                        });
+                            existing = new CaExaminationScheme
+                            {
+                                CollegeCode = model.CollegeCode,
+                                FacultyId = model.FacultyId ?? 0,
+                                CourseLevel = courseLevel,
+                                AffiliationType = model.AffiliationType ?? 0,
+                                SchemeId = (int)scheme.SchemeId,
+                                CreatedOn = DateTime.Now
+                            };
+
+                            _context.CaExaminationSchemes.Add(existing);
+                        }
+
+                        existing.NumberOfStudents = scheme.NumberOfStudents.Value;
                     }
                 }
 
@@ -555,27 +572,38 @@ namespace Medical_Affiliation.Controllers
                     x.FacultyId == model.FacultyId &&
                     x.CourseLevel == courseLevel &&
                     x.AffiliationType == model.AffiliationType).ToList();
-                _context.CaStudentRegisterRecords.RemoveRange(oldRegisters);
 
                 if (model.StudentRegisterRecords != null)
                 {
                     foreach (var rec in model.StudentRegisterRecords)
                     {
-                        // Only add if RegisterRecordId is present (defensive)
-                        if (!rec.RegisterRecordId.HasValue) continue;
+                        if (!rec.RegisterRecordId.HasValue)
+                            continue;
 
-                        _context.CaStudentRegisterRecords.Add(new CaStudentRegisterRecord
+                        var existing = await _context.CaStudentRegisterRecords
+                            .FirstOrDefaultAsync(x =>
+                                x.CollegeCode == model.CollegeCode &&
+                                x.FacultyId == model.FacultyId &&
+                                x.CourseLevel == courseLevel &&
+                                x.AffiliationType == model.AffiliationType &&
+                                x.RegisterRecordId == rec.RegisterRecordId);
+
+                        if (existing == null)
                         {
-                            CollegeCode = model.CollegeCode,
-                            FacultyId = model.FacultyId ?? 0,
-                            CourseLevel = courseLevel,
-                            AffiliationType = model.AffiliationType ?? 0,
-                            RegisterRecordId = rec.RegisterRecordId ?? 0,
-                            IsMaintained = rec.IsMaintained,
+                            existing = new CaStudentRegisterRecord
+                            {
+                                CollegeCode = model.CollegeCode,
+                                FacultyId = model.FacultyId ?? 0,
+                                CourseLevel = courseLevel,
+                                AffiliationType = model.AffiliationType ?? 0,
+                                RegisterRecordId = rec.RegisterRecordId.Value,
+                                CreatedOn = DateTime.Now
+                            };
 
+                            _context.CaStudentRegisterRecords.Add(existing);
+                        }
 
-                            CreatedOn = DateTime.Now
-                        });
+                        existing.IsMaintained = rec.IsMaintained;
                     }
                 }
 
