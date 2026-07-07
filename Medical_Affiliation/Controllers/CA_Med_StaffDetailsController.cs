@@ -164,6 +164,10 @@ namespace Medical_Affiliation.Controllers
             var AEBASInspectionDayPdf = model.AEBASInspectionDayPdf;
             var ProvidentFundPdf = model.ProvidentFundPdf;
             var ESIPdf = model.ESIPdf;
+            var ExaminerDetailsPdf2 = model.ExaminerDetailsPdf2;
+            var ExaminerDetailsPdf3 = model.ExaminerDetailsPdf3;
+            var ExaminerDetailsPdf4 = model.ExaminerDetailsPdf4;
+            var ExaminerDetailsPdf5 = model.ExaminerDetailsPdf5;
 
             var collegeCode =
                 HttpContext.Session.GetString("CollegeCode");
@@ -282,6 +286,49 @@ namespace Medical_Affiliation.Controllers
                         ExaminerDetailsPdf.FileName;
                 }
 
+                if (ExaminerDetailsPdf2 != null)
+                {
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf2,
+                        "ExaminerDocs",
+                        FacultyCode);
+
+                    entity.ExaminerDetailsPdfPath2 = path;
+                    entity.ExaminerDetailsPdfName2 = ExaminerDetailsPdf2.FileName;
+                }
+
+                if (ExaminerDetailsPdf3 != null)
+                {
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf3,
+                        "ExaminerDocs",
+                        FacultyCode);
+
+                    entity.ExaminerDetailsPdfPath3 = path;
+                    entity.ExaminerDetailsPdfName3 = ExaminerDetailsPdf3.FileName;
+                }
+
+                if (ExaminerDetailsPdf4 != null)
+                {
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf4,
+                        "ExaminerDocs",
+                        FacultyCode);
+
+                    entity.ExaminerDetailsPdfPath4 = path;
+                    entity.ExaminerDetailsPdfName4 = ExaminerDetailsPdf4.FileName;
+                }
+
+                if (ExaminerDetailsPdf5 != null)
+                {
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf5,
+                        "ExaminerDocs",
+                        FacultyCode);
+
+                    entity.ExaminerDetailsPdfPath5 = path;
+                    entity.ExaminerDetailsPdfName5 = ExaminerDetailsPdf5.FileName;
+                }
 
                 if (AEBASLastThreeMonthsPdf != null)
                 {
@@ -455,6 +502,20 @@ namespace Medical_Affiliation.Controllers
                 staffOther.ExaminerDetailsPdfName =
                     commonEntity.ExaminerDetailsPdfName;
 
+                staffOther.ExaminerDetailsPdfName2 =
+                    commonEntity.ExaminerDetailsPdfName2;
+
+                staffOther.ExaminerDetailsPdfName3 =
+                    commonEntity.ExaminerDetailsPdfName3;
+
+                staffOther.ExaminerDetailsPdfName4 =
+                    commonEntity.ExaminerDetailsPdfName4;
+
+
+                staffOther.ExaminerDetailsPdfName5 =
+                    commonEntity.ExaminerDetailsPdfName5;
+
+
                 staffOther.AEBASLastThreeMonthsPdfName =
                     commonEntity.AebaslastThreeMonthsPdfName;
 
@@ -507,9 +568,29 @@ namespace Medical_Affiliation.Controllers
 
             switch (type)
             {
-                case "Examiner":
+                case "Examiner1":
                     filePath = record.ExaminerDetailsPdfPath;
                     fileName = record.ExaminerDetailsPdfName;
+                    break;
+
+                case "Examiner2":
+                    filePath = record.ExaminerDetailsPdfPath2;
+                    fileName = record.ExaminerDetailsPdfName2;
+                    break;
+
+                case "Examiner3":
+                    filePath = record.ExaminerDetailsPdfPath3;
+                    fileName = record.ExaminerDetailsPdfName3;
+                    break;
+
+                case "Examiner4":
+                    filePath = record.ExaminerDetailsPdfPath4;
+                    fileName = record.ExaminerDetailsPdfName4;
+                    break;
+
+                case "Examiner5":
+                    filePath = record.ExaminerDetailsPdfPath5;
+                    fileName = record.ExaminerDetailsPdfName5;
                     break;
 
                 case "AEBAS3Months":

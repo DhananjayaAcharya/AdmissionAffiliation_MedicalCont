@@ -628,7 +628,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> AcademicMattersPG(CA_Aff_PgAcademicMattersViewModel model)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
+            int facultyId = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             string courseLevel = "PG";
@@ -673,6 +673,8 @@ namespace Medical_Affiliation.Controllers
                         existing.RepeaterStudents = year.RepeaterStudents;
                         existing.NumberOfStudentsPassed = year.NumberOfStudentsPassed;
                         existing.PassPercentage = year.PassPercentage;
+                        existing.CourseLevel = courseLevel;
+                        existing.Subject = section.Subject;
                         existing.FirstClassCount = year.FirstClassCount;
                         existing.DistinctionCount = year.DistinctionCount;
                         existing.Remarks = year.Remarks;

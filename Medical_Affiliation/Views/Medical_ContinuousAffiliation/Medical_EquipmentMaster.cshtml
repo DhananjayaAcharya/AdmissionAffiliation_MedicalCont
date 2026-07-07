@@ -399,12 +399,15 @@
                     <label class="form-label-text required">Equipment Name</label>
                     <div class="input-icon-wrap">
                         <span class="input-icon">&#9881;</span>
-                        <input type="text" asp-for="EquipmentName" class="form-control"
-                               id="equipmentName"
-                               placeholder="e.g. Digital Microscope, Centrifuge Machine"
-                               maxlength="200" autocomplete="off" />
+                        <textarea asp-for="EquipmentName"
+                                  class="form-control"
+                                  id="equipmentName"
+                                  placeholder="e.g. Digital Microscope, Centrifuge Machine"
+                                  maxlength="500"
+                                  autocomplete="off"
+                                  rows="3" style="resize: none"></textarea>
                     </div>
-                    <div class="char-counter" id="charCounter">0 / 200 characters</div>
+                    <div class="char-counter" id="charCounter">0 / 500 characters</div>
                     <span asp-validation-for="EquipmentName" class="text-danger"></span>
                 </div>
 
@@ -446,7 +449,7 @@
         const charCounter = document.getElementById('charCounter');
 
         function updateCounter() {
-            const len = nameInput.value.length, max = 200;
+            const len = nameInput.value.length, max = 500;
             charCounter.textContent = `${len} / ${max} characters`;
             charCounter.className = 'char-counter' +
                 (len >= max ? ' at-limit' : len >= max * 0.8 ? ' near-limit' : '');

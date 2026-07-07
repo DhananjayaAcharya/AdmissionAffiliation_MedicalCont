@@ -54,4 +54,8 @@ public partial class MedicalSkillsLaboratory
     public string? CollegeCode { get; set; }
 
     public int? AnnualBdsIntake { get; set; }
+
+    public int? AffiliationTypeId { get; set; }
+
+    public virtual TypeOfAffiliation? AffiliationType { get; set; }
 }
