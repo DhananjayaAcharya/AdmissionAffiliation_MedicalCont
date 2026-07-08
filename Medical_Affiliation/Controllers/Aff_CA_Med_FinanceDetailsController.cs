@@ -107,35 +107,70 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Med_CA_AccountAndFeeDetails(
-                                    Med_CA_AccountAndFeeDetailsPageVM model,
-                                    IFormFile? GoverningCouncilPdf,
-                                    IFormFile? AccountSummaryPdf,
-                                    IFormFile? AuditedStatementPdf,
-                                    IFormFile? DonationPdf)
+                    Med_CA_AccountAndFeeDetailsPageVM model,
+                    IFormFile? GoverningCouncilPdf,
+                    IFormFile? AccountSummaryPdf,
+                    IFormFile? AuditedStatementPdf,
+                    IFormFile? DonationPdf)
         {
-            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Login");
 
-
-            // Remove validation for session fields
             ModelState.Remove("CollegeCode");
             ModelState.Remove("FacultyCode");
             ModelState.Remove("CourseLevel");
 
             // ===============================
-            // 🔥 LOOP THROUGH EACH SECTION
+            // 🔥 PRE-VALIDATE — ONLY SECTIONS THE USER ACTUALLY FILLED IN
+            // ===============================
+            var missingFields = new List<string>();
+            bool anySectionFilled = false;
+
+            for (int i = 0; i < model.Sections.Count; i++)
+            {
+                var item = model.Sections[i];
+
+                if (IsSectionEmpty(item))
+                    continue; // untouched level — skip validation entirely
+
+                anySectionFilled = true;
+
+                var levelLabel = string.IsNullOrWhiteSpace(item.CourseLevel) ? $"Section {i + 1}" : item.CourseLevel;
+
+                if (string.IsNullOrWhiteSpace(item.AuthorityNameAddress))
+                    missingFields.Add($"{levelLabel}: Authority Name & Address is required.");
+
+                if (string.IsNullOrWhiteSpace(item.AuthorityContact))
+                    missingFields.Add($"{levelLabel}: Authority Contact is required.");
+            }
+
+            if (!anySectionFilled)
+            {
+                ModelState.AddModelError(string.Empty, "Please fill in at least one course level before saving.");
+                return View("Med_CA_FinanceDetails", model);
+            }
+
+            if (missingFields.Any())
+            {
+                foreach (var msg in missingFields)
+                    ModelState.AddModelError(string.Empty, msg);
+
+                return View("Med_CA_FinanceDetails", model);
+            }
+
+            // ===============================
+            // 🔥 LOOP THROUGH EACH FILLED-IN SECTION ONLY
             // ===============================
             foreach (var item in model.Sections)
             {
+                if (IsSectionEmpty(item))
+                    continue; // don't touch DB for levels the user didn't fill in
+
                 var courseLevel = item.CourseLevel?.Trim().ToUpper();
 
-                // ===============================
-                // FETCH EXISTING RECORD
-                // ===============================
                 var db = await _context.MedCaAccountAndFeeDetails
                     .FirstOrDefaultAsync(x =>
                         x.CollegeCode == collegeCode &&
@@ -157,11 +192,8 @@ namespace Medical_Affiliation.Controllers
                     _context.MedCaAccountAndFeeDetails.Add(db);
                 }
 
-                // ===============================
-                // 🔥 NORMAL FIELD UPDATE
-                // ===============================
-                db.AuthorityNameAddress = item.AuthorityNameAddress;
-                db.AuthorityContact = item.AuthorityContact;
+                db.AuthorityNameAddress = item.AuthorityNameAddress!;
+                db.AuthorityContact = item.AuthorityContact!;
 
                 db.RecurrentAnnual = item.RecurrentAnnual ?? 0m;
                 db.NonRecurrentAnnual = item.NonRecurrentAnnual ?? 0m;
@@ -183,7 +215,6 @@ namespace Medical_Affiliation.Controllers
                 db.AccountBooksMaintained = item.AccountBooksMaintained;
                 db.AccountsAudited = item.AccountsAudited;
 
-                // PG only
                 if (courseLevel == "PG")
                     db.DonationLevied = item.DonationLevied;
                 else
@@ -193,7 +224,6 @@ namespace Medical_Affiliation.Controllers
                 // 🔥 FILE HANDLING
                 // ===============================
 
-                // 1. Governing Council PDF
                 if (item.GoverningCouncilPdf != null && item.GoverningCouncilPdf.Length > 0)
                 {
                     var path = await SaveFinanceFileAsync(item.GoverningCouncilPdf, "GoverningCouncil");
@@ -208,7 +238,6 @@ namespace Medical_Affiliation.Controllers
                     db.GoverningCouncilPdfName = item.GoverningCouncilPdf.FileName;
                 }
 
-                // 2. Account Summary PDF
                 if (item.AccountBooksMaintained == "N")
                 {
                     if (!string.IsNullOrEmpty(db.AccountSummaryPdfPath) &&
@@ -234,7 +263,6 @@ namespace Medical_Affiliation.Controllers
                     db.AccountSummaryPdfName = item.AccountSummaryPdf.FileName;
                 }
 
-                // 3. Audited Statement PDF
                 if (item.AccountsAudited == "N")
                 {
                     if (!string.IsNullOrEmpty(db.AuditedStatementPdfPath) &&
@@ -260,7 +288,6 @@ namespace Medical_Affiliation.Controllers
                     db.AuditedStatementPdfName = item.AuditedStatementPdf.FileName;
                 }
 
-                // 4. Donation PDF (PG only)
                 if (courseLevel == "PG")
                 {
                     if (item.DonationLevied == "N")
@@ -293,12 +320,45 @@ namespace Medical_Affiliation.Controllers
             // ===============================
             // SAVE ALL
             // ===============================
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "Failed to save. Please check that all required fields are filled in for every section.");
+
+                return View("Med_CA_FinanceDetails", model);
+            }
 
             ContinuousAffiliationController.MarkDone(HttpContext, "FinancialDetails");
 
-            //return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
             return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
+        }
+
+        // ===============================
+        // 🔥 Helper: is this section untouched by the user?
+        // ===============================
+        private bool IsSectionEmpty(Med_CA_AccountAndFeeDetailsViewModel item)
+        {
+            return string.IsNullOrWhiteSpace(item.AuthorityNameAddress)
+                && string.IsNullOrWhiteSpace(item.AuthorityContact)
+                && !item.RecurrentAnnual.HasValue
+                && !item.NonRecurrentAnnual.HasValue
+                && !item.Deposits.HasValue
+                && !item.TuitionFee.HasValue
+                && !item.SportsFee.HasValue
+                && !item.UnionFee.HasValue
+                && !item.LibraryFee.HasValue
+                && !item.OtherFee.HasValue
+                && string.IsNullOrWhiteSpace(item.AccountBooksMaintained)
+                && string.IsNullOrWhiteSpace(item.AccountsAudited)
+                && string.IsNullOrWhiteSpace(item.DonationLevied)
+                && (item.GoverningCouncilPdf == null || item.GoverningCouncilPdf.Length == 0)
+                && (item.AccountSummaryPdf == null || item.AccountSummaryPdf.Length == 0)
+                && (item.AuditedStatementPdf == null || item.AuditedStatementPdf.Length == 0)
+                && (item.DonationPdf == null || item.DonationPdf.Length == 0);
         }
 
 

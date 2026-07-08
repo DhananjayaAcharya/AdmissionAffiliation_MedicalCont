@@ -4195,7 +4195,8 @@ namespace Medical_Affiliation.Controllers
                 return View(model);
             }
         }
-        private void LoadDropdowns(string facultyCode, string selectedValue = null)
+        // Shared helper — populates Qualifications, CollegeList, and DesignationList together
+        private void LoadDropdowns(string facultyCode, string? selectedQualification = null)
         {
             ViewBag.Qualifications = new SelectList(
                 _context.MstCourses
@@ -4205,8 +4206,37 @@ namespace Medical_Affiliation.Controllers
                     .Select(c => new { c.Id, c.CourseName }),
                 "Id",
                 "CourseName",
-                selectedValue
+                selectedQualification
             );
+
+            ViewBag.CollegeList = new SelectList(
+                _context.AffiliationCollegeMasters
+                    .Where(x => x.FacultyCode.Trim() == facultyCode.Trim())
+                    .OrderBy(x => x.CollegeName)
+                    .Select(x => new
+                    {
+                        Value = x.CollegeCode,
+                        Text = x.CollegeName
+                    }),
+                "Value",
+                "Text"
+            );
+
+            ViewBag.DesignationList = facultyCode == "1"
+                ? new SelectList(new[]
+                  {
+              "JR (If Applicable)",
+              "SR (If Applicable)",
+              "Assistant Professor",
+              "Associate Professor",
+              "Professor"
+                  })
+                : new SelectList(new[]
+                  {
+              "Lecturer/Assistant Professor",
+              "Reader/Associate Professor",
+              "Professor"
+                  });
         }
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
@@ -4387,10 +4417,8 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("ClgLogin");
 
-
             model.FacultyCode = facultyCode;
             model.CollegeCode = collegeCode;
-
 
             ModelState.Remove(nameof(model.UGYears));
             ModelState.Remove("AdministrativeExperiences");
@@ -4425,7 +4453,6 @@ namespace Medical_Affiliation.Controllers
                     {
                         FacultyCode = facultyCode,
                         CollegeCode = collegeCode,
-
                     };
 
                     _context.AffPrincipalDetails.Add(existingDean);
@@ -4436,6 +4463,7 @@ namespace Medical_Affiliation.Controllers
                 existingDean.DeanQualificationDate = model.DeanQualificationDate;
                 existingDean.DeanUniversity = model.DeanUniversity;
                 existingDean.DeanStateCouncilNumber = model.DeanStateCouncilNumber;
+
                 if (facultyCode != "2")
                 {
                     existingDean.RecognizedByMci = model.RecognizedByMCI;
@@ -4459,31 +4487,17 @@ namespace Medical_Affiliation.Controllers
                 // 📘 Teaching Experience
                 if (model.TeachingExperiences != null && model.TeachingExperiences.Any())
                 {
-                    // ✅ STEP 1: Filter only filled rows
-                    //var validRows = model.TeachingExperiences
-                    //    .Where(t =>
-                    //        !string.IsNullOrWhiteSpace(t.Designation) &&
-                    //        (
-                    //            t.UGFrom != null ||
-                    //            t.UGTo != null ||
-                    //            t.PGFrom != null ||
-                    //            t.PGTo != null ||
-                    //            (t.TotalExperienceYears != null && t.TotalExperienceYears > 0)
-                    //        )
-                    //    )
-                    //    .ToList();
-
                     var validRows = model.TeachingExperiences
-                                   .Where(t =>
-                                       !string.IsNullOrWhiteSpace(t.Designation) &&
-                                       (
-                                           t.FromDate != null ||
-                                           t.ToDate != null ||
-                                           (t.TeachingExperienceYears != null &&
-                                            t.TeachingExperienceYears > 0)
-                                       )
-                                   )
-                                   .ToList();
+                        .Where(t =>
+                            !string.IsNullOrWhiteSpace(t.Designation) &&
+                            (
+                                t.FromDate != null ||
+                                t.ToDate != null ||
+                                (t.TeachingExperienceYears != null &&
+                                 t.TeachingExperienceYears > 0)
+                            )
+                        )
+                        .ToList();
 
                     // ✅ STEP 2: Validate experience years for known designations
                     foreach (var t in validRows)
@@ -4510,19 +4524,16 @@ namespace Medical_Affiliation.Controllers
                     bool hasAssociate = designationList.Any(d => d.Contains("associate"));
                     bool hasProfessor = designationList.Any(d => d.Contains("professor"));
 
-                    // Assistant is mandatory if any teaching data entered
                     if (validRows.Any() && !hasAssistant)
                     {
                         ModelState.AddModelError("", "Assistant Professor details are mandatory.");
                     }
 
-                    // Associate without Assistant
                     if (hasAssociate && !hasAssistant)
                     {
                         ModelState.AddModelError("", "Assistant Professor must be entered before Associate Professor.");
                     }
 
-                    // Professor without Assistant
                     if (hasProfessor && !hasAssistant)
                     {
                         ModelState.AddModelError("", "Assistant Professor must be entered before Professor.");
@@ -4538,14 +4549,10 @@ namespace Medical_Affiliation.Controllers
                     // ✅ STEP 5: Save only filled rows
                     foreach (var t in model.TeachingExperiences)
                     {
-                        // Skip completely empty rows
-                        //if (string.IsNullOrWhiteSpace(t.Designation) &&
-                        //    t.UGFrom == null && t.UGTo == null &&
-                        //    t.PGFrom == null && t.PGTo == null &&
-                        //    (t.TotalExperienceYears == null || t.TotalExperienceYears == 0))
-                        //    continue;
-
+                        // Skip completely empty rows (now also checks OtherCollege)
                         if (string.IsNullOrWhiteSpace(t.Designation) &&
+                            string.IsNullOrWhiteSpace(t.OtherCollege) &&
+                            string.IsNullOrWhiteSpace(t.ExpCollegeCode) &&
                             t.FromDate == null &&
                             t.ToDate == null &&
                             (t.TeachingExperienceYears == null ||
@@ -4560,25 +4567,11 @@ namespace Medical_Affiliation.Controllers
                             Facultycode = facultyCode,
                             Collegecode = collegeCode,
                             Designation = t.Designation?.Trim(),
-                            // OtherCollege=t.OtherCollege,
                             ExpCollegeCode = t.ExpCollegeCode,
-
-
-                            //Ugfrom = t.UGFrom,
-                            //Ugto = t.UGTo,
-                            //Pgfrom = t.PGFrom,
-                            //Pgto = t.PGTo,
-                            OtherCollege = t.OtherCollege,
-
+                            OtherCollege = t.OtherCollege?.Trim(),
                             FromDate = t.FromDate,
                             ToDate = t.ToDate,
-
-                            TotalExperienceYears =
-                                t.TeachingExperienceYears ?? 0
-
-                            //  TotalExperienceYears = t.TotalExperienceYears ?? 0,
-                            //UgCollegeCode = t.UGCollegeCode,
-                            //PgCollegeCode = t.PGCollegeCode,
+                            TotalExperienceYears = t.TeachingExperienceYears ?? 0
                         });
                     }
                 }
@@ -4588,8 +4581,10 @@ namespace Medical_Affiliation.Controllers
                 {
                     foreach (var a in model.AdministrativeExperiences)
                     {
-                        // Skip completely empty rows
+                        // Skip completely empty rows (now also checks OtherCollege / ExpCollegeCode)
                         if (string.IsNullOrWhiteSpace(a.PostHeld) &&
+                            string.IsNullOrWhiteSpace(a.OtherCollege) &&
+                            string.IsNullOrWhiteSpace(a.ExpCollegeCode) &&
                             a.FromDate == null && a.ToDate == null &&
                             a.TotalExperienceYears == null)
                             continue;
@@ -4600,6 +4595,7 @@ namespace Medical_Affiliation.Controllers
                             Facultycode = facultyCode,
                             Collegecode = collegeCode,
                             ExpCollegeCode = a.ExpCollegeCode,
+                            OtherCollege = a.OtherCollege?.Trim(),   // ✅ FIX: now saved
                             PostHeld = a.PostHeld?.Trim(),
                             FromDate = a.FromDate,
                             ToDate = a.ToDate,
@@ -4613,10 +4609,10 @@ namespace Medical_Affiliation.Controllers
 
                 if (facultyCode == "2")
                 {
-
                     TempData["SuccessMessage"] = "Principal details saved successfully.";
                     return RedirectToAction("Ug_Course_Details");
                 }
+
                 TempData["SuccessMessage"] = "Principal details saved successfully.";
                 return RedirectToAction("Details_Of_MBBS");
             }
