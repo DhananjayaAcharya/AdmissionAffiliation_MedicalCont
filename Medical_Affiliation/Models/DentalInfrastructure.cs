@@ -27,6 +27,8 @@ public partial class DentalInfrastructure
 
     public DateTime? ModifiedOn { get; set; }
 
+    public string? CourseLevel { get; set; }
+
     public virtual TypeOfAffiliation AffiliationType { get; set; } = null!;
 
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;

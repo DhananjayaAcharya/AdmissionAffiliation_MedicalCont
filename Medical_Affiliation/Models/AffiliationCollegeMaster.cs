@@ -39,6 +39,8 @@ public partial class AffiliationCollegeMaster
 
     public bool? Status { get; set; }
 
+    public string? CollegeEmail { get; set; }
+
     public virtual ICollection<AffiliationFinalDeclaration> AffiliationFinalDeclarations { get; set; } = new List<AffiliationFinalDeclaration>();
 
     public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();

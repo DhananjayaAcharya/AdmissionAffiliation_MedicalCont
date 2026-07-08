@@ -21,6 +21,8 @@ public partial class Faculty
 
     public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();
 
+    public virtual ICollection<AppUser> AppUsers { get; set; } = new List<AppUser>();
+
     public virtual ICollection<DentalChair> DentalChairs { get; set; } = new List<DentalChair>();
 
     public virtual ICollection<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; } = new List<DentalCollegeLandBuildingDetail>();

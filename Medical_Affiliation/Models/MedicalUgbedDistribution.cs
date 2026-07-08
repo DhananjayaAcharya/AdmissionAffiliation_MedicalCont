@@ -54,4 +54,8 @@ public partial class MedicalUgbedDistribution
     public string? CourseLevel { get; set; }
 
     public int? OralMaxillofacialSurgery { get; set; }
+
+    public int? AffiliationTypeId { get; set; }
+
+    public virtual TypeOfAffiliation? AffiliationType { get; set; }
 }
