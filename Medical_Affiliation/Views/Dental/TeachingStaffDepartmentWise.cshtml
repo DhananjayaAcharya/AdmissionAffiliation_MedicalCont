@@ -690,13 +690,19 @@
                                         </td>
 
                                         <td>
-                                            @faculty.DepartmentName
+                                            @for(int d = 0; d < faculty.Departments.Count; d++){
+                                                <div class="mb-1">
+                                                    @faculty.Departments[d].DepartmentName
 
-                                            <input type="hidden"
-                                                   asp-for="FacultyRows[i].DepartmentCode" />
+                                                    <input type="hidden" asp-for="FacultyRows[i].Departments[d].DepartmentCode" />
 
-                                            <input type="hidden"
-                                                   asp-for="FacultyRows[i].DepartmentName" />
+                                                    <input type="hidden"
+                                                           asp-for="FacultyRows[i].Departments[d].DepartmentName" />
+
+                                                    <input type="hidden"
+                                                           asp-for="FacultyRows[i].Departments[d].CourseLevel" />
+                                                </div>
+                                            }
                                         </td>
 
                                         <td>
@@ -913,12 +919,22 @@
                     <input type="hidden"
                            id="currentFacultyName" />
 
-                    <input type="hidden"
-                           id="modalDepartmentCode" />
+                    @* <div class="col-md-6">
+
+                        <label class="form-label fw-bold">
+                            Department
+                        </label>
+
+                        <input type="text"
+                               id="modalDepartmentName"
+                               class="form-control"
+                               readonly />
+
+                    </div> *@
 
                     <div class="row mb-3">
 
-                        <div class="col-md-6">
+                        <div class="col-md-16">
 
                             <label class="form-label fw-bold">
                                 Faculty Name
@@ -926,19 +942,6 @@
 
                             <input type="text"
                                    id="modalFacultyName"
-                                   class="form-control"
-                                   readonly />
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <label class="form-label fw-bold">
-                                Department
-                            </label>
-
-                            <input type="text"
-                                   id="modalDepartmentName"
                                    class="form-control"
                                    readonly />
 
@@ -953,6 +956,9 @@
                             <thead>
 
                                 <tr>
+                                    <th style="min-width:220px;">
+                                        Department
+                                    </th>
 
                                     <th style="min-width:180px;">
                                         Designation
@@ -1050,10 +1056,18 @@
 
             <td>
 
-                <select class="form-select designation-dropdown">
-                    <option value="">-- Select --</option>
+                <select class="form-select department-dropdown">
+                    <option value="">-- Select Department--</option>
                 </select>
 
+            </td>
+
+            <td>
+                <select class="form-select designation-dropdown">
+                    <option value="">
+                        -- Select --
+                    </option>
+                </select>
             </td>
 
             <td>
@@ -1350,14 +1364,16 @@
             openExperienceModal(data);
         });
 
+        let facultyDepartments = [];
         function openExperienceModal(data) {
+            facultyDepartments = data.departments || [];
 
             document.getElementById("currentFacultyName").value = data.nameOfFaculty ?? "";
-            document.getElementById("modalDepartmentCode").value = data.departmentCode ?? "";
+            
+            // document.getElementById("modalDepartmentName").value = data.departmentName ?? "";
+            document.getElementById("currentFacultyName").value = data.nameOfFaculty ?? "";
 
             document.getElementById("modalFacultyName").value = data.nameOfFaculty ?? "";
-
-            document.getElementById("modalDepartmentName").value = data.departmentName ?? "";
 
             document.getElementById("modalTotalExperience").textContent = (data.totalExperience ?? 0).toFixed(2);
 
@@ -1365,17 +1381,23 @@
 
             tbody.innerHTML = "";
 
-            if (!data.experiences || data.experiences.length === 0) {
+            if (!data.departments || data.departments.length === 0) {
 
                 addExperienceRow();
 
-            } else {
+            }
+            else {
 
-                data.experiences.forEach(exp => {
+                data.departments.forEach(department => {
 
-                    addExperienceRow(exp);
+                    department.experiences.forEach(exp => {
+
+                        addExperienceRow(exp, department);
+
+                    });
 
                 });
+
             }
 
             const modal =
@@ -1386,7 +1408,7 @@
             modal.show();
         }
 
-        function addExperienceRow(exp = null) {
+        function addExperienceRow(exp = null, department = null) {
 
             const template =
                 document.getElementById("experienceRowTemplate");
@@ -1405,6 +1427,8 @@
 
             const designationDropdown =
                 row.querySelector(".designation-dropdown");
+
+            const departmentDropdown = row.querySelector(".department-dropdown");
 
             const courseLevelDropdown =
                 row.querySelector(".courselevel-dropdown");
@@ -1435,7 +1459,23 @@
                 );
             });
 
-            
+            departmentDropdown.innerHTML =
+                '<option value="">-- Select Department --</option>';
+
+            facultyDepartments.forEach(d => {
+
+                departmentDropdown.add(
+                    new Option(
+                        d.departmentName,
+                        d.departmentCode
+                    )
+                );
+
+            });
+
+            if (department) {
+                departmentDropdown.value = department.departmentCode;
+            }
 
             // ======================
             // Colleges
