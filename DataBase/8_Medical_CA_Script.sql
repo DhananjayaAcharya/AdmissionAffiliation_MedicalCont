@@ -215,5 +215,87 @@ VALUES
 ('HDU',  'HDU(High Dependency Unit)',           7, 1, 'Admin'),
 ('Post. op ward/HDU',  'Post. op ward/HDU',     8, 1, 'Admin');
 
+---------------- ICU MAPPING MASTER ------------
+
+-------------- MAP - DERMATOLOGY ---------
+
+INSERT INTO MstDepartmentICUMapping
+(
+    DepartmentCode,
+    ICUTypeCode,
+    DisplayOrder,
+    IsActive,
+    CreatedBy
+)
+VALUES
+('MD011', 'ICU', 1, 1, 'Admin'),
+('MD011', 'HDU', 2, 1, 'Admin');
+
+------------- MAP - GENERAL SURGERY ------------
+
+INSERT INTO MstDepartmentICUMapping
+(
+    DepartmentCode,
+    ICUTypeCode,
+    DisplayOrder,
+    IsActive,
+    CreatedBy
+)
+VALUES
+
+('MD013', 'SICU', 1, 1, 'Admin'),
+('MD013', 'Post. op ward/HDU', 2, 1, 'Admin');
+
+
+----------- MAP - ORTHOPEADICS ------------
+
+
+
+INSERT INTO MstDepartmentICUMapping
+(
+    DepartmentCode,
+    ICUTypeCode,
+    DisplayOrder,
+    IsActive,
+    CreatedBy
+)
+VALUES
+
+('MD014', 'SICU', 1, 1, 'Admin'),
+('MD014', 'Post. op ward/HDU', 2, 1, 'Admin');
+
+
+----------- MAP - OPHTHALMOLOGY --------------
+
+INSERT INTO MstDepartmentICUMapping
+(
+    DepartmentCode,
+    ICUTypeCode,
+    DisplayOrder,
+    IsActive,
+    CreatedBy
+)
+VALUES
+
+('MD016', 'SICU', 1, 1, 'Admin'),
+('MD016', 'Post. op ward/HDU', 2, 1, 'Admin');
+
+----------- MAP - OTORHINOLARYNGOLOGY ----
+
+INSERT INTO MstDepartmentICUMapping
+(
+    DepartmentCode,
+    ICUTypeCode,
+    DisplayOrder,
+    IsActive,
+    CreatedBy
+)
+VALUES
+
+('MD015', 'SICU', 1, 1, 'Admin'),
+('MD015', 'Post. op ward/HDU', 2, 1, 'Admin');
+
+-------- 
+
 ------------- 
 EXEC sp_helpindex '[dbo].[DepartmentMaster]';

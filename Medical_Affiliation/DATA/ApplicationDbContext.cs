@@ -24,8 +24,6 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AcademicYearMaster> AcademicYearMasters { get; set; }
 
-    public virtual DbSet<AddCoursedetail> AddCoursedetails { get; set; }
-
     public virtual DbSet<AdministrativeFacilityType> AdministrativeFacilityTypes { get; set; }
 
     public virtual DbSet<AffAdminTeachingBlock> AffAdminTeachingBlocks { get; set; }
@@ -69,6 +67,12 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<AffiliationCollegeMaster1> AffiliationCollegeMaster1s { get; set; }
 
     public virtual DbSet<AffiliationCourseDetail> AffiliationCourseDetails { get; set; }
+
+    public virtual DbSet<AffiliationDepartmentIcudetail> AffiliationDepartmentIcudetails { get; set; }
+
+    public virtual DbSet<AffiliationDepartmentInformation> AffiliationDepartmentInformations { get; set; }
+
+    public virtual DbSet<AffiliationDepartmentUnitDetail> AffiliationDepartmentUnitDetails { get; set; }
 
     public virtual DbSet<AffiliationFinalDeclaration> AffiliationFinalDeclarations { get; set; }
 
@@ -376,6 +380,12 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<MstDentalService> MstDentalServices { get; set; }
 
+    public virtual DbSet<MstDepartmentConfiguration> MstDepartmentConfigurations { get; set; }
+
+    public virtual DbSet<MstDepartmentIcumapping> MstDepartmentIcumappings { get; set; }
+
+    public virtual DbSet<MstDepartmentIcutype> MstDepartmentIcutypes { get; set; }
+
     public virtual DbSet<MstDesignation> MstDesignations { get; set; }
 
     public virtual DbSet<MstEquipmentDepartment> MstEquipmentDepartments { get; set; }
@@ -632,33 +642,6 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.AcademicYear).HasMaxLength(20);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-        });
-
-        modelBuilder.Entity<AddCoursedetail>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__add_Cour__3214EC07CA8524EA");
-
-            entity.ToTable("add_Coursedetails");
-
-            entity.Property(e => e.CollegeCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CourseCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CourseLevel)
-                .HasMaxLength(30)
-                .IsUnicode(false);
-            entity.Property(e => e.CreatedOn)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.FacultyCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.TypeOfAffiliation)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<AdministrativeFacilityType>(entity =>
@@ -1347,6 +1330,96 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.YearOfLastAffiliationRguhs)
                 .HasMaxLength(100)
                 .HasColumnName("YearOfLastAffiliationRGUHS");
+        });
+
+        modelBuilder.Entity<AffiliationDepartmentIcudetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC07AC2E291B");
+
+            entity.ToTable("AffiliationDepartmentICUDetails");
+
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IcutypeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("ICUTypeCode");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.DepartmentInformation).WithMany(p => p.AffiliationDepartmentIcudetails)
+                .HasForeignKey(d => d.DepartmentInformationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffiliationDepartmentICUDetails_DepartmentInformation");
+
+            entity.HasOne(d => d.IcutypeCodeNavigation).WithMany(p => p.AffiliationDepartmentIcudetails)
+                .HasPrincipalKey(p => p.IcutypeCode)
+                .HasForeignKey(d => d.IcutypeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffiliationDepartmentICUDetails_ICUType");
+        });
+
+        modelBuilder.Entity<AffiliationDepartmentInformation>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC074B5D0F11");
+
+            entity.ToTable("AffiliationDepartmentInformation");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ExistingPgintake).HasColumnName("ExistingPGIntake");
+            entity.Property(e => e.HeadOfDepartment).HasMaxLength(200);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TotalIcubeds).HasColumnName("TotalICUBeds");
+
+            entity.HasOne(d => d.DepartmentCodeNavigation).WithMany(p => p.AffiliationDepartmentInformations)
+                .HasPrincipalKey(p => p.DepartmentCode)
+                .HasForeignKey(d => d.DepartmentCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffiliationDepartmentInformation_Department");
+        });
+
+        modelBuilder.Entity<AffiliationDepartmentUnitDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Affiliat__3214EC0720F1E37D");
+
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.DepartmentInformation).WithMany(p => p.AffiliationDepartmentUnitDetails)
+                .HasForeignKey(d => d.DepartmentInformationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffiliationDepartmentUnitDetails_DepartmentInformation");
         });
 
         modelBuilder.Entity<AffiliationFinalDeclaration>(entity =>
@@ -2406,7 +2479,15 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.ExaminerDetailsPdfName).HasMaxLength(255);
+            entity.Property(e => e.ExaminerDetailsPdfName2).HasMaxLength(255);
+            entity.Property(e => e.ExaminerDetailsPdfName3).HasMaxLength(255);
+            entity.Property(e => e.ExaminerDetailsPdfName4).HasMaxLength(255);
+            entity.Property(e => e.ExaminerDetailsPdfName5).HasMaxLength(255);
             entity.Property(e => e.ExaminerDetailsPdfPath).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath2).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath3).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath4).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath5).HasMaxLength(500);
             entity.Property(e => e.FacultyCode).HasMaxLength(25);
             entity.Property(e => e.ProvidentFundPdfName).HasMaxLength(255);
             entity.Property(e => e.ProvidentFundPdfPath).HasMaxLength(500);
@@ -3495,6 +3576,8 @@ public partial class ApplicationDbContext : DbContext
                 .HasFillFactor(80);
 
             entity.ToTable("DepartmentMaster");
+
+            entity.HasIndex(e => e.DepartmentCode, "UQ_DepartmentMaster_DepartmentCode").IsUnique();
 
             entity.Property(e => e.DepartmentCode)
                 .HasMaxLength(50)
@@ -5246,6 +5329,101 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Fk_MstDentalServices_FacultyCode");
+        });
+
+        modelBuilder.Entity<MstDepartmentConfiguration>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstDepar__3214EC07846C006F");
+
+            entity.ToTable("MstDepartmentConfiguration");
+
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.DepartmentCodeNavigation).WithMany(p => p.MstDepartmentConfigurations)
+                .HasPrincipalKey(p => p.DepartmentCode)
+                .HasForeignKey(d => d.DepartmentCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDepartmentConfiguration_DepartmentMaster");
+        });
+
+        modelBuilder.Entity<MstDepartmentIcumapping>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstDepar__3214EC07FB42E0EC");
+
+            entity.ToTable("MstDepartmentICUMapping");
+
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.IcutypeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("ICUTypeCode");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.DepartmentCodeNavigation).WithMany(p => p.MstDepartmentIcumappings)
+                .HasPrincipalKey(p => p.DepartmentCode)
+                .HasForeignKey(d => d.DepartmentCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDepartmentICUMapping_DepartmentMaster");
+
+            entity.HasOne(d => d.IcutypeCodeNavigation).WithMany(p => p.MstDepartmentIcumappings)
+                .HasPrincipalKey(p => p.IcutypeCode)
+                .HasForeignKey(d => d.IcutypeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDepartmentICUMapping_ICUType");
+        });
+
+        modelBuilder.Entity<MstDepartmentIcutype>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstDepar__3214EC0757089143");
+
+            entity.ToTable("MstDepartmentICUType");
+
+            entity.HasIndex(e => e.IcutypeCode, "UQ_MstDepartmentICUType_ICUTypeCode").IsUnique();
+
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IcutypeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("ICUTypeCode");
+            entity.Property(e => e.IcutypeName)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("ICUTypeName");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<MstDesignation>(entity =>
