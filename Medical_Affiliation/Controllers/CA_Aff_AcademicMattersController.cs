@@ -838,7 +838,6 @@ namespace Medical_Affiliation.Controllers
                     x.CollegeCode == CollegeCode &&
                     x.FacultyId == facultyId &&
                     x.AffiliationType == AffTypeId.Value &&
-                    x.CourseLevel == CourseLevel &&
                     x.CurriculumId == curriculumId);
 
             if (record == null)
