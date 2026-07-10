@@ -823,17 +823,14 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public IActionResult ViewCurriculumPdf(int curriculumId)
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
-            string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "M001";
-            int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;        // 🔑 FIX
-            int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2; // 🔑 FIX
+            int facultyId = int.Parse(FacultyCode!);
 
             // Primary lookup (same as list page)
             var record = _context.CaCourseCurricula.FirstOrDefault(x =>
-                x.CollegeCode == collegeCode &&
+                x.CollegeCode == CollegeCode &&
                 x.FacultyId == facultyId &&
-                x.AffiliationType == affiliationType &&
-                x.CourseLevel == courseLevel &&
+                x.AffiliationType == (AffTypeId ?? 2) &&
+                x.CourseLevel == CourseLevel &&
                 x.CurriculumId == curriculumId);
 
             // Fallback (in case session mismatch)
