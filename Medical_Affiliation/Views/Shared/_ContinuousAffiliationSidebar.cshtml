@@ -325,6 +325,21 @@
         });
     }
 
+    // --------------------------------------------------------------
+    // NEW SECTION: Additional Requirements → Departmental Information
+    // --------------------------------------------------------------
+    var deptInfoStep = new StepItem
+    {
+        Key = "DeptInfo",
+        Label = "Departmental Information",
+        Group = "Additional Requirements",   // <-- creates the new accordion group
+        Ctrl = "DepartmentInfo",            // <-- controller that will serve the view
+        Act = "Index"                      // <-- action method inside that controller
+        // If you ever need to restrict this step to certain levels, uncomment:
+        // Levels = new List<string> { "UG", "PG", "SS" }
+    };
+    allSteps.Add(deptInfoStep);
+
     // Filter out steps that don't apply to the selected course level and the college's offered levels
     allSteps = allSteps
         .Where(step =>
