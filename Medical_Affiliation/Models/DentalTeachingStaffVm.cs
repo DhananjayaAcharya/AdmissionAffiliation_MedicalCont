@@ -103,6 +103,7 @@ namespace Medical_Affiliation.Models
     public class FacultyExperienceModalVm
     {
         public string? NameOfFaculty { get; set; }
+        public int FacultyDetailId { get; set; }
 
         public List<FacultyDepartmentVm> Departments { get; set; } = new();
 

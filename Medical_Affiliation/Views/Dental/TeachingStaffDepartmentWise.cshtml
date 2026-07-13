@@ -1649,72 +1649,73 @@
             const facultyName =
                 document.getElementById("currentFacultyName").value;
 
-            const departmentName =
-                document.getElementById("modalDepartmentName").value;
+                const totalElement = document.getElementById("modalTotalExperience");
 
-            const experiences = [];
+            // const departmentName =
+            //     document.getElementById("modalDepartmentName").value;
 
-            document.querySelectorAll(
-                "#experienceRowsContainer tr"
-            ).forEach(row => {
+                const departmentMap = {};
 
-                experiences.push({
+                document.querySelectorAll("#experienceRowsContainer tr").forEach(row => {
 
-                    id:
-                        parseInt(
-                            row.querySelector(".experience-id")?.value || 0
-                        ),
+                    const departmentCode =
+                        row.querySelector(".department-dropdown").value;
 
-                    designationCode:
-                        row.querySelector(".designation-dropdown")?.value,
+                    const departmentName =
+                        row.querySelector(".department-dropdown")
+                            .selectedOptions[0]?.text || "";
 
-                    designationName:
-                        row.querySelector(".designation-dropdown")
-                            ?.selectedOptions[0]?.text ?? "",
+                    if (!departmentMap[departmentCode]) {
 
-                    courseLevel:
-                        row.querySelector(".courselevel-dropdown")?.value,
+                        departmentMap[departmentCode] = {
 
-                    collegeCode:
-                        row.querySelector(".college-dropdown")?.value,
+                            departmentCode: departmentCode,
+                            departmentName: departmentName,
+                            experiences: []
+                        };
+                    }
 
-                    fromDate:
-                        row.querySelector(".from-date")?.value || null,
+                    departmentMap[departmentCode].experiences.push({
 
-                    toDate:
-                        row.querySelector(".to-date")?.value || null,
+                        id: parseInt(row.querySelector(".experience-id").value || 0),
 
-                    experience:
-                        parseFloat(
-                            row.querySelector(".experience-value")?.dataset.value || 0
-                        )
+                        designationCode:
+                            row.querySelector(".designation-dropdown").value,
+
+                        designationName:
+                            row.querySelector(".designation-dropdown")
+                                .selectedOptions[0].text,
+
+                        courseLevel:
+                            row.querySelector(".courselevel-dropdown").value,
+
+                        collegeCode:
+                            row.querySelector(".college-dropdown").value,
+
+                        fromDate:
+                            row.querySelector(".from-date").value || null,
+
+                        toDate:
+                            row.querySelector(".to-date").value || null,
+
+                        experience:
+                            parseFloat(
+                                row.querySelector(".experience-value").dataset.value || 0
+                            )
+                    });
+
                 });
-            });
-            
-            const totalElement =
-                document.getElementById(
-                    "modalTotalExperience"
-                );
 
-            const payload = {
+                const payload = {
 
-                nameOfFaculty: facultyName,
+                    nameOfFaculty: facultyName,
 
-                departmentName: departmentName,
-                departmentCode:
-                    document.getElementById(
-                        "modalDepartmentCode"
-                    ).value,
+                    totalExperience:
+                        parseFloat(totalElement.dataset.value || 0),
 
-
-                totalExperience:
-                    parseFloat(
-                        totalElement.dataset.value || 0
-                    ),
-
-
-                experiences: experiences
-            };
+                    departments:
+                        Object.values(departmentMap)
+                };
 
             try {
 

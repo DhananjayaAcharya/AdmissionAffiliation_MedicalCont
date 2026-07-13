@@ -606,22 +606,6 @@
                     <div class="section-block-body">
                         <table class="data-table" id="teachingExperienceTable">
                             <thead>
-                               @*  <tr>
-                                    <th rowspan="2" style="width:4%">#</th>
-                                    <th rowspan="2" style="min-width:160px;">Designation</th>
-                                    <th colspan="3" style="width:28%">UG Teaching</th>
-                                    <th colspan="3" style="width:28%">PG Teaching</th>
-                                    <th rowspan="2" style="width:14%">Total Exp. (Yrs)</th>
-                                </tr>
-                                <tr class="group-row">
-                                    <th>College</th>
-                                    <th>From</th>
-                                    <th>To</th>
-
-                                    <th>College</th>
-                                    <th>From</th>
-                                    <th>To</th>
-                                </tr> *@
                                 <tr>
                                     <th>#</th>
                                     <th>Designation</th>
@@ -630,6 +614,7 @@
                                     <th>From Date</th>
                                     <th>To Date</th>
                                     <th>Teaching Exp. (Yrs)</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -689,6 +674,16 @@
                                                    readonly
                                                    class="form-control total-exp"
                                                    data-row="@i" />
+                                        </td>
+                                        <td>
+                                            <input type="hidden"
+                                                   asp-for="TeachingExperiences[i].IsDeleted"
+                                                   class="is-deleted" />
+
+                                            <button type="button"
+                                                    class="btn btn-danger btn-sm delete-row">
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -1110,6 +1105,21 @@
                     class="form-control total-exp"
                     data-row="${idx}" />
                     </td>
+                    <td>
+                        <input type="hidden"
+                               name="TeachingExperiences[${idx}].Id"
+                               value="0" />
+
+                        <input type="hidden"
+                               name="TeachingExperiences[${idx}].IsDeleted"
+                               value="false"
+                               class="is-deleted" />
+
+                        <button type="button"
+                                class="btn btn-danger btn-sm delete-row">
+                            Delete
+                        </button>
+                    </td>
                     </tr>`;
                 $('#teachingExperienceTable tbody').append(row);
                 updateSlNumbers('teachingExperienceTable');
@@ -1149,6 +1159,27 @@
                 if (tbody.find('tr').length > 1) {
                     $(this).closest('tr').remove();
                     updateSlNumbers($(this).closest('table').attr('id'));
+                }
+            });
+            $(document).on("click", ".delete-row", function () {
+
+                const row = $(this).closest("tr");
+
+                const id = parseInt(
+                    row.find('input[name$=".Id"]').val() || "0"
+                );
+
+                if (id > 0) {
+
+                    row.find(".is-deleted").val("true");
+
+                    row.hide();
+                }
+                else {
+
+                    row.remove();
+
+                    updateSlNumbers("teachingExperienceTable");
                 }
             });
 

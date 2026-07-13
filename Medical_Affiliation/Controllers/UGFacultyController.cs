@@ -20,7 +20,7 @@ namespace Medical_Affiliation.Controllers
         private readonly IWebHostEnvironment _environment;
 
         // ===== BASE STORAGE PATH (outside wwwroot — secure) =====
-        private readonly string BaseFolder = @"D:\MedicalUGFacultyList";
+        private readonly string BaseFolder = @"E:\MedicalUGFacultyList";
 
         // ===== PHOTO FOLDER =====
         private string PhotosFolder => Path.Combine(BaseFolder, "Photos");

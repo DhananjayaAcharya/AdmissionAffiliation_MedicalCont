@@ -973,13 +973,52 @@ namespace Medical_Affiliation.Controllers
                                 .Select(x => x.Id)
                                 .ToList();
 
-            var existingRecords = await _context
-                .TeachingStaffDepartmentWiseDetails
-                .Where(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
-                    x.NameOfFaculty == vm.NameOfFaculty)
-                .ToListAsync();
+            List<TeachingStaffDepartmentWiseDetail> existingRecords;
+
+            if (vm.FacultyDetailId > 0)
+            {
+                // New records
+                existingRecords = await _context
+                    .TeachingStaffDepartmentWiseDetails
+                    .Where(x =>
+                        x.FacultyDetailId == vm.FacultyDetailId)
+                    .ToListAsync();
+
+                // Fallback for old data
+                if (!existingRecords.Any())
+                {
+                    existingRecords = await _context
+                        .TeachingStaffDepartmentWiseDetails
+                        .Where(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            x.NameOfFaculty == vm.NameOfFaculty)
+                        .ToListAsync();
+                }
+            }
+            else
+            {
+                // Legacy records
+                existingRecords = await _context
+                    .TeachingStaffDepartmentWiseDetails
+                    .Where(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode &&
+                        x.NameOfFaculty == vm.NameOfFaculty)
+                    .ToListAsync();
+            }
+
+            // Backfill FacultyDetailId for old records
+            if (vm.FacultyDetailId > 0)
+            {
+                foreach (var record in existingRecords)
+                {
+                    if (record.FacultyDetailId == null)
+                    {
+                        record.FacultyDetailId = vm.FacultyDetailId;
+                    }
+                }
+            }
 
             var recordsToDelete = existingRecords
                 .Where(x => !postedIds.Contains(x.Id))
@@ -1015,7 +1054,8 @@ namespace Medical_Affiliation.Controllers
                         {
                             CollegeCode = collegeCode,
                             FacultyCode = facultyCode,
-                            NameOfFaculty = vm.NameOfFaculty
+                            NameOfFaculty = vm.NameOfFaculty,
+                            FacultyDetailId = vm.FacultyDetailId,
                         };
 
                         _context.TeachingStaffDepartmentWiseDetails.Add(entity);
@@ -1023,7 +1063,7 @@ namespace Medical_Affiliation.Controllers
 
                     entity.NameOfFaculty = vm.NameOfFaculty;
                     entity.DepartmentCode = department.DepartmentCode;
-
+                    entity.FacultyDetailId = vm.FacultyDetailId > 0 ? vm.FacultyDetailId : null ;
                     entity.DesignationCode = exp.DesignationCode;
                     entity.DesignationName = exp.DesignationName;
                     entity.CourseLevel = exp.CourseLevel;

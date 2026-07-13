@@ -313,6 +313,15 @@ namespace Medical_Affiliation.Controllers
                     {
                         existing.IsRemoved = true;
                         existing.RemoveRemarks = m.RemoveRemarks.Trim();
+
+                        var experienceRecords = await _context.TeachingStaffDepartmentWiseDetails
+                            .Where(x =>
+                                x.CollegeCode == collegeCode &&
+                                x.FacultyCode == facultyCode &&
+                                x.NameOfFaculty == existing.NameOfFaculty)
+                            .ToListAsync();
+
+                        _context.TeachingStaffDepartmentWiseDetails.RemoveRange(experienceRecords);
                         _context.FacultyDetails.Update(existing);
                     }
                 }
