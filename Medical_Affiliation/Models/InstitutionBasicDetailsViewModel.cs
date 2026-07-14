@@ -580,6 +580,7 @@ namespace Medical_Affiliation.Models
         public DateOnly? ToDate { get; set; }
         public decimal? TotalExperienceYears { get; set; }
         public string? ExpCollegeCode { get; set; }
+        public bool IsDeleted { get; set; }
 
         public string? OtherCollege { get; set; }
 

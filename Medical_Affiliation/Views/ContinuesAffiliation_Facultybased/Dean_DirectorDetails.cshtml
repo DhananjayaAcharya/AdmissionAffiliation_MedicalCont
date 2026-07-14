@@ -1023,13 +1023,11 @@
             });
 
         // Build college dropdown once
-        let collegeOptions = `<option value="">-- Select College --</option>`;
-        @foreach (var item in (SelectList)ViewBag.CollegeList)
-        {
-            <text>
-                collegeOptions += `<option value="@item.Value">@Html.Raw(item.Text)</option>`;
-            </text>
-        }
+        // Copy options from the first college dropdown rendered by MVC
+        let collegeOptions = $('.college-dropdown:first').html();
+        // Remove any selected attribute from copied options
+        collegeOptions = collegeOptions.replace(/selected="selected"/g, "");
+        collegeOptions = collegeOptions.replace(/\sselected/g, "");
 
         var designationOptions = `
         <option value="">-- Select Designation --</option>
@@ -1042,68 +1040,51 @@
         `;
 
             // ── Add Teaching row ──
-            $('#addTeachingRow').click(function () {
-                const idx = teachingRowIndex++;
-                // const row = `
-                // <tr>
-                //     <td class="sl-no">${idx + 1}</td>
-                //     <td><input name="TeachingExperiences[${idx}].Designation" class="form-control" /></td>
-                //     <td> <select name="TeachingExperiences[${idx}].UGCollegeCode" class="form-control">${collegeOptions} </select></td>
-                //     <td><input name="TeachingExperiences[${idx}].UGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="ug-from" /></td>
-                //     <td><input name="TeachingExperiences[${idx}].UGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="ug-to" /></td>
-        
-                //     <td>
-                //     <select name="TeachingExperiences[${idx}].PGCollegeCode"
-                //     class="form-control">
-                //     ${collegeOptions}
-                //     </select>
-                //     </td>
-                //     <td><input name="TeachingExperiences[${idx}].PGFrom"  type="date" class="form-control date-input" data-row="${idx}" data-type="pg-from" /></td>
-                //     <td><input name="TeachingExperiences[${idx}].PGTo"    type="date" class="form-control date-input" data-row="${idx}" data-type="pg-to" /></td>
-                //     <td><input name="TeachingExperiences[${idx}].TotalExperienceYears" type="number" step="0.1" readonly class="form-control total-exp" data-row="${idx}" /></td>
-                // </tr>`;
+        $('#addTeachingRow').click(function () {
+            const idx = teachingRowIndex++;
+                
         const row = `
                     <tr>
-                    <td class="sl-no">${idx + 1}</td>
+                        <td class="sl-no">${idx + 1}</td>
+
+                        <td>
+                            <select name="TeachingExperiences[${idx}].Designation"
+                            class="form-control">
+                            ${designationOptions}
+                            </select>
+                        </td>
 
                     <td>
-                    <select name="TeachingExperiences[${idx}].Designation"
-                    class="form-control">
-                    ${designationOptions}
-                    </select>
+                        <select name="TeachingExperiences[${idx}].ExpCollegeCode"
+                        class="form-control college-dropdown">
+                        ${collegeOptions}
+                        </select>
                     </td>
 
                     <td>
-                    <select name="TeachingExperiences[${idx}].PGCollegeCode"
-                    class="form-control college-dropdown">
-                    ${collegeOptions}
-                    </select>
+                        <input name="TeachingExperiences[${idx}].OtherCollege"
+                        class="form-control" />
                     </td>
 
                     <td>
-                    <input name="TeachingExperiences[${idx}].OtherCollege"
-                    class="form-control" />
+                        <input name="TeachingExperiences[${idx}].FromDate"
+                        type="date"
+                        class="form-control date-input"
+                        data-row="${idx}" />
                     </td>
 
                     <td>
-                    <input name="TeachingExperiences[${idx}].FromDate"
-                    type="date"
-                    class="form-control date-input"
-                    data-row="${idx}" />
+                        <input name="TeachingExperiences[${idx}].ToDate"
+                        type="date"
+                        class="form-control date-input"
+                        data-row="${idx}" />
                     </td>
 
                     <td>
-                    <input name="TeachingExperiences[${idx}].ToDate"
-                    type="date"
-                    class="form-control date-input"
-                    data-row="${idx}" />
-                    </td>
-
-                    <td>
-                    <input name="TeachingExperiences[${idx}].TeachingExperienceYears"
-                    readonly
-                    class="form-control total-exp"
-                    data-row="${idx}" />
+                        <input name="TeachingExperiences[${idx}].TeachingExperienceYears"
+                        readonly
+                        class="form-control total-exp"
+                        data-row="${idx}" />
                     </td>
                     <td>
                         <input type="hidden"

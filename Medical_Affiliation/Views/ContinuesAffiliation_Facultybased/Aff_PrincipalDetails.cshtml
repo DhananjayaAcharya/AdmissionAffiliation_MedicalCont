@@ -657,6 +657,7 @@
                                     <th>From Date</th>
                                     <th>To Date</th>
                                     <th>Teaching Exp. (Yrs)</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -709,10 +710,21 @@
                                         </td>
 
                                         <td>
-                                            <input asp-for="TeachingExperiences[i].TeachingExperienceYears"
+                                            <input asp-for="TeachingExperiences[i].TotalExperienceYears"
                                                    readonly
                                                    class="form-control total-exp"
                                                    data-row="@i" />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="hidden"
+                                                asp-for="TeachingExperiences[i].IsDeleted"
+                                                class="is-deleted"
+                                                />
+
+                                            <button type="button" class="btn btn-danger btn-sm delete-row" >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -928,10 +940,15 @@
                     </td>
 
                     <td>
-                    <input name="TeachingExperiences[${idx}].TeachingExperienceYears"
+                    <input name="TeachingExperiences[${idx}].TotalExperienceYears"
                     readonly
                     class="form-control total-exp"
                     data-row="${idx}" />
+                    </td>
+                    <td>
+                        <input type="hidden" name="TeachingExperiences[${idx}].Id" value="0"/>
+                        <input type="hidden" name="TeachingExperiences[${idx}].IsDeleted" value="false" class="is-deleted" />
+                        <button type="button" class="btn btn-danger btn-sm delete-row"> Delete </button>
                     </td>
                     </tr>`;
                 $('#teachingExperienceTable tbody').append(row);
@@ -968,12 +985,35 @@
 
             // ── Remove row ──
             $(document).on('click', '.remove-row', function () {
+                const row = $(this).closest('tr');
                 const tbody = $(this).closest('tbody');
+
+                if(row.index() == 0){
+                    alert("The first Administrative Experience row cannot be deleted.");
+                    return;
+                }
                 if (tbody.find('tr').length > 1) {
                     $(this).closest('tr').remove();
                     updateSlNumbers($(this).closest('table').attr('id'));
                 }
             });
+
+            $(document).on('click', '.delete-row', function(){
+                const row = $(this).closest('tr');
+                const id = parseInt(row.find('input[name$=".Id"]').val()||"0");
+                if(id > 0){
+                    row.find(".is-deleted").val("true");
+                    row.hide();
+                }
+                else{
+                    const tbody = $("#teachingExperienceTable tbody");
+
+                    if (tbody.find("tr:visible").length > 1) {
+                        row.remove();
+                        updateSlNumbers("teachingExperienceTable");
+                    }
+                }
+            })
 
            function calculateTotalExperience(el) {
 
