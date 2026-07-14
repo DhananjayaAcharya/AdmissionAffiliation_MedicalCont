@@ -83,22 +83,29 @@ namespace Medical_Affiliation.Models
     {
         public string? NameOfFaculty { get; set; }
 
+        public List<FacultyDepartmentVm> Departments { get; set; } = new();
+
+        public decimal TotalExperience { get; set; }
+
+    }
+
+    public class FacultyDepartmentVm
+    {
         public string? DepartmentCode { get; set; }
 
         public string? DepartmentName { get; set; }
 
-        public decimal TotalExperience { get; set; }
-
+        public string? CourseLevel { get; set; }
         public List<FacultyExperienceDetailVm> Experiences { get; set; } = new();
+
     }
 
     public class FacultyExperienceModalVm
     {
         public string? NameOfFaculty { get; set; }
+        public int FacultyDetailId { get; set; }
 
-        public string? DepartmentCode { get; set; }
-
-        public string? DepartmentName { get; set; }
+        public List<FacultyDepartmentVm> Departments { get; set; } = new();
 
         public decimal TotalExperience { get; set; }
 

@@ -34,4 +34,6 @@ public partial class TeachingStaffDepartmentWiseDetail
     public string? PgcollegeCode { get; set; }
 
     public string? NameOfFaculty { get; set; }
+
+    public int? FacultyDetailId { get; set; }
 }

@@ -823,33 +823,45 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public IActionResult ViewCurriculumPdf(int curriculumId)
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
-            string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "M001";
-            int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;        // 🔑 FIX
-            int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2; // 🔑 FIX
+            if (string.IsNullOrWhiteSpace(CollegeCode))
+                return Unauthorized();
 
-            // Primary lookup (same as list page)
-            var record = _context.CaCourseCurricula.FirstOrDefault(x =>
-                x.CollegeCode == collegeCode &&
-                x.FacultyId == facultyId &&
-                x.AffiliationType == affiliationType &&
-                x.CourseLevel == courseLevel &&
-                x.CurriculumId == curriculumId);
+            if (!int.TryParse(FacultyCode, out int facultyId))
+                return BadRequest("Invalid Faculty.");
 
-            // Fallback (in case session mismatch)
+            if (!AffTypeId.HasValue)
+                return BadRequest("Affiliation Type not found.");
+
+            var record = _context.CaCourseCurricula
+                .AsNoTracking()
+                .FirstOrDefault(x =>
+                    x.CollegeCode == CollegeCode &&
+                    x.FacultyId == facultyId &&
+                    x.AffiliationType == AffTypeId.Value &&
+                    x.CurriculumId == curriculumId);
+
             if (record == null)
             {
-                record = _context.CaCourseCurricula
-                    .FirstOrDefault(x => x.CurriculumId == curriculumId);
+                return NotFound("Curriculum PDF not found for the current college.");
             }
 
-            if (record == null || record.CurriculumPdfPath == null || record.CurriculumPdfPath.Length == 0)
-                return NotFound("PDF not found in database.");
+            if (string.IsNullOrWhiteSpace(record.CurriculumPdfPath) ||
+                !System.IO.File.Exists(record.CurriculumPdfPath))
+            {
+                return NotFound("Physical PDF file not found.");
+            }
 
             Response.Headers["Content-Disposition"] =
                 $"inline; filename=\"{record.PdfFileName ?? "Curriculum.pdf"}\"";
 
-            return PhysicalFile(record.CurriculumPdfPath, "application/pdf");
+            Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+
+            return PhysicalFile(
+                record.CurriculumPdfPath,
+                "application/pdf",
+                enableRangeProcessing: true);
         }
 
     }

@@ -19,6 +19,7 @@ namespace Medical_Affiliation.Controllers
         }
         protected string? FacultyCode => User.FindFirst("FacultyCode")?.Value;
         protected string? CollegeCode => User.FindFirst("CollegeCode")?.Value;
+        protected int? AffTypeId => Convert.ToInt32(HttpContext.Session.GetString("AffiliationTypeId") ?? "2");
 
         protected string BaseMedicalPath
         {

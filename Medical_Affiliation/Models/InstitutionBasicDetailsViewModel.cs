@@ -545,6 +545,7 @@ namespace Medical_Affiliation.Models
     public class TeachingExperienceRow
     {
         public int? Id { get; set; }          // PK of Aff_DeanTeachingExperience (for edit)
+        public bool IsDeleted { get; set; }
         public string? FacultyCode { get; set; }
         public string? CollegeCode { get; set; }
         public string? Designation { get; set; }   // JR, SR, etc.
