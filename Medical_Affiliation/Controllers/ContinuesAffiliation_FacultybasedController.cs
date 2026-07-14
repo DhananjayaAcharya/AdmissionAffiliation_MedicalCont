@@ -5746,11 +5746,8 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            if (facultyCode == "2")
-            {
-                return RedirectToAction("Preview", "CAPreview");
-            }
-            return RedirectToAction("Aff_HostelDetails");
+            return RedirectToAction("Preview", "CAPreview");
+
         }
 
 

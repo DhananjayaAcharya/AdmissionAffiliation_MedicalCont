@@ -361,8 +361,6 @@ namespace Medical_Affiliation.Controllers
                 && (item.DonationPdf == null || item.DonationPdf.Length == 0);
         }
 
-
-
         // View PDF actions (keep these)
         [HttpGet]
         public async Task<IActionResult> ViewGoverningCouncilPdf(string courseLevel)

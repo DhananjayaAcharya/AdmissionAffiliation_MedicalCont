@@ -440,7 +440,7 @@ namespace Medical_Affiliation.Controllers
                     return RedirectToAction("TeachingStaffDepartmentWise", "Dental");
                 }
 
-                return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
+                return RedirectToAction("Repo_FacultyDetails", "FacultyDetails");
             }
             catch (Exception ex)
             {
