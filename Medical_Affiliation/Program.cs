@@ -91,7 +91,7 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromDays(1);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -154,7 +154,7 @@ var authSchemes = new[]
           Cookie = "SectionOfficer.Cookie", Login = "/Admin/UniversityLogin",    Logout = "/SectionOfficer/Logout",   AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
 
     new { Scheme = "CollegeAuth",
-          Cookie = "College.Cookie",        Login = "/MainDashboard/MultiLogin", Logout = "/CollegeLogin/Logout",     AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
+          Cookie = "College.Cookie",        Login = "/MainDashboard/MultiLogin", Logout = "/CollegeLogin/Logout",     AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 60 * 24      },
 
     new { Scheme = "AdminAuth",
           Cookie = "Admin.Cookie",          Login = "/Admin/UniversityLogin",    Logout = "/Admin/Logout",            AccessDenied = "/Login/AccessDenied",          ExpireMinutes = 30           },
@@ -200,6 +200,9 @@ foreach (var s in authSchemes)
 
         options.ExpireTimeSpan = TimeSpan.FromMinutes(s.ExpireMinutes);
         options.SlidingExpiration = true;
+
+        options.Cookie.MaxAge = TimeSpan.FromDays(1);
+
     });
 }
 

@@ -249,7 +249,7 @@ namespace Medical_Affiliation.Controllers
             await HttpContext.SignInAsync("CollegeAuth", principal, new AuthenticationProperties
             {
                 IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(1)
             });
 
             Console.WriteLine("=== LOGIN SUCCESSFUL ===");
