@@ -5675,7 +5675,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     var existing = saved.FirstOrDefault(x =>
                         x.DepartmentCode == fac.DepartmentDetails &&
-                        x.DesignationCode == fac.Designation);
+                        x.DesignationCode == fac.Designation &&
+                        x.NameOfFaculty == fac.NameOfFaculty);
 
                     deptVm.Rows.Add(new TeachingStaffDepartmentWiseRow
                     {
@@ -5737,19 +5738,34 @@ namespace Medical_Affiliation.Controllers
                     if (!hasUG && !hasPG)
                         continue; // ⛔ skip empty rows
 
-                    var existing = await _context.TeachingStaffDepartmentWiseDetails
-                        .FirstOrDefaultAsync(x =>
-                            x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            x.CourseLevel == courseLevel &&
-                            x.DepartmentCode == row.DepartmentCode &&
-                            x.DesignationCode == row.DesignationCode &&
-                            x.NameOfFaculty == row.NameOfFaculty   // ✅ ADD THIS
-                            );
+                    TeachingStaffDepartmentWiseDetail? existing = null;
+
+                    if (row.Id > 0)
+                    {
+                        existing = await _context.TeachingStaffDepartmentWiseDetails
+                            .FirstOrDefaultAsync(x => x.Id == row.Id);
+                    }
+                    else
+                    {
+                        existing = await _context.TeachingStaffDepartmentWiseDetails
+                            .FirstOrDefaultAsync(x =>
+                                x.CollegeCode == collegeCode &&
+                                x.FacultyCode == facultyCode &&
+                                x.CourseLevel == courseLevel &&
+                                x.DepartmentCode == row.DepartmentCode &&
+                                x.DesignationCode == row.DesignationCode &&
+                                x.NameOfFaculty == row.NameOfFaculty);
+                    }
 
                     if (existing != null)
                     {
-                        // ✅ ADD THIS
+                        existing.NameOfFaculty = row.NameOfFaculty;
+                        existing.DepartmentCode = row.DepartmentCode;
+                        existing.DesignationCode = row.DesignationCode;
+                        existing.CourseLevel = courseLevel;
+                        existing.CollegeCode = collegeCode;
+                        existing.FacultyCode = facultyCode;
+
                         existing.UgcollegeCode = row.UGCollegeCode;
                         existing.PgcollegeCode = row.PGCollegeCode;
                         existing.Ugfrom = hasUG ? DateOnly.FromDateTime(row.UGFrom!.Value) : null;
@@ -5768,8 +5784,6 @@ namespace Medical_Affiliation.Controllers
                             CourseLevel = courseLevel,
                             DepartmentCode = row.DepartmentCode,
                             DesignationCode = row.DesignationCode,
-                            // DesignationName = row.DesignationName,
-                            // ✅ ADD THESE
                             UgcollegeCode = row.UGCollegeCode,
                             PgcollegeCode = row.PGCollegeCode,
 
