@@ -518,9 +518,38 @@ namespace Medical_Affiliation.Controllers
             {
                 var facultyVm = new FacultyExperienceVm
                 {
-                    NameOfFaculty = facultyGroup.Key,
-                    TotalExperience = facultyGroup.First().TotalExperience ?? 0
+                    NameOfFaculty = facultyGroup.Key
                 };
+
+                var experienceRecords = facultyGroup
+                    .Select(r => new
+                    {
+                        From = r.CourseLevel == "UG"
+                            ? r.Ugfrom
+                            : r.Pgfrom,
+
+                        To = r.CourseLevel == "UG"
+                            ? r.Ugto
+                            : r.Pgto
+                    })
+                    .Where(x => x.From.HasValue)
+                    .ToList();
+
+                if (experienceRecords.Any())
+                {
+                    var minFromDate = experienceRecords
+                        .Min(x => x.From!.Value.ToDateTime(TimeOnly.MinValue));
+
+                    var maxToDate = experienceRecords
+                        .Max(x => (x.To ?? DateOnly.FromDateTime(DateTime.Today))
+                            .ToDateTime(TimeOnly.MinValue));
+
+                    facultyVm.TotalExperience = CalculateExperience(minFromDate, maxToDate);
+                }
+                else
+                {
+                    facultyVm.TotalExperience = 0;
+                }
 
                 var facultyDepartments = facultyList
                     .Where(x => x.NameOfFaculty == facultyGroup.Key)
@@ -610,14 +639,20 @@ namespace Medical_Affiliation.Controllers
 
                 decimal totalExperience = 0;
 
-                var facultyInfo = facultyList.FirstOrDefault(x => x.NameOfFaculty == name);
+                var facultyExperiences = facultyList
+                    .Where(x => x.NameOfFaculty == name && x.From != null)
+                    .ToList();
 
-                if (facultyInfo?.From != null &&
-                    facultyInfo?.To != null)
+                if (facultyExperiences.Any())
                 {
-                    totalExperience = CalculateExperience(
-                        facultyInfo.From.Value.ToDateTime(TimeOnly.MinValue),
-                        facultyInfo.To.Value.ToDateTime(TimeOnly.MinValue));
+                    var minFromDate = facultyExperiences
+                        .Min(x => x.From!.Value.ToDateTime(TimeOnly.MinValue));
+
+                    var maxToDate = facultyExperiences
+                        .Max(x => (x.To ?? DateOnly.FromDateTime(DateTime.Today))
+                            .ToDateTime(TimeOnly.MinValue));
+
+                    totalExperience = CalculateExperience(minFromDate, maxToDate);
                 }
 
                 vm.FacultyRows.Add(new FacultyExperienceVm
@@ -944,15 +979,48 @@ namespace Medical_Affiliation.Controllers
                     department.Experiences.Add(detail);
                 }
 
-                // --------------------
-                // 3. Calculate Total
-                // --------------------
+            // --------------------
+            // 3. Calculate Total
+            // --------------------
 
-                vm.TotalExperience = vm.Departments
-                    .SelectMany(x => x.Experiences)
-                    .Sum(x => x.Experience);
+            // --------------------
+            // 3. Calculate Total Experience
+            //    (Earliest FromDate -> Latest ToDate)
+            // --------------------
 
-                return Json(vm);
+            var allExperiences = vm.Departments
+                .SelectMany(x => x.Experiences)
+                .Where(x => x.FromDate.HasValue)
+                .ToList();
+
+            vm.TotalExperience = 0;
+
+            if (allExperiences.Any())
+            {
+                DateTime minFromDate = allExperiences.Min(x => x.FromDate!.Value);
+
+                // If any experience is ongoing (ToDate is null), use today's date
+                DateTime maxToDate = allExperiences.Max(x => x.ToDate ?? DateTime.Today);
+
+                int years = maxToDate.Year - minFromDate.Year;
+                int months = maxToDate.Month - minFromDate.Month;
+
+                // Adjust months if the end day is before the start day
+                if (maxToDate.Day < minFromDate.Day)
+                {
+                    months--;
+                }
+
+                if (months < 0)
+                {
+                    years--;
+                    months += 12;
+                }
+
+                vm.TotalExperience = years + (months / 12m);
+            }
+
+            return Json(vm);
 
             }
 
@@ -1031,10 +1099,39 @@ namespace Medical_Affiliation.Controllers
                     .RemoveRange(recordsToDelete);
             }
 
-            var totalExp = vm.Departments
-                            .SelectMany(d => d.Experiences)
-                            .Sum(x => x.Experience);
+            // Calculate Total Experience based on the earliest FromDate and latest ToDate
+            var allExperiences = vm.Departments
+                .SelectMany(d => d.Experiences)
+                .Where(x => x.FromDate.HasValue)
+                .ToList();
 
+            decimal totalExp = 0;
+
+            if (allExperiences.Any())
+            {
+                DateTime minFromDate = allExperiences.Min(x => x.FromDate!.Value);
+
+                // If ToDate is null, consider it as today's date
+                DateTime maxToDate = allExperiences.Max(x => x.ToDate ?? DateTime.Today);
+
+                int years = maxToDate.Year - minFromDate.Year;
+                int months = maxToDate.Month - minFromDate.Month;
+
+                // Adjust months if the ending day is before the starting day
+                if (maxToDate.Day < minFromDate.Day)
+                {
+                    months--;
+                }
+
+                if (months < 0)
+                {
+                    years--;
+                    months += 12;
+                }
+
+                // Store as decimal (e.g., 5.25, 5.50, 5.75)
+                totalExp = years + (months / 12m);
+            }
 
             foreach (var department in vm.Departments)
             {
@@ -1104,13 +1201,13 @@ namespace Medical_Affiliation.Controllers
 
             await _context.SaveChangesAsync();
 
-            var totalExperience =
-                vm.Experiences.Sum(x => x.Experience);
+            //var totalExperience =
+            //    vm.Experiences.Sum(x => x.Experience);
 
             return Json(new
             {
                 success = true,
-                totalExperience
+                totalExp
             });
         }
 

@@ -1400,6 +1400,8 @@
 
             }
 
+            updateModalTotalExperience();
+
             const modal =
                 new bootstrap.Modal(
                     document.getElementById("experienceModal")
@@ -1608,38 +1610,63 @@
 
             updateModalTotalExperience();
         }
+        
         function updateModalTotalExperience() {
 
-            let total = 0;
+            const rows = document.querySelectorAll("#experienceRowsContainer tr");
 
-            document
-                .querySelectorAll(".experience-value")
-                .forEach(x => {
+            let minFromDate = null;
+            let maxToDate = null;
 
-                    total +=
-                        parseFloat(x.dataset.value || 0);
-                });
+            rows.forEach(row => {
 
-            const totalMonths =
-                Math.round(total * 12);
+                const fromInput = row.querySelector(".from-date");
+                const toInput = row.querySelector(".to-date");
 
-            const yearsPart =
-                Math.floor(totalMonths / 12);
+                if (!fromInput || !fromInput.value)
+                    return;
 
-            const monthsPart =
-                totalMonths % 12;
+                const fromDate = new Date(fromInput.value);
 
-            const totalElement =
-                document.getElementById(
-                    "modalTotalExperience"
-                );
+                const toDate = (toInput && toInput.value)
+                    ? new Date(toInput.value)
+                    : new Date();
 
-            totalElement.textContent =
-                `${yearsPart} Years ${monthsPart} Months`;
+                if (!minFromDate || fromDate < minFromDate) {
+                    minFromDate = fromDate;
+                }
 
-            totalElement.dataset.value =
-                total.toFixed(2);
+                if (!maxToDate || toDate > maxToDate) {
+                    maxToDate = toDate;
+                }
+            });
+
+            const totalElement = document.getElementById("modalTotalExperience");
+
+            if (!minFromDate || !maxToDate) {
+                totalElement.textContent = "0 Years 0 Months";
+                totalElement.dataset.value = "0.00";
+                return;
+            }
+
+            let years = maxToDate.getFullYear() - minFromDate.getFullYear();
+            let months = maxToDate.getMonth() - minFromDate.getMonth();
+
+            if (maxToDate.getDate() < minFromDate.getDate()) {
+                months--;
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            const totalExp = years + (months / 12);
+
+            totalElement.textContent = `${years} Years ${months} Months`;
+            totalElement.dataset.value = totalExp.toFixed(2);
         }
+
         document.getElementById("btnAddExperienceRow").addEventListener("click", function () {
             addExperienceRow();
         });
