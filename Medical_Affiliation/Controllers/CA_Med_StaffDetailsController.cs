@@ -568,7 +568,7 @@ namespace Medical_Affiliation.Controllers
 
             switch (type)
             {
-                case "Examiner1":
+                case "Examiner":
                     filePath = record.ExaminerDetailsPdfPath;
                     fileName = record.ExaminerDetailsPdfName;
                     break;
