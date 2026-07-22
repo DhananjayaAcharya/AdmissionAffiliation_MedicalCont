@@ -1023,6 +1023,21 @@
         }
     });
 
+    function clearEquipmentModal() {
+
+        document.getElementById("modalDepartmentCode").value = "";
+        document.getElementById("modalDepartmentName").textContent = "";
+
+        document.getElementById("equipmentName").value = "";
+        document.getElementById("specification").value = "";
+
+        document.getElementById("oneUnitReq").value = "";
+        document.getElementById("twoUnitReq").value = "";
+
+        document.getElementById("oneUnitExisting").value = "";
+        document.getElementById("twoUnitExisting").value = "";
+    }
+
     document.getElementById("btnSaveEquipment").addEventListener("click", async()=>{
         const model = {
             departmentcode: document.getElementById("modalDepartmentCode").value,
@@ -1051,6 +1066,7 @@
                     document.getElementById("equipmentModal")
                 );
                 modal.hide();
+                clearEquipmentModal();
 
                 alert(result.message);
 
