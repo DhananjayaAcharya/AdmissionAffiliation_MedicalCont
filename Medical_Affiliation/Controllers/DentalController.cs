@@ -272,6 +272,141 @@ namespace Medical_Affiliation.Controllers
             return Json(result);
         }
 
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddEquipment( [FromBody] AddEquipmentVM vm)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCodeStr = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCodeStr))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Session expired. Please login again."
+                });
+            }
+
+            if(vm == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Invalid request."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(vm.EquipmentName))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Equipment Name is required."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(vm.DepartmentCode))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Department is required."
+                });
+            }
+
+
+            int facultyCode = Convert.ToInt32(facultyCodeStr);
+
+            string equipmentName = vm.EquipmentName.Trim();
+            string? specification = string.IsNullOrWhiteSpace(vm.Specification) ? null: vm.Specification.Trim();
+
+            bool exists = await _context.MstEquipmentDeptWises.AnyAsync(c => 
+                c.FacultyCode == facultyCode &&
+                c.DepartmentCode == vm.DepartmentCode && 
+                c.EquipmentName.Trim().ToLower() == equipmentName.ToLower()
+            );
+
+
+
+            if (exists)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Equipment already exists."
+                });
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            
+            try
+            {
+                var master = new MstEquipmentDeptWise
+                {
+                    FacultyCode = facultyCode,
+                    DepartmentCode = vm.DepartmentCode,
+                    EquipmentName = equipmentName,
+                    Specification = specification,
+                    OneUnitRequirement = vm.OneUnitRequirement,
+                    TwoUnitRequirement = vm.TwoUnitRequirement,
+                    CreatedDate = DateTime.Now,
+                    IsActive = true
+                };
+
+                _context.MstEquipmentDeptWises.Add(master);
+
+                await _context.SaveChangesAsync();
+
+                var detail = new DentalCollegeEquipmentDetail
+                {
+                    CollegeCode = collegeCode,
+                    FacultyCode = facultyCode,
+                    DepartmentCode = vm.DepartmentCode,
+
+                    EquipmentId = master.Id,
+
+                    EquipmentName = master.EquipmentName,
+
+                    OneUnitRequirement = vm.OneUnitRequirement,
+                    TwoUnitRequirement = vm.TwoUnitRequirement,
+
+                    OneUnitExisting = vm.OneUnitExisting,
+                    TwoUnitExisting = vm.TwoUnitExisting,
+
+                    CreatedDate = DateTime.Now,
+
+                    IsActive = true
+                };
+
+                _context.DentalCollegeEquipmentDetails.Add(detail);
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    equipmentId = master.Id,
+                    equipmentName = master.EquipmentName,
+                    message = "Equipment added successfully."
+                });
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
         // Saves the input data to the DB-First table
         [HttpPost]
         public async Task<IActionResult> SaveEquipment(string deptCode, List<EquipmentRowVM> data)

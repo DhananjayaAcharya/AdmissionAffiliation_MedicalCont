@@ -150,6 +150,7 @@
         flex: 1;
         height: 1px;
         background: linear-gradient(90deg, var(--border), transparent);
+        display: none;
     }
 
     /* ── Course Selector Block ── */
@@ -623,7 +624,7 @@
                 </div>
             </form>
             <!-- ── Equipment Table ── -->
-            <div class="section-label">
+            <div class="section-label d-flex justify-content-between">
                 <span class="section-label-text">
                     Equipment List 
                     <span class="table-count-badge"
@@ -631,6 +632,9 @@
                         Total: 0 items
                     </span>
                 </span>
+                <button type="button" id="btnAddEquipment" class="btn-save" disabled style="cursor: not-allowed;">
+                    + Add Equipment
+                </button>
 
                 <span class="section-label-line"></span>
             </div>
@@ -727,6 +731,163 @@
 
         </div>
     </div>
+
+    <div class="modal fade" id="equipmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content"
+                 style="border:none;border-radius:10px;overflow:hidden;box-shadow:0 8px 25px rgba(0,0,0,.15);">
+
+                <!-- Header -->
+                <div class="modal-header"
+                     style="background:#0f2545;padding:10px 16px;border:none;">
+
+                    <h5 class="modal-title"
+                        style="color:#fff;font-size:17px;font-weight:600;margin:0;">
+                        Add Equipment
+                        <br />
+                        <span style="font-weight:400;">Department : </span>
+                        <span id="modalDepartmentName"></span>
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body"
+                     style="padding:16px;background:#fafafa;">
+
+                    <input type="hidden" id="modalDepartmentCode" />
+
+                    <div class="row g-2">
+
+                        <div class="col-md-6">
+                            <label style="font-size:13px;font-weight:600;margin-bottom:3px;">
+                                Equipment Name <span style="color:red">*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="equipmentName"
+                                   class="form-control"
+                                   style="height:34px;font-size:13px;">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label style="font-size:13px;font-weight:600;margin-bottom:3px;">
+                                Specification
+                            </label>
+
+                            <input type="text"
+                                   id="specification"
+                                   class="form-control"
+                                   style="height:34px;font-size:13px;">
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top:14px;">
+
+                        <table class="table table-bordered table-sm text-center align-middle mb-0">
+
+                            <thead style="background:#0f2545;color:white;font-size:13px;">
+
+                                <tr>
+
+                                    <th style="width:130px;">
+                                        Unit
+                                    </th>
+
+                                    <th>
+                                        RGUHS Norms
+                                    </th>
+
+                                    <th>
+                                        Existing
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+
+                                    <td style="font-weight:600;background:#f4f4f4;">
+                                        1 Unit
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                               id="oneUnitReq"
+                                               class="form-control form-control-sm text-center"
+                                               min="0">
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                               id="oneUnitExisting"
+                                               class="form-control form-control-sm text-center"
+                                               min="0">
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <td style="font-weight:600;background:#f4f4f4;">
+                                        2 Units
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                               id="twoUnitReq"
+                                               class="form-control form-control-sm text-center"
+                                               min="0">
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                               id="twoUnitExisting"
+                                               class="form-control form-control-sm text-center"
+                                               min="0">
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer"
+                     style="padding:10px 16px;border-top:1px solid #e5e5e5;">
+
+                    <button type="button"
+                            class="btn btn-light btn-sm"
+                            data-bs-dismiss="modal"
+                            style="min-width:80px;">
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            id="btnSaveEquipment"
+                            class="btn btn-sm"
+                            style="background:#0f2545;color:#fff;min-width:90px;">
+                        Save
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -745,7 +906,9 @@
         const tableWrap = document.querySelector('.table-wrap');
         const equipmentMessage = document.getElementById('equipmentMessage');
         const saveSection = document.getElementById('saveSection');
-
+        const addBtn = document.getElementById("btnAddEquipment");
+        addBtn.ariaDisabled = true;
+        addBtn.disabled = true;
         departmentSelect.addEventListener('change', async function () {
             const deptCode = this.value;
             deptCodeInput.value = deptCode;
@@ -775,6 +938,9 @@
                 const data = await response.json();
 
                 equipmentCount.textContent =`Total: ${data.length} items`;
+                addBtn.ariaDisabled = false;
+                addBtn.disabled = false;
+                addBtn.style.cursor = "pointer";
 
                 let rows = '';
 
@@ -837,11 +1003,71 @@
             }
         });
 
+        if(addBtn != null){
+            addBtn.addEventListener('click', function(){
+                const deptCode = departmentSelect.value;
+                const deptName = departmentSelect.options[departmentSelect.selectedIndex].text;
+
+                document.getElementById("modalDepartmentCode").value = deptCode;
+                document.getElementById("modalDepartmentName").innerHTML = deptName;
+
+                new bootstrap.Modal(document.getElementById("equipmentModal")).show();
+            })
+        }
+
+
+        
         // AUTO LOAD
         if (departmentSelect.value) {
             departmentSelect.dispatchEvent( new Event('change') );
         }
     });
+
+    document.getElementById("btnSaveEquipment").addEventListener("click", async()=>{
+        const model = {
+            departmentcode: document.getElementById("modalDepartmentCode").value,
+            equipmentName: document.getElementById("equipmentName").value,
+            specification : document.getElementById("specification").value,
+            oneUnitRequirement: document.getElementById("oneUnitReq").value,
+            twoUnitRequirement: document.getElementById("twoUnitReq").value,
+            oneUnitExisting: document.getElementById("oneUnitExisting").value,
+            twoUnitExisting: document.getElementById("twoUnitExisting").value,
+        };
+
+         try {
+            const response = await fetch(`@Url.Action("AddEquipment", "Dental")`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(model)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+
+                const modal = bootstrap.Modal.getInstance(
+                    document.getElementById("equipmentModal")
+                );
+                modal.hide();
+
+                alert(result.message);
+
+                // Refresh equipment list
+                departmentSelect.dispatchEvent(new Event("change"));
+            }else {
+
+                alert(result.message);
+
+            }
+
+        }
+        catch (error) {
+            console.error(error);
+            alert("Something went wrong.");
+        }
+    })
 
 </script>
 @if (TempData["Success"] != null)

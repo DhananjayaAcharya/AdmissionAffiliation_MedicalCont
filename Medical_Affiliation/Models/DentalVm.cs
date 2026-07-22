@@ -11,6 +11,23 @@ namespace Medical_Affiliation.Models
         public List<EquipmentRowVM> Equipments { get; set; } = new();
     }
 
+    public class AddEquipmentVM
+    {
+        public string DepartmentCode { get; set; }
+
+        public string EquipmentName { get; set; }
+
+        public string? Specification { get; set; }
+
+        // RGUHS Norms
+        public int? OneUnitRequirement { get; set; }
+        public int? TwoUnitRequirement { get; set; }
+
+        // Existing in College
+        public int? OneUnitExisting { get; set; }
+        public int? TwoUnitExisting { get; set; }
+    }
+
     public class DepartmentVM
     {
         public string Code { get; set; } = null!;
