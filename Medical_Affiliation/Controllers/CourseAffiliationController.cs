@@ -19,6 +19,7 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var typeOfAffiliation = HttpContext.Session.GetString("TypeOfAffiliation");
+            
             // Allow ?courseLevel=UG (or PG/SS) or ?level=UG to override/set session value
             // and also accept a previously stored "SelectedLevel" session key.
             var queryCourseLevel = Request.Query["courseLevel"].ToString();

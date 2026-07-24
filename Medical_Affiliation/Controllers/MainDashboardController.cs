@@ -57,12 +57,10 @@ namespace Medical_Affiliation.Controllers
 
             // ── 1. Load all faculties ─────────────────────────────────────
             var facultyEntities = await _context.Faculties
-                .Where(f => f.FacultyId == 1)
                 .OrderBy(f => f.FacultyId)
                 .ToListAsync();
 
             var allColleges = await _context.AffiliationCollegeMasters
-                .Where(e => e.FacultyCode == "1")
                 .OrderBy(c => c.CollegeName)
                 .ToListAsync();
 
@@ -154,6 +152,7 @@ namespace Medical_Affiliation.Controllers
 
             return Json(courses);
         }
+  
 
         // Controllers/LoginController.cs
         public IActionResult MultiLogin()

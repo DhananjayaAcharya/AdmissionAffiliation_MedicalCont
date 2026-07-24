@@ -1,0 +1,129 @@
+﻿@model Medical_Affiliation.Models.AcademicActivitiesViewModel
+@{
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["Title"] = "Academic Activities";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h4 class="mb-0">Academic Activities</h4>
+            <small class="text-muted">Academic activities and LIC committee observations for the selected PG course</small>
+        </div>
+        <span class="badge bg-secondary">Section G &mdash; ACADEMIC ACTIVITIES</span>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <form asp-action="AcademicActivities" asp-controller="pgcourses" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+        <input type="hidden" asp-for="CourseCode" />
+        <input type="hidden" asp-for="TypeOfAffiliation" />
+
+        <!-- G. Academic Activities -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">G. ACADEMIC ACTIVITIES</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:6%">S. No.</th>
+                            <th style="width:30%">Details</th>
+                            <th style="width:18%">Number in the last Year</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.AcademicActivities.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle text-center">
+                                    @Model.AcademicActivities[i].SlNo
+                                    <input type="hidden" asp-for="AcademicActivities[i].SlNo" />
+                                </td>
+                                <td class="align-middle">
+                                    @Model.AcademicActivities[i].ActivityDetails
+                                    <input type="hidden" asp-for="AcademicActivities[i].ActivityDetails" />
+                                </td>
+                                <td><input asp-for="AcademicActivities[i].NumberInLastYear" type="number" min="0" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="AcademicActivities[i].Remarks" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer small text-muted">
+                Note: For Seminars, Journal Clubs, Case presentations, Guest Lectures the details of dates, subjects,
+                name &amp; designations of teachers and attendance sheets to be maintained by the institution and to be
+                produced on request by the Assessors/PGMEB.
+            </div>
+        </div>
+
+        <!-- Publications -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">Publications from the department during the past 3 years</div>
+            <div class="card-body">
+                <textarea asp-for="PublicationsPast3Years" rows="6" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-lg-4">
+                <label class="form-label fw-semibold">Date</label>
+                <input asp-for="AssessmentDate" type="date" class="form-control" />
+            </div>
+        </div>
+
+        @* <div class="row mb-4">
+            <div class="col-lg-4">
+                <div class="border-top pt-2 text-center">Signature of Dean with Seal</div>
+            </div>
+            <div class="col-lg-4 offset-lg-4">
+                <div class="border-top pt-2 text-center">Signature of HoD with Seal</div>
+            </div>
+        </div> *@
+
+        <!-- K. LIC Committee Observations -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">K. LIC COMMITTEE OBSERVATIONS</div>
+            <div class="card-body">
+                <textarea asp-for="LiccommitteeObservations" rows="6" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                <a asp-action="AcademicActivities" asp-controller="pgcourses"
+                   asp-route-facultyCode="@Model.FacultyCode"
+                   asp-route-collegeCode="@Model.CollegeCode"
+                   asp-route-courseCode="@Model.CourseCode"
+                   asp-route-typeOfAffiliation="@Model.TypeOfAffiliation"
+                   class="btn btn-outline-secondary px-4">  
+                    <i class="bi bi-arrow-left"></i> Previous
+                </a>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary px-4">
+                    Save &amp; Continue <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -80,7 +80,7 @@ namespace Admission_Affiliation.Controllers
             var isFellowshipSo = string.Equals(username, "Fellowship_SO", StringComparison.OrdinalIgnoreCase)
                                 || string.Equals(username, "Felloeship_SO", StringComparison.OrdinalIgnoreCase);
             var user = await _context.TblRguhsFacultyUsers.Where(e => e.UserName.ToLower() == model.UserName.ToLower()).FirstOrDefaultAsync();
-
+            //cheching code also alowing same allocated data in prop
             if (isFellowshipSo && model.Password == "Fellowship@SO")
             {
                 var claimsSO = new List<Claim>
@@ -190,14 +190,14 @@ namespace Admission_Affiliation.Controllers
 
                 // ── Sign in ───────────────────────────────────────────────────────────
                 var claimsFinance = new List<Claim>
-{
-    new Claim(ClaimTypes.Name,  checkFinance.UserName),
-    new Claim(ClaimTypes.Role,  licRole),
-    new Claim("FacultyId",      checkFinance.Faculty.ToString()),
-    new Claim("Designation",    checkFinance.FinanceDesignation ?? ""),
-    new Claim("UserIP",         HttpContext.Connection.RemoteIpAddress?.ToString() ?? ""),
-    new Claim("UserAgent",      HttpContext.Request.Headers["User-Agent"].ToString() ?? "")
-};
+                {
+                    new Claim(ClaimTypes.Name,  checkFinance.UserName),
+                    new Claim(ClaimTypes.Role,  licRole),
+                    new Claim("FacultyId",      checkFinance.Faculty.ToString()),
+                    new Claim("Designation",    checkFinance.FinanceDesignation ?? ""),
+                    new Claim("UserIP",         HttpContext.Connection.RemoteIpAddress?.ToString() ?? ""),
+                    new Claim("UserAgent",      HttpContext.Request.Headers["User-Agent"].ToString() ?? "")
+                };
 
                 var identityFinance = new ClaimsIdentity(claimsFinance, "FinanceAuth");
                 var principalFinance = new ClaimsPrincipal(identityFinance);
@@ -319,7 +319,7 @@ namespace Admission_Affiliation.Controllers
                 }
 
 
-
+            //HttpContext.Session.GetString("main_Dist");
             HttpContext.Session.SetString("logoutController", "Admin");
             HttpContext.Session.SetString("FacultyCode", user.Faculty.ToString());
             HttpContext.Session.SetString("FacultyId", user.Faculty.ToString());

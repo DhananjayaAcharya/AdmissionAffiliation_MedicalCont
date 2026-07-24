@@ -1,0 +1,184 @@
+﻿@model Medical_Affiliation.Models.ServicesWorkloadViewModel
+@{
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["Title"] = "Services & Clinical Material / Investigative Workload";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h4 class="mb-0">Services & Clinical Material / Investigative Workload</h4>
+            <small class="text-muted">Section C &mdash; Clinical services, department workload and service availability</small>
+        </div>
+        <span class="badge bg-secondary">Section C &mdash; SERVICES</span>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <form asp-action="ServicesWorkload" asp-controller="pgcourses" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+        <input type="hidden" asp-for="CourseCode" />
+        <input type="hidden" asp-for="TypeOfAffiliation" />
+
+        <!-- C. SERVICES -->
+        <h5 class="mb-3">C. SERVICES</h5>
+
+        <!-- C.i. Specialty clinics -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">
+                i. Specialty clinics run by the Department of Surgery with number of patients in each
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name of the Clinic</th>
+                            <th style="width:15%">Weekday/s</th>
+                            <th style="width:15%">Timings</th>
+                            <th style="width:15%">Number of cases (Avg.)</th>
+                            <th style="width:20%">Name of Clinic In-charge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.SpecialtyClinics.Count; i++)
+                        {
+                            var isAnyOther = Model.SpecialtyClinics[i].ClinicName == "Any other Clinic";
+                            <tr>
+                                <td class="align-middle">
+                                    @if (isAnyOther)
+                                    {
+                                        <input asp-for="SpecialtyClinics[i].ClinicName" class="form-control form-control-sm" />
+                                    }
+                                    else
+                                    {
+                                        @Model.SpecialtyClinics[i].ClinicName
+                                        <input type="hidden" asp-for="SpecialtyClinics[i].ClinicName" />
+                                    }
+                                    <input type="hidden" asp-for="SpecialtyClinics[i].ClinicSequence" />
+                                </td>
+                                <td><input asp-for="SpecialtyClinics[i].Weekdays" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="SpecialtyClinics[i].Timings" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="SpecialtyClinics[i].NumberOfCasesAvg" type="number" min="0" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="SpecialtyClinics[i].ClinicInchargeName" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- C.ii. Services provided -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">ii. Services provided by the Department of Surgery</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:40%">Service / facility</th>
+                            <th style="width:15%">Yes / No</th>
+                            <th>Remarks if any</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.DepartmentServices.Count; i++)
+                        {
+                            var isAnyOther = Model.DepartmentServices[i].ServiceName == "Any other";
+                            <tr>
+                                <td class="align-middle">
+                                    @if (isAnyOther)
+                                    {
+                                        <input asp-for="DepartmentServices[i].ServiceName" class="form-control form-control-sm" />
+                                    }
+                                    else
+                                    {
+                                        @Model.DepartmentServices[i].ServiceName
+                                        <input type="hidden" asp-for="DepartmentServices[i].ServiceName" />
+                                    }
+                                    <input type="hidden" asp-for="DepartmentServices[i].ServiceSequence" />
+                                </td>
+                                <td>
+                                    <select asp-for="DepartmentServices[i].IsAvailable" class="form-select form-select-sm">
+                                        <option value="">--</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </td>
+                                <td><input asp-for="DepartmentServices[i].Remarks" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- D. Clinical Material and Investigative Workload -->
+        <h5 class="mb-3">D. CLINICAL MATERIAL AND INVESTIGATIVE WORKLOAD OF THE DEPARTMENT OF GENERAL SURGERY</h5>
+
+        <div class="card mb-4">
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Particulars</th>
+                            <th style="width:14%">Entire hospital</th>
+                            <th style="width:16%">On the day of Assessment</th>
+                            <th style="width:14%">Random 3 days</th>
+                            <th style="width:14%">Previous year</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.ClinicalWorkload.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle">
+                                    @Model.ClinicalWorkload[i].ParticularName
+                                    <input type="hidden" asp-for="ClinicalWorkload[i].ParticularName" />
+                                    <input type="hidden" asp-for="ClinicalWorkload[i].ParticularSequence" />
+                                </td>
+                                <td><input asp-for="ClinicalWorkload[i].EntireHospital" type="number" step="0.01" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="ClinicalWorkload[i].OnDayOfAssessment" type="number" step="0.01" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="ClinicalWorkload[i].Random3Days" type="number" step="0.01" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="ClinicalWorkload[i].PreviousYear" type="number" step="0.01" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                <a asp-action="InfrastructureDetails" asp-controller="pgcourses"
+                   asp-route-facultyCode="@Model.FacultyCode"
+                   asp-route-collegeCode="@Model.CollegeCode"
+                   asp-route-courseCode="@Model.CourseCode"
+                   asp-route-typeOfAffiliation="@Model.TypeOfAffiliation"
+                   class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left"></i> Previous
+                </a>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary px-4">
+                    Save &amp; Continue <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

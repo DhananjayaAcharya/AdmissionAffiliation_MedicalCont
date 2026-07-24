@@ -1,0 +1,580 @@
+﻿@model Medical_Affiliation.Models.InfrastructureDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["Title"] = "Infrastructure Details";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h4 class="mb-0">Infrastructure Details</h4>
+            <small class="text-muted">Local Inspection Committee, fees, and infrastructure of the department</small>
+        </div>
+        <span class="badge bg-secondary">Section B &mdash; INFRASTRUCTURE</span>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <form asp-action="InfrastructureDetails" asp-controller="pgcourses" method="post" id="infraForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+        <input type="hidden" asp-for="CourseCode" />
+        <input type="hidden" asp-for="TypeOfAffiliation" />
+
+        <!-- 1. Local Inspection Committee -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">1. Particulars of the Local Inspection Committee</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:5%">Sl.no</th>
+                            <th>Name of the Chairman and Members</th>
+                            <th>Correspondence Address</th>
+                            <th style="width:15%">Phone Off./Res./(Mobile)</th>
+                            <th style="width:15%">Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.InspectionCommittee.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle text-center">
+                                    @Model.InspectionCommittee[i].SlNo
+                                    <input type="hidden" asp-for="InspectionCommittee[i].SlNo" />
+                                </td>
+                                <td><input asp-for="InspectionCommittee[i].NameOfChairmanOrMember" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="InspectionCommittee[i].CorrespondenceAddress" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="InspectionCommittee[i].PhoneOffResMobile" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="InspectionCommittee[i].Email" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. Fee paid details -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">2. Fee paid details for Application for Continuation / Increase / Fresh course for UG / PG</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addRow('feeTable', feeRowTemplate)">+ Add Row</button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0" id="feeTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:5%">Sl.No</th>
+                            <th>Particulars</th>
+                            <th>Amount</th>
+                            <th>Transaction ID</th>
+                            <th>Date</th>
+                            <th>Bank name</th>
+                            <th>Branch</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.FeePaidDetails.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle text-center">@(i + 1)</td>
+                                <td><input name="FeePaidDetails[@i].Particulars" value="@Model.FeePaidDetails[i].Particulars" class="form-control form-control-sm" /></td>
+                                <td><input name="FeePaidDetails[@i].Amount" value="@Model.FeePaidDetails[i].Amount" type="number" step="0.01" class="form-control form-control-sm" /></td>
+                                <td><input name="FeePaidDetails[@i].TransactionId" value="@Model.FeePaidDetails[i].TransactionId" class="form-control form-control-sm" /></td>
+                                <td><input name="FeePaidDetails[@i].PaymentDate" value="@(Model.FeePaidDetails[i].PaymentDate?.ToString("yyyy-MM-dd"))" type="date" class="form-control form-control-sm" /></td>
+                                <td><input name="FeePaidDetails[@i].BankName" value="@Model.FeePaidDetails[i].BankName" class="form-control form-control-sm" /></td>
+                                <td><input name="FeePaidDetails[@i].BankBranch" value="@Model.FeePaidDetails[i].BankBranch" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- k. Other Course/Observership -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">k. Any other Course/Observership (PDCC, PDF, DNB, M.Sc., PhD, FNB etc.) permitted/not permitted by MCI/NMC</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addRow('otherCourseTable', otherCourseRowTemplate)">+ Add Row</button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0" id="otherCourseTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name of Qualification (course)</th>
+                            <th style="width:20%">Permitted by MCI/NMC</th>
+                            <th style="width:20%">Number of Admissions per year</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.OtherCourses.Count; i++)
+                        {
+                            <tr>
+                                <td><input name="OtherCourses[@i].NameOfQualificationCourse" value="@Model.OtherCourses[i].NameOfQualificationCourse" class="form-control form-control-sm" /></td>
+                                <td>
+                                    <select name="OtherCourses[@i].PermittedByMcinmc" class="form-select form-select-sm">
+                                        <option value="">--</option>
+                                        <option value="Yes" selected="@(Model.OtherCourses[i].PermittedByMcinmc == "Yes")">Yes</option>
+                                        <option value="No" selected="@(Model.OtherCourses[i].PermittedByMcinmc == "No")">No</option>
+                                    </select>
+                                </td>
+                                <td><input name="OtherCourses[@i].NumberOfAdmissionsPerYear" value="@Model.OtherCourses[i].NumberOfAdmissionsPerYear" type="number" min="0" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- B. INFRASTRUCTURE OF THE DEPARTMENT -->
+        <h5 class="mt-4 mb-3">B. INFRASTRUCTURE OF THE DEPARTMENT</h5>
+
+        <!-- a. OPD -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">a. OPD</div>
+            <div class="card-body">
+
+                <div class="row mb-3">
+                    <label class="col-lg-5 col-form-label">No of rooms for consultation</label>
+                    <div class="col-lg-3">
+                        <input asp-for="NoOfRoomsForConsultation" type="number" min="0" class="form-control" />
+                    </div>
+                </div>
+
+                <table class="table table-bordered mb-3">
+                    <thead class="table-light">
+                        <tr><th>Area of each OPD room</th><th style="width:25%">Area in M&sup2;</th></tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.OpdRoomAreas.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <input asp-for="OpdRoomAreas[i].RoomType" class="form-control form-control-sm" readonly="@(i < 3)" />
+                                </td>
+                                <td>
+                                    <input asp-for="OpdRoomAreas[i].AreaInSqM" type="number" step="0.01" class="form-control form-control-sm" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="row mb-2">
+                    <label class="col-lg-5 col-form-label">Waiting area (M&sup2;)</label>
+                    <div class="col-lg-3">
+                        <input asp-for="WaitingAreaInSqM" type="number" step="0.01" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label class="col-lg-5 col-form-label">Space and arrangements</label>
+                    <div class="col-lg-3">
+                        <select asp-for="SpaceAndArrangements" class="form-select">
+                            <option value="">--</option>
+                            <option value="Adequate">Adequate</option>
+                            <option value="Not Adequate">Not Adequate</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label class="col-lg-5 col-form-label">If not adequate, give reasons/details/comments</label>
+                    <div class="col-lg-6">
+                        <input asp-for="IfNotAdequateReasons" class="form-control" />
+                    </div>
+                </div>
+
+                @{
+                    var availOptions = new[] { "Available", "Not available" };
+                }
+
+                <div class="row mb-2">
+                    <label class="col-lg-5 col-form-label">Dressing Room</label>
+                    <div class="col-lg-3">
+                        <select asp-for="DressingRoomAvailable" asp-items="@(new SelectList(availOptions))" class="form-select">
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label class="col-lg-5 col-form-label">Separate Minor OT Male &amp; Female</label>
+                    <div class="col-lg-3">
+                        <select asp-for="SeparateMinorOtMaleFemale" asp-items="@(new SelectList(availOptions))" class="form-select">
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label class="col-lg-5 col-form-label">Per Rectal examination Room</label>
+                    <div class="col-lg-3">
+                        <select asp-for="PerRectalExamRoomAvailable" asp-items="@(new SelectList(availOptions))" class="form-select">
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-0">
+                    <label class="col-lg-5 col-form-label">Dressing Room</label>
+                    <div class="col-lg-3">
+                        <select asp-for="DressingRoom2Available" asp-items="@(new SelectList(availOptions))" class="form-select">
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- b. Wards -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">b. Wards</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <label class="col-lg-2 col-form-label">No of wards</label>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-text">Male</span>
+                            <input asp-for="NoOfWardsMale" type="number" min="0" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-text">Female</span>
+                            <input asp-for="NoOfWardsFemale" type="number" min="0" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr><th style="width:35%">Parameters</th><th>Details</th></tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.WardsParameters.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle fw-semibold">
+                                    @Model.WardsParameters[i].ParameterName
+                                    <input type="hidden" asp-for="WardsParameters[i].ParameterName" />
+                                </td>
+                                <td><input asp-for="WardsParameters[i].Details" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- c. OT Distribution -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">c. Total &amp; Distribution of Operation Theatre in the entire hospital</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOtRow()">+ Add Row</button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0" id="otTable">
+                    <thead class="table-light">
+                        <tr><th style="width:8%">Sl.No</th><th>Departments</th><th>Major OT tables</th><th>Minor OT tables</th></tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.OperationTheatres.Count; i++)
+                        {
+                            var row = Model.OperationTheatres[i];
+                            <tr class="@(row.IsTotalRow ? "table-secondary fw-semibold" : "")">
+                                <td class="align-middle text-center">
+                                    @(row.IsTotalRow ? "" : row.SlNo?.ToString())
+                                    <input type="hidden" asp-for="OperationTheatres[i].IsTotalRow" />
+                                </td>
+                                <td>
+                                    @if (row.IsTotalRow)
+                                    {
+                                        <span>Total</span>
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="OperationTheatres[i].DepartmentName" class="form-control form-control-sm" />
+                                    }
+                                </td>
+                                <td><input asp-for="OperationTheatres[i].MajorOtTables" type="number" min="0" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="OperationTheatres[i].MinorOtTables" type="number" min="0" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- e. Seminar Room -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">e. Seminar Room</div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <label class="col-lg-4 col-form-label">Space and facility</label>
+                    <div class="col-lg-4">
+                        <select asp-for="SeminarSpaceAndFacility" class="form-select">
+                            <option value="">--</option>
+                            <option value="Adequate">Adequate</option>
+                            <option value="Not Adequate">Not Adequate</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label class="col-lg-4 col-form-label">Internet facility</label>
+                    <div class="col-lg-4">
+                        <select asp-for="SeminarInternetFacility" class="form-select">
+                            <option value="">--</option>
+                            <option value="Available">Available</option>
+                            <option value="Not Available">Not Available</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-0">
+                    <label class="col-lg-4 col-form-label">Audiovisual equipment details</label>
+                    <div class="col-lg-6">
+                        <input asp-for="SeminarAvdetails" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- h. Departmental Museum -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">Departmental Museum</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <tbody>
+                        <tr>
+                            <td style="width:40%" class="fw-semibold">Space</td>
+                            <td><input asp-for="MuseumSpace" class="form-control form-control-sm" /></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Total number of Specimens</td>
+                            <td><input asp-for="MuseumTotalSpecimens" type="number" min="0" class="form-control form-control-sm" /></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Total number of Chart / Diagram</td>
+                            <td><input asp-for="MuseumTotalChartDiagram" type="number" min="0" class="form-control form-control-sm" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- f. Library Facility -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">f. Library facility pertaining to the Department/Speciality</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-3">
+                    <thead class="table-light">
+                        <tr><th>Particulars</th><th>Central Library</th><th>Departmental Library</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fw-semibold">Number of Books</td>
+                            <td><input asp-for="NumberOfBooksCentral" type="number" min="0" class="form-control form-control-sm" /></td>
+                            <td><input asp-for="NumberOfBooksDepartmental" type="number" min="0" class="form-control form-control-sm" /></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Total books purchased in the last three years (attach list as Annexure)</td>
+                            <td><input asp-for="BooksPurchasedLast3YrsCentral" type="number" min="0" class="form-control form-control-sm" /></td>
+                            <td><input asp-for="BooksPurchasedLast3YrsDept" type="number" min="0" class="form-control form-control-sm" /></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Total Indian Journals available</td>
+                            <td><input asp-for="TotalIndianJournalsCentral" type="number" min="0" class="form-control form-control-sm" /></td>
+                            <td><input asp-for="TotalIndianJournalsDept" type="number" min="0" class="form-control form-control-sm" /></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Total Foreign Journals available</td>
+                            <td><input asp-for="TotalForeignJournalsCentral" type="number" min="0" class="form-control form-control-sm" /></td>
+                            <td><input asp-for="TotalForeignJournalsDept" type="number" min="0" class="form-control form-control-sm" /></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Computer with internet facility</td>
+                            <td><input asp-for="ComputerWithInternetCentral" class="form-control form-control-sm" /></td>
+                            <td><input asp-for="ComputerWithInternetDept" class="form-control form-control-sm" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="px-3 pb-3">
+                    <div class="form-check mb-3">
+                        <input asp-for="AnnexureAttached" class="form-check-input" type="checkbox" />
+                        <label class="form-check-label">Annexure attached (books purchased list)</label>
+                    </div>
+
+                    <div class="row mb-2">
+                        <label class="col-lg-3 col-form-label">Central Library Timing</label>
+                        <div class="col-lg-4"><input asp-for="CentralLibraryTiming" class="form-control" /></div>
+                    </div>
+                    <div class="row mb-0">
+                        <label class="col-lg-3 col-form-label">Central Reading Room Timing</label>
+                        <div class="col-lg-4"><input asp-for="CentralReadingRoomTiming" class="form-control" /></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- g. Departmental Research Lab -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">g. Departmental Research Lab</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <tbody>
+                        <tr>
+                            <td style="width:40%" class="fw-semibold">Space</td>
+                            <td><input asp-for="ResearchLabSpace" class="form-control form-control-sm" /></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Equipment</td>
+                            <td><textarea asp-for="ResearchLabEquipment" rows="2" class="form-control form-control-sm"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Research Projects completed in past 3 years</td>
+                            <td><textarea asp-for="ResearchProjectsCompletedPast3Yrs" rows="2" class="form-control form-control-sm"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">List the Research projects in progress in research lab</td>
+                            <td><textarea asp-for="ResearchProjectsInProgress" rows="2" class="form-control form-control-sm"></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- h. Equipment -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">h. Equipment</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name of the Equipment</th>
+                            <th style="width:15%">Numbers Available</th>
+                            <th style="width:20%">Functional Status</th>
+                            <th style="width:12%">Adequate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Equipment.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle">
+                                    @Model.Equipment[i].NameOfEquipment
+                                    <input type="hidden" asp-for="Equipment[i].NameOfEquipment" />
+                                </td>
+                                <td><input asp-for="Equipment[i].NumbersAvailable" type="number" min="0" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="Equipment[i].FunctionalStatus" class="form-control form-control-sm" /></td>
+                                <td>
+                                    <select asp-for="Equipment[i].IsAdequate" class="form-select form-select-sm">
+                                        <option value="">--</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                <a asp-action="SummaryDetails" asp-controller="pgcourses"
+                   asp-route-facultyCode="@Model.FacultyCode"
+                   asp-route-collegeCode="@Model.CollegeCode"
+                   asp-route-courseCode="@Model.CourseCode"
+                   asp-route-typeOfAffiliation="@Model.TypeOfAffiliation"
+                   class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left"></i> Previous
+                </a>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary px-4">
+                    Save &amp; Continue <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Dynamic "Add Row" support for tables not bound to a fixed-length list.
+        // Template strings build a new <tr> with correctly indexed input names.
+
+        function feeRowTemplate(index) {
+            return `<tr>
+                <td class="align-middle text-center">${index + 1}</td>
+                <td><input name="FeePaidDetails[${index}].Particulars" class="form-control form-control-sm" /></td>
+                <td><input name="FeePaidDetails[${index}].Amount" type="number" step="0.01" class="form-control form-control-sm" /></td>
+                <td><input name="FeePaidDetails[${index}].TransactionId" class="form-control form-control-sm" /></td>
+                <td><input name="FeePaidDetails[${index}].PaymentDate" type="date" class="form-control form-control-sm" /></td>
+                <td><input name="FeePaidDetails[${index}].BankName" class="form-control form-control-sm" /></td>
+                <td><input name="FeePaidDetails[${index}].BankBranch" class="form-control form-control-sm" /></td>
+            </tr>`;
+        }
+
+        function otherCourseRowTemplate(index) {
+            return `<tr>
+                <td><input name="OtherCourses[${index}].NameOfQualificationCourse" class="form-control form-control-sm" /></td>
+                <td>
+                    <select name="OtherCourses[${index}].PermittedByMcinmc" class="form-select form-select-sm">
+                        <option value="">--</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </td>
+                <td><input name="OtherCourses[${index}].NumberOfAdmissionsPerYear" type="number" min="0" class="form-control form-control-sm" /></td>
+            </tr>`;
+        }
+
+        function addRow(tableId, templateFn) {
+            const tbody = document.querySelector('#' + tableId + ' tbody');
+            const index = tbody.querySelectorAll('tr').length;
+            tbody.insertAdjacentHTML('beforeend', templateFn(index));
+        }
+
+        // OT table needs the running Sl.No to skip the fixed Total row, so it gets its own handler.
+        function addOtRow() {
+            const tbody = document.querySelector('#otTable tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const dataRowCount = rows.filter(r => !r.classList.contains('table-secondary')).length;
+            const newIndex = rows.length; // insert before the Total row, at the end of the list index-wise
+            const totalRow = rows.find(r => r.classList.contains('table-secondary'));
+
+            const html = `<tr>
+                <td class="align-middle text-center">
+                    ${dataRowCount + 1}
+                    <input type="hidden" name="OperationTheatres[${newIndex}].IsTotalRow" value="false" />
+                </td>
+                <td><input name="OperationTheatres[${newIndex}].DepartmentName" class="form-control form-control-sm" /></td>
+                <td><input name="OperationTheatres[${newIndex}].MajorOtTables" type="number" min="0" class="form-control form-control-sm" /></td>
+                <td><input name="OperationTheatres[${newIndex}].MinorOtTables" type="number" min="0" class="form-control form-control-sm" /></td>
+            </tr>`;
+
+            if (totalRow) {
+                totalRow.insertAdjacentHTML('beforebegin', html);
+            } else {
+                tbody.insertAdjacentHTML('beforeend', html);
+            }
+        }
+    </script>
+}

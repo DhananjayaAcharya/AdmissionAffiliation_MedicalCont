@@ -1,0 +1,386 @@
+﻿@model Medical_Affiliation.Models.PgCourseSummaryViewModel
+@{
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["Title"] = "PG Course Summary Details";
+}
+
+<style>
+    .form-b-container {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        padding: 30px 35px;
+        max-width: 1100px;
+        margin: 20px auto;
+        box-shadow: 0 0 8px rgba(0,0,0,0.06);
+    }
+
+    .form-b-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+        .form-b-header .form-code {
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: -10px;
+        }
+
+        .form-b-header h3 {
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+
+    .top-meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+        .top-meta-row .meta-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-meta-row label {
+            font-weight: 600;
+            white-space: nowrap;
+            margin-bottom: 0;
+        }
+
+    table.formb-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 25px;
+    }
+
+        table.formb-table th,
+        table.formb-table td {
+            border: 1px solid #6c757d;
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
+
+        table.formb-table th {
+            background-color: #f1f3f5;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        table.formb-table td.row-label {
+            font-weight: 600;
+            background-color: #f8f9fa;
+            white-space: nowrap;
+            width: 220px;
+        }
+
+        table.formb-table input.cell-input,
+        table.formb-table select.cell-input,
+        table.formb-table textarea.cell-input {
+            width: 100%;
+            border: none;
+            border-bottom: 1px dashed #adb5bd;
+            padding: 4px 2px;
+            background: transparent;
+            font-size: 14px;
+        }
+
+            table.formb-table input.cell-input:focus,
+            table.formb-table select.cell-input:focus,
+            table.formb-table textarea.cell-input:focus {
+                outline: none;
+                border-bottom: 1px solid #0d6efd;
+                background-color: #f8f9ff;
+            }
+
+    .section-title {
+        font-weight: 700;
+        margin: 25px 0 10px 0;
+        text-decoration: underline;
+    }
+
+    .sub-note {
+        font-size: 12px;
+        font-style: italic;
+        color: #6c757d;
+        display: block;
+    }                                                                                                                                                                                               
+
+    .signature-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 60px;
+    }
+
+        .signature-row .sig-block {
+            text-align: center;
+            border-top: 1px solid #212529;
+            padding-top: 6px;
+            width: 220px;
+            font-weight: 600;
+        }
+
+    .validation-summary-errors ul {
+        margin-bottom: 0;
+    }
+
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .form-b-container {
+            box-shadow: none;
+            border: none;
+        }
+    }
+</style>
+
+<div class="form-b-container">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success no-print">@TempData["SuccessMessage"]</div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="text-danger validation-summary-errors no-print"></div>
+
+    <div class="form-b-header">
+        <div class="form-code">FORM-B (GENERAL SURGERY)/2024</div>
+        <h3>SUMMARY</h3>
+    </div>
+
+    <form asp-controller="pgcourses" asp-action="SummaryDetails" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="PgcourseSummaryDetailId" />
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+        <input type="hidden" asp-for="CourseCode" />
+        <input type="hidden" asp-for="TypeOfAffiliation" />
+
+        <!-- Date of Assessment / Name of Assessor -->
+        <div class="top-meta-row">
+            <div class="meta-field">
+                <label asp-for="DateOfAssessment">Date of Assessment:</label>
+                <input asp-for="DateOfAssessment" type="date" class="form-control form-control-sm" style="width:180px;" />
+            </div>
+            <div class="meta-field">
+                <label asp-for="AssessorName">Name of assessor:</label>
+                <input asp-for="AssessorName" class="form-control form-control-sm" style="width:280px;" />
+            </div>
+        </div>
+
+        <!-- 1. Name of Institution + Director/Dean/Principal -->
+        <table class="formb-table">
+            <thead>
+                <tr>
+                    <th style="width:260px;">1. Name of Institution<br /><span class="sub-note">(Private / Government)</span></th>
+                    <th colspan="2">Director / Dean / Principal<br /><span class="sub-note">(Who so ever is Head of Institution)</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="5">
+                        <select asp-for="InstitutionCategory" class="cell-input">
+                            <option value="">-- Select --</option>
+                            <option value="Private">Private</option>
+                            <option value="Government">Government</option>
+                        </select>
+                        <input asp-for="InstitutionName" class="cell-input mt-2" placeholder="Institution Name" />
+                    </td>
+                    <td class="row-label">Name</td>
+                    <td><input asp-for="HeadOfInstitutionName" class="cell-input" /></td>
+                </tr>
+                <tr>
+                    <td class="row-label">Age &amp; Date of Birth</td>
+                    <td><input asp-for="HeadOfInstitutionAgeDob" class="cell-input" /></td>
+                </tr>
+                <tr>
+                    <td class="row-label">Teaching experience</td>
+                    <td><input asp-for="HeadOfInstitutionTeachingExp" class="cell-input" /></td>
+                </tr>
+                <tr>
+                    <td class="row-label">PG Degree <span class="sub-note">(Recognized / Non-R)</span></td>
+                    <td><input asp-for="HeadOfInstitutionPgdegree" class="cell-input" /></td>
+                </tr>
+                <tr>
+                    <td class="row-label">Subject</td>
+                    <td><input asp-for="HeadOfInstitutionSubject" class="cell-input" /></td>
+                </tr>
+                <input type="hidden" asp-for="HeadOfInstitutionDesignation" />
+                <input type="hidden" asp-for="HeadOfInstitutionPgrecognition" />
+            </tbody>
+        </table>
+
+        <!-- 2. Department inspected + Head of Department -->
+        <table class="formb-table">
+            <thead>
+                <tr>
+                    <th style="width:260px;">2. Department inspected</th>
+                    <th colspan="2">Head of Department</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="4">
+                        <input asp-for="DepartmentInspected" class="cell-input" placeholder="Department" />
+                    </td>
+                    <td class="row-label">Name</td>
+                    <td><input asp-for="Hodname" class="cell-input" /></td>
+                </tr>
+                <tr>
+                    <td class="row-label">Age &amp; Date of Birth</td>
+                    <td><input asp-for="HodageDob" class="cell-input" /></td>
+                </tr>
+                <tr>
+                    <td class="row-label">Teaching experience</td>
+                    <td><input asp-for="HodteachingExp" class="cell-input" /></td>
+                </tr>
+                <tr>
+                    <td class="row-label">PG Degree <span class="sub-note">(Recognized / Non-R)</span></td>
+                    <td><input asp-for="HodpgDegree" class="cell-input" /></td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="hidden" asp-for="HodpgRecognition" />
+
+        <!-- 3(a) Number of UG seats + 3(b) Date of last inspection (UG/PG/SS) -->
+        <table class="formb-table">
+            <tbody>
+                <tr>
+                    <td class="row-label" style="width:260px;">3. (a) Number of UG seats</td>
+                    <td colspan="3">
+                        <input asp-for="NumberOfUgseats" type="number" min="0" class="cell-input" style="max-width:150px;" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row-label">(b) Date of last inspection for</td>
+                    @for (int i = 0; i < Model.Inspections.Count; i++)
+                    {
+                        <td style="width:220px;">
+                            <strong>@Model.Inspections[i].CourseLevel:</strong>
+                            <input type="hidden" asp-for="Inspections[i].CourseLevel" />
+                            <input type="hidden" asp-for="Inspections[i].CourseLevelSequence" />
+                            <input asp-for="Inspections[i].DateOfLastInspection" type="date" class="cell-input mt-1" />
+                            <span class="sub-note mt-1">Purpose:</span>
+                            <input asp-for="Inspections[i].Purpose" class="cell-input" placeholder="Purpose" />
+                            <span class="sub-note mt-1">Result:</span>
+                            <input asp-for="Inspections[i].Result" class="cell-input" placeholder="Result" />
+                        </td>
+                    }
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- A. Particulars of the Institution/College -->
+        <div class="section-title">A. Particulars of the Institution/College</div>
+        <table class="formb-table">
+            <thead>
+                <tr>
+                    <th style="width:180px;"></th>
+                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    {
+                        <th>@Model.Contacts[i].EntityType</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @* hidden fields to preserve fixed row identity (EntityType / EntitySequence) *@
+                @for (int i = 0; i < Model.Contacts.Count; i++)
+                {
+                    <input type="hidden" asp-for="Contacts[i].EntityType" />
+                    <input type="hidden" asp-for="Contacts[i].EntitySequence" />
+                }
+
+                <tr>
+                    <td class="row-label">Name</td>
+                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    {
+                        <td><input asp-for="Contacts[i].Name" class="cell-input" /></td>
+                    }
+                </tr>
+                <tr>
+                    <td class="row-label">Address</td>
+                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    {
+                        <td><textarea asp-for="Contacts[i].Address" class="cell-input" rows="2"></textarea></td>
+                    }
+                </tr>
+                <tr>
+                    <td class="row-label">State</td>
+                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    {
+                        <td><input asp-for="Contacts[i].State" class="cell-input" /></td>
+                    }
+                </tr>
+                <tr>
+                    <td class="row-label">Pin Code</td>
+                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    {
+                        <td><input asp-for="Contacts[i].PinCode" class="cell-input" /></td>
+                    }
+                </tr>
+                <tr>
+                    <td class="row-label">Phone Nos.<br />Office<br />Residence<br />Fax</td>
+                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    {
+                        <td>
+                            <input asp-for="Contacts[i].PhoneOffice" class="cell-input mb-1" placeholder="Office" />
+                            <input asp-for="Contacts[i].PhoneResidence" class="cell-input mb-1" placeholder="Residence" />
+                            <input asp-for="Contacts[i].Fax" class="cell-input" placeholder="Fax" />
+                        </td>
+                    }
+                </tr>
+                <tr>
+                    <td class="row-label">Mobile No.</td>
+                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    {
+                        <td><input asp-for="Contacts[i].MobileNo" class="cell-input" /></td>
+                    }
+                </tr>
+                <tr>
+                    <td class="row-label">E-mail</td>
+                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    {
+                        <td><input asp-for="Contacts[i].Email" type="email" class="cell-input" /></td>
+                    }
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Signatures -->
+        @* <div class="signature-row">
+            <div class="sig-block">Signature of Dean</div>
+            <div class="sig-block">Signature of Assessor</div>
+        </div> *@
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                <a asp-action="GeneralDetails" asp-controller="pgcourses"
+                   asp-route-facultyCode="@Model.FacultyCode"
+                   asp-route-collegeCode="@Model.CollegeCode"
+                   asp-route-courseCode="@Model.CourseCode"
+                   asp-route-typeOfAffiliation="@Model.TypeOfAffiliation"
+                   class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left"></i> Previous
+                </a>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary px-4">
+                    Save &amp; Continue <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

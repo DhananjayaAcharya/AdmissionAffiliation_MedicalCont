@@ -1,5 +1,4 @@
 using Medical_Affiliation.DATA;
-using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
 using Medical_Affiliation.Utilities;
 using Microsoft.AspNetCore.Mvc;

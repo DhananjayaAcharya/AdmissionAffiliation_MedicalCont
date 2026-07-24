@@ -27,41 +27,61 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             //var regNo = HttpContext.Session.GetString("RegistrationNo");
 
-            // First try from CollegeCourseIntakeDetails
-            var levels = await (
-                from cc in _context.CollegeCourseIntakeDetails
-                join cm in _context.MstCourses
-                    on cc.CourseCode equals cm.CourseCode.ToString()
-                where cc.CollegeCode == CollegeCode
-                select cm.CourseLevel
-            )
-            .Distinct()
-            .ToListAsync();
-
-            // If no levels found, then take from AcademicIntake
-            if (!levels.Any())
-            {
-                levels = await GetSortedCourseLevels();
-            }
-
-            levels = levels
-                .OrderBy(l => l == "UG" ? 1 :
-                              l == "PG" ? 2 :
-                              l == "SS" ? 3 : 99)
-                .ToList();
-
-
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
 
-            //var acc = await _context.MedCaAccountAndFeeDetails
-            //    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel);
+            var selectedCourseLevel = HttpContext.Session.GetString("SelectedCourseLevel")?
+                                        .Trim().ToUpper()
+                                     ?? HttpContext.Session.GetString("CourseLevel")?
+                                        .Trim().ToUpper();
+
+            List<string> levels;
+            var validLevels = new[] { "UG", "PG", "SS" };
+
+            if (!string.IsNullOrEmpty(selectedCourseLevel) && validLevels.Contains(selectedCourseLevel))
+            {
+                levels = new List<string> { selectedCourseLevel };
+            }
+            else
+            {
+                // First try from CollegeCourseIntakeDetails
+                levels = await (
+                    from cc in _context.CollegeCourseIntakeDetails
+                    join cm in _context.MstCourses
+                        on cc.CourseCode equals cm.CourseCode.ToString()
+                    where cc.CollegeCode == CollegeCode
+                    select cm.CourseLevel
+                )
+                .Distinct()
+                .ToListAsync();
+
+                // If no levels found, then take from AcademicIntake
+                if (!levels.Any())
+                {
+                    levels = await GetSortedCourseLevels();
+                }
+
+                levels = levels
+                    .Select(l => l?.Trim().ToUpper())
+                    .Where(l => !string.IsNullOrEmpty(l))
+                    .Distinct()
+                    .OrderBy(l => l == "UG" ? 1 :
+                                  l == "PG" ? 2 :
+                                  l == "SS" ? 3 : 99)
+                    .ToList();
+            }
 
             var vm = new Med_CA_AccountAndFeeDetailsPageVM();
-            var accList = await _context.MedCaAccountAndFeeDetails
+            var accQuery = _context.MedCaAccountAndFeeDetails
                                 .Where(x => x.CollegeCode == collegeCode
-                                         && x.FacultyCode == facultyCode)
-                                .ToListAsync();
+                                         && x.FacultyCode == facultyCode);
+
+            if (levels.Count == 1)
+            {
+                accQuery = accQuery.Where(x => x.CourseLevel == levels[0]);
+            }
+
+            var accList = await accQuery.ToListAsync();
 
             foreach (var level in levels)
             {
@@ -97,6 +117,14 @@ namespace Medical_Affiliation.Controllers
                     AuditedStatementPdfName = data?.AuditedStatementPdfName,
                     DonationPdfName = data?.DonationPdfName
                 });
+            }
+
+            // If course level was explicitly selected, hide other sections in the view by keeping a single section.
+            if (levels.Count == 1 && vm.Sections.Count > 1)
+            {
+                vm.Sections = vm.Sections
+                    .Where(s => s.CourseLevel == levels[0])
+                    .ToList();
             }
 
             //ModelState.Clear()/*;*/

@@ -79,8 +79,9 @@ namespace Medical_Affiliation.Controllers
             }
 
             HttpContext.Session.SetString("CourseLevel", requestCourseLevel);
-            // Keep legacy/session key used by some views
+            // Keep legacy/session keys in sync
             HttpContext.Session.SetString("SelectedCourseLevel", requestCourseLevel);
+            HttpContext.Session.SetString("SelectedLevel", requestCourseLevel);
         }
 
         protected async Task<List<string>> GetSortedCourseLevels()
@@ -189,6 +190,7 @@ namespace Medical_Affiliation.Controllers
                 var normalized = levelFromUrl.Trim().ToUpper();
                 context.HttpContext.Session.SetString("CourseLevel", normalized);
                 context.HttpContext.Session.SetString("SelectedCourseLevel", normalized);
+                context.HttpContext.Session.SetString("SelectedLevel", normalized);
             }
 
             if (FacultyCode == "2")

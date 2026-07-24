@@ -695,7 +695,7 @@
                     </button> *@
                     @if (Model.FacultyId != 2)
                     {
-                        <button type="button" class="tb" data-t="ss">
+                        <button type="button" class="tb @(defaultTab == "ss" ? "on" : "")" data-t="ss" data-level="SS">
                             SS Courses <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
                         </button>
                     }
@@ -737,22 +737,9 @@
             {
                 <div id="tp-ss" class="tp @(defaultTab == "ss" ? "on" : "")">
                     @{
-                        await RenderTable(Model.UgCourses, "UgCourses", showIncreaseIntake);
+                        await RenderTable(Model.SsCourses, "SsCourses", showIncreaseIntake);
                     }
                 </div>
-                <div id="tp-pg" class="tp">
-                    @{
-                        await RenderTable(Model.PgCourses, "PgCourses", showIncreaseIntake);
-                    }
-                </div>
-                @if (Model.FacultyId != 2)
-                {
-                    <div id="tp-ss" class="tp">
-                        @{
-                            await RenderTable(Model.SsCourses, "SsCourses", showIncreaseIntake);
-                        }
-                    </div>
-                }
             }
             
 

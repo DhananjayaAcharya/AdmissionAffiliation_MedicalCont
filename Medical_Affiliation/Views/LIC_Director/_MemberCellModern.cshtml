@@ -63,7 +63,7 @@ else
         <!-- Member Name -->
         <a href="javascript:void(0);"
            class="member-link"
-           onclick="openMemberReport('@Model.Member.MemberName', '@Model.CollegeCode')">
+           onclick="openMemberReport('@Model.Member.PhoneNumber', '@Model.CollegeCode')">
             @Model.Member.MemberName
         </a>
 
@@ -100,32 +100,23 @@ else
 }
 
 <script>
-    async function openMemberReport(memberName, collegeCode) {
+        async function openMemberReport(phoneNumber, collegeCode) {
         try {
             const checkUrl =
-                `/LIC_Director/CheckMemberReportExists?memberName=${encodeURIComponent(memberName)}&collegeCode=${encodeURIComponent(collegeCode)}`;
+                `/LIC_Director/CheckMemberReportExists?phoneNumber=${encodeURIComponent(phoneNumber)}&collegeCode=${encodeURIComponent(collegeCode)}`;
 
             const response = await fetch(checkUrl);
             const result = await response.json();
 
             if (!result.success) {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Data Not Found',
-                    text: 'No details available for this member.'
-                });
+                Swal.fire({ icon: 'info', title: 'Data Not Found', text: 'No details available for this member.' });
                 return;
             }
 
             window.location.href =
-                `/LIC_Director/MemberReport?memberName=${encodeURIComponent(memberName)}&collegeCode=${encodeURIComponent(collegeCode)}`;
-
+                `/LIC_Director/MemberReport?phoneNumber=${encodeURIComponent(phoneNumber)}&collegeCode=${encodeURIComponent(collegeCode)}`;
         } catch {
-            Swal.fire({
-                icon: 'info',
-                title: 'Data Not Found',
-                text: 'No details available for this member.'
-            });
+            Swal.fire({ icon: 'info', title: 'Data Not Found', text: 'No details available for this member.' });
         }
     }
 </script>

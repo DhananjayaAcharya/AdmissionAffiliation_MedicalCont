@@ -16,9 +16,13 @@ public partial class ApplicationDbContext : DbContext
     {
     }
 
+    public virtual DbSet<AcademicActivityDetail> AcademicActivityDetails { get; set; }
+
     public virtual DbSet<AcademicIntake> AcademicIntakes { get; set; }
 
     public virtual DbSet<AcademicIntakeYearWise> AcademicIntakeYearWises { get; set; }
+
+    public virtual DbSet<AcademicSummaryDetail> AcademicSummaryDetails { get; set; }
 
     public virtual DbSet<AcademicYear> AcademicYears { get; set; }
 
@@ -220,11 +224,15 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<ClinicalMaterialDatum> ClinicalMaterialData { get; set; }
 
+    public virtual DbSet<ClinicalWorkloadDetail> ClinicalWorkloadDetails { get; set; }
+
     public virtual DbSet<CollegeCourseIntakeDetail> CollegeCourseIntakeDetails { get; set; }
 
     public virtual DbSet<CollegeDesignationDetail> CollegeDesignationDetails { get; set; }
 
     public virtual DbSet<CollegeIntakeDetail> CollegeIntakeDetails { get; set; }
+
+    public virtual DbSet<CollegePrincipalDetail> CollegePrincipalDetails { get; set; }
 
     public virtual DbSet<ContinuationTrustMemberDetail> ContinuationTrustMemberDetails { get; set; }
 
@@ -250,11 +258,19 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DentalWardBedDistribution> DentalWardBedDistributions { get; set; }
 
+    public virtual DbSet<DepartmentEquipment> DepartmentEquipments { get; set; }
+
     public virtual DbSet<DepartmentMaster> DepartmentMasters { get; set; }
 
     public virtual DbSet<DepartmentMastersForUg> DepartmentMastersForUgs { get; set; }
 
+    public virtual DbSet<DepartmentServiceDetail> DepartmentServiceDetails { get; set; }
+
     public virtual DbSet<DepartmentWiseFacultyMaster> DepartmentWiseFacultyMasters { get; set; }
+
+    public virtual DbSet<DepartmentalMuseum> DepartmentalMuseums { get; set; }
+
+    public virtual DbSet<DepartmentalResearchLab> DepartmentalResearchLabs { get; set; }
 
     public virtual DbSet<DeptWisePublication> DeptWisePublications { get; set; }
 
@@ -262,11 +278,15 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DistrictMaster> DistrictMasters { get; set; }
 
+    public virtual DbSet<EligibleFacultyDetail> EligibleFacultyDetails { get; set; }
+
     public virtual DbSet<Faculty> Faculties { get; set; }
 
     public virtual DbSet<FacultyDetail> FacultyDetails { get; set; }
 
     public virtual DbSet<FacultyExamResult> FacultyExamResults { get; set; }
+
+    public virtual DbSet<FeePaidDetail> FeePaidDetails { get; set; }
 
     public virtual DbSet<FeesMaster> FeesMasters { get; set; }
 
@@ -310,6 +330,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<LatestExcelAff> LatestExcelAffs { get; set; }
 
+    public virtual DbSet<LibraryFacility> LibraryFacilities { get; set; }
+
     public virtual DbSet<LicInspection> LicInspections { get; set; }
 
     public virtual DbSet<LicInspectionCollegeDetail> LicInspectionCollegeDetails { get; set; }
@@ -330,11 +352,15 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<LicinspectionDetail> LicinspectionDetails { get; set; }
 
+    public virtual DbSet<LocalInspectionCommittee> LocalInspectionCommittees { get; set; }
+
     public virtual DbSet<MedCaAccountAndFeeDetail> MedCaAccountAndFeeDetails { get; set; }
 
     public virtual DbSet<MedCaMstStaffDesignation> MedCaMstStaffDesignations { get; set; }
 
     public virtual DbSet<MedCaStaffParticular> MedCaStaffParticulars { get; set; }
+
+    public virtual DbSet<MedCollegeProfile> MedCollegeProfiles { get; set; }
 
     public virtual DbSet<MedMstSpecialityDepartmentsLibrary> MedMstSpecialityDepartmentsLibraries { get; set; }
 
@@ -460,13 +486,31 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<NursingUgpgdetail> NursingUgpgdetails { get; set; }
 
+    public virtual DbSet<OpdDetail> OpdDetails { get; set; }
+
+    public virtual DbSet<OpdRoomArea> OpdRoomAreas { get; set; }
+
+    public virtual DbSet<OperationTheatreDistribution> OperationTheatreDistributions { get; set; }
+
+    public virtual DbSet<OtherCourseObservership> OtherCourseObserverships { get; set; }
+
+    public virtual DbSet<PgStudentsYearWiseDetail> PgStudentsYearWiseDetails { get; set; }
+
     public virtual DbSet<RguhsIntakeChangeAndApproval> RguhsIntakeChangeAndApprovals { get; set; }
 
     public virtual DbSet<SeatSlabMaster> SeatSlabMasters { get; set; }
 
+    public virtual DbSet<SeminarRoom> SeminarRooms { get; set; }
+
     public virtual DbSet<SmallGroupTeaching> SmallGroupTeachings { get; set; }
 
+    public virtual DbSet<SpecialtyClinicDetail> SpecialtyClinicDetails { get; set; }
+
+    public virtual DbSet<StaffUnitWiseDetail> StaffUnitWiseDetails { get; set; }
+
     public virtual DbSet<StateMaster> StateMasters { get; set; }
+
+    public virtual DbSet<StudentExamResultDetail> StudentExamResultDetails { get; set; }
 
     public virtual DbSet<SuperVisionInFieldPracticeArea> SuperVisionInFieldPracticeAreas { get; set; }
 
@@ -494,6 +538,18 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<TrustMemberDetail> TrustMemberDetails { get; set; }
 
+    public virtual DbSet<TxnPgcourseGeneralDetail> TxnPgcourseGeneralDetails { get; set; }
+
+    public virtual DbSet<TxnPgcourseIcudetail> TxnPgcourseIcudetails { get; set; }
+
+    public virtual DbSet<TxnPgcourseSummaryContactDetail> TxnPgcourseSummaryContactDetails { get; set; }
+
+    public virtual DbSet<TxnPgcourseSummaryDetail> TxnPgcourseSummaryDetails { get; set; }
+
+    public virtual DbSet<TxnPgcourseSummaryInspectionDetail> TxnPgcourseSummaryInspectionDetails { get; set; }
+
+    public virtual DbSet<TxnPgcourseUnitBedDetail> TxnPgcourseUnitBedDetails { get; set; }
+
     public virtual DbSet<TypeOfAffiliation> TypeOfAffiliations { get; set; }
 
     public virtual DbSet<TypeOfMinorityMaster> TypeOfMinorityMasters { get; set; }
@@ -516,14 +572,46 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<VehicleRequestLog> VehicleRequestLogs { get; set; }
 
+    public virtual DbSet<WardsHeader> WardsHeaders { get; set; }
+
+    public virtual DbSet<WardsParameter> WardsParameters { get; set; }
+
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
+        => optionsBuilder.UseSqlServer("Server= DESKTOP-VM4KIHQ;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AcademicActivityDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC07380A1724");
+
+            entity.ToTable("AcademicActivityDetail");
+
+            entity.Property(e => e.ActivityDetails).HasMaxLength(200);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<AcademicIntake>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -575,7 +663,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AcademicIntakeYearWise>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC071488372F");
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC072266F649");
 
             entity.ToTable("AcademicIntakeYearWise");
 
@@ -589,6 +677,32 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DocumentPath).HasMaxLength(500);
             entity.Property(e => e.FacultyCode).HasMaxLength(20);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<AcademicSummaryDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC07943CC507");
+
+            entity.ToTable("AcademicSummaryDetail");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<AcademicYear>(entity =>
@@ -626,7 +740,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<AcademicYearMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC07ED095DB3");
+            entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC079E4241B3");
 
             entity.ToTable("AcademicYearMaster");
 
@@ -1253,7 +1367,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
             entity.Property(e => e.ChangedPassword).HasMaxLength(50);
-            entity.Property(e => e.CollegeEmail).HasMaxLength(250);
+            entity.Property(e => e.CollegeEmail).HasMaxLength(255);
             entity.Property(e => e.CollegeName).HasMaxLength(200);
             entity.Property(e => e.CollegeTown).HasMaxLength(200);
             entity.Property(e => e.DistrictId).HasMaxLength(150);
@@ -1832,11 +1946,17 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.CreatedAt, "IX_AuditLogs_CreatedAt").IsDescending();
 
+            entity.HasIndex(e => new { e.LogType, e.CreatedAt }, "IX_AuditLogs_LogType_CreatedAt").IsDescending(false, true);
+
             entity.HasIndex(e => new { e.LogType, e.Status }, "IX_AuditLogs_LogType_Status");
+
+            entity.HasIndex(e => new { e.Status, e.CreatedAt }, "IX_AuditLogs_Status_CreatedAt").IsDescending(false, true);
 
             entity.HasIndex(e => new { e.TableName, e.RecordId }, "IX_AuditLogs_TableName_RecordId");
 
             entity.HasIndex(e => e.UserId, "IX_AuditLogs_UserId");
+
+            entity.HasIndex(e => new { e.UserName, e.CreatedAt }, "IX_AuditLogs_UserName_CreatedAt").IsDescending(false, true);
 
             entity.Property(e => e.Action).HasMaxLength(50);
             entity.Property(e => e.CreatedAt)
@@ -3006,6 +3126,37 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ParametersName).HasMaxLength(200);
         });
 
+        modelBuilder.Entity<ClinicalWorkloadDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Clinical__3214EC07D1389C05");
+
+            entity.ToTable("ClinicalWorkloadDetail");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.EntireHospital).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.OnDayOfAssessment).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ParticularName).HasMaxLength(200);
+            entity.Property(e => e.PreviousYear).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Random3Days).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<CollegeCourseIntakeDetail>(entity =>
         {
             entity.HasKey(e => e.Id).HasFillFactor(80);
@@ -3080,6 +3231,33 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.NoOfSeatsIntake).HasMaxLength(50);
             entity.Property(e => e.Remarks)
                 .HasMaxLength(200)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<CollegePrincipalDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__CollegeP__3214EC0799BA8A02");
+
+            entity.HasIndex(e => e.CollegeCode, "UQ_CollegePrincipalDetails_CollegeCode").IsUnique();
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CollegeName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.PrincipalMailId)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.PrincipalMobileNo)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.PrincipalName)
+                .HasMaxLength(255)
                 .IsUnicode(false);
         });
 
@@ -3488,6 +3666,37 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_DentalWard_WardId");
         });
 
+        modelBuilder.Entity<DepartmentEquipment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC078F2DBF0D");
+
+            entity.ToTable("DepartmentEquipment");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.FunctionalStatus).HasMaxLength(200);
+            entity.Property(e => e.IsAdequate)
+                .HasMaxLength(3)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.NameOfEquipment).HasMaxLength(300);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<DepartmentMaster>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -3519,6 +3728,37 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
         });
 
+        modelBuilder.Entity<DepartmentServiceDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC073C25486C");
+
+            entity.ToTable("DepartmentServiceDetail");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.IsAvailable)
+                .HasMaxLength(3)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.ServiceName).HasMaxLength(200);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<DepartmentWiseFacultyMaster>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -3535,6 +3775,63 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.SeatSlabId)
                 .HasMaxLength(10)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<DepartmentalMuseum>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC07F5936EB5");
+
+            entity.ToTable("DepartmentalMuseum");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Space).HasMaxLength(200);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<DepartmentalResearchLab>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC073BF0D3B9");
+
+            entity.ToTable("DepartmentalResearchLab");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Equipment).HasMaxLength(1000);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.ResearchProjectsCompletedPast3Yrs).HasMaxLength(1000);
+            entity.Property(e => e.ResearchProjectsInProgress).HasMaxLength(1000);
+            entity.Property(e => e.Space).HasMaxLength(200);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
                 .IsUnicode(false);
         });
 
@@ -3605,6 +3902,37 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(6)
                 .IsUnicode(false)
                 .IsFixedLength();
+        });
+
+        modelBuilder.Entity<EligibleFacultyDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Eligible__3214EC072A611FE1");
+
+            entity.ToTable("EligibleFacultyDetail");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Designation).HasMaxLength(100);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.IsAdequateForAdmission)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Names).HasMaxLength(1000);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Faculty>(entity =>
@@ -3678,6 +4006,35 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Yearofpercentage)
                 .HasColumnType("decimal(5, 2)")
                 .HasColumnName("yearofpercentage");
+        });
+
+        modelBuilder.Entity<FeePaidDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__FeePaidD__3214EC0779D16DB3");
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.BankBranch).HasMaxLength(150);
+            entity.Property(e => e.BankName).HasMaxLength(150);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Particulars).HasMaxLength(200);
+            entity.Property(e => e.TransactionId).HasMaxLength(100);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<FeesMaster>(entity =>
@@ -4286,6 +4643,40 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CourseName).HasMaxLength(200);
         });
 
+        modelBuilder.Entity<LibraryFacility>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__LibraryF__3214EC071FE6B859");
+
+            entity.ToTable("LibraryFacility");
+
+            entity.Property(e => e.CentralLibraryTiming).HasMaxLength(100);
+            entity.Property(e => e.CentralReadingRoomTiming).HasMaxLength(100);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ComputerWithInternetCentral)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ComputerWithInternetDept)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<LicInspection>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -4717,6 +5108,36 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
+        modelBuilder.Entity<LocalInspectionCommittee>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__LocalIns__3214EC07B0749FE6");
+
+            entity.ToTable("LocalInspectionCommittee");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CorrespondenceAddress).HasMaxLength(500);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(200);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.NameOfChairmanOrMember).HasMaxLength(200);
+            entity.Property(e => e.PhoneOffResMobile).HasMaxLength(100);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<MedCaAccountAndFeeDetail>(entity =>
         {
             entity.HasKey(e => new { e.Id, e.CollegeCode, e.FacultyCode, e.CourseLevel }).HasFillFactor(80);
@@ -4795,6 +5216,63 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.PayScale).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.RegistrationNo).HasMaxLength(50);
             entity.Property(e => e.SubFacultyCode).HasMaxLength(20);
+        });
+
+        modelBuilder.Entity<MedCollegeProfile>(entity =>
+        {
+            entity.HasKey(e => e.CgpId);
+
+            entity.ToTable("Med_CollegeProfile");
+
+            entity.HasIndex(e => e.CgpCollegeCode, "IX_Med_CollegeProfile_CollegeCode");
+
+            entity.HasIndex(e => e.CgpCollegeCode, "UQ_Med_CollegeProfile_CollegeCode").IsUnique();
+
+            entity.Property(e => e.CgpId).HasColumnName("CGP_Id");
+            entity.Property(e => e.CgpAddress)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("CGP_Address");
+            entity.Property(e => e.CgpCollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("CGP_CollegeCode");
+            entity.Property(e => e.CgpCollegeName)
+                .HasMaxLength(250)
+                .IsUnicode(false)
+                .HasColumnName("CGP_CollegeName");
+            entity.Property(e => e.CgpCreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("CGP_CreatedDate");
+            entity.Property(e => e.CgpEmail)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("CGP_Email");
+            entity.Property(e => e.CgpEstablishedYear).HasColumnName("CGP_EstablishedYear");
+            entity.Property(e => e.CgpLogoPath)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("CGP_LogoPath");
+            entity.Property(e => e.CgpModifiedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("CGP_ModifiedBy");
+            entity.Property(e => e.CgpModifiedDate)
+                .HasColumnType("datetime")
+                .HasColumnName("CGP_ModifiedDate");
+            entity.Property(e => e.CgpPhoneNumber)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("CGP_PhoneNumber");
+            entity.Property(e => e.CgpPrincipalName)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("CGP_PrincipalName");
+            entity.Property(e => e.CgpWebsite)
+                .HasMaxLength(200)
+                .IsUnicode(false)
+                .HasColumnName("CGP_Website");
         });
 
         modelBuilder.Entity<MedMstSpecialityDepartmentsLibrary>(entity =>
@@ -6041,6 +6519,161 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.RecognizedYear).HasMaxLength(10);
         });
 
+        modelBuilder.Entity<OpdDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__OpdDetai__3214EC07BCB98753");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DressingRoom2Available)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.DressingRoomAvailable)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.IfNotAdequateReasons).HasMaxLength(500);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.PerRectalExamRoomAvailable)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.SeparateMinorOtMaleFemale)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.SpaceAndArrangements)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.WaitingAreaInSqM).HasColumnType("decimal(10, 2)");
+        });
+
+        modelBuilder.Entity<OpdRoomArea>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__OpdRoomA__3214EC07591E1BFE");
+
+            entity.ToTable("OpdRoomArea");
+
+            entity.Property(e => e.AreaInSqM).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.RoomType).HasMaxLength(150);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<OperationTheatreDistribution>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Operatio__3214EC073EBA643D");
+
+            entity.ToTable("OperationTheatreDistribution");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentName).HasMaxLength(200);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<OtherCourseObservership>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__OtherCou__3214EC0749D5E2FC");
+
+            entity.ToTable("OtherCourseObservership");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.NameOfQualificationCourse).HasMaxLength(200);
+            entity.Property(e => e.PermittedByMciNmc)
+                .HasMaxLength(3)
+                .IsUnicode(false);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PgStudentsYearWiseDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__PgStuden__3214EC07EFC8EF3A");
+
+            entity.ToTable("PgStudentsYearWiseDetail");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.YearLabel)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<RguhsIntakeChangeAndApproval>(entity =>
         {
             entity.HasKey(e => e.Id).HasFillFactor(80);
@@ -6062,6 +6695,39 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.SeatSlabId)
                 .HasMaxLength(10)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<SeminarRoom>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__SeminarR__3214EC07E1EE3E23");
+
+            entity.ToTable("SeminarRoom");
+
+            entity.Property(e => e.AudiovisualEquipmentDetails).HasMaxLength(500);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.InternetFacility)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.SpaceAndFacility)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
                 .IsUnicode(false);
         });
 
@@ -6093,6 +6759,73 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.RequiredAreaSqm).HasColumnType("decimal(10, 2)");
         });
 
+        modelBuilder.Entity<SpecialtyClinicDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Specialt__3214EC0718987104");
+
+            entity.ToTable("SpecialtyClinicDetail");
+
+            entity.Property(e => e.ClinicInchargeName).HasMaxLength(200);
+            entity.Property(e => e.ClinicName).HasMaxLength(200);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Timings).HasMaxLength(100);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Weekdays).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<StaffUnitWiseDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__StaffUni__3214EC076E66B535");
+
+            entity.ToTable("StaffUnitWiseDetail");
+
+            entity.Property(e => e.AttendancePercentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Designation).HasMaxLength(150);
+            entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.PhoneNo)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.RelievedRetiredWorking).HasMaxLength(100);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UnitNo)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<StateMaster>(entity =>
         {
             entity.HasKey(e => e.StateId)
@@ -6112,6 +6845,36 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.StateName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<StudentExamResultDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__StudentE__3214EC070843B1FA");
+
+            entity.ToTable("StudentExamResultDetail");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Result)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.StudentName).HasMaxLength(200);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<SuperVisionInFieldPracticeArea>(entity =>
@@ -6384,6 +7147,260 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TrustMemberName).HasMaxLength(100);
         });
 
+        modelBuilder.Entity<TxnPgcourseGeneralDetail>(entity =>
+        {
+            entity.HasKey(e => e.PgcourseGeneralDetailId).HasName("PK__TxnPGCou__D881D3B42B98CAA2");
+
+            entity.ToTable("TxnPGCourseGeneralDetail");
+
+            entity.Property(e => e.PgcourseGeneralDetailId).HasColumnName("PGCourseGeneralDetailId");
+            entity.Property(e => e.AcademicYear)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.Hodname)
+                .HasMaxLength(200)
+                .HasColumnName("HODName");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LoPdate).HasColumnName("LoPDate");
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TotalIcuhdubeds).HasColumnName("TotalICUHDUBeds");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<TxnPgcourseIcudetail>(entity =>
+        {
+            entity.HasKey(e => e.PgcourseIcudetailId).HasName("PK__TxnPGCou__51CC812E28BA9666");
+
+            entity.ToTable("TxnPGCourseICUDetail");
+
+            entity.Property(e => e.PgcourseIcudetailId).HasColumnName("PGCourseICUDetailId");
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.Icutype)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("ICUType");
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.PgcourseGeneralDetailId).HasColumnName("PGCourseGeneralDetailId");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.PgcourseGeneralDetail).WithMany(p => p.TxnPgcourseIcudetails)
+                .HasForeignKey(d => d.PgcourseGeneralDetailId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PGCourseICUDetail_General");
+        });
+
+        modelBuilder.Entity<TxnPgcourseSummaryContactDetail>(entity =>
+        {
+            entity.HasKey(e => e.PgcourseSummaryContactDetailId).HasName("PK__TxnPGCou__AA8AEFD1F5E13EBA");
+
+            entity.ToTable("TxnPGCourseSummaryContactDetail");
+
+            entity.Property(e => e.PgcourseSummaryContactDetailId).HasColumnName("PGCourseSummaryContactDetailId");
+            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.EntityType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.Fax)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.MobileNo)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.PgcourseSummaryDetailId).HasColumnName("PGCourseSummaryDetailId");
+            entity.Property(e => e.PhoneOffice)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.PhoneResidence)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.PinCode)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.State).HasMaxLength(100);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.PgcourseSummaryDetail).WithMany(p => p.TxnPgcourseSummaryContactDetails)
+                .HasForeignKey(d => d.PgcourseSummaryDetailId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PGCourseSummaryContactDetail_Summary");
+        });
+
+        modelBuilder.Entity<TxnPgcourseSummaryDetail>(entity =>
+        {
+            entity.HasKey(e => e.PgcourseSummaryDetailId).HasName("PK__TxnPGCou__150C5FE52376E35B");
+
+            entity.ToTable("TxnPGCourseSummaryDetail");
+
+            entity.Property(e => e.PgcourseSummaryDetailId).HasColumnName("PGCourseSummaryDetailId");
+            entity.Property(e => e.AssessorName).HasMaxLength(200);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentInspected).HasMaxLength(200);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.HeadOfInstitutionAgeDob).HasMaxLength(100);
+            entity.Property(e => e.HeadOfInstitutionDesignation)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.HeadOfInstitutionName).HasMaxLength(200);
+            entity.Property(e => e.HeadOfInstitutionPgdegree).HasMaxLength(200);
+            entity.Property(e => e.HeadOfInstitutionPgrecognition)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.HeadOfInstitutionSubject).HasMaxLength(200);
+            entity.Property(e => e.HeadOfInstitutionTeachingExp).HasMaxLength(100);
+            entity.Property(e => e.HodageDob).HasMaxLength(100);
+            entity.Property(e => e.Hodname).HasMaxLength(200);
+            entity.Property(e => e.HodpgDegree).HasMaxLength(200);
+            entity.Property(e => e.HodpgRecognition)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.HodteachingExp).HasMaxLength(100);
+            entity.Property(e => e.InstitutionCategory)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.InstitutionName).HasMaxLength(250);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<TxnPgcourseSummaryInspectionDetail>(entity =>
+        {
+            entity.HasKey(e => e.PgcourseSummaryInspectionDetailId).HasName("PK__TxnPGCou__AFF4D931300DEC86");
+
+            entity.ToTable("TxnPGCourseSummaryInspectionDetail");
+
+            entity.Property(e => e.PgcourseSummaryInspectionDetailId).HasColumnName("PGCourseSummaryInspectionDetailId");
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.PgcourseSummaryDetailId).HasColumnName("PGCourseSummaryDetailId");
+            entity.Property(e => e.Purpose).HasMaxLength(300);
+            entity.Property(e => e.Result).HasMaxLength(300);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.PgcourseSummaryDetail).WithMany(p => p.TxnPgcourseSummaryInspectionDetails)
+                .HasForeignKey(d => d.PgcourseSummaryDetailId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PGCourseSummaryInspectionDetail_Summary");
+        });
+
+        modelBuilder.Entity<TxnPgcourseUnitBedDetail>(entity =>
+        {
+            entity.HasKey(e => e.PgcourseUnitBedDetailId).HasName("PK__TxnPGCou__692AB9671C03E694");
+
+            entity.ToTable("TxnPGCourseUnitBedDetail");
+
+            entity.Property(e => e.PgcourseUnitBedDetailId).HasColumnName("PGCourseUnitBedDetailId");
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.PgcourseGeneralDetailId).HasColumnName("PGCourseGeneralDetailId");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UnitName)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.PgcourseGeneralDetail).WithMany(p => p.TxnPgcourseUnitBedDetails)
+                .HasForeignKey(d => d.PgcourseGeneralDetailId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PGCourseUnitBedDetail_General");
+        });
+
         modelBuilder.Entity<TypeOfAffiliation>(entity =>
         {
             entity.HasKey(e => e.TypeId)
@@ -6618,6 +7635,58 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.RequestTime).HasColumnType("datetime");
             entity.Property(e => e.VehicleRegNo)
                 .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<WardsHeader>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__WardsHea__3214EC07F74F4EDD");
+
+            entity.ToTable("WardsHeader");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<WardsParameter>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__WardsPar__3214EC07CEDE2904");
+
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Details).HasMaxLength(500);
+            entity.Property(e => e.FacultyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.ParameterName).HasMaxLength(200);
+            entity.Property(e => e.TypeOfAffiliation)
+                .HasMaxLength(100)
                 .IsUnicode(false);
         });
 

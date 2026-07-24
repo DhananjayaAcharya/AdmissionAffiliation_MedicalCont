@@ -1,0 +1,57 @@
+@model Medical_Affiliation.Models.PgCourseSubjectSelectionViewModel
+@{
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["Title"] = "Select Subject";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h4 class="mb-0">Select Subject</h4>
+            <small class="text-muted">Choose the subject for the current PG course level to continue with Form-B sections.</small>
+        </div>
+        <span class="badge bg-secondary">Coursewise Application (Form-B)</span>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <p class="mb-3">Select the subject below to open the appropriate course application page for the current faculty, college and course level.</p>
+
+            @if (!Model.Subjects.Any())
+            {
+                <div class="alert alert-warning">No subjects found for your selected faculty, college or course level.</div>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var subject in Model.Subjects)
+                    {
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="pgcourses"
+                           asp-action="GeneralDetails"
+                           asp-route-courseCode="@subject.CourseCode"
+                           asp-route-typeOfAffiliation="@Model.TypeOfAffiliation">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@subject.SubjectName</strong>
+                                    <div class="text-muted">@subject.CourseName</div>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">Open</span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

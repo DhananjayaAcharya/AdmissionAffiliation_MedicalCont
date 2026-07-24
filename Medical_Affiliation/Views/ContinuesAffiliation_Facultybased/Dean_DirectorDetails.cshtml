@@ -1077,7 +1077,7 @@
                     </td>
 
                     <td>
-                    <select name="TeachingExperiences[${idx}].PGCollegeCode"
+                    <select name="TeachingExperiences[${idx}].ExpCollegeCode"
                     class="form-control college-dropdown">
                     ${collegeOptions}
                     </select>
@@ -1143,12 +1143,39 @@
 
             // ── Remove row ──
             $(document).on('click', '.remove-row', function () {
+                const table = $(this).closest('table');
                 const tbody = $(this).closest('tbody');
+                const tableId = table.attr('id');
+
                 if (tbody.find('tr').length > 1) {
                     $(this).closest('tr').remove();
-                    updateSlNumbers($(this).closest('table').attr('id'));
+                    updateSlNumbers(tableId);
+                    reindexTableInputs(tableId);
                 }
             });
+
+            function reindexTableInputs(tableId) {
+                const collectionName = tableId === 'adminExperienceTable'
+                    ? 'AdministrativeExperiences'
+                    : 'TeachingExperiences';
+
+                $(`#${tableId} tbody tr`).each(function (rowIndex) {
+                    $(this).find('input, select, textarea').each(function () {
+                        const name = $(this).attr('name');
+                        if (!name) return;
+
+                        const updatedName = name.replace(
+                            new RegExp(`^${collectionName}\\[\\d+\\]`),
+                            `${collectionName}[${rowIndex}]`
+                        );
+
+                        $(this).attr('name', updatedName);
+                        if ($(this).attr('data-row') !== undefined) {
+                            $(this).attr('data-row', rowIndex);
+                        }
+                    });
+                });
+            }
 
             // ── Calculate total experience ──
         function calculateTotalExperience(el) {

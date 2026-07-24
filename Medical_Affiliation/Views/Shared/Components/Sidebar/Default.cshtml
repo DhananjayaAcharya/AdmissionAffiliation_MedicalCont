@@ -23,63 +23,144 @@
 
 <style>
     :root {
-        --sidebar-bg: linear-gradient(180deg, #0b1729 0%, #0f1e3a 100%);
-        --sidebar-accent: #10a37f;
-        --sidebar-accent-light: #14c79a;
-        --sidebar-text: #cfe3f5;
-        --sidebar-text-muted: #8fa6c2;
-        --sidebar-hover: rgba(255, 255, 255, 0.06);
-        --sidebar-active: linear-gradient(135deg, #10a37f 0%, #0c8268 100%);
-        --sidebar-border: rgba(255, 255, 255, 0.08);
-        --header-height-lg: 12vh;
-        --sidebar-radius: 10px;
+        /* Aligned to the RGUHS portal design system (navy / gold / teal) */
+        --sb-navy: #0a3d91;
+        --sb-navy-mid: #0d4fb0;
+        --sb-navy-deep: #082f70;
+        --sb-gold: #1d5fd6;
+        --sb-gold-lt: #7fb0ff;
+        --sb-gold-ring: rgba(29,95,214,.18);
+        --sb-teal: #0e7490;
+        --sb-text: #d9e5f7;
+        --sb-text-muted: #8ea3c4;
+        --sb-hover: rgba(255,255,255,.06);
+        --sb-active: linear-gradient(135deg, var(--sb-gold) 0%, var(--sb-navy-mid) 100%);
+        --sb-border: rgba(255,255,255,.09);
+        --header-height: 71px; /* 68px topbar + 3px gov strip — must match Dashboard header exactly */
+        --sb-radius: 8px;
+        --sb-radius-lg: 10px;
+        --sb-ease: cubic-bezier(.4,0,.2,1);
+        --sb-dur: .2s;
     }
 
     .sidebar {
         position: fixed;
-        top: var(--header-height, 80px);
+        top: var(--header-height);
         left: 0;
         width: 280px;
         height: calc(100vh - var(--header-height));
-        background: var(--sidebar-bg);
-        color: var(--sidebar-text);
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
-        padding: 1.5rem 1rem;
+        background: linear-gradient(180deg, var(--sb-navy-deep) 0%, var(--sb-navy) 55%, var(--sb-navy-mid) 100%);
+        color: var(--sb-text);
+        box-shadow: 4px 0 24px rgba(5,15,40,.35);
+        padding: 0 0 1.25rem;
         display: flex;
         flex-direction: column;
         z-index: 900;
         overflow-y: auto;
-        border-right: 1px solid var(--sidebar-border);
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        border-right: 1px solid var(--sb-border);
+        font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
-    .sidebar-header {
-        text-align: center;
-        margin-bottom: 1.75rem;
-        padding-bottom: 1.1rem;
-        border-bottom: 1px solid var(--sidebar-border);
-    }
-
-        .sidebar-header h4 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin: 0;
-            color: #fff;
-            letter-spacing: 0.4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
         }
 
-            .sidebar-header h4 i {
-                color: var(--sidebar-accent-light);
-                font-size: 1.4rem;
-            }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.14);
+            border-radius: 10px;
+        }
 
+    /* ── Official header strip ─────────────────────────────── */
+    .sidebar-header {
+        position: relative;
+        text-align: left;
+        padding: 22px 20px 18px;
+        border-bottom: 1px solid var(--sb-border);
+        background: rgba(0,0,0,.12);
+    }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--sb-gold), var(--sb-gold-lt) 45%, transparent);
+        }
+
+    .sidebar-header-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .sidebar-header-ico {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--sb-gold-ring);
+        border: 1px solid rgba(29,95,214,.32);
+        display: grid;
+        place-items: center;
+        color: var(--sb-gold-lt);
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    .sidebar-header h4 {
+        font-family: 'Playfair Display', 'Inter', serif;
+        font-size: 1.02rem;
+        font-weight: 700;
+        margin: 0;
+        color: #fff;
+        letter-spacing: .2px;
+        line-height: 1.25;
+    }
+
+    .sidebar-header-sub {
+        font-size: 10px;
+        color: rgba(255,255,255,.42);
+        text-transform: uppercase;
+        letter-spacing: 1.1px;
+        margin-top: 1px;
+    }
+
+    .sidebar-official-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        color: var(--sb-gold-lt);
+        background: var(--sb-gold-ring);
+        border: 1px solid rgba(29,95,214,.30);
+        padding: 3px 9px;
+        border-radius: 20px;
+        margin-top: 2px;
+    }
+
+        .sidebar-official-badge i {
+            font-size: 10px;
+        }
+
+    /* ── Section label ──────────────────────────────────────── */
+    .sidebar-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: rgba(255,255,255,.32);
+        padding: 16px 20px 8px;
+    }
+
+    /* ── Menu ────────────────────────────────────────────────── */
     .sidebar-menu {
         list-style: none;
-        padding: 0;
+        padding: 4px 12px 0;
         margin: 0;
         flex: 1;
     }
@@ -91,40 +172,44 @@
     .sidebar-link {
         display: flex;
         align-items: center;
-        padding: 0.78rem 1rem;
-        color: var(--sidebar-text);
+        padding: 0.75rem 0.85rem;
+        color: var(--sb-text);
         text-decoration: none;
-        border-radius: var(--sidebar-radius);
+        border-radius: var(--sb-radius);
         font-weight: 500;
-        font-size: 0.94rem;
-        transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+        font-size: 0.9rem;
+        letter-spacing: .1px;
+        transition: background var(--sb-dur) var(--sb-ease), color var(--sb-dur) var(--sb-ease);
         cursor: pointer;
         user-select: none;
+        border: 1px solid transparent;
     }
 
         .sidebar-link i:first-child {
             margin-right: 12px;
-            font-size: 1.05rem;
-            width: 22px;
+            font-size: 1.02rem;
+            width: 20px;
             text-align: center;
-            color: var(--sidebar-text-muted);
-            transition: color 0.2s ease;
+            color: var(--sb-text-muted);
+            transition: color var(--sb-dur) var(--sb-ease);
         }
 
         .sidebar-link:hover {
-            background: var(--sidebar-hover);
+            background: var(--sb-hover);
             color: #fff;
+            border-color: var(--sb-border);
         }
 
             .sidebar-link:hover i:first-child {
-                color: var(--sidebar-accent-light);
+                color: var(--sb-gold-lt);
             }
 
         .sidebar-link.active {
-            background: var(--sidebar-active);
+            background: var(--sb-active);
             color: #fff;
             font-weight: 600;
-            box-shadow: 0 4px 14px rgba(16, 163, 127, 0.35);
+            box-shadow: 0 4px 14px rgba(29,95,214,.32);
+            border-color: transparent;
         }
 
             .sidebar-link.active i:first-child {
@@ -134,50 +219,22 @@
         .sidebar-link .chevron {
             margin-left: auto;
             transition: transform 0.25s ease;
-            font-size: 0.78rem;
-            color: var(--sidebar-text-muted);
+            font-size: 0.72rem;
+            color: var(--sb-text-muted);
         }
 
         .sidebar-link.expanded .chevron {
             transform: rotate(180deg);
-            color: var(--sidebar-accent-light);
+            color: var(--sb-gold-lt);
         }
 
-    .sidebar-footer {
-        margin-top: 1rem;
-        padding-top: 1.25rem;
-        border-top: 1px solid var(--sidebar-border);
-    }
-
-    .sidebar-btn-password {
-        width: 100%;
-        background: rgba(16, 163, 127, 0.12);
-        border: 1px solid var(--sidebar-accent);
-        color: var(--sidebar-accent-light);
-        font-weight: 600;
-        font-size: 0.9rem;
-        padding: 0.7rem;
-        border-radius: var(--sidebar-radius);
-        transition: all 0.25s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-
-        .sidebar-btn-password:hover {
-            background: var(--sidebar-accent);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(16, 163, 127, 0.35);
-        }
-
-    /* Custom dropdown panel (replaces native <select>) */
+    /* ── Custom dropdown panel (replaces native select) ─────── */
     .affiliation-dropdown {
-        margin: 0.3rem 0 0.4rem 0.4rem;
+        margin: 0.3rem 0 0.4rem 0.35rem;
         padding: 0.35rem;
-        border-radius: var(--sidebar-radius);
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--sidebar-border);
+        border-radius: var(--sb-radius);
+        background: rgba(0,0,0,.14);
+        border: 1px solid var(--sb-border);
         overflow: hidden;
         max-height: 0;
         opacity: 0;
@@ -202,32 +259,32 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 0.6rem 0.8rem;
-        font-size: 0.88rem;
-        color: var(--sidebar-text);
+        padding: 0.58rem 0.75rem;
+        font-size: 0.85rem;
+        color: var(--sb-text);
         border-radius: 7px;
         cursor: pointer;
         transition: background 0.18s ease, color 0.18s ease;
     }
 
         .affiliation-option:hover {
-            background: rgba(16, 163, 127, 0.18);
+            background: rgba(29,95,214,.20);
             color: #fff;
         }
 
         .affiliation-option.disabled {
-            opacity: 0.45;
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
             .affiliation-option.disabled:hover {
                 background: transparent;
-                color: var(--sidebar-text);
+                color: var(--sb-text);
             }
 
         .affiliation-option i {
-            font-size: 0.7rem;
-            color: var(--sidebar-text-muted);
+            font-size: 0.68rem;
+            color: var(--sb-text-muted);
         }
 
     .affiliation-loading {
@@ -235,74 +292,160 @@
         align-items: center;
         gap: 8px;
         padding: 0.7rem 0.8rem;
-        font-size: 0.85rem;
-        color: var(--sidebar-text-muted);
+        font-size: 0.83rem;
+        color: var(--sb-text-muted);
     }
 
         .affiliation-loading .spinner-border {
-            width: 0.85rem;
-            height: 0.85rem;
+            width: 0.8rem;
+            height: 0.8rem;
             border-width: 2px;
         }
 
-
-    /* --------------------------------------------------------------
-               UG / PG submenu (nested list) – visual polish
-               -------------------------------------------------------------- */
-
-    /* Container that holds the UG/PG links */
+    /* ── UG / PG submenu ─────────────────────────────────────── */
     .affiliation-submenu {
-        /* start hidden – the JS toggles the d-none class */
         margin-top: 0.25rem;
-        padding-left: 1.5rem; /* indentation */
-        background: rgba(255,255,255,0.02);
-        border-radius: var(--sidebar-radius);
-        overflow: hidden; /* needed for height animation */
-        max-height: 0; /* collapsed height */
+        padding-left: 1.4rem;
+        background: rgba(0,0,0,.10);
+        border-radius: var(--sb-radius);
+        overflow: hidden;
+        max-height: 0;
         opacity: 0;
         transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
     }
 
-        /* When the submenu should be visible */
         .affiliation-submenu.show {
-            max-height: 6.5rem; /* enough for two links – adjust if you add more */
+            max-height: 6.5rem;
             opacity: 1;
-            padding-left: 1.5rem;
+            padding-left: 1.4rem;
         }
 
-    /* Individual UG / PG links */
     .affiliation-subitem {
         display: block;
-        padding: 0.45rem 0.6rem;
-        font-size: 0.84rem;
-        color: var(--sidebar-text);
+        padding: 0.42rem 0.6rem;
+        font-size: 0.82rem;
+        color: var(--sb-text);
         text-decoration: none;
         border-radius: 6px;
         transition: background 0.18s ease, color 0.18s ease;
     }
 
         .affiliation-subitem:hover {
-            background: rgba(16,163,127,0.18);
+            background: rgba(29,95,214,.20);
             color: #fff;
         }
 
-        /* Optional: show which level (UG/PG) is currently active */
         .affiliation-subitem.active {
-            background: var(--sidebar-active);
+            background: var(--sb-active);
             color: #fff;
             font-weight: 600;
         }
 
-    /* Small arrow indicator on the parent row – already present,
-               but we make it a little nicer */
     .affiliation-option i.bi-chevron-right {
         transition: transform 0.2s ease;
     }
 
-    /* Rotate the chevron when the submenu is open */
     .affiliation-option.expanded i.bi-chevron-right {
         transform: rotate(90deg);
     }
+
+    /* ── Footer — Account controls ──────────────────────────── */
+    .sidebar-footer {
+        margin-top: 1rem;
+        padding: 16px 16px 4px;
+        border-top: 1px solid var(--sb-border);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .sidebar-footer-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.1px;
+        color: rgba(255,255,255,.30);
+        margin-bottom: 2px;
+        padding: 0 2px;
+    }
+
+    .sidebar-action-btn {
+        width: 100%;
+        background: rgba(255,255,255,.04);
+        border: 1px solid var(--sb-border);
+        color: var(--sb-text);
+        font-weight: 600;
+        font-size: 0.86rem;
+        padding: 0.68rem 0.8rem;
+        border-radius: var(--sb-radius);
+        transition: all var(--sb-dur) var(--sb-ease);
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        text-align: left;
+        cursor: pointer;
+    }
+
+        .sidebar-action-btn i {
+            font-size: .95rem;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+            color: var(--sb-text-muted);
+            transition: color var(--sb-dur) var(--sb-ease);
+        }
+
+        .sidebar-action-btn:hover {
+            background: var(--sb-gold-ring);
+            border-color: rgba(29,95,214,.35);
+            color: #fff;
+        }
+
+            .sidebar-action-btn:hover i {
+                color: var(--sb-gold-lt);
+            }
+
+        /* Primary emphasis for the password action */
+        .sidebar-action-btn.primary {
+            background: rgba(29,95,214,.10);
+            border-color: rgba(29,95,214,.30);
+            color: var(--sb-gold-lt);
+        }
+
+            .sidebar-action-btn.primary i {
+                color: var(--sb-gold-lt);
+            }
+
+            .sidebar-action-btn.primary:hover {
+                background: var(--sb-gold);
+                border-color: var(--sb-gold);
+                color: #fff;
+                box-shadow: 0 4px 14px rgba(29,95,214,.35);
+            }
+
+                .sidebar-action-btn.primary:hover i {
+                    color: #fff;
+                }
+
+    /* Compliance micro-footer */
+    .sidebar-compliance {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 10px;
+        padding-top: 12px;
+        border-top: 1px solid var(--sb-border);
+        font-size: 9.5px;
+        color: rgba(255,255,255,.28);
+        letter-spacing: .3px;
+        text-transform: uppercase;
+    }
+
+        .sidebar-compliance i {
+            color: var(--sb-teal);
+            font-size: 11px;
+        }
 
     /* Mobile / responsive */
     @@media (max-width: 991px) {
@@ -314,8 +457,7 @@
             left: 0;
             box-shadow: none;
             border-right: none;
-            border-bottom: 1px solid var(--sidebar-border);
-            padding: 1.2rem;
+            border-bottom: 1px solid var(--sb-border);
         }
     }
 
@@ -325,21 +467,17 @@
         }
 
         .sidebar-link {
-            font-size: 0.9rem;
-            padding: 0.7rem 0.9rem;
+            font-size: 0.87rem;
+            padding: 0.68rem 0.8rem;
         }
     }
 
     @@media (min-width: 1024px) {
         .sidebar {
-            height: calc(100vh - var(--header-height-lg));
+            height: calc(100vh - var(--header-height));
             overflow-y: auto;
-            scrollbar-width: none;
+            scrollbar-width: thin;
         }
-
-            .sidebar::-webkit-scrollbar {
-                display: none;
-            }
     }
 
     .sidebar .dropdown-menu {
@@ -351,12 +489,12 @@
     }
 
     .sidebar .dropdown-item {
-        color: var(--sidebar-text);
+        color: var(--sb-text);
         padding-left: 20px;
     }
 
         .sidebar .dropdown-item:hover {
-            background: var(--sidebar-hover);
+            background: var(--sb-hover);
         }
 
     .d-none {
@@ -368,8 +506,17 @@
 {
     <aside class="sidebar">
         <div class="sidebar-header">
-            <h4><i class="bi bi-mortarboard-fill"></i> College Dashboard</h4>
+            <div class="sidebar-header-top">
+                <div class="sidebar-header-ico"><i class="bi bi-mortarboard-fill"></i></div>
+                <div>
+                    <h4>College Workspace</h4>
+                    <div class="sidebar-header-sub">Affiliation Management</div>
+                </div>
+            </div>
+            <span class="sidebar-official-badge"><i class="bi bi-patch-check-fill"></i> Official Portal</span>
         </div>
+
+        <div class="sidebar-section-label">Navigation</div>
 
         <ul class="sidebar-menu">
 
@@ -426,11 +573,18 @@
 
         </ul>
 
-        <!-- Update Password -->
+        <!-- Account controls -->
         <div class="sidebar-footer">
-            <button class="sidebar-btn-password" data-bs-toggle="modal" data-bs-target="#updatePasswordModal">
+            <div class="sidebar-footer-label">Account</div>
+
+            <button class="sidebar-action-btn" onclick="goToCollegeProfile(event)">
+                <i class="bi bi-person-vcard"></i> College Profile
+            </button>
+
+            <button class="sidebar-action-btn primary" data-bs-toggle="modal" data-bs-target="#updatePasswordModal">
                 <i class="bi bi-lock"></i> Update Password
             </button>
+
         </div>
     </aside>
 

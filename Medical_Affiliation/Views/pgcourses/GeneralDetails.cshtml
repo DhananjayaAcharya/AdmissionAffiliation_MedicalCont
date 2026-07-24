@@ -1,0 +1,240 @@
+﻿@model Medical_Affiliation.Models.PgCourseGeneralViewModel
+@{
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["Title"] = "General Details";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h4 class="mb-0">General Details</h4>
+            <small class="text-muted">for PG the year @Model.AcademicYear &mdash; @Model.TypeOfAffiliation</small>
+        </div>
+        <span class="badge bg-secondary">Section A &mdash; GENERAL</span>
+    </div>
+
+    @* @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    } *@
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <form asp-action="GeneralDetails" asp-controller="pgcourses" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="PgcourseGeneralDetailId" />
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+        <input type="hidden" asp-for="CourseCode" />
+        <input type="hidden" asp-for="TypeOfAffiliation" />
+
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">A. GENERAL</div>
+            <div class="card-body">
+
+                <div class="row mb-3">
+                    <label class="col-lg-6 col-form-label">
+                        a. Date of LoP when PG course was first Permitted
+                    </label>
+                    <div class="col-lg-3">
+                        <input asp-for="LoPDate" type="date" class="form-control" />
+                        <span asp-validation-for="LoPDate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-lg-6 col-form-label">
+                        b. Number of years since start of PG course
+                    </label>
+                    <div class="col-lg-3">
+                        <input asp-for="YearsSinceStart" type="number" min="0" class="form-control" />
+                        <span asp-validation-for="YearsSinceStart" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-lg-6 col-form-label">
+                        c. Name of the Head of Department
+                    </label>
+                    <div class="col-lg-6">
+                        <input asp-for="HodName" type="text" class="form-control" />
+                        <span asp-validation-for="HodName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-lg-6 col-form-label">
+                        d. Number of PG Admissions (existing seats)
+                    </label>
+                    <div class="col-lg-3">
+                        <input asp-for="ExistingSeats" type="number" min="0" class="form-control" />
+                        <span asp-validation-for="ExistingSeats" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-lg-6 col-form-label">
+                        e. Number of Increase of Admissions (seats) applied for
+                    </label>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-text">From</span>
+                            <input asp-for="IncreaseSeatsFrom" type="number" min="0" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-text">To</span>
+                            <input asp-for="IncreaseSeatsTo" type="number" min="0" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-lg-6 col-form-label">
+                        f. Total number of Units
+                    </label>
+                    <div class="col-lg-3">
+                        <input asp-for="TotalUnits" type="number" min="0" class="form-control" />
+                        <span asp-validation-for="TotalUnits" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-lg-6 col-form-label">
+                        g. Number of beds in the Department
+                    </label>
+                    <div class="col-lg-3">
+                        <input asp-for="DepartmentBeds" type="number" min="0" class="form-control" />
+                        <span asp-validation-for="DepartmentBeds" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-0">
+                    <label class="col-lg-6 col-form-label">
+                        h. Total number of ICU beds / High Dependency Unit (HDU) beds in the department
+                    </label>
+                    <div class="col-lg-3">
+                        <input asp-for="TotalICUHDUBeds" type="number" min="0" class="form-control" />
+                        <span asp-validation-for="TotalICUHDUBeds" class="text-danger"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">i. Number of Units with beds in each unit</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:25%">Unit</th>
+                            <th style="width:25%">Number of Beds</th>
+                            <th style="width:25%">Unit</th>
+                            <th style="width:25%">Number of beds</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            // Render two units per row: Unit-I..IV in column 1, Unit-V..VIII in column 2
+                            var half = Model.Units.Count / 2; // 4
+                        }
+                        @for (int r = 0; r < half; r++)
+                        {
+                            var leftIndex = r;
+                            var rightIndex = r + half;
+                            <tr>
+                                <td class="align-middle fw-semibold">
+                                    @Model.Units[leftIndex].UnitName
+                                    <input type="hidden" asp-for="Units[leftIndex].UnitName" />
+                                    <input type="hidden" asp-for="Units[leftIndex].UnitSequence" />
+                                </td>
+                                <td>
+                                    <input asp-for="Units[leftIndex].NumberOfBeds" type="number" min="0" class="form-control form-control-sm" />
+                                </td>
+                                <td class="align-middle fw-semibold">
+                                    @Model.Units[rightIndex].UnitName
+                                    <input type="hidden" asp-for="Units[rightIndex].UnitName" />
+                                    <input type="hidden" asp-for="Units[rightIndex].UnitSequence" />
+                                </td>
+                                <td>
+                                    <input asp-for="Units[rightIndex].NumberOfBeds" type="number" min="0" class="form-control form-control-sm" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">j. ICU</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:25%">Type</th>
+                            <th style="width:20%">Available / Not Available</th>
+                            <th style="width:25%">Number of total beds</th>
+                            <th style="width:30%">Bed occupancy on the day of inspection</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.IcuDetails.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle fw-semibold">
+                                    @Model.IcuDetails[i].IcuType
+                                    <input type="hidden" asp-for="IcuDetails[i].IcuType" />
+                                </td>
+                                <td class="align-middle">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="IcuDetails[i].IsAvailable" class="form-check-input" type="checkbox" role="switch" />
+                                        <label class="form-check-label">Available</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input asp-for="IcuDetails[i].TotalBeds" type="number" min="0" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="IcuDetails[i].BedOccupancyOnInspectionDay" type="number" min="0" class="form-control form-control-sm" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                <a asp-action="PreviousAction" asp-controller="pgcourses"
+                   asp-route-facultyCode="@Model.FacultyCode"
+                   asp-route-collegeCode="@Model.CollegeCode"
+                   asp-route-courseCode="@Model.CourseCode"
+                   asp-route-typeOfAffiliation="@Model.TypeOfAffiliation"
+                   class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left"></i> Previous
+                </a>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary px-4">
+                    Save &amp; Continue <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

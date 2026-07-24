@@ -19,16 +19,20 @@ using System.Xml.Linq;
 using Medical_Affiliation.DATA;
 using System.Security.Claims;
 using Medical_Affiliation.Controllers;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Admission_Affiliation.Controllers
 {
     public class CollegeloginController : BaseController
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        
 
-        public CollegeloginController(ApplicationDbContext context) : base(context)
+        public CollegeloginController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment) : base(context)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // ✅ GET: Login Page
@@ -86,6 +90,19 @@ namespace Admission_Affiliation.Controllers
             HttpContext.Session.SetString("CollegeName", user.CollegeName ?? "");
             HttpContext.Session.SetString("CollegeCode", user.CollegeCode ?? "");
             HttpContext.Session.SetString("FacultyCode", user.FacultyCode ?? "");
+
+            // Resolve faculty name (if available) and set in session for use in header
+            string facultyName = string.Empty;
+            if (!string.IsNullOrWhiteSpace(user.FacultyCode) && int.TryParse(user.FacultyCode, out var fcode))
+            {
+                facultyName = await _context.Faculties
+                    .Where(f => f.FacultyId == fcode)
+                    .Select(f => f.FacultyName)
+                    .FirstOrDefaultAsync() ?? string.Empty;
+            }
+            if (!string.IsNullOrWhiteSpace(facultyName))
+                HttpContext.Session.SetString("FacultyName", facultyName);
+
             HttpContext.Session.SetString("TypeOfAffiliation", "College Affiliation");
 
             await HttpContext.SignInAsync("CollegeAuth", principal,
@@ -121,7 +138,7 @@ namespace Admission_Affiliation.Controllers
             Console.WriteLine($"CollegeCode from Claims: {User.FindFirst("CollegeCode")?.Value}");
             Console.WriteLine($"FacultyCode from Claims: {User.FindFirst("FacultyCode")?.Value}");
 
-            var collegeCode = User.FindFirst("CollegeCode")?.Value;
+            var collegeCode = User.FindFirst("CollegeCode")?.Value?.Trim();
             var collegeName = User.Identity?.Name;
 
             // Extra safety check
@@ -145,10 +162,71 @@ namespace Admission_Affiliation.Controllers
             var detail = _context.DentalCollegeLandBuildingDetails
                             .AsNoTracking()
                             .FirstOrDefault(d => d.CollegeCode == collegeCode);
+
+            // Load profile if exists (logo, contact info)
+            // Case-insensitive, trimmed match to guard against data-entry mismatches
+            var profile = _context.MedCollegeProfiles
+                .AsNoTracking()
+                .FirstOrDefault(p => p.CgpCollegeCode.Trim().ToUpper() == collegeCode.ToUpper());
+
+            Console.WriteLine($"[Dashboard] Looking up Med_CollegeProfile for CollegeCode='{collegeCode}'");
+            Console.WriteLine($"[Dashboard] Profile found: {profile != null}");
+            if (profile != null)
+            {
+                Console.WriteLine($"[Dashboard] CGP_CollegeCode in DB: '{profile.CgpCollegeCode}'");
+                Console.WriteLine($"[Dashboard] CGP_LogoPath in DB: '{profile.CgpLogoPath}'");
+
+                // Check whether the physical file actually exists on disk
+                if (!string.IsNullOrWhiteSpace(profile.CgpLogoPath))
+                {
+                    var physicalPath = Path.Combine(_webHostEnvironment.WebRootPath,
+                        profile.CgpLogoPath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                    var fileExists = System.IO.File.Exists(physicalPath);
+                    Console.WriteLine($"[Dashboard] Expected physical file: {physicalPath}");
+                    Console.WriteLine($"[Dashboard] File exists on disk: {fileExists}");
+                }
+            }
+            else
+            {
+                // Log all CollegeCodes in Med_CollegeProfile so you can spot-check the mismatch
+                var allCodes = _context.MedCollegeProfiles
+                    .AsNoTracking()
+                    .Select(p => p.CgpCollegeCode)
+                    .ToList();
+                Console.WriteLine("[Dashboard] All CGP_CollegeCode values in DB: " + string.Join(", ", allCodes));
+            }
+
+            // Ensure faculty name in session (best-effort)
+            var facultyName = HttpContext.Session.GetString("FacultyName");
+            if (string.IsNullOrWhiteSpace(facultyName) && !string.IsNullOrWhiteSpace(college.FacultyCode))
+            {
+                if (int.TryParse(college.FacultyCode, out var fcode))
+                {
+                    facultyName = _context.Faculties
+                        .Where(f => f.FacultyId == fcode)
+                        .Select(f => f.FacultyName)
+                        .FirstOrDefault();
+                }
+                if (!string.IsNullOrWhiteSpace(facultyName))
+                    HttpContext.Session.SetString("FacultyName", facultyName);
+            }
+
+            // Persist CollegeName and CollegeLogoPath into session for immediate header use
+            HttpContext.Session.SetString("CollegeName", college.CollegeName ?? collegeName ?? string.Empty);
+            HttpContext.Session.SetString("CollegeLogoPath", profile?.CgpLogoPath ?? string.Empty);
+
             var model = new DashboardViewModel
             {
                 CollegeCode = college.CollegeCode,
                 CollegeName = college.CollegeName,
+                FacultyName = facultyName,
+                CollegeLogoPath = profile?.CgpLogoPath,
+                PrincipalName = profile?.CgpPrincipalName,
+                Address = profile?.CgpAddress,
+                Email = profile?.CgpEmail,
+                PhoneNumber = profile?.CgpPhoneNumber,
+                Website = profile?.CgpWebsite,
+                EstablishedYear = profile?.CgpEstablishedYear,
                 DistrictId = college.DistrictId,
                 TalukId = college.TalukId,
                 Latitude = detail?.Latitude,
@@ -158,8 +236,20 @@ namespace Admission_Affiliation.Controllers
                     .ToList()
             };
 
+            // Surface profile values to the viewbag for backwards compatibility in the view
+            ViewBag.CollegeCode = college.CollegeCode;
+            ViewBag.CollegeName = college.CollegeName;
+            ViewBag.FacultyName = facultyName;
+            ViewBag.CollegeLogoPath = profile?.CgpLogoPath ?? HttpContext.Session.GetString("CollegeLogoPath");
+            ViewBag.PrincipalName = profile?.CgpPrincipalName;
+            ViewBag.CollegeAddress = profile?.CgpAddress;
+            ViewBag.CollegeEmail = profile?.CgpEmail;
+            ViewBag.CollegePhoneNumber = profile?.CgpPhoneNumber;
+            ViewBag.CollegeWebsite = profile?.CgpWebsite;
+            ViewBag.EstablishedYear = profile?.CgpEstablishedYear;
+
             TempData["ShowWelcomePopup"] = string.IsNullOrEmpty(college.ChangedPassword);
-            TempData["CollegeName"] = collegeName;
+            TempData["CollegeName"] = college.CollegeName ?? collegeName;
             if (string.IsNullOrEmpty(college.DistrictId) || string.IsNullOrEmpty(college.TalukId))
             {
                 TempData["ShowLocationPopup"] = true;
@@ -1585,6 +1675,128 @@ namespace Admission_Affiliation.Controllers
 
                 return File(memoryStream.ToArray(), "application/zip", "AllDocs.zip");
             }
+        }
+
+        // ── GET: fetch current profile as JSON (used by the modal on open) ──
+        [HttpGet]
+        public async Task<IActionResult> GetCollegeProfile(string collegeCode)
+        {
+            if (string.IsNullOrEmpty(collegeCode))
+                collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+            if (string.IsNullOrEmpty(collegeCode))
+                return Json(new { success = false, message = "College code not found in session." });
+
+            var profile = await _context.MedCollegeProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.CgpCollegeCode.Trim().ToUpper() == collegeCode.ToUpper());
+
+            var institution = await _context.AffInstitutionsDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.CollegeCode == collegeCode);
+
+            var collegeName = HttpContext.Session.GetString("CollegeName")
+                               ?? institution?.NameOfInstitution
+                               ?? "";
+
+            // Resolve the "~/" tilde path into a real browser-usable URL
+            var resolvedLogoPath = !string.IsNullOrWhiteSpace(profile?.CgpLogoPath)
+                ? Url.Content(profile.CgpLogoPath)
+                : "";
+
+            return Json(new
+            {
+                success = true,
+                collegeCode,
+                collegeName,
+                logoPath = resolvedLogoPath,
+                address = institution?.Address ?? "",
+                email = institution?.EmailId ?? "",
+                phoneNumber = institution?.MobileNumber ?? "",
+                website = institution?.Website ?? "",
+                establishedYear = institution?.YearOfEstablishment,
+                principalName = institution?.PrincipalName ?? ""
+            });
+        }
+
+        // ── POST: create or update the profile, optionally replacing the logo ──
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(5_000_000)] // 5 MB cap for logo uploads
+        public async Task<IActionResult> UpdateCollegeProfile(CollegeProfileViewModel model)
+        {
+            var collegeCode = model.CollegeCode ?? HttpContext.Session.GetString("CollegeCode");
+            if (string.IsNullOrEmpty(collegeCode))
+            {
+                TempData["Error"] = "Could not identify the college for this session.";
+                return RedirectToAction("Dashboard");
+            }
+
+            // Only proceed if a logo was actually posted — nothing else is editable here anymore
+            if (model.Logo == null || model.Logo.Length == 0)
+            {
+                TempData["Error"] = "Please select a logo image to upload.";
+                return RedirectToAction("Dashboard");
+            }
+
+            var allowedExt = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var ext = Path.GetExtension(model.Logo.FileName).ToLowerInvariant();
+
+            if (!allowedExt.Contains(ext))
+            {
+                TempData["Error"] = "Logo must be a JPG, PNG, or WEBP image.";
+                return RedirectToAction("Dashboard");
+            }
+
+            var profile = await _context.MedCollegeProfiles
+                .FirstOrDefaultAsync(p => p.CgpCollegeCode == collegeCode);
+
+            var isNew = profile == null;
+            if (isNew)
+            {
+                profile = new MedCollegeProfile
+                {
+                    CgpCollegeCode = collegeCode,
+                    CgpCreatedDate = DateTime.Now
+                };
+            }
+
+            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "CollegeLogos");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{collegeCode}_{DateTime.Now:yyyyMMddHHmmss}{ext}";
+            var fullPath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await model.Logo.CopyToAsync(stream);
+            }
+
+            // Delete old logo file if one existed, to avoid orphaned files
+            if (!string.IsNullOrEmpty(profile.CgpLogoPath))
+            {
+                var oldFullPath = Path.Combine(_webHostEnvironment.WebRootPath,
+                    profile.CgpLogoPath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                if (System.IO.File.Exists(oldFullPath))
+                {
+                    try { System.IO.File.Delete(oldFullPath); } catch { /* non-fatal */ }
+                }
+            }
+
+            profile.CgpLogoPath = $"/uploads/CollegeLogos/{fileName}";
+            profile.CgpModifiedDate = DateTime.Now;
+            profile.CgpModifiedBy = collegeCode;
+
+            if (isNew)
+                _context.MedCollegeProfiles.Add(profile);
+
+            await _context.SaveChangesAsync();
+
+            // Keep session in sync so the topbar logo updates immediately without re-login
+            HttpContext.Session.SetString("CollegeLogoPath", profile.CgpLogoPath ?? "");
+
+            TempData["SuccessMessage"] = "College logo updated successfully.";
+            return RedirectToAction("Dashboard");
         }
 
     }

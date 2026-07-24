@@ -1,0 +1,271 @@
+﻿@model Medical_Affiliation.Models.StaffDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    ViewData["Title"] = "Staff Details & Student Exam Results";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h4 class="mb-0">Staff Details & Student Exam Results</h4>
+            <small class="text-muted">Section F &mdash; Staff particulars and student exam results</small>
+        </div>
+        <span class="badge bg-secondary">Section F &mdash; STAFF</span>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <form asp-action="StaffDetails" asp-controller="pgcourses" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="FacultyCode" />
+        <input type="hidden" asp-for="CollegeCode" />
+        <input type="hidden" asp-for="CourseCode" />
+        <input type="hidden" asp-for="TypeOfAffiliation" />
+
+        <!-- F.i. Unit-wise faculty and Senior Resident details -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">i. Unit-wise faculty and Senior Resident details</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addStaffRow()">+ Add Row</button>
+            </div>
+            <div class="card-body">
+
+                <div class="row mb-3">
+                    <label class="col-lg-2 col-form-label">Unit No</label>
+                    <div class="col-lg-3">
+                        <input asp-for="UnitNo" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0" id="staffTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:4%">Sr.No</th>
+                                <th>Designation</th>
+                                <th>Name</th>
+                                <th>Joining date</th>
+                                <th>Relieved/Retired/Working</th>
+                                <th>Relieving Date/Retirement Date</th>
+                                <th>Attendance in days for the year*</th>
+                                <th>% of total working days</th>
+                                <th>Phone No.</th>
+                                <th>E-mail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.StaffMembers.Count; i++)
+                            {
+                                <tr>
+                                    <td class="align-middle text-center">
+                                        @(i + 1)
+                                    </td>
+                                    <td><input name="StaffMembers[@i].Designation" value="@Model.StaffMembers[i].Designation" class="form-control form-control-sm" /></td>
+                                    <td><input name="StaffMembers[@i].Name" value="@Model.StaffMembers[i].Name" class="form-control form-control-sm" /></td>
+                                    <td><input name="StaffMembers[@i].JoiningDate" value="@(Model.StaffMembers[i].JoiningDate?.ToString("yyyy-MM-dd"))" type="date" class="form-control form-control-sm" /></td>
+                                    <td>
+                                        <select name="StaffMembers[@i].RelievedRetiredWorking" class="form-select form-select-sm">
+                                            <option value="">--</option>
+                                            <option value="Working" selected="@(Model.StaffMembers[i].RelievedRetiredWorking == "Working")">Working</option>
+                                            <option value="Relieved" selected="@(Model.StaffMembers[i].RelievedRetiredWorking == "Relieved")">Relieved</option>
+                                            <option value="Retired" selected="@(Model.StaffMembers[i].RelievedRetiredWorking == "Retired")">Retired</option>
+                                        </select>
+                                    </td>
+                                    <td><input name="StaffMembers[@i].RelievingRetirementDate" value="@(Model.StaffMembers[i].RelievingRetirementDate?.ToString("yyyy-MM-dd"))" type="date" class="form-control form-control-sm" /></td>
+                                    <td><input name="StaffMembers[@i].AttendanceDaysForYear" value="@Model.StaffMembers[i].AttendanceDaysForYear" type="number" min="0" class="form-control form-control-sm" /></td>
+                                    <td><input name="StaffMembers[@i].AttendancePercentage" value="@Model.StaffMembers[i].AttendancePercentage" type="number" step="0.01" min="0" max="100" class="form-control form-control-sm" /></td>
+                                    <td><input name="StaffMembers[@i].PhoneNo" value="@Model.StaffMembers[i].PhoneNo" class="form-control form-control-sm" /></td>
+                                    <td><input name="StaffMembers[@i].Email" value="@Model.StaffMembers[i].Email" class="form-control form-control-sm" /></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="small text-muted mt-2">
+                    * Year will be previous Calendar Year (from 1<sup>st</sup> January to 31<sup>st</sup> December).<br />
+                    ** Those who have joined mid-way should count the percentage of the working days accordingly.
+                </div>
+
+            </div>
+        </div>
+
+        <!-- F.ii. Total eligible faculties and Senior Residents -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">
+                ii. Total eligible faculties and Senior Residents (fulfilling the TEQ requirement, attendance requirement and other requirements prescribed by NMC from time-to-time) available in the department
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Designation</th>
+                            <th style="width:10%">Number</th>
+                            <th style="width:20%">Name</th>
+                            <th style="width:15%">Total number of Admission (Seats)</th>
+                            <th style="width:15%">Adequate / Not Adequate for number of Admission</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.EligibleFaculty.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle fw-semibold">
+                                    @Model.EligibleFaculty[i].Designation
+                                    <input type="hidden" asp-for="EligibleFaculty[i].Designation" />
+                                    <input type="hidden" asp-for="EligibleFaculty[i].DesignationSequence" />
+                                </td>
+                                <td><input asp-for="EligibleFaculty[i].NumberOfFaculty" type="number" min="0" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="EligibleFaculty[i].Names" class="form-control form-control-sm" /></td>
+                                <td><input asp-for="EligibleFaculty[i].TotalAdmissionSeats" type="number" min="0" class="form-control form-control-sm" /></td>
+                                <td>
+                                    <select asp-for="EligibleFaculty[i].IsAdequateForAdmission" class="form-select form-select-sm">
+                                        <option value="">--</option>
+                                        <option value="Adequate">Adequate</option>
+                                        <option value="Not Adequate">Not Adequate</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- F.iii. No. of PG students presently studying -->
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">iii. No. of PG students presently studying in the Department</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0" style="max-width:500px;">
+                    <thead class="table-light">
+                        <tr><th>Years</th><th>No. of students</th></tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.PgStudentsByYear.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle fw-semibold">
+                                    @Model.PgStudentsByYear[i].YearLabel
+                                    <input type="hidden" asp-for="PgStudentsByYear[i].YearLabel" />
+                                    <input type="hidden" asp-for="PgStudentsByYear[i].YearSequence" />
+                                </td>
+                                <td><input asp-for="PgStudentsByYear[i].NumberOfStudents" type="number" min="0" class="form-control form-control-sm" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- H. List of Students appeared for exams -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">H. List of Students appeared for exams during the previous years</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addExamRow()">+ Add Row</button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0" id="examTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:10%">Sl. No.</th>
+                            <th>Name</th>
+                            <th style="width:20%">Result (Pass/Fail)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.ExamResults.Count; i++)
+                        {
+                            <tr>
+                                <td class="align-middle text-center">@(i + 1)</td>
+                                <td><input name="ExamResults[@i].StudentName" value="@Model.ExamResults[i].StudentName" class="form-control form-control-sm" /></td>
+                                <td>
+                                    <select name="ExamResults[@i].Result" class="form-select form-select-sm">
+                                        <option value="">--</option>
+                                        <option value="Pass" selected="@(Model.ExamResults[i].Result == "Pass")">Pass</option>
+                                        <option value="Fail" selected="@(Model.ExamResults[i].Result == "Fail")">Fail</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                <a asp-action="ServicesWorkload" asp-controller="pgcourses"
+                   asp-route-facultyCode="@Model.FacultyCode"
+                   asp-route-collegeCode="@Model.CollegeCode"
+                   asp-route-courseCode="@Model.CourseCode"
+                   asp-route-typeOfAffiliation="@Model.TypeOfAffiliation"
+                   class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left"></i> Previous
+                </a>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary px-4">
+                    Save &amp; Continue <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function addStaffRow() {
+            const tbody = document.querySelector('#staffTable tbody');
+            const index = tbody.querySelectorAll('tr').length;
+            const html = `<tr>
+                <td class="align-middle text-center">${index + 1}</td>
+                <td><input name="StaffMembers[${index}].Designation" class="form-control form-control-sm" /></td>
+                <td><input name="StaffMembers[${index}].Name" class="form-control form-control-sm" /></td>
+                <td><input name="StaffMembers[${index}].JoiningDate" type="date" class="form-control form-control-sm" /></td>
+                <td>
+                    <select name="StaffMembers[${index}].RelievedRetiredWorking" class="form-select form-select-sm">
+                        <option value="">--</option>
+                        <option value="Working">Working</option>
+                        <option value="Relieved">Relieved</option>
+                        <option value="Retired">Retired</option>
+                    </select>
+                </td>
+                <td><input name="StaffMembers[${index}].RelievingRetirementDate" type="date" class="form-control form-control-sm" /></td>
+                <td><input name="StaffMembers[${index}].AttendanceDaysForYear" type="number" min="0" class="form-control form-control-sm" /></td>
+                <td><input name="StaffMembers[${index}].AttendancePercentage" type="number" step="0.01" min="0" max="100" class="form-control form-control-sm" /></td>
+                <td><input name="StaffMembers[${index}].PhoneNo" class="form-control form-control-sm" /></td>
+                <td><input name="StaffMembers[${index}].Email" class="form-control form-control-sm" /></td>
+            </tr>`;
+            tbody.insertAdjacentHTML('beforeend', html);
+        }
+
+        function addExamRow() {
+            const tbody = document.querySelector('#examTable tbody');
+            const index = tbody.querySelectorAll('tr').length;
+            const html = `<tr>
+                <td class="align-middle text-center">${index + 1}</td>
+                <td><input name="ExamResults[${index}].StudentName" class="form-control form-control-sm" /></td>
+                <td>
+                    <select name="ExamResults[${index}].Result" class="form-select form-select-sm">
+                        <option value="">--</option>
+                        <option value="Pass">Pass</option>
+                        <option value="Fail">Fail</option>
+                    </select>
+                </td>
+            </tr>`;
+            tbody.insertAdjacentHTML('beforeend', html);
+        }
+    </script>
+}

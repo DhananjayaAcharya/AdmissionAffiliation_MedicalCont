@@ -146,40 +146,131 @@ namespace Medical_Affiliation.Controllers
         // ── CollegeClaimsDashboard ────────────────────────────────────────────
 
         [HttpGet]
-        public async Task<IActionResult> CheckMemberReportExists(string memberName, string collegeCode)
+        public async Task<IActionResult> CheckMemberReportExists(string phoneNumber, string collegeCode)
         {
-            memberName = memberName?.Trim();
+            var phone = NormalizePhone(phoneNumber);
             collegeCode = collegeCode?.Trim();
 
-            var exists = await _context.LicclaimDetails
-                .AnyAsync(x => x.MemberName.Trim() == memberName &&
-                               x.CollegeCode.Trim() == collegeCode);
+            var claimPhones = await _context.LicclaimDetails
+                .Where(x => x.CollegeCode.Trim() == collegeCode)
+                .Select(x => x.PhoneNumber)
+                .ToListAsync();
+
+            var inspectionPhones = await _context.LicinspectionDetails
+                .Where(x => x.SelectedCollegeCode.Trim() == collegeCode)
+                .Select(x => x.PhoneNumber)
+                .ToListAsync();
+
+            bool exists = claimPhones.Any(p => NormalizePhone(p) == phone)
+                       || inspectionPhones.Any(p => NormalizePhone(p) == phone);
 
             return Json(new { success = exists });
         }
+        private static string NormalizePhone(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return "";
+            var digitsOnly = new string(raw.Where(char.IsDigit).ToArray());
+            return digitsOnly.Length > 10 ? digitsOnly.Substring(digitsOnly.Length - 10) : digitsOnly;
+        }
+
         [HttpGet]
         public async Task<IActionResult> CollegeClaimsDashboard(string? collegeCode)
         {
-            var sessionFacultyCode = SessionFacultyCode;   // ← uses constant
+            var sessionFacultyCode = SessionFacultyCode;
             if (string.IsNullOrEmpty(sessionFacultyCode))
                 return RedirectToAction("Login", "Account");
 
-            var collegesQuery = _context.LicInspectionCollegeDetails.AsQueryable();
+            var collegesQuery = _context.LicInspectionCollegeDetails.AsNoTracking().AsQueryable();
             if (sessionFacultyCode != "300")
-                collegesQuery = collegesQuery
-                    .Where(c => c.Facultycode.ToString() == sessionFacultyCode);
+                collegesQuery = collegesQuery.Where(c => c.Facultycode.ToString() == sessionFacultyCode);
 
-            if (!string.IsNullOrEmpty(collegeCode))
-                collegesQuery = collegesQuery.Where(c => c.Collegecode == collegeCode);
+            var allCollegesInScope = await collegesQuery.ToListAsync();
 
-            var colleges = await collegesQuery.ToListAsync();
+            ViewBag.Colleges = allCollegesInScope
+                .Select(c => new SelectListItem { Value = c.Collegecode, Text = c.Collegename })
+                .ToList();
+            ViewBag.SelectedCollege = collegeCode;
+            ViewBag.SessionFacultyCode = sessionFacultyCode;
+
+            var colleges = string.IsNullOrEmpty(collegeCode)
+                ? allCollegesInScope
+                : allCollegesInScope.Where(c => c.Collegecode == collegeCode).ToList();
+
+            if (colleges.Count == 0)
+                return View(new List<LICCollegeDashboardViewModel>());
+
+            var collegeCodes = colleges.Select(c => c.Collegecode).Distinct().ToList();
+
+            var allClaims = await _context.LicclaimDetails
+                .AsNoTracking()
+                .Where(x => collegeCodes.Contains(x.CollegeCode))
+                .ToListAsync();
+
+            var allInspections = await _context.LicinspectionDetails
+                .AsNoTracking()
+                .Where(x => collegeCodes.Contains(x.SelectedCollegeCode) && x.DateOfInspection.HasValue)
+                .ToListAsync();
+
+            var allApprovals = await _context.LiccollegeApprovals
+                .AsNoTracking()
+                .Where(x => collegeCodes.Contains(x.CollegeCode))
+                .ToListAsync();
+
+            // Keyed by (Phone, CollegeCode) — NOT name
+            Dictionary<(string Phone, string Code), List<LicclaimDetail>> claimsLookup =
+                allClaims
+                    .Where(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+                    .GroupBy(x => (Phone: NormalizePhone(x.PhoneNumber), Code: x.CollegeCode?.Trim()))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+            Dictionary<(string Phone, string Code), List<DateOnly>> inspectionLookup =
+                allInspections
+                    .Where(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+                    .GroupBy(x => (Phone: NormalizePhone(x.PhoneNumber), Code: x.SelectedCollegeCode?.Trim()))
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.DateOfInspection.Value).ToList());
+
+            var approvalLookup = allApprovals
+                .GroupBy(x => x.CollegeCode)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            LICMemberSummary BuildSummary(string memberName, long? memberPhone, string collegeCodeForMember)
+            {
+                if (string.IsNullOrEmpty(memberName) || memberPhone == null || memberPhone == 0) return null;
+
+                var phone = NormalizePhone(memberPhone.Value.ToString());
+                var code = collegeCodeForMember?.Trim();
+                var key = (Phone: phone, Code: code);
+
+                claimsLookup.TryGetValue(key, out var claims);
+                inspectionLookup.TryGetValue(key, out var datesFromInspectionTable);
+
+                var datesFromClaims = claims?
+                    .Where(c => c.InspectionDate.HasValue)
+                    .Select(c => c.InspectionDate.Value)
+                    .ToList() ?? new List<DateOnly>();
+
+                var combinedDates = (datesFromInspectionTable ?? new List<DateOnly>())
+                    .Union(datesFromClaims)
+                    .Distinct()
+                    .ToList();
+
+                return new LICMemberSummary
+                {
+                    MemberName = memberName.Trim(),
+                    PhoneNumber = phone,
+                    InspectionDates = combinedDates,
+                    TotalClaim = claims?.Sum(x => x.TotalCost ?? 0) ?? 0,
+                    DateMismatchFlag = false
+                };
+            }
+
             var result = new List<LICCollegeDashboardViewModel>();
 
             foreach (var college in colleges)
             {
-                var senate = await BuildMemberSummary(college.SenetMember, college.Collegecode);
-                var ac = await BuildMemberSummary(college.Acmember, college.Collegecode);
-                var subject = await BuildMemberSummary(college.SubjectExpertise, college.Collegecode);
+                var senate = BuildSummary(college.SenetMember, college.SenetMemberPhNo, college.Collegecode);
+                var ac = BuildSummary(college.Acmember, college.AcMemberPhno, college.Collegecode);
+                var subject = BuildSummary(college.SubjectExpertise, college.SubjectExpertisePhNo, college.Collegecode);
 
                 var senateDate = senate?.InspectionDates?.FirstOrDefault();
                 var acDate = ac?.InspectionDates?.FirstOrDefault();
@@ -191,34 +282,24 @@ namespace Medical_Affiliation.Controllers
                 if (validDates.Count > 0)
                 {
                     var distinctDates = validDates.Distinct().ToList();
-                    if (distinctDates.Count == 1)
-                    {
-                        if (senate != null) senate.DateMismatchFlag = !senateDate.HasValue;
-                        if (ac != null) ac.DateMismatchFlag = !acDate.HasValue;
-                        if (subject != null) subject.DateMismatchFlag = !subjectDate.HasValue;
-                    }
-                    else
-                    {
-                        var baseDate = distinctDates.First();
-                        if (senate != null) senate.DateMismatchFlag = !senateDate.HasValue || senateDate != baseDate;
-                        if (ac != null) ac.DateMismatchFlag = !acDate.HasValue || acDate != baseDate;
-                        if (subject != null) subject.DateMismatchFlag = !subjectDate.HasValue || subjectDate != baseDate;
-                    }
+                    var baseDate = distinctDates.First();
+                    bool singleDate = distinctDates.Count == 1;
+
+                    if (senate != null) senate.DateMismatchFlag = singleDate ? !senateDate.HasValue : (!senateDate.HasValue || senateDate != baseDate);
+                    if (ac != null) ac.DateMismatchFlag = singleDate ? !acDate.HasValue : (!acDate.HasValue || acDate != baseDate);
+                    if (subject != null) subject.DateMismatchFlag = singleDate ? !subjectDate.HasValue : (!subjectDate.HasValue || subjectDate != baseDate);
                 }
 
                 decimal totalCollegeClaim =
-                    (senate?.TotalClaim ?? 0) +
-                    (ac?.TotalClaim ?? 0) +
-                    (subject?.TotalClaim ?? 0);
+                    (senate?.TotalClaim ?? 0) + (ac?.TotalClaim ?? 0) + (subject?.TotalClaim ?? 0);
 
-                var approval = await _context.LiccollegeApprovals
-                    .FirstOrDefaultAsync(x => x.CollegeCode == college.Collegecode);
+                approvalLookup.TryGetValue(college.Collegecode, out var approval);
 
                 result.Add(new LICCollegeDashboardViewModel
                 {
                     CollegeName = college.Collegename,
                     CollegeCode = college.Collegecode,
-                    FacultyCode = college.Facultycode.ToString(),  // ← saved from college record
+                    FacultyCode = college.Facultycode.ToString(),
                     SenateMember = senate,
                     ACMember = ac,
                     SubjectExpert = subject,
@@ -228,17 +309,6 @@ namespace Medical_Affiliation.Controllers
                     LicApprovalFileName = approval?.LicApprovalFileName
                 });
             }
-
-            var dropdownQuery = _context.LicInspectionCollegeDetails.AsQueryable();
-            if (sessionFacultyCode != "300")
-                dropdownQuery = dropdownQuery.Where(c => c.Facultycode.ToString() == sessionFacultyCode);
-
-            ViewBag.Colleges = await dropdownQuery
-                .Select(c => new SelectListItem { Value = c.Collegecode, Text = c.Collegename })
-                .ToListAsync();
-
-            ViewBag.SelectedCollege = collegeCode;
-            ViewBag.SessionFacultyCode = sessionFacultyCode;  // ← available in View if needed
 
             return View(result);
         }
@@ -312,18 +382,23 @@ namespace Medical_Affiliation.Controllers
 
             foreach (var memberRole in memberRoles)
             {
-                if (string.IsNullOrWhiteSpace(memberRole.Name)) continue;
+                if (string.IsNullOrWhiteSpace(memberRole.Name))
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"⏭ Skipping role '{memberRole.Role}' — Name field is null/blank on college record.");
+                    continue;
+                }
 
                 var memberName = memberRole.Name.Trim();
 
-                // Match in memory so .Trim() works reliably
-                var claim = allCollegeClaims
-                    .FirstOrDefault(x => x.MemberName?.Trim() == memberName);
+                // Match in memory, case-insensitive + trimmed, so casing differences don't break the lookup
+                var claim = allCollegeClaims.FirstOrDefault(x =>
+                    string.Equals(x.MemberName?.Trim(), memberName, StringComparison.OrdinalIgnoreCase));
 
                 if (claim == null)
                 {
                     System.Diagnostics.Debug.WriteLine(
-                        $"⚠ No claim found for member: '{memberName}'");
+                        $"⚠ No claim found for member: '{memberName}' (Role: {memberRole.Role})");
                     foreach (var c in allCollegeClaims)
                         System.Diagnostics.Debug.WriteLine(
                             $"   DB has: '{c.MemberName}'");
@@ -331,7 +406,7 @@ namespace Medical_Affiliation.Controllers
                 else
                 {
                     System.Diagnostics.Debug.WriteLine(
-                        $"✔ Claim found for member: '{memberName}'");
+                        $"✔ Claim found for member: '{memberName}' (Role: {memberRole.Role})");
                 }
 
                 var existing = await _context.LiccollegeApprovals
@@ -353,6 +428,7 @@ namespace Medical_Affiliation.Controllers
                         existing.TypeOfMembers = memberRole.Role;
                         existing.MobileNo = claim.PhoneNumber;
                         existing.FromPlace = claim.FromPlace;
+                        existing.FacultyCode = Convert.ToInt32(sessionFacultyCode);
                         existing.ToPlace = claim.ToPlace;
                         existing.Kilometers = claim.Kilometers;
                         existing.ReturnFromPlace = claim.ReturnFromPlace;
@@ -452,42 +528,61 @@ namespace Medical_Affiliation.Controllers
 
         // ── MemberReport ──────────────────────────────────────────────────────
         [HttpGet]
-        public async Task<IActionResult> MemberReport(string memberName, string collegeCode)
+        public async Task<IActionResult> MemberReport(string phoneNumber, string collegeCode)
         {
-            // Trim to avoid whitespace mismatches in the DB
-            memberName = memberName?.Trim();
+            var phone = NormalizePhone(phoneNumber);
             collegeCode = collegeCode?.Trim();
 
-            if (string.IsNullOrEmpty(memberName) || string.IsNullOrEmpty(collegeCode))
-                return BadRequest("Member name and college code are required.");
+            if (string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(collegeCode))
+                return BadRequest("Phone number and college code are required.");
 
             var college = await _context.LicInspectionCollegeDetails
                 .FirstOrDefaultAsync(c => c.Collegecode.Trim() == collegeCode);
 
-            var claims = await _context.LicclaimDetails
-                .Where(c => c.MemberName.Trim() == memberName &&
-                            c.CollegeCode.Trim() == collegeCode)
-                .ToListAsync();
+            var claims = (await _context.LicclaimDetails
+                .Where(c => c.CollegeCode.Trim() == collegeCode)
+                .ToListAsync())
+                .Where(c => NormalizePhone(c.PhoneNumber) == phone)
+                .ToList();
 
-            var inspectionDates = await _context.LicinspectionDetails
-                .Where(i => i.Name.Trim() == memberName &&
-                            i.SelectedCollegeCode.Trim() == collegeCode &&
-                            i.DateOfInspection.HasValue)
+            var inspectionDates = (await _context.LicinspectionDetails
+                .Where(i => i.SelectedCollegeCode.Trim() == collegeCode && i.DateOfInspection.HasValue)
+                .ToListAsync())
+                .Where(i => NormalizePhone(i.PhoneNumber) == phone)
                 .Select(i => i.DateOfInspection.Value)
-                .ToListAsync();
+                .ToList();
+
+            // Fallback: pull inspection date from claims table too, same as dashboard logic
+            var datesFromClaims = claims
+                .Where(c => c.InspectionDate.HasValue)
+                .Select(c => c.InspectionDate.Value)
+                .ToList();
+
+            var combinedDates = inspectionDates.Union(datesFromClaims).Distinct().ToList();
 
             var total = claims.Sum(c => c.TotalCost ?? 0);
             var firstClaim = claims.FirstOrDefault();
 
-            // Guard: approval lookup only if firstClaim exists
-            LiccollegeApproval approval = null;
-            if (firstClaim != null)
+            var memberName = firstClaim?.MemberName;
+            if (string.IsNullOrEmpty(memberName))
             {
-                approval = await _context.LiccollegeApprovals
-                    .FirstOrDefaultAsync(x =>
-                        x.CollegeCode.Trim() == collegeCode &&
-                        x.MemberName.Trim() == memberName);
-                // Removed TypeOfMembers filter — it was too strict and caused misses
+                var inspectionRow = (await _context.LicinspectionDetails
+                    .Where(i => i.SelectedCollegeCode.Trim() == collegeCode)
+                    .ToListAsync())
+                    .FirstOrDefault(i => NormalizePhone(i.PhoneNumber) == phone);
+                memberName = inspectionRow?.Name;
+            }
+
+            LiccollegeApproval approval = null;
+            if (!string.IsNullOrEmpty(memberName))
+            {
+                var approvals = await _context.LiccollegeApprovals
+                    .Where(x => x.CollegeCode.Trim() == collegeCode)
+                    .ToListAsync();
+
+                // Prefer phone match once MemberPhone column exists; fall back to name for now
+                approval = approvals.FirstOrDefault(x => x.MobileNo != null && NormalizePhone(x.MobileNo) == phone)
+                         ?? approvals.FirstOrDefault(x => x.MemberName?.Trim() == memberName.Trim());
             }
 
             var model = new LICMemberReportViewModel
@@ -496,8 +591,8 @@ namespace Medical_Affiliation.Controllers
                 CollegeName = college?.Collegename,
                 CollegeCode = collegeCode,
                 TypeOfMember = firstClaim?.TypeofMember,
-                PhoneNumber = firstClaim?.PhoneNumber,
-                InspectionDates = inspectionDates,
+                PhoneNumber = phone,
+                InspectionDates = combinedDates,
                 Claims = claims,
                 TravelCost = firstClaim?.TravelCost ?? 0,
                 DACost = firstClaim?.Dacost ?? 0,
