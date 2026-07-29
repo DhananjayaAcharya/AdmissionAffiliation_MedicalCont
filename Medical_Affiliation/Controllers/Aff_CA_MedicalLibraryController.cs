@@ -150,7 +150,7 @@ namespace Medical_Affiliation.Controllers
                 HasEquipment =
                   savedEquip
                   .FirstOrDefault(
-                     s => s.SlNo == m.SlNo
+                     s => s.EquipmentName == m.EquipmentName
                   )?.HasEquipment
                   ?? ""
             }).ToList();
@@ -794,6 +794,17 @@ namespace Medical_Affiliation.Controllers
               HttpContext.Session.GetString(
                  "CourseLevel");
 
+            var binderyMaster = await _context.CaMstMedLibraryEquipments
+                .FirstOrDefaultAsync(x =>
+                    x.FacultyCode == facultyCode &&
+                    x.EquipmentName == "Bindery");
+
+            if (binderyMaster == null)
+            {
+                TempData["Error"] = "Bindery master record not found.";
+                return RedirectToAction(nameof(Aff_CA_Medical_LibraryDetails));
+            }
+
 
             // Changes by Ram on 23/04/2026
             // Equipment key does not allow
@@ -805,7 +816,7 @@ namespace Medical_Affiliation.Controllers
             .FirstOrDefaultAsync(x =>
                  x.CollegeCode == collegeCode &&
                  x.FacultyCode == facultyCode &&
-                 x.SlNo == 3); // bindery slno
+                 x.SlNo == binderyMaster.SlNo); // bindery slno
 
 
             if (entity == null)
@@ -822,8 +833,8 @@ namespace Medical_Affiliation.Controllers
                     // Shared bindery row marker
                     CourseLevel = "PG",
 
-                    SlNo = 3,
-                    EquipmentName = "Bindery"
+                    SlNo = binderyMaster.SlNo,
+                    EquipmentName = binderyMaster.EquipmentName
                 };
 
                 _context.Add(entity);

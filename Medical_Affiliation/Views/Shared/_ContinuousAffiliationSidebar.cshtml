@@ -69,10 +69,7 @@
 
 
         // ================= PHYSICAL INFRASTRUCTURE =================
-        // new StepItem{ Key="LandBuilding", Label="Land & Building", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
-        // new StepItem{ Key="SkillsLab", Label="Classroom & Laboratory", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
-        // new StepItem{ Key="EquipmentDetails", Label="Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
-        // new StepItem{ Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
+        
         new StepItem{ Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
         // new StepItem{ Key="Vehicle", Label="Vehicle Details", Group="Physical Infrastructure", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
         new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
@@ -80,7 +77,7 @@
         // new StepItem{ Key="DepartmentUnits", Label="Department / Units", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
         new StepItem{ Key="DepartmentUnits", Label="Department / Clinics/ Labs", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
         new StepItem{ Key="Hostel", Label="Hostel Details", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
-        new StepItem{ Key = "AssociatedInstitutions", Label = "Associated Institutions",   Group = "Physical Infrastructure", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
+        new StepItem{ Key = "AssociatedInstitutions", Label = "Associated Institutions",   Group = "Physical Infrastructure", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions", Levels = new List<string> { "PG", "SS" } },
 
 
 
@@ -102,11 +99,6 @@
 
 
         // ================= STUDENT AMENITIES =================
-        // new StepItem{ Key="Hostel", Label="Hostel Details", Group="Student Amenities", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
-
-        // new { Key="PaymentDetails", Label="Affiliation Payment", Group="Final Submission", Ctrl="AffiliationPayment", Act="Payment" },
-        // new { Key="Declaration", Label="Declaration", Group="Final Submission", Ctrl="AffiliationDeclaration", Act="Declaration" },
-
         new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
 
@@ -344,14 +336,6 @@
     {
         var pgSteps = new List<StepItem>
         {
-            // new
-            // {
-            //     Key = "PgCoursesOffered",
-            //     Label = "Courses Offered",
-            //     Group = "PG Details",
-            //     Ctrl = "AffiliationPgCourse",
-            //     Act = "PgCourses"
-            // },
             new StepItem
             {
                 Key = "PgCourses",
@@ -390,9 +374,6 @@
     {
         var ssSteps = new List<StepItem>
         {
-            // new { Key = "SsCourseDetails",         Label = "Super Specialty Course Details",   Group = "SS Details", Ctrl = "AffiliationSS", Act = "SsCourses" },
-            // new StepItem{ Key = "SsAssociatedInstitutions", Label = "Associated Institutions",         Group = "SS Details", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
-
             // ✅ NEW TAB YOU REQUESTED
             new StepItem{ Key = "SsCoursesApplied",        Label = "SS Course Details",               Group = "Intake Details",
                   Ctrl = "Aff_CA_SS_CoursesAppliedSS",
@@ -401,15 +382,34 @@
         InsertAfterBasicDetails(ssSteps);
     }
 
+    // skipped for Dental
+    if (facultyCode == "2")
+    {
+        allSteps = allSteps
+            .Where(x =>
+                x.Key != "AssociatedInstitutions" &&
+                x.Key != "SsCoursesOffered")
+            .ToList();
+    }
 
 
     // 🔥 Exclude IntakeDetails from progress
     var progressSteps = allSteps
-    .Where(s => s.Key != "IntakeDetails")
-    .ToList();
+        .Where(s => s.Key != "IntakeDetails" && s.Key != "PreviewMode")
+        .ToList();
 
     int total = progressSteps.Count;
     int done = progressSteps.Count(s => doneSteps.Contains(s.Key));
+
+    var incompleteSteps = progressSteps
+        .Where(s => !doneSteps.Contains(s.Key))
+        .ToList();
+
+    foreach (var step in incompleteSteps)
+    {
+        Console.WriteLine($"{step.Key} - {step.Ctrl}/{step.Act}");
+    }
+
     int pct = total > 0 ? (int)Math.Round((double)done / total * 100) : 0;
 
     // int total = allSteps.Count;
@@ -444,13 +444,7 @@
         }
     }
 
-    // skipped for Dental
-    if (facultyCode == "2")
-    {
-        allSteps = allSteps
-            .Where(x => x.Key != "AssociatedInstitutions")
-            .ToList();
-    }
+   
 
     // ======================================================
     // FINAL ORDER FIX FOR DENTAL

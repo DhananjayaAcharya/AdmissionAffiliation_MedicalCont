@@ -28,9 +28,6 @@ public class AutoProgressFilter : IAsyncActionFilter
         if (context.HttpContext.Request.Method != "POST")
             return;
 
-        // ✅ Only if valid
-        //if (!context.ModelState.IsValid)
-        //    return;
 
         var http = context.HttpContext;
 
@@ -38,16 +35,6 @@ public class AutoProgressFilter : IAsyncActionFilter
         var courseLevel = http.Session.GetString("CourseLevel");
         var facultyCode = http.Session.GetString("FacultyCode");
 
-        //code by ram
-
-        //var rawLevels = http.Session.GetString("ExistingCourseLevels");
-
-        //var levels = string.IsNullOrEmpty(rawLevels)
-        //    ? new List<string>()
-        //    : JsonSerializer.Deserialize<List<string>>(rawLevels)
-        //        .Select(l => l.Trim().ToUpper())
-        //        .Distinct()
-        //        .ToList();
 
         var rawLevels = http.Session.GetString("ExistingCourseLevels");
         List<string> levels = new List<string>();
@@ -110,8 +97,8 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key="TrustDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_InstituteDetails" },
             new CAStep { Key="TrustMemberDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
             // ✅ ADD THIS
-            new CAStep { Key="MBBSDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Details_Of_MBBS" },
-            new CAStep { Key="BDSDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Ug_Course_Details" },
+            //new CAStep { Key="MBBSDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Details_Of_MBBS" },
+            //new CAStep { Key="BDSDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Ug_Course_Details" },
 
             new CAStep { Key="FacultyDetails", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
             new CAStep { Key="DeanDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
@@ -131,7 +118,7 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key="BedDistribution", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
             new CAStep { Key="ChairDistribution", Ctrl="PhysicalInfrastructure", Act="ChairDistribution" },
 
-            new CAStep { Key="PgCourses", Ctrl="AffiliationPgCourse", Act="SaveOtherDeptCourses" },
+            //new CAStep { Key="PgCourses", Ctrl="AffiliationPgCourse", Act="SaveOtherDeptCourses" },
             new CAStep { Key="PgAssociatedInstitutions", Ctrl="AffiliationSS", Act="AssociatedInstitutions" },
 
             new CAStep { Key="SsCoursesOffered", Ctrl="AffiliationSS", Act="SaveCourses" },
@@ -164,6 +151,43 @@ public class AutoProgressFilter : IAsyncActionFilter
             //new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
         };
 
+        if (facultyCode == "2") // Dental
+        {
+            allSteps.Add(new CAStep
+            {
+                Key = "BDSDetails",
+                Ctrl = "ContinuesAffiliation_Facultybased",
+                Act = "Ug_Course_Details"
+            });
+        }
+        else // Medical
+        {
+            allSteps.Add(new CAStep
+            {
+                Key = "MBBSDetails",
+                Ctrl = "ContinuesAffiliation_Facultybased",
+                Act = "Details_Of_MBBS"
+            });
+        }
+
+        if (facultyCode == "1") // Medical
+        {
+            allSteps.Add(new CAStep
+            {
+                Key = "PgCourses",
+                Ctrl = "AffiliationPgCourse",
+                Act = "SaveOtherDeptCourses"
+            });
+        }
+        else if (facultyCode == "2") // Dental
+        {
+            allSteps.Add(new CAStep
+            {
+                Key = "PgCourses",
+                Ctrl = "AffiliationPgCourse",
+                Act = "SavePgCoursesRguhs"
+            });
+        }
         // ======================================================
         // LAND & BUILDING STEP BASED ON FACULTY
         // ======================================================
