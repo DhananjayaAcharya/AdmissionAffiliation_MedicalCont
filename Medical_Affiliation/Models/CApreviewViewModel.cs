@@ -10,6 +10,8 @@ namespace Medical_Affiliation.Models
         public string CollegeName { get; set; }
         public string FacultyName { get; set; }
 
+        public AcademicIntakePreviewViewModel AcademicIntakeVM { get; set; }
+
         public InstituionBasicDetailsDisplayVM InstitutionBasicVM { get; set; }
 
         public CA_Aff_AcademicMattersViewModel CAacademicMattersVM { get; set; }
@@ -981,6 +983,18 @@ namespace Medical_Affiliation.Models
         public string CollegeCode { get; set; } = string.Empty;
 
         public List<NonTeachingStaffDisplayVM> Staffs { get; set; } = new();
+    }
+
+    public class AcademicIntakePreviewViewModel
+    {
+        public string CollegeCode { get; set; }
+        public string FacultyCode { get; set; }
+        public string? CollegeName { get; set; }
+        public int FacultyId { get; set; }
+
+        public List<IntakeByLevelViewModel1> UgCourses { get; set; } = new();
+        public List<IntakeByLevelViewModel1> PgCourses { get; set; } = new();
+        public List<IntakeByLevelViewModel1> SsCourses { get; set; } = new();
     }
 
 }

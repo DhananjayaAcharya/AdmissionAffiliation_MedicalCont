@@ -135,6 +135,7 @@ builder.Services.AddScoped<ICAAdminTeachAndHostel, CAAdminTeachAndHostelService>
 builder.Services.AddScoped<ICAFacultyDesigNonTeaching, CAFacultyDesigNonTeachingService>();
 builder.Services.AddScoped<IUserContext, SessionUserContext>();
 builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
+builder.Services.AddScoped<ICAAcademicIntakeService, CAAcademicIntakeService>();
 builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 
 

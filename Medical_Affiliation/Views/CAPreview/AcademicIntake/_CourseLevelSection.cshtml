@@ -1,0 +1,89 @@
+﻿@model Tuple<string, List<IntakeByLevelViewModel1>>
+
+@{
+    var level = Model.Item1;
+    var courses = Model.Item2;
+
+    // Show AY 2026-27 only if at least one course has data
+    var show2026 = courses.Any(x =>
+        (x.AY2026_ExistingIntake ?? 0) > 0 ||
+        (x.AY2026_AddRequestedIntake ?? 0) > 0 ||
+        (x.AY2026_TotalIntake ?? 0) > 0);
+}
+
+<div class="section-block mb-4">
+
+    <div class="section-header-block mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    @level Courses
+                </div>
+
+                <p class="section-description">
+                    Intake details for @level programmes.
+                </p>
+            </div>
+
+            <span class="count-badge">
+                @courses.Count Course(s)
+            </span>
+
+        </div>
+    </div>
+
+    <div class="data-table-wrapper">
+
+        <table class="table data-table table-bordered align-middle">
+
+            <thead>
+                <tr>
+                    <th>Course</th>
+
+                    <th>AY 2025-26<br /><small>Existing</small></th>
+                    <th>AY 2025-26<br /><small>LoP / NMC</small></th>
+                    <th>AY 2025-26<br /><small>Total</small></th>
+
+                    @if (show2026)
+                    {
+                        <th>AY 2026-27<br /><small>Existing</small></th>
+                        <th>AY 2026-27<br /><small>Requested</small></th>
+                        <th>AY 2026-27<br /><small>Total</small></th>
+                    }
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in courses)
+                {
+                    <tr>
+
+                        <td>
+                            <strong>@item.CourseName</strong><br />
+                            <small class="text-muted">@item.CourseCode</small>
+                        </td>
+
+                        <td class="text-center">@item.AY2025_ExistingIntake</td>
+                        <td class="text-center">@item.AY2025_LopNmcIntake</td>
+                        <td class="text-center fw-bold">@item.AY2025_TotalIntake</td>
+
+                        @if (show2026)
+                        {
+                            <td class="text-center">@item.AY2026_ExistingIntake</td>
+                            <td class="text-center">@item.AY2026_AddRequestedIntake</td>
+                            <td class="text-center fw-bold">@item.AY2026_TotalIntake</td>
+                        }
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

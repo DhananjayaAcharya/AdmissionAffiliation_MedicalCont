@@ -1,0 +1,44 @@
+﻿@model AcademicIntakePreviewViewModel
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-journal-bookmark-fill"></i>
+                Academic Intake Details
+            </h2>
+        </div>
+    </div>
+
+    <div class="general-body">
+
+        <!-- UG -->
+        @if (Model.UgCourses?.Any() == true)
+        {
+            @await Html.PartialAsync(
+                "AcademicIntake/_CourseLevelSection",
+                Tuple.Create("Under Graduate (UG)", Model.UgCourses))
+        }
+
+        <!-- PG -->
+        @if (Model.PgCourses?.Any() == true)
+        {
+            @await Html.PartialAsync(
+                "AcademicIntake/_CourseLevelSection",
+                Tuple.Create("Post Graduate (PG)", Model.PgCourses))
+        }
+
+        <!-- SS -->
+        @if (Model.SsCourses?.Any() == true)
+        {
+            @await Html.PartialAsync(
+                "AcademicIntake/_CourseLevelSection",
+                Tuple.Create("Super Specialty (SS)", Model.SsCourses))
+        }
+
+    </div>
+
+</div>

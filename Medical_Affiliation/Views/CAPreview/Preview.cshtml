@@ -345,6 +345,16 @@
         <!-- ========================= -->
         <div class="navigation-tabs">
             <ul class="nav nav-tabs nav-tabs-custom">
+
+                @if (Model.AcademicIntakeVM != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#academic-intake-group">
+                            <i class="bi bi-journal-text"></i>
+                            Academic Intake
+                        </a>
+                    </li>
+                }
                 @if (Model.InstitutionBasicVM != null)
                 {
                     <li class="nav-item">
@@ -435,6 +445,23 @@
         <!-- SECTIONS CONTAINER -->
         <!-- ========================= -->
         <div class="sections-container">
+
+            <!-- ========================= -->
+            <!-- ACADEMIC INTAKE -->
+            <!-- ========================= -->
+
+
+            @if (Model.AcademicIntakeVM != null)
+            {
+                <div id="academic-intake-group">
+                    @await Html.PartialAsync("AcademicIntake/AcademicIntakePreview", Model.AcademicIntakeVM)
+                </div>
+            }
+
+            @if (Model.CAacademicMattersVM != null && Model.AcademicIntakeVM != null)
+            {
+                <div class="section-separator"></div>
+            }
 
             <!-- ========================= -->
             <!-- ACADEMIC MATTERS -->
@@ -623,7 +650,9 @@
         });
 
         // Optional: Update active tab based on scroll position
-        const sections = document.querySelectorAll('#academic-section, #hospital-section, #small-group');
+        const sections = document.querySelectorAll(
+            '#academic-section, #academic-intake-group, #hospital-section, #small-group, #library-group, #vehicle-group, #finance-group, #admin-group, #fac-group'
+        );
 
         window.addEventListener('scroll', function() {
             let current = '';

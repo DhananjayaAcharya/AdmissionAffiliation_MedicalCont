@@ -136,7 +136,6 @@
 .data-table-wrapper {
     background: white;
     border-radius: 12px;
-    overflow: hidden;
     border: 1px solid #e0e7ff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -418,6 +417,7 @@
 .header-content {
     position: relative;
     z-index: 1;
+    padding-inline: 2rem;
 }
 
 .academic-badge {
@@ -550,28 +550,76 @@
 .data-table-wrapper {
     background: white;
     border-radius: 12px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 500px; /* Adjust height as needed */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border: 1px solid #e0e7ff;
+}
+.data-table-wrapper {
+    max-height: 450px;
+    overflow: auto;
+}
+
+.data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.data-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+    vertical-align: middle;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.data-table thead th small {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
 }
 
 .data-table {
     margin-bottom: 0;
 }
 
-    .data-table thead {
-        background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-    }
+.data-table thead {
+    background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+}
 
-        .data-table thead th {
-            color: #1e40af;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 1rem;
-            border: none;
-        }
+.data-table thead th {
+    color: #1e40af;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border: none;
+}
+
+
+.data-table-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb {
+    background: #93c5fd;
+    border-radius: 8px;
+}
+
+    .data-table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #3b82f6;
+    }
 
     .data-table tbody tr {
         border-bottom: 1px solid #f1f5f9;

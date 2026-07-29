@@ -14,15 +14,16 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICAPaymentService _capaymentService;
         private readonly ICADeclarationService _cADeclarationService;
         private readonly ApplicationDbContext _context;
+        private readonly ICAAcademicIntakeService _academicIntakeService;
 
-
-        public CAPreviewService(ICAAcademicService academicService, ICAHospitalAffiliationService hospitalService, ICALandClassEquipmentService landClassEqService, ICAPaymentService paymentService, ICADeclarationService declarationService, IUserContext userContext, ApplicationDbContext dbContext)
+        public CAPreviewService(ICAAcademicService academicService, ICAHospitalAffiliationService hospitalService, ICALandClassEquipmentService landClassEqService, ICAPaymentService paymentService, ICADeclarationService declarationService, ICAAcademicIntakeService academicIntakeService, IUserContext userContext, ApplicationDbContext dbContext)
         {
             _academicService = academicService;
             _hospitalService = hospitalService;
             _landClassEqService = landClassEqService;
             _userContext = userContext;
             _cADeclarationService = declarationService;
+            _academicIntakeService = academicIntakeService;
             _capaymentService = paymentService;
             _context = dbContext;
         }
@@ -45,7 +46,8 @@ namespace Medical_Affiliation.Services.Faculty
                 CAHospitalAFfiliationCompVM = await _hospitalService.GetHospitalAffiliationAsync(),
                 PhysicalFacilities = await _landClassEqService.GetLandClassEquipmentService(),
                 PaymentVM = await _capaymentService.GetPaymentDetails(),
-                DeclarationVM = await _cADeclarationService.GetDeclarationDetails()
+                DeclarationVM = await _cADeclarationService.GetDeclarationDetails(),
+                AcademicIntakeVM = await _academicIntakeService.GetAcademicIntakePreviewAsync(),
 
             };
         }
