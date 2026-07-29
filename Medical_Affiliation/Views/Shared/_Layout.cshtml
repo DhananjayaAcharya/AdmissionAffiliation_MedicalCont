@@ -63,28 +63,7 @@
     <!-- SweetAlert2 11.26.18 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.18/dist/sweetalert2.min.css" />
 
-    <!-- Fixed/static header styles -->
-    <style>
-            .modern-header {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                z-index: 1030; /* sits above Bootstrap's default stacking */
-            }
-
-            /* Push page content below the fixed header so nothing hides underneath it */
-            .page-shell {
-                padding-top: 120px; /* adjust to match your actual rendered header height */
-            }
-
-            @@media (max-width: 768px) {
-                .page-shell {
-                    padding-top: 170px; /* header wraps taller on small screens */
-                }
-            }
-    </style>
+    <!-- Shared portal styles are defined in site.css -->
 
 </head>
 <body>
@@ -136,37 +115,12 @@
         </header>
 
         <div class="page-shell">
-            <aside class="modern-sidebar">
-                <div class="sidebar-header">
-                    <h2>Portal menu</h2>
-                    <p>Quick access to core pages and login actions.</p>
-                </div>
-                <div class="sidebar-links">
-                    <a class="sidebar-link" href="@Url.Action("Index", "Home")">
-                        <i class="fas fa-home"></i>
-                        Home
-                    </a>
-                    <a class="sidebar-link" href="@Url.Action("Login", "Login")">
-                        <i class="fas fa-university"></i>
-                        College login
-                    </a>
-                    <a class="sidebar-link" href="@Url.Action("UniversityLogin", "Admin")">
-                        <i class="fas fa-user-shield"></i>
-                        University login
-                    </a>
-                    <a class="sidebar-link" href="@Url.Action("Auth", "LICInspection")">
-                        <i class="fas fa-user-graduate"></i>
-                        RGUHS assignment
-                    </a>
-                </div>
-                <div class="sidebar-footer">
-                    <strong>Status</strong>
-                    <div>@(facultyIntCode != 0 ? CollegeName : "Guest user")</div>
-                </div>
-            </aside>
+            <div class="portal-sidebar-shell">
+                @await Html.PartialAsync("_ContinuousAffiliationSidebar")
+            </div>
 
             <section class="page-content">
-                <main>
+                <main class="portal-main-card">
                     <div class="container-fluid">
                         @RenderBody()
                         @RenderSection("Styles", required: false)
@@ -175,7 +129,7 @@
             </section>
         </div>
 
-        <footer>
+        <footer class="portal-footer">
             <div class="container-fluid">
                 <p>@Localizer["FooterText"]</p>
                 <p>
