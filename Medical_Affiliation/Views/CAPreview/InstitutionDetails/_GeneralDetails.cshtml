@@ -1,0 +1,121 @@
+﻿@model InstitutionGeneralDisplayVM
+
+@if (Model != null)
+{
+    <div class="preview-card">
+        <div class="preview-card-header">
+            <h4>General Details</h4>
+        </div>
+
+        <div class="preview-card-body">
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <label class="preview-label">Institution Name</label>
+                    <div class="preview-value">@Model.NameOfInstitution</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">College Code</label>
+                    <div class="preview-value">@Model.CollegeCode</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Faculty Code</label>
+                    <div class="preview-value">@Model.FacultyCode</div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="preview-label">Type of Institution</label>
+                    <div class="preview-value">@Model.TypeOfInstitution</div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="preview-label">Year of Establishment</label>
+                    <div class="preview-value">@Model.YearOfEstablishment</div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="preview-label">Financing Authority</label>
+                    <div class="preview-value">@Model.FinancingAuthority</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="preview-label">Address</label>
+                    <div class="preview-value">@Model.Address</div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="preview-label">Village / Town / City</label>
+                    <div class="preview-value">@Model.VillageTownCity</div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="preview-label">Taluk</label>
+                    <div class="preview-value">@Model.Taluk</div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="preview-label">District</label>
+                    <div class="preview-value">@Model.District</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Pincode</label>
+                    <div class="preview-value">@Model.PinCode</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Survey No / PID</label>
+                    <div class="preview-value">@Model.SurveyNoPidNo</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Status of College</label>
+                    <div class="preview-value">@Model.StatusOfCollege</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Course Applied</label>
+                    <div class="preview-value">@Model.CourseApplied</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Minority Category</label>
+                    <div class="preview-value">@Model.MinorityCategory</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Running Course</label>
+                    <div class="preview-value">@Model.RunningCourse</div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="preview-label">Minority Institute</label>
+                    <div class="preview-value">@(Model.MinorityInstitute ? "Yes" : "No")</div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="preview-label">Attached to Medical College</label>
+                    <div class="preview-value">@(Model.AttachedToMedicalClg ? "Yes" : "No")</div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="preview-label">Rural Institute</label>
+                    <div class="preview-value">@(Model.RuralInstitute ? "Yes" : "No")</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Govt. Autonomous Certificate No.</label>
+                    <div class="preview-value">@Model.GovAutonomousCertNumber</div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="preview-label">Certificate Uploaded</label>
+                    <div class="preview-value">@(Model.HasGovAutoCertFile ? "Yes" : "No")</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}

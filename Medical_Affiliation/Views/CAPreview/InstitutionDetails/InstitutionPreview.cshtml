@@ -1,0 +1,60 @@
+﻿@model InstitutionPreviewViewModel
+
+<div class="general-section">
+
+    <div class="general-header">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+                <div>
+                    <h2 class="academic-title academic-badge">
+                        Institution Details
+                    </h2>
+                </div>
+
+                <a class="edit-button"
+                   href="@Url.Action("Institution_Details", "CollegeAffiliation")">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit Section</span>
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    @if (Model.GeneralDetails != null)
+    {
+        <div id="general-details">
+            @await Html.PartialAsync("InstitutionDetails/_GeneralDetails", Model.GeneralDetails)
+        </div>
+    }
+
+    @if (Model.ContactDetails != null)
+    {
+        <div id="contact-details">
+            @await Html.PartialAsync("InstitutionDetails/_ContactDetails", Model.ContactDetails)
+        </div>
+    }
+
+    @if (Model.AuthorityDetails != null)
+    {
+        <div id="authority-details">
+            @await Html.PartialAsync("InstitutionDetails/_AuthorityDetails", Model.AuthorityDetails)
+        </div>
+    }
+
+    @if (Model.TrustDetails != null)
+    {
+        <div id="trust-details">
+            @await Html.PartialAsync("InstitutionDetails/_TrustDetails", Model.TrustDetails)
+        </div>
+    }
+
+    @if (Model.OtherDetails != null)
+    {
+        <div id="other-details">
+            @await Html.PartialAsync("InstitutionDetails/_OtherDetails", Model.OtherDetails)
+        </div>
+    }
+
+</div>

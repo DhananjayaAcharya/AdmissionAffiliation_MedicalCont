@@ -870,7 +870,7 @@
             body.innerHTML = '<div class="loader">Loading details...</div>';
 
             try {
-                const response = await fetch(`/CA_ApplicationStatusReport/GetCollegeDetails?collegeCode=${collegeCode}`);
+                const response = await fetch('@Url.Action("GetCollegeDetails", "DentalApplicationStatusReport")?collegeCode=' + encodeURIComponent(collegeCode));
                 const data = await response.json();
 
                 let headerHtml = `

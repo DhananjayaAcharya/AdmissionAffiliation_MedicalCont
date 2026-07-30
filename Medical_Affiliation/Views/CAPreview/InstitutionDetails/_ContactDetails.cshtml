@@ -1,0 +1,59 @@
+﻿@model InstitutionContactDisplayVM
+
+@if (Model != null)
+{
+    <div class="preview-card">
+
+        <div class="preview-card-header">
+            <h4>Contact Details</h4>
+        </div>
+
+        <div class="preview-card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-3">
+                    <label class="preview-label">Mobile Number</label>
+                    <div class="preview-value">@Model.MobileNumber</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">STD Code</label>
+                    <div class="preview-value">@Model.StdCode</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Fax</label>
+                    <div class="preview-value">@Model.Fax</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="preview-label">Website</label>
+                    <div class="preview-value">@Model.Website</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="preview-label">College URL</label>
+                    <div class="preview-value">@Model.College_URL</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="preview-label">Email</label>
+                    <div class="preview-value">@Model.EmailId</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="preview-label">Alternate Mobile</label>
+                    <div class="preview-value">@Model.AltLandlineMobile</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="preview-label">Alternate Email</label>
+                    <div class="preview-value">@Model.AltEmailId</div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}

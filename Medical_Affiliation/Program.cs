@@ -137,6 +137,7 @@ builder.Services.AddScoped<IUserContext, SessionUserContext>();
 builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
 builder.Services.AddScoped<ICAAcademicIntakeService, CAAcademicIntakeService>();
 builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
+builder.Services.AddScoped<IInstitutionPreviewService, InstitutionPreviewService>();
 
 
 // =============================================

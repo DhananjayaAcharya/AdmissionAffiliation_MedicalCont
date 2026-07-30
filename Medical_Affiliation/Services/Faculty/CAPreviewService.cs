@@ -15,8 +15,20 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICADeclarationService _cADeclarationService;
         private readonly ApplicationDbContext _context;
         private readonly ICAAcademicIntakeService _academicIntakeService;
+        private readonly IInstitutionPreviewService _institutionPreviewService;
+        private readonly ICAInstitutionBasicDetails _basicDetailsService;
 
-        public CAPreviewService(ICAAcademicService academicService, ICAHospitalAffiliationService hospitalService, ICALandClassEquipmentService landClassEqService, ICAPaymentService paymentService, ICADeclarationService declarationService, ICAAcademicIntakeService academicIntakeService, IUserContext userContext, ApplicationDbContext dbContext)
+        public CAPreviewService(
+            ICAAcademicService academicService,
+            ICAHospitalAffiliationService hospitalService,
+            ICALandClassEquipmentService landClassEqService,
+            ICAPaymentService paymentService,
+            ICADeclarationService declarationService,
+            ICAAcademicIntakeService academicIntakeService,
+            IInstitutionPreviewService institutionPreviewService,
+            ICAInstitutionBasicDetails basicDetailsService,
+            IUserContext userContext,
+            ApplicationDbContext dbContext)
         {
             _academicService = academicService;
             _hospitalService = hospitalService;
@@ -25,6 +37,8 @@ namespace Medical_Affiliation.Services.Faculty
             _cADeclarationService = declarationService;
             _academicIntakeService = academicIntakeService;
             _capaymentService = paymentService;
+            _institutionPreviewService = institutionPreviewService;
+            _basicDetailsService = basicDetailsService;
             _context = dbContext;
         }
 
@@ -42,6 +56,8 @@ namespace Medical_Affiliation.Services.Faculty
                 FacultyCode = _userContext.FacultyId.ToString(),
                 CollegeName = collegeName,
                 FacultyName = facultyName,
+                InstitutionBasicVM = await _basicDetailsService.GetAllDetails(),
+                InstitutionPreviewVM = await _institutionPreviewService.GetInstitutionPreviewAsync(),
                 CAacademicMattersVM = await _academicService.GetAcademicMattersAsync(),
                 CAHospitalAFfiliationCompVM = await _hospitalService.GetHospitalAffiliationAsync(),
                 PhysicalFacilities = await _landClassEqService.GetLandClassEquipmentService(),

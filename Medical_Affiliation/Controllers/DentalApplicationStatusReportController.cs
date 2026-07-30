@@ -22,15 +22,15 @@ namespace Medical_Affiliation.Controllers
                 ("DeanDetails",           "Dean / Director Details",          "Basic Details"),
                 ("PrincipalDetails",      "Principal Details",                "Basic Details"),
                 ("LandBuilding",          "Land & Building",                  "Physical Infrastructure"),
-                ("SkillsLab",             "Classroom & Laboratory",           "Physical Infrastructure"),
-                ("EquipmentDetails",      "Equipment Details",                "Physical Infrastructure"),
-                ("EquipmentMaster",       "Additional Equipment Details",     "Physical Infrastructure"),
+                ("DentalSkillsLab",             "Classroom & Laboratory",           "Physical Infrastructure"),
+                ("DentalEquipmentDetails",      "Equipment Details",                "Physical Infrastructure"),
+                //("EquipmentMaster",       "Additional Equipment Details",     "Physical Infrastructure"),
                 ("ClinicalFacilities",    "Clinical Facilities",              "Physical Infrastructure"),
                 ("Vehicle",               "Vehicle Details",                  "Physical Infrastructure"),
                 ("BedDistribution",       "Bed Distribution",                 "Physical Infrastructure"),
                 ("DepartmentUnits",       "Department / Units",               "Physical Infrastructure"),
                 ("Hostel",                "Hostel Details",                   "Physical Infrastructure"),
-                ("AssociatedInstitutions","Associated Institutions",          "Physical Infrastructure"),
+                //("AssociatedInstitutions","Associated Institutions",          "Physical Infrastructure"),
                 ("AcademicMatters",       "UG Academic Performance",          "Academic & Admin"),
                 ("Finance",               "Financial Details",                "Academic & Admin"),
                 ("StaffDetails",          "Staff Particular Details",         "Academic & Admin"),
@@ -231,13 +231,13 @@ namespace Medical_Affiliation.Controllers
 
             // THE BASE COMMON STEPS (Removed PreviewMode -> now 25 items)
             var commonSteps = new HashSet<string> {
-        "Institution", "TrustDetails", "TrustMemberDetails", "DeanDetails", "PrincipalDetails",
-        "LandBuilding", "SkillsLab", "EquipmentDetails", "EquipmentMaster", "ClinicalFacilities",
-        "Vehicle", "BedDistribution", "DepartmentUnits", "Hostel", "AssociatedInstitutions",
-        "AcademicMatters", "Finance", "StaffDetails", "Research", "Library",
-        "LibraryServices", "FacultyDetails", "TeachingStaff", "NonTeachingStaff",
-        "IntakeDetails"
-    };
+                "Institution", "TrustDetails", "TrustMemberDetails", "DeanDetails", "PrincipalDetails",
+                "LandBuilding", "DentalSkillsLab", "DentalEquipmentDetails", "EquipmentMaster", "ClinicalFacilities",
+                "Vehicle", "BedDistribution", "DepartmentUnits", "Hostel",
+                "AcademicMatters", "Finance", "StaffDetails", "Research", "Library",
+                "LibraryServices", "FacultyDetails", "TeachingStaff", "NonTeachingStaff",
+                "IntakeDetails"
+            };
 
             foreach (var colMaster in allCollegesMaster)
             {

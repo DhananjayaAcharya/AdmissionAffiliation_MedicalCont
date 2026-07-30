@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Details Preview";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var FacultyCode = Context.Session.GetString("FacultyCode");
 }
 
 <style>
@@ -346,15 +347,6 @@
         <div class="navigation-tabs">
             <ul class="nav nav-tabs nav-tabs-custom">
 
-                @if (Model.AcademicIntakeVM != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link" href="#academic-intake-group">
-                            <i class="bi bi-journal-text"></i>
-                            Academic Intake
-                        </a>
-                    </li>
-                }
                 @if (Model.InstitutionBasicVM != null)
                 {
                     <li class="nav-item">
@@ -364,11 +356,20 @@
                         </a>
                     </li>
                 }
+                @if (Model.AcademicIntakeVM != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#academic-intake-group">
+                            <i class="bi bi-journal-text"></i>
+                            Academic Intake
+                        </a>
+                    </li>
+                }
 
                 @if (Model.CAacademicMattersVM != null)
                 {
                     <li class="nav-item">
-                        <a class="nav-link active" href="#academic-section">
+                        <a class="nav-link" href="#academic-section">
                             <i class="bi bi-book"></i>
                             Academic Matters
                         </a>
@@ -384,7 +385,7 @@
                         </a>
                     </li>
                 }
-                @if (Model.PhysicalFacilities != null)
+                @if (Model.PhysicalFacilities != null && FacultyCode == "1")
                 {
                     <li class="nav-item">
                         <a class="nav-link @(Model.PhysicalFacilities == null ? "active" : "")" href="#small-group">
@@ -446,6 +447,19 @@
         <!-- ========================= -->
         <div class="sections-container">
 
+
+            @if (Model.InstitutionBasicVM != null)
+            {
+                @await Html.PartialAsync(
+                    "BasicDetails/BasicDetailsPreview",
+                    Model.InstitutionBasicVM)
+            }
+            
+            @if (Model.InstitutionBasicVM != null && Model.AcademicIntakeVM != null)
+            {
+                <div class="section-separator"></div>
+            }
+
             <!-- ========================= -->
             <!-- ACADEMIC INTAKE -->
             <!-- ========================= -->
@@ -458,35 +472,46 @@
                 </div>
             }
 
-            @if (Model.CAacademicMattersVM != null && Model.AcademicIntakeVM != null)
+            @if (Model.CAacademicMattersVM != null && Model.InstitutionPreviewVM != null)
             {
                 <div class="section-separator"></div>
             }
 
+            @* @if (Model.InstitutionPreviewVM != null)
+            {
+                <div id="institution-section">
+                    @await Html.PartialAsync("InstitutionDetails/InstitutionPreview", Model.InstitutionPreviewVM)
+                </div>
+            } *@
+
+            @* @if (Model.InstitutionPreviewVM != null && Model.InstitutionBasicVM != null)
+            {
+                <div class="section-separator"></div>
+            } *@
             <!-- ========================= -->
             <!-- ACADEMIC MATTERS -->
             <!-- ========================= -->
-            @if (Model.InstitutionBasicVM != null)
+            @* @if (Model.InstitutionBasicVM != null)
             {
                 <div id="academic-section">
                     @await Html.PartialAsync("BasicDetails/BasicDetailsPreview", Model.InstitutionBasicVM)
                 </div>
-            }
+            } *@
 
 
             <!-- Section Separator -->
-            @if (Model.InstitutionBasicVM != null && Model.PhysicalFacilities != null)
+            @* @if (Model.InstitutionBasicVM != null && Model.PhysicalFacilities != null)
             {
                 <div class="section-separator"></div>
-            }
-            @if (Model.InstitutionBasicVM != null)
+            } *@
+            @if (Model.InstitutionBasicVM != null && FacultyCode == "1")
             {
                 <div id="small-group">
                     @await Html.PartialAsync("PhysicalFacilities/PhysicalFacilitiesPreview", Model.PhysicalFacilities)
                 </div>
             }
             <!-- Section Separator -->
-            @if (Model.PhysicalFacilities != null && Model.LibraryDisplay != null)
+            @if (Model.PhysicalFacilities != null && Model.LibraryDisplay != null && FacultyCode == "1")
             {
                 <div class="section-separator"></div>
             }
@@ -651,7 +676,7 @@
 
         // Optional: Update active tab based on scroll position
         const sections = document.querySelectorAll(
-            '#academic-section, #academic-intake-group, #hospital-section, #small-group, #library-group, #vehicle-group, #finance-group, #admin-group, #fac-group'
+            '#academic-section, #academic-intake-group, #hospital-section, #small-group, #library-group, #vehicle-group, #finance-group, #admin-group, #fac-group, #basic-section'
         );
 
         window.addEventListener('scroll', function() {

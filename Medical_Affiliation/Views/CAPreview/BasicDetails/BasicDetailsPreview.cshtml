@@ -1,4 +1,7 @@
 ﻿@model InstituionBasicDetailsDisplayVM
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+}
 
 <div class="general-section">
     <div class="general-header">
@@ -22,19 +25,19 @@
             @await Html.PartialAsync("BasicDetails/_TrustMembersDetails", Model)
         </div>
     }
-    @if (Model != null)
+    @if (Model != null && FacultyCode == "1")
     {
         <div id="Sanctioned-intake">
             @await Html.PartialAsync("BasicDetails/_AffiliatedSanctionedIntake", Model)
         </div>
     }
-    @if (Model != null)
+    @if (Model != null && FacultyCode == "1")
     {
         <div id="course-intake">
             @await Html.PartialAsync("BasicDetails/_AffCourseDetails", Model)
         </div>
     }
-    @if (Model != null)
+    @if (Model != null && FacultyCode == "1")
     {
         <div id="ug-intake">
             @await Html.PartialAsync("BasicDetails/_AffiliatedUgCourseDetails", Model)

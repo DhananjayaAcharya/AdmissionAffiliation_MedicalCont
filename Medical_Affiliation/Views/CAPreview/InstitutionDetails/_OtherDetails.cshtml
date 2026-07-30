@@ -1,0 +1,34 @@
+﻿@model InstitutionOtherDisplayVM
+
+@if (Model != null)
+{
+    <div class="preview-card">
+
+        <div class="preview-card-header">
+            <h4>Other Details</h4>
+        </div>
+
+        <div class="preview-card-body">
+
+            <table class="table table-bordered preview-table">
+
+                <tbody>
+
+                    <tr>
+                        <th width="35%">Document Name</th>
+                        <td>@Model.DocumentName</td>
+                    </tr>
+
+                    <tr>
+                        <th>Document Type</th>
+                        <td>@Model.DocumentContentType</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

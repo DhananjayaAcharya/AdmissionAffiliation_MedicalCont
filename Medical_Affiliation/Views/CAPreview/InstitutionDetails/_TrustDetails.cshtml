@@ -1,0 +1,44 @@
+﻿@model InstitutionTrustDisplayVM
+
+@if (Model != null)
+{
+    <div class="preview-card">
+
+        <div class="preview-card-header">
+            <h4>Trust Details</h4>
+        </div>
+
+        <div class="preview-card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <label class="preview-label">Trust Name</label>
+                    <div class="preview-value">@Model.TrustName</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="preview-label">Trust Address</label>
+                    <div class="preview-value">@Model.TrustAddress</div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="preview-label">Establishment Date</label>
+                    <div class="preview-value">@Model.TrustEstablishmentDate</div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="preview-label">President Name</label>
+                    <div class="preview-value">@Model.TrustPresidentName</div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="preview-label">President Contact</label>
+                    <div class="preview-value">@Model.TrustPresidentContactNo</div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}

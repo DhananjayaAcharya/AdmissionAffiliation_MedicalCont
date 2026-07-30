@@ -1,0 +1,105 @@
+﻿@model InstitutionAuthorityDisplayVM
+
+@if (Model != null)
+{
+    <div class="preview-card">
+
+        <div class="preview-card-header">
+            <h4>Authority Details</h4>
+        </div>
+
+        <div class="preview-card-body">
+
+            <table class="table table-bordered preview-table">
+
+                <tbody>
+
+                    <tr class="table-light">
+                        <th colspan="2">Head of Institution</th>
+                    </tr>
+
+                    <tr>
+                        <th width="35%">Name</th>
+                        <td>@Model.HeadOfInstitution</td>
+                    </tr>
+
+                    <tr>
+                        <th>Address</th>
+                        <td>@Model.HeadAddress</td>
+                    </tr>
+
+                    <tr>
+                        <th>Mobile</th>
+                        <td>@Model.HeadOfInstitution_Mob_NO</td>
+                    </tr>
+
+                    <tr>
+                        <th>Email</th>
+                        <td>@Model.HeadOfInstitution_Email</td>
+                    </tr>
+
+                    <tr class="table-light">
+                        <th colspan="2">Nodal Officer</th>
+                    </tr>
+
+                    <tr>
+                        <th>Name</th>
+                        <td>@Model.NodalOfficer_Name</td>
+                    </tr>
+
+                    <tr>
+                        <th>Mobile</th>
+                        <td>@Model.NodalOfficer_Mob_Number</td>
+                    </tr>
+
+                    <tr>
+                        <th>Email</th>
+                        <td>@Model.NodalOfficer_Email</td>
+                    </tr>
+
+                    <tr class="table-light">
+                        <th colspan="2">Principal</th>
+                    </tr>
+
+                    <tr>
+                        <th>Name</th>
+                        <td>@Model.Principal_Name</td>
+                    </tr>
+
+                    <tr>
+                        <th>Mobile</th>
+                        <td>@Model.Principal_Mob_No</td>
+                    </tr>
+
+                    <tr>
+                        <th>Email</th>
+                        <td>@Model.Principal_Email</td>
+                    </tr>
+
+                    <tr class="table-light">
+                        <th colspan="2">Dean</th>
+                    </tr>
+
+                    <tr>
+                        <th>Name</th>
+                        <td>@Model.DeanName</td>
+                    </tr>
+
+                    <tr>
+                        <th>Mobile</th>
+                        <td>@Model.DeanMobileNumber</td>
+                    </tr>
+
+                    <tr>
+                        <th>Email</th>
+                        <td>@Model.DeanEmailId</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

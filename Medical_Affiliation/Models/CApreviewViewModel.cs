@@ -9,7 +9,7 @@ namespace Medical_Affiliation.Models
 
         public string CollegeName { get; set; }
         public string FacultyName { get; set; }
-
+        public InstitutionPreviewViewModel InstitutionPreviewVM { get; set; }
         public AcademicIntakePreviewViewModel AcademicIntakeVM { get; set; }
 
         public InstituionBasicDetailsDisplayVM InstitutionBasicVM { get; set; }
@@ -762,6 +762,92 @@ namespace Medical_Affiliation.Models
 
         public List<CaVehicleDetailDisplayViewModel> Items { get; set; }
             = new List<CaVehicleDetailDisplayViewModel>();
+    }
+
+    public class InstitutionPreviewViewModel
+    {
+        public string? CollegeCode { get; set; }
+        public InstitutionGeneralDisplayVM GeneralDetails { get; set; }
+        public InstitutionContactDisplayVM ContactDetails { get; set; }
+        public InstitutionAuthorityDisplayVM AuthorityDetails { get; set; }
+        public InstitutionTrustDisplayVM TrustDetails { get; set; }
+        public InstitutionOtherDisplayVM OtherDetails { get; set; }
+    }
+
+
+    public class InstitutionGeneralDisplayVM
+    {
+        public int InstitutionId { get; set; }
+        public string CollegeCode { get; set; }
+        public string FacultyCode { get; set; }
+        public string TypeOfInstitution { get; set; }
+        public string NameOfInstitution { get; set; }
+        public string Address { get; set; }
+        public string VillageTownCity { get; set; }
+        public string Taluk { get; set; }
+        public string District { get; set; }
+        public string PinCode { get; set; }
+        public string SurveyNoPidNo { get; set; }
+        public string YearOfEstablishment { get; set; }
+        public string FinancingAuthority { get; set; }
+        public string? StatusOfCollege { get; set; }
+        public string? CourseApplied { get; set; }
+        public string MinorityCategory { get; set; }
+        public string RunningCourse { get; set; }
+        public bool MinorityInstitute { get; set; }
+        public bool AttachedToMedicalClg { get; set; }
+        public bool RuralInstitute { get; set; }
+        public string? GovAutonomousCertNumber { get; set; }
+        public bool HasGovAutoCertFile { get; set; }
+    }
+
+    public class InstitutionContactDisplayVM
+    {
+        public string MobileNumber { get; set; }
+        public string StdCode { get; set; }
+        public string? Fax { get; set; }
+        public string Website { get; set; }
+        public string College_URL { get; set; }
+        public string EmailId { get; set; }
+        public string? AltLandlineMobile { get; set; }
+        public string? AltEmailId { get; set; }
+    }
+    public class InstitutionAuthorityDisplayVM
+    {
+        // Head of Institution
+        public string? HeadOfInstitution { get; set; }
+        public string HeadAddress { get; set; }
+        public string? HeadOfInstitution_Mob_NO { get; set; }
+        public string? HeadOfInstitution_Email { get; set; }
+        // Nodal Officer
+        public string NodalOfficer_Name { get; set; }
+        public string NodalOfficer_Mob_Number { get; set; }
+        public string NodalOfficer_Email { get; set; }
+        // Principal
+        public string Principal_Name { get; set; }
+        public string Principal_Mob_No { get; set; }
+        public string Principal_Email { get; set; }
+        public string? PrincipalMobileNumber { get; set; }
+        public string? PrincipalEmailId { get; set; }
+        // Dean
+        public string DeanName { get; set; }
+        public string? DeanMobileNumber { get; set; }
+        public string? DeanEmailId { get; set; }
+    }
+
+    public class InstitutionTrustDisplayVM
+    {
+        public string? TrustName { get; set; }
+        public string? TrustAddress { get; set; }
+        public DateOnly? TrustEstablishmentDate { get; set; }
+        public string? TrustPresidentName { get; set; }
+        public string? TrustPresidentContactNo { get; set; }
+    }
+
+    public class InstitutionOtherDisplayVM
+    {
+        public string? DocumentName { get; set; }
+        public string? DocumentContentType { get; set; }
     }
 
     public class InstituionBasicDetailsDisplayVM
