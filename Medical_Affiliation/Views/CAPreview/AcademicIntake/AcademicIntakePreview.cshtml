@@ -38,7 +38,26 @@
                 "AcademicIntake/_CourseLevelSection",
                 Tuple.Create("Super Specialty (SS)", Model.SsCourses))
         }
+        @if (Model.UgCourseDetails != null)
+        {
+            @await Html.PartialAsync(
+                "AcademicIntake/_UgCourseDetails",
+                Model.UgCourseDetails)
+        }
 
+        @if (Model.PgCourseDetails != null)
+        {
+            @await Html.PartialAsync(
+                "AcademicIntake/_PgCourseDetails",
+                Model.PgCourseDetails)
+        }
+
+        @if (Model.TeachingFacultyDetails?.Any() == true)
+        {
+            @await Html.PartialAsync(
+                "AcademicIntake/_TeachingFacultyDetails",
+                Model.TeachingFacultyDetails)
+        }
     </div>
 
 </div>

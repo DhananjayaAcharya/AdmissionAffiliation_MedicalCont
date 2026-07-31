@@ -1,0 +1,83 @@
+﻿@model List<DentalTeachingFacultyDisplayVM>
+
+@if (Model != null && Model.Any())
+{
+    var departments = Model
+        .GroupBy(x => x.DepartmentName)
+        .OrderBy(x => x.Key);
+
+    <div class="section-block mb-4">
+
+        <div class="section-header-block mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-people-fill"></i>
+                        Teaching Faculty Details
+                    </div>
+
+                    <p class="section-description">
+                        Required and available teaching faculty department-wise.
+                    </p>
+                </div>
+
+                <span class="count-badge">
+                    @departments.Count() Department(s)
+                </span>
+
+            </div>
+        </div>
+
+        @foreach (var department in departments)
+        {
+            <div class="mb-4">
+
+                <h6 class="fw-bold text-primary mb-2">
+                    @department.Key
+                </h6>
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table table-bordered align-middle">
+
+                        <thead>
+                            <tr>
+                                <th style="width:35%">Designation</th>
+                                <th class="text-center">Required Faculty</th>
+                                <th class="text-center">Available Faculty</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in department)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @item.DesignationName
+                                    </td>
+
+                                    <td class="text-center fw-semibold">
+                                        @item.ExistingSeatIntake
+                                    </td>
+
+                                    <td class="text-center">
+                                        @item.PresentSeatIntake
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+}

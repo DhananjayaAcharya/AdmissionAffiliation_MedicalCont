@@ -24,7 +24,7 @@ namespace Medical_Affiliation.Services.Faculty
             var trustDetails = await GetTrustMembers();
             var courseIntake = await GetSanctionedIntakeDetails();
             var CourseDetails = await GetAffCourseDetails();
-            var ugCourseDetails = await GetAffiliationCourseDetails();
+            //var ugCourseDetails = await GetAffiliationCourseDetails();
             var deanOrDeanDetails = await GetDeanOrDirectorDetails();
             var principalDetails = await GetPrincipalDetails();
 
@@ -34,7 +34,7 @@ namespace Medical_Affiliation.Services.Faculty
                 TrustMemberVM = trustDetails,
                 IntakeForCourseVM = courseIntake,
                 AffCoursesVM = CourseDetails,
-                AffiliationCourseDetailVM = ugCourseDetails,
+                //AffiliationCourseDetailVM = ugCourseDetails,
                 DeanOrDirectorDetailDisplayVM = deanOrDeanDetails,
                 PrincipalDetailDisplayVM = principalDetails
             };
@@ -127,30 +127,30 @@ namespace Medical_Affiliation.Services.Faculty
             };
         }
 
-        public async Task<AffiliationCourseDetailDisplayVM> GetAffiliationCourseDetails()
-        {
-            var collegeCode = _userContext.CollegeCode;
-            var facultyCode = _userContext.FacultyId;
+        //public async Task<AffiliationCourseDetailDisplayVM> GetAffiliationCourseDetails()
+        //{
+        //    var collegeCode = _userContext.CollegeCode;
+        //    var facultyCode = _userContext.FacultyId;
 
-            var data = await _context.AffiliationCourseDetails
-                .Where(x => x.Collegecode == collegeCode && x.Facultycode == facultyCode.ToString())
-                .OrderBy(x => x.CourseName)
-                .Select(x => new AffiliationCourseDetailDisplayVM
-                {
-                    CourseName = x.CourseName,
-                    IntakeDuring202526 = x.IntakeDuring202526,
-                    IntakeSlab = x.IntakeSlab,
-                    TypeofPermission = x.Typeofpermission,
-                    YearOfLop = x.YearofLop.HasValue ? x.YearofLop.Value.Year.ToString() : null,
-                    DateOfRecognition = x.Dateofrecognition,
-                    YearOfObtainingEcAndFc = x.YearofObtainingEcandFc.HasValue ? x.YearofObtainingEcandFc.Value.Year.ToString() : null,
-                    SanctionedIntakeEcFc = x.SannctionedIntakeEcFc,
-                    HasGokOrder = x.GokorderPath != null
-                })
-                .FirstOrDefaultAsync();
+        //    var data = await _context.AffiliationCourseDetails
+        //        .Where(x => x.Collegecode == collegeCode && x.Facultycode == facultyCode.ToString())
+        //        .OrderBy(x => x.CourseName)
+        //        .Select(x => new AffiliationCourseDetailDisplayVM
+        //        {
+        //            CourseName = x.CourseName,
+        //            IntakeDuring202526 = x.IntakeDuring202526,
+        //            IntakeSlab = x.IntakeSlab,
+        //            TypeofPermission = x.Typeofpermission,
+        //            YearOfLop = x.YearofLop.HasValue ? x.YearofLop.Value.Year.ToString() : null,
+        //            DateOfRecognition = x.Dateofrecognition,
+        //            YearOfObtainingEcAndFc = x.YearofObtainingEcandFc.HasValue ? x.YearofObtainingEcandFc.Value.Year.ToString() : null,
+        //            SanctionedIntakeEcFc = x.SannctionedIntakeEcFc,
+        //            HasGokOrder = x.GokorderPath != null
+        //        })
+        //        .FirstOrDefaultAsync();
 
-            return data;
-        }
+        //    return data;
+        //}
 
         public async Task<AffDeanOrDirectorDetailDisplayVM?> GetDeanOrDirectorDetails()
         {

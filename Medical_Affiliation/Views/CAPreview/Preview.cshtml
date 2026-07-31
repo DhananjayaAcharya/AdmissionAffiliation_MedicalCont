@@ -450,9 +450,11 @@
 
             @if (Model.InstitutionBasicVM != null)
             {
-                @await Html.PartialAsync(
-                    "BasicDetails/BasicDetailsPreview",
-                    Model.InstitutionBasicVM)
+                <div id="basic-section">
+                    @await Html.PartialAsync(
+                        "BasicDetails/BasicDetailsPreview",
+                        Model.InstitutionBasicVM)
+                </div>
             }
             
             @if (Model.InstitutionBasicVM != null && Model.AcademicIntakeVM != null)
@@ -472,7 +474,23 @@
                 </div>
             }
 
-            @if (Model.CAacademicMattersVM != null && Model.InstitutionPreviewVM != null)
+            @if (Model.AcademicIntakeVM != null && Model.CAacademicMattersVM != null)
+            {
+                <div class="section-separator"></div>
+            }
+
+            <!-- ========================= -->
+            <!-- ACADEMIC MATTERS -->
+            <!-- ========================= -->
+            @if (Model.CAacademicMattersVM != null)
+            {
+                <div id="academic-section">
+                    @await Html.PartialAsync("AcademicMatters/_AcademicMatters", Model.CAacademicMattersVM)
+                </div>
+            }
+
+            <!-- Section Separator -->
+            @if (Model.CAacademicMattersVM != null && Model.InstitutionBasicVM != null)
             {
                 <div class="section-separator"></div>
             }
@@ -549,7 +567,9 @@
             }
 
             <!-- Section Separator -->
-            @if (Model.CAHospitalAFfiliationCompVM != null && Model.FacultyDesigNonTeachDisplayVM != null)
+            @if (Model.CAHospitalAFfiliationCompVM != null 
+            @* && Model.FacultyDesigNonTeachDisplayVM != null *@
+            )
             {
                 <div class="section-separator"></div>
             }
@@ -569,21 +589,7 @@
                 <div class="section-separator"></div>
             }
 
-            <!-- ========================= -->
-            <!-- ACADEMIC MATTERS -->
-            <!-- ========================= -->
-            @if (Model.CAacademicMattersVM != null)
-            {
-                <div id="academic-section">
-                    @await Html.PartialAsync("AcademicMatters/_AcademicMatters", Model.CAacademicMattersVM)
-                </div>
-            }
-
-            <!-- Section Separator -->
-            @if (Model.CAacademicMattersVM != null && Model.FinanceVm != null)
-            {
-                <div class="section-separator"></div>
-            }
+            
             @if (Model.FinanceVm != null)
             {
                 <div id="finance-group">

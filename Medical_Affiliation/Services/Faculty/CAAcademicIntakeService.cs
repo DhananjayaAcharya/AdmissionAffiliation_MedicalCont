@@ -9,12 +9,15 @@ namespace Medical_Affiliation.Services.Faculty
     {
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
+        private readonly ICAPgCourseService _pgCourseService;
 
         public CAAcademicIntakeService(
             ApplicationDbContext context,
+            ICAPgCourseService pgCourseService,
             IUserContext userContext)
         {
             _context = context;
+            _pgCourseService = pgCourseService;
             _userContext = userContext;
         }
 
@@ -23,6 +26,8 @@ namespace Medical_Affiliation.Services.Faculty
             var facultyId = _userContext.FacultyId;
             var facultyCode = facultyId.ToString();
             var collegeCode = _userContext.CollegeCode;
+           
+
 
             var collegeName = await _context.AffiliationCollegeMasters
                 .Where(x => x.CollegeCode == collegeCode)
@@ -96,8 +101,162 @@ namespace Medical_Affiliation.Services.Faculty
             model.UgCourses = GetCoursesByLevel("UG");
             model.PgCourses = GetCoursesByLevel("PG");
             model.SsCourses = GetCoursesByLevel("SS");
+            model.PgCourseDetails = await _pgCourseService.GetPgCourseDetailsAsync();
+            model.UgCourseDetails = await GetAffiliationCourseDetails();
+            model.TeachingFacultyDetails = await GetTeachingFacultyDetails();
 
             return model;
+        }
+
+        public async Task<AffiliationCourseDetailsDisplayVM> GetAffiliationCourseDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId;
+
+            var data = await _context.AffiliationCourseDetails
+                .Where(x => x.Collegecode == collegeCode && x.Facultycode == facultyCode.ToString())
+                .OrderBy(x => x.CourseName)
+                .Select(x => new AffiliationCourseDetailsDisplayVM
+                {
+                    CourseId = x.CourseId,
+                    CourseName = x.CourseName,
+                    IntakeDuring202526 = x.IntakeDuring202526,
+                    IntakeSlab = x.IntakeSlab,
+                    TypeOfPermission = x.Typeofpermission,
+
+                    YearOfLOP = x.YearofLop,
+                    DateOfRecognition = x.Dateofrecognition,
+                    YearOfObtainingECAndFC = x.YearofObtainingEcandFc,
+                    SanctionedIntakeECFC = x.SannctionedIntakeEcFc,
+
+                    SanctionedIntakePermission = x.SanctionedIntakePermission,
+                    DateOfLOPRenewalGOIMCI = x.DateOfLoprenewalGoimci,
+                    DateOfLOPRenewalDCIKSDC = x.DateOfLoprenewalDciksdc,
+
+                    YearOfLastAffiliationRGUHS = x.YearOfLastAffiliationRguhs,
+                    SanctionedIntakeLastAffiliation = x.SanctionedIntakeLastAffiliation,
+
+                    DateOfPreviousLICInspection = x.DateOfPreviousLicinspection,
+                    ActionTakenOnDeficiencies = x.ActionTakenOnDeficiencies,
+
+                    HasGOKOrder = x.GokorderPath != null,
+                    HasLastAffiliationFile = x.LastAffiliationRguhsfilePath != null,
+                    HasPreviousNotificationFile = x.PreviousNotificationFilesPath != null
+                })
+                .FirstOrDefaultAsync();
+
+            return data;
+        }
+
+
+        public async Task<List<DentalTeachingFacultyDisplayVM>> GetTeachingFacultyDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId.ToString();
+            var facultyIntCode = _userContext.FacultyId;
+
+            // =========================
+            // Get Academic Intake
+            // =========================
+            var academicIntake = await _context.AcademicIntakes
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode);
+
+            if (academicIntake == null)
+                return new List<DentalTeachingFacultyDisplayVM>();
+
+            int totalIntake = academicIntake.Ay2026TotalIntake;
+
+            // =========================
+            // Calculate Seat Slab
+            // =========================
+            int slabValue = ((totalIntake + 49) / 50) * 50;
+
+            // =========================
+            // Get Seat Slab Id
+            // =========================
+            var seatSlabId = await _context.SeatSlabMasters
+                .Where(x => x.SeatSlab == slabValue)
+                .Select(x => x.SeatSlabId)
+                .FirstOrDefaultAsync();
+
+            if (seatSlabId == null)
+                return new List<DentalTeachingFacultyDisplayVM>();
+
+            // =========================
+            // Departments
+            // =========================
+            var departments = await _context.DepartmentMasters
+                .Where(x => x.FacultyCode == _userContext.FacultyId)
+                .OrderBy(x => x.DepartmentName)
+                .ToListAsync();
+
+            // =========================
+            // Top 3 Designations
+            // =========================
+            var designations = await _context.DesignationMasters
+                .Where(x => x.FacultyCode == _userContext.FacultyId)
+                .OrderBy(x => x.DesignationOrder)
+                .Take(3)
+                .ToListAsync();
+
+            // =========================
+            // Faculty Requirement Master
+            // =========================
+            var facultyRequirements = await _context.DepartmentWiseFacultyMasters
+                .Where(x =>
+                    x.FacultyCode == facultyIntCode &&
+                    x.SeatSlabId == seatSlabId.ToString())
+                .ToListAsync();
+
+            // =========================
+            // Existing Saved Records
+            // =========================
+            var existingRecords = await _context.CollegeDesignationDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode)
+                .ToListAsync();
+
+            var result = new List<DentalTeachingFacultyDisplayVM>();
+
+            foreach (var dept in departments)
+            {
+                foreach (var desig in designations)
+                {
+                    var requirement = facultyRequirements.FirstOrDefault(x =>
+                        x.DepartmentCode == dept.DepartmentCode &&
+                        x.DesignationCode == desig.DesignationCode);
+
+                    int requiredSeats = requirement?.Seats ?? 0;
+
+                    var existing = existingRecords.FirstOrDefault(x =>
+                        x.DepartmentCode == dept.DepartmentCode &&
+                        x.DesignationCode == desig.DesignationCode &&
+                        x.SeatSlabId == seatSlabId.ToString());
+
+                    result.Add(new DentalTeachingFacultyDisplayVM
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyCode = facultyCode,
+                        Faculty = facultyCode,
+
+                        DepartmentCode = dept.DepartmentCode,
+                        DepartmentName = dept.DepartmentName,
+
+                        DesignationCode = desig.DesignationCode,
+                        DesignationName = desig.DesignationName,
+
+                        SeatSlabId = seatSlabId.ToString(),
+
+                        ExistingSeatIntake = existing?.RequiredIntake ?? requiredSeats.ToString(),
+                        PresentSeatIntake = existing?.AvailableIntake ?? "0"
+                    });
+                }
+            }
+
+            return result;
         }
     }
 }

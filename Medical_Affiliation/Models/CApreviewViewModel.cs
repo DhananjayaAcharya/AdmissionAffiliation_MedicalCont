@@ -1077,10 +1077,136 @@ namespace Medical_Affiliation.Models
         public string FacultyCode { get; set; }
         public string? CollegeName { get; set; }
         public int FacultyId { get; set; }
-
         public List<IntakeByLevelViewModel1> UgCourses { get; set; } = new();
         public List<IntakeByLevelViewModel1> PgCourses { get; set; } = new();
         public List<IntakeByLevelViewModel1> SsCourses { get; set; } = new();
+        public AffiliationCourseDetailsDisplayVM? UgCourseDetails { get; set; }
+        public AffiliationPgCourseDisplayVM? PgCourseDetails { get; set; }
+
+        public List<DentalTeachingFacultyDisplayVM> TeachingFacultyDetails { get; set; } = new();
     }
 
+    public class DentalTeachingFacultyDisplayVM
+    {
+        public string FacultyCode { get; set; } = string.Empty;
+        public string Faculty { get; set; } = string.Empty;
+        public string CollegeCode { get; set; } = string.Empty;
+        public string DepartmentCode { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public string DesignationCode { get; set; } = string.Empty;
+        public string DesignationName { get; set; } = string.Empty;
+        public string CourseLevel { get; set; } = "UG";
+        public string SeatSlabId { get; set; } = string.Empty;
+        // Required Faculty
+        public string ExistingSeatIntake { get; set; } = "0";
+
+        // Available Faculty
+        public string PresentSeatIntake { get; set; } = "0";
+    }
+
+    public class AffiliationCourseDetailsDisplayVM
+    {
+        public string CourseId { get; set; }
+        public string CourseName { get; set; }
+        public string IntakeDuring202526 { get; set; }
+        public string IntakeSlab { get; set; }
+        public string TypeOfPermission { get; set; }
+
+        public DateOnly? YearOfLOP { get; set; }
+        public string DateOfRecognition { get; set; }
+
+        public DateOnly? YearOfObtainingECAndFC { get; set; }
+        public string SanctionedIntakeECFC { get; set; }
+
+        public string SanctionedIntakePermission { get; set; }
+        public string DateOfLOPRenewalGOIMCI { get; set; }
+        public string DateOfLOPRenewalDCIKSDC { get; set; }
+
+        public string YearOfLastAffiliationRGUHS { get; set; }
+        public string SanctionedIntakeLastAffiliation { get; set; }
+
+        public DateOnly? DateOfPreviousLICInspection { get; set; }
+        public string ActionTakenOnDeficiencies { get; set; }
+
+        public bool HasGOKOrder { get; set; }
+        public bool HasLastAffiliationFile { get; set; }
+        public bool HasPreviousNotificationFile { get; set; }
+    }
+
+    public class AffiliationPgCourseDisplayVM
+    {
+        public string? CollegeCode { get; set; }
+        public int TypeOfAffiliation { get; set; }
+
+        // 1. PG Degree Courses
+        public List<PgCourseDisplayVM> PgDegreeCourses { get; set; } = new();
+
+        // 2. PG Diploma Courses
+        public List<PgCourseDisplayVM> PgDiplomaCourses { get; set; } = new();
+
+        // 3. Course Particulars
+        public List<PgCourseParticularsDisplayVM> AllCourses { get; set; } = new();
+
+        // 4. GOK Permission Details
+        public List<PgCoursesGokDisplayVM> PgCoursesGOK { get; set; } = new();
+
+        // 5. RGUHS Permission Details
+        public List<PgCoursesRguhsDisplayVM> PgCoursesRguhs { get; set; } = new();
+
+        // 6. Other Department / NMC Courses
+        public List<OtherCoursesPermittedByNmcDisplayVM> OtherCoursesPermittedByNMC { get; set; } = new();
+
+        // 7. LIC Inspection
+        public LicInspectionDisplayVM? LicInspection { get; set; }
+    }
+
+    public class PgCourseDisplayVM
+    {
+        public string? CourseCode { get; set; }
+        public string? CourseName { get; set; }
+        public string? CourseLevel { get; set; }
+        public string? CoursePrefix { get; set; }
+
+        public int? CollegeIntake { get; set; }
+        public int? RguhsIntake { get; set; }
+    }
+
+    public class PgCourseParticularsDisplayVM : PgCourseDisplayVM
+    {
+        public DateOnly? DateOfLOP { get; set; }
+        public DateOnly? DateOfRecognitionByNMC { get; set; }
+        public DateOnly? DateOfRecognitionByDCI { get; set; }
+    }
+
+    public class PgCoursesGokDisplayVM : PgCourseDisplayVM
+    {
+        public DateOnly? DateOfGOK { get; set; }
+
+        public bool HasGOKDocument { get; set; }
+
+        public string? AcademicYear { get; set; }
+    }
+
+    public class PgCoursesRguhsDisplayVM : PgCourseDisplayVM
+    {
+        public bool HasRguhsDocument { get; set; }
+    }
+
+    public class OtherCoursesPermittedByNmcDisplayVM : PgCourseDisplayVM
+    {
+        public bool PermissionByNMC { get; set; }
+
+        public bool HasNMCDocument { get; set; }
+
+        public int? AdmissionsPerYear { get; set; }
+    }
+
+    public class LicInspectionDisplayVM
+    {
+        public DateOnly? InspectionDate { get; set; }
+
+        public string? Remarks { get; set; }
+
+        public bool HasInspectionReport { get; set; }
+    }
 }
