@@ -377,6 +377,17 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("IncreaseIntake","ContinuousAffiliationIncreaseIntake");
             }
 
+            // Hospital Details (Prerequisite)
+            var hospital = await _context.HospitalDetailsForAffiliations
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode.ToString());
+
+            if (hospital == null)
+            {
+                TempData["Warning"] = "Please complete Hospital Details before proceeding.";
+            }
+
             // Seat Intake
             int seatIntake = academicIntake.Ay2026TotalIntake;
 

@@ -1431,4 +1431,17 @@
             });
         </script>
     }
+    @if (TempData["Warning"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Prerequisite Required',
+                text: '@TempData["Warning"]',
+                confirmButtonText: 'Go to Hospital Details'
+            }).then(() => {
+                window.location.href = '@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")';
+            });
+        </script>
+    }
 }
