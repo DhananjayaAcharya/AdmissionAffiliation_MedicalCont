@@ -109,6 +109,7 @@ namespace Medical_Affiliation.Services.Faculty
             {
                 CollegeCode = collegeCode,
                 FacultyCode = facultyId,
+                DisciplineDetails = await GetDisciplineDetails(),
 
                 ClinicalHospitalDetails = new ClinicalHospitalDisplayViewModel
                 {
@@ -145,6 +146,37 @@ namespace Medical_Affiliation.Services.Faculty
 
         }
 
+        public async Task<DisciplineDisplayVM> GetDisciplineDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId.ToString();
+
+            var data = await _context.MedicalAlliedDisciplineDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode.ToString() == facultyCode)
+                .OrderBy(x => x.DisciplineName)
+                .ToListAsync();
+
+            if (!data.Any())
+                return new DisciplineDisplayVM();
+
+            return new DisciplineDisplayVM
+            {
+                HospitalDetailsId = data.First().HospitalDetailsId,
+                CollegeCode = collegeCode,
+                FacultyCode = facultyCode,
+                AffiliationTypeId = data.First().AffiliationTypeId,
+                SeatSlab = data.First().SeatSlab,
+
+                Disciplines = data.Select(x => new DisciplineItemDisplayVM
+                {
+                    DisciplineCode = x.DisciplineCode,
+                    DisciplineName = x.DisciplineName,
+                    IsSelected = x.IsActive
+                }).ToList()
+            };
+        }
 
         private async Task<List<DepartmentRequirementsSectionDisplayVM>> BuildAllDepartmentSectionsAsync(string collegeCode, int facultyCode, int hospitalId)
         {

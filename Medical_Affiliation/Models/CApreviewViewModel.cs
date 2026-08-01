@@ -44,6 +44,9 @@ namespace Medical_Affiliation.Models
         /// 🔥 Dynamic department/section-wise requirements
         /// </summary>
         public List<DepartmentRequirementsSectionDisplayVM> Sections { get; set; } = new();
+        //public ClinicalCapacityDisplayVM? ClinicalCapacity { get; set; }
+
+        public DisciplineDisplayVM? DisciplineDetails { get; set; }
 
         public List<HospitalDocumentsToBeUploadedDisplayViewModel> HospitalDocumentsToBeUploadedList { get; set; } = new();
         public List<IndoorBedsOccupancyItemVM> IndoorBedsOccupancy { get; set; }
@@ -51,6 +54,28 @@ namespace Medical_Affiliation.Models
 
     }
 
+
+    public class DisciplineDisplayVM
+    {
+        public int HospitalDetailsId { get; set; }
+        public string? CollegeCode { get; set; }
+        public string? FacultyCode { get; set; }
+
+        public int AffiliationTypeId { get; set; }
+
+        public int SeatSlab { get; set; }
+
+        public List<DisciplineItemDisplayVM> Disciplines { get; set; } = new();
+    }
+
+    public class DisciplineItemDisplayVM
+    {
+        public string? DisciplineCode { get; set; }
+
+        public string? DisciplineName { get; set; }
+
+        public bool IsSelected { get; set; }
+    }
 
     public class SuperVisionInFieldPracticeAreaItemDisplayVM
     {

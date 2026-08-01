@@ -17,7 +17,6 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICAAcademicIntakeService _academicIntakeService;
         private readonly IInstitutionPreviewService _institutionPreviewService;
         private readonly ICAInstitutionBasicDetails _basicDetailsService;
-        private readonly ICAPgCourseService _pgCourseService;
 
         public CAPreviewService(
             ICAAcademicService academicService,
