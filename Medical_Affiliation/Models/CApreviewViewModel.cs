@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Medical_Affiliation.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace Medical_Affiliation.Models
 {
@@ -10,7 +11,18 @@ namespace Medical_Affiliation.Models
         public string CollegeName { get; set; }
         public string FacultyName { get; set; }
         public InstitutionPreviewViewModel InstitutionPreviewVM { get; set; }
+        public DentalCollegeLandBuildingViewModel? DentalLandBuildingPreview { get; set; }
+        public MedicalUGBedDistributionVM? MedicalUGBedDistributionVM { get; set; }
+
+        public AffHostelPreviewViewModel? HostelPreviewVM { get; set; }
+
+        public SkillsLabViewModel? DentalSkillsLaboratoryVM { get; set; }
+        public List<DentalChairVm> DentalChairDistribution { get; set; } = new();
         public AcademicIntakePreviewViewModel AcademicIntakeVM { get; set; }
+        public DepartmentOfficesMeuPreviewVM DepartmentOfficesMeuVM { get; set; }
+        public VehicleDetailPreviewViewModel? VehiclePreviewVM { get; set; }
+        public EquipmentPreviewViewModel? EquipmentPreviewVM { get; set; }
+        public MedicalLibraryPreviewVM? MedicalLibraryPreviewVM { get; set; }
 
         public InstituionBasicDetailsDisplayVM InstitutionBasicVM { get; set; }
 
@@ -47,6 +59,9 @@ namespace Medical_Affiliation.Models
         //public ClinicalCapacityDisplayVM? ClinicalCapacity { get; set; }
 
         public DisciplineDisplayVM? DisciplineDetails { get; set; }
+        public EngAlliedRequirementsDisplayVM? EngAlliedServices { get; set; }
+        public List<DentalWardBedDistributionVm> DentalWardBedDistribution { get; set; } = new();
+        public DentalCollegeLandBuildingDisplayVM? LandBuildingDetails { get; set; }
 
         public List<HospitalDocumentsToBeUploadedDisplayViewModel> HospitalDocumentsToBeUploadedList { get; set; } = new();
         public List<IndoorBedsOccupancyItemVM> IndoorBedsOccupancy { get; set; }
@@ -54,7 +69,505 @@ namespace Medical_Affiliation.Models
 
     }
 
+    public class ResearchPublicationsPreviewVM
+    {
+        // Publications
+        public int PublicationsNo { get; set; }
+        public bool HasPublicationsPdf { get; set; }
 
+        // Clinical Trials
+        public bool HasClinicalTrialsPdf { get; set; }
+
+        // Student Projects
+        public int? StudentsRGUHSFunded { get; set; }
+        public int? StudentsExternalBodyFunding { get; set; }
+        public bool HasStudentProjectsPdf { get; set; }
+
+        // Faculty Projects
+        public int? FacultyRGUHSFunded { get; set; }
+        public int? FacultyExternalBodyFunding { get; set; }
+        public bool HasFacultyProjectsPdf { get; set; }
+
+        public List<ResearchCommitteePreviewVM> Committees { get; set; } = new();
+
+        public List<OtherAcademicActivityPreviewVM> OtherActivities { get; set; } = new();
+
+        public List<DepartmentPublicationPreviewVM> DepartmentPublications { get; set; } = new();
+    }
+
+    public class ResearchCommitteePreviewVM
+    {
+        public int CommitteeId { get; set; }
+
+        public string CommitteeName { get; set; } = string.Empty;
+
+        public string? IsPresent { get; set; }
+
+        public bool HasDocument { get; set; }
+    }
+
+    public class OtherAcademicActivityPreviewVM
+    {
+        public int ActivityId { get; set; }
+
+        public string ActivityName { get; set; } = string.Empty;
+
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public string? DepartmentWise { get; set; }
+
+        public bool HasDocument { get; set; }
+    }
+
+    public class DepartmentPublicationPreviewVM
+    {
+        public int Id { get; set; }
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public int PublicationsCount { get; set; }
+
+        public bool HasDocument { get; set; }
+    }
+
+    public class MedicalLibraryPreviewVM
+    {
+        // Section 1
+        public List<LibraryServicePreviewVM> LibraryServices { get; set; } = new();
+
+        // Section 2
+        public bool HasUsageReport { get; set; }
+        public string? UsageReportViewController { get; set; }
+        public string? UsageReportViewAction { get; set; }
+
+        // Section 3
+        public List<LibraryStaffPreviewVM> LibraryStaff { get; set; } = new();
+
+        // Section 4
+        public List<DepartmentLibraryPreviewVM> DepartmentLibraries { get; set; } = new();
+
+        // Section 5
+        public MedicalLibraryOtherPreviewVM? OtherDetails { get; set; }
+
+        // Dental only
+        public List<DentalLibraryRecordPreviewVM> DentalLibraryRecords { get; set; } = new();
+
+        // NEW
+        public ResearchPublicationsPreviewVM? ResearchPublications { get; set; }
+
+        public LibraryInformationPreviewVM LibraryInformation { get; set; } = new();
+    }
+
+    public class LibraryInformationPreviewVM
+    {
+        public LibraryGeneralPreviewVM General { get; set; }
+            = new();
+
+        public List<LibraryItemPreviewVM> Items { get; set; }
+            = new();
+
+        public LibraryBuildingPreviewVM Building { get; set; }
+            = new();
+
+        public List<LibraryTechnicalProcessPreviewVM> TechnicalProcesses { get; set; }
+            = new();
+
+        public List<LibraryEquipmentPreviewVM> Equipments { get; set; }
+            = new();
+
+        public LibraryFinancePreviewVM Finance { get; set; }
+            = new();
+
+        public string? BinderyValue { get; set; }
+    }
+
+    public class LibraryGeneralPreviewVM
+    {
+        public string? LibraryEmailId { get; set; }
+
+        public string? DigitalLibrary { get; set; }
+
+        public string? HelinetServices { get; set; }
+
+        public string? DepartmentWiseLibrary { get; set; }
+    }
+
+    public class LibraryItemPreviewVM
+    {
+        public int SlNo { get; set; }
+
+        public string? ItemName { get; set; }
+
+        public int CurrentForeign { get; set; }
+
+        public int CurrentIndian { get; set; }
+
+        public int PreviousForeign { get; set; }
+
+        public int PreviousIndian { get; set; }
+    }
+
+    public class LibraryBuildingPreviewVM
+    {
+        public string? IsIndependent { get; set; }
+
+        public decimal? AreaSqMtrs { get; set; }
+    }
+
+    public class LibraryTechnicalProcessPreviewVM
+    {
+        public int SlNo { get; set; }
+
+        public string? ProcessName { get; set; }
+
+        public string? Value { get; set; }
+    }
+
+    public class LibraryEquipmentPreviewVM
+    {
+        public int SlNo { get; set; }
+
+        public string? EquipmentName { get; set; }
+
+        public string? HasEquipment { get; set; }
+    }
+
+    public class LibraryFinancePreviewVM
+    {
+        public decimal? TotalBudgetLakhs { get; set; }
+
+        public decimal? ExpenditureBooksLakhs { get; set; }
+    }
+
+    public class LibraryServicePreviewVM
+    {
+        public int ServiceId { get; set; }
+
+        public string ServiceName { get; set; } = string.Empty;
+
+        public string? IsAvailable { get; set; }
+
+        public bool HasDocument { get; set; }
+
+        public string? ViewController { get; set; }
+
+        public string? ViewAction { get; set; }
+    }
+
+    public class LibraryStaffPreviewVM
+    {
+        public string? StaffName { get; set; }
+
+        public string? Designation { get; set; }
+
+        public string? Qualification { get; set; }
+
+        public int? Experience { get; set; }
+
+        public string? Category { get; set; }
+    }
+
+    public class DepartmentLibraryPreviewVM
+    {
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public int? TotalBooks { get; set; }
+
+        public int? BooksAddedInYear { get; set; }
+
+        public int? CurrentJournals { get; set; }
+
+        public string? LibraryStaff { get; set; }
+
+        public int? Titles { get; set; }
+
+        public int? InternationalJournals { get; set; }
+
+        public int? BackVolumes { get; set; }
+
+        public int? PrintJournalPercentage { get; set; }
+    }
+
+    public class MedicalLibraryOtherPreviewVM
+    {
+        public string? HasDigitalValuationCentre { get; set; }
+
+        public int? NoOfSystems { get; set; }
+
+        public string? HasStableInternet { get; set; }
+
+        public string? HasCccameraSystem { get; set; }
+
+        public bool HasSpecialFeatures { get; set; }
+
+        public string? ViewController { get; set; }
+
+        public string? ViewAction { get; set; }
+    }
+
+    public class DentalLibraryRecordPreviewVM
+    {
+        public int RecordId { get; set; }
+
+        public string? RecordName { get; set; }
+
+        public bool HasDocument { get; set; }
+
+        public string? ViewController { get; set; }
+
+        public string? ViewAction { get; set; }
+    }
+    public class VehicleDetailPreviewViewModel
+    {
+        public List<VehiclePreviewVM> Vehicles { get; set; } = new();
+    }
+
+    public class VehiclePreviewVM
+    {
+        public string? VehicleRegNo { get; set; }
+
+        public string? VehicleFor { get; set; }
+
+        public int? SeatingCapacity { get; set; }
+
+        public DateTime? ValidityDate { get; set; }
+
+        public bool RcBookAvailable { get; set; }
+
+        public bool InsuranceAvailable { get; set; }
+
+        public bool DrivingLicenseAvailable { get; set; }
+    }
+
+    public class EquipmentPreviewViewModel
+    {
+        public List<EquipmentDepartmentPreviewVM> Departments { get; set; } = new();
+    }
+
+    public class EquipmentDepartmentPreviewVM
+    {
+        public string DepartmentCode { get; set; } = string.Empty;
+
+        public string DepartmentName { get; set; } = string.Empty;
+
+        public List<EquipmentRowVM> Equipments { get; set; } = new();
+    }
+    public class MedicalUGBedDistributionVM
+    {
+        // =========================
+        // MEDICAL
+        // =========================
+
+        public MedicalBedDistributionVM? Medical { get; set; }
+
+        // =========================
+        // DENTAL
+        // =========================
+
+        public DentalBedDistributionPreviewVM? Dental { get; set; }
+    }
+
+    public class DepartmentOfficesMeuPreviewVM
+    {
+        public string? CourseLevel { get; set; }
+
+        // Common Department Office Details
+        public bool? HasHodRoomWithOfficeAndRecords { get; set; }
+        public bool? HasRoomsForFacultyAndResidents { get; set; }
+        public bool? FacultyRoomsHaveCommunicationComputerInternet { get; set; }
+        public bool? HasRoomsForNonTeachingStaff { get; set; }
+
+        // Medical
+        public MedicalEducationUnitPreviewVM? Medical { get; set; }
+
+        // Dental
+        public DentalEducationUnitPreviewVM? Dental { get; set; }
+    }
+
+    public class MedicalEducationUnitPreviewVM
+    {
+        public bool? HasMedicalEducationUnit { get; set; }
+        public decimal? MedicalEducationUnitAreaSqm { get; set; }
+        public bool? MedicalEducationUnitHasAudioVisual { get; set; }
+        public bool? MedicalEducationUnitHasInternet { get; set; }
+        public string? MeuCoordinatorName { get; set; }
+        public string? MeuCoordinatorDesignationDepartment { get; set; }
+        public string? MeuCoordinatorPhone { get; set; }
+        public string? MeuCoordinatorEmail { get; set; }
+        public string? MeuActivitiesLastAcademicYear { get; set; }
+        public bool HasMeuMembersListFile { get; set; }
+    }
+
+    public class DentalEducationUnitPreviewVM
+    {
+        public bool? HasDentalEducationUnit { get; set; }
+
+        public decimal? DentalEducationUnitAreaSqm { get; set; }
+        public bool? DentalEducationUnitHasAudioVisual { get; set; }
+        public bool? DentalEducationUnitHasInternet { get; set; }
+        public string? DeuCoordinatorName { get; set; }
+        public string? DeuCoordinatorDesignationDepartment { get; set; }
+        public string? DeuCoordinatorPhone { get; set; }
+        public string? DeuCoordinatorEmail { get; set; }
+        public string? DeuActivitiesLastAcademicYear { get; set; }
+        public bool HasDeuMembersListFile { get; set; }
+    }
+
+
+    public class MedicalBedDistributionVM
+    {
+        public int? GenMedicine { get; set; }
+        public int? Paediatrics { get; set; }
+        public int? SkinVD { get; set; }
+        public int? Psychiatry { get; set; }
+
+        public int? GenSurgery { get; set; }
+        public int? Orthopaedics { get; set; }
+        public int? Ophthalmology { get; set; }
+        public int? ENT { get; set; }
+
+        public int? ObstetricsANC { get; set; }
+        public int? Gynaecology { get; set; }
+        public int? Postpartum { get; set; }
+
+        public int? MajorOT { get; set; }
+        public int? MinorOT { get; set; }
+
+        public int? ICCU { get; set; }
+        public int? ICU { get; set; }
+        public int? PICU_NICU { get; set; }
+        public int? SICU { get; set; }
+
+        public int? TotalICUBeds { get; set; }
+        public int? CasualtyBeds { get; set; }
+    }
+    public class DentalBedDistributionPreviewVM
+    {
+        public int? OralMaxillofacialSurgery { get; set; }
+
+        public List<DentalWardBedDistributionVm> DentalWards { get; set; } = new();
+    }
+
+    public class AffHostelPreviewViewModel
+    {
+        public string? FacultyCode { get; set; }
+        public string? CollegeCode { get; set; }
+
+        public string HostelType { get; set; } = string.Empty;
+        public string BuiltUpAreaSqFt { get; set; } = string.Empty;
+        public bool HasSeparateHostel { get; set; }
+        public bool SeparateProvisionMaleFemale { get; set; }
+
+        public string TotalFemaleStudents { get; set; } = string.Empty;
+        public string TotalFemaleRooms { get; set; } = string.Empty;
+        public string TotalMaleStudents { get; set; } = string.Empty;
+        public string TotalMaleRooms { get; set; } = string.Empty;
+
+        public string? PossessionProofPath { get; set; }
+
+        public bool? CommonRoomMen { get; set; }
+        public bool? CommonRoomWomen { get; set; }
+
+        public string? AnyOtherFacility { get; set; }
+        public string? HostelFacilityDetails { get; set; }
+
+        public int? HostelMenCount { get; set; }
+        public int? HostelWomenCount { get; set; }
+
+        public string? OwnOrRented { get; set; }
+        public decimal? SpacePerStudent { get; set; }
+
+        public bool? SleepingFurniture { get; set; }
+        public bool? SanitaryBathing { get; set; }
+        public bool? DiningHall { get; set; }
+        public bool? HostelCommonRoom { get; set; }
+        public bool? VisitorsRoom { get; set; }
+        public bool? KitchenPantry { get; set; }
+        public bool? WardenOffice { get; set; }
+        public bool? ReceptionCounter { get; set; }
+        public bool? GamesRecreation { get; set; }
+        public bool? MedicalFacilities { get; set; }
+
+        public string? MenHostelAreaSqFt { get; set; }
+        public string? WomenHostelAreaSqFt { get; set; }
+    }
+
+    public class DentalCollegeLandBuildingDisplayVM
+    {
+        public string CollegeCode { get; set; } = string.Empty;
+        public int FacultyCode { get; set; }
+
+        public int SeatSlab { get; set; }
+        public int SeatIntake { get; set; }
+
+        public string? LandCategory { get; set; }
+
+        // Norms
+        public decimal? RequiredLandAcres { get; set; }
+        public int RequiredBuiltupAreaSqm { get; set; }
+        public int RequiredLectureHallAreaSqm { get; set; }
+        public int RequiredLectureHallCapacity { get; set; }
+        public int RequiredExamHallAreaSqm { get; set; }
+        public int RequiredLibraryAreaSqm { get; set; }
+        public int RequiredHospitalAreaSqm { get; set; }
+        public int RequiredLectureHallCount { get; set; }
+        public string? RequiredLandRequirementText { get; set; }
+
+        // Submitted values
+        public decimal? TotalLandAreaAcres { get; set; }
+        public string? LandOwnershipType { get; set; }
+        public bool? HasFutureExpansionSpace { get; set; }
+
+        public decimal? TotalBuiltupAreaSqm { get; set; }
+        public int? LectureHallCount { get; set; }
+        public decimal? LectureHallAreaSqm { get; set; }
+        public int? LectureHallSeatingCapacity { get; set; }
+        public decimal? ExaminationHallAreaSqm { get; set; }
+        public decimal? LibraryAreaSqm { get; set; }
+        public decimal? HospitalAreaSqm { get; set; }
+        public decimal? MuseumDemoRoomsAreaSqm { get; set; }
+        public decimal? DepartmentWiseAreaSqm { get; set; }
+        public decimal? PreclinicalSkillLabAreaSqm { get; set; }
+
+        public string? Remarks { get; set; }
+
+        // Documents
+        public bool HasSaleDeedDocument { get; set; }
+        public bool HasEncumbranceCertificateDocument { get; set; }
+        public bool HasLandUseCertificateDocument { get; set; }
+        public bool HasApprovedLayoutPlanDocument { get; set; }
+        public bool HasLandSketchDocument { get; set; }
+        public bool HasDistanceCertificateDocument { get; set; }
+
+        public bool HasApprovedBuildingPlanDocument { get; set; }
+        public bool HasCompletionCertificateDocument { get; set; }
+        public bool HasStructuralStabilityCertificateDocument { get; set; }
+        public bool HasFireSafetyNocDocument { get; set; }
+        public bool HasLiftLicenseDocument { get; set; }
+        public bool HasElectricalSafetyCertificateDocument { get; set; }
+        public bool HasWaterSupplyCertificateDocument { get; set; }
+        public bool HasSewageSanitationApprovalDocument { get; set; }
+
+        public List<DentalInfrastructureDisplayVM> InfrastructureDetails { get; set; } = new();
+    }
+
+    public class DentalInfrastructureDisplayVM
+    {
+        public int SlNo { get; set; }
+
+        public string RequirementName { get; set; } = string.Empty;
+
+        public string? RequirementDescription { get; set; }
+
+        public decimal RequiredAreaSqFt { get; set; }
+
+        public decimal AvailableAreaSqFt { get; set; }
+    }
     public class DisciplineDisplayVM
     {
         public int HospitalDetailsId { get; set; }

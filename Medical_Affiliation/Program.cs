@@ -138,7 +138,16 @@ builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
 builder.Services.AddScoped<ICAAcademicIntakeService, CAAcademicIntakeService>();
 builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 builder.Services.AddScoped<ICAPgCourseService, CAPgCourseService>();
+builder.Services.AddScoped<ICADentalLandBuildingPreviewService, CADentalLandBuildingPreviewService>();
+builder.Services.AddScoped<ICAMedicalUGBedDistributionPreviewService, CAMedicalUGBedDistributionPreviewService>();
+builder.Services.AddScoped<ICADentalChairDistributionPreviewService, CADentalChairDistributionPreviewService>();
+builder.Services.AddScoped<ICADentalSkillsLaboratoryPreviewService, CADentalSkillsLaboratoryPreviewService>();
+builder.Services.AddScoped<ICAEquipmentPreviewService, CAEquipmentPreviewService>();
+builder.Services.AddScoped<ICAVehiclePreviewService, CAVehiclePreviewService>();
+builder.Services.AddScoped<ICADepartmentOfficesMeuPreviewService, CADepartmentOfficesMeuPreviewService>();
+builder.Services.AddScoped<ICAMedicalLibraryPreviewService, CAMedicalLibraryPreviewService>();
 builder.Services.AddScoped<IInstitutionPreviewService, InstitutionPreviewService>();
+builder.Services.AddScoped<ICAHostelPreviewService, CAHostelPreviewService>();
 
 
 // =============================================

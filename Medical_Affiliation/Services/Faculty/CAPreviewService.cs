@@ -17,7 +17,15 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICAAcademicIntakeService _academicIntakeService;
         private readonly IInstitutionPreviewService _institutionPreviewService;
         private readonly ICAInstitutionBasicDetails _basicDetailsService;
-
+        private readonly ICADentalLandBuildingPreviewService _cADentalLandBuildingPreviewService;
+        private readonly ICADentalSkillsLaboratoryPreviewService _skillsLabService;
+        private readonly ICADentalChairDistributionPreviewService _chairPreviewService;
+        private readonly ICAHostelPreviewService _hostelPreviewService;
+        private readonly ICAMedicalUGBedDistributionPreviewService _medicalUGBedDistributionPreviewService;
+        private readonly ICADepartmentOfficesMeuPreviewService _departmentOfficeMeuPreviewService;
+        private readonly ICAEquipmentPreviewService _equipmentPreviewService;
+        private readonly ICAVehiclePreviewService _vehiclePreviewService;
+        private readonly ICAMedicalLibraryPreviewService _cALibraryService;
         public CAPreviewService(
             ICAAcademicService academicService,
             ICAHospitalAffiliationService hospitalService,
@@ -27,18 +35,36 @@ namespace Medical_Affiliation.Services.Faculty
             ICAAcademicIntakeService academicIntakeService,
             IInstitutionPreviewService institutionPreviewService,
             ICAInstitutionBasicDetails basicDetailsService,
+            ICADentalLandBuildingPreviewService cADentalLandBuildingPreviewService,
+            ICADentalChairDistributionPreviewService chairPreviewService,
+            ICAHostelPreviewService hostelPreviewService,
+            ICAEquipmentPreviewService equipmentPreviewService,
+            ICAMedicalUGBedDistributionPreviewService medicalUGBedDistributionPreviewService,
             IUserContext userContext,
+            ICADepartmentOfficesMeuPreviewService departmentOfficeMeuPreviewService,
+            ICADentalSkillsLaboratoryPreviewService skillsLabService,
+            ICAVehiclePreviewService vehiclePreviewService,
+            ICAMedicalLibraryPreviewService cAMedicalLibraryPreviewService,
             ApplicationDbContext dbContext)
         {
             _academicService = academicService;
             _hospitalService = hospitalService;
             _landClassEqService = landClassEqService;
+            _skillsLabService = skillsLabService;
             _userContext = userContext;
             _cADeclarationService = declarationService;
             _academicIntakeService = academicIntakeService;
             _capaymentService = paymentService;
+            _chairPreviewService = chairPreviewService;
             _institutionPreviewService = institutionPreviewService;
+            _cADentalLandBuildingPreviewService = cADentalLandBuildingPreviewService;
             _basicDetailsService = basicDetailsService;
+            _hostelPreviewService = hostelPreviewService;
+            _equipmentPreviewService = equipmentPreviewService;
+            _medicalUGBedDistributionPreviewService = medicalUGBedDistributionPreviewService;
+            _vehiclePreviewService = vehiclePreviewService;
+            _departmentOfficeMeuPreviewService = departmentOfficeMeuPreviewService;
+            _cALibraryService = cAMedicalLibraryPreviewService;
             _context = dbContext;
         }
 
@@ -60,10 +86,19 @@ namespace Medical_Affiliation.Services.Faculty
                 InstitutionPreviewVM = await _institutionPreviewService.GetInstitutionPreviewAsync(),
                 CAacademicMattersVM = await _academicService.GetAcademicMattersAsync(),
                 CAHospitalAFfiliationCompVM = await _hospitalService.GetHospitalAffiliationAsync(),
+                DentalLandBuildingPreview = await _cADentalLandBuildingPreviewService.GetDentalLandBuildingPreviewAsync(),
+                DentalSkillsLaboratoryVM = await _skillsLabService.GetDentalSkillsLaboratoryPreviewAsync(),
                 PhysicalFacilities = await _landClassEqService.GetLandClassEquipmentService(),
+                DentalChairDistribution = await _chairPreviewService.GetDentalChairDistributionPreviewAsync(),
                 PaymentVM = await _capaymentService.GetPaymentDetails(),
                 DeclarationVM = await _cADeclarationService.GetDeclarationDetails(),
                 AcademicIntakeVM = await _academicIntakeService.GetAcademicIntakePreviewAsync(),
+                HostelPreviewVM = await _hostelPreviewService.GetHostelPreviewAsync(),
+                EquipmentPreviewVM = await _equipmentPreviewService.GetEquipmentPreviewAsync(),
+                MedicalUGBedDistributionVM = await _medicalUGBedDistributionPreviewService.GetMedicalUGBedDistributionPreviewAsync(),
+                DepartmentOfficesMeuVM = await _departmentOfficeMeuPreviewService.GetDepartmentOfficesMeuPreviewAsync(),
+                VehiclePreviewVM = await _vehiclePreviewService.GetVehiclePreviewAsync(),
+                MedicalLibraryPreviewVM = await _cALibraryService.GetMedicalLibraryPreviewAsync()
 
             };
         }

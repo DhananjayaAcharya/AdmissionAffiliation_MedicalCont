@@ -1,0 +1,71 @@
+﻿@model EngAlliedRequirementsDisplayVM
+
+<div class="general-body">
+    <div class="section-block mt-4">
+
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-tools"></i>
+                Engineering & Allied Services
+            </div>
+
+            <p class="section-description">
+                Availability of engineering and allied services.
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+
+                <thead>
+                    <tr>
+                        <th width="70%">Service</th>
+                        <th class="text-center">Available</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model?.Requirements?.Any() == true)
+                    {
+                        @foreach (var item in Model.Requirements)
+                        {
+                            <tr>
+                                <td>@item.RequirementName</td>
+
+                                <td class="text-center">
+
+                                    @if (item.IsAvailable == true)
+                                    {
+                                        <span class="text-success fs-5">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger fs-5">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">
+                                No engineering & allied services available.
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>

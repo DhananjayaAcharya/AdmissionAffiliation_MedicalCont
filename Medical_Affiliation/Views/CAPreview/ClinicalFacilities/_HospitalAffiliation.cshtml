@@ -1,4 +1,7 @@
 ﻿@model HospitalAffiliationCompositeDisplayVM
+@{
+    var isDental = Context.Session.GetString("Facultycode") == "2";
+}
 <link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
 <div class="general-section">
     <div class="general-header">
@@ -59,6 +62,16 @@
         @if (Model.DisciplineDetails != null)
         {
             @await Html.PartialAsync( "ClinicalFacilities/_DisciplineDetails", Model.DisciplineDetails)
+        }
+
+        @if (Model.EngAlliedServices != null && isDental)
+        {
+            @await Html.PartialAsync("ClinicalFacilities/_EngAlliedServices", Model.EngAlliedServices)
+        }
+
+        @if (Model.DentalWardBedDistribution?.Any() == true && isDental)
+        {
+            @await Html.PartialAsync("ClinicalFacilities/_WardBedDistribution",  Model.DentalWardBedDistribution)
         }
 
 </div>

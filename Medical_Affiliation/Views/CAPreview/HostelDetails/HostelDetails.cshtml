@@ -1,0 +1,350 @@
+﻿@model Medical_Affiliation.Models.AffHostelPreviewViewModel
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-house-door"></i>
+                Hostel Details
+            </h2>
+        </div>
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- BASIC DETAILS -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-info-circle"></i>
+                Hostel Information
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+                    <tr>
+                        <th>Particular</th>
+                        <th class="text-center">Value</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Hostel Type</td>
+                        <td class="text-center">@Model.HostelType</td>
+                    </tr>
+
+                    <tr>
+                        <td>Own / Rented</td>
+                        <td class="text-center">@Model.OwnOrRented</td>
+                    </tr>
+
+                    <tr>
+                        <td>Built-up Area (Sq.ft)</td>
+                        <td class="text-center">@Model.BuiltUpAreaSqFt</td>
+                    </tr>
+
+                    <tr>
+                        <td>Space Per Student (Sq.ft)</td>
+                        <td class="text-center">@Model.SpacePerStudent</td>
+                    </tr>
+
+                    <tr>
+                        <td>Separate Hostel Available</td>
+                        <td class="text-center">
+                            @(Model.HasSeparateHostel ? "Yes" : "No")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Separate Hostel for Boys & Girls</td>
+                        <td class="text-center">
+                            @(Model.SeparateProvisionMaleFemale ? "Yes" : "No")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Hostel Facility Details</td>
+                        <td>@Model.HostelFacilityDetails</td>
+                    </tr>
+
+                    <tr>
+                        <td>Any Other Facility</td>
+                        <td>@Model.AnyOtherFacility</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- HOSTEL CAPACITY -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-people"></i>
+                Hostel Capacity
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th></th>
+
+                        <th class="text-center">Men</th>
+
+                        <th class="text-center">Women</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>Total Students</td>
+
+                        <td class="text-center">@Model.TotalMaleStudents</td>
+
+                        <td class="text-center">@Model.TotalFemaleStudents</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>Total Rooms</td>
+
+                        <td class="text-center">@Model.TotalMaleRooms</td>
+
+                        <td class="text-center">@Model.TotalFemaleRooms</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>Hostel Capacity</td>
+
+                        <td class="text-center">@Model.HostelMenCount</td>
+
+                        <td class="text-center">@Model.HostelWomenCount</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>Area (Sq.ft)</td>
+
+                        <td class="text-center">@Model.MenHostelAreaSqFt</td>
+
+                        <td class="text-center">@Model.WomenHostelAreaSqFt</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- FACILITIES -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-check2-square"></i>
+                Hostel Facilities
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Facility</th>
+
+                        <th class="text-center">Available</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @{
+
+                        var facilities = new[]
+                        {
+                            ("Common Room (Men)", Model.CommonRoomMen),
+
+                            ("Common Room (Women)", Model.CommonRoomWomen),
+
+                            ("Sleeping Furniture", Model.SleepingFurniture),
+
+                            ("Sanitary & Bathing Facilities", Model.SanitaryBathing),
+
+                            ("Dining Hall", Model.DiningHall),
+
+                            ("Hostel Common Room", Model.HostelCommonRoom),
+
+                            ("Visitors Room", Model.VisitorsRoom),
+
+                            ("Kitchen / Pantry", Model.KitchenPantry),
+
+                            ("Warden Office", Model.WardenOffice),
+
+                            ("Reception Counter", Model.ReceptionCounter),
+
+                            ("Games & Recreation", Model.GamesRecreation),
+
+                            ("Medical Facilities", Model.MedicalFacilities)
+                        };
+
+                    }
+
+                    @foreach (var item in facilities)
+                    {
+                        <tr>
+
+                            <td>@item.Item1</td>
+
+                            <td class="text-center">
+
+                                @if (item.Item2 == true)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle-fill text-danger"></i>
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- DOCUMENT -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-folder-check"></i>
+                Uploaded Document
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Document</th>
+
+                        <th class="text-center">Status</th>
+
+                        <th class="text-center">View</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>Possession Proof</td>
+
+                        <td class="text-center">
+
+                            @if (!string.IsNullOrWhiteSpace(Model.PossessionProofPath))
+                            {
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-x-circle-fill text-danger"></i>
+                            }
+
+                        </td>
+
+                        <td class="text-center">
+
+                            @if (!string.IsNullOrWhiteSpace(Model.PossessionProofPath))
+                            {
+                                <a asp-controller="AdministrationAndHostel"
+                                   asp-action="ViewDocument"
+                                   asp-route-filePath="@Model.PossessionProofPath"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

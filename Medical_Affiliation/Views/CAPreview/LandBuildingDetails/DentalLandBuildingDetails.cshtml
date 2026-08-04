@@ -1,0 +1,336 @@
+﻿@model Medical_Affiliation.ViewModels.DentalCollegeLandBuildingViewModel
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-building"></i>
+                Dental College Land & Building Details
+            </h2>
+        </div>
+    </div>
+
+    <div class="general-body">
+
+        <!-- ========================================================= -->
+        <!-- LAND DETAILS -->
+        <!-- ========================================================= -->
+
+        <div class="section-block mb-4">
+
+            <div class="section-header-block mb-3">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Land Details
+                </div>
+
+                <p class="section-description">
+                    Land ownership and statutory requirements.
+                </p>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="table data-table table-bordered align-middle">
+                    <tbody>
+
+                        <tr>
+                            <th width="30%">Land Category</th>
+                            <td>@(Model.LandCategory ?? "Not Entered Yet")</td>
+
+                            <th width="25%">Required Land</th>
+                            <td>@Model.RequiredLandAcres Acres</td>
+                        </tr>
+
+                        <tr>
+                            <th>Total Land Area</th>
+                            <td>@Model.TotalLandAreaAcres Acres</td>
+
+                            <th>Land Ownership</th>
+                            <td>@(Model.LandOwnershipType ?? "Not Entered Yet")</td>
+                        </tr>
+
+                        <tr>
+                            <th>Future Expansion Space</th>
+
+                            <td colspan="3">
+                                @if (Model.HasFutureExpansionSpace == true)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle-fill text-danger"></i>
+                                }
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- BUILDING DETAILS -->
+        <!-- ========================================================= -->
+
+        <div class="section-block mb-4">
+
+            <div class="section-header-block mb-3">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-building-fill"></i>
+                    Building Details
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table table-bordered align-middle">
+
+                    <thead>
+
+                        <tr>
+                            <th>Requirement</th>
+                            <th class="text-center">Required</th>
+                            <th class="text-center">Available</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Total Built-up Area</td>
+                            <td class="text-center">@Model.RequiredBuiltupAreaSqm Sq.m</td>
+                            <td class="text-center">@Model.TotalBuiltupAreaSqm Sq.m</td>
+                        </tr>
+
+                        <tr>
+                            <td>Lecture Hall Count</td>
+                            <td class="text-center">@Model.RequiredLectureHallCount</td>
+                            <td class="text-center">@Model.LectureHallCount</td>
+                        </tr>
+
+                        <tr>
+                            <td>Lecture Hall Area</td>
+                            <td class="text-center">@Model.RequiredLectureHallAreaSqm Sq.m</td>
+                            <td class="text-center">@Model.LectureHallAreaSqm Sq.m</td>
+                        </tr>
+
+                        <tr>
+                            <td>Lecture Hall Capacity</td>
+                            <td class="text-center">@Model.RequiredLectureHallCapacity</td>
+                            <td class="text-center">@Model.LectureHallSeatingCapacity</td>
+                        </tr>
+
+                        <tr>
+                            <td>Examination Hall Area</td>
+                            <td class="text-center">@Model.RequiredExamHallAreaSqm Sq.m</td>
+                            <td class="text-center">@Model.ExaminationHallAreaSqm Sq.m</td>
+                        </tr>
+
+                        <tr>
+                            <td>Library Area</td>
+                            <td class="text-center">@Model.RequiredLibraryAreaSqm Sq.m</td>
+                            <td class="text-center">@Model.LibraryAreaSqm Sq.m</td>
+                        </tr>
+
+                        <tr>
+                            <td>Hospital Area</td>
+                            <td class="text-center">@Model.RequiredHospitalAreaSqm Sq.m</td>
+                            <td class="text-center">@Model.HospitalAreaSqm Sq.m</td>
+                        </tr>
+
+                        <tr>
+                            <td>Museum & Demo Rooms</td>
+                            <td class="text-center">As per Norms</td>
+                            <td class="text-center">@Model.MuseumDemoRoomsAreaSqm Sq.m</td>
+                        </tr>
+
+                        <tr>
+                            <td>Department-wise Area</td>
+                            <td class="text-center">As per Norms</td>
+                            <td class="text-center">@Model.DepartmentWiseAreaSqm Sq.m</td>
+                        </tr>
+
+                        <tr>
+                            <td>Preclinical & Skill Lab Area</td>
+                            <td class="text-center">As per Norms</td>
+                            <td class="text-center">@Model.PreclinicalSkillLabAreaSqm Sq.m</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- INFRASTRUCTURE -->
+        <!-- ========================================================= -->
+        @if (Model.InfrastructureDetails.Any())
+        {
+            <div class="section-block mb-4">
+
+                <div class="section-header-block mb-3">
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-layout-text-window"></i>
+                        Infrastructure Requirements
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table table-bordered">
+
+                        <thead>
+
+                            <tr>
+                                <th>Sl.No</th>
+                                <th>Infrastructure</th>
+                                <th>Description</th>
+                                <th class="text-center">Required Area</th>
+                                <th class="text-center">Available Area</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in Model.InfrastructureDetails.OrderBy(x => x.SlNo))
+                            {
+                                <tr>
+
+                                    <td>@item.SlNo</td>
+
+                                    <td>@item.RequirementName</td>
+
+                                    <td>@(item.RequirementDescription ?? "-")</td>
+
+                                    <td class="text-center">@item.RequiredAreaSqFt Sq.ft</td>
+
+                                    <td class="text-center">@item.AvailableAreaSqFt Sq.ft</td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+
+
+        <!-- ========================================================= -->
+        <!-- DOCUMENTS -->
+        <!-- ========================================================= -->
+
+        <div class="section-block">
+
+            <div class="section-header-block mb-3">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-folder-check"></i>
+                    Uploaded Documents
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table table-bordered">
+
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @{
+                            var docs = new[]
+                            {
+                                ("Sale Deed", Model.SaleDeedDocumentPath),
+                                ("Encumbrance Certificate", Model.EncumbranceCertificateDocumentPath),
+                                ("Land Use Certificate", Model.LandUseCertificateDocumentPath),
+                                ("Approved Layout Plan", Model.ApprovedLayoutPlanDocumentPath),
+                                ("Land Sketch", Model.LandSketchDocumentPath),
+                                ("Distance Certificate", Model.DistanceCertificateDocumentPath),
+                                ("Approved Building Plan", Model.ApprovedBuildingPlanDocumentPath),
+                                ("Completion Certificate", Model.CompletionCertificateDocumentPath),
+                                ("Structural Stability Certificate", Model.StructuralStabilityCertificateDocumentPath),
+                                ("Fire Safety NOC", Model.FireSafetyNocDocumentPath),
+                                ("Lift License", Model.LiftLicenseDocumentPath),
+                                ("Electrical Safety Certificate", Model.ElectricalSafetyCertificateDocumentPath),
+                                ("Water Supply Certificate", Model.WaterSupplyCertificateDocumentPath),
+                                ("Sewage & Sanitation Approval", Model.SewageSanitationApprovalDocumentPath)
+                            };
+                        }
+
+                        @foreach (var doc in docs)
+                        {
+                            <tr>
+
+                                <td>@doc.Item1</td>
+
+                                <td class="text-center">
+
+                                    @if (!string.IsNullOrWhiteSpace(doc.Item2))
+                                    {
+                                        <a href="@Url.Action("ViewDocument", "PhysicalInfrastructure", new { filePath = doc.Item2 })"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        @if (!string.IsNullOrWhiteSpace(Model.Remarks))
+        {
+            <div class="section-block mt-4">
+
+                <div class="section-header-block mb-3">
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-chat-left-text"></i>
+                        Remarks
+                    </div>
+                </div>
+
+                <div class="alert alert-light border">
+                    @Model.Remarks
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>

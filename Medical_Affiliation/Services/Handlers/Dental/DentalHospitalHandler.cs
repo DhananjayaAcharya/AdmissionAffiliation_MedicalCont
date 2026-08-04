@@ -130,6 +130,9 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             var typeOfAffiliation = _userContext.TypeOfAffiliation;
             var courseLevel = _userContext.CourseLevel;
 
+
+            var intake = await _context.AcademicIntakes.Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString()).Select(e=>e.Ay2026TotalIntake).FirstOrDefaultAsync();
+            var seatSlabNumber = (int)(Math.Ceiling(intake / 50.0) * 50);
             // Sequentially await queries to avoid DbContext concurrency issues
             var hospital = await _context.HospitalDetailsForAffiliations
                 .Include(h => h.HospitalFacilities)
@@ -382,7 +385,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     m.IsActive)
                 .ToListAsync();
 
-            var mstDentalAffHospitalWardBedDistribution = await _context.MstDentalBedDistributions.Where(e => e.FacultyCode == facultyCode).ToListAsync();
+            var mstDentalAffHospitalWardBedDistribution = await _context.MstDentalBedDistributions.Where(e => e.FacultyCode == facultyCode && e.SeatSlab == seatSlabNumber).ToListAsync();
 
 
             var existingBySection = await _context.IndoorInfrastructureRequirementsCompliances

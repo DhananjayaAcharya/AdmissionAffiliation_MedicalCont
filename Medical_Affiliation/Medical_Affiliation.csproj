@@ -28,4 +28,7 @@
 			<HintPath>Libraries\SecureConnectionLibrary.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Views\CAPreview\VehicleDetailsPreview\" />
+	</ItemGroup>
 </Project>

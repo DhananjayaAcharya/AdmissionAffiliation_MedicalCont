@@ -1,0 +1,106 @@
+﻿@model List<DentalChairVm>
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-grid-3x3-gap"></i>
+                Dental Chair Distribution
+            </h2>
+        </div>
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- CHAIR DISTRIBUTION -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+
+            <div class="section-title-text section-badge">
+                <i class="bi bi-hospital"></i>
+                Course-wise Chair Distribution
+            </div>
+
+            <p class="section-description">
+                Required and existing dental chairs for each approved course.
+            </p>
+
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Course</th>
+                        <th class="text-center">Level</th>
+                        <th class="text-center">Seat Slab</th>
+                        <th class="text-center">Required Chairs</th>
+                        <th class="text-center">Existing Chairs</th>
+                        @* <th class="text-center">Status</th> *@
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var chair in Model)
+                    {
+                        var isAvailable = chair.ChairsExisting >= chair.ChairsRequired;
+
+                        <tr>
+
+                            <td>@chair.CourseName</td>
+
+                            <td class="text-center">
+                                @chair.CourseLevel
+                            </td>
+
+                            <td class="text-center">
+                                @chair.SeatSlab
+                            </td>
+
+                            <td class="text-center">
+                                @chair.ChairsRequired
+                            </td>
+
+                            <td class="text-center">
+                                @chair.ChairsExisting
+                            </td>
+
+                            @* <td class="text-center">
+
+                                @if (isAvailable)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle-fill text-danger"></i>
+                                }
+
+                            </td> *@
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

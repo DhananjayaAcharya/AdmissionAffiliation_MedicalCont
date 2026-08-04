@@ -1,0 +1,338 @@
+﻿@model Medical_Affiliation.Models.MedicalLibraryPreviewVM
+@{
+    var isMedical = Context.Session.GetString("FacultyCode") == "1";
+}
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-book"></i>
+                Dental Library
+            </h2>
+        </div>
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- USAGE REPORT -->
+    <!-- ====================================================== -->
+
+    @if (isMedical)
+    {
+        <div class="section-block">
+                <div class="section-header-block">
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-file-earmark-text"></i>
+                        Usage Report
+                    </div>
+                </div>
+
+                <table class="table data-table">
+
+                    <tbody>
+
+                        <tr>
+
+                            <th>Usage Report Uploaded</th>
+
+                            <td class="text-center">
+
+                                @if (Model.HasUsageReport)
+                                {
+                                    <a asp-controller="@Model.UsageReportViewController"
+                                       asp-action="@Model.UsageReportViewAction"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        View Report
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span>No</span>
+                                }
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+        </div>
+    }
+
+    <!-- ====================================================== -->
+    <!-- LIBRARY STAFF -->
+    <!-- ====================================================== -->
+    @if (Model.LibraryStaff.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-people"></i>
+                    Library Staff
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Name</th>
+                            <th>Designation</th>
+                            <th>Qualification</th>
+                            <th class="text-center">Experience</th>
+                            <th>Category</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.LibraryStaff)
+                        {
+                            <tr>
+
+                                <td>@item.StaffName</td>
+                                <td>@item.Designation</td>
+                                <td>@item.Qualification</td>
+                                <td class="text-center">@item.Experience</td>
+                                <td>@item.Category</td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+    <!-- ====================================================== -->
+    <!-- DEPARTMENT LIBRARIES -->
+    <!-- ====================================================== -->
+    @if (Model.DepartmentLibraries.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-building"></i>
+                    Department Libraries
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Department</th>
+                            <th>Total Books</th>
+                            <th>Books Added</th>
+                            <th>Current Journals</th>
+                            <th>Titles</th>
+                            <th>International Journals</th>
+                            <th>Back Volumes</th>
+                            <th>Print Journal %</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.DepartmentLibraries)
+                        {
+                            <tr>
+
+                                <td>@item.DepartmentName</td>
+                                <td>@item.TotalBooks</td>
+                                <td>@item.BooksAddedInYear</td>
+                                <td>@item.CurrentJournals</td>
+                                <td>@item.Titles</td>
+                                <td>@item.InternationalJournals</td>
+                                <td>@item.BackVolumes</td>
+                                <td>@item.PrintJournalPercentage</td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+    <!-- ====================================================== -->
+    <!-- OTHER DETAILS -->
+    <!-- ====================================================== -->
+    @if (Model.OtherDetails != null)
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-info-circle"></i>
+                    Other Details
+                </div>
+            </div>
+
+            <table class="table data-table">
+
+                <tbody>
+
+                    <tr>
+                        <th>Digital Valuation Centre</th>
+                        <td>@Model.OtherDetails.HasDigitalValuationCentre</td>
+                    </tr>
+
+                    <tr>
+                        <th>No. of Systems</th>
+                        <td>@Model.OtherDetails.NoOfSystems</td>
+                    </tr>
+
+                    <tr>
+                        <th>Stable Internet</th>
+                        <td>@Model.OtherDetails.HasStableInternet</td>
+                    </tr>
+
+                    <tr>
+                        <th>CCTV Camera System</th>
+                        <td>@Model.OtherDetails.HasCccameraSystem</td>
+                    </tr>
+
+                    <tr>
+
+                        <th>Special Features</th>
+
+                        <td>
+
+                            @if (Model.OtherDetails.HasSpecialFeatures)
+                            {
+                                <a asp-controller="@Model.OtherDetails.ViewController"
+                                   asp-action="@Model.OtherDetails.ViewAction"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View
+                                </a>
+                            }
+                            else
+                            {
+                                <span>No</span>
+                            }
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+    <!-- ====================================================== -->
+    <!-- DENTAL LIBRARY RECORDS -->
+    <!-- ====================================================== -->
+    @if (Model.DentalLibraryRecords.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-folder2-open"></i>
+                    Dental Library Records
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Record</th>
+                            <th class="text-center">Document</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.DentalLibraryRecords)
+                        {
+                            <tr>
+
+                                <td>@item.RecordName</td>
+
+                                <td class="text-center">
+
+                                    @if (item.HasDocument)
+                                    {
+                                        <a asp-controller="CA_Aff_MedicalLibrary"
+                                           asp-action="ViewDentalLibraryRecord"
+                                           asp-route-recordId="@item.RecordId"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span>No</span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+
+
+    @if (Model.ResearchPublications != null)
+    {
+        @await Html.PartialAsync( "DentalLibrary/_ResearchPublications", Model.ResearchPublications)
+    }
+
+    @if (Model.LibraryInformation != null)
+    {
+        @await Html.PartialAsync("DentalLibrary/_LibraryInformation", Model.LibraryInformation)
+    }
+
+</div>

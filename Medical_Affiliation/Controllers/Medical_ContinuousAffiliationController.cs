@@ -966,6 +966,7 @@ namespace Medical_Affiliation.Controllers
                     entity.DeuCoordinatorEmail = null;
                     entity.DeuCoordinatorDesignationDepartment = null;
                     entity.DeuActivitiesLastAcademicYear = null;
+                    entity.HasDentalEducationUnit = vm.HasDentalEducationUnit;
                 }
                 else
                 {
@@ -1024,6 +1025,28 @@ namespace Medical_Affiliation.Controllers
             Response.Headers["Content-Disposition"] = "inline";
 
             return PhysicalFile(entity.MeuMembersListFilePath, "application/pdf");
+        }
+
+        public async Task<IActionResult> ViewDeuMembersList()
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            var entity = await _context.MedicalDepartmentOfficesMeus
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode );
+
+            if (entity == null ||
+                string.IsNullOrEmpty(entity.DeuMembersListFilePath) ||
+                !System.IO.File.Exists(entity.DeuMembersListFilePath))
+                return NotFound("File not found");
+
+            // 🔥 INLINE VIEW
+            Response.Headers["Content-Disposition"] = "inline";
+
+            return PhysicalFile(entity.DeuMembersListFilePath, "application/pdf");
         }
 
 

@@ -1,0 +1,353 @@
+﻿@model Medical_Affiliation.Models.ResearchPublicationsPreviewVM
+
+@if (Model != null)
+{
+    <!-- ====================================================== -->
+    <!-- RESEARCH PUBLICATIONS -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-journal-text"></i>
+                Research Publications
+            </div>
+        </div>
+
+        <table class="table data-table">
+            <tbody>
+
+                <tr>
+                    <th style="width:40%">Number of Publications</th>
+                    <td>@Model.PublicationsNo</td>
+                </tr>
+
+                <tr>
+                    <th>Publications PDF</th>
+                    <td class="text-center">
+                        @if (Model.HasPublicationsPdf)
+                        {
+                            <a asp-controller="CA_Med_ResearchPublications"
+                               asp-action="ViewPublicationsPdf"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No</span>
+                        }
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Clinical Trials PDF</th>
+                    <td class="text-center">
+                        @if (Model.HasClinicalTrialsPdf)
+                        {
+                            <a asp-controller="CA_Med_ResearchPublications"
+                               asp-action="ViewClinicalTrialsPdf"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No</span>
+                        }
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- STUDENT PROJECTS -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-mortarboard"></i>
+                Student Research Projects
+            </div>
+        </div>
+
+        <table class="table data-table">
+            <tbody>
+
+                <tr>
+                    <th style="width:40%">RGUHS Funded</th>
+                    <td>@Model.StudentsRGUHSFunded</td>
+                </tr>
+
+                <tr>
+                    <th>External Body Funding</th>
+                    <td>@Model.StudentsExternalBodyFunding</td>
+                </tr>
+
+                <tr>
+                    <th>Projects PDF</th>
+                    <td class="text-center">
+                        @if (Model.HasStudentProjectsPdf)
+                        {
+                            <a asp-controller="CA_Med_ResearchPublications"
+                               asp-action="ViewStudentsProjectsPdf"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        }
+                        else
+                        {
+                            <span>No</span>
+                        }
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- FACULTY PROJECTS -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-person-workspace"></i>
+                Faculty Research Projects
+            </div>
+        </div>
+
+        <table class="table data-table">
+            <tbody>
+
+                <tr>
+                    <th style="width:40%">RGUHS Funded</th>
+                    <td>@Model.FacultyRGUHSFunded</td>
+                </tr>
+
+                <tr>
+                    <th>External Body Funding</th>
+                    <td>@Model.FacultyExternalBodyFunding</td>
+                </tr>
+
+                <tr>
+                    <th>Projects PDF</th>
+                    <td class="text-center">
+                        @if (Model.HasFacultyProjectsPdf)
+                        {
+                            <a asp-controller="CA_Med_ResearchPublications"
+                               asp-action="ViewFacultyProjectsPdf"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        }
+                        else
+                        {
+                            <span>No</span>
+                        }
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- OTHER ACTIVITIES -->
+    <!-- ====================================================== -->
+    @if (Model.OtherActivities.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-list-task"></i>
+                    Other Academic Activities
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Activity</th>
+                            <th>Department</th>
+                            <th>Department Wise</th>
+                            <th class="text-center">Document</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.OtherActivities)
+                        {
+                            <tr>
+
+                                <td>@item.ActivityName</td>
+
+                                <td>@item.DepartmentName</td>
+
+                                <td>@item.DepartmentWise</td>
+
+                                <td class="text-center">
+                                    @(item.HasDocument ? "Uploaded" : "No")
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+    <!-- ====================================================== -->
+    <!-- COMMITTEES -->
+    <!-- ====================================================== -->
+    @if (Model.Committees.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-people-fill"></i>
+                    Committees
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Committee</th>
+                            <th>Available</th>
+                            <th class="text-center">Document</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.Committees)
+                        {
+                            <tr>
+
+                                <td>@item.CommitteeName</td>
+
+                                <td>@item.IsPresent</td>
+
+                                <td class="text-center">
+                                    @if (item.HasDocument)
+                                    {
+                                        <a asp-controller="CA_Med_ResearchPublications"
+                                           asp-action="ViewCommitteePdf"
+                                           asp-route-committeeId="@item.CommitteeId"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No</span>
+                                    }
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+    <!-- ====================================================== -->
+    <!-- DEPARTMENT PUBLICATIONS -->
+    <!-- ====================================================== -->
+    @if (Model.DepartmentPublications.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-building"></i>
+                    Department-wise Publications
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th class="text-center">Publication Count</th>
+                            <th class="text-center">Document</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.DepartmentPublications)
+                        {
+                            <tr>
+
+                                <td>@item.DepartmentName</td>
+
+                                <td class="text-center">
+                                    @item.PublicationsCount
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.HasDocument)
+                                    {
+                                        <a asp-controller="CA_Med_ResearchPublications"
+                                           asp-action="ViewDepartmentPublicationPdf"
+                                           asp-route-id="@item.Id"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No</span>
+                                    }
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+}

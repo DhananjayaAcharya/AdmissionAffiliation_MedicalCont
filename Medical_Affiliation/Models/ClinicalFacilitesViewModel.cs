@@ -203,6 +203,7 @@ namespace Medical_Affiliation.Models
         public EngAlliedRequirementsPostVM EngAlliedRequirementPostvm { get; set; } = new();
 
         public AdmAncRequirementsPostVM AdmAncRequirementPostvm { get; set; } = new();
+        public EngAlliedRequirementsDisplayVM? EngAlliedServices { get; set; }
 
         public DisciplinePostVM DisciplineVm { get; set; } = new();
         public int FacultyCode { get; set; }
@@ -212,6 +213,22 @@ namespace Medical_Affiliation.Models
         public List<SectionViewModel> Sections { get; set; } = new();
         public List<DentalWardBedDistributionVm> DentalWardBedDistribution { get; set; } = new();
 
+    }
+
+    public class EngAlliedRequirementsDisplayVM
+    {
+        public int SeatSlab { get; set; }
+
+        public List<EngAlliedServiceDisplayItemVM> Requirements { get; set; } = new();
+    }
+
+    public class EngAlliedServiceDisplayItemVM
+    {
+        public int RequirementId { get; set; }
+
+        public string RequirementName { get; set; }
+
+        public bool? IsAvailable { get; set; }
     }
 
     public class HospitalFacilitiesViewModel

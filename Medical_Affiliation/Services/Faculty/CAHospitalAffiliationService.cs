@@ -110,6 +110,8 @@ namespace Medical_Affiliation.Services.Faculty
                 CollegeCode = collegeCode,
                 FacultyCode = facultyId,
                 DisciplineDetails = await GetDisciplineDetails(),
+                EngAlliedServices = await GetEngAlliedServicesDetails(),
+                DentalWardBedDistribution = await GetWardBedDistributionDetails(),
 
                 ClinicalHospitalDetails = new ClinicalHospitalDisplayViewModel
                 {
@@ -176,6 +178,64 @@ namespace Medical_Affiliation.Services.Faculty
                     IsSelected = x.IsActive
                 }).ToList()
             };
+        }
+
+
+        public async Task<EngAlliedRequirementsDisplayVM> GetEngAlliedServicesDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId;
+
+            var data = await _context.DentalServices
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode)
+                .OrderBy(x => x.Requirement.RequirementName)
+                .Select(x => new EngAlliedServiceDisplayItemVM
+                {
+                    RequirementId = x.RequirementId,
+                    RequirementName = x.Requirement.RequirementName,
+                    IsAvailable = x.AvailabilityStatus
+                })
+                .ToListAsync();
+
+            if (!data.Any())
+                return new EngAlliedRequirementsDisplayVM();
+
+            return new EngAlliedRequirementsDisplayVM
+            {
+                Requirements = data
+            };
+        }
+
+        public async Task<List<DentalWardBedDistributionVm>> GetWardBedDistributionDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId;
+
+            var intake = await _context.AcademicIntakes.Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString()).Select(e => e.Ay2026TotalIntake).FirstOrDefaultAsync();
+            var seatSlabNumber = (int)(Math.Ceiling(intake / 50.0) * 50);
+
+            var data = await _context.DentalWardBedDistributions
+                .AsNoTracking()
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode && x.SeatSlab == seatSlabNumber)
+                .OrderBy(x => x.WardName)
+                .Select(x => new DentalWardBedDistributionVm
+                {
+                    WardId = x.WardId,
+                    WardName = x.WardName ?? x.Ward.WardName,
+                    SeatSlab = x.SeatSlab,
+                    BedsRequired = x.BedsRequired,
+                    BedsPresent = x.BedsPresent,
+                    FacultyCode = x.FacultyCode,
+                    CollegeCode = x.CollegeCode,
+                    HospitalDetailsId = x.HospitalDetailsId
+                })
+                .ToListAsync();
+
+            return data;
         }
 
         private async Task<List<DepartmentRequirementsSectionDisplayVM>> BuildAllDepartmentSectionsAsync(string collegeCode, int facultyCode, int hospitalId)
