@@ -24,6 +24,10 @@ namespace Medical_Affiliation.Models
         public EquipmentPreviewViewModel? EquipmentPreviewVM { get; set; }
         public MedicalLibraryPreviewVM? MedicalLibraryPreviewVM { get; set; }
 
+        // New Section
+        public HumanResourcesVM? HumanResourcesVM { get; set; }
+        public AcademicPerformanceVM? AcademicPerformanceDisplayVm { get; set; }
+
         public InstituionBasicDetailsDisplayVM InstitutionBasicVM { get; set; }
 
         public CA_Aff_AcademicMattersViewModel CAacademicMattersVM { get; set; }
@@ -42,6 +46,62 @@ namespace Medical_Affiliation.Models
         public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
         //public
 
+    }
+
+    public class HumanResourcesVM
+    {
+        /// <summary>
+        /// Faculty Details
+        /// </summary>
+        public List<FacultyDetailsPreviewVM> FacultyDetails { get; set; }
+            = new();
+
+        /// <summary>
+        /// Teaching Faculty Department-wise
+        /// </summary>
+        //public List<TeachingFacultyDepartmentPreviewVM> TeachingFacultyDepartments { get; set; }
+        //    = new();
+
+        /// <summary>
+        /// Non-Teaching Faculty Details
+        /// </summary>
+        //public List<NonTeachingFacultyPreviewVM> NonTeachingFaculties { get; set; }
+        //    = new();
+    }
+
+    public class FacultyDetailsPreviewVM
+    {
+        public int FacultyDetailId { get; set; }
+
+        public string? NameOfFaculty { get; set; }
+
+        public string? Designation { get; set; }
+
+        public string? Department { get; set; }
+
+        public string? RecognizedPGTeacher { get; set; }
+
+        public string? RecognizedPhDTeacher { get; set; }
+
+        public string? Mobile { get; set; }
+
+        public string? Email { get; set; }
+
+        public string? IsExaminer { get; set; }
+
+        public string? ExaminerFor { get; set; }
+
+        public string? LitigationPending { get; set; }
+
+        public DateOnly? From { get; set; }
+
+        public DateOnly? To { get; set; }
+
+        public bool HasPGRecognitionDocument { get; set; }
+
+        public bool HasPhDRecognitionDocument { get; set; }
+
+        public bool HasLitigationDocument { get; set; }
     }
 
     public class HospitalAffiliationCompositeDisplayVM
@@ -67,6 +127,199 @@ namespace Medical_Affiliation.Models
         public List<IndoorBedsOccupancyItemVM> IndoorBedsOccupancy { get; set; }
         public List<SuperVisionInFieldPracticeAreaDisplayVM> SuperVisionInFPa { get; set; }
 
+    }
+
+    
+    public class AcademicPerformanceVM
+    {
+        public List<AcademicPerformanceRowVM> AcademicRows { get; set; }
+            = new();
+
+        public List<CourseCurriculumVM> CourseCurriculums { get; set; }
+            = new();
+
+        public List<ExaminationSchemeVM> ExaminationSchemes { get; set; }
+            = new();
+
+        public List<StudentRegisterRecordVM> StudentRegisterRecords { get; set; }
+            = new();
+
+        // PG Academic Performance
+        public List<PgAcademicPerformanceVM> PgAcademicPerformances { get; set; }
+            = new();
+
+        public List<AccountAndFeeDetailsVM> AccountAndFeeDetails { get; set; } = new();
+
+        public StaffDetailsPreviewVM? StaffDetails { get; set; }
+    }
+
+    public class StaffDetailsPreviewVM
+    {
+        public List<StaffPayScalePreviewVM> StaffPayScales { get; set; }
+            = new();
+
+        public StaffOtherPreviewVM StaffOther { get; set; }
+            = new();
+    }
+
+    public class StaffPayScalePreviewVM
+    {
+        public int DesignationSlNo { get; set; }
+
+        public string? Designation { get; set; }
+
+        public decimal? PayScale { get; set; }
+    }
+
+    public class StaffOtherPreviewVM
+    {
+        public string? TeachersUpdatedInEMS { get; set; }
+
+        public string? ExaminerDetailsAttached { get; set; }
+
+        public string? ServiceRegisterMaintained { get; set; }
+
+        public string? AcquittanceRegisterMaintained { get; set; }
+
+        public bool HasExaminerDetailsPdf1 { get; set; }
+
+        public bool HasExaminerDetailsPdf2 { get; set; }
+
+        public bool HasExaminerDetailsPdf3 { get; set; }
+
+        public bool HasExaminerDetailsPdf4 { get; set; }
+
+        public bool HasExaminerDetailsPdf5 { get; set; }
+
+        public bool HasAEBASLastThreeMonthsPdf { get; set; }
+
+        public bool HasAEBASInspectionDayPdf { get; set; }
+
+        public bool HasProvidentFundPdf { get; set; }
+
+        public bool HasESIPdf { get; set; }
+    }
+
+    public class AccountAndFeeDetailsVM
+    {
+        public string? CourseLevel { get; set; }
+
+        public string? AuthorityNameAddress { get; set; }
+
+        public string? AuthorityContact { get; set; }
+
+        public decimal? RecurrentAnnual { get; set; }
+
+        public decimal? NonRecurrentAnnual { get; set; }
+
+        public decimal? Deposits { get; set; }
+
+        public decimal? TuitionFee { get; set; }
+
+        public decimal? SportsFee { get; set; }
+
+        public decimal? UnionFee { get; set; }
+
+        public decimal? LibraryFee { get; set; }
+
+        public decimal? OtherFee { get; set; }
+
+        public decimal? TotalFee { get; set; }
+
+        public string? AccountBooksMaintained { get; set; }
+
+        public string? AccountsAudited { get; set; }
+
+        public string? DonationLevied { get; set; }
+
+        public bool HasGoverningCouncilPdf { get; set; }
+
+        public bool HasAccountSummaryPdf { get; set; }
+
+        public bool HasAuditedStatementPdf { get; set; }
+
+        public bool HasDonationPdf { get; set; }
+    }
+
+    public class PgAcademicPerformanceVM
+    {
+        public string? SubjectCode { get; set; }
+
+        public string? SubjectName { get; set; }
+
+        public List<PgAcademicPerformanceRowVM> YearData { get; set; }
+            = new();
+    }
+
+    public class PgAcademicPerformanceRowVM
+    {
+        public int YearOfStudyId { get; set; }
+
+        public string? YearName { get; set; }
+
+        public int? RegularStudents { get; set; }
+
+        public int? RepeaterStudents { get; set; }
+
+        public int? NumberOfStudentsPassed { get; set; }
+
+        public decimal? PassPercentage { get; set; }
+
+        public int? FirstClassCount { get; set; }
+
+        public int? DistinctionCount { get; set; }
+
+        public string? Remarks { get; set; }
+    }
+
+    public class AcademicPerformanceRowVM
+    {
+        public int YearOfStudyId { get; set; }
+
+        public string? YearName { get; set; }
+
+        public int? RegularStudents { get; set; }
+
+        public int? RepeaterStudents { get; set; }
+
+        public int? NumberOfStudentsPassed { get; set; }
+
+        public decimal? PassPercentage { get; set; }
+
+        public int? FirstClassCount { get; set; }
+
+        public int? DistinctionCount { get; set; }
+
+        public string? Remarks { get; set; }
+    }
+
+    public class CourseCurriculumVM
+    {
+        public int CurriculumId { get; set; }
+
+        public string? CurriculumName { get; set; }
+
+        public string? CurriculumDetails { get; set; }
+
+        public bool HasPdf { get; set; }
+    }
+
+    public class ExaminationSchemeVM
+    {
+        public int SchemeId { get; set; }
+
+        public string? SchemeCode { get; set; }
+
+        public int? NumberOfStudents { get; set; }
+    }
+
+    public class StudentRegisterRecordVM
+    {
+        public int RegisterRecordId { get; set; }
+
+        public string? RegisterName { get; set; }
+
+        public bool? IsMaintained { get; set; }
     }
 
     public class ResearchPublicationsPreviewVM

@@ -1,0 +1,131 @@
+﻿@model List<Medical_Affiliation.Models.FacultyDetailsPreviewVM>
+
+@if (Model?.Any() == true)
+{
+    <!-- ====================================================== -->
+    <!-- FACULTY DETAILS -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-person-badge-fill"></i>
+                Faculty Details
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+                    <tr>
+                        <th>Name of Faculty</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th class="text-center">PG Teacher</th>
+                        <th class="text-center">Ph.D Teacher</th>
+                        @* <th class="text-center">Examiner</th>
+                        <th>Examiner For</th> *@
+                        <th class="text-center">Litigation</th>
+                        <th class="text-center">PG Recognition</th>
+                        <th class="text-center">Ph.D Recognition</th>
+                        <th class="text-center">Litigation Doc</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>@item.NameOfFaculty</td>
+
+                            <td>@item.Department</td>
+
+                            <td>@item.Designation</td>
+
+                            <td class="text-center">
+                                @item.RecognizedPGTeacher
+                            </td>
+
+                            <td class="text-center">
+                                @item.RecognizedPhDTeacher
+                            </td>
+
+                            @* <td class="text-center">
+                                @item.IsExaminer
+                            </td>
+
+                            <td>
+                                @item.ExaminerFor
+                            </td> *@
+
+                            <td class="text-center">
+                                @item.LitigationPending
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.HasPGRecognitionDocument)
+                                {
+                                    <a asp-controller="FacultyDetails"
+                                       asp-action="ViewPGRecognitionPdf"
+                                       asp-route-id="@item.FacultyDetailId"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.HasPhDRecognitionDocument)
+                                {
+                                    <a asp-controller="FacultyDetails"
+                                       asp-action="ViewPhDRecognitionPdf"
+                                       asp-route-id="@item.FacultyDetailId"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.HasLitigationDocument)
+                                {
+                                    <a asp-controller="FacultyDetails"
+                                       asp-action="ViewLitigationPdf"
+                                       asp-route-id="@item.FacultyDetailId"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

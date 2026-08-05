@@ -1,0 +1,295 @@
+﻿@model Medical_Affiliation.Models.AcademicPerformanceVM
+
+@{
+    var isMedical = Context.Session.GetString("FacultyCode") == "1";
+}
+
+@if (Model != null)
+{
+
+
+    <div class="general-section">
+
+        <!-- ====================================================== -->
+        <!-- HEADER -->
+        <!-- ====================================================== -->
+
+        <div class="general-header">
+            <div class="header-content">
+                <h2 class="academic-title academic-badge">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    Academic Performance
+                </h2>
+            </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- ACADEMIC PERFORMANCE -->
+        <!-- ====================================================== -->
+
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    Academic Performance
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Year of Study</th>
+                            <th class="text-center">Regular</th>
+                            <th class="text-center">Repeater</th>
+                            <th class="text-center">Passed</th>
+                            <th class="text-center">Pass %</th>
+                            <th class="text-center">First Class</th>
+                            <th class="text-center">Distinction</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.AcademicRows)
+                        {
+                            <tr>
+
+                                <td>@item.YearName</td>
+
+                                <td class="text-center">
+                                    @item.RegularStudents
+                                </td>
+
+                                <td class="text-center">
+                                    @item.RepeaterStudents
+                                </td>
+
+                                <td class="text-center">
+                                    @item.NumberOfStudentsPassed
+                                </td>
+
+                                <td class="text-center">
+                                    @item.PassPercentage
+                                </td>
+
+                                <td class="text-center">
+                                    @item.FirstClassCount
+                                </td>
+
+                                <td class="text-center">
+                                    @item.DistinctionCount
+                                </td>
+
+                                <td>
+                                    @item.Remarks
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================================== -->
+        <!--  PG ACADEMIC PERFORMANCE -->
+        <!-- ====================================================== -->
+
+        @if (Model.PgAcademicPerformances.Any())
+        {
+            @await Html.PartialAsync("AcademicPerformance/_PgAcademicPerformance", Model.PgAcademicPerformances)
+        }
+        <!-- ====================================================== -->
+        <!-- COURSE CURRICULUM -->
+        <!-- ====================================================== -->
+        @if (Model.CourseCurriculums.Any())
+        {
+            <div class="section-block">
+
+                <div class="section-header-block">
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                        Course Curriculum
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Curriculum</th>
+                                <th>Details</th>
+                                <th class="text-center">Document</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in Model.CourseCurriculums)
+                            {
+                                <tr>
+
+                                    <td>@item.CurriculumName</td>
+
+                                    <td>@item.CurriculumDetails</td>
+
+                                    <td class="text-center">
+
+                                        @if (item.HasPdf)
+                                        {
+                                            <a asp-controller="CA_Aff_AcademicMatters"
+                                            asp-action="ViewCurriculumPdf"
+                                            asp-route-curriculumId="@item.CurriculumId"
+                                            target="_blank"
+                                            class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No</span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+
+        <!-- ====================================================== -->
+        <!-- EXAMINATION SCHEMES -->
+        <!-- ====================================================== -->
+        @if (Model.ExaminationSchemes.Any() && isMedical)
+        {
+            <div class="section-block">
+
+                <div class="section-header-block">
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-pencil-square"></i>
+                        Examination Schemes
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Scheme</th>
+                                <th class="text-center">Number of Students</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in Model.ExaminationSchemes)
+                            {
+                                <tr>
+
+                                    <td>@item.SchemeCode</td>
+
+                                    <td class="text-center">
+                                        @item.NumberOfStudents
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+
+        <!-- ====================================================== -->
+        <!-- STUDENT REGISTER RECORDS -->
+        <!-- ====================================================== -->
+        @if (Model.StudentRegisterRecords.Any())
+        {
+            <div class="section-block">
+
+                <div class="section-header-block">
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-folder-check"></i>
+                        Student Register Records
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table" style="width: 100%">
+
+                        <thead>
+                            <tr>
+                                <th>Register</th>
+                                <th class="text-center">Maintained</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in Model.StudentRegisterRecords)
+                            {
+                                <tr>
+
+                                    <td>@item.RegisterName</td>
+
+                                    <td class="text-center">
+                                        @(item.IsMaintained == true ? "Yes" : "No")
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+
+
+        <!-- ====================================================== -->
+        <!-- ACCOUNT AND FEE DETAILS -->
+        <!-- ====================================================== -->
+        @if (Model.AccountAndFeeDetails.Any())
+        {
+            @await Html.PartialAsync("AcademicPerformance/_AccountAndFeeDetails", Model.AccountAndFeeDetails)
+        }
+
+        <!-- ====================================================== -->
+        <!-- STAFF DETAILS -->
+        <!-- ====================================================== -->
+        @if (Model.StaffDetails != null)
+        {
+            @await Html.PartialAsync("AcademicPerformance/_StaffDetails", Model.StaffDetails)
+        }
+
+    </div>
+}

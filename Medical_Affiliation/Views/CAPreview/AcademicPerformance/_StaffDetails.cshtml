@@ -1,0 +1,308 @@
+﻿@model Medical_Affiliation.Models.StaffDetailsPreviewVM
+
+@if (Model != null)
+{
+    <!-- ====================================================== -->
+    <!-- STAFF PAY SCALE -->
+    <!-- ====================================================== -->
+    @if (Model.StaffPayScales.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-people-fill"></i>
+                    Staff Pay Scale
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Designation</th>
+                            <th class="text-center">Pay Scale</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.StaffPayScales)
+                        {
+                            <tr>
+
+                                <td>@item.Designation</td>
+
+                                <td class="text-center">
+                                    @(item.PayScale?.ToString("N2") ?? "-")
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+    <!-- ====================================================== -->
+    <!-- STAFF PARTICULARS -->
+    <!-- ====================================================== -->
+    @if (Model.StaffOther != null)
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-person-badge-fill"></i>
+                    Staff Particulars
+                </div>
+            </div>
+
+            <table class="table data-table">
+
+                <tbody>
+
+                    <tr>
+                        <th style="width:40%">Teachers Updated in EMS</th>
+                        <td>@Model.StaffOther.TeachersUpdatedInEMS</td>
+                    </tr>
+
+                    <tr>
+                        <th>Examiner Details Attached</th>
+                        <td>@Model.StaffOther.ExaminerDetailsAttached</td>
+                    </tr>
+
+                    <tr>
+                        <th>Service Register Maintained</th>
+                        <td>@Model.StaffOther.ServiceRegisterMaintained</td>
+                    </tr>
+
+                    <tr>
+                        <th>Acquittance Register Maintained</th>
+                        <td>@Model.StaffOther.AcquittanceRegisterMaintained</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- DOCUMENTS -->
+        <!-- ====================================================== -->
+
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                    Supporting Documents
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th class="text-center">File</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Examiner Details - 1</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasExaminerDetailsPdf1)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewExaminerDetailsPdf"
+                                       asp-route-index="1"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Examiner Details - 2</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasExaminerDetailsPdf2)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewExaminerDetailsPdf"
+                                       asp-route-index="2"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Examiner Details - 3</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasExaminerDetailsPdf3)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewExaminerDetailsPdf"
+                                       asp-route-index="3"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Examiner Details - 4</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasExaminerDetailsPdf4)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewExaminerDetailsPdf"
+                                       asp-route-index="4"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Examiner Details - 5</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasExaminerDetailsPdf5)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewExaminerDetailsPdf"
+                                       asp-route-index="5"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>AEBAS - Last Three Months</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasAEBASLastThreeMonthsPdf)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewAEBASLastThreeMonthsPdf"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>AEBAS - Inspection Day</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasAEBASInspectionDayPdf)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewAEBASInspectionDayPdf"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Provident Fund</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasProvidentFundPdf)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewProvidentFundPdf"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>ESI</td>
+                            <td class="text-center">
+                                @if (Model.StaffOther.HasESIPdf)
+                                {
+                                    <a asp-controller="CA_Med_StaffDetails"
+                                       asp-action="ViewESIPdf"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+}

@@ -1,0 +1,199 @@
+﻿@model List<Medical_Affiliation.Models.AccountAndFeeDetailsVM>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var item in Model)
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-cash-stack"></i>
+                    Account & Fee Details (@item.CourseLevel)
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <tbody>
+
+                        <tr>
+                            <th style="width:35%">Authority Name & Address</th>
+                            <td>@item.AuthorityNameAddress</td>
+                        </tr>
+
+                        <tr>
+                            <th>Authority Contact</th>
+                            <td>@item.AuthorityContact</td>
+                        </tr>
+
+                        <tr>
+                            <th>Recurrent Annual Expenditure</th>
+                            <td>@item.RecurrentAnnual</td>
+                        </tr>
+
+                        <tr>
+                            <th>Non-Recurrent Annual Expenditure</th>
+                            <td>@item.NonRecurrentAnnual</td>
+                        </tr>
+
+                        <tr>
+                            <th>Deposits</th>
+                            <td>@item.Deposits</td>
+                        </tr>
+
+                        <tr>
+                            <th>Tuition Fee</th>
+                            <td>@item.TuitionFee</td>
+                        </tr>
+
+                        <tr>
+                            <th>Sports Fee</th>
+                            <td>@item.SportsFee</td>
+                        </tr>
+
+                        <tr>
+                            <th>Union Fee</th>
+                            <td>@item.UnionFee</td>
+                        </tr>
+
+                        <tr>
+                            <th>Library Fee</th>
+                            <td>@item.LibraryFee</td>
+                        </tr>
+
+                        <tr>
+                            <th>Other Fee</th>
+                            <td>@item.OtherFee</td>
+                        </tr>
+
+                        <tr>
+                            <th>Total Fee</th>
+                            <td><strong>@item.TotalFee</strong></td>
+                        </tr>
+
+                        <tr>
+                            <th>Account Books Maintained</th>
+                            <td>@item.AccountBooksMaintained</td>
+                        </tr>
+
+                        <tr>
+                            <th>Accounts Audited</th>
+                            <td>@item.AccountsAudited</td>
+                        </tr>
+
+                        <tr>
+                            <th>Donation Levied</th>
+                            <td>@item.DonationLevied</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="data-table-wrapper mt-3">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th class="text-center" style="width:160px;">View</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Governing Council Resolution</td>
+                            <td class="text-center">
+                                @if (item.HasGoverningCouncilPdf)
+                                {
+                                    <a asp-controller="CA_AccountAndFeeDetails"
+                                       asp-action="ViewGoverningCouncilPdf"
+                                       asp-route-courseLevel="@item.CourseLevel"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Account Summary</td>
+                            <td class="text-center">
+                                @if (item.HasAccountSummaryPdf)
+                                {
+                                    <a asp-controller="CA_AccountAndFeeDetails"
+                                       asp-action="ViewAccountSummaryPdf"
+                                       asp-route-courseLevel="@item.CourseLevel"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Audited Statement</td>
+                            <td class="text-center">
+                                @if (item.HasAuditedStatementPdf)
+                                {
+                                    <a asp-controller="CA_AccountAndFeeDetails"
+                                       asp-action="ViewAuditedStatementPdf"
+                                       asp-route-courseLevel="@item.CourseLevel"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Donation Document</td>
+                            <td class="text-center">
+                                @if (item.HasDonationPdf)
+                                {
+                                    <a asp-controller="CA_AccountAndFeeDetails"
+                                       asp-action="ViewDonationPdf"
+                                       asp-route-courseLevel="@item.CourseLevel"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+}

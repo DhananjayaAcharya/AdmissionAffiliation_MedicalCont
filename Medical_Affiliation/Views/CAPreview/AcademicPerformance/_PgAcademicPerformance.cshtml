@@ -1,0 +1,80 @@
+﻿@model List<Medical_Affiliation.Models.PgAcademicPerformanceVM>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var subject in Model)
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    PG Academic Performance - @subject.SubjectName
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Year of Study</th>
+                            <th class="text-center">Regular</th>
+                            <th class="text-center">Repeater</th>
+                            <th class="text-center">Passed</th>
+                            <th class="text-center">Pass %</th>
+                            <th class="text-center">First Class</th>
+                            <th class="text-center">Distinction</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var row in subject.YearData)
+                        {
+                            <tr>
+
+                                <td>@row.YearName</td>
+
+                                <td class="text-center">
+                                    @row.RegularStudents
+                                </td>
+
+                                <td class="text-center">
+                                    @row.RepeaterStudents
+                                </td>
+
+                                <td class="text-center">
+                                    @row.NumberOfStudentsPassed
+                                </td>
+
+                                <td class="text-center">
+                                    @row.PassPercentage
+                                </td>
+
+                                <td class="text-center">
+                                    @row.FirstClassCount
+                                </td>
+
+                                <td class="text-center">
+                                    @row.DistinctionCount
+                                </td>
+
+                                <td>
+                                    @row.Remarks
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+}

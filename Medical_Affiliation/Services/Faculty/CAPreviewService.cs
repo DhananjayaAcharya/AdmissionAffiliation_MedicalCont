@@ -26,6 +26,8 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICAEquipmentPreviewService _equipmentPreviewService;
         private readonly ICAVehiclePreviewService _vehiclePreviewService;
         private readonly ICAMedicalLibraryPreviewService _cALibraryService;
+        private readonly ICAAcademicPerformancePreviewService _academicPerformancePreviewService;
+        private readonly IHumanResourcesPreviewService _humanResourcesPreviewService;
         public CAPreviewService(
             ICAAcademicService academicService,
             ICAHospitalAffiliationService hospitalService,
@@ -45,6 +47,8 @@ namespace Medical_Affiliation.Services.Faculty
             ICADentalSkillsLaboratoryPreviewService skillsLabService,
             ICAVehiclePreviewService vehiclePreviewService,
             ICAMedicalLibraryPreviewService cAMedicalLibraryPreviewService,
+            ICAAcademicPerformancePreviewService cAAcademicPerformancePreviewService,
+            IHumanResourcesPreviewService humanResourcesPreviewService,
             ApplicationDbContext dbContext)
         {
             _academicService = academicService;
@@ -65,6 +69,8 @@ namespace Medical_Affiliation.Services.Faculty
             _vehiclePreviewService = vehiclePreviewService;
             _departmentOfficeMeuPreviewService = departmentOfficeMeuPreviewService;
             _cALibraryService = cAMedicalLibraryPreviewService;
+            _academicPerformancePreviewService = cAAcademicPerformancePreviewService;
+            _humanResourcesPreviewService = humanResourcesPreviewService;
             _context = dbContext;
         }
 
@@ -98,7 +104,9 @@ namespace Medical_Affiliation.Services.Faculty
                 MedicalUGBedDistributionVM = await _medicalUGBedDistributionPreviewService.GetMedicalUGBedDistributionPreviewAsync(),
                 DepartmentOfficesMeuVM = await _departmentOfficeMeuPreviewService.GetDepartmentOfficesMeuPreviewAsync(),
                 VehiclePreviewVM = await _vehiclePreviewService.GetVehiclePreviewAsync(),
-                MedicalLibraryPreviewVM = await _cALibraryService.GetMedicalLibraryPreviewAsync()
+                AcademicPerformanceDisplayVm = await _academicPerformancePreviewService.GetAcademicPerformancePreviewAsync(),
+                MedicalLibraryPreviewVM = await _cALibraryService.GetMedicalLibraryPreviewAsync(),
+                HumanResourcesVM = await _humanResourcesPreviewService.GetHumanResourcesPreviewAsync(),
 
             };
         }

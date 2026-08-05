@@ -375,7 +375,15 @@
                         </a>
                     </li>
                 }
-                
+                @if (Model.AcademicPerformanceDisplayVm != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#academic-performance-group">
+                            <i class="bi bi-mortarboard-fill"></i>
+                            Academic Performance
+                        </a>
+                    </li>
+                }
                 @if (Model.CAHospitalAFfiliationCompVM != null)
                 {
                     <li class="nav-item">
@@ -421,6 +429,8 @@
                         </a>
                     </li>
                 }
+
+
                 
                 @if (Model.HostelPreviewVM != null && FacultyCode == "2")
                 {
@@ -481,7 +491,15 @@
                         </a>
                     </li>
                 }
-
+                @if (Model.HumanResourcesVM.FacultyDetails != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#human-resources-group">
+                            <i class="bi bi-people-fill"></i>
+                            Human Resources
+                        </a>
+                    </li>
+                }
                 @if (Model.FinanceVm != null)
                 {
                     <li class="nav-item">
@@ -634,6 +652,25 @@
             <!-- Section Separator -->
             @if (Model.DentalChairDistribution != null && FacultyCode == "2")
             {
+                <div class="section-separator"></div>
+            }
+
+            @if (Model.AcademicPerformanceDisplayVm != null)
+            {
+                <div id="academic-performance-group">
+                    @await Html.PartialAsync( "AcademicPerformance/AcademicPerformance.cshtml",  Model.AcademicPerformanceDisplayVm)
+                
+                </div>
+
+                <div class="section-separator"></div>
+            }
+
+            @if (Model.HumanResourcesVM.FacultyDetails != null)
+            {
+                <div id="human-resources-group">
+                    @await Html.PartialAsync("HumanResources/HumanResources.cshtml", Model.HumanResourcesVM)
+                </div>
+
                 <div class="section-separator"></div>
             }
             @if (Model.HostelPreviewVM != null && FacultyCode == "2")
@@ -834,7 +871,7 @@
 
         // Optional: Update active tab based on scroll position
         const sections = document.querySelectorAll(
-            '#department-education-unit-group, #equipment-details-group, #dental-library-group #vehicle-details-group, #academic-section, #academic-intake-group, #hospital-section, #bed-distribution-group, #hostel-details-group, #small-group, #library-group, #vehicle-group, #den-land-building-group,#den-skills-lab-group,  #finance-group, #admin-group, #fac-group, #basic-section'
+            '#department-education-unit-group, #academic-performance-group, #human-resources-group, #equipment-details-group, #dental-library-group #vehicle-details-group, #academic-section, #academic-intake-group, #hospital-section, #bed-distribution-group, #hostel-details-group, #small-group, #library-group, #vehicle-group, #den-land-building-group,#den-skills-lab-group,  #finance-group, #admin-group, #fac-group, #basic-section'
         );
 
         window.addEventListener('scroll', function() {

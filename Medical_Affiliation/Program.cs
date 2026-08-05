@@ -144,6 +144,8 @@ builder.Services.AddScoped<ICADentalChairDistributionPreviewService, CADentalCha
 builder.Services.AddScoped<ICADentalSkillsLaboratoryPreviewService, CADentalSkillsLaboratoryPreviewService>();
 builder.Services.AddScoped<ICAEquipmentPreviewService, CAEquipmentPreviewService>();
 builder.Services.AddScoped<ICAVehiclePreviewService, CAVehiclePreviewService>();
+builder.Services.AddScoped<ICAAcademicPerformancePreviewService, CAAcademicPerformancePreviewService>();
+builder.Services.AddScoped<IHumanResourcesPreviewService, HumanResourcesPreviewService>();
 builder.Services.AddScoped<ICADepartmentOfficesMeuPreviewService, CADepartmentOfficesMeuPreviewService>();
 builder.Services.AddScoped<ICAMedicalLibraryPreviewService, CAMedicalLibraryPreviewService>();
 builder.Services.AddScoped<IInstitutionPreviewService, InstitutionPreviewService>();
