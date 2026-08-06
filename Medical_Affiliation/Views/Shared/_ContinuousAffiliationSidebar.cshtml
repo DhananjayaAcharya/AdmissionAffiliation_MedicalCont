@@ -148,7 +148,6 @@
         // new StepItem{ Key="SsCoursesOffered", Label="Affiliation – SS Courses", Group="Intake Details", Ctrl="AffiliationSS", Act="CoursesOffered", Levels = new List<string>{ "SS" } },
 
         // ---- Physical Infrastructure ----
-        new StepItem{ Key="EquipmentMaster", Label="Additional Equipment Details", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquipmentMaster" },
         new StepItem{ Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
         new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
         new StepItem{ Key="DepartmentUnits", Label="Department / Clinics / Labs", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
@@ -190,18 +189,18 @@
     // ------------------------------------------------------------------
     bool isDental = facultyCode == "2";
 
-    // Classroom & Laboratory (placed relative to "EquipmentMaster")
-    var skillsIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+    // Classroom & Laboratory (placed relative to the first physical step)
+    var skillsIndex = allSteps.FindIndex(x => x.Key == "ClinicalFacilities");
     if (skillsIndex < 0) skillsIndex = allSteps.Count;
 
     allSteps.Insert(skillsIndex, isDental
         ? new StepItem { Key = "DentalSkillsLab", Label = "Classroom & Laboratory", Group = "Physical Infrastructure", Ctrl = "PhysicalInfrastructure", Act = "DentalSkillsLaboratory" }
         : new StepItem { Key = "SkillsLab", Label = "Classroom & Laboratory", Group = "Physical Infrastructure", Ctrl = "Medical_ContinuousAffiliation", Act = "Medical_SkillsLaboratory" });
 
-    // Vehicle Details — inserted right after Equipment for Dental, appended at the end otherwise
+    // Vehicle Details — inserted right after the equipment-related step for Dental, appended at the end otherwise
     if (isDental)
     {
-        var vehicleIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+        var vehicleIndex = allSteps.FindIndex(x => x.Key == "EquipmentDetails");
         if (vehicleIndex >= 0)
         {
             allSteps.Insert(vehicleIndex + 1, new StepItem { Key = "Vehicle", Label = "Vehicle Details", Group = "Physical Infrastructure", Ctrl = "Aff_AHS_ContinousApplication", Act = "CA_VehicleDetails" });
@@ -229,7 +228,7 @@
         : new StepItem { Key = "TeachingStaff", Label = "Teaching Staff Dept Wise", Group = "Human Resources", Ctrl = "ContinuesAffiliation_Facultybased", Act = "TeachingStaffDepartmentWise" });
 
     // Equipment Details / Equipment List
-    var equipmentIndex = allSteps.FindIndex(x => x.Key == "EquipmentMaster");
+    var equipmentIndex = allSteps.FindIndex(x => x.Key == "ClinicalFacilities");
     if (equipmentIndex < 0) equipmentIndex = allSteps.Count;
 
     allSteps.Insert(equipmentIndex, isDental
@@ -375,7 +374,7 @@
         {
             "ClinicalFacilities", "LandBuilding", "DentalSkillsLab", "ChairDistribution",
             "BedDistribution", "Hostel", "DepartmentUnits", "DentalEquipmentDetails",
-            "EquipmentMaster", "Vehicle"
+            "Vehicle"
         };
 
         var physicalSteps = allSteps.Where(x => x.Group == "Physical Infrastructure").ToList();

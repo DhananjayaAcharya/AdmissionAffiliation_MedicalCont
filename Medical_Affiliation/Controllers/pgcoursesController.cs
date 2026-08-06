@@ -453,6 +453,8 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
+        //POST: POSSIBLE ALL DATA STORES 
+
         // POST: SummaryDetails
         [HttpPost]
         [ValidateAntiForgeryToken]

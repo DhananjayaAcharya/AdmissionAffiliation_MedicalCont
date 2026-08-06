@@ -63,6 +63,8 @@ public class Aff_MedicalController : Controller
 
         if (existingEntity != null)
         {
+
+            //untiled data approch
             model.TrustSocietyName = existingEntity.TrustSocietyName;
             model.YearOfEstablishmentOfTrust = existingEntity.YearOfEstablishmentOfTrust;
             model.YearOfEstablishmentOfCollege = existingEntity.YearOfEstablishmentOfCollege;
@@ -91,39 +93,7 @@ public class Aff_MedicalController : Controller
         if (string.IsNullOrEmpty(facultyCodeString))
             return RedirectToAction("Login", "Account");
 
-        //if (!ModelState.IsValid)
-        //{
-        //    model.PGCourses = _context.MstCourses
-        //        .Where(c =>  c.FacultyCode.ToString() == facultyCodeString )
-        //        .Select(c => new SelectListItem
-        //        {
-        //            Value = c.CourseCode.ToString(),
-        //            Text = c.CourseName
-        //        }).ToList();
-
-        //    model.DegreeList = _context.MstCourses
-        //            .Where(c => c.FacultyCode.ToString() == facultyCodeString)
-        //            .Select(c => c.CourseLevel)   // select just the property you care about
-        //            .Distinct()                   // distinct now works as intended
-        //            .OrderBy(level => level)
-        //            .Select(level => new SelectListItem
-        //            {
-        //                Value = level.ToString(),
-        //                Text = level.ToString()
-        //            })
-        //            .ToList();
-
-        //    model.SpecializationList = _context.MstCourses
-        //        .Where(c => c.FacultyCode.ToString() == facultyCodeString)
-        //        .OrderBy(c => c.CourseName)
-        //        .Select(c => new SelectListItem
-        //        {
-        //            Value = c.CourseCode.ToString(),
-        //            Text = c.CourseName
-        //        }).ToList();
-
-        //    return View(model);
-        //}
+  
 
         var existingEntity = _context.MedicalInstituteDetails
             .FirstOrDefault(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCodeString);
