@@ -535,93 +535,7 @@ namespace Medical_Affiliation.Controllers
 
 
 
-        [HttpGet]
-        public async Task<IActionResult> Medical_EquipmentMaster()
-        {
-            var facultyId = Convert.ToInt32(FacultyCode);
-
-            var model = new EquipmentMasterViewModel
-            {
-                Departments = await _context.DepartmentMasters
-                    .Where(d => d.FacultyCode == facultyId)
-                    .Select(d => new SelectListItem
-                    {
-                        Value = d.DepartmentCode,
-                        Text = d.DepartmentName
-                    }).ToListAsync()
-            };
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Medical_EquipmentMaster(EquipmentMasterViewModel model)
-        {
-            var facultyId = Convert.ToInt32(FacultyCode);
-
-            // 🔁 Reload dropdown (MANDATORY)
-            model.Departments = await _context.DepartmentMasters
-                .Where(d => d.FacultyCode == facultyId)
-                .Select(d => new SelectListItem
-                {
-                    Value = d.DepartmentCode,
-                    Text = d.DepartmentName
-                }).ToListAsync();
-
-            if (!ModelState.IsValid)
-                return View(model);
-
-            // 🔍 1️⃣ Get Department details (for Subjects)
-            var department = await _context.DepartmentMasters
-                .FirstOrDefaultAsync(d =>
-                    d.DepartmentCode == model.DepartmentCode &&
-                    d.FacultyCode == facultyId);
-
-            if (department == null)
-            {
-                ModelState.AddModelError("", "Invalid Department selected");
-                return View(model);
-            }
-
-            // 🔢 2️⃣ Generate EquipmentID manually (since DB not identity)
-            int nextId = 1;
-
-            if (await _context.MstLaboratoryEquipmentDetails.AnyAsync())
-            {
-                nextId = await _context.MstLaboratoryEquipmentDetails
-                    .MaxAsync(x => x.EquipmentId) + 1;
-            }
-
-            // 🚫 3️⃣ Prevent duplicate (IMPORTANT)
-            bool exists = await _context.MstLaboratoryEquipmentDetails
-                .AnyAsync(x =>
-                    x.CourseCode == model.DepartmentCode &&
-                    x.EquipmentName == model.EquipmentName);
-
-            if (exists)
-            {
-                ModelState.AddModelError("", "Equipment already exists for this department");
-                return View(model);
-            }
-
-            // 💾 4️⃣ Save entity
-            var entity = new MstLaboratoryEquipmentDetail
-            {
-                EquipmentId = nextId,                         // ✅ manual ID
-                EquipmentName = model.EquipmentName,
-                CourseCode = model.DepartmentCode,
-                FacultyId = facultyId,
-                Subjects = department.DepartmentName          // ✅ save department name
-            };
-
-            _context.MstLaboratoryEquipmentDetails.Add(entity);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Equipment added successfully";
-
-            return RedirectToAction(nameof(Medical_EquipmentMaster));
-        }
+      
 
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
@@ -1031,32 +945,32 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> Medical_EquimentDetails(string departmentCode)
         {
-            // var facultyCodeStr = HttpContext.Session.GetString("FacultyCode") ?? "1";
             var collegeCode = CollegeCode;
             var facultyCodeStr = FacultyCode;
+
             int facultyCode = Convert.ToInt32(facultyCodeStr);
 
             var model = new EquipmentAvailabilityViewModel();
 
-            // 1️⃣ Load Department dropdown (Faculty-wise)
+            // 1. Load only departments where DepartmentFilter = Y
             model.Courses = await _context.DepartmentMasters
-                .Where(d => d.FacultyCode == facultyCode)
+                .Where(d =>
+                    d.FacultyCode == facultyCode &&
+                    d.DepartmentFilter == "Y")
                 .Select(d => new SelectListItem
                 {
-                    Value = d.DepartmentCode,    // MD001
-                    Text = d.DepartmentName      // Anatomy
+                    Value = d.DepartmentCode,
+                    Text = d.DepartmentName
                 })
                 .OrderBy(x => x.Text)
                 .ToListAsync();
 
 
-            // 2️⃣ Load equipment if department selected
+            // 2. Load equipment if department selected
             if (!string.IsNullOrEmpty(departmentCode))
             {
-
                 model.SelectedDepartmentCode = departmentCode;
 
-                // ✅ Load equipment list
                 var equipments = await _context.MstLaboratoryEquipmentDetails
                     .Where(e =>
                         e.CourseCode == departmentCode &&
@@ -1064,7 +978,7 @@ namespace Medical_Affiliation.Controllers
                     .OrderBy(e => e.EquipmentId)
                     .ToListAsync();
 
-                // ✅ Load availability ONCE (Fix N+1)
+                // Load availability once
                 var availabilityList = await _context.TblMedicalEquipmentAvailabilities
                     .Where(a =>
                         a.FacultyId == facultyCode &&
@@ -1127,6 +1041,18 @@ namespace Medical_Affiliation.Controllers
             }
 
             string departmentCode = model.SelectedDepartmentCode; // MD001
+
+            var validDepartment = await _context.DepartmentMasters
+            .AnyAsync(d =>
+                d.DepartmentCode == departmentCode &&
+                d.FacultyCode == facultyId &&
+                d.DepartmentFilter == "Y");
+
+            if (!validDepartment)
+            {
+                TempData["Error"] = "Invalid department selected.";
+                return RedirectToAction(nameof(Medical_EquimentDetails));
+            }
 
             var existingList = await _context.TblMedicalEquipmentAvailabilities
                 .Where(x =>
