@@ -966,15 +966,3 @@
 
     });
 </script>
-@if (TempData["Info"] != null)
-{
-    <script>
-        Swal.fire({ icon: 'success', title: 'Saved Successfully!', text: '@TempData["Info"]', timer: 5000, timerProgressBar: true });
-    </script>
-}
-@if (TempData["Error"] != null)
-{
-    <script>
-        Swal.fire({ icon: 'error', title: 'Validation Error', text: '@TempData["Error"]' });
-    </script>
-}

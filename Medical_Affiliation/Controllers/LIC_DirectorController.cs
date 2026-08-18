@@ -340,7 +340,7 @@ namespace Medical_Affiliation.Controllers
                 TotalClaim = claims.Sum(x => x.TotalCost ?? 0),
                 DateMismatchFlag = false,
 
-            };
+            }; 
         }
 
         // ── ApproveCollege ────────────────────────────────────────────────────

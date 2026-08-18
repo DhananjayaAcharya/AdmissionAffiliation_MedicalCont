@@ -47,8 +47,6 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-
-
         // ════════════════════════════════════════════════════════════
         //  POST
         // ════════════════════════════════════════════════════════════
@@ -69,7 +67,6 @@ namespace Medical_Affiliation.Controllers
 
             if (!int.TryParse(facultyCode, out int facultyId))
                 return BadRequest("Invalid faculty code");
-
             try
             {
                 // ── 1. Collect all submitted rows ──────────────────────────────
