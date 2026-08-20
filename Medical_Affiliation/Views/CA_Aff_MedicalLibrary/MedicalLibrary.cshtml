@@ -628,16 +628,16 @@
                                 <label>2. Is there a stable LAN / Internet connection for library use?</label>
                                 <select class="form-control w-25" asp-for="OtherDetails.HasStableInternet">
                                     <option value="">--Select--</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
+                                    <option value="Yes" selected="@(string.Equals(Model.OtherDetails?.HasStableInternet?.Trim(), "Yes", StringComparison.OrdinalIgnoreCase) ? "selected" : null)">Yes</option>
+                                    <option value="No" selected="@(string.Equals(Model.OtherDetails?.HasStableInternet?.Trim(), "No", StringComparison.OrdinalIgnoreCase) ? "selected" : null)">No</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label>3. Is there a CCTV Camera system in the library?</label>
                                 <select class="form-control w-25" asp-for="OtherDetails.HasCccameraSystem">
                                     <option value="">--Select--</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
+                                    <option value="Yes" selected="@(string.Equals(Model.OtherDetails?.HasCccameraSystem?.Trim(), "Yes", StringComparison.OrdinalIgnoreCase) ? "selected" : null)">Yes</option>
+                                    <option value="No" selected="@(string.Equals(Model.OtherDetails?.HasCccameraSystem?.Trim(), "No", StringComparison.OrdinalIgnoreCase) ? "selected" : null)">No</option>
                                 </select>
                             </div>
                         </div>

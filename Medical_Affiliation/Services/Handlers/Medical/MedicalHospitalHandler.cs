@@ -89,7 +89,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             {
                 RequirementId = m.Id,
                 RequirementName = m.RequirementName,
-                IsAvailable = existing.Any(e => e.RequirementId == m.Id)
+                IsAvailable = existing.FirstOrDefault(e => e.RequirementId == m.Id)?.IsCompliant ?? false
             }).ToList();
         }
 
