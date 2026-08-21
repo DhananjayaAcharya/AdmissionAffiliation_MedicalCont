@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Runtime.InteropServices;
 
 namespace Medical_Affiliation.Controllers
@@ -1331,6 +1332,116 @@ namespace Medical_Affiliation.Controllers
                     }
 
                     entity.TotalExperience = totalExp;
+                }
+            }
+
+            if (vm.FacultyDetailId > 0 || vm.NameOfFaculty!="")
+            {
+                var facultyDetail =
+                    await _context.FacultyDetails
+                        .FirstOrDefaultAsync(x =>
+                            x.Id == vm.FacultyDetailId || x.NameOfFaculty == vm.NameOfFaculty);
+
+                if (facultyDetail != null)
+                {
+                    // =====================================
+                    // NO EXPERIENCE ROWS
+                    // Delete FacultyDetail
+                    // =====================================
+
+                    var hasExperienceRows =
+                        vm.Departments
+                            .SelectMany(d => d.Experiences)
+                            .Any();
+
+                    if (!hasExperienceRows)
+                    {
+                        _context.FacultyDetails
+                            .Remove(facultyDetail);
+                    }
+                    else
+                    {
+                        // =================================
+                        // EXPERIENCE EXISTS
+                        // Update FacultyDetail
+                        // =================================
+
+                        facultyDetail.NameOfFaculty =
+                            vm.NameOfFaculty;
+
+                        facultyDetail.CollegeCode =
+                            collegeCode;
+
+                        facultyDetail.FacultyCode =
+                            facultyCode;
+
+                        // Department
+                        var departments =
+                            vm.Departments
+                                .Select(d => d.DepartmentCode)
+                                .Where(x =>
+                                    !string.IsNullOrWhiteSpace(x))
+                                .Distinct()
+                                .ToList();
+
+                        facultyDetail.DepartmentDetails =
+                            string.Join(",", departments);
+
+
+                        // Designation
+                        var designation =
+                            vm.Departments
+                                .SelectMany(d => d.Experiences)
+                                .Select(x => x.DesignationName)
+                                .FirstOrDefault(x =>
+                                    !string.IsNullOrWhiteSpace(x));
+
+                        if (!string.IsNullOrWhiteSpace(designation))
+                        {
+                            facultyDetail.Designation =
+                                designation;
+                        }
+
+
+                        // From
+                        var fromDates =
+                            vm.Departments
+                                .SelectMany(d => d.Experiences)
+                                .Where(x => x.FromDate.HasValue)
+                                .Select(x => x.FromDate!.Value)
+                                .ToList();
+
+                        if (fromDates.Any())
+                        {
+                            facultyDetail.From =
+                                DateOnly.FromDateTime(
+                                    fromDates.Min());
+                        }
+                        else
+                        {
+                            facultyDetail.From = null;
+                        }
+
+
+                        // To
+                        var toDates =
+                            vm.Departments
+                                .SelectMany(d => d.Experiences)
+                                .Where(x => x.ToDate.HasValue)
+                                .Select(x => x.ToDate!.Value)
+                                .ToList();
+
+                        if (toDates.Any())
+                        {
+                            facultyDetail.To =
+                                DateOnly.FromDateTime(
+                                    toDates.Max());
+                        }
+                        else
+                        {
+                            facultyDetail.To = null;
+                        }
+                    }
                 }
             }
 

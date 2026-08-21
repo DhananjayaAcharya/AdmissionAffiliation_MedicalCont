@@ -66,7 +66,7 @@ namespace Medical_Affiliation.Services.Faculty
 
             var firstHospitalType = await _context.MstHospitalTypes
                         .AsNoTracking()
-                        .Where(x => x.Id == firstHospital.AffiliationTypeId)
+                        .Where(x => x.Id.ToString() == firstHospital.HospitalType)
                         .Select(x => x.HospitalType)
                         .FirstOrDefaultAsync();
 

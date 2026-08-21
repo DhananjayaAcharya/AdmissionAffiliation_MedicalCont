@@ -1,0 +1,255 @@
+﻿@model InstituionBasicDetailsDisplayVM
+
+<div class="general-body">
+
+    <div class="section-block">
+
+        <div class="section-header-block mb-3">
+
+            <div class="section-title-text department-badge">
+
+                <i class="bi bi-building"></i>
+
+                Institution Details
+
+            </div>
+
+        </div>
+
+
+        @if (Model?.InstitutionDetails != null)
+        {
+            var institution = Model.InstitutionDetails;
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table align-middle">
+
+                    <tbody>
+
+                        <tr>
+                            <th>Name of Institution</th>
+                            <td>
+                                @institution.NameOfInstitution
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Type of Institution</th>
+                            <td>
+                                @institution.TypeOfInstitution
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Year of Establishment</th>
+                            <td>
+                                @(DateTime.TryParse(institution.YearOfEstablishment, out var establishmentDate)
+                                    ? establishmentDate.ToString("dd MMMM yyyy")
+                                    : institution.YearOfEstablishment)
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Running Course</th>
+                            <td>
+                                @institution.RunningCourse
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Course Level</th>
+                            <td>
+                                @institution.CourseLevel
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Status of College</th>
+                            <td>
+                                @institution.StatusOfCollege
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Financing Authority</th>
+                            <td>
+                                @institution.FinancingAuthority
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Minority Category</th>
+                            <td>
+                                @institution.MinorityCategory
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Minority Institution</th>
+                            <td>
+                                @(institution.MinorityInstitute ? "Yes" : "No")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Attached to Medical College</th>
+                            <td>
+                                @(institution.AttachedToMedicalClg ? "Yes" : "No")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Rural Institution</th>
+                            <td>
+                                @(institution.RuralInstitute ? "Yes" : "No")
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="section-header-block mb-3 mt-4">
+
+                <div class="section-title-text department-badge">
+
+                    <i class="bi bi-geo-alt"></i>
+
+                    Location & Contact
+
+                </div>
+
+            </div>
+
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table align-middle">
+
+                    <tbody>
+
+                        <tr>
+                            <th>Address</th>
+                            <td>
+                                @institution.Address
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Village / Town / City</th>
+                            <td>
+                                @institution.VillageTownCity
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>District</th>
+                            <td>
+                                @institution.District
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Taluk</th>
+                            <td>
+                                @institution.Taluk
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>PIN Code</th>
+                            <td>
+                                @institution.PinCode
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>STD Code</th>
+                            <td>
+                                @institution.StdCode
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Mobile Number</th>
+                            <td>
+                                @institution.MobileNumber
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Alternate / Landline</th>
+                            <td>
+                                @institution.AltLandlineMobile
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Fax</th>
+                            <td>
+                                @institution.Fax
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Email</th>
+                            <td>
+                                @institution.EmailId
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Alternate Email</th>
+                            <td>
+                                @institution.AltEmailId
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Website</th>
+                            <td>
+                                @institution.Website
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>College URL</th>
+                            <td>
+                                @institution.College_URL
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Survey No / PID No</th>
+                            <td>
+                                @institution.SurveyNoPidNo
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        }
+        else
+        {
+            <div class="empty-state">
+
+                <i class="bi bi-inbox"></i>
+
+                <p>
+                    No institution details available.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>

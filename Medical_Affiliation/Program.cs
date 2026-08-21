@@ -149,6 +149,10 @@ builder.Services.AddScoped<IHumanResourcesPreviewService, HumanResourcesPreviewS
 builder.Services.AddScoped<ICADepartmentOfficesMeuPreviewService, CADepartmentOfficesMeuPreviewService>();
 builder.Services.AddScoped<ICAMedicalLibraryPreviewService, CAMedicalLibraryPreviewService>();
 builder.Services.AddScoped<IInstitutionPreviewService, InstitutionPreviewService>();
+builder.Services.AddScoped<ICATrustDetailsService, CATrustDetailsService>();
+builder.Services.AddScoped<ICATrustMemberDetailsPreviewService, CATrustMemberDetailsPreviewService>();
+builder.Services.AddScoped<IUGPgIntakeDetailsService, UGPgIntakeDetailsService>();
+builder.Services.AddScoped<ITeachingFacultyDetailsService, TeachingFacultyDetailsService>();
 builder.Services.AddScoped<ICAHostelPreviewService, CAHostelPreviewService>();
 
 

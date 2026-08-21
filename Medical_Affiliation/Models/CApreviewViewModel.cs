@@ -14,6 +14,13 @@ namespace Medical_Affiliation.Models
         public DentalCollegeLandBuildingViewModel? DentalLandBuildingPreview { get; set; }
         public MedicalUGBedDistributionVM? MedicalUGBedDistributionVM { get; set; }
 
+        public CATrustMemberDetailsDisplayVM? TrustMemberDetailsVM { get; set; }
+
+        public CATrustDetailsDisplayVM? TrustDetailsVM { get; set; }
+
+        public TeachingFacultyDetailsPreviewViewModel? TeachingFacultyDetailsVM { get; set; }
+
+
         public AffHostelPreviewViewModel? HostelPreviewVM { get; set; }
 
         public SkillsLabViewModel? DentalSkillsLaboratoryVM { get; set; }
@@ -43,6 +50,13 @@ namespace Medical_Affiliation.Models
         public AdminTeachAndHostelDisplayVM AdminTeachAndHostelVM { get; set; }
         public FacultyDesigNonTeachDisplayVM FacultyDesigNonTeachDisplayVM { get; set; }
         public AffiliationPaymentViewModel PaymentVM { get; set; }
+
+        // ==========================================
+        // UG / PG COURSE DETAILS
+        // ==========================================
+
+        public UGPgIntakeDetailsPreviewViewModel? UGPgIntakeDetailsVM { get; set; }
+
         public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
         //public
 
@@ -388,6 +402,8 @@ namespace Medical_Affiliation.Models
 
     public class MedicalLibraryPreviewVM
     {
+
+        public int facultyCode { get; set; }
         // Section 1
         public List<LibraryServicePreviewVM> LibraryServices { get; set; } = new();
 
@@ -1650,8 +1666,10 @@ namespace Medical_Affiliation.Models
 
         public AffiliationCourseDetailDisplayVM AffiliationCourseDetailVM { get; set; }
 
-        public AffDeanOrDirectorDetailDisplayVM DeanOrDirectorDetailDisplayVM { get; set; }
-        public AffPrincipalDetailDisplayVM PrincipalDetailDisplayVM { get; set; }
+        public InstitutionViewModel DeanOrDirectorDetailDisplayVM { get; set; }
+        public InstitutionViewModel PrincipalDetailDisplayVM { get; set; }
+
+        public InstitutionViewModel InstitutionDetails { get; set; }
     }
 
     public class ContinuationTrustMemberListDisplayViewModel
@@ -1868,6 +1886,8 @@ namespace Medical_Affiliation.Models
         public string FacultyCode { get; set; }
         public string? CollegeName { get; set; }
         public int FacultyId { get; set; }
+
+        public List<string> SortedCourseLevels { get; set; } = new();
         public List<IntakeByLevelViewModel1> UgCourses { get; set; } = new();
         public List<IntakeByLevelViewModel1> PgCourses { get; set; } = new();
         public List<IntakeByLevelViewModel1> SsCourses { get; set; } = new();

@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -35,11 +36,62 @@ public class PreviewReportPdf : IDocument
 
                 col.Item().PaddingVertical(10).Text($"Institution Name: {_model.CollegeName}");
 
+                //--- Institution Basic details - TrustMemberDetails ---
+                AddInstitutionBasicDetailsSection(col);
+
+                // --- HEAD OF INSTITUTION DETAILS ---
+                AddHeadOfInstitutionSection(col);
+
+                // ---Institution Basic details PRINCIPAL DETAILS ---
+                AddPrincipalSection(col);
+
+                // --- Institution Basic details DEAN / DIRECTOR DETAILS ---
+                AddDeanOrDirectorSection(col);
+
+
+                // --- NODAL OFFICER DETAILS ---
+                AddNodalOfficerSection(col);
+
+                // --- TRUST / MANAGEMENT DETAILS ---
+                AddTrustManagementSection(col);
+
+                //--- Institution Trust Institution details - TrustInstitutionDetails ---
+                AddTrustInstitutionDetailsSection(col);
+
                 //--- Institution Trust member details - TrustMemberDetails ---
                 AddTrustMembersSection(col);
 
+                // --- ACADEMIC INTAKE ---
+                AddAcademicIntakeSection(col);
+
+                // --- TEACHING FACULTY DETAILS ---
+                AddTeachingFacultyDetailsSection(col);
+
                 //--- AFFILIATED SANCTIONED INTAKE - Aff_SanctionedIntakeForCourse ---
                 AddSanctionedIntakeSection(col);
+
+
+                // --- HOSPITAL AFFILIATION ---
+                AddHospitalAffiliationSection(col);
+
+                AddDentalLandBuildingSection(col);
+
+                AddClassroomAndSkillsLaboratorySection(col);
+
+                // --- DENTAL CHAIR DISTRIBUTION ---
+                AddDentalChairDistributionSection(col);
+
+                // --- BED DISTRIBUTION ---
+                AddMedicalUGBedDistributionSection(col);
+
+                if(_model.FacultyCode == "2")
+                {
+                    AddDepartmentOfficesAndDeuSection(col);
+
+                    AddEquipmentListSection(col);
+
+                    AddMedicalLibrarySection(col);
+                }
 
                 //--- COURSE DETAILS - AFF_CourseDetails ---
                 AddAffiliatedCoursesSection(col);
@@ -53,25 +105,25 @@ public class PreviewReportPdf : IDocument
                 //-- SKILLS LAB EQUIPMENT
                 AddSkillsLabEquipmentSection(col);
 
-                //-- STUDENT PRACTICAL LABORATORIES ---
-                AddStudentPracticalLabsSection(col);
+                if(_model.FacultyCode == "1")
+                {
+                    //-- STUDENT PRACTICAL LABORATORIES ---
+                    AddStudentPracticalLabsSection(col);
+
+                    //--MUSEUMS ---
+                    AddMuseumsSection(col);
+
+                    // --- Department MEU ---
+                    AddDepartmentOfficesAndMeuSection(col);
 
 
-                //--MUSEUMS ---
-                AddMuseumsSection(col);
+                    //--- SKILL LAB SECTION ----
+                    AddSkillsLabSection(col);
 
-                // --- Department MEU ---
-                AddDepartmentOfficesAndMeuSection(col);
-
-
-                //--- SKILL LAB SECTION ----
-                AddSkillsLabSection(col);
-
-                // --- LAB EQUIPMENT
-                AddLaboratoryEquipmentSection(col);
-
-                // -- end of chandans code ---
-
+                    // --- LAB EQUIPMENT
+                    AddLaboratoryEquipmentSection(col);
+                    // -- end of chandans code ---
+                }
 
 
                 //--- 3. RESEARCH AND PUBLICATIONS ---
@@ -153,8 +205,6 @@ public class PreviewReportPdf : IDocument
 
                 // -- END OF ADMINISTRATIVE DETAILS ---
 
-                // --- HOSPITAL AFFILIATION ---
-                AddHospitalAffiliationSection(col);
 
                 // --- SECTIONS -----------
                 AddDepartmentSections(col);
@@ -177,10 +227,10 @@ public class PreviewReportPdf : IDocument
 
 
                 //--- DEAN / DIRECOTR DETAILS ---
-                AddDeanOrDirectorSection(col);
+                //AddDeanOrDirectorSection(col);
 
-                //--- PRINCIPAL DETAILS ---
-                AddPrincipalSection(col);
+                ////--- PRINCIPAL DETAILS ---
+                //AddPrincipalSection(col);
 
                 AddPaymentSection(col);
 
@@ -245,38 +295,1250 @@ public class PreviewReportPdf : IDocument
         col.Item().PaddingVertical(4).LineHorizontal(1).LineColor(Colors.Black);
     }
 
-    private void AddTrustMembersSection(ColumnDescriptor col)
+    private void AddInstitutionBasicDetailsSection(ColumnDescriptor col)
     {
-        if (_model?.InstitutionBasicVM?.TrustMemberVM?.Items == null ||
-        !_model.InstitutionBasicVM.TrustMemberVM.Items.Any())
-            return;
+        var institution = _model?.InstitutionBasicVM?.InstitutionDetails;
 
-        var members = _model.InstitutionBasicVM.TrustMemberVM;
-
-        if (members == null || members.Items == null || !members.Items.Any())
+        if (institution == null)
             return;
 
         AddMainHeading(col, "Institution Basic Details");
+
+        // --------------------------------------------------
+        // BASIC INFORMATION
+        // --------------------------------------------------
+
+        AddSubHeading(col, "Basic Information", 78);
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3); // Label
+                    columns.RelativeColumn(2); // Value
+                });
+
+                AddTextRow( table, "Name of Institution", institution.NameOfInstitution);
+                AddTextRow( table, "Year of Establishment", institution.YearOfEstablishment);
+                AddTextRow( table, "Type of Institution", institution.TypeOfInstitution);
+                AddTextRow( table, "Running Course", institution.RunningCourse);
+                AddTextRow( table, "Course Level", institution.CourseLevel);
+                AddTextRow( table,"Status of College", institution.StatusOfCollege);
+                AddTextRow( table, "Financing Authority", institution.FinancingAuthority);
+                AddTextRow( table,"Minority Category", institution.MinorityCategory);
+                AddTextRow( table, "Minority Institution", institution.MinorityInstitute ? "Yes" : "No");
+                AddTextRow( table, "Attached to Medical College", institution.AttachedToMedicalClg ? "Yes" : "No");
+                AddTextRow( table, "Rural Institution", institution.RuralInstitute ? "Yes" : "No");
+            });
+
+
+        // --------------------------------------------------
+        // COLLEGE LOCATION & CONTACT
+        // --------------------------------------------------
+
+        AddSubHeading(col, "College Location & Contact", 78);
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3); // Label
+                    columns.RelativeColumn(2); // Value
+                });
+
+                AddTextRow( table, "Address", institution.Address);
+                AddTextRow( table, "Village / Town / City", institution.VillageTownCity);
+                AddTextRow( table, "District", institution.District);
+                AddTextRow( table, "Taluk", institution.Taluk);
+                AddTextRow( table, "PIN Code", institution.PinCode);
+                AddTextRow( table, "STD Code", institution.StdCode ?? "—");
+                AddTextRow( table, "Mobile Number", institution.MobileNumber);
+                AddTextRow( table, "Alternate / Landline", institution.AltLandlineMobile ?? "—");
+                AddTextRow( table, "Fax", institution.Fax ?? "—");
+                AddTextRow( table, "College Email", institution.EmailId);
+                AddTextRow( table, "Alternate Email", institution.AltEmailId ?? "—");
+                AddTextRow( table, "Website", institution.Website ?? "—");
+                AddTextRow( table,  "College URL", institution.College_URL ?? "—");
+                AddTextRow( table, "Survey No / PID No",institution.SurveyNoPidNo ?? "—");
+            });
+
+
+        // --------------------------------------------------
+        // GOVERNMENT AUTONOMOUS DETAILS
+        // --------------------------------------------------
+
+        if (!string.IsNullOrWhiteSpace(institution.GovAutonomousCertNumber))
+        {
+            AddSubHeading(col, "Government Autonomous Details", 78);
+
+            col.Item()
+                .PaddingTop(8)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(2);
+                    });
+
+                    AddTextRow( table,"Gov Autonomous Certificate Number",  institution.GovAutonomousCertNumber);
+                });
+        }
+    }
+
+
+    private void AddTrustManagementSection(ColumnDescriptor col)
+    {
+        var institution = _model?.InstitutionBasicVM?.InstitutionDetails;
+
+        if (institution == null)
+            return;
+
+        // Don't show the section if there is no trust/management data
+        if (string.IsNullOrWhiteSpace(institution.TrustName) &&
+            string.IsNullOrWhiteSpace(institution.TrustAddress) &&
+            !institution.TrustEstablishmentDate.HasValue &&
+            string.IsNullOrWhiteSpace(institution.TrustPresidentName) &&
+            string.IsNullOrWhiteSpace(institution.TrustPresidentContactNo))
+        {
+            return;
+        }
+
+        AddMainHeading(col, "Trust Institution Details");
+
+        AddSubHeading(col, "Trust / Management Details");
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow( table, "Trust Name", institution.TrustName ?? "—");
+                AddTextRow( table, "Establishment Date", institution.TrustEstablishmentDate.HasValue ? institution.TrustEstablishmentDate.Value.ToString("dd-MM-yyyy") : "—");
+                AddTextRow( table, "President Name", institution.TrustPresidentName ?? "—");
+                AddTextRow( table, "President Contact", institution.TrustPresidentContactNo ?? "—");
+                AddTextRow( table, "Trust Address", institution.TrustAddress ?? "—");
+            });
+    }
+
+    private void AddNodalOfficerSection(ColumnDescriptor col)
+    {
+        var institution = _model?.InstitutionBasicVM?.InstitutionDetails;
+
+        if (institution == null)
+            return;
+
+        // Don't show empty section
+        if (string.IsNullOrWhiteSpace(institution.NodalOfficer_Name) &&
+            string.IsNullOrWhiteSpace(institution.NodalOfficer_Mob_Number) &&
+            string.IsNullOrWhiteSpace(institution.NodalOfficer_Email))
+        {
+            return;
+        }
+
+        AddSubHeading(col, "Nodal Officer & Academic Info");
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow( table, "Nodal Officer Name", institution.NodalOfficer_Name ?? "—");
+                AddTextRow( table, "Nodal Officer Mobile", institution.NodalOfficer_Mob_Number ?? "—");
+                AddTextRow( table, "Nodal Officer Email", institution.NodalOfficer_Email ?? "—");
+            });
+    }
+
+    private void AddTrustMembersSection(ColumnDescriptor col)
+    {
+        var members = _model?.InstitutionBasicVM?.TrustMemberVM;
+
+        if (members?.Items == null || !members.Items.Any())
+            return;
+
         AddSubHeading(col, "Trust Members", 78);
 
-        col.Item().PaddingTop(8).Table(table =>
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3); // Label
+                    columns.RelativeColumn(4); // Value
+                });
+
+                int memberNumber = 1;
+
+                foreach (var member in members.Items)
+                {
+                    // =========================
+                    // Member Heading
+                    // =========================
+
+                    table.Cell()
+                        .ColumnSpan(2)
+                        .PaddingTop(memberNumber == 1 ? 0 : 10)
+                        .PaddingBottom(5)
+                        .Text($"Trust Member {memberNumber}")
+                        .Bold()
+                        .FontSize(10);
+
+                    // =========================
+                    // Member Details
+                    // =========================
+
+                    AddTextRow(
+                        table,
+                        "Name",
+                        string.IsNullOrWhiteSpace(member.TrustMemberName)
+                            ? "—"
+                            : member.TrustMemberName);
+
+                    AddTextRow(
+                        table,
+                        "Designation",
+                        string.IsNullOrWhiteSpace(member.Designation)
+                            ? "—"
+                            : member.Designation);
+
+                    AddTextRow(
+                        table,
+                        "Qualification",
+                        string.IsNullOrWhiteSpace(member.Qualification)
+                            ? "—"
+                            : member.Qualification);
+
+                    AddTextRow(
+                        table,
+                        "Mobile",
+                        string.IsNullOrWhiteSpace(member.MobileDisplay)
+                            ? "—"
+                            : member.MobileDisplay);
+
+                    AddTextRow(
+                        table,
+                        "Age",
+                        member.Age?.ToString() ?? "—");
+
+                    AddTextRow(
+                        table,
+                        "Joining Date",
+                        string.IsNullOrWhiteSpace(member.JoiningDateDisplay)
+                            ? "—"
+                            : member.JoiningDateDisplay);
+
+                    memberNumber++;
+                }
+            });
+    }
+
+    private void AddTeachingFacultyDetailsSection(ColumnDescriptor col)
+    {
+        var teachingFaculty = _model?.TeachingFacultyDetailsVM;
+
+        if (teachingFaculty == null ||
+            teachingFaculty.FacultyDetails == null ||
+            !teachingFaculty.FacultyDetails.Any())
+            return;
+
+        AddMainHeading(col, "Teaching Faculty Details");
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2); // Department
+                    columns.RelativeColumn(2); // Designation
+                    columns.RelativeColumn(1); // Required
+                    columns.RelativeColumn(1); // Available
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Department")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Designation")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Required Faculty")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Available Faculty")
+                        .Bold();
+                });
+
+                foreach (var item in teachingFaculty.FacultyDetails)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(string.IsNullOrWhiteSpace(item.DepartmentName)
+                            ? "—"
+                            : item.DepartmentName);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(string.IsNullOrWhiteSpace(item.DesignationName)
+                            ? "—"
+                            : item.DesignationName);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(string.IsNullOrWhiteSpace(item.RequiredFaculty)
+                            ? "0"
+                            : item.RequiredFaculty);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(string.IsNullOrWhiteSpace(item.AvailableFaculty)
+                            ? "0"
+                            : item.AvailableFaculty);
+                }
+            });
+    }
+
+
+    string FormatValue(object? value)
+    {
+        if (value == null)
+            return "—";
+
+        if (value is decimal decimalValue)
+            return decimalValue.ToString("0.##");
+
+        if (value is double doubleValue)
+            return doubleValue.ToString("0.##");
+
+        if (value is float floatValue)
+            return floatValue.ToString("0.##");
+
+        return value.ToString() ?? "—";
+    }
+
+    private void AddDentalLandBuildingSection(ColumnDescriptor col)
+    {
+        var landBuilding = _model?.DentalLandBuildingPreview;
+
+        if (landBuilding == null)
+            return;
+
+        AddMainHeading(col, "Land & Building Details");
+
+        // =========================================================
+        // A. LAND DETAILS
+        // =========================================================
+
+        AddSubHeading(col, "A. Land Details");
+
+        
+        col.Item().PaddingTop(5).Table(table =>
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(3); // Label
-                columns.RelativeColumn(2); // Value
+                columns.RelativeColumn();
+                columns.RelativeColumn();
             });
 
-            foreach (var member in members.Items)
+            void AddRow(string label, string value)
             {
-                AddTextRow(table, "Name", member.TrustMemberName);
-                AddTextRow(table, "Designation", member.Designation ?? "—");
-                AddTextRow(table, "Qualification", member.Qualification ?? "—");
-                AddTextRow(table, "Mobile", member.MobileDisplay);
-                AddTextRow(table, "Age", member.Age?.ToString() ?? "—");
-                AddTextRow(table, "Joining Date", member.JoiningDateDisplay);
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(label)
+                    .Bold();
+
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(value);
             }
+
+            table.Header(header =>
+            {
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text("Particulars")
+                    .Bold();
+
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text("Details")
+                    .Bold();
+            });
+
+            AddRow(
+                "Seat Intake",
+                landBuilding.SeatIntake.ToString());
+
+            AddRow(
+                "Seat Slab",
+                landBuilding.SeatSlab.ToString());
+
+            AddRow(
+                "Land Category",
+                landBuilding.LandCategory ?? "—");
+
+            AddRow(
+                "Total Land Area (Acres)",
+                FormatValue(landBuilding.TotalLandAreaAcres));
+
+            AddRow(
+                "Land Ownership Type",
+                landBuilding.LandOwnershipType ?? "—");
+
+            AddRow(
+                "Future Expansion Space",
+                landBuilding.HasFutureExpansionSpace == true
+                    ? "Yes"
+                    : "No");
         });
+
+        // =========================================================
+        // B. BUILDING DETAILS
+        // =========================================================
+
+        AddSubHeading(col, "B. Building Details");
+
+        col.Item().PaddingTop(5).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(2);   // Particular
+                columns.RelativeColumn(1);   // Required
+                columns.RelativeColumn(1);   // Available
+            });
+
+            void AddRow(string label, string required, string available)
+            {
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(label)
+                    .Bold();
+
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(required);
+
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(available);
+            }
+
+            table.Header(header =>
+            {
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text("Building Particulars")
+                    .Bold();
+
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .AlignCenter()
+                    .Text("Required / Norm")
+                    .Bold();
+
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .AlignCenter()
+                    .Text("Available")
+                    .Bold();
+            });
+
+            AddRow(
+                "Total Built-up Area",
+                $"{landBuilding.RequiredBuiltupAreaSqm:0.##} Sq.m",
+                $"{landBuilding.TotalBuiltupAreaSqm:0.##} Sq.m");
+
+            AddRow(
+                "Lecture Hall Count",
+                landBuilding.RequiredLectureHallCount.ToString(),
+                landBuilding.LectureHallCount.ToString());
+
+            AddRow(
+                "Lecture Hall Area",
+                $"{landBuilding.RequiredLectureHallAreaSqm:0.##} Sq.m",
+                $"{landBuilding.LectureHallAreaSqm:0.##} Sq.m");
+
+            AddRow(
+                "Lecture Hall Capacity",
+                landBuilding.RequiredLectureHallCapacity.ToString(),
+                landBuilding.LectureHallSeatingCapacity.ToString());
+
+            AddRow(
+                "Examination Hall Area",
+                $"{landBuilding.RequiredExamHallAreaSqm:0.##} Sq.m",
+                $"{landBuilding.ExaminationHallAreaSqm:0.##} Sq.m");
+
+            AddRow(
+                "Library Area",
+                $"{landBuilding.RequiredLibraryAreaSqm:0.##} Sq.m",
+                $"{landBuilding.LibraryAreaSqm:0.##} Sq.m");
+
+            AddRow(
+                "Hospital Area",
+                $"{landBuilding.RequiredHospitalAreaSqm:0.##} Sq.m",
+                $"{landBuilding.HospitalAreaSqm:0.##} Sq.m");
+
+            AddRow(
+                "Museum & Demo Rooms",
+                "As per Norms",
+                $"{landBuilding.MuseumDemoRoomsAreaSqm:0.##} Sq.m");
+
+            AddRow(
+                "Department-wise Area",
+                "As per Norms",
+                $"{landBuilding.DepartmentWiseAreaSqm:0.##} Sq.m");
+
+            AddRow(
+                "Preclinical & Skill Lab Area",
+                "As per Norms",
+                $"{landBuilding.PreclinicalSkillLabAreaSqm:0.##} Sq.m");
+
+            AddRow(
+                "Remarks",
+                "—",
+                landBuilding.Remarks ?? "—");
+        });
+
+
+        // =========================================================
+        // C. INFRASTRUCTURE REQUIREMENTS
+        // =========================================================
+
+        if (landBuilding.InfrastructureDetails?.Any() == true)
+        {
+            AddSubHeading(
+                col,
+                "C. Infrastructure Requirements");
+
+            col.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(35);  // Sl No
+                    columns.RelativeColumn(1.4f); // Requirement
+                    columns.RelativeColumn(2.5f); // Description
+                    columns.ConstantColumn(75);  // Required
+                    columns.ConstantColumn(75);  // Available
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Sl. No.")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Requirement")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Description")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Required\n(Sq.Ft)")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Available\n(Sq.Ft)")
+                        .Bold();
+                });
+
+                foreach (var item in landBuilding.InfrastructureDetails
+                             .OrderBy(x => x.SlNo))
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(item.SlNo.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(item.RequirementName ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(item.RequirementDescription ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text($"{item.RequiredAreaSqFt:0.00} Sq.ft");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text($"{item.AvailableAreaSqFt:0.00} Sq.ft");
+                }
+            });
+        }
+
+
+        // =========================================================
+        // D. DOCUMENTS
+        // =========================================================
+
+        AddSubHeading(col, "D. Land & Building Documents");
+
+        col.Item().PaddingTop(5).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn();
+                columns.ConstantColumn(90);
+            });
+
+            void AddDocumentRow(string name, string? path)
+            {
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(name)
+                    .Bold();
+
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .AlignCenter()
+                    .Text(!string.IsNullOrWhiteSpace(path)
+                        ? "Uploaded"
+                        : "Not Uploaded");
+            }
+
+            AddDocumentRow(
+                "Sale Deed",
+                landBuilding.SaleDeedDocumentPath);
+
+            AddDocumentRow(
+                "Encumbrance Certificate",
+                landBuilding.EncumbranceCertificateDocumentPath);
+
+            AddDocumentRow(
+                "Land Use Certificate",
+                landBuilding.LandUseCertificateDocumentPath);
+
+            AddDocumentRow(
+                "Approved Layout Plan",
+                landBuilding.ApprovedLayoutPlanDocumentPath);
+
+            AddDocumentRow(
+                "Land Sketch",
+                landBuilding.LandSketchDocumentPath);
+
+            AddDocumentRow(
+                "Distance Certificate",
+                landBuilding.DistanceCertificateDocumentPath);
+
+            AddDocumentRow(
+                "Approved Building Plan",
+                landBuilding.ApprovedBuildingPlanDocumentPath);
+
+            AddDocumentRow(
+                "Completion Certificate",
+                landBuilding.CompletionCertificateDocumentPath);
+
+            AddDocumentRow(
+                "Structural Stability Certificate",
+                landBuilding.StructuralStabilityCertificateDocumentPath);
+
+            AddDocumentRow(
+                "Fire Safety NOC",
+                landBuilding.FireSafetyNocDocumentPath);
+
+            AddDocumentRow(
+                "Lift License",
+                landBuilding.LiftLicenseDocumentPath);
+
+            AddDocumentRow(
+                "Electrical Safety Certificate",
+                landBuilding.ElectricalSafetyCertificateDocumentPath);
+
+            AddDocumentRow(
+                "Water Supply Certificate",
+                landBuilding.WaterSupplyCertificateDocumentPath);
+
+            AddDocumentRow(
+                "Sewage / Sanitation Approval",
+                landBuilding.SewageSanitationApprovalDocumentPath);
+        });
+    }
+
+    private void AddClassroomAndSkillsLaboratorySection(ColumnDescriptor col)
+    {
+        var skillsLab = _model?.DentalSkillsLaboratoryVM;
+
+        if (skillsLab == null)
+            return;
+
+        AddMainHeading(col, "Classroom & Skills Laboratory");
+
+        // =========================================================
+        // A. SKILLS LABORATORY DETAILS
+        // =========================================================
+
+        AddSubHeading(col, "A. Skills Laboratory Details");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1);
+                });
+
+                void AddRow(string label, string value)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(label)
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(value);
+                }
+
+                AddRow(
+                    "Annual BDS Intake",
+                    skillsLab.AnnualBdsIntake.ToString());
+
+                AddRow(
+                    "Total Area Required (Sq.m)",
+                    skillsLab.TotalAreaRequiredSqm.ToString());
+
+                AddRow(
+                    "Total Area Available (Sq.m)",
+                    skillsLab.TotalAreaAvailableSqm.ToString());
+
+                AddRow(
+                    "Area Deficiency (Sq.m)",
+                    skillsLab.TotalAreaDeficiencySqm.ToString());
+
+                AddRow(
+                    "Number of Examination Rooms",
+                    skillsLab.NumberOfExaminationRooms.ToString());
+
+                AddRow(
+                    "Number of Skill Stations",
+                    skillsLab.NumberOfSkillStations.ToString());
+            });
+
+
+        // =========================================================
+        // B. INFRASTRUCTURE COMPLIANCE
+        // =========================================================
+
+        AddSubHeading(col, "B. Infrastructure Compliance");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.ConstantColumn(90);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Requirement")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Status")
+                        .Bold();
+                });
+
+                void AddStatusRow(string requirement, bool? status)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(requirement);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(status == true ? "Yes" : "No");
+                }
+
+                AddStatusRow(
+                    "6 Weeks Training Completed",
+                    skillsLab.SixWeeksTrainingCompletedBeforeClinical);
+
+                AddStatusRow(
+                    "Minimum Four Examination Rooms",
+                    skillsLab.HasMinFourExamRooms);
+
+                AddStatusRow(
+                    "Demo Room for Small Groups",
+                    skillsLab.HasDemoRoomSmallGroups);
+
+                AddStatusRow(
+                    "Debrief Area",
+                    skillsLab.HasDebriefArea);
+
+                AddStatusRow(
+                    "Faculty Coordinator Room",
+                    skillsLab.HasFacultyCoordinatorRoom);
+
+                AddStatusRow(
+                    "Support Staff Room",
+                    skillsLab.HasSupportStaffRoom);
+
+                AddStatusRow(
+                    "Storage for Mannequins",
+                    skillsLab.HasStorageForMannequins);
+
+                AddStatusRow(
+                    "Video Recording Facility",
+                    skillsLab.HasVideoRecordingFacility);
+
+                AddStatusRow(
+                    "Group & Individual Stations",
+                    skillsLab.HasGroupAndIndividualStations);
+
+                AddStatusRow(
+                    "Required Trainers & Mannequins",
+                    skillsLab.HasRequiredTrainersAndMannequins);
+
+                AddStatusRow(
+                    "Dedicated Technical Officer",
+                    skillsLab.HasDedicatedTechnicalOfficer);
+
+                AddStatusRow(
+                    "Adequate Support Staff",
+                    skillsLab.HasAdequateSupportStaff);
+
+                AddStatusRow(
+                    "Teaching Areas with AV Facility",
+                    skillsLab.TeachingAreasHaveAV);
+
+                AddStatusRow(
+                    "Teaching Areas with Internet",
+                    skillsLab.TeachingAreasHaveInternet);
+
+                AddStatusRow(
+                    "E-Learning Enabled",
+                    skillsLab.SkillsLabEnabledForELearning);
+            });
+
+
+        // =========================================================
+        // C. PRE-CLINICAL & SKILLS LABORATORY AREAS
+        // =========================================================
+
+        if (skillsLab.PreClinicalAndSkillsLabs?.Any() == true)
+        {
+            AddSubHeading(
+                col,
+                "C. Pre-Clinical & Skills Laboratory Areas");
+
+            foreach (var labGroup in skillsLab.PreClinicalAndSkillsLabs
+                .GroupBy(x => x.LaboratorySection))
+            {
+                // Group heading
+                col.Item()
+                    .PaddingTop(8)
+                    .Text(labGroup.Key ?? "Laboratory Details")
+                    .FontSize(11)
+                    .SemiBold();
+
+                col.Item()
+                    .PaddingTop(4)
+                    .Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(2);
+                            columns.ConstantColumn(100);
+                            columns.ConstantColumn(100);
+                        });
+
+                        table.Header(header =>
+                        {
+                            header.Cell()
+                                .Border(1)
+                                .Padding(5)
+                                .Text("Laboratory")
+                                .Bold();
+
+                            header.Cell()
+                                .Border(1)
+                                .Padding(5)
+                                .AlignCenter()
+                                .Text("Required Area (Sq.ft)")
+                                .Bold();
+
+                            header.Cell()
+                                .Border(1)
+                                .Padding(5)
+                                .AlignCenter()
+                                .Text("Existing Area (Sq.ft)")
+                                .Bold();
+                        });
+
+                        foreach (var lab in labGroup)
+                        {
+                            table.Cell()
+                                .Border(1)
+                                .Padding(5)
+                                .Text(lab.LabName ?? "—");
+
+                            table.Cell()
+                                .Border(1)
+                                .Padding(5)
+                                .AlignCenter()
+                                .Text(lab.RequiredAreaSqFt.ToString("0.##"));
+
+                            table.Cell()
+                                .Border(1)
+                                .Padding(5)
+                                .AlignCenter()
+                                .Text(
+                                    (lab.ExistingAreaSqFt ?? 0)
+                                    .ToString("0.##"));
+                        }
+                    });
+            }
+        }
+    }
+
+    private void AddDentalChairDistributionSection(ColumnDescriptor col)
+    {
+        var chairs = _model?.DentalChairDistribution;
+
+        if (chairs == null || !chairs.Any())
+            return;
+
+        AddMainHeading(col, "Dental Chair Distribution");
+
+        AddSubHeading(col, "Dental Chair Requirements");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(40);   // Sl. No.
+                    columns.RelativeColumn(1.5f); // Course
+                    columns.ConstantColumn(60);   // Level
+                    columns.ConstantColumn(70);   // Intake
+                    columns.ConstantColumn(70);   // Slab
+                    columns.ConstantColumn(80);   // Required
+                    columns.ConstantColumn(80);   // Existing
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Sl. No.")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Course")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Level")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Intake")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Seat Slab")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Chairs Required")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Chairs Existing")
+                        .Bold();
+                });
+
+                int slNo = 1;
+
+                foreach (var item in chairs)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(slNo++.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(item.CourseName ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(item.CourseLevel ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(item.SeatSlab.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(item.SeatSlab.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(item.ChairsRequired.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(item.ChairsExisting.ToString());
+                }
+            });
+    }
+
+    private void AddEquipmentListSection(ColumnDescriptor col)
+    {
+        var equipment = _model?.EquipmentPreviewVM;
+
+        if (equipment?.Departments == null || !equipment.Departments.Any())
+            return;
+
+        AddMainHeading(col, "Equipment Details");
+
+        foreach (var department in equipment.Departments)
+        {
+            if (department.Equipments == null || !department.Equipments.Any())
+                continue;
+
+            AddSubHeading(
+                col,
+                department.DepartmentName ?? "Department");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.ConstantColumn(35);   // Sl No
+                        columns.RelativeColumn(2);     // Equipment
+                        columns.RelativeColumn(2);     // Specification
+                        columns.ConstantColumn(65);    // One Unit Required
+                        columns.ConstantColumn(65);    // One Unit Existing
+                        columns.ConstantColumn(65);    // Two Unit Required
+                        columns.ConstantColumn(65);    // Two Unit Existing
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text("Sl. No.")
+                            .Bold();
+
+                        header.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text("Equipment")
+                            .Bold();
+
+                        header.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text("Specification")
+                            .Bold();
+
+                        header.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text("One Unit\nRequired")
+                            .Bold();
+
+                        header.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text("One Unit\nExisting")
+                            .Bold();
+
+                        header.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text("Two Unit\nRequired")
+                            .Bold();
+
+                        header.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text("Two Unit\nExisting")
+                            .Bold();
+                    });
+
+                    int slNo = 1;
+
+                    foreach (var item in department.Equipments)
+                    {
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text(slNo.ToString());
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(item.EquipmentName ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(item.Specification ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text(item.OneUnitReq?.ToString() ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text(item.OneUnitExisting?.ToString() ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text(item.TwoUnitReq?.ToString() ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text(item.TwoUnitExisting?.ToString() ?? "—");
+
+                        slNo++;
+                    }
+                });
+        }
     }
 
     private void AddSanctionedIntakeSection(ColumnDescriptor col)
@@ -388,7 +1650,7 @@ public class PreviewReportPdf : IDocument
 
     private void AddDeanOrDirectorSection(ColumnDescriptor col)
     {
-        var dean = _model?.InstitutionBasicVM?.DeanOrDirectorDetailDisplayVM;
+        var dean = _model?.InstitutionBasicVM.DeanOrDirectorDetailDisplayVM;
         if (dean == null) return;
 
         AddSubHeading(col, "Dean / Director Details", 125);
@@ -401,18 +1663,15 @@ public class PreviewReportPdf : IDocument
                 columns.RelativeColumn(4); // Value
             });
 
-            AddTextRow(table, "Name", dean.DeanOrDirectorName);
-            AddTextRow(table, "Qualification", dean.DeanQualification);
-            AddTextRow(table, "Qualification Date", dean.DeanQualificationDate);
-            AddTextRow(table, "University", dean.DeanUniversity);
-            AddTextRow(table, "State Council Number", dean.DeanStateCouncilNumber);
-            AddTextRow(table, "Recognized by MCI", dean.RecognizedByMci);
+            AddTextRow(table, "Name", dean.DeanName);
+            AddTextRow(table, "Dean Mobile Number", dean.DeanMobileNumber);
+            AddTextRow(table, "Dean Email Id", dean.DeanEmailId);
         });
     }
 
     private void AddPrincipalSection(ColumnDescriptor col)
     {
-        var principal = _model?.InstitutionBasicVM?.PrincipalDetailDisplayVM;
+        var principal = _model?.InstitutionBasicVM.PrincipalDetailDisplayVM;
         if (principal == null) return;
 
         AddSubHeading(col, "Principal Details", 85);
@@ -425,13 +1684,642 @@ public class PreviewReportPdf : IDocument
                 columns.RelativeColumn(4); // Value
             });
 
-            AddTextRow(table, "Name", principal.PrincipalName);
-            AddTextRow(table, "Qualification", principal.PrincipalQualification);
-            AddTextRow(table, "Qualification Date", principal.PrincipalQualificationDate);
-            AddTextRow(table, "University", principal.PrincipalUniversity);
-            AddTextRow(table, "State Council Number", principal.PrincipalStateCouncilNumber);
-            AddTextRow(table, "Recognized by MCI", principal.RecognizedByMci);
+            AddTextRow(table, "Principal Name", principal.Principal_Name);
+            AddTextRow(table, "Principal Email Id", principal.PrincipalEmailId);
+            AddTextRow(table, "Principal Mobile Number", principal.PrincipalMobileNumber);
         });
+    }
+
+
+    private void AddHeadOfInstitutionSection(ColumnDescriptor col)
+    {
+        var institution = _model?.InstitutionBasicVM?.InstitutionDetails;
+
+        if (institution == null)
+            return;
+
+        // Don't show empty section
+        if (string.IsNullOrWhiteSpace(institution.HeadOfInstitution) &&
+            string.IsNullOrWhiteSpace(institution.HeadOfInstitution_Mob_NO) &&
+            string.IsNullOrWhiteSpace(institution.HeadOfInstitution_Email) &&
+            string.IsNullOrWhiteSpace(institution.HeadAddress))
+        {
+            return;
+        }
+
+        AddSubHeading(col, "Head of Institution Details");
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow( table, "Head of Institution", institution.HeadOfInstitution ?? "—");
+                AddTextRow( table, "Head Mobile No", institution.HeadOfInstitution_Mob_NO ?? "—");
+                AddTextRow( table, "Head Email", institution.HeadOfInstitution_Email ?? "—");
+                AddTextRow( table, "Head Address", institution.HeadAddress ?? "—");
+            });
+    }
+
+    private void AddTrustInstitutionDetailsSection(ColumnDescriptor col)
+    {
+        var trust = _model?.TrustDetailsVM;
+
+        if (trust == null)
+            return;
+
+        // =========================================================
+        // TRUST / SOCIETY DETAILS
+        // =========================================================
+
+        AddSubHeading(col, "Trust / Society Details", 120);
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow(
+                    table,
+                    "Trust Name",
+                    string.IsNullOrWhiteSpace(trust.TrustName)
+                        ? "—"
+                        : trust.TrustName);
+
+                AddTextRow(
+                    table,
+                    "TRUST PAN Number",
+                    string.IsNullOrWhiteSpace(trust.PANNumber)
+                        ? "—"
+                        : trust.PANNumber);
+
+                AddTextRow(
+                    table,
+                    "Registration Number",
+                    string.IsNullOrWhiteSpace(trust.RegistrationNumber)
+                        ? "—"
+                        : trust.RegistrationNumber);
+
+                AddTextRow(
+                    table,
+                    "Registration Date",
+                    trust.RegistrationDate.HasValue
+                        ? trust.RegistrationDate.Value.ToString("dd MMMM yyyy")
+                        : "—");
+
+                AddTextRow(
+                    table,
+                    "President Name",
+                    string.IsNullOrWhiteSpace(trust.PresidentName)
+                        ? "—"
+                        : trust.PresidentName);
+
+                AddTextRow(
+                    table,
+                    "Category of Organisation",
+                    string.IsNullOrWhiteSpace(trust.CategoryOfOrganisation)
+                        ? "—"
+                        : trust.CategoryOfOrganisation);
+
+                AddTextRow(
+                    table,
+                    "GOK Obtained Trust Name",
+                    string.IsNullOrWhiteSpace(trust.GOKObtainedTrustName)
+                        ? "—"
+                        : trust.GOKObtainedTrustName);
+
+                AddTextRow(
+                    table,
+                    "Amendments",
+                    trust.Amendments.HasValue
+                        ? (trust.Amendments.Value ? "Yes" : "No")
+                        : "—");
+            });
+
+
+        // =========================================================
+        // TRUST CONTACT & COMMUNICATION
+        // =========================================================
+
+        AddSubHeading(col, "Trust Contact & Communication");
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow(
+                    table,
+                    "Address",
+                    string.IsNullOrWhiteSpace(trust.Address)
+                        ? "—"
+                        : trust.Address);
+
+                AddTextRow(
+                    table,
+                    "PIN Code",
+                    string.IsNullOrWhiteSpace(trust.PinCode)
+                        ? "—"
+                        : trust.PinCode);
+
+                AddTextRow(
+                    table,
+                    "Mobile Number",
+                    string.IsNullOrWhiteSpace(trust.MobileNumber)
+                        ? "—"
+                        : trust.MobileNumber);
+
+                AddTextRow(
+                    table,
+                    "STD Code",
+                    string.IsNullOrWhiteSpace(trust.StdCode)
+                        ? "—"
+                        : trust.StdCode);
+
+                AddTextRow(
+                    table,
+                    "Fax",
+                    string.IsNullOrWhiteSpace(trust.Fax)
+                        ? "—"
+                        : trust.Fax);
+
+                AddTextRow(
+                    table,
+                    "Alternate Landline / Mobile",
+                    string.IsNullOrWhiteSpace(trust.AltLandlineOrMobile)
+                        ? "—"
+                        : trust.AltLandlineOrMobile);
+
+                AddTextRow(
+                    table,
+                    "Email ID",
+                    string.IsNullOrWhiteSpace(trust.EmailId)
+                        ? "—"
+                        : trust.EmailId);
+
+                AddTextRow(
+                    table,
+                    "Alternate Email ID",
+                    string.IsNullOrWhiteSpace(trust.AltEmailId)
+                        ? "—"
+                        : trust.AltEmailId);
+            });
+
+
+        // =========================================================
+        // TRUST CONTACT PERSON
+        // =========================================================
+
+        AddSubHeading(col, "Trust Contact Person");
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow(
+                    table,
+                    "Full Name",
+                    string.IsNullOrWhiteSpace(trust.ContactPersonName)
+                        ? "—"
+                        : trust.ContactPersonName);
+
+                AddTextRow(
+                    table,
+                    "Designation",
+                    string.IsNullOrWhiteSpace(trust.ContactPersonRelation)
+                        ? "—"
+                        : trust.ContactPersonRelation);
+
+                AddTextRow(
+                    table,
+                    "Mobile",
+                    string.IsNullOrWhiteSpace(trust.ContactPersonMobile)
+                        ? "—"
+                        : trust.ContactPersonMobile);
+            });
+
+
+        // =========================================================
+        // OTHER TRUST INFORMATION
+        // =========================================================
+
+        if (!string.IsNullOrWhiteSpace(trust.ExistingTrustName) ||
+            trust.ChangesInTrustName.HasValue)
+        {
+            AddSubHeading(col, "Other Trust Information");
+
+            col.Item()
+                .PaddingTop(8)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(2);
+                    });
+
+                    AddTextRow(
+                        table,
+                        "Existing Trust Name",
+                        string.IsNullOrWhiteSpace(trust.ExistingTrustName)
+                            ? "—"
+                            : trust.ExistingTrustName);
+
+                    AddTextRow(
+                        table,
+                        "Changes in Trust Name",
+                        trust.ChangesInTrustName.HasValue
+                            ? (trust.ChangesInTrustName.Value ? "Yes" : "No")
+                            : "—");
+                });
+        }
+
+
+        // =========================================================
+        // TRUST DOCUMENTS
+        // =========================================================
+
+        AddSubHeading(col, "Trust Documents");
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow(
+                    table,
+                    "Trust PAN File",
+                    trust.HasPANFile ? "Uploaded" : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Bank Statement",
+                    trust.HasBankStatementFile ? "Uploaded" : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Registration Certificate",
+                    trust.HasRegistrationCertificateFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Audit Statement",
+                    trust.HasAuditStatementFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Amended Document",
+                    trust.HasAmendedDoc
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "GOK Order — Existing Courses",
+                    trust.HasGokOrderExistingCoursesFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Registered Trust Member Details",
+                    trust.HasRegisteredTrustMemberDetails
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Aadhaar File",
+                    trust.HasAadhaarFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Gov Autonomous Certificate",
+                    trust.HasGovAutonomousCertFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Gov Council Membership",
+                    trust.HasGovCouncilMembershipFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "First Affiliation Notification",
+                    trust.HasFirstAffiliationNotifFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "Continuation Affiliation",
+                    trust.HasContinuationAffiliationFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "KNC Certificate",
+                    trust.HasKncCertificateFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "DCI Certificate",
+                    trust.HasDCIFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+
+                AddTextRow(
+                    table,
+                    "KSDC Certificate",
+                    trust.HasKSDCFile
+                        ? "Uploaded"
+                        : "Not Uploaded");
+            });
+    }
+
+    private void AddAcademicIntakeCourseLevelSection(ColumnDescriptor col, string level, List<IntakeByLevelViewModel1> courses)
+    {
+        if (courses == null || !courses.Any())
+            return;
+
+        // =========================
+        // Display Level Name
+        // =========================
+
+        var displayLevel = level?.Trim().ToUpper() switch
+        {
+            "UG" => "Under Graduate (UG)",
+            "PG" => "Post Graduate (PG)",
+            "SS" => "Super Specialty (SS)",
+            _ => level
+        };
+
+        // =========================
+        // Section Heading
+        // =========================
+
+        AddSubHeading(col, $"{displayLevel} Courses");
+
+        // =========================
+        // Course Count
+        // =========================
+
+        col.Item()
+            .PaddingTop(4)
+            .PaddingBottom(8)
+            .Text(
+                $"Intake details for {displayLevel} programmes.  |  {courses.Count} Course(s)"
+            )
+            .FontSize(9);
+
+        // =========================
+        // Check AY 2026-27
+        // =========================
+
+        var show2026 = courses.Any(x =>
+            (x.AY2026_ExistingIntake ?? 0) > 0 ||
+            (x.AY2026_AddRequestedIntake ?? 0) > 0 ||
+            (x.AY2026_TotalIntake ?? 0) > 0);
+
+        // =========================
+        // Table
+        // =========================
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    // Course
+                    columns.RelativeColumn(3);
+
+                    // AY 2025-26
+                    columns.RelativeColumn(1.3f);
+                    columns.RelativeColumn(1.3f);
+                    columns.RelativeColumn(1.3f);
+
+                    // AY 2026-27
+                    if (show2026)
+                    {
+                        columns.RelativeColumn(1.3f);
+                        columns.RelativeColumn(1.3f);
+                        columns.RelativeColumn(1.3f);
+                    }
+                });
+
+                // =========================
+                // Header
+                // =========================
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Element(AcademicIntakeHeaderCell)
+                        .Text("Course");
+
+                    header.Cell()
+                        .Element(AcademicIntakeHeaderCell)
+                        .Text("AY 2025-26\nExisting");
+
+                    header.Cell()
+                        .Element(AcademicIntakeHeaderCell)
+                        .Text("AY 2025-26\nLoP / NMC");
+
+                    header.Cell()
+                        .Element(AcademicIntakeHeaderCell)
+                        .Text("AY 2025-26\nTotal");
+
+                    if (show2026)
+                    {
+                        header.Cell()
+                            .Element(AcademicIntakeHeaderCell)
+                            .Text("AY 2026-27\nExisting");
+
+                        header.Cell()
+                            .Element(AcademicIntakeHeaderCell)
+                            .Text("AY 2026-27\nRequested");
+
+                        header.Cell()
+                            .Element(AcademicIntakeHeaderCell)
+                            .Text("AY 2026-27\nTotal");
+                    }
+                });
+
+                // =========================
+                // Rows
+                // =========================
+
+                foreach (var item in courses)
+                {
+                    // Course
+                    table.Cell()
+                        .Element(AcademicIntakeDataCell)
+                        .Text(text =>
+                        {
+                            text.Span(
+                                string.IsNullOrWhiteSpace(item.CourseName)
+                                    ? "—"
+                                    : item.CourseName)
+                                .Bold();
+
+                            text.EmptyLine();
+
+                            text.Span(
+                                string.IsNullOrWhiteSpace(item.CourseCode)
+                                    ? "—"
+                                    : item.CourseCode)
+                                .FontSize(8);
+                        });
+
+                    // AY 2025-26 Existing
+                    table.Cell()
+                        .Element(AcademicIntakeDataCell)
+                        .AlignCenter()
+                        .Text(
+                            (item.AY2025_ExistingIntake ?? 0)
+                                .ToString());
+
+                    // AY 2025-26 LoP / NMC
+                    table.Cell()
+                        .Element(AcademicIntakeDataCell)
+                        .AlignCenter()
+                        .Text(
+                            (item.AY2025_LopNmcIntake ?? 0)
+                                .ToString());
+
+                    // AY 2025-26 Total
+                    table.Cell()
+                        .Element(AcademicIntakeDataCell)
+                        .AlignCenter()
+                        .Text(
+                            (item.AY2025_TotalIntake ?? 0)
+                                .ToString());
+
+                    // =========================
+                    // AY 2026-27
+                    // =========================
+
+                    if (show2026)
+                    {
+                        // Existing
+                        table.Cell()
+                            .Element(AcademicIntakeDataCell)
+                            .AlignCenter()
+                            .Text(
+                                (item.AY2026_ExistingIntake ?? 0)
+                                    .ToString());
+
+                        // Requested
+                        table.Cell()
+                            .Element(AcademicIntakeDataCell)
+                            .AlignCenter()
+                            .Text(
+                                (item.AY2026_AddRequestedIntake ?? 0)
+                                    .ToString());
+
+                        // Total
+                        table.Cell()
+                            .Element(AcademicIntakeDataCell)
+                            .AlignCenter()
+                            .Text(
+                                (item.AY2026_TotalIntake ?? 0)
+                                    .ToString());
+                    }
+                }
+            });
+    }
+
+
+    private void AddAcademicIntakeSection(ColumnDescriptor col)
+    {
+        var intake = _model?.AcademicIntakeVM;
+
+        if (intake == null)
+            return;
+
+        if (intake.SortedCourseLevels == null ||
+            !intake.SortedCourseLevels.Any())
+            return;
+
+        AddMainHeading(col, "Academic Intake Details");
+
+        foreach (var level in intake.SortedCourseLevels)
+        {
+            List<IntakeByLevelViewModel1>? courses = level switch
+            {
+                "UG" => intake.UgCourses,
+                "PG" => intake.PgCourses,
+                "SS" => intake.SsCourses,
+                _ => null
+            };
+
+            if (courses == null || !courses.Any())
+                continue;
+
+            AddAcademicIntakeCourseLevelSection(
+                col,
+                level,
+                courses);
+        }
+    }
+
+
+    private IContainer AcademicIntakeHeaderCell(IContainer container)
+    {
+        return container
+            .Border(1)
+            .BorderColor("#D0D0D0")
+            .Background("#E9ECEF")
+            .Padding(5)
+            .AlignMiddle();
+    }
+
+    private IContainer AcademicIntakeDataCell(IContainer container)
+    {
+        return container
+            .Border(1)
+            .BorderColor("#D0D0D0")
+            .Padding(5)
+            .AlignMiddle();
     }
 
     private void AddAcademicMattersSection(ColumnDescriptor col)
@@ -641,115 +2529,523 @@ public class PreviewReportPdf : IDocument
 
     private void AddHospitalAffiliationSection(ColumnDescriptor col)
     {
-        var hospital = _model.CAHospitalAFfiliationCompVM;
-        if (hospital?.ClinicalHospitalDetails == null) return;
+        var hospital = _model?.CAHospitalAFfiliationCompVM;
 
-        var h = hospital.ClinicalHospitalDetails;
+        if (hospital == null)
+            return;
 
-        // Section title
-        col.Item().PaddingTop(30)
+        // =========================================================
+        // MAIN SECTION HEADING
+        // =========================================================
+
+        col.Item()
+           .PaddingTop(30)
            .AlignCenter()
            .Text("Hospital Affiliation")
            .FontSize(14)
            .Bold();
 
-        // --- CLINICAL HOSPITAL DETAILS ---
-        col.Item().PaddingTop(10).Column(col2 =>
+
+        // =========================================================
+        // 1. CLINICAL HOSPITAL DETAILS
+        // =========================================================
+
+        if (hospital.ClinicalHospitalDetails != null)
         {
-            col2.Item().Text("Clinical Hospital Details")
-                .FontSize(12)
-                .SemiBold();
+            var h = hospital.ClinicalHospitalDetails;
 
-            col2.Item().PaddingTop(2).Row(row =>
-            {
-                row.ConstantItem(122)   // adjust length to fit text nicely
-                    .LineHorizontal(1)
-                    .LineColor(Colors.Black);
-
-                row.RelativeItem();     // fills remaining space
-            });
-        });
-
-      
-
-        col.Item().PaddingTop(5).Table(table =>
-        {
-            table.ColumnsDefinition(columns =>
-            {
-                columns.RelativeColumn(); // Property
-                columns.RelativeColumn(); // Value
-            });
-
-            // Add rows for each property
-            void AddRow(string prop, string value)
-            {
-                table.Cell().Border(1).Padding(5).Text(prop).Bold();
-                table.Cell().Border(1).Padding(5).Text(value);
-            }
-
-            AddRow("Hospital Name", h.HospitalName);
-            AddRow("Hospital Type", h.HospitalType ?? "—");
-            AddRow("Hospital Owned By", h.HospitalOwnedBy ?? "—");
-            AddRow("Owner Name", h.OwnerName ?? "—");
-            AddRow("Location", $"{h.DistrictName}, {h.TalukName}");
-            AddRow("Total Beds", h.TotalBeds.ToString());
-            AddRow("OPD per Day", h.OpdPerDay.ToString());
-            AddRow("IPD Occupancy %", h.IpdOccupancyPercent.ToString());
-            AddRow("Member of Trust", h.IsOwnerAmemberOfTrust ? "Yes" : "No");
-            AddRow("Supporting Documents Uploaded", h.IsSupportingDocExists ? "Yes" : "No");
-        });
-
-        // --- AFFILIATED DOCUMENTS ---
-        if (hospital.AffiliatedHospitalDocuments?.Any() == true)
-        {
-            col.Item().PaddingTop(20).Column(col2 =>
-            {
-                // Heading text
-                col2.Item().Text("Affiliated Documents")
-                    .FontSize(12)
-                    .SemiBold();
-
-                // Underline
-                col2.Item().PaddingTop(2).Row(row =>
-                {
-                    row.ConstantItem(115)   // line length in points
-                        .LineHorizontal(1)
-                        .LineColor(Colors.Black);
-
-                    row.RelativeItem();     // fills remaining space
-                });
-            });
+            AddSubHeading(col, "Clinical Hospital Details");
 
             col.Item().PaddingTop(5).Table(table =>
             {
                 table.ColumnsDefinition(columns =>
                 {
-                    columns.RelativeColumn();     // Document Name
-                    columns.RelativeColumn();     // Hospital Name
-                    columns.ConstantColumn(60);   // Beds
-                    columns.ConstantColumn(80);   // Exists
+                    columns.RelativeColumn();
+                    columns.RelativeColumn();
                 });
 
-                // Header
+                void AddRow(string property, string value)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(property)
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(value);
+                }
+
+                AddRow("Hospital Name", h.HospitalName ?? "—");
+                AddRow("Hospital Type", h.HospitalType ?? "—");
+                AddRow("Hospital Owned By", h.HospitalOwnedBy ?? "—");
+                AddRow("Owner Name", h.OwnerName ?? "—");
+                AddRow("Location", $"{h.DistrictName ?? "—"}, {h.TalukName ?? "—"}");
+                AddRow("Total Beds", h.TotalBeds.ToString());
+                AddRow("OPD per Day", h.OpdPerDay.ToString());
+                AddRow("IPD Occupancy %", h.IpdOccupancyPercent.ToString());
+                AddRow(
+                    "Member of Trust",
+                    h.IsOwnerAmemberOfTrust ? "Yes" : "No");
+
+                AddRow(
+                    "Supporting Documents Uploaded",
+                    h.IsSupportingDocExists ? "Yes" : "No");
+            });
+        }
+
+
+        // =========================================================
+        // 2. AFFILIATED HOSPITAL DOCUMENTS
+        // =========================================================
+
+        if (hospital.AffiliatedHospitalDocuments?.Any() == true)
+        {
+            AddSubHeading(col, "Affiliated Documents");
+
+            col.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn();
+                    columns.RelativeColumn();
+                    columns.ConstantColumn(60);
+                    columns.ConstantColumn(70);
+                });
+
                 table.Header(header =>
                 {
-                    header.Cell().Border(1).Padding(5).Text("Document Name").Bold();
-                    header.Cell().Border(1).Padding(5).Text("Hospital Name").Bold();
-                    header.Cell().Border(1).Padding(5).Text("Beds").Bold();
-                    header.Cell().Border(1).Padding(5).Text("Exists").Bold();
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Document Name")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Hospital Name")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Beds")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Exists")
+                        .Bold();
                 });
 
                 foreach (var doc in hospital.AffiliatedHospitalDocuments)
                 {
-                    table.Cell().Border(1).Padding(5).Text(doc.DocumentName ?? "—");
-                    table.Cell().Border(1).Padding(5).Text(doc.HospitalName ?? "—");
-                    table.Cell().Border(1).Padding(5).AlignCenter().Text(doc.TotalBeds.ToString());
-                    table.Cell().Border(1).Padding(5).AlignCenter().Text(doc.DocumentExists ? "Yes" : "No");
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(doc.DocumentName ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(doc.HospitalName ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(doc.TotalBeds.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(doc.DocumentExists ? "Yes" : "No");
+                }
+            });
+        }
+
+
+        // =========================================================
+        // 3. DISCIPLINE DETAILS
+        // =========================================================
+
+        if (hospital.DisciplineDetails != null &&
+            hospital.DisciplineDetails.Disciplines?.Any() == true)
+        {
+            var discipline = hospital.DisciplineDetails;
+
+            AddSubHeading(col, "Discipline Details");
+
+            col.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(40);
+                    columns.RelativeColumn();
+                    columns.ConstantColumn(90);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Sl. No.")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Discipline")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Available")
+                        .Bold();
+                });
+
+                int slNo = 1;
+
+                foreach (var item in discipline.Disciplines)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(slNo.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(item.DisciplineName ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(item.IsSelected ? "Yes" : "No");
+
+                    slNo++;
+                }
+            });
+        }
+
+
+        // =========================================================
+        // 4. ENGINEERING / ALLIED SERVICES
+        // =========================================================
+
+        if (hospital.EngAlliedServices != null &&
+            hospital.EngAlliedServices.Requirements?.Any() == true)
+        {
+            var allied = hospital.EngAlliedServices;
+
+            AddSubHeading(col, "Services");
+
+            col.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(40);
+                    columns.RelativeColumn();
+                    columns.ConstantColumn(90);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Sl. No.")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Requirement")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Available")
+                        .Bold();
+                });
+
+                int slNo = 1;
+
+                foreach (var item in allied.Requirements)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(slNo.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(item.RequirementName ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(
+                            item.IsAvailable == true
+                                ? "Yes"
+                                : "No");
+
+                    slNo++;
+                }
+            });
+        }
+
+
+        // =========================================================
+        // 5. DENTAL WARD BED DISTRIBUTION
+        // =========================================================
+
+        if (hospital.DentalWardBedDistribution?.Any() == true)
+        {
+            AddSubHeading(col, "Dental Ward Bed Distribution");
+
+            col.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(40);
+                    columns.RelativeColumn();
+                    columns.ConstantColumn(80);
+                    columns.ConstantColumn(80);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Sl. No.")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Ward")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Beds Required")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Beds Present")
+                        .Bold();
+                });
+
+                int slNo = 1;
+
+                foreach (var ward in hospital.DentalWardBedDistribution)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(slNo.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(ward.WardName ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(ward.BedsRequired.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(
+                            ward.BedsPresent?.ToString() ?? "—");
+
+                    slNo++;
                 }
             });
         }
     }
 
+    private void AddMedicalUGBedDistributionSection(ColumnDescriptor col)
+    {
+        var bedDistribution = _model?.MedicalUGBedDistributionVM;
+
+        if (bedDistribution == null)
+            return;
+
+        // =========================================================
+        // MEDICAL
+        // =========================================================
+
+        if (bedDistribution.Medical != null)
+        {
+            AddMainHeading(col, "Medical UG Bed Distribution");
+
+            // Existing medical PDF rendering here...
+        }
+
+        // =========================================================
+        // DENTAL
+        // =========================================================
+
+        if (bedDistribution.Dental != null)
+        {
+            AddMainHeading(col, "Bed Distribution");
+
+            AddSubHeading(col, "A. Oral & Maxillofacial Surgery");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(2);
+                        columns.RelativeColumn(1);
+                    });
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Oral & Maxillofacial Surgery")
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(
+                            bedDistribution.Dental
+                                .OralMaxillofacialSurgery?
+                                .ToString() ?? "0");
+                });
+
+
+            // =====================================================
+            // DENTAL WARDS
+            // =====================================================
+
+            //if (bedDistribution.Dental.DentalWards?.Any() == true)
+            //{
+            //    AddSubHeading(col, "Dental Ward Bed Distribution");
+
+            //    col.Item()
+            //        .PaddingTop(5)
+            //        .Table(table =>
+            //        {
+            //            table.ColumnsDefinition(columns =>
+            //            {
+            //                columns.ConstantColumn(45);  // Sl No
+            //                columns.RelativeColumn(2);   // Ward
+            //                columns.ConstantColumn(80);  // Seat Slab
+            //                columns.ConstantColumn(90);  // Required
+            //                columns.ConstantColumn(90);  // Present
+            //            });
+
+            //            table.Header(header =>
+            //            {
+            //                header.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .AlignCenter()
+            //                    .Text("Sl. No.")
+            //                    .Bold();
+
+            //                header.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .Text("Ward")
+            //                    .Bold();
+
+            //                header.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .AlignCenter()
+            //                    .Text("Seat Slab")
+            //                    .Bold();
+
+            //                header.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .AlignCenter()
+            //                    .Text("Beds Required")
+            //                    .Bold();
+
+            //                header.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .AlignCenter()
+            //                    .Text("Beds Present")
+            //                    .Bold();
+            //            });
+
+            //            int slNo = 1;
+
+            //            foreach (var ward in bedDistribution.Dental.DentalWards)
+            //            {
+            //                table.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .AlignCenter()
+            //                    .Text(slNo++.ToString());
+
+            //                table.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .Text(ward.WardName ?? "—");
+
+            //                table.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .AlignCenter()
+            //                    .Text(ward.SeatSlab.ToString());
+
+            //                table.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .AlignCenter()
+            //                    .Text(ward.BedsRequired.ToString());
+
+            //                table.Cell()
+            //                    .Border(1)
+            //                    .Padding(5)
+            //                    .AlignCenter()
+            //                    .Text(
+            //                        ward.BedsPresent?.ToString() ?? "0");
+            //            }
+            //        });
+            //}
+        }
+    }
 
     private void AddDepartmentSections(ColumnDescriptor col)
     {
@@ -1217,6 +3513,235 @@ public class PreviewReportPdf : IDocument
         }
     }
 
+    private void AddDepartmentOfficesAndDeuSection(ColumnDescriptor col)
+    {
+        var model = _model?.DepartmentOfficesMeuVM;
+
+        if (model == null)
+            return;
+
+        AddMainHeading(col, "Department Offices & Education Unit");
+
+        // =========================================================
+        // DEPARTMENT OFFICE REQUIREMENTS
+        // =========================================================
+
+        AddSubHeading(col, "Department Office Requirements");
+
+        col.Item().PaddingTop(5).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(1);
+            });
+
+            table.Header(header =>
+            {
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text("Requirement")
+                    .Bold();
+
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .AlignCenter()
+                    .Text("Status")
+                    .Bold();
+            });
+
+            void AddStatusRow(string requirement, bool? status)
+            {
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(requirement);
+
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .AlignCenter()
+                    .Text(status == true ? "Yes" : "No");
+            }
+
+            AddStatusRow(
+                "HOD room with office and records",
+                model.HasHodRoomWithOfficeAndRecords);
+
+            AddStatusRow(
+                "Rooms for faculty and residents",
+                model.HasRoomsForFacultyAndResidents);
+
+            AddStatusRow(
+                "Faculty rooms have communication, computer and internet facilities",
+                model.FacultyRoomsHaveCommunicationComputerInternet);
+
+            AddStatusRow(
+                "Rooms for non-teaching staff",
+                model.HasRoomsForNonTeachingStaff);
+        });
+
+
+        // =========================================================
+        // DENTAL EDUCATION UNIT
+        // =========================================================
+
+        if (model.Dental != null)
+        {
+            AddSubHeading(col, "Dental Education Unit");
+
+            col.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(1);
+                });
+
+                void AddRow(string label, string value)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(label)
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(value);
+                }
+
+                AddRow(
+                    "Dental Education Unit Available",
+                    model.Dental.HasDentalEducationUnit == true ? "Yes" : "No");
+
+                AddRow(
+                    "DEU Area (Sq.m)",
+                    FormatValue(model.Dental.DentalEducationUnitAreaSqm));
+
+                AddRow(
+                    "Audio Visual Facility",
+                    model.Dental.DentalEducationUnitHasAudioVisual == true
+                        ? "Yes"
+                        : "No");
+
+                AddRow(
+                    "Internet Facility",
+                    model.Dental.DentalEducationUnitHasInternet == true
+                        ? "Yes"
+                        : "No");
+
+                AddRow(
+                    "Coordinator Name",
+                    model.Dental.DeuCoordinatorName ?? "—");
+
+                AddRow(
+                    "Coordinator Designation / Department",
+                    model.Dental.DeuCoordinatorDesignationDepartment ?? "—");
+
+                AddRow(
+                    "Coordinator Phone",
+                    model.Dental.DeuCoordinatorPhone ?? "—");
+
+                AddRow(
+                    "Coordinator Email",
+                    model.Dental.DeuCoordinatorEmail ?? "—");
+
+                AddRow(
+                    "Activities During Last Academic Year",
+                    model.Dental.DeuActivitiesLastAcademicYear ?? "—");
+
+                AddRow(
+                    "Members List Uploaded",
+                    model.Dental.HasDeuMembersListFile == true
+                        ? "Yes"
+                        : "No");
+            });
+        }
+
+
+        // =========================================================
+        // MEDICAL EDUCATION UNIT
+        // =========================================================
+
+        if (model.Medical != null)
+        {
+            AddSubHeading(col, "Medical Education Unit");
+
+            col.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(1);
+                });
+
+                void AddRow(string label, string value)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(label)
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(value);
+                }
+
+                AddRow(
+                    "Medical Education Unit Available",
+                    model.Medical.HasMedicalEducationUnit == true ? "Yes" : "No");
+
+                AddRow(
+                    "MEU Area (Sq.m)",
+                    FormatValue(model.Medical.MedicalEducationUnitAreaSqm));
+
+                AddRow(
+                    "Audio Visual Facility",
+                    model.Medical.MedicalEducationUnitHasAudioVisual == true
+                        ? "Yes"
+                        : "No");
+
+                AddRow(
+                    "Internet Facility",
+                    model.Medical.MedicalEducationUnitHasInternet == true
+                        ? "Yes"
+                        : "No");
+
+                AddRow(
+                    "Coordinator Name",
+                    model.Medical.MeuCoordinatorName ?? "—");
+
+                AddRow(
+                    "Coordinator Designation / Department",
+                    model.Medical.MeuCoordinatorDesignationDepartment ?? "—");
+
+                AddRow(
+                    "Coordinator Phone",
+                    model.Medical.MeuCoordinatorPhone ?? "—");
+
+                AddRow(
+                    "Coordinator Email",
+                    model.Medical.MeuCoordinatorEmail ?? "—");
+
+                AddRow(
+                    "Activities During Last Academic Year",
+                    model.Medical.MeuActivitiesLastAcademicYear ?? "—");
+
+                AddRow(
+                    "Members List Uploaded",
+                    model.Medical.HasMeuMembersListFile == true
+                        ? "Yes"
+                        : "No");
+            });
+        }
+    }
+
     private void AddDepartmentOfficesAndMeuSection(ColumnDescriptor col)
     {
         var vm = _model.PhysicalFacilities.DeptOfficeMeu;
@@ -1528,6 +4053,857 @@ public class PreviewReportPdf : IDocument
             AddYesNoNullableRow(table, "Radiology display facilities available", vm.MuseumsHaveRadiologyDisplay);
         });
     }
+
+
+    private void AddMedicalLibrarySection(ColumnDescriptor col)
+    {
+        var library = _model?.MedicalLibraryPreviewVM;
+
+        if (library == null)
+            return;
+
+        AddMainHeading(col, library.facultyCode == 2 ? "Dental Library" : "Medical Library");
+
+        // =========================================================
+        // USAGE REPORT
+        // =========================================================
+
+        if (library.HasUsageReport)
+        {
+            AddSubHeading(col, "Usage Report");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(2);
+                        columns.RelativeColumn(1);
+                    });
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Usage Report Uploaded")
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Yes");
+                });
+        }
+
+        // =========================================================
+        // LIBRARY STAFF
+        // =========================================================
+
+        if (library.LibraryStaff?.Any() == true)
+        {
+            AddLibraryStaffPdfSection( col,library.LibraryStaff);
+        }
+
+        // =========================================================
+        // DEPARTMENT LIBRARIES
+        // =========================================================
+
+        if (library.DepartmentLibraries?.Any() == true)
+        {
+            AddDepartmentLibrariesPdfSection( col, library.DepartmentLibraries);
+        }
+
+        // =========================================================
+        // OTHER DETAILS
+        // =========================================================
+
+        if (library.OtherDetails != null)
+        {
+            AddLibraryOtherDetailsPdfSection( col, library.OtherDetails);
+        }
+
+        // =========================================================
+        // DENTAL LIBRARY RECORDS
+        // =========================================================
+
+        if (library.facultyCode == 2 &&
+            library.DentalLibraryRecords?.Any() == true)
+        {
+            AddDentalLibraryRecordsPdfSection( col, library.DentalLibraryRecords);
+        }
+
+        // =========================================================
+        // RESEARCH PUBLICATIONS
+        // =========================================================
+
+        if (library.ResearchPublications != null)
+        {
+            AddResearchPublicationsPdfSection( col, library.ResearchPublications);
+        }
+
+        // =========================================================
+        // LIBRARY INFORMATION
+        // =========================================================
+
+        if (library.LibraryInformation != null)
+        {
+            AddLibraryInformationPdfSection( col, library.LibraryInformation);
+        }
+    }
+
+    private void AddLibraryInformationPdfSection(  ColumnDescriptor col, LibraryInformationPreviewVM model)
+    {
+        if (model == null)
+            return;
+
+        // =========================================================
+        // GENERAL INFORMATION
+        // =========================================================
+
+        AddSubHeading(col, "Library General Information");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(3);
+                });
+
+                AddTextRow(
+                    table,
+                    "Library Email ID",
+                    model.General.LibraryEmailId ?? "—");
+
+                AddTextRow(
+                    table,
+                    "Digital Library",
+                    model.General.DigitalLibrary ?? "—");
+
+                AddTextRow(
+                    table,
+                    "HELINET Services",
+                    model.General.HelinetServices ?? "—");
+
+                AddTextRow(
+                    table,
+                    "Department-wise Library",
+                    model.General.DepartmentWiseLibrary ?? "—");
+            });
+
+        // =========================================================
+        // LIBRARY HOLDINGS
+        // =========================================================
+
+        if (model.Items?.Any() == true)
+        {
+            AddSubHeading(col, "Library Holdings");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(1);
+                        columns.RelativeColumn(1);
+                        columns.RelativeColumn(1);
+                        columns.RelativeColumn(1);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Item").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Current Foreign").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Current Indian").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Previous Foreign").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Previous Indian").Bold();
+                    });
+
+                    foreach (var item in model.Items)
+                    {
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.ItemName ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.CurrentForeign.ToString());
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.CurrentIndian.ToString());
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.PreviousForeign.ToString());
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.PreviousIndian.ToString());
+                    }
+                });
+        }
+
+        // =========================================================
+        // LIBRARY BUILDING
+        // =========================================================
+
+        AddSubHeading(col, "Library Building");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow(
+                    table,
+                    "Independent Library Building",
+                    model.Building.IsIndependent ?? "—");
+
+                AddTextRow(
+                    table,
+                    "Area (Sq. Mtrs.)",
+                    model.Building.AreaSqMtrs?.ToString("0.##") ?? "—");
+            });
+
+        // =========================================================
+        // TECHNICAL PROCESS
+        // =========================================================
+
+        if (model.TechnicalProcesses?.Any() == true)
+        {
+            AddSubHeading(col, "Technical Process");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(2);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Process").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Value").Bold();
+                    });
+
+                    foreach (var item in model.TechnicalProcesses)
+                    {
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.ProcessName ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.Value ?? "—");
+                    }
+                });
+        }
+
+        // =========================================================
+        // LIBRARY EQUIPMENTS
+        // =========================================================
+
+        if (model.Equipments?.Any() == true)
+        {
+            AddSubHeading(col, "Library Equipments");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(1);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Equipment").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Available").Bold();
+                    });
+
+                    foreach (var item in model.Equipments)
+                    {
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.EquipmentName ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.HasEquipment ?? "—");
+                    }
+                });
+        }
+
+        // =========================================================
+        // FINANCE
+        // =========================================================
+
+        AddSubHeading(col, "Library Finance");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                });
+
+                AddTextRow(
+                    table,
+                    "Total Budget (Lakhs)",
+                    model.Finance.TotalBudgetLakhs?
+                        .ToString("0.##") ?? "—");
+
+                AddTextRow(
+                    table,
+                    "Expenditure on Books (Lakhs)",
+                    model.Finance.ExpenditureBooksLakhs?
+                        .ToString("0.##") ?? "—");
+            });
+    }
+
+    private void AddResearchPublicationsPdfSection( ColumnDescriptor col, ResearchPublicationsPreviewVM model)
+    {
+        if (model == null)
+            return;
+
+        // =========================================================
+        // RESEARCH PUBLICATIONS
+        // =========================================================
+
+        AddSubHeading(col, "Research Publications");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1);
+                });
+
+                AddTextRow(
+                    table,
+                    "Number of Publications",
+                    model.PublicationsNo.ToString());
+
+                AddTextRow(
+                    table,
+                    "Publications PDF",
+                    model.HasPublicationsPdf
+                        ? "Uploaded"
+                        : "No");
+
+                AddTextRow(
+                    table,
+                    "Clinical Trials PDF",
+                    model.HasClinicalTrialsPdf
+                        ? "Uploaded"
+                        : "No");
+            });
+
+        // =========================================================
+        // STUDENT RESEARCH PROJECTS
+        // =========================================================
+
+        AddSubHeading(col, "Student Research Projects");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1);
+                });
+
+                AddTextRow(
+                    table,
+                    "RGUHS Funded",
+                    model.StudentsRGUHSFunded?.ToString() ?? "—");
+
+                AddTextRow(
+                    table,
+                    "External Body Funding",
+                    model.StudentsExternalBodyFunding?.ToString() ?? "—");
+
+                AddTextRow(
+                    table,
+                    "Projects PDF",
+                    model.HasStudentProjectsPdf
+                        ? "Uploaded"
+                        : "No");
+            });
+
+        // =========================================================
+        // FACULTY RESEARCH PROJECTS
+        // =========================================================
+
+        AddSubHeading(col, "Faculty Research Projects");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1);
+                });
+
+                AddTextRow(
+                    table,
+                    "RGUHS Funded",
+                    model.FacultyRGUHSFunded?.ToString() ?? "—");
+
+                AddTextRow(
+                    table,
+                    "External Body Funding",
+                    model.FacultyExternalBodyFunding?.ToString() ?? "—");
+
+                AddTextRow(
+                    table,
+                    "Projects PDF",
+                    model.HasFacultyProjectsPdf
+                        ? "Uploaded"
+                        : "No");
+            });
+
+        // =========================================================
+        // OTHER ACADEMIC ACTIVITIES
+        // =========================================================
+
+        if (model.OtherActivities?.Any() == true)
+        {
+            AddSubHeading(col, "Other Academic Activities");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(2);
+                        columns.RelativeColumn(2);
+                        columns.RelativeColumn(1.5f);
+                        columns.RelativeColumn(1);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Activity").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Department").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Department Wise").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Document").Bold();
+                    });
+
+                    foreach (var item in model.OtherActivities)
+                    {
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.ActivityName ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.DepartmentName ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.DepartmentWise?.ToString() ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.HasDocument
+                                ? "Uploaded"
+                                : "No");
+                    }
+                });
+        }
+
+        // =========================================================
+        // COMMITTEES
+        // =========================================================
+
+        if (model.Committees?.Any() == true)
+        {
+            AddSubHeading(col, "Committees");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(1);
+                        columns.RelativeColumn(1);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Committee").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Available").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Document").Bold();
+                    });
+
+                    foreach (var item in model.Committees)
+                    {
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.CommitteeName ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.IsPresent ?? "-");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.HasDocument
+                                ? "Uploaded"
+                                : "No");
+                    }
+                });
+        }
+
+        // =========================================================
+        // DEPARTMENT PUBLICATIONS
+        // =========================================================
+
+        if (model.DepartmentPublications?.Any() == true)
+        {
+            AddSubHeading(col, "Department-wise Publications");
+
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(1);
+                        columns.RelativeColumn(1);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Department").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Publication Count").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text("Document").Bold();
+                    });
+
+                    foreach (var item in model.DepartmentPublications)
+                    {
+                        table.Cell().Border(1).Padding(4)
+                            .Text(item.DepartmentName ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.PublicationsCount.ToString());
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(item.HasDocument
+                                ? "Uploaded"
+                                : "No");
+                    }
+                });
+        }
+    }
+
+
+    private void AddDentalLibraryRecordsPdfSection( ColumnDescriptor col, List<DentalLibraryRecordPreviewVM> records)
+    {
+        AddSubHeading(col, "Dental Library Records");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(1);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Record")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Document")
+                        .Bold();
+                });
+
+                foreach (var item in records)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(item.RecordName ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(item.HasDocument
+                            ? "Uploaded"
+                            : "No");
+                }
+            });
+    }
+
+
+    private void AddLibraryStaffPdfSection( ColumnDescriptor col,  List<LibraryStaffPreviewVM> staff)
+    {
+        AddSubHeading(col, "Library Staff");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1.5f);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell().Border(1).Padding(5)
+                        .Text("Name").Bold();
+
+                    header.Cell().Border(1).Padding(5)
+                        .Text("Designation").Bold();
+
+                    header.Cell().Border(1).Padding(5)
+                        .Text("Qualification").Bold();
+
+                    header.Cell().Border(1).Padding(5)
+                        .AlignCenter()
+                        .Text("Experience").Bold();
+
+                    header.Cell().Border(1).Padding(5)
+                        .Text("Category").Bold();
+                });
+
+                foreach (var item in staff)
+                {
+                    table.Cell().Border(1).Padding(5)
+                        .Text(item.StaffName ?? "—");
+
+                    table.Cell().Border(1).Padding(5)
+                        .Text(item.Designation ?? "—");
+
+                    table.Cell().Border(1).Padding(5)
+                        .Text(item.Qualification ?? "—");
+
+                    table.Cell().Border(1).Padding(5)
+                        .AlignCenter()
+                        .Text(item.Experience?.ToString() ?? "—");
+
+                    table.Cell().Border(1).Padding(5)
+                        .Text(item.Category ?? "—");
+                }
+            });
+    }
+
+
+    private void AddDepartmentLibrariesPdfSection( ColumnDescriptor col,  List<DepartmentLibraryPreviewVM> departments)
+    {
+        AddSubHeading(col, "Department Libraries");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell().Border(1).Padding(4)
+                        .Text("Department").Bold();
+
+                    header.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text("Total Books").Bold();
+
+                    header.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text("Books Added").Bold();
+
+                    header.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text("Current Journals").Bold();
+
+                    header.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text("Titles").Bold();
+
+                    header.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text("International Journals").Bold();
+
+                    header.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text("Back Volumes").Bold();
+
+                    header.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text("Print Journal %").Bold();
+                });
+
+                foreach (var item in departments)
+                {
+                    table.Cell().Border(1).Padding(4)
+                        .Text(item.DepartmentName ?? "—");
+
+                    table.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text(item.TotalBooks?.ToString() ?? "—");
+
+                    table.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text(item.BooksAddedInYear?.ToString() ?? "—");
+
+                    table.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text(item.CurrentJournals?.ToString() ?? "—");
+
+                    table.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text(item.Titles?.ToString() ?? "—");
+
+                    table.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text(item.InternationalJournals?.ToString() ?? "—");
+
+                    table.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text(item.BackVolumes?.ToString() ?? "—");
+
+                    table.Cell().Border(1).Padding(4)
+                        .AlignCenter()
+                        .Text(item.PrintJournalPercentage?.ToString() ?? "—");
+                }
+            });
+    }
+    private void AddLibraryOtherDetailsPdfSection(ColumnDescriptor col, MedicalLibraryOtherPreviewVM other)
+    {
+        AddSubHeading(col, "Other Details");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1);
+                });
+
+                AddTextRow(
+                    table,
+                    "Digital Valuation Centre",
+                    other.HasDigitalValuationCentre ?? "—");
+
+                AddTextRow(
+                    table,
+                    "No. of Systems",
+                    other.NoOfSystems?.ToString() ?? "—");
+
+                AddTextRow(
+                    table,
+                    "Stable Internet",
+                    other.HasStableInternet ?? "—");
+
+                AddTextRow(
+                    table,
+                    "CCTV Camera System",
+                    other.HasCccameraSystem ?? "—");
+
+                AddTextRow(
+                    table,
+                    "Special Features",
+                    other.HasSpecialFeatures
+                        ? "Yes"
+                        : "No");
+            });
+    }
+
 
     private void AddLibraryServicesSection(ColumnDescriptor col)
     {
@@ -2350,55 +5726,238 @@ public class PreviewReportPdf : IDocument
 
     private void AddHostelDetailsSection(ColumnDescriptor col)
     {
-        var hostelItems = _model?.AdminTeachAndHostelVM?.HostelDetailsVM;
+        var hostel = _model?.HostelPreviewVM;
 
-        if (hostelItems == null || !hostelItems.Any())
+        if (hostel == null)
             return;
 
-        AddSubHeading(col, "Hostel Details", 75);
+        AddMainHeading(col, "Hostel Details");
 
-        col.Item().PaddingTop(8).Table(table =>
+        // =========================================================
+        // BASIC HOSTEL DETAILS
+        // =========================================================
+
+        AddSubHeading(col, "A. Hostel Details");
+
+        col.Item().PaddingTop(5).Table(table =>
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(2); // Hostel Type
-                columns.RelativeColumn(2); // Built-up Area
-                columns.ConstantColumn(70); // Separate Hostel
-                columns.ConstantColumn(90); // Separate M/F
-                columns.RelativeColumn(2); // Female Students
-                columns.RelativeColumn(2); // Female Rooms
-                columns.RelativeColumn(2); // Male Students
-                columns.RelativeColumn(2); // Male Rooms
-                columns.ConstantColumn(90); // Document
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
             });
 
-            // -------- HEADER --------
+            void AddRow(string label, string value)
+            {
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(label)
+                    .Bold();
+
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(value);
+            }
+
+            AddRow(
+                "Hostel Type",
+                hostel.HostelType ?? "—");
+
+            AddRow(
+                "Built-up Area (Sq.ft)",
+                hostel.BuiltUpAreaSqFt.ToString());
+
+            AddRow(
+                "Separate Hostel",
+                hostel.HasSeparateHostel == true ? "Yes" : "No");
+
+            AddRow(
+                "Separate Provision for Male & Female",
+                hostel.SeparateProvisionMaleFemale == true ? "Yes" : "No");
+
+            AddRow(
+                "Male Students",
+                hostel.TotalMaleStudents.ToString());
+
+            AddRow(
+                "Male Rooms",
+                hostel.TotalMaleRooms.ToString());
+
+            AddRow(
+                "Female Students",
+                hostel.TotalFemaleStudents.ToString());
+
+            AddRow(
+                "Female Rooms",
+                hostel.TotalFemaleRooms.ToString());
+
+            AddRow(
+                "Hostel Men Count",
+                hostel.HostelMenCount.ToString());
+
+            AddRow(
+                "Hostel Women Count",
+                hostel.HostelWomenCount.ToString());
+
+            AddRow(
+                "Ownership",
+                hostel.OwnOrRented ?? "—");
+
+            AddRow(
+                "Space Per Student",
+                hostel.SpacePerStudent.ToString());
+
+            AddRow(
+                "Men Hostel Area (Sq.ft)",
+                hostel.MenHostelAreaSqFt.ToString());
+
+            AddRow(
+                "Women Hostel Area (Sq.ft)",
+                hostel.WomenHostelAreaSqFt.ToString());
+
+            AddRow(
+                "Possession Proof",
+                !string.IsNullOrWhiteSpace(hostel.PossessionProofPath)
+                    ? "Uploaded"
+                    : "Not Uploaded");
+        });
+
+
+        // =========================================================
+        // COMMON ROOMS / OTHER FACILITIES
+        // =========================================================
+
+        AddSubHeading(col, "B. Common Rooms & Other Details");
+
+        col.Item().PaddingTop(5).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
+            });
+
+            void AddRow(string label, string value)
+            {
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(label)
+                    .Bold();
+
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(value);
+            }
+
+            AddRow(
+                "Common Room - Men",
+                hostel.CommonRoomMen.HasValue
+                    ? (hostel.CommonRoomMen.Value ? "Yes" : "No")
+                    : "—");
+
+            AddRow(
+                "Common Room - Women",
+                hostel.CommonRoomWomen.HasValue
+                    ? (hostel.CommonRoomWomen.Value ? "Yes" : "No")
+                    : "—");
+
+            AddRow(
+                "Any Other Facility",
+                hostel.AnyOtherFacility == "true" ? "Yes" : "No");
+
+            AddRow(
+                "Facility Details",
+                hostel.HostelFacilityDetails ?? "—");
+        });
+
+
+        // =========================================================
+        // HOSTEL FACILITIES
+        // =========================================================
+
+        AddSubHeading(col, "C. Hostel Facilities");
+
+        col.Item().PaddingTop(5).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(1);
+            });
+
             table.Header(header =>
             {
-                header.Cell().Border(1).Padding(3).Text("Hostel Type").Bold();
-                header.Cell().Border(1).Padding(3).Text("Built-up Area (Sq.Ft)").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Separate Hostel").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Separate M/F").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Female Students").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Female Rooms").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Male Students").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Male Rooms").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Possession Proof").Bold();
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text("Facility")
+                    .Bold();
+
+                header.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .AlignCenter()
+                    .Text("Available")
+                    .Bold();
             });
 
-            // -------- BODY --------
-            foreach (var item in hostelItems)
+            void AddFacilityRow(string name, bool? value)
             {
-                table.Cell().Border(1).Padding(3).Text(item.HostelType);
-                table.Cell().Border(1).Padding(3).Text(item.BuiltUpAreaSqFt);
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(item.HasSeparateHostel ? "Yes" : "No");
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(item.SeparateProvisionMaleFemale ? "Yes" : "No");
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(item.TotalFemaleStudents);
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(item.TotalFemaleRooms);
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(item.TotalMaleStudents);
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(item.TotalMaleRooms);
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(item.HasPossessionProof ? "Available" : "—");
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text(name);
+
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .AlignCenter()
+                    .Text(value == true ? "Yes" : "No");
             }
+
+            AddFacilityRow(
+                "Sleeping Furniture",
+                hostel.SleepingFurniture);
+
+            AddFacilityRow(
+                "Sanitary & Bathing Facilities",
+                hostel.SanitaryBathing);
+
+            AddFacilityRow(
+                "Dining Hall",
+                hostel.DiningHall);
+
+            AddFacilityRow(
+                "Hostel Common Room",
+                hostel.HostelCommonRoom);
+
+            AddFacilityRow(
+                "Visitors Room",
+                hostel.VisitorsRoom);
+
+            AddFacilityRow(
+                "Kitchen / Pantry",
+                hostel.KitchenPantry);
+
+            AddFacilityRow(
+                "Warden Office",
+                hostel.WardenOffice);
+
+            AddFacilityRow(
+                "Reception Counter",
+                hostel.ReceptionCounter);
+
+            AddFacilityRow(
+                "Games / Recreation",
+                hostel.GamesRecreation);
+
+            AddFacilityRow(
+                "Medical Facilities",
+                hostel.MedicalFacilities);
         });
     }
 

@@ -11,6 +11,8 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly IUserContext _userContext;
         private readonly ICAPgCourseService _pgCourseService;
 
+        private readonly IUGPgIntakeDetailsService _intakeDetailsService;
+
         public CAAcademicIntakeService(
             ApplicationDbContext context,
             ICAPgCourseService pgCourseService,
@@ -101,6 +103,43 @@ namespace Medical_Affiliation.Services.Faculty
             model.UgCourses = GetCoursesByLevel("UG");
             model.PgCourses = GetCoursesByLevel("PG");
             model.SsCourses = GetCoursesByLevel("SS");
+
+            // ==========================================
+            // Sorted Course Levels
+            // Same order as BaseController
+            // ==========================================
+
+            var order = new List<string>
+            {
+                "UG",
+                "PG",
+                "SS"
+            };
+
+            model.SortedCourseLevels = academicIntakes
+                .Where(x => !string.IsNullOrWhiteSpace(x.Courses))
+                .Join(
+                    allCourses,
+                    intake => intake.Courses,
+                    course => course.CourseCode.ToString(),
+                    (intake, course) => course.CourseLevel
+                )
+                .Where(level => !string.IsNullOrWhiteSpace(level))
+                .Select(level => level!.Trim().ToUpper())
+                .Distinct()
+                .OrderBy(level =>
+                    order.Contains(level)
+                        ? order.IndexOf(level)
+                        : int.MaxValue)
+                .ThenBy(level => level)
+                .ToList();
+
+            // Fallback
+            if (!model.SortedCourseLevels.Any())
+            {
+                model.SortedCourseLevels.Add("UG");
+            }
+
             model.PgCourseDetails = await _pgCourseService.GetPgCourseDetailsAsync();
             model.UgCourseDetails = await GetAffiliationCourseDetails();
             model.TeachingFacultyDetails = await GetTeachingFacultyDetails();

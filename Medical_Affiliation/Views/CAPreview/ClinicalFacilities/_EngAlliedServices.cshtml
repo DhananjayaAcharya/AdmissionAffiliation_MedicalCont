@@ -1,4 +1,8 @@
 ﻿@model EngAlliedRequirementsDisplayVM
+@{
+    int slNo = 1;
+}
+
 
 <div class="general-body">
     <div class="section-block mt-4">
@@ -6,12 +10,12 @@
         <div class="section-header-block mb-3">
             <div class="section-title-text section-badge">
                 <i class="bi bi-tools"></i>
-                Engineering & Allied Services
+                Services
             </div>
 
-            <p class="section-description">
+            @* <p class="section-description">
                 Availability of engineering and allied services.
-            </p>
+            </p> *@
         </div>
 
         <div class="data-table-wrapper">
@@ -19,6 +23,7 @@
 
                 <thead>
                     <tr>
+                        <th>Sl No</th>
                         <th width="70%">Service</th>
                         <th class="text-center">Available</th>
                     </tr>
@@ -31,6 +36,9 @@
                         @foreach (var item in Model.Requirements)
                         {
                             <tr>
+                                <td class="text-center">
+                                    @slNo
+                                </td>
                                 <td>@item.RequirementName</td>
 
                                 <td class="text-center">
@@ -51,6 +59,7 @@
                                 </td>
 
                             </tr>
+                            slNo++;
                         }
                     }
                     else
