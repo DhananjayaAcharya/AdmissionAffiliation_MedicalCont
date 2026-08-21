@@ -503,7 +503,7 @@
 
                 courseSelect.innerHTML = '<option value="">Loading...</option>';
 
-                fetch(`@Url.Action("GetCoursesByCollege", "AffiliationSS")?collegeCode=${encodeURIComponent(collegeCode)}&facultyCode=${encodeURIComponent(facultyCode)}&courseLevel=${encodeURIComponent(level)}`)
+                fetch(`@Url.Action("GetCoursesByCollege", "AffiliationSS")?facultyCode=${encodeURIComponent(facultyCode)}&courseLevel=${encodeURIComponent(level)}`)
                     .then(r => r.json())
                     .then(data => {
                         courseSelect.innerHTML = '<option value="">Select Course</option>';

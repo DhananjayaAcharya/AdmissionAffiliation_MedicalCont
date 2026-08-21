@@ -3,6 +3,7 @@ using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Data;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -251,15 +252,17 @@ public class AutoProgressFilter : IAsyncActionFilter
 
         var stepKey = step.Key;
 
-        // ✅ Save to DB
+        await using var progressTransaction = await _db.Database
+            .BeginTransactionAsync(IsolationLevel.Serializable);
+
         foreach (var level in levels)
         {
-            var exists = await _db.CaProgresses.AnyAsync(x =>
+            var progress = await _db.CaProgresses.FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.CourseLevel == level &&
                 x.StepKey == stepKey);
 
-            if (!exists)
+            if (progress == null)
             {
                 _db.CaProgresses.Add(new CaProgress
                 {
@@ -270,8 +273,14 @@ public class AutoProgressFilter : IAsyncActionFilter
                     UpdatedAt = DateTime.Now
                 });
             }
+            else
+            {
+                progress.IsCompleted = true;
+                progress.UpdatedAt = DateTime.Now;
+            }
         }
 
         await _db.SaveChangesAsync();
+        await progressTransaction.CommitAsync();
     }
 }

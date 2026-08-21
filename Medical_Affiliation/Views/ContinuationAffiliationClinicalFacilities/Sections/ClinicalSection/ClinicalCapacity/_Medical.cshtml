@@ -43,12 +43,10 @@
 
             <div class="col-md-6">
                 <label class="required">Owner is Member of Trust</label>
-                <select asp-for="Form.IsOwnerAmemberOfTrust" class="form-select">
+                <select asp-for="Form.IsOwnerAmemberOfTrust"
+                        asp-items="@(new SelectList(Model.IsOwnerAmemberOfTrustOptions, "Value", "Text"))"
+                        class="form-select">
                     <option value="">Select</option>
-                    @foreach (var i in Model.IsOwnerAmemberOfTrustOptions)
-                    {
-                        <option value="@i.Value">@i.Text</option>
-                    }
                 </select>
             </div>
         </div>

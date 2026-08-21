@@ -275,42 +275,37 @@ namespace Medical_Affiliation.Services.Faculty
             ).ToListAsync();
 
             research.DepartmentPublications = await
-                (
-                    from dept in _context.DepartmentMasters
+    (
+        from dept in _context.DepartmentMasters
 
-                    join deptPublication in _context.DeptWisePublications
-                        .Where(x =>
-                            x.CollegeCode == CollegeCode &&
-                            x.FacultyCode == FacultyCode)
+        join deptPublication in _context.DeptWisePublications
+            .Where(x =>
+                x.CollegeCode == CollegeCode &&
+                x.FacultyCode == FacultyCode)
 
-                    on dept.DepartmentCode equals deptPublication.DeptCode
-                        into grp
+        on dept.DepartmentCode equals deptPublication.DeptCode
+            into grp
 
-                    from deptPublication in grp.DefaultIfEmpty()
+        from deptPublication in grp.DefaultIfEmpty()
 
-                    where dept.FacultyCode == FacultyCode
+        where dept.FacultyCode == FacultyCode
 
-                    orderby dept.DepartmentName
+        orderby dept.DepartmentName
 
-                    select new DepartmentPublicationPreviewVM
-                    {
+        select new DepartmentPublicationPreviewVM
+        {
+            Id = (int?)deptPublication.Id ?? 0,
 
-                        Id = deptPublication.Id,
+            DepartmentCode = dept.DepartmentCode,
+            DepartmentName = dept.DepartmentName,
 
-                        DepartmentCode = dept.DepartmentCode,
-                        DepartmentName = dept.DepartmentName,
+            PublicationsCount = (int?)deptPublication.PublicationsCount ?? 0,
 
-                        PublicationsCount =
-                            deptPublication != null
-                                ? deptPublication.PublicationsCount
-                                : 0,
+            HasDocument = deptPublication.PublicationPath != null &&
+                          deptPublication.PublicationPath != ""
+        }
 
-                        HasDocument =
-                            deptPublication != null &&
-                            !string.IsNullOrWhiteSpace(deptPublication.PublicationPath)
-                    }
-
-                ).ToListAsync();
+    ).ToListAsync();
 
             vm.ResearchPublications = research;
 
