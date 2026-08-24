@@ -1,0 +1,42 @@
+﻿@model UGPgIntakeDetailsPreviewViewModel
+
+<link rel="stylesheet"
+      href="~/css/preview.css"
+      asp-append-version="true" />
+
+<div class="general-section">
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-journal-bookmark-fill"></i>
+                UG / PG Intake Details
+            </h2>
+        </div>
+    </div>
+
+    <div class="general-body">
+
+        @if (Model.UgCourseDetails != null)
+        {
+            <div id="ug-course-details">
+                @await Html.PartialAsync("UgPgIntakeData/_UgCourseDetails", Model.UgCourseDetails)
+            </div>
+        }
+
+
+        <!-- ========================= -->
+        <!-- PG COURSE DETAILS -->
+        <!-- ========================= -->
+        @if (Model?.PgCourseDetails != null)
+        {
+            <div id="pg-course-details">
+                @await Html.PartialAsync(
+                    "UgPgIntakeData/_PgCourseDetails",
+                    Model.PgCourseDetails)
+            </div>
+        }
+        @* PG will be added here later *@
+
+    </div>
+</div>

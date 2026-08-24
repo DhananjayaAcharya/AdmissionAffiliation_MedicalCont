@@ -19,6 +19,13 @@
             </div>
         </div>
     </div>
+
+    @if (Model != null)
+    {
+        <div id="institution-details">
+            @await Html.PartialAsync( "BasicDetails/_InstitutionDetails", Model)
+        </div>
+    }
     @if (Model != null)
     {
         <div id="trust-members">

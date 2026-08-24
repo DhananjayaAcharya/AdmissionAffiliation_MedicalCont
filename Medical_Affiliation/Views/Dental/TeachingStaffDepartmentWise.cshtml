@@ -744,7 +744,8 @@
                 else
                 {
                     <div class="alert alert-warning text-center mt-4">
-                        Please fill the Faculty Details.
+                        Please fill the 
+                        <a asp-controller="FacultyDetails" asp-action="Repo_FacultyDetails">Faculty Details.</a>
                     </div>
                 }
                 <!-- FOOTER -->
@@ -1535,16 +1536,16 @@
 
             tbody.appendChild(row);
 
-            const rows =  tbody.querySelectorAll("tr");
+            // const rows =  tbody.querySelectorAll("tr");
 
-            rows.forEach((r, index) => {
+            // rows.forEach((r, index) => {
 
-                const btn =
-                    r.querySelector(".remove-exp-row");
+            //     const btn =
+            //         r.querySelector(".remove-exp-row");
 
-                btn.style.display =
-                    index === 0 ? "none" : "";
-            });
+            //     btn.style.display =
+            //         index === 0 ? "none" : "";
+            // });
 
             calculateExperienceRow(row);
         }
@@ -1794,6 +1795,8 @@
                     .hide();
 
                 alert("Experience saved successfully.");
+
+                location.reload();
 
             }
             catch (err) {

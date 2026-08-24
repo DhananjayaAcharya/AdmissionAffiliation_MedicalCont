@@ -1,6 +1,6 @@
 ﻿@model Medical_Affiliation.Models.MedicalLibraryPreviewVM
 @{
-    var isMedical = Context.Session.GetString("FacultyCode") == "1";
+    var isMedical = Model.facultyCode == 1;
 }
 <link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
 

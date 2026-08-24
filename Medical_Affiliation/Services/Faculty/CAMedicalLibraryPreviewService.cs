@@ -19,11 +19,13 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var vm = new MedicalLibraryPreviewVM();
 
-            
+
 
             // ============================================================
             // USAGE REPORT
             // ============================================================
+
+            vm.facultyCode = FacultyCode;
 
             vm.HasUsageReport = await _context.CaMedicalLibraryUsageReports
                 .AnyAsync(x =>

@@ -1,6 +1,6 @@
 ﻿@model HospitalAffiliationCompositeDisplayVM
 @{
-    var isDental = Context.Session.GetString("Facultycode") == "2";
+    var isDental = Model.FacultyCode == 2;
 }
 <link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
 <div class="general-section">
@@ -47,24 +47,24 @@
 
 
         <!-- 🛏 Indoor Beds Occupancy -->
-        @if (Model.IndoorBedsOccupancy?.Any() == true)
+        @if (Model.IndoorBedsOccupancy?.Any() == true && Model.FacultyCode == 1)
         {
             @await Html.PartialAsync( "ClinicalFacilities/_IndoorBedsOccupancy",  Model.IndoorBedsOccupancy)
         }
 
         <!-- 👩‍⚕️ Supervision in Field Practice Area -->
-        @if (Model.SuperVisionInFPa?.Any() == true)
+        @if (Model.SuperVisionInFPa?.Any() == true && Model.FacultyCode == 1)
         {
             @await Html.PartialAsync( "ClinicalFacilities/_SuperVisionInFieldPractice",  Model.SuperVisionInFPa.First())
         }
 
         <!-- 📋 Discipline Details -->
-        @if (Model.DisciplineDetails != null)
+        @if (Model.DisciplineDetails?.Disciplines?.Any() == true)
         {
             @await Html.PartialAsync( "ClinicalFacilities/_DisciplineDetails", Model.DisciplineDetails)
         }
 
-        @if (Model.EngAlliedServices != null && isDental)
+        @if (Model.EngAlliedServices.Requirements.Any() != null && isDental)
         {
             @await Html.PartialAsync("ClinicalFacilities/_EngAlliedServices", Model.EngAlliedServices)
         }

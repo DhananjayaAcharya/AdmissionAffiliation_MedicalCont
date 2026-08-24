@@ -356,6 +356,57 @@
                         </a>
                     </li>
                 }
+
+                @if (Model.TrustDetailsVM != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link " href="#trust-details">
+                            <i class="bi bi-shield-check"></i>
+                            Trust Details
+                        </a>
+                    </li>
+                }
+
+                @if (Model.TrustMemberDetailsVM != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#trust-member-details">
+                            <i class="bi bi-people-fill"></i>
+                            Trust Member Details
+                        </a>
+                    </li>
+                }
+
+                @if (Model.UGPgIntakeDetailsVM?.UgCourseDetails != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#ug-pg-intake-details">
+                            <i class="bi bi-mortarboard-fill"></i>
+                            UG / PG Intake Details
+                        </a>
+                    </li>
+                }
+
+                @if (Model.TeachingFacultyDetailsVM != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#teaching-faculty-details">
+                            <i class="bi bi-person-workspace"></i>
+                            Teaching Faculty Details
+                        </a>
+                    </li>
+                }
+
+                @if (Model.EquipmentPreviewVM != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#equipment-details">
+                            <i class="bi bi-tools"></i>
+                            Department-wise Equipment Details
+                        </a>
+                    </li>
+                }
+
                 @if (Model.AcademicIntakeVM != null)
                 {
                     <li class="nav-item">
@@ -450,6 +501,15 @@
                         </a>
                     </li>
                 }
+                @if (Model.DentalChairDistribution != null && FacultyCode == "2")
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#chair-distribution-group">
+                            <i class="bi bi-person-wheelchair"></i>
+                            Chair Distribution
+                        </a>
+                    </li>
+                }
 
                 @if (Model.DepartmentOfficesMeuVM != null)
                 {
@@ -471,21 +531,11 @@
                     </li>
                 }
 
-                @if (Model.EquipmentPreviewVM != null)
+
+                @if (Model.VehiclePreviewVM != null)
                 {
                     <li class="nav-item">
-                        <a class="nav-link" href="#equipment-details-group">
-                            <i class="bi bi-tools"></i>
-                            Department-wise Equipment
-                        </a>
-                    </li>
-                }
-
-
-                @if (Model.VehicleDetailsVM != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.VehicleDetailsVM == null ? "active" : "")" href="#vehicle-group">
+                        <a class="nav-link @(Model.VehiclePreviewVM == null ? "active" : "")" href="#vehicle-group">
                             <i class="bi bi-hospital"></i>
                             Vehicle Details
                         </a>
@@ -551,8 +601,74 @@
             }
 
             <!-- ========================= -->
+            <!-- TRUST DETAILS -->
+            <!-- ========================= -->
+            @if (Model.TrustDetailsVM != null)
+            {
+                <div id="trust-details">
+                    @await Html.PartialAsync("TrustDetails/_TrustDetails", Model.TrustDetailsVM
+                    )
+                </div>
+            }
+
+            <!-- Section Separator -->
+            @if (Model.TrustDetailsVM != null)
+            {
+                <div class="section-separator"></div>
+            }
+
+
+            <!-- ========================= -->
+            <!-- TRUST MEMBER DETAILS -->
+            <!-- ========================= -->
+            @if (Model.TrustMemberDetailsVM != null)
+            {
+                <div id="trust-member-details">
+                    @await Html.PartialAsync( "TrustDetails/_TrustMemberDetails", Model.TrustMemberDetailsVM)
+                </div>
+            }
+
+            
+            <!-- Section Separator -->
+            @if (Model.TrustMemberDetailsVM != null)
+            {
+                <div class="section-separator"></div>
+            }
+
+            <!-- ========================= -->
             <!-- ACADEMIC INTAKE -->
             <!-- ========================= -->
+            @if (Model.UGPgIntakeDetailsVM?.UgCourseDetails != null)
+            {
+                <div id="ug-pg-intake-details">
+                    @await Html.PartialAsync(
+                        "UgPgIntakeData/_UgCourseDetails",
+                        Model.UGPgIntakeDetailsVM.UgCourseDetails)
+                </div>
+
+                <div class="section-separator"></div>
+            }
+
+            <!-- ========================= -->
+            <!-- DEPARTMENT-WISE EQUIPMENT -->
+            <!-- ========================= -->
+            @if (Model.EquipmentPreviewVM?.Departments != null && Model.EquipmentPreviewVM.Departments.Any())
+            {
+                <div id="equipment-details">
+                    @await Html.PartialAsync("EquipmentsList/EquipmentsList", Model.EquipmentPreviewVM)
+                </div>
+
+                <div class="section-separator"></div>
+            }
+
+
+            @if (Model.TeachingFacultyDetailsVM != null)
+            {
+                <div id="teaching-faculty-details">
+                    @await Html.PartialAsync("TeachingFacultyDetails/_TeachingFacultyDetails",  Model.TeachingFacultyDetailsVM)
+                </div>
+                <div class="section-separator"></div>
+            }
 
 
             @if (Model.AcademicIntakeVM != null)
@@ -621,6 +737,15 @@
             {
                 <div class="section-separator"></div>
             }
+
+            @if (Model.CAHospitalAFfiliationCompVM != null)
+            {
+                <div id="hospital-section">
+                    @await Html.PartialAsync("ClinicalFacilities/_HospitalAffiliation", Model.CAHospitalAFfiliationCompVM)
+                </div>
+                <div class="section-separator"></div>
+            }
+
             @if (Model.DentalLandBuildingPreview != null && FacultyCode == "2")
             {
                 <div id="den-land-building-group">
@@ -645,7 +770,7 @@
             }
             @if (Model.DentalChairDistribution != null && FacultyCode == "2")
             {
-                <div id="den-skills-lab-group">
+                <div id="chair-distribution-group">
                     @await Html.PartialAsync("DentalChairDistribution/ChairDistribution", Model.DentalChairDistribution)
                 </div>
             }
@@ -705,13 +830,6 @@
                 <div class="section-separator"></div>
             }
 
-            @if (Model.EquipmentPreviewVM != null)
-            {
-                <div id="equipment-details-group">
-                    @await Html.PartialAsync("EquipmentsList/EquipmentsList", Model.EquipmentPreviewVM)
-                </div>
-                <div class="section-separator"></div>
-            }
 
             @if (Model.MedicalLibraryPreviewVM != null)
             {
@@ -733,10 +851,10 @@
             {
                 <div class="section-separator"></div>
             }
-            @if (Model.VehicleDetailsVM != null)
+            @if (Model.VehiclePreviewVM != null)
             {
                 <div id="vehicle-group">
-                    @await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehicleDetailsVM)
+                    @await Html.PartialAsync("VehicleDetailsPreview/VehicleDetails", Model.VehiclePreviewVM)
                 </div>
             }
 
@@ -748,12 +866,7 @@
             {
                 <div class="section-separator"></div>
             } *@
-            @if (Model.CAHospitalAFfiliationCompVM != null)
-            {
-                <div id="hospital-section">
-                    @await Html.PartialAsync("ClinicalFacilities/_HospitalAffiliation", Model.CAHospitalAFfiliationCompVM)
-                </div>
-            }
+            
 
             <!-- Section Separator -->
             @if (Model.CAHospitalAFfiliationCompVM != null 
@@ -871,7 +984,7 @@
 
         // Optional: Update active tab based on scroll position
         const sections = document.querySelectorAll(
-            '#department-education-unit-group, #academic-performance-group, #human-resources-group, #equipment-details-group, #dental-library-group #vehicle-details-group, #academic-section, #academic-intake-group, #hospital-section, #bed-distribution-group, #hostel-details-group, #small-group, #library-group, #vehicle-group, #den-land-building-group,#den-skills-lab-group,  #finance-group, #admin-group, #fac-group, #basic-section'
+            '#department-education-unit-group, #academic-performance-group, #human-resources-group, #equipment-details, #equipment-details-group, #dental-library-group, #vehicle-details-group, #academic-section, #academic-intake-group, #hospital-section, #bed-distribution-group, #chair-distribution-group, #hostel-details-group, #small-group, #library-group, #vehicle-group, #den-land-building-group,#den-skills-lab-group,  #finance-group, #admin-group, #fac-group, #basic-section, #trust-details, #trust-member-details, #ug-pg-intake-details, #teaching-faculty-details'
         );
 
         window.addEventListener('scroll', function() {

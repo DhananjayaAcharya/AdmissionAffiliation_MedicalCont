@@ -28,6 +28,11 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICAMedicalLibraryPreviewService _cALibraryService;
         private readonly ICAAcademicPerformancePreviewService _academicPerformancePreviewService;
         private readonly IHumanResourcesPreviewService _humanResourcesPreviewService;
+        private readonly ICATrustMemberDetailsPreviewService _trustMembersDetailsService;
+        private readonly ICATrustDetailsService _cATrustDetailsService;
+        private readonly IUGPgIntakeDetailsService _ugPgIntakeDetailsService;
+        private readonly ITeachingFacultyDetailsService _teachingFacultyDetailsPreviewService;
+
         public CAPreviewService(
             ICAAcademicService academicService,
             ICAHospitalAffiliationService hospitalService,
@@ -49,6 +54,10 @@ namespace Medical_Affiliation.Services.Faculty
             ICAMedicalLibraryPreviewService cAMedicalLibraryPreviewService,
             ICAAcademicPerformancePreviewService cAAcademicPerformancePreviewService,
             IHumanResourcesPreviewService humanResourcesPreviewService,
+            ICATrustDetailsService cATrustDetailsService,
+            ICATrustMemberDetailsPreviewService cATrustMemberDetailsPreviewService,
+            IUGPgIntakeDetailsService ugPgIntakeDetailsService,
+            ITeachingFacultyDetailsService teachingFacultyDetailsService,
             ApplicationDbContext dbContext)
         {
             _academicService = academicService;
@@ -71,6 +80,10 @@ namespace Medical_Affiliation.Services.Faculty
             _cALibraryService = cAMedicalLibraryPreviewService;
             _academicPerformancePreviewService = cAAcademicPerformancePreviewService;
             _humanResourcesPreviewService = humanResourcesPreviewService;
+            _trustMembersDetailsService = cATrustMemberDetailsPreviewService;
+            _cATrustDetailsService = cATrustDetailsService;
+            _ugPgIntakeDetailsService = ugPgIntakeDetailsService;
+            _teachingFacultyDetailsPreviewService = teachingFacultyDetailsService;
             _context = dbContext;
         }
 
@@ -88,6 +101,10 @@ namespace Medical_Affiliation.Services.Faculty
                 FacultyCode = _userContext.FacultyId.ToString(),
                 CollegeName = collegeName,
                 FacultyName = facultyName,
+                TrustDetailsVM = await _cATrustDetailsService.GetTrustDetailsAsync(),
+                TeachingFacultyDetailsVM = await _teachingFacultyDetailsPreviewService.GetTeachingFacultyDetailsAsync(),
+                TrustMemberDetailsVM = await _trustMembersDetailsService.GetTrustMemberDetailsAsync(),
+                UGPgIntakeDetailsVM = await _ugPgIntakeDetailsService.GetUgCourseDetailsAsync(),
                 InstitutionBasicVM = await _basicDetailsService.GetAllDetails(),
                 InstitutionPreviewVM = await _institutionPreviewService.GetInstitutionPreviewAsync(),
                 CAacademicMattersVM = await _academicService.GetAcademicMattersAsync(),
