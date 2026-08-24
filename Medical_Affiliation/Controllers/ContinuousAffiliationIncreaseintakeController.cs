@@ -2,6 +2,7 @@
 using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Controllers
@@ -26,12 +27,14 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var collegeName = HttpContext.Session.GetString("CollegeName");
 
+            // 1. Session Validation
             if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode))
                 return RedirectToAction("Index", "Home");
 
             if (!int.TryParse(facultyCode, out int facultyId))
                 return BadRequest("Invalid faculty code");
 
+            // 2. Initialize Model
             var model = new AcademicIntakePageViewModel1
             {
                 FacultyCode = facultyCode,
@@ -40,10 +43,32 @@ namespace Medical_Affiliation.Controllers
                 FacultyId = facultyId
             };
 
+            // 3. Populate Model with College-Specific Courses
             await BuildModelData(model, facultyCode, collegeCode, facultyId);
+
             return View(model);
         }
 
+        private async Task BuildModelData1(AcademicIntakePageViewModel1 model, string facultyCode, string collegeCode, int facultyId)
+        {
+            // Fetch all intake rows strictly for this specific CollegeCode from CollegeCourseIntakeDetails
+            var courses = await _context.CollegeCourseIntakeDetails
+                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode.ToString() == facultyCode)
+                .Select(x => new CollegeCourseIntakeDetail
+                {
+                    Id = x.Id,
+                    CollegeCode = x.CollegeCode,
+                    CollegeName = x.CollegeName,
+                    FacultyCode = x.FacultyCode,
+                    CourseCode = x.CourseCode,
+                    CourseName = x.CourseName,
+                    ExistingIntake = x.ExistingIntake,
+                    PresentIntake = x.PresentIntake
+                })
+                .ToListAsync();
+
+            model.CollegeCourses = courses;
+        }
 
 
 
@@ -624,85 +649,36 @@ namespace Medical_Affiliation.Controllers
             HttpContext.Session.SetString("HospitalDetailsId", hospitalDetailsId.ToString());
 
             var intakeDetails = await _context.CollegeCourseIntakeDetails
-                .Where(d => d.FacultyCode == facultyId && d.CollegeCode == collegeCode)
+                .Where(d => d.CollegeCode == collegeCode && d.FacultyCode == facultyId)
                 .ToListAsync();
 
-            var allCourses = await  _context.MstCourses
-                .Where(c => c.FacultyCode == facultyId)
+            var masterCourses = await _context.MstCourses
+                .Where(c => c.FacultyCode == facultyId &&
+                            (c.CourseLevel == "UG" || c.CourseLevel == "PG" || c.CourseLevel == "SS"))
                 .ToListAsync();
 
             var existingIntakes = await _context.AcademicIntakes
                 .Where(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode)
                 .ToListAsync();
 
-            // ── Reusable LINQ projection ───────────────────────────────────
-            //IEnumerable<IntakeByLevelViewModel1> Project(string level) =>
-            //    from d in intakeDetails.Where(d => int.TryParse(d.CourseCode, out _))
-            //    let codeInt = int.Parse(d.CourseCode!)
-            //    join c in allCourses on codeInt equals c.CourseCode
-            //    where c.CourseLevel == level
-            //    join e in existingIntakes on c.CourseCode.ToString() equals e.Courses into ej
-            //    from existing in ej.DefaultIfEmpty()
-            //    select new IntakeByLevelViewModel1
-            //    {
-            //        CourseCode = c.CourseCode.ToString(),
-            //        CourseName = c.CourseName,
-
-            //        // 2024-25
-            //        AY2024_ExistingIntake = d.ExistingIntake.GetValueOrDefault(),
-            //        AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
-            //        AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? d.ExistingIntake.GetValueOrDefault(),
-
-            //        // 2025-26  (use DB value for existing, master-table value for new)
-            //        AY2025_ExistingIntake = existing?.Ay2025ExistingIntake ?? d.ExistingIntake ?? 0,
-            //        AY2025_LopNmcIntake = existing?.Ay2025LopNmcIntake ?? 0,
-            //        AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
-            //        AY2025_LopDate = existing?.Ay2025LopDate,
-
-            //        // 2026-27
-            //        AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
-            //        AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-            //        AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0
-            //    };
-
-            //code added by DP on 07052026
-
             IEnumerable<IntakeByLevelViewModel1> Project(string level)
             {
-                // Courses for this level
-                var levelCourses = allCourses
-                    .Where(c => c.CourseLevel == level)
-                    .ToList();
+                var collegeCourses = from detail in intakeDetails
+                                      where int.TryParse(detail.CourseCode, out _)
+                                      let courseCode = int.Parse(detail.CourseCode!)
+                                      join course in masterCourses on courseCode equals course.CourseCode
+                                      where course.CourseLevel.Trim().ToUpper() == level
+                                      select new { detail, course };
 
-                var existingLevelIntakes =
-                (
-                    from e in existingIntakes
-                    join c in allCourses
-                        on int.Parse(e.Courses) equals c.CourseCode
-                    where c.CourseLevel == level
-                    select e
-                ).ToList();
-
-                // If intake details exist → use them
-                if (intakeDetails.Any())
-                {
-                    return
-                        from c in levelCourses
-
-                        join d in intakeDetails
-                        on c.CourseCode.ToString() equals d.CourseCode into dj
-
-                        from detail in dj.DefaultIfEmpty()
-
-                        join e in existingIntakes
-                            on c.CourseCode.ToString() equals e.Courses into ej
-                        from existing in ej.DefaultIfEmpty()
-
-                        select new IntakeByLevelViewModel1
-                        {
-                            Id = existing?.Id ?? 0,
-                            CourseCode = c.CourseCode.ToString(),
-                            CourseName = c.CourseName,
+                return from item in collegeCourses
+                       join existing in existingIntakes
+                           on item.course.CourseCode.ToString() equals existing.Courses into existingGroup
+                       from existing in existingGroup.DefaultIfEmpty()
+                       select new IntakeByLevelViewModel1
+                       {
+                            Id = existing?.Id ?? item.detail.Id,
+                            CourseCode = item.course.CourseCode.ToString(),
+                            CourseName = item.course.CourseName,
                             HasNmcDocument =
                                     existing?.Ay2025NmcDocument != null &&
                                     existing.Ay2025NmcDocument.Length > 0,
@@ -724,16 +700,16 @@ namespace Medical_Affiliation.Controllers
                                     existing.Ay2027Dcidocument.Length > 0,
 
                             // 2024-25
-                            AY2024_ExistingIntake = detail?.ExistingIntake ?? 0,
+                            AY2024_ExistingIntake = item.detail.ExistingIntake ?? 0,
                             AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
                             AY2024_TotalIntake =
                                 existing?.Ay2024TotalIntake
-                                ?? detail?.ExistingIntake ?? 0,
+                                ?? item.detail.ExistingIntake ?? 0,
 
                             // 2025-26
                             AY2025_ExistingIntake =
                                 existing?.Ay2025ExistingIntake
-                                ?? detail?.ExistingIntake ?? 0,
+                                ?? item.detail.ExistingIntake ?? 0,
 
                             AY2025_LopNmcIntake =
                                 existing?.Ay2025LopNmcIntake ?? 0,
@@ -762,136 +738,25 @@ namespace Medical_Affiliation.Controllers
                             AY2027_TotalIntake =
                                  existing?.Ay2027TotalIntake ?? 0
                         };
-                }
-                else if (existingLevelIntakes.Any())
-                {
-                    return
-                        from c in levelCourses
-                        join e in existingIntakes
-                            on c.CourseCode.ToString() equals e.Courses into ej
-                        from existing in ej.DefaultIfEmpty()
-
-                        select new IntakeByLevelViewModel1
-                        {
-                            Id = existing?.Id ?? 0,
-
-                            CourseCode = c.CourseCode.ToString(),
-                            CourseName = c.CourseName,
-
-                            HasNmcDocument =
-                                existing?.Ay2025NmcDocument != null &&
-                                existing.Ay2025NmcDocument.Length > 0,
-
-                            HasLopDocument =!string.IsNullOrWhiteSpace(existing?.Ay2025LopDentalDocument),
-
-                            HasAY2025DciDocument = !string.IsNullOrWhiteSpace(existing?.Ay2025Dcidocument),
-
-                            HasAY2025KsdcDocument = !string.IsNullOrWhiteSpace(existing?.Ay2025Ksdcdocument),
-
-                            HasAY2026DciDocument =  !string.IsNullOrWhiteSpace(existing?.Ay2026Dcidocument),
-
-                            HasAY2026KsdcDocument = !string.IsNullOrWhiteSpace(existing?.Ay2026Ksdcdocument),
-
-                            HasAY2027DciDocument = !string.IsNullOrWhiteSpace(existing?.Ay2027Dcidocument),
-
-                            HasAY2027KsdcDocument = !string.IsNullOrWhiteSpace(existing?.Ay2027Ksdcdocument),
-
-                            AY2024_ExistingIntake = existing?.Ay2024ExistingIntake ?? 0,
-
-                            AY2024_IncreaseIntake = existing?.Ay2024IncreaseIntake ?? 0,
-
-                            AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? 0,
-
-                            AY2025_ExistingIntake =  existing?.Ay2025ExistingIntake ?? 0,
-
-                            AY2025_LopNmcIntake =  existing?.Ay2025LopNmcIntake ?? 0,
-
-                            AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
-
-                            AY2025_LopDate = existing?.Ay2025LopDate,
-
-                            AY2026_ExistingIntake = existing?.Ay2026ExistingIntake ?? 0,
-
-                            AY2026_AddRequestedIntake = existing?.Ay2026AddRequestedIntake ?? 0,
-
-                            AY2026_TotalIntake = existing?.Ay2026TotalIntake ?? 0,
-
-                            AY2027_ExistingIntake = existing?.Ay2027ExistingIntake ?? 0,
-
-                            AY2027_AddRequestedIntake = existing?.Ay2027AddRequestedIntake ?? 0,
-
-                            AY2027_TotalIntake = existing?.Ay2027TotalIntake ?? 0
-                        };
-                }
-
-                // Fallback → only MstCourses (for Dental etc.)
-                return
-                    from c in levelCourses
-                    join e in existingIntakes
-                        on c.CourseCode.ToString() equals e.Courses into ej
-                    from existing in ej.DefaultIfEmpty()
-
-                    select new IntakeByLevelViewModel1
-                    {
-                        CourseCode = c.CourseCode.ToString(),
-                        CourseName = c.CourseName,
-
-                        AY2024_ExistingIntake =
-                            existing?.Ay2024ExistingIntake ?? 0,
-
-                        AY2024_IncreaseIntake =
-                            existing?.Ay2024IncreaseIntake ?? 0,
-
-                        AY2024_TotalIntake =
-                            existing?.Ay2024TotalIntake ?? 0,
-
-                        AY2025_ExistingIntake =
-                            existing?.Ay2025ExistingIntake ?? 0,
-
-                        AY2025_LopNmcIntake =
-                            existing?.Ay2025LopNmcIntake ?? 0,
-
-                        AY2025_TotalIntake =
-                            existing?.Ay2025TotalIntake ?? 0,
-
-                        AY2025_LopDate =
-                            existing?.Ay2025LopDate,
-
-                        AY2026_ExistingIntake =
-                            existing?.Ay2026ExistingIntake ?? 0,
-
-                        AY2026_AddRequestedIntake =
-                            existing?.Ay2026AddRequestedIntake ?? 0,
-
-                        AY2026_TotalIntake =
-                            existing?.Ay2026TotalIntake ?? 0,
-                        AY2027_ExistingIntake =
-                         existing?.Ay2027ExistingIntake ?? 0,
-
-                        AY2027_AddRequestedIntake =
-                            existing?.Ay2027AddRequestedIntake ?? 0,
-
-                        AY2027_TotalIntake =
-                            existing?.Ay2027TotalIntake ?? 0
-                    };
             }
 
             model.UgCourses = Project("UG").DistinctBy(x => x.CourseCode).ToList();
             model.PgCourses = Project("PG").DistinctBy(x => x.CourseCode).ToList();
             model.SsCourses = Project("SS").DistinctBy(x => x.CourseCode).ToList();
 
+            var masterCourseByCode = masterCourses.ToDictionary(x => x.CourseCode.ToString());
+
             // ── Saved records summary table ────────────────────────────────
             model.SavedIntakes = (
                 from e in existingIntakes
-                where int.TryParse(e.Courses, out _)
-                let codeInt = int.Parse(e.Courses)
-                join c in allCourses on codeInt equals c.CourseCode
+                where e.Courses != null && masterCourseByCode.ContainsKey(e.Courses)
+                let course = masterCourseByCode[e.Courses!]
                 select new SavedAcademicIntakeRowViewModel1
                 {
                     Id = e.Id,
-                    CourseLevel = c.CourseLevel,
-                    CourseCode = e.Courses,
-                    CourseName = c.CourseName,
+                    CourseLevel = course.CourseLevel.Trim().ToUpper(),
+                    CourseCode = e.Courses!,
+                    CourseName = course.CourseName,
                     AY2024_TotalIntake = e.Ay2024TotalIntake,
                     AY2025_TotalIntake = e.Ay2025TotalIntake,
                     AY2026_TotalIntake = e.Ay2026TotalIntake,

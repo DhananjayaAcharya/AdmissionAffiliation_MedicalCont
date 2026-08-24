@@ -623,17 +623,14 @@
 
             <div class="tabs">
                 <button type="button" class="tb on" data-t="ug">
-                    UG Courses <span class="tc">@(Model.UgCourses?.Count ?? 0)</span>
+                    UG <span class="tc">@(Model.UgCourses?.Count ?? 0)</span>
                 </button>
                 <button type="button" class="tb" data-t="pg">
-                    PG Courses <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
+                    PG <span class="tc">@(Model.PgCourses?.Count ?? 0)</span>
                 </button>
-                @if (Model.FacultyId != 2)
-                {
-                    <button type="button" class="tb" data-t="ss">
-                        SS Courses <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
-                    </button>
-                }
+                <button type="button" class="tb" data-t="ss">
+                    SS <span class="tc">@(Model.SsCourses?.Count ?? 0)</span>
+                </button>
             </div>
 
             <div id="tp-ug" class="tp on">
@@ -646,15 +643,11 @@
                     await RenderTable(Model.PgCourses, "PgCourses");
                 }
             </div>
-            @if (Model.FacultyId != 2)
-            {
-                <div id="tp-ss" class="tp">
-                    @{
-                        await RenderTable(Model.SsCourses, "SsCourses");
-                    }
-                </div>
-            }
-
+            <div id="tp-ss" class="tp">
+                @{
+                    await RenderTable(Model.SsCourses, "SsCourses");
+                }
+            </div>
             <div class="cf">
                 <a href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")"
                    class="btn bo">

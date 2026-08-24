@@ -1,4 +1,5 @@
 ﻿using Admission_Affiliation.Models;
+using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -595,6 +596,7 @@ public class AcademicIntakePageViewModel1
     public int FacultyId { get; set; }
 
     // UG, PG, SS Courses - populated from CollegeCourseIntakeDetails + MstCourses
+    public List<CollegeCourseIntakeDetail> CollegeCourses { get; set; } = new List<CollegeCourseIntakeDetail>();
     public List<IntakeByLevelViewModel1> UgCourses { get; set; } = new List<IntakeByLevelViewModel1>();
     public List<IntakeByLevelViewModel1> PgCourses { get; set; } = new List<IntakeByLevelViewModel1>();
     public List<IntakeByLevelViewModel1> SsCourses { get; set; } = new List<IntakeByLevelViewModel1>();
