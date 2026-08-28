@@ -141,7 +141,7 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key="NonTeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
             new CAStep { Key="Hostel", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
-            new CAStep { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
+            new CAStep { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Act= facultyCode == "1" ? "IncreaseIntake" : "DentalIncreaseIntake" },
 
             new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
             new CAStep{ Key = "SsCoursesOffered",  Ctrl = "AffiliationSS", Act = "CoursesOffered" },

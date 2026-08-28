@@ -92,7 +92,7 @@
         new StepItem{ Key="PrincipalDetails", Label="Principal Details", Group="Basic Details", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
 
         // ================= STUDENT AMENITIES =================
-        new StepItem{ Key="IntakeDetails", Label="Course-wise Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act="IncreaseIntake" },
+        new StepItem{ Key="IntakeDetails", Label="Course-wise Intake Details", Group="Intake Details", Ctrl="ContinuousAffiliationIncreaseintake", Act = facultyCode == "1" ?"IncreaseIntake" : "DentalIncreaseIntake" },
         new StepItem{ Key = "SsCoursesOffered", Label = "Courses Offered",   Group = "Intake Details", Ctrl = "AffiliationSS", Act = "CoursesOffered", Levels = new List<string>{ "SS" } },
 
 
