@@ -124,6 +124,17 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         border: 1px solid #e0f2fe;
         margin-bottom: 2rem;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        margin-bottom: 2rem;
+
+        transition: box-shadow 0.2s ease, border-radius 0.2s ease;
+    }
+
+    .navigation-tabs.is-sticky {
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
 
     .nav-tabs-custom {
@@ -163,12 +174,16 @@
         display: flex;
         flex-direction: column;
         gap: 0rem;
-        scroll-margin-top: 100px;
+        /* scroll-margin-top: 100px; */
     }
 
-    #academic-section,
+    /* #academic-section,
     #hospital-section {
         scroll-margin-top: 120px;
+    } */
+
+    .sections-container > div[id] {
+        scroll-margin-top: 130px;
     }
 
     .breadcrumb-wrapper {
@@ -954,56 +969,140 @@
 </div>
 
 <script>
-    // Smooth scroll to section when tab is clicked
     document.addEventListener('DOMContentLoaded', function() {
+
+        const navigationTabs = document.querySelector('.navigation-tabs');
         const navLinks = document.querySelectorAll('.nav-tabs-custom .nav-link');
+
+        /*
+         * ==========================================================
+         * STICKY NAVIGATION
+         * ==========================================================
+         */
+
+        const navigationTop = navigationTabs.offsetTop;
+
+        window.addEventListener('scroll', function() {
+
+            if (window.scrollY >= navigationTop) {
+                navigationTabs.classList.add('is-sticky');
+            } else {
+                navigationTabs.classList.remove('is-sticky');
+            }
+
+        });
+
+
+        /*
+         * ==========================================================
+         * NAVIGATION CLICK
+         * ==========================================================
+         */
 
         navLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
 
-                // Remove active class from all links
                 navLinks.forEach(l => l.classList.remove('active'));
-
-                // Add active class to clicked link
                 this.classList.add('active');
 
-                // Get target section
                 const targetId = this.getAttribute('href');
                 const targetSection = document.querySelector(targetId);
 
                 if (targetSection) {
-                    // Smooth scroll to section
-                    targetSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+
+                    const navigationTabs =
+                        document.querySelector('.navigation-tabs');
+
+                    const body =
+                        document.querySelector('.ca-body');
+
+                    const navHeight =
+                        navigationTabs.offsetHeight;
+
+                    const targetTop =
+                        targetSection.offsetTop -
+                        navHeight -
+                        20;
+
+                    body.scrollTo({
+                        top: targetTop,
+                        behavior: 'smooth'
                     });
                 }
             });
         });
 
-        // Optional: Update active tab based on scroll position
-        const sections = document.querySelectorAll(
-            '#department-education-unit-group, #academic-performance-group, #human-resources-group, #equipment-details, #equipment-details-group, #dental-library-group, #vehicle-details-group, #academic-section, #academic-intake-group, #hospital-section, #bed-distribution-group, #chair-distribution-group, #hostel-details-group, #small-group, #library-group, #vehicle-group, #den-land-building-group,#den-skills-lab-group,  #finance-group, #admin-group, #fac-group, #basic-section, #trust-details, #trust-member-details, #ug-pg-intake-details, #teaching-faculty-details'
-        );
+
+        /*
+         * ==========================================================
+         * UPDATE ACTIVE NAVIGATION WHILE SCROLLING
+         * ==========================================================
+         */
+
+        const sectionSelector = [
+            '#department-education-unit-group',
+            '#academic-performance-group',
+            '#human-resources-group',
+            '#equipment-details',
+            '#equipment-details-group',
+            '#dental-library-group',
+            '#vehicle-details-group',
+            '#academic-section',
+            '#academic-intake-group',
+            '#hospital-section',
+            '#bed-distribution-group',
+            '#chair-distribution-group',
+            '#hostel-details-group',
+            '#small-group',
+            '#library-group',
+            '#vehicle-group',
+            '#den-land-building-group',
+            '#den-skills-lab-group',
+            '#finance-group',
+            '#admin-group',
+            '#fac-group',
+            '#payment-group',
+            '#basic-section',
+            '#trust-details',
+            '#trust-member-details',
+            '#ug-pg-intake-details',
+            '#teaching-faculty-details'
+        ].join(',');
+
+        const sections = document.querySelectorAll(sectionSelector);
+
 
         window.addEventListener('scroll', function() {
+
+            const navHeight = navigationTabs.offsetHeight;
+
             let current = '';
 
             sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (pageYOffset >= (sectionTop - 150)) {
+
+                const sectionTop =
+                    section.getBoundingClientRect().top +
+                    window.pageYOffset;
+
+                if (window.pageYOffset >= sectionTop - navHeight - 40) {
                     current = section.getAttribute('id');
                 }
+
             });
 
+
             navLinks.forEach(link => {
+
                 link.classList.remove('active');
+
                 if (link.getAttribute('href') === '#' + current) {
                     link.classList.add('active');
                 }
+
             });
+
         });
+
     });
 </script>

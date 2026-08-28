@@ -323,6 +323,73 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        public async Task<IActionResult> DeleteIntake(int id)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized();
+
+            var intake = await _context.AcademicIntakes
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.CollegeCode == collegeCode);
+
+            if (intake == null)
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    message = "Intake record not found."
+                });
+            }
+
+            // Delete physical documents
+            DeletePhysicalFile(intake.Ay2025LopDentalDocument, "AY2025_LOP_DENTAL");
+            DeletePhysicalFile(intake.Ay2025Dcidocument, "AY2025_DCI");
+            DeletePhysicalFile(intake.Ay2025Ksdcdocument, "AY2025_KSDC");
+
+            DeletePhysicalFile(intake.Ay2026Dcidocument, "AY2026_DCI");
+            DeletePhysicalFile(intake.Ay2026Ksdcdocument, "AY2026_KSDC");
+
+            DeletePhysicalFile(intake.Ay2027Dcidocument, "AY2027_DCI");
+            DeletePhysicalFile(intake.Ay2027Ksdcdocument, "AY2027_KSDC");
+
+            // NMC is byte[] in DB, so there is no physical file to delete
+            // Ay2025NmcDocument will be deleted automatically with the DB row.
+
+            _context.AcademicIntakes.Remove(intake);
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = "Intake record and associated documents deleted successfully."
+            });
+        }
+        private void DeletePhysicalFile(string? fileName, string folderName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return;
+
+            // Prevent path traversal
+            fileName = Path.GetFileName(fileName);
+
+            var fullPath = Path.Combine(
+                BaseDentalPath,
+                folderName,
+                fileName);
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
+        }
+
         protected async Task<string?> SaveFileAsync(
      IFormFile? file,
      string folderName)

@@ -550,6 +550,36 @@
         font-family: 'DM Sans', sans-serif;
         text-decoration: none;
     }
+
+    .btn-delete-row {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .35rem;
+        min-width: 72px;
+        padding: .4rem .65rem;
+        border: 1px solid #e0a0aa;
+        border-radius: 6px;
+        background: #fff5f6;
+        color: #c6283d;
+        font-family: var(--fb);
+        font-size: .76rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .15s ease;
+    }
+
+    .btn-delete-row:hover {
+        background: #ffe8eb;
+        border-color: #e63c55;
+        color: #a7192d;
+        box-shadow: 0 2px 7px rgba(230,60,85,.15);
+    }
+
+    .btn-delete-row:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
 </style>
 
 @* ── PAGE HEADER ── *@
@@ -933,9 +963,9 @@
                         @if (Model.FacultyId == 2)
                         {
                             <th class="g26">DCI Document<span style="color:red">*</span></th>
+                            <th rowspan="2" style="text-align:center;min-width:90px">Action</th>
                         }
                         @* 2027-28 sub-headers *@
-                        
                     </tr>
                 </thead>
                 <tbody>
@@ -1108,6 +1138,25 @@
                                             </div>
                                         }
                                     </td>
+                                    <td class="cc">
+                                        <button type="button"
+                                                class="btn-delete-row"
+                                                title="Delete this intake record"
+                                                data-id="@c.Id"
+                                                onclick="deleteIntakeRow(this)">
+                                            <svg width="13" height="13"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="2"
+                                                 viewBox="0 0 24 24">
+                                                <path d="M3 6h18" />
+                                                <path d="M8 6V4h8v2" />
+                                                <path d="M19 6l-1 14H6L5 6" />
+                                                <path d="M10 11v5M14 11v5" />
+                                            </svg>
+                                            Delete
+                                        </button>
+                                    </td>
                                 }
 
                                 @* ── 2027-28 Existing (auto from 2026-27 Total) ── *@
@@ -1135,11 +1184,93 @@
         });
     });
 
+    async function deleteIntakeRow(button) {
+
+        const id = button.dataset.id;
+
+        if (!id || id === "0") {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cannot delete',
+                text: 'This course has not been saved yet.'
+            });
+
+            return;
+        }
+
+        const result = await Swal.fire({
+            icon: 'warning',
+            title: 'Delete intake record?',
+            text: 'This will permanently delete the saved intake data for this course.',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        });
+
+        if (!result.isConfirmed)
+            return;
+
+        button.disabled = true;
+
+        try {
+
+            const token = document.querySelector(
+                'input[name="__RequestVerificationToken"]'
+            ).value;
+
+            const response = await fetch(
+                '@Url.Action("DeleteIntake", "ContinuousAffiliationIncreaseintake")',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'RequestVerificationToken': token
+                    },
+                    body: new URLSearchParams({
+                        id: id,
+                        __RequestVerificationToken: token
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Unable to delete record.');
+            }
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Deleted',
+                text: data.message,
+                timer: 1200,
+                showConfirmButton: false
+            });
+
+            window.location.reload();
+
+        }
+        catch (error) {
+
+            button.disabled = false;
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Delete failed',
+                text: error.message || 'Something went wrong.'
+            });
+        }
+    }
+
     // ── RECALC ──
     function recalcRow(row) {
+
         const val = r => {
             const el = row.querySelector(`[data-r="${r}"]`);
+
             if (!el) return 0;
+
             return +(el.value !== undefined && el.tagName === 'INPUT'
                 ? el.value
                 : el.textContent) || 0;
@@ -1148,6 +1279,7 @@
         const set = (r, v) => {
             const sp = row.querySelector(`[data-r="${r}"]`);
             const hd = row.querySelector(`[data-h="${r}"]`);
+
             if (sp) {
                 if (sp.tagName === 'INPUT') {
                     sp.value = Math.max(0, v);
@@ -1155,33 +1287,49 @@
                     sp.textContent = v;
                 }
             }
-            if (hd) hd.value = v;
+
+            if (hd) {
+                hd.value = Math.max(0, v);
+            }
         };
 
-        // 2024-25 total (skipped safely for faculty-2 — elements won't exist)
+        // ---------------------------------
+        // AY 2024-25
+        // ---------------------------------
         const e24 = val('e24');
         const i24 = val('i24');
+
         const t24 = e24 + i24;
+
         set('t24', t24);
 
-        // ✅ 2025-26 Existing = AY 2024-25 Total (auto carry-forward)
+        // ---------------------------------
+        // AY 2025-26
+        // Existing = AY2024 Total
+        // ---------------------------------
         set('e25', t24);
 
-        // 2025-26 total
-        const t25 = val('e25') + val('l25');
+        const l25 = val('l25');
+        const t25 = t24 + l25;
+
         set('t25', t25);
 
-        // 2026-27 Existing = 2025-26 Total (auto)
+        // ---------------------------------
+        // AY 2026-27
+        // Existing = AY2025 Total
+        // ---------------------------------
         set('e26', t25);
-        const t26 = t25 + val('r26');
+
+        /*
+           AY2026 Add Requested is currently
+           not rendered in your Razor table.
+
+           Therefore total = existing.
+        */
+        const t26 = t25;
+
         set('t26', t26);
-
-        // 2027-28 Existing = 2026-27 Total (auto)
-        set('e27', t26);
-        const t27 = t26 + val('r27');
-        set('t27', t27);
     }
-
     document.querySelectorAll('table.t tbody tr').forEach(row => {
         row.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', () => recalcRow(row));

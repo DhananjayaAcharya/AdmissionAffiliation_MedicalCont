@@ -774,14 +774,29 @@
             {
                 <div class="sidebar-divider"></div>
                 <div class="sidebar-section-label">Administration</div>
+
                 <a class="sidebar-link" href="@Url.Action("ManageCollegeStatus", "Admin")">
-                    <i class="bi bi-building-gear"></i> Manage College Status
+                    <i class="bi bi-building-check"></i> Manage College Status
                 </a>
+
                 <div class="sidebar-divider"></div>
+
                 <a class="sidebar-link" href="@Url.Action("ManageOtherCollegeStatus", "Admin")">
-                    <i class="bi bi-building-gear"></i> Manage Other Colleges Outside Karnataka
+                    <i class="bi bi-buildings"></i> Manage Other Colleges Outside Karnataka
+                </a>
+
+
+                <div class="sidebar-divider"></div>
+
+                <a class="sidebar-link" href="@Url.Action("FacultyUsers", "Admin")">
+                    <i class="bi bi-file-earmark-text-fill"></i> Manage User status
                 </a>
             }
+                <div class="sidebar-divider"></div>
+
+                <a class="sidebar-link" href="@Url.Action("BinderyColleges", "Admin")">
+                    <i class="bi bi-people-fill"></i> Manage Bindery Status
+                </a>
 
             <div class="sidebar-divider" style="margin-top:auto;"></div>
             <form asp-controller="Admin"

@@ -37,6 +37,14 @@ public partial class AppUser
 
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 
+    public virtual ICollection<EventAssignment> EventAssignmentAssignedByNavigations { get; set; } = new List<EventAssignment>();
+
+    public virtual ICollection<EventAssignment> EventAssignmentAssignedToUsers { get; set; } = new List<EventAssignment>();
+
+    public virtual ICollection<Event> EventCreatedByNavigations { get; set; } = new List<Event>();
+
+    public virtual ICollection<Event> EventUpdatedByNavigations { get; set; } = new List<Event>();
+
     public virtual Faculty? Faculty { get; set; }
 
     public virtual AppRole Role { get; set; } = null!;

@@ -35,6 +35,8 @@ public partial class Faculty
 
     public virtual ICollection<DeptWisePublication> DeptWisePublications { get; set; } = new List<DeptWisePublication>();
 
+    public virtual ICollection<Event> Events { get; set; } = new List<Event>();
+
     public virtual ICollection<HealthCenterChp> HealthCenterChps { get; set; } = new List<HealthCenterChp>();
 
     public virtual ICollection<HospitalDocumentDetail> HospitalDocumentDetails { get; set; } = new List<HospitalDocumentDetail>();
