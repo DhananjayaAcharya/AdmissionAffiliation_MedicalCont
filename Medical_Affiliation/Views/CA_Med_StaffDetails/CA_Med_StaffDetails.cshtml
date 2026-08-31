@@ -404,22 +404,22 @@
          margin-top:16px;">
 
                                 <div class="file-upload-area">
-                                    <input asp-for="ExaminerDetailsPdf"
+                                    <input asp-for="TeachersUpdatedPdf"
                                            type="file"
                                            class="file-validate"
                                            accept="application/pdf" />
                                 </div>
 
-                                <span asp-validation-for="ExaminerDetailsPdf"
+                                <span asp-validation-for="TeachersUpdatedPdf"
                                       class="text-danger"></span>
 
                                 @if (!string.IsNullOrEmpty(
-                                                                Model.StaffOther.ExaminerDetailsPdfName))
+                                                                Model.StaffOther.TeachersUpdatedPdfName))
                                 {
                                     <a href="@Url.Action(
                                                        "ViewStaffOtherPdf",
                                                        "CA_Med_StaffDetails",
-                                                       new { type = "Examiner" })"
+                                                       new { type = "Ems" })"
                                    target="_blank"
                                    class="view-btn">
 

@@ -27,6 +27,7 @@ namespace Medical_Affiliation.Models
         public IFormFile? AEBASInspectionDayPdf { get; set; }
         public IFormFile? ProvidentFundPdf { get; set; }
         public IFormFile? ESIPdf { get; set; }
+        public IFormFile? TeachersUpdatedPdf { get; set; }
 
         public List<string> ExistingCourseLevels { get; set; } = new();
 
@@ -58,6 +59,8 @@ namespace Medical_Affiliation.Models
 
         [Required(ErrorMessage = "Please select Examiner Details Attached")]
         public string? ExaminerDetailsAttached { get; set; }
+
+        public string? TeachersUpdatedPdfName { get; set; }
 
         // Saved File Names (for view button)
         public string? ExaminerDetailsPdfName { get; set; }
