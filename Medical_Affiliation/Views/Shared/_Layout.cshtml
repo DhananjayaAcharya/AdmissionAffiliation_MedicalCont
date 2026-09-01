@@ -46,6 +46,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@(ViewData["Title"]) - RGUHS Admission Affiliation</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
     <!-- Bootstrap 5.3.8 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet">
@@ -65,6 +68,183 @@
 
     <!-- Shared portal styles are defined in site.css -->
 
+    <style>
+            /* ===== Official / modernized header — overrides site.css for this layout ===== */
+            .modern-header {
+                background: linear-gradient(120deg, #0a3d7c 0%, #0d4a94 50%, #0e57ad 100%);
+                color: #fff;
+                box-shadow: 0 10px 30px rgba(9, 40, 78, 0.22);
+                position: relative;
+                font-family: 'DM Sans', 'Segoe UI', 'Arial', sans-serif;
+            }
+
+                .modern-header::before {
+                    content: "";
+                    display: block;
+                    height: 4px;
+                    width: 100%;
+                    background: linear-gradient(90deg, #f4b400 0%, #f7c948 45%, #f4b400 100%);
+                }
+
+            .modern-header-inner {
+                max-width: 1500px;
+                margin: 0 auto;
+                padding: 0.95rem 1.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+
+            .brand-block {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex: 1 1 300px;
+                min-width: 240px;
+            }
+
+            #signupLogo {
+                width: 64px;
+                height: 64px;
+                object-fit: contain;
+                background: #fff;
+                border-radius: 16px;
+                padding: 0.35rem;
+                flex-shrink: 0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .brand-title {
+                font-family: 'EB Garamond', 'Segoe UI', serif;
+                font-size: 1.28rem;
+                font-weight: 600;
+                letter-spacing: 0.015em;
+                line-height: 1.15;
+                color: #fff;
+            }
+
+            .brand-subtitle {
+                font-size: 0.78rem;
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.75);
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                margin-top: 0.2rem;
+            }
+
+            .header-center {
+                flex: 1 1 260px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 0.4rem;
+                min-width: 200px;
+            }
+
+            .page-title {
+                font-size: 1.05rem;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: 0.01em;
+            }
+
+            .page-subtitle {
+                font-size: 0.82rem;
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.92);
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.24);
+                border-radius: 0.6rem;
+                padding: 0.3rem 0.85rem;
+                display: inline-block;
+            }
+
+            .page-tab-name {
+                font-size: 0.78rem;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                color: #fff;
+                padding: 0.28rem 0.75rem;
+                border: 1px solid rgba(255, 255, 255, 0.28);
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.1);
+                display: inline-block;
+            }
+
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 0.9rem;
+                flex: 0 0 auto;
+                margin-left: auto;
+            }
+
+            .language-switcher select {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.28);
+                color: #fff;
+                font-size: 0.82rem;
+                font-weight: 500;
+                border-radius: 0.5rem;
+                padding: 0.4rem 0.6rem;
+            }
+
+                .language-switcher select option {
+                    color: #1f2937;
+                }
+
+            .logout-btn {
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                color: #fff;
+                font-size: 0.82rem;
+                font-weight: 600;
+                border-radius: 0.5rem;
+                padding: 0.45rem 0.95rem;
+                transition: background 0.15s ease, border-color 0.15s ease;
+            }
+
+                .logout-btn:hover {
+                    background: rgba(255, 255, 255, 0.14);
+                    border-color: rgba(255, 255, 255, 0.6);
+                    color: #fff;
+                }
+
+            .chip {
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.26);
+                color: #fff;
+                font-size: 0.78rem;
+                font-weight: 600;
+                letter-spacing: 0.03em;
+                border-radius: 999px;
+                padding: 0.4rem 0.9rem;
+                white-space: nowrap;
+            }
+
+            @@media (max-width: 991px) {
+                .modern-header-inner {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .header-center {
+                    align-items: flex-start;
+                    text-align: left;
+                }
+
+                .header-actions {
+                    margin-left: 0;
+                    width: 100%;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                }
+            }
+    </style>
+
 </head>
 <body>
     <div class="page-wrapper">
@@ -80,16 +260,10 @@
 
                 <div class="header-center">
                     <div class="page-title">@(string.IsNullOrEmpty(CollegeName) ? "—" : CollegeName)</div>
+                    <span class="page-tab-name">@ViewData["Title"]</span>
                     <div class="page-subtitle">
                         Affiliation Type: @(string.IsNullOrWhiteSpace(typeOfAffiliation) ? "Not available" : typeOfAffiliation)
                     </div>
-                    @if (!string.IsNullOrEmpty(CollegeCode))
-                    {
-                        <div class="college-info">
-                            <i class="fas fa-university"></i>
-                            <span>College Code: @CollegeCode</span>
-                        </div>
-                    }
                 </div>
 
                 <div class="header-actions">

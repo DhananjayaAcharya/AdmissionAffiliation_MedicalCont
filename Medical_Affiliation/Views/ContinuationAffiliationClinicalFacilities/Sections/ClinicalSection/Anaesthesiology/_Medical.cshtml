@@ -24,42 +24,40 @@
         {
             for (int i = 0; i < Model.Requirements.Count; i++)
             {
+                var req = Model.Requirements[i];
+                var yesId = $"req_{req.RequirementId}_yes";
+                var noId = $"req_{req.RequirementId}_no";
+
                 <div class="col-md-12 d-flex align-items-center justify-content-between separation">
 
-                    <label class="form-check-label"
-                           for="req_@Model.Requirements[i].RequirementId">
-                        @Model.Requirements[i].RequirementName
+                    <label class="form-check-label" for="@yesId">
+                        @req.RequirementName
                     </label>
                     <div class="d-flex gap-3">
                         <label>
                             <input type="radio"
+                                   id="@yesId"
                                    class="anaesthesiology-radio"
-                                   name="req_@Model.Requirements[i].RequirementId"
-                                   data-id="@Model.Requirements[i].RequirementId"
-                                   data-name="@Model.Requirements[i].RequirementName"
+                                   name="req_@req.RequirementId"
+                                   data-id="@req.RequirementId"
+                                   data-name="@req.RequirementName"
                                    value="true"
-                                   @(Model.Requirements[i].IsAvailable ? "checked" : "") />
+                            @(req.IsAvailable == true ? "checked" : "") />
                             Yes
                         </label>
 
                         <label>
                             <input type="radio"
+                                   id="@noId"
                                    class="anaesthesiology-radio"
-                                   name="req_@Model.Requirements[i].RequirementId"
-                                   data-id="@Model.Requirements[i].RequirementId"
-                                   data-name="@Model.Requirements[i].RequirementName"
+                                   name="req_@req.RequirementId"
+                                   data-id="@req.RequirementId"
+                                   data-name="@req.RequirementName"
                                    value="false"
-                                   @(!Model.Requirements[i].IsAvailable ? "checked" : "") />
+                            @(req.IsAvailable == false ? "checked" : "") />
                             No
                         </label>
                     </div>
-
-                    @* <input class="form-check-input anaesthesiology-checkbox"
-                           type="checkbox"
-                           id="req_@Model.Requirements[i].RequirementId"
-                           data-id="@Model.Requirements[i].RequirementId"
-                           data-name="@Model.Requirements[i].RequirementName"
-                           @(Model.Requirements[i].IsAvailable ? "checked" : "") /> *@
                 </div>
             }
         }
@@ -74,12 +72,10 @@
                 Save Anaesthesiology Requirements
             </button>
         </div>
-
-        </fieldset>
     </form>
 </div>
 <script>
-      document.getElementById('SaveAnaesthesiologyBtn').addEventListener('click', saveAnaesthesiologyRequirements);
+    document.getElementById('SaveAnaesthesiologyBtn').addEventListener('click', saveAnaesthesiologyRequirements);
 
     function saveAnaesthesiologyRequirements() {
 
@@ -88,14 +84,6 @@
 
         const requirements = [];
 
-        // document.querySelectorAll('.anaesthesiology-checkbox').forEach(cb => {
-        //     requirements.push({
-        //         requirementId: parseInt(cb.dataset.id),
-        //         requirementName: cb.dataset.name,
-        //         isAvailable: cb.checked
-        //     });
-        // });
-
         document.querySelectorAll('.anaesthesiology-radio:checked').forEach(radio => {
             requirements.push({
                 requirementId: parseInt(radio.dataset.id),
@@ -103,13 +91,13 @@
                 isAvailable: radio.value === "true"
             });
         });
-        // debugger;
+
         const payload = {
             collegeCode: document.getElementById('CollegeCode').value,
             facultyCode: parseInt(document.getElementById('FacultyCode').value),
             affiliationTypeId: parseInt(document.getElementById('AffiliationTypeId').value),
             hospitalDetailsId: parseInt(document.getElementById('HospitalDetailsId').value),
-            AnaesthesiologyRequirements: requirements
+            Requirements: requirements
         };
 
         fetch('@Url.Action("SaveAnaesthesiologyRequirements", "ContinuationAffiliationClinicalFacilities")', {
@@ -120,36 +108,36 @@
             },
             body: JSON.stringify(payload)
         })
-        .then(response => {
-            if (!response.ok)
-                throw new Error('Request failed');
-            return response.json();
-        })
-        .then(result => {
-            if (result.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "saved",
-                    text: result.message || 'Anaesthesiology saved successfully',
-                    confirmButtonText: 'OK'
-                });
-            } else {
+            .then(response => {
+                if (!response.ok)
+                    throw new Error('Request failed');
+                return response.json();
+            })
+            .then(result => {
+                if (result.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "saved",
+                        text: result.message || 'Anaesthesiology saved successfully',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: result.message || 'Failed to save Anaesthesiology Requirements',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error(error);
                 Swal.fire({
                     icon: "error",
-                    title: "Failed",
-                    text: result.message || 'Failed to save Anaesthesiology Requirements',
+                    title: "Error",
+                    text: 'Error while saving Anaesthesiology Requirements data.',
                     confirmButtonText: 'OK'
-                });
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: 'Error while saving Anaesthesiology Requirements data.',
-                confirmButtonText: 'OK'
-            })
-        });
+                })
+            });
     }
 </script>

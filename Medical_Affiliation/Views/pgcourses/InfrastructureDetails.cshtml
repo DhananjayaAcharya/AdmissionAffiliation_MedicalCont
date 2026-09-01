@@ -121,10 +121,10 @@
                             <tr>
                                 <td><input name="OtherCourses[@i].NameOfQualificationCourse" value="@Model.OtherCourses[i].NameOfQualificationCourse" class="form-control form-control-sm" /></td>
                                 <td>
-                                    <select name="OtherCourses[@i].PermittedByMcinmc" class="form-select form-select-sm">
+                                    <select asp-for="OtherCourses[i].PermittedByMcinmc" class="form-select form-select-sm">
                                         <option value="">--</option>
-                                        <option value="Yes" selected="@(Model.OtherCourses[i].PermittedByMcinmc == "Yes")">Yes</option>
-                                        <option value="No" selected="@(Model.OtherCourses[i].PermittedByMcinmc == "No")">No</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
                                     </select>
                                 </td>
                                 <td><input name="OtherCourses[@i].NumberOfAdmissionsPerYear" value="@Model.OtherCourses[i].NumberOfAdmissionsPerYear" type="number" min="0" class="form-control form-control-sm" /></td>
@@ -307,8 +307,16 @@
                                         <input asp-for="OperationTheatres[i].DepartmentName" class="form-control form-control-sm" />
                                     }
                                 </td>
-                                <td><input asp-for="OperationTheatres[i].MajorOtTables" type="number" min="0" class="form-control form-control-sm" /></td>
-                                <td><input asp-for="OperationTheatres[i].MinorOtTables" type="number" min="0" class="form-control form-control-sm" /></td>
+                                <td>
+                                    <input asp-for="OperationTheatres[i].MajorOtTables" type="number" min="0"
+                                           class="form-control form-control-sm @(row.IsTotalRow ? "ot-total-major" : "ot-major")"
+                                           readonly="@(row.IsTotalRow)" />
+                                </td>
+                                <td>
+                                    <input asp-for="OperationTheatres[i].MinorOtTables" type="number" min="0"
+                                           class="form-control form-control-sm @(row.IsTotalRow ? "ot-total-minor" : "ot-minor")"
+                                           readonly="@(row.IsTotalRow)" />
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -575,6 +583,35 @@
             } else {
                 tbody.insertAdjacentHTML('beforeend', html);
             }
+
+            calculateOtTotals();
         }
+
+        function calculateOtTotals() {
+            let majorTotal = 0;
+            let minorTotal = 0;
+
+            document.querySelectorAll('#otTable .ot-major').forEach(input => {
+                majorTotal += Number(input.value) || 0;
+            });
+
+            document.querySelectorAll('#otTable .ot-minor').forEach(input => {
+                minorTotal += Number(input.value) || 0;
+            });
+
+            const majorTotalInput = document.querySelector('#otTable .ot-total-major');
+            const minorTotalInput = document.querySelector('#otTable .ot-total-minor');
+
+            if (majorTotalInput) majorTotalInput.value = majorTotal;
+            if (minorTotalInput) minorTotalInput.value = minorTotal;
+        }
+
+        document.addEventListener('input', event => {
+            if (event.target.matches('#otTable .ot-major, #otTable .ot-minor')) {
+                calculateOtTotals();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', calculateOtTotals);
     </script>
 }

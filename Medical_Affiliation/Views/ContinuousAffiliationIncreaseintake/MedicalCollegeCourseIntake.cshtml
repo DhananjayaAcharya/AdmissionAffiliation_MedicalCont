@@ -1,0 +1,350 @@
+@model Medical_Affiliation.Models.MedicalCollegeCourseIntakeViewModel
+@{
+    ViewData["Title"] = "Course Intake List";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var facultyCode = Context.Session.GetString("FacultyCode");
+    var selectedLevels = (Context.Session.GetString("ExistingCourseLevels") ?? string.Empty)
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(level => level.ToUpperInvariant())
+        .ToHashSet();
+
+    var currentCourseLevel = (Model.CourseLevel ?? Context.Session.GetString("SelectedCourseLevel") ?? "UG")
+        .Trim()
+        .ToUpperInvariant();
+
+    string nextController = "Medical_ContinuousAffiliation";
+    string nextAction = "Medical_LandBuildingdetails";
+
+    if (currentCourseLevel == "PG")
+    {
+        nextController = "pgcourses";
+        nextAction = "SubjectSelection";
+    }
+
+    string previousController = "ContinuesAffiliation_Facultybased";
+    string previousAction = "Aff_HostelDetails";
+
+    if (currentCourseLevel == "PG")
+    {
+        previousController = "AffiliationPgCourse";
+        previousAction = "PgCourses";
+    }
+    else if (currentCourseLevel == "UG")
+    {
+        previousController = "ContinuesAffiliation_Facultybased";
+        previousAction = "Details_Of_MBBS";
+    }
+    else if (currentCourseLevel == "SS")
+    {
+        previousController = "Aff_CA_SS_CoursesAppliedSS";
+        previousAction = "CA_SS_CoursesApplied";
+    }
+    else if (selectedLevels.Contains("SS"))
+    {
+        previousController = "Aff_CA_SS_CoursesAppliedSS";
+        previousAction = "CA_SS_CoursesApplied";
+    }
+    else if (selectedLevels.Contains("PG"))
+    {
+        previousController = "AffiliationPgCourse";
+        previousAction = "PgCourses";
+    }
+    else if (selectedLevels.Contains("UG"))
+    {
+        previousController = "ContinuesAffiliation_Facultybased";
+        previousAction = "Details_Of_MBBS";
+    }
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+    :root {
+        --navy: #0d1b3e;
+        --blue: #1a4bbd;
+        --surf: #f2f5fb;
+        --card: #fff;
+        --bdr: #dae2f4;
+        --txt: #1c2b4a;
+        --muted: #6b7fa3;
+        --ok: #1ca87c;
+        --fh: 'Playfair Display', Georgia, serif;
+        --fb: 'DM Sans', 'Segoe UI', sans-serif;
+    }
+
+    .course-intake-page {
+        min-height: 100%;
+        padding: 0 0 2rem;
+        background: var(--surf);
+        color: var(--txt);
+        font-family: var(--fb);
+    }
+
+    .page-header {
+        padding: 1rem 2.4rem;
+        background: linear-gradient(135deg, var(--navy), #1c3b7e);
+        color: #fff;
+    }
+
+    .page-header h1 {
+        margin: 0 0 .55rem;
+        font-family: var(--fh);
+        font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+        line-height: 1.2;
+    }
+
+    .page-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .7rem 1.5rem;
+        color: rgba(255, 255, 255, .72);
+        font-size: .84rem;
+    }
+
+    .content {
+        padding: 1.2rem .6rem;
+    }
+
+    .card {
+        overflow: hidden;
+        background: var(--card);
+        border: 1px solid var(--bdr);
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(26, 75, 189, .09);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.1rem 1.6rem;
+        border-bottom: 1px solid var(--bdr);
+        background: #f8faff;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        color: var(--navy);
+        font-family: var(--fh);
+        font-size: 1.05rem;
+    }
+
+    .level-badge {
+        padding: .25rem .7rem;
+        border-radius: 20px;
+        background: #e0ecff;
+        color: var(--blue);
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: .88rem;
+    }
+
+    th {
+        padding: .78rem 1rem;
+        background: var(--navy);
+        color: rgba(255, 255, 255, .9);
+        font-size: .73rem;
+        font-weight: 600;
+        letter-spacing: .05em;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    th:last-child,
+    td:last-child {
+        width: 180px;
+        text-align: center;
+    }
+
+    td {
+        padding: .78rem 1rem;
+        border-bottom: 1px solid var(--bdr);
+    }
+
+    tbody tr:nth-child(even) {
+        background: #f6f9ff;
+    }
+
+    tbody tr:hover {
+        background: #eef4ff;
+    }
+
+    .course-name {
+        color: var(--navy);
+        font-weight: 600;
+    }
+
+    .intake-value {
+        color: var(--ok);
+        font-size: 1rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .empty {
+        padding: 2.5rem 1rem;
+        color: var(--muted);
+        text-align: center;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem 1.6rem;
+        border-top: 1px solid var(--bdr);
+        background: #f8faff;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        padding: .62rem 1.2rem;
+        border: 1.5px solid var(--blue);
+        border-radius: 8px;
+        color: var(--blue);
+        font-size: .87rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        background: #eef4ff;
+    }
+
+    .page-navigation {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--bdr);
+    }
+
+    .next-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        padding: .62rem 1.35rem;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--navy), #1c3b7e);
+        color: #fff;
+        font-size: .87rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .next-link:hover {
+        color: #fff;
+        opacity: .9;
+    }
+
+    @@media (max-width: 768px) {
+        .page-header {
+            padding: 1.5rem 1.2rem;
+        }
+
+        .content {
+            padding: 1rem;
+        }
+
+        .card-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .page-navigation {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .page-navigation a {
+            justify-content: center;
+        }
+
+        th:last-child,
+        td:last-child {
+            width: 130px;
+        }
+    }
+</style>
+
+<div class="course-intake-page">
+    <header class="page-header">
+        <h1>College Course Intake</h1>
+        <div class="page-meta">
+            <span><strong>College:</strong> @Model.CollegeName</span>
+            <span><strong>Code:</strong> @Model.CollegeCode</span>
+            <span><strong>Faculty:</strong> @Model.FacultyCode</span>
+        </div>
+    </header>
+
+    <main class="content">
+        <section class="card">
+            <div class="card-header">
+                <h2>Courses and Intake for 2026-27</h2>
+                <span class="level-badge">@Model.CourseLevel</span>
+            </div>
+
+            @if (Model.Courses.Count == 0)
+            {
+                <div class="empty">No courses are available for this college and course level.</div>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SLNO</th>
+                                <th>Course Name</th>
+                                <th>Intake 2026-27</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ var displaySlno = 1; }
+                            @foreach (var course in Model.Courses)
+                            {
+                                <tr>
+                                    <td>@displaySlno</td>
+                                    <td class="course-name">@course.CourseName</td>
+                                    <td class="intake-value">@course.Intake2627</td>
+                                </tr>
+                                displaySlno++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            
+        </section>
+
+        <nav class="page-navigation" aria-label="Course intake navigation">
+            <div class="actions">
+                <a class="back-link" asp-action="@previousAction" asp-controller="@previousController">
+                    previous
+                </a>
+            </div>
+
+            <a class="next-link" asp-controller="@nextController" asp-action="@nextAction">
+                Next <span aria-hidden="true">→</span>
+            </a>
+        </nav>
+    </main>
+</div>

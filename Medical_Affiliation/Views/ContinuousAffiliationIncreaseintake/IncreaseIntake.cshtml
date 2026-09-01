@@ -665,11 +665,13 @@
                     </svg>
                     Academic Year-wise Intake Details
                 </h2>
-                <span style="font-size:.8rem;color:var(--muted)">
-                    @* AY 2024-25 &nbsp;· *@
-                    &nbsp; AY 2025-26 &nbsp;·&nbsp; AY 2026-27 &nbsp;
-                    @* ·&nbsp; AY 2027-28 *@
-                </span>
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:flex-end">
+                    <span style="font-size:.8rem;color:var(--muted)">
+                        @* AY 2024-25 &nbsp;· *@
+                        &nbsp; AY 2025-26 &nbsp;·&nbsp; AY 2026-27 &nbsp;
+                        @* ·&nbsp; AY 2027-28 *@
+                    </span>
+                </div>
             </div>
 
             <div class="tabs">
@@ -981,7 +983,7 @@
             <table class="t">
                 <thead>
                     <tr>
-                        <th rowspan="2" style="text-align:left;min-width:36px">#</th>
+                        <th rowspan="2" style="text-align:left;min-width:56px">SLNO</th>
                         <th rowspan="2" style="text-align:left;min-width:200px">Course Name</th>
                         @if (Model.FacultyId != 2)
                         {

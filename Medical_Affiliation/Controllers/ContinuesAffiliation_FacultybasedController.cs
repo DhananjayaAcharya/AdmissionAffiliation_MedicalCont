@@ -3699,7 +3699,7 @@ namespace Medical_Affiliation.Controllers
 
                 //return RedirectToAction("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails");
                 //return RedirectToAction("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased");
-                return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
+                return RedirectToAction("MedicalCollegeCourseIntake", "ContinuousAffiliationIncreaseintake");
 
                 //var courseLevel = HttpContext.Session.GetString("CourseLevel");
                 //if (courseLevel == "UG")
@@ -3922,13 +3922,13 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
-            var courseLevel = CourseLevel;
+            //var courseLevel = CourseLevel;
 
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("ClgLogin");
 
-            if (string.IsNullOrWhiteSpace(courseLevel))
-                return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
+            //if (string.IsNullOrWhiteSpace(courseLevel))
+            //    return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
 
 
 
@@ -3936,7 +3936,7 @@ namespace Medical_Affiliation.Controllers
             {
                 FacultyCode = facultyCode,
                 CollegeCode = collegeCode,
-                CourseLevel = courseLevel,
+                //CourseLevel = courseLevel,
             };
 
             // 🔽 Qualifications dropdown
@@ -3983,28 +3983,27 @@ namespace Medical_Affiliation.Controllers
             {
                 ViewBag.DesignationList = new SelectList(new[]
                 {
-                    "JR (If Applicable)",
-                    "SR (If Applicable)",
-                    "Assistant Professor",
-                    "Associate Professor",
-                    "Professor"
-                });
+             "JR (If Applicable)",
+             "SR (If Applicable)",
+             "Assistant Professor",
+             "Associate Professor",
+             "Professor"
+         });
             }
             else
             {
                 ViewBag.DesignationList = new SelectList(new[]
                 {
-                    "Lecturer/Assistant Professor",
-                    "Reader/Associate Professor",
-                    "Professor"
-                });
+             "Lecturer/Assistant Professor",
+             "Reader/Associate Professor",
+             "Professor"
+         });
             }
 
             // 🔍 Fetch existing dean/director record
             var dean = _context.AffDeanOrDirectorDetails
                 .FirstOrDefault(d => d.FacultyCode == facultyCode
-                                  && d.CollegeCode == collegeCode
-                                  && d.CourseLevel == CourseLevel);
+                                  && d.CollegeCode == collegeCode);
 
             if (dean != null)
             {
@@ -4098,22 +4097,23 @@ namespace Medical_Affiliation.Controllers
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Dean_DirectorDetails(DeanDetailsViewModel model)
+        public async Task<IActionResult> Dean_DirectorDetails(DeanDetailsViewModel model)
         {
-            // 🔐 Always fetch from session
-            var facultyCode = FacultyCode;
-            var collegeCode = CollegeCode;
+            // --------------------------------------------------------------
+            // 1️⃣ Session safeguard – keep the codes on the model for the view
+            // --------------------------------------------------------------
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
 
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
-                return RedirectToAction("ClgLogin");
+                return RedirectToAction("ClgLogin", "Account");
 
             model.FacultyCode = facultyCode;
             model.CollegeCode = collegeCode;
 
-            // Remove unused validation
-            ModelState.Remove(nameof(model.UGYears));
-
-            // ✅ Dynamically remove FacultyCode & CollegeCode for ALL rows (handles add row)
+            // --------------------------------------------------------------
+            // 2️⃣  Remove fields that must not be validated on child rows
+            // --------------------------------------------------------------
             var keysToRemove = ModelState.Keys
                 .Where(k =>
                     (k.StartsWith("TeachingExperiences[") || k.StartsWith("AdministrativeExperiences["))
@@ -4123,215 +4123,274 @@ namespace Medical_Affiliation.Controllers
             foreach (var key in keysToRemove)
                 ModelState.Remove(key);
 
-            if (!ModelState.IsValid)
-            {
-                LoadDropdowns(facultyCode, model.DeanQualification);
-                return View(model);
-            }
+            // --------------------------------------------------------------
+            // 3️⃣ Load or create the parent record (tracked)
+            // --------------------------------------------------------------
+            var existingDean = await _context.AffDeanOrDirectorDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.FacultyCode == facultyCode && d.CollegeCode == collegeCode);
+
+            bool isInsert = existingDean == null;
+            var deanEntity = isInsert
+                ? new AffDeanOrDirectorDetail
+                {
+                    FacultyCode = facultyCode,
+                    CollegeCode = collegeCode
+                }
+                : existingDean;   // will be attached by EF Core when we update it
+
+            // ----- simple scalar fields -------------------------------------------------
+            deanEntity.DeanOrDirectorName = model.DeanOrDirectorName;
+            deanEntity.DeanQualification = model.DeanQualification;
+            deanEntity.DeanQualificationDate = model.DeanQualificationDate;
+            deanEntity.DeanUniversity = model.DeanUniversity;
+            deanEntity.DeanStateCouncilNumber = model.DeanStateCouncilNumber;
+            deanEntity.CourseLevel = model.CourseLevel;
+
+            // ----- recognition flags – always reset first, then set the correct one -----
+            deanEntity.RecognizedByMci = false;
+            deanEntity.RecognizedByDci = false;
+
+            if (facultyCode != "2")                     // replace with your constant/enum if you have one
+                deanEntity.RecognizedByMci = model.RecognizedByMCI;
+            else
+                deanEntity.RecognizedByDci = model.RecognizedByDCI;
+
+            if (isInsert)
+                _context.AffDeanOrDirectorDetails.Add(deanEntity);
+            else
+                _context.AffDeanOrDirectorDetails.Update(deanEntity);
+
+            // We need the Id before we can associate child rows
+            await _context.SaveChangesAsync();
+
+            // --------------------------------------------------------------
+            // 4️⃣ Process child collections inside a transaction
+            // --------------------------------------------------------------
+            await using var txn = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                // 🔍 Check existing dean/director
-                var existingDean = _context.AffDeanOrDirectorDetails
-                    .FirstOrDefault(d => d.FacultyCode == facultyCode &&
-                                         d.CollegeCode == collegeCode &&
-                                         d.CourseLevel == CourseLevel);
-
-                if (existingDean == null)
+                // ----------------- Teaching experience -----------------
+                if (model.TeachingExperiences != null)
                 {
-                    // ➕ Insert
-                    existingDean = new AffDeanOrDirectorDetail
+                    var existingTeaching = await _context.AffDeanTeachingExperiences
+                        .Where(t => t.DeanId == deanEntity.Id)
+                        .ToListAsync();
+
+                    var postedTeachingIds = new HashSet<int>();
+
+                    // Use a for‑loop so we have the row index for field‑specific ModelState errors
+                    for (int i = 0; i < model.TeachingExperiences.Count; i++)
                     {
-                        FacultyCode = facultyCode,
-                        CollegeCode = collegeCode,
-                        CourseLevel = CourseLevel,
-                        DeanOrDirectorName = model.DeanOrDirectorName,
-                        DeanQualification = model.DeanQualification,
-                        DeanQualificationDate = model.DeanQualificationDate,
-                        DeanUniversity = model.DeanUniversity,
-                        DeanStateCouncilNumber = model.DeanStateCouncilNumber,
-                    };
+                        var row = model.TeachingExperiences[i];
 
-                    if (facultyCode != "2")
-                    {
-                        existingDean.RecognizedByMci = model.RecognizedByMCI;
-                    }
-                    else if (facultyCode == "2")
-                    {
-                        existingDean.RecognizedByDci = model.RecognizedByDCI;
-                    }
-                    _context.AffDeanOrDirectorDetails.Add(existingDean);
-                    _context.SaveChanges(); // 🔥 REQUIRED to generate Id
-                }
-                else
-                {
-                    // ✏️ Update
-                    existingDean.DeanOrDirectorName = model.DeanOrDirectorName;
-                    existingDean.DeanQualification = model.DeanQualification;
-                    existingDean.DeanQualificationDate = model.DeanQualificationDate;
-                    existingDean.DeanUniversity = model.DeanUniversity;
-                    existingDean.DeanStateCouncilNumber = model.DeanStateCouncilNumber;
-                    existingDean.CourseLevel = CourseLevel;
+                        // ----- Skip completely empty UI rows -----
+                        if (IsTeachingRowEmpty(row))
+                            continue;
 
-                    if (facultyCode != "2")
-                    {
-                        existingDean.RecognizedByMci = model.RecognizedByMCI;
-                    }
-                    else if (facultyCode == "2")
-                    {
-                        existingDean.RecognizedByDci = model.RecognizedByDCI;
-                    }
-                }
-
-                // 🧹 Remove old child records
-                _context.AffDeanTeachingExperiences.RemoveRange(
-                    _context.AffDeanTeachingExperiences
-                        .Where(t => t.DeanId == existingDean.Id));
-
-                _context.AffDeanAdministrativeExperiences.RemoveRange(
-                    _context.AffDeanAdministrativeExperiences
-                        .Where(a => a.DeanId == existingDean.Id));
-
-                // 📘 Teaching Experience
-                if (model.TeachingExperiences != null && model.TeachingExperiences.Any())
-                {
-                    var validRows = model.TeachingExperiences
-                                    .Where(t =>
-                                        !string.IsNullOrWhiteSpace(t.Designation) &&
-                                        (
-                                            t.FromDate != null ||
-                                            t.ToDate != null ||
-                                            (t.TeachingExperienceYears != null &&
-                                             t.TeachingExperienceYears > 0)
-                                        )
-                                    )
-                                    .ToList();
-
-                    // ✅ STEP 2: Validate experience years for known designations
-                    foreach (var t in validRows)
-                    {
-                        var desig = t.Designation.ToLower();
-
-                        if (desig.Contains("assistant") ||
-                            desig.Contains("associate") ||
-                            desig.Contains("professor"))
+                        // ----- Explicit delete flag -----
+                        if (row.IsDeleted && row.Id.HasValue && row.Id.Value > 0)
                         {
-                            if (t.TeachingExperienceYears == null || t.TeachingExperienceYears == 0)
-                            {
-                                ModelState.AddModelError("", $"Enter experience for {t.Designation}");
-                            }
+                            var toDelete = existingTeaching.FirstOrDefault(e => e.Id == row.Id.Value);
+                            if (toDelete != null)
+                                _context.AffDeanTeachingExperiences.Remove(toDelete);
+                            continue;   // nothing else to do for a deleted row
                         }
+
+                        // Remember the id (if any) so we know what existed on the client
+                        if (row.Id.HasValue && row.Id.Value > 0)
+                            postedTeachingIds.Add(row.Id.Value);
+
+                        // ----- Validation (field‑specific where possible) -----
+                        if (row.FromDate.HasValue && row.ToDate.HasValue && row.FromDate > row.ToDate)
+                            ModelState.AddModelError($"TeachingExperiences[{i}].FromDate",
+                                "From date cannot be after To date.");
+
+                        if (row.UGFrom.HasValue && row.UGTo.HasValue && row.UGFrom > row.UGTo)
+                            ModelState.AddModelError($"TeachingExperiences[{i}].UGFrom",
+                                "UG From date cannot be after UG To date.");
+
+                        if (row.PGFrom.HasValue && row.PGTo.HasValue && row.PGFrom > row.PGTo)
+                            ModelState.AddModelError($"TeachingExperiences[{i}].PGFrom",
+                                "PG From date cannot be after PG To date.");
+
+                        // Experience‑years vs date range (tolerant check)
+                        if (row.FromDate.HasValue && row.ToDate.HasValue && row.TeachingExperienceYears.HasValue)
+                        {
+                            // DateOnly does not support subtraction directly – use DayNumber
+                            int days = row.ToDate.Value.DayNumber - row.FromDate.Value.DayNumber;
+                            // Convert to decimal so we can compare with the decimal? property
+                            decimal approxYears = (decimal)days / 365.25m;
+                            if (Math.Abs((double)approxYears - (double)row.TeachingExperienceYears.Value) > 1.5) // ~1.5 yr tolerance
+                                ModelState.AddModelError($"TeachingExperiences[{i}].TeachingExperienceYears",
+                                    "Experience years do not roughly match the date range.");
+                        }
+
+                        // Mandatory years for certain designations
+                        var desig = row.Designation?.ToLower().Trim();
+                        if (!string.IsNullOrWhiteSpace(desig) &&
+                            (desig.Contains("assistant") ||
+                             desig.Contains("associate") ||
+                             desig.Contains("professor")) &&
+                            (!row.TeachingExperienceYears.HasValue || row.TeachingExperienceYears == 0))
+                        {
+                            ModelState.AddModelError($"TeachingExperiences[{i}].TeachingExperienceYears",
+                                $"Enter experience years for {row.Designation}.");
+                        }
+
+                        // Stop processing further rows if validation already failed
+                        if (!ModelState.IsValid)
+                            break;
+
+                        // ----- Map / create entity -----
+                        AffDeanTeachingExperience entity;
+                        if (row.Id.HasValue && row.Id.Value > 0)
+                        {
+                            entity = existingTeaching.First(e => e.Id == row.Id.Value);
+                        }
+                        else
+                        {
+                            entity = new AffDeanTeachingExperience
+                            {
+                                DeanId = deanEntity.Id,
+                                Facultycode = facultyCode,
+                                Collegecode = collegeCode
+                            };
+                            _context.AffDeanTeachingExperiences.Add(entity);
+                        }
+
+                        entity.Designation = row.Designation?.Trim();
+                        entity.UgCollegeCode = row.UGCollegeCode;
+                        entity.PgCollegeCode = row.PGCollegeCode;
+                        entity.OtherCollege = row.OtherCollege;
+                        entity.Ugfrom = row.UGFrom;
+                        entity.Ugto = row.UGTo;
+                        entity.Pgfrom = row.PGFrom;
+                        entity.Pgto = row.PGTo;
+                        entity.FromDate = row.FromDate;
+                        entity.ToDate = row.ToDate;
+                        entity.ExpCollegeCode = row.ExpCollegeCode;
+                        entity.TotalExperienceYears = row.TeachingExperienceYears ?? 0;
+                        entity.CourseLevel = model.CourseLevel; // if you keep it on the teaching row
                     }
 
-                    // ✅ STEP 3: Check designation hierarchy
-                    var designationList = validRows
-                        .Select(t => t.Designation.ToLower())
+                    // ----- Delete any existing rows that were NOT posted back (and not marked IsDeleted) -----
+                    var toDeleteTeach = existingTeaching
+                        .Where(t => !postedTeachingIds.Contains(t.Id))
                         .ToList();
-
-                    bool hasAssistant = designationList.Any(d => d.Contains("assistant"));
-                    bool hasAssociate = designationList.Any(d => d.Contains("associate"));
-                    bool hasProfessor = designationList.Any(d => d.Contains("professor"));
-
-                    // Assistant is mandatory if any teaching data entered
-                    if (validRows.Any() && !hasAssistant)
-                    {
-                        ModelState.AddModelError("", "Assistant Professor details are mandatory.");
-                    }
-
-                    // Associate without Assistant
-                    if (hasAssociate && !hasAssistant)
-                    {
-                        ModelState.AddModelError("", "Assistant Professor must be entered before Associate Professor.");
-                    }
-
-                    // Professor without Assistant
-                    if (hasProfessor && !hasAssistant)
-                    {
-                        ModelState.AddModelError("", "Assistant Professor must be entered before Professor.");
-                    }
-
-                    // ✅ STEP 4: Stop if validation fails
-                    if (!ModelState.IsValid)
-                    {
-                        LoadDropdowns(facultyCode, model.DeanQualification);
-                        return View(model);
-                    }
-
-                    // ✅ STEP 5: Save only filled rows
-                    foreach (var t in model.TeachingExperiences)
-                    {
-                        if (string.IsNullOrWhiteSpace(t.Designation) &&
-                        t.FromDate == null &&
-                        t.ToDate == null &&
-                        (t.TeachingExperienceYears == null ||
-                         t.TeachingExperienceYears == 0))
-                            continue;
-
-                        _context.AffDeanTeachingExperiences.Add(
-                            new AffDeanTeachingExperience
-                            {
-                                DeanId = existingDean.Id,
-                                Facultycode = facultyCode,
-                                Collegecode = collegeCode,
-                                CourseLevel = CourseLevel,
-                                ExpCollegeCode = t.ExpCollegeCode,
-                                Designation = t.Designation?.Trim(),
-                                UgCollegeCode = t.UGCollegeCode,
-                                PgCollegeCode = t.PGCollegeCode,
-                                Ugfrom = t.UGFrom,
-                                Ugto = t.UGTo,
-                                Pgfrom = t.PGFrom,
-                                Pgto = t.PGTo,
-                                OtherCollege = t.OtherCollege,
-                                FromDate = t.FromDate,
-                                ToDate = t.ToDate,
-                                TotalExperienceYears = t.TeachingExperienceYears ?? 0
-                            });
-                    }
+                    if (toDeleteTeach.Any())
+                        _context.AffDeanTeachingExperiences.RemoveRange(toDeleteTeach);
                 }
 
-                // 🏛️ Administrative Experience
-                if (model.AdministrativeExperiences != null && model.AdministrativeExperiences.Any())
+                // ----------------- Administrative experience -----------------
+                if (model.AdministrativeExperiences != null)
                 {
-                    foreach (var a in model.AdministrativeExperiences)
+                    var existingAdmin = await _context.AffDeanAdministrativeExperiences
+                        .Where(a => a.DeanId == deanEntity.Id)
+                        .ToListAsync();
+
+                    var postedAdminIds = model.AdministrativeExperiences
+                        .Where(x => x.Id > 0)
+                        .Select(x => x.Id)
+                        .ToHashSet();
+
+                    var toDeleteAdmin = existingAdmin
+                        .Where(a => !postedAdminIds.Contains(a.Id))
+                        .ToList();
+                    if (toDeleteAdmin.Any())
+                        _context.AffDeanAdministrativeExperiences.RemoveRange(toDeleteAdmin);
+
+                    // Use a for‑loop so we have the index for ModelState keys
+                    for (int i = 0; i < model.AdministrativeExperiences.Count; i++)
                     {
-                        // Skip completely empty rows
-                        if (string.IsNullOrWhiteSpace(a.PostHeld) &&
-                            a.FromDate == null && a.ToDate == null &&
-                            a.TotalExperienceYears == null)
+                        var row = model.AdministrativeExperiences[i];
+
+                        if (IsAdminRowEmpty(row))
                             continue;
 
-                        _context.AffDeanAdministrativeExperiences.Add(
-                            new AffDeanAdministrativeExperience
+                        if (row.FromDate.HasValue && row.ToDate.HasValue && row.FromDate > row.ToDate)
+                            ModelState.AddModelError($"AdministrativeExperiences[{i}].FromDate",
+                                "From date cannot be after To date.");
+
+                        if (!ModelState.IsValid)
+                            break;
+
+                        AffDeanAdministrativeExperience entity;
+                        if (row.Id > 0)
+                        {
+                            entity = existingAdmin.First(e => e.Id == row.Id);
+                        }
+                        else
+                        {
+                            entity = new AffDeanAdministrativeExperience
                             {
-                                DeanId = existingDean.Id,
+                                DeanId = deanEntity.Id,
                                 Facultycode = facultyCode,
-                                Collegecode = collegeCode,
-                                CourseLevel = CourseLevel,
-                                PostHeld = a.PostHeld?.Trim(),
-                                ExpCollegeCode = a.ExpCollegeCode,
-                                OtherCollege = a.OtherCollege,
-                                FromDate = a.FromDate,
-                                ToDate = a.ToDate,
-                                TotalExperienceYears = a.TotalExperienceYears ?? 0
-                            });
+                                Collegecode = collegeCode
+                            };
+                            _context.AffDeanAdministrativeExperiences.Add(entity);
+                        }
+
+                        entity.PostHeld = row.PostHeld?.Trim();
+                        entity.ExpCollegeCode = row.ExpCollegeCode;
+                        entity.OtherCollege = row.OtherCollege;
+                        entity.FromDate = row.FromDate;
+                        entity.ToDate = row.ToDate;
+                        entity.TotalExperienceYears = row.TotalExperienceYears ?? 0;
                     }
                 }
 
-                // 💾 Final commit
-                _context.SaveChanges();
+                // If any validation error surfaced, abort the transaction and redisplay the view
+                if (!ModelState.IsValid)
+                {
+                    await txn.RollbackAsync();
+                    LoadDropdowns(facultyCode, model.DeanQualification); // keep your existing helper
+                    return View(model);
+                }
+
+                // Persist everything
+                await _context.SaveChangesAsync();
+                await txn.CommitAsync();
 
                 TempData["SuccessMessage"] = "Dean / Director details saved successfully.";
-                return RedirectToAction("Aff_PrincipalDetails");
+                return RedirectToAction(nameof(Aff_PrincipalDetails));
             }
             catch (Exception ex)
             {
-                // TODO: log ex properly via ILogger
-                ModelState.AddModelError("", "An error occurred while saving data.");
+                await txn.RollbackAsync();
+                // Log the full exception – adjust the logger name if you use a different one
+                //_logger.LogError(ex,
+                //    "Error saving Dean/Director details for Faculty={Faculty}, College={College}",
+                //    facultyCode, collegeCode);
+
+                ModelState.AddModelError(string.Empty,
+                    "An unexpected error occurred while saving the data.");
                 LoadDropdowns(facultyCode, model.DeanQualification);
                 return View(model);
             }
         }
+
+        // ------------------------------------------------------------------
+        // Helper methods – keep them private to the controller
+        // ------------------------------------------------------------------
+        private bool IsTeachingRowEmpty(TeachingExperienceRow r) =>
+            string.IsNullOrWhiteSpace(r.Designation) &&
+            !r.FromDate.HasValue && !r.ToDate.HasValue &&
+            !r.UGFrom.HasValue && !r.UGTo.HasValue &&
+            !r.PGFrom.HasValue && !r.PGTo.HasValue &&
+            string.IsNullOrWhiteSpace(r.UGCollegeCode) &&
+            string.IsNullOrWhiteSpace(r.PGCollegeCode) &&
+            string.IsNullOrWhiteSpace(r.OtherCollege) &&
+            string.IsNullOrWhiteSpace(r.ExpCollegeCode) &&
+            !r.TeachingExperienceYears.HasValue;
+
+        private bool IsAdminRowEmpty(AdministrativeExperienceRow r) =>
+            string.IsNullOrWhiteSpace(r.PostHeld) &&
+            !r.FromDate.HasValue && !r.ToDate.HasValue &&
+            string.IsNullOrWhiteSpace(r.ExpCollegeCode) &&
+            string.IsNullOrWhiteSpace(r.OtherCollege) &&
+            !r.TotalExperienceYears.HasValue;
         private void LoadDropdowns(string facultyCode, string? selectedQualification = null)
         {
             ViewBag.Qualifications = new SelectList(
@@ -4743,14 +4802,23 @@ namespace Medical_Affiliation.Controllers
                 // 💾 Final commit
                 _context.SaveChanges();
 
-                if (facultyCode == "2")
+                TempData["SuccessMessage"] = "Principal details saved successfully.";
+
+                var selectedLevel = (HttpContext.Session.GetString("CourseLevel") ?? "UG")
+                    .Trim()
+                    .ToUpperInvariant();
+
+                if (selectedLevel == "PG")
                 {
-                    TempData["SuccessMessage"] = "Principal details saved successfully.";
-                    return RedirectToAction("Ug_Course_Details");
+                    return RedirectToAction("PgCourses", "AffiliationPgCourse");
                 }
 
-                TempData["SuccessMessage"] = "Principal details saved successfully.";
-                return RedirectToAction("Details_Of_MBBS");
+                if (selectedLevel == "SS")
+                {
+                    return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
+                }
+
+                return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
             }
             catch (Exception)
             {

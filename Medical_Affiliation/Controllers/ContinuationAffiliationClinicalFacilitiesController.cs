@@ -435,7 +435,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveDentalWardDistribution( [FromBody] List<DentalWardBedDistributionVm> dentalWards)
+        public async Task<IActionResult> SaveDentalWardDistribution([FromBody] List<DentalWardBedDistributionVm> dentalWards)
         {
             try
             {
@@ -525,7 +525,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveEngAlliedServices( [FromBody] EngAlliedRequirementsPostVM model)
+        public async Task<IActionResult> SaveEngAlliedServices([FromBody] EngAlliedRequirementsPostVM model)
         {
             try
             {
@@ -611,7 +611,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveNPTAServices( [FromBody] NPTARequirementsPostVM model)
+        public async Task<IActionResult> SaveNPTAServices([FromBody] NPTARequirementsPostVM model)
         {
             try
             {
@@ -697,7 +697,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveAdmAncServices( [FromBody] AdmAncRequirementsPostVM model)
+        public async Task<IActionResult> SaveAdmAncServices([FromBody] AdmAncRequirementsPostVM model)
         {
             try
             {
@@ -784,7 +784,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveDisciplineDetails( [FromBody] DisciplinePostVM model)
+        public async Task<IActionResult> SaveDisciplineDetails([FromBody] DisciplinePostVM model)
         {
             try
             {
@@ -1035,18 +1035,11 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveIndoorRequirements([FromForm] IndoorDepartmentRequirementsPostVM model)
+        public async Task<IActionResult> SaveIndoorRequirements([FromBody] IndoorDepartmentRequirementsPostVM model)
         {
-            var courseLevel = _userContext.CourseLevel;
-
-            if (!ModelState.IsValid)
+            if (model == null || model.Requirements == null || !model.Requirements.Any())
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return Json(new { success = false, errors });
+                return Json(new { success = false, message = "No Indoor Department Requirements received." });
             }
 
             using var tx = await _context.Database.BeginTransactionAsync();
@@ -1056,22 +1049,21 @@ namespace Medical_Affiliation.Controllers
                 await SaveRequirementsAsync(
                     collegeCode: model.CollegeCode,
                     facultyCode: model.FacultyCode,
-                    //courseLevel :model.CourseLevel,
                     affiliationTypeId: model.AffiliationTypeId,
                     hospitalDetailsId: model.HospitalDetailsId,
-                    sectionCode: "1",                 // 👈 Indoor section code
+                    sectionCode: "1",                 // Indoor section code
                     requirements: model.Requirements
                 );
 
                 await _context.SaveChangesAsync();
                 await tx.CommitAsync();
 
-                return Json(new { success = true });
+                return Json(new { success = true, message = "Indoor Department Requirements saved successfully." });
             }
             catch (Exception ex)
             {
                 await tx.RollbackAsync();
-                return Json(new { success = false, errors = new[] { ex.Message } });
+                return Json(new { success = false, message = ex.Message });
             }
         }
 
@@ -1175,23 +1167,39 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveAnaesthesiologyRequirements([FromBody] AnaesthesiologyRequirementsPostVM model)
         {
-            if (model == null || model.Requirements == null)
-                return BadRequest("Invalid data");
+            if (model == null || model.Requirements == null || !model.Requirements.Any())
+            {
+                return Json(new { success = false, message = "No Anaesthesiology data received." });
+            }
 
-            await SaveRequirementsAsync(
-                collegeCode: model.CollegeCode,
-                facultyCode: model.FacultyCode,
-                //courseLevel:model.CourseLevel,
-                affiliationTypeId: model.AffiliationTypeId,
-                hospitalDetailsId: model.HospitalDetailsId,
-                sectionCode: "6",
-                requirements: model.Requirements
-            );
+            if (!await HospitalExists(model.HospitalDetailsId, model.CollegeCode, model.FacultyCode.ToString()))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Hospital record not found. Please verify and submit Basic Details (first section)."
+                });
+            }
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await SaveRequirementsAsync(
+                    collegeCode: model.CollegeCode,
+                    facultyCode: model.FacultyCode,
+                    affiliationTypeId: model.AffiliationTypeId,
+                    hospitalDetailsId: model.HospitalDetailsId,
+                    sectionCode: "6",
+                    requirements: model.Requirements
+                );
 
-            return Json(new { success = true });
+                await _context.SaveChangesAsync();
 
+                return Json(new { success = true, message = "Anaesthesiology Requirements saved successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
 
@@ -1430,11 +1438,10 @@ namespace Medical_Affiliation.Controllers
         }
 
         private async Task SaveRequirementsAsync(string collegeCode, int facultyCode, int affiliationTypeId, int hospitalDetailsId,
-            string sectionCode, IEnumerable<RequirementItemBaseVM> requirements)
+    string sectionCode, IEnumerable<RequirementItemBaseVM> requirements)
         {
-
             var courselevel = _userContext.CourseLevel;
-            // Fetch existing records for the section
+
             var existing = await _context.IndoorInfrastructureRequirementsCompliances
                 .Where(r =>
                     r.CollegeCode == collegeCode &&
@@ -1463,7 +1470,6 @@ namespace Medical_Affiliation.Controllers
                             SectionCode = sectionCode,
                             IsCompliant = req.IsAvailable,
                             InspectedOn = DateTime.Now,
-
                         });
                 }
                 else

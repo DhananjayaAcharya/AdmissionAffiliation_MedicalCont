@@ -14,58 +14,58 @@
     </div>
     <form id="IndoorBedsUnitsForm" class="mt-3">
         @Html.AntiForgeryToken()
-            @* Hidden fields *@
-            <input type="hidden" id="CollegeCode" value="@Model.CollegeCode" />
-            <input type="hidden" id="FacultyCode" value="@Model.FacultyCode" />
-            <input type="hidden" id="AffiliationTypeId" value="@Model.AffiliationTypeId" />
-            <input type="hidden" id="HospitalDetailsId" value="@Model.HospitalDetailsId" />
+        @* Hidden fields *@
+        <input type="hidden" id="CollegeCode" value="@Model.CollegeCode" />
+        <input type="hidden" id="FacultyCode" value="@Model.FacultyCode" />
+        <input type="hidden" id="AffiliationTypeId" value="@Model.AffiliationTypeId" />
+        <input type="hidden" id="HospitalDetailsId" value="@Model.HospitalDetailsId" />
 
-            @if (Model.Requirements != null && Model.Requirements.Any())
+        @if (Model.Requirements != null && Model.Requirements.Any())
+        {
+            @for (int i = 0; i < Model.Requirements.Count; i++)
             {
-                @for (int i = 0; i < Model.Requirements.Count; i++)
-                {
-                    <div class="col-md-12 d-flex align-items-center justify-content-between separation">
-                        <label class="form-check-label"
+                <div class="col-md-12 d-flex align-items-center justify-content-between separation">
+                    <label class="form-check-label"
                            for="req_@Model.Requirements[@i].RequirementId">
                         @Model.Requirements[@i].RequirementName
-                        </label>
+                    </label>
                     <input type="hidden" asp-for="Requirements[@i].RequirementName" />
                     <input type="hidden" asp-for="Requirements[@i].RequirementId" />
 
-                        <div class="d-flex gap-3">
-                            <label>
-                                <input type="radio"
+                    <div class="d-flex gap-3">
+                        <label>
+                            <input type="radio"
                                    class="IndoorBedsUnits-radio"
-                                       name="req_@Model.Requirements[i].RequirementId"
-                                       data-id="@Model.Requirements[i].RequirementId"
-                                       data-name="@Model.Requirements[i].RequirementName"
-                                       value="true"
-                                       @(Model.Requirements[i].IsAvailable ? "checked" : "") />
-                                Yes
-                            </label>
+                                   name="req_@Model.Requirements[i].RequirementId"
+                                   data-id="@Model.Requirements[i].RequirementId"
+                                   data-name="@Model.Requirements[i].RequirementName"
+                                   value="true"
+                            @(Model.Requirements[i].IsAvailable ? "checked" : "") />
+                            Yes
+                        </label>
 
-                            <label>
-                                <input type="radio"
+                        <label>
+                            <input type="radio"
                                    class="IndoorBedsUnits-radio"
-                                       name="req_@Model.Requirements[i].RequirementId"
-                                       data-id="@Model.Requirements[i].RequirementId"
-                                       data-name="@Model.Requirements[i].RequirementName"
-                                       value="false"
-                                       @(!Model.Requirements[i].IsAvailable ? "checked" : "") />
-                                No
-                            </label>
-                        </div>
-
-
+                                   name="req_@Model.Requirements[i].RequirementId"
+                                   data-id="@Model.Requirements[i].RequirementId"
+                                   data-name="@Model.Requirements[i].RequirementName"
+                                   value="false"
+                            @(!Model.Requirements[i].IsAvailable ? "checked" : "") />
+                            No
+                        </label>
                     </div>
-                }
-            }
-            else
-            {
-            <p class="text-muted">No Indoor Beds Units requirements available.</p>
-            }
 
-            @* <div class="mt-3 text-end">
+
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-muted">No Indoor Beds Units requirements available.</p>
+        }
+
+        @* <div class="mt-3 text-end">
                 <button type="button"
                         class="btn btn-primary"
                         onclick="saveOperationTheatreRequirements()">
@@ -80,8 +80,8 @@
             </button>
         </div>
 
-        </fieldset>
-    </form>
+    </fieldset>
+</form>
 </div>
 <script>
       document.getElementById('SaveIndoorBedsUnitsBtn').addEventListener('click', saveIndoorBedsUnitsRequirements);

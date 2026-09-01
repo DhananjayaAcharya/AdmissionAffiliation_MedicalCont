@@ -47,7 +47,7 @@
                                    data-id="@Model.Requirements[i].RequirementId"
                                    data-name="@Model.Requirements[i].RequirementName"
                                    value="true"
-                                   @(Model.Requirements[i].IsAvailable ? "checked" : "") />
+                            @(Model.Requirements[i].IsAvailable ? "checked" : "") />
                             Yes
                         </label>
 
@@ -58,7 +58,7 @@
                                    data-id="@Model.Requirements[i].RequirementId"
                                    data-name="@Model.Requirements[i].RequirementName"
                                    value="false"
-                                   @(!Model.Requirements[i].IsAvailable ? "checked" : "") />
+                            @(!Model.Requirements[i].IsAvailable ? "checked" : "") />
                             No
                         </label>
                     </div>
@@ -87,8 +87,8 @@
             </button>
         </div>
 
-        </fieldset>
-    </form>
+    </fieldset>
+</form>
 </div>
 <script>
       document.getElementById('SaveCasualtyBtn').addEventListener('click', saveCasualtyRequirements);

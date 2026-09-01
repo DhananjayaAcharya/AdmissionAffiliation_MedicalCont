@@ -41,6 +41,13 @@
 
     var courseLevel = HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel")
         ?? HttpContextAccessor.HttpContext?.User?.FindFirst("CourseLevel")?.Value;
+    var courseLevelDisplay = courseLevel?.Trim().ToUpperInvariant() switch
+    {
+        "PG" => "PG — Post Graduate",
+        "SS" => "SS — Super Specialty",
+        "UG" => "UG",
+        _ => string.IsNullOrWhiteSpace(courseLevel) ? "Not selected" : courseLevel.Trim().ToUpperInvariant()
+    };
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -56,7 +63,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-
     <style>
             html, body {
                 margin: 0;
@@ -64,11 +70,11 @@
                 min-height: 100%;
                 background: #f4f7fb;
                 color: #1f2937;
-                font-family: 'Segoe UI', 'Arial', sans-serif;
+                font-family: 'DM Sans', 'Segoe UI', 'Arial', sans-serif;
             }
 
             body {
-                padding-top: 7.8rem;
+                padding-top: 8.6rem;
             }
 
             .page-wrapper {
@@ -106,22 +112,142 @@
                 border: 1px solid rgba(13, 71, 161, 0.12);
             }
 
+            /* Let every page use the full main column after the sidebar collapses. */
+            .ca-main,
+            .ca-body,
+            .ca-body > .page-shell,
+            .ca-body > .page-shell > .page-container {
+                width: 100%;
+                max-width: none;
+            }
+
+            .ca-main,
+            .ca-body {
+                align-self: stretch;
+            }
+
+            /* ===== Official / modernized topbar ===== */
             .ca-topbar {
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
                 z-index: 1030;
-                background: linear-gradient(135deg, #0d47a1 0%, #0f4b95 45%, #0f5bb7 100%);
+                background: linear-gradient(120deg, #0a3d7c 0%, #0d4a94 50%, #0e57ad 100%);
                 color: #fff;
-                border-bottom: 1px solid rgba(255,255,255,0.16);
-                padding: 1.1rem 1.35rem;
-                box-shadow: 0 12px 42px rgba(11, 54, 93, 0.16);
+                box-shadow: 0 10px 30px rgba(9, 40, 78, 0.22);
+            }
+
+            .ca-topbar-accent {
+                height: 4px;
+                width: 100%;
+                background: linear-gradient(90deg, #f4b400 0%, #f7c948 45%, #f4b400 100%);
+            }
+
+            .ca-topbar-inner {
+                max-width: 1500px;
+                margin: 0 auto;
+                padding: 0.85rem 1.5rem;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 1rem;
+                gap: 1.5rem;
                 flex-wrap: wrap;
+            }
+
+            /* top-left — logo + college name + tab name */
+            .ca-topbar-left {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex: 1 1 260px;
+                min-width: 200px;
+            }
+
+            .ca-logo {
+                width: 64px;
+                height: 64px;
+                object-fit: contain;
+                background: #fff;
+                border-radius: 16px;
+                padding: 0.35rem;
+                flex-shrink: 0;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+
+            .ca-topbar-college {
+                font-weight: 600;
+                font-size: 0.9rem;
+                color: rgba(255,255,255,0.92);
+                letter-spacing: 0.01em;
+            }
+
+            .ca-topbar-page {
+                margin-top: 0.3rem;
+                font-size: 0.78rem;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                color: #fff;
+                padding: 0.28rem 0.75rem;
+                border: 1px solid rgba(255,255,255,0.28);
+                border-radius: 999px;
+                background: rgba(255,255,255,0.1);
+                display: inline-block;
+                width: fit-content;
+            }
+
+            /* center — university name only */
+            .ca-topbar-center {
+                flex: 1 1 320px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                min-width: 220px;
+            }
+
+            .ca-topbar-university {
+                margin: 0;
+                font-family: 'EB Garamond', 'Segoe UI', serif;
+                font-size: 1.45rem;
+                font-weight: 600;
+                letter-spacing: 0.015em;
+                line-height: 1.2;
+                color: #fff;
+            }
+
+            /* top-right — course level + application type */
+            .ca-topbar-right {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 0.45rem;
+                flex: 1 1 260px;
+                max-width: 320px;
+                margin-left: auto;
+            }
+
+            .ca-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                background: rgba(255,255,255,0.1);
+                border: 1px solid rgba(255,255,255,0.24);
+                border-radius: 0.6rem;
+                padding: 0.35rem 0.85rem;
+                font-size: 0.82rem;
+                color: rgba(255,255,255,0.92);
+                white-space: nowrap;
+            }
+
+            .ca-pill-label {
+                color: rgba(255,255,255,0.7);
+                font-weight: 500;
+            }
+
+            .ca-pill strong {
+                font-weight: 700;
+                color: #fff;
             }
 
             .ca-shell > .ca-sb {
@@ -134,148 +260,42 @@
                 min-height: auto !important;
                 height: auto !important;
                 position: sticky !important;
-                top: 7.8rem !important;
+                top: 8.6rem !important;
                 align-self: flex-start;
                 z-index: 2;
             }
 
-            .ca-topbar-left {
-                display: flex;
-                align-items: center;
-                gap: 0.9rem;
-                min-width: 260px;
-            }
-
-            .ca-logo {
-                width: 56px;
-                height: 56px;
-                object-fit: contain;
-                background: #fff;
-                border-radius: 18px;
-                padding: 0.35rem;
-            }
-
-            .ca-topbar-title h4 {
-                margin: 0;
-                color: #fff;
-                font-weight: 700;
-            }
-
-            .ca-topbar-title h2 {
-                margin: 0;
-                font-size: 1.28rem;
-                letter-spacing: 0.01em;
-                line-height: 1.1;
-            }
-
-            .ca-topbar-page {
-                display: block;
-                margin-top: 0.25rem;
-                color: rgba(255,255,255,0.86);
-                font-size: 0.92rem;
-                font-weight: 500;
-            }
-
-            .ca-topbar-title p {
-                margin: 0.2rem 0 0;
-                color: rgba(255,255,255,0.86);
-                font-size: 0.92rem;
-            }
-
-            .ca-topbar-center {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                min-width: 260px;
-            }
-
-            .ca-topbar-right {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-                justify-content: center;
-                min-width: 240px;
-                text-align: right;
-                gap: 0.4rem;
-            }
-
-            .ca-topbar-college {
-                font-weight: 700;
-                font-size: 1.05rem;
-                color: #fff;
-                margin-top: 0.45rem;
-            }
-
-            .ca-topbar-meta {
-                display: inline-flex;
-                align-items: center;
-                gap: 1.4rem;
-                flex-wrap: wrap;
-                justify-content: flex-end;
-                color: rgba(255,255,255,0.9);
-                font-size: 0.87rem;
-            }
-
-                .ca-topbar-meta span {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.45rem;
-                    white-space: nowrap;
-                    padding: 0.15rem 0.3rem;
-                    border-radius: 0.7rem;
-                    background: rgba(255,255,255,0.08);
-                }
-
-            .ca-topbar-item-label,
-            .ca-topbar-course,
-            .ca-topbar-affiliation {
-                font-weight: 700;
-            }
-
-            .ca-topbar-item-label {
-                color: rgba(255,255,255,0.95);
-            }
-
-            .ca-topbar-page {
-                font-size: 1rem;
-                font-weight: 700;
-                color: #fff;
-            }
-
-            .ca-topbar-course,
-            .ca-topbar-affiliation {
-                font-size: 0.87rem;
-                color: rgba(255,255,255,0.88);
-            }
-
-            .ca-pill {
-                background: rgba(255,255,255,0.16);
-                border: 1px solid rgba(255,255,255,0.22);
-                border-radius: 999px;
-                padding: 0.5rem 0.85rem;
-                font-weight: 600;
-                color: #fff;
-            }
-
             @@media (max-width: 991px) {
                 body {
-                    padding-top: 10rem;
+                    padding-top: 17rem;
                 }
 
-                .ca-topbar {
+                .ca-topbar-inner {
                     flex-direction: column;
-                    align-items: stretch;
+                    align-items: flex-start;
+                }
+
+                .ca-topbar-center {
+                    justify-content: flex-start;
+                    text-align: left;
+                }
+
+                .ca-topbar-right {
+                    align-items: flex-start;
+                    margin-left: 0;
+                    max-width: none;
+                    width: 100%;
                 }
 
                 .ca-shell {
                     flex-direction: column;
                 }
 
-                .ca-shell > .ca-sb {
-                    width: 100%;
-                    position: static;
-                }
+                    .ca-shell > .ca-sb {
+                        width: 100%;
+                        position: static;
+                        top: auto !important;
+                    }
             }
     </style>
 
@@ -284,19 +304,23 @@
 <body>
 
     <header class="ca-topbar">
-        <div class="ca-topbar-left">
-            <img src="~/images/newLogo.jpeg" class="ca-logo" alt="University Logo" />
-            <div class="ca-topbar-title">
-                <h2><b>Rajiv Gandhi University of Health Sciences</b></h2>
-                <div class="ca-topbar-college">@(string.IsNullOrEmpty(CollegeName) ? "—" : CollegeName)</div>
+        <div class="ca-topbar-accent"></div>
+        <div class="ca-topbar-inner">
+            <div class="ca-topbar-left">
+                <img src="~/images/newLogo.jpeg" class="ca-logo" alt="University Logo" />
+                <div>
+                    <div class="ca-topbar-college">@(string.IsNullOrEmpty(CollegeName) ? "—" : CollegeName)</div>
+                    <span class="ca-topbar-page">@ViewData["Title"]</span>
+                </div>
             </div>
-        </div>
 
-        <div class="ca-topbar-right">
-            <span class="ca-topbar-page">@ViewData["Title"]</span>
-            <div class="ca-topbar-meta">
-                <span class="ca-topbar-course"><span class="ca-topbar-item-label">Applying Course Level:</span> @(string.IsNullOrWhiteSpace(courseLevel) ? "Not selected" : courseLevel.ToUpper())</span>
-                <span class="ca-topbar-affiliation"><span class="ca-topbar-item-label">Application Type:</span> @(string.IsNullOrWhiteSpace(typeOfAffiliation) ? "Not available" : typeOfAffiliation)</span>
+            <div class="ca-topbar-center">
+                <h2 class="ca-topbar-university">Rajiv Gandhi University of Health Sciences, Bengaluru, Karnataka</h2>
+            </div>
+
+            <div class="ca-topbar-right">
+                <span class="ca-pill"><span class="ca-pill-label">Applying Course Level:</span> <strong>@courseLevelDisplay</strong></span>
+                <span class="ca-pill"><span class="ca-pill-label">Application Type:</span> <strong>@(string.IsNullOrWhiteSpace(typeOfAffiliation) ? "Not available" : typeOfAffiliation)</strong></span>
             </div>
         </div>
     </header>
@@ -311,7 +335,6 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -41,13 +41,15 @@
         --sb-radius-lg: 10px;
         --sb-ease: cubic-bezier(.4,0,.2,1);
         --sb-dur: .2s;
+        --sb-width: 280px;
+        --sb-width-collapsed: 68px;
     }
 
     .sidebar {
         position: fixed;
         top: var(--header-height);
         left: 0;
-        width: 280px;
+        width: var(--sb-width);
         height: calc(100vh - var(--header-height));
         background: linear-gradient(180deg, var(--sb-navy-deep) 0%, var(--sb-navy) 55%, var(--sb-navy-mid) 100%);
         color: var(--sb-text);
@@ -57,8 +59,10 @@
         flex-direction: column;
         z-index: 900;
         overflow-y: auto;
+        overflow-x: hidden;
         border-right: 1px solid var(--sb-border);
         font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        transition: width var(--sb-dur) var(--sb-ease);
     }
 
         .sidebar::-webkit-scrollbar {
@@ -70,13 +74,65 @@
             border-radius: 10px;
         }
 
+        /* ── Collapsed state ────────────────────────────────────── */
+        .sidebar.collapsed {
+            width: var(--sb-width-collapsed) !important;
+        }
+
+    /* ── Collapse / expand handle — always visible, sits in the
+           header corner in both states so it's never possible to get
+           "stuck" collapsed with no way back. ──────────────────── */
+    .sidebar-handle {
+        position: absolute;
+        top: 14px;
+        right: 20px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: var(--sb-gold);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(29,95,214,.45);
+        transition: background var(--sb-dur) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease), transform var(--sb-dur) var(--sb-ease);
+    }
+
+        .sidebar-handle:hover {
+            background: var(--sb-gold-lt);
+            box-shadow: 0 3px 10px rgba(29,95,214,.55);
+            transform: translateY(-1px);
+        }
+
+        .sidebar-handle:active {
+            transform: translateY(0);
+        }
+
+        .sidebar-handle:focus-visible {
+            outline: 2px solid var(--sb-gold-lt);
+            outline-offset: 2px;
+        }
+
+        .sidebar-handle i {
+            font-size: .7rem;
+            transition: transform .25s ease;
+        }
+
+    .sidebar.collapsed .sidebar-handle i {
+        transform: rotate(180deg);
+    }
+
     /* ── Official header strip ─────────────────────────────── */
     .sidebar-header {
         position: relative;
         text-align: left;
-        padding: 22px 20px 18px;
+        padding: 22px 52px 18px 20px;
         border-bottom: 1px solid var(--sb-border);
         background: rgba(0,0,0,.12);
+        transition: padding var(--sb-dur) var(--sb-ease);
     }
 
         .sidebar-header::after {
@@ -88,6 +144,15 @@
             height: 2px;
             background: linear-gradient(90deg, var(--sb-gold), var(--sb-gold-lt) 45%, transparent);
         }
+
+    .sidebar.collapsed .sidebar-header {
+        padding: 52px 0 12px;
+    }
+
+    .sidebar.collapsed .sidebar-header-top,
+    .sidebar.collapsed .sidebar-official-badge {
+        display: none;
+    }
 
     .sidebar-header-top {
         display: flex;
@@ -155,6 +220,11 @@
         letter-spacing: 1.2px;
         color: rgba(255,255,255,.32);
         padding: 16px 20px 8px;
+        white-space: nowrap;
+    }
+
+    .sidebar.collapsed .sidebar-section-label {
+        display: none;
     }
 
     /* ── Menu ────────────────────────────────────────────────── */
@@ -163,6 +233,10 @@
         padding: 4px 12px 0;
         margin: 0;
         flex: 1;
+    }
+
+    .sidebar.collapsed .sidebar-menu {
+        padding: 4px 10px 0;
     }
 
     .sidebar-item {
@@ -179,7 +253,7 @@
         font-weight: 500;
         font-size: 0.9rem;
         letter-spacing: .1px;
-        transition: background var(--sb-dur) var(--sb-ease), color var(--sb-dur) var(--sb-ease);
+        transition: background var(--sb-dur) var(--sb-ease), color var(--sb-dur) var(--sb-ease), padding var(--sb-dur) var(--sb-ease), justify-content var(--sb-dur) var(--sb-ease);
         cursor: pointer;
         user-select: none;
         border: 1px solid transparent;
@@ -191,7 +265,8 @@
             width: 20px;
             text-align: center;
             color: var(--sb-text-muted);
-            transition: color var(--sb-dur) var(--sb-ease);
+            transition: color var(--sb-dur) var(--sb-ease), margin var(--sb-dur) var(--sb-ease);
+            flex-shrink: 0;
         }
 
         .sidebar-link:hover {
@@ -228,6 +303,22 @@
             color: var(--sb-gold-lt);
         }
 
+    /* Collapsed menu items become centred icon-only tiles with a
+           native tooltip (title attribute) standing in for the label. */
+    .sidebar.collapsed .sidebar-link {
+        justify-content: center;
+        padding: 0.75rem 0;
+    }
+
+        .sidebar.collapsed .sidebar-link i:first-child {
+            margin-right: 0;
+        }
+
+    .sidebar.collapsed .sidebar-link-label,
+    .sidebar.collapsed .chevron {
+        display: none;
+    }
+
     /* ── Custom dropdown panel (replaces native select) ─────── */
     .affiliation-dropdown {
         margin: 0.3rem 0 0.4rem 0.35rem;
@@ -254,6 +345,13 @@
             margin-bottom: 0;
             border: none;
         }
+
+    /* Flyout panels have nowhere to sit at 68px wide — collapse the
+           sidebar keeps the item clickable (it auto-expands, see JS) but
+           hides the inline panel until then. */
+    .sidebar.collapsed .affiliation-dropdown {
+        display: none !important;
+    }
 
     .affiliation-option {
         display: flex;
@@ -357,6 +455,11 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        transition: padding var(--sb-dur) var(--sb-ease);
+    }
+
+    .sidebar.collapsed .sidebar-footer {
+        padding: 12px 10px 4px;
     }
 
     .sidebar-footer-label {
@@ -367,6 +470,11 @@
         color: rgba(255,255,255,.30);
         margin-bottom: 2px;
         padding: 0 2px;
+        white-space: nowrap;
+    }
+
+    .sidebar.collapsed .sidebar-footer-label {
+        display: none;
     }
 
     .sidebar-action-btn {
@@ -427,6 +535,19 @@
                     color: #fff;
                 }
 
+    .sidebar.collapsed .sidebar-action-btn {
+        justify-content: center;
+        padding: 0.68rem 0;
+    }
+
+        .sidebar.collapsed .sidebar-action-btn i {
+            margin: 0;
+        }
+
+    .sidebar.collapsed .sidebar-action-label {
+        display: none;
+    }
+
     /* Compliance micro-footer */
     .sidebar-compliance {
         display: flex;
@@ -440,6 +561,140 @@
         color: rgba(255,255,255,.28);
         letter-spacing: .3px;
         text-transform: uppercase;
+    }
+
+    .password-modal .modal-dialog {
+        max-width: 460px;
+    }
+
+    .password-modal .modal-content {
+        border: 1px solid #dbe7f5;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 22px 55px rgba(5, 25, 65, .25);
+    }
+
+    .password-modal .modal-header {
+        padding: 1.35rem 1.5rem;
+        background: linear-gradient(135deg, var(--sb-navy-deep), var(--sb-navy));
+        border-bottom: 2px solid var(--sb-gold);
+    }
+
+    .password-modal .modal-header-inner {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+    }
+
+    .password-modal .modal-ico {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        color: var(--sb-gold-lt);
+        background: var(--sb-gold-ring);
+        border: 1px solid rgba(127,176,255,.35);
+        font-size: 1.15rem;
+    }
+
+    .password-modal .modal-title {
+        color: #fff;
+        font-size: 1.08rem;
+        font-weight: 700;
+    }
+
+    .password-modal .modal-sub {
+        margin-top: .18rem;
+        color: rgba(255,255,255,.68);
+        font-size: .76rem;
+    }
+
+    .password-modal .modal-body {
+        padding: 1.5rem;
+        background: #fff;
+    }
+
+    .password-modal .password-field-label {
+        display: flex;
+        justify-content: space-between;
+        gap: .75rem;
+        margin-bottom: .45rem;
+        color: #243b53;
+        font-size: .8rem;
+        font-weight: 700;
+    }
+
+    .password-modal .password-required {
+        color: #b42318;
+        font-size: .7rem;
+        font-weight: 500;
+    }
+
+    .password-modal .password-input-wrap {
+        position: relative;
+    }
+
+    .password-modal .password-input-wrap .form-control {
+        height: 44px;
+        padding-right: 3rem;
+        border-color: #cbd8e8;
+        border-radius: 8px;
+        color: #102a43;
+    }
+
+    .password-modal .password-input-wrap .form-control:focus {
+        border-color: var(--sb-gold);
+        box-shadow: 0 0 0 3px rgba(29,95,214,.13);
+    }
+
+    .password-modal .password-visibility {
+        position: absolute;
+        top: 50%;
+        right: .7rem;
+        width: 30px;
+        height: 30px;
+        transform: translateY(-50%);
+        border: 0;
+        background: transparent;
+        color: #627d98;
+        cursor: pointer;
+    }
+
+    .password-modal .password-visibility:hover {
+        color: var(--sb-navy);
+    }
+
+    .password-modal .password-rules {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .45rem .8rem;
+        margin-top: .85rem;
+        padding: .85rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+        color: #627d98;
+        font-size: .72rem;
+    }
+
+    .password-modal .password-rule {
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+    }
+
+    .password-modal .password-rule i {
+        color: #9fb3c8;
+    }
+
+    .password-modal .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: .65rem;
+        padding: 1rem 1.5rem 1.35rem;
+        border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
     }
 
         .sidebar-compliance i {
@@ -459,9 +714,35 @@
             border-right: none;
             border-bottom: 1px solid var(--sb-border);
         }
+        /* The icon-only collapsed rail is a desktop affordance — the
+               sidebar already stacks full-width and inline on mobile, so
+               collapsing it would just hide the nav with no space saved. */
+        .sidebar-handle {
+            display: none;
+        }
+
+        .sidebar.collapsed {
+            width: 100% !important;
+        }
+
+            .sidebar.collapsed .sidebar-header-top,
+            .sidebar.collapsed .sidebar-official-badge,
+            .sidebar.collapsed .sidebar-section-label,
+            .sidebar.collapsed .sidebar-link-label,
+            .sidebar.collapsed .chevron,
+            .sidebar.collapsed .sidebar-footer-label,
+            .sidebar.collapsed .sidebar-action-label {
+                display: revert;
+            }
+
+            .sidebar.collapsed .sidebar-link,
+            .sidebar.collapsed .sidebar-action-btn {
+                justify-content: flex-start;
+                padding: 0.75rem 0.85rem;
+            }
     }
 
-    @@media (max-width: 1200px) {
+    @@media (max-width: 1200px) and (min-width: 992px) {
         .sidebar {
             width: 240px;
         }
@@ -477,6 +758,17 @@
             height: calc(100vh - var(--header-height));
             overflow-y: auto;
             scrollbar-width: thin;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .sidebar,
+        .sidebar-header,
+        .sidebar-link,
+        .sidebar-handle,
+        .sidebar-handle i,
+        .sidebar-footer {
+            transition: none;
         }
     }
 
@@ -505,10 +797,20 @@
 @if (!string.IsNullOrEmpty(Model.FacultyCode))
 {
     <aside class="sidebar">
+
+        <button type="button"
+                class="sidebar-handle"
+                onclick="toggleSidebar()"
+                aria-expanded="true"
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar">
+            <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+
         <div class="sidebar-header">
             <div class="sidebar-header-top">
                 <div class="sidebar-header-ico"><i class="bi bi-mortarboard-fill"></i></div>
-                <div>
+                <div class="sidebar-header-text">
                     <h4>College Workspace</h4>
                     <div class="sidebar-header-sub">Affiliation Management</div>
                 </div>
@@ -525,10 +827,11 @@
                 <li class="sidebar-item">
                     <a href="#" id="admissionAffiliationToggle"
                        class="sidebar-link @(currentController == "CollegeBasicDetails" ? "active" : "")"
+                       title="Admission Affiliation"
                        onclick="toggleAffiliationDropdown(event)">
 
                         <i class="bi bi-building"></i>
-                        Admission Affiliation
+                        <span class="sidebar-link-label">Admission Affiliation</span>
                         <i class="bi bi-chevron-down chevron"></i>
                     </a>
 
@@ -537,15 +840,26 @@
                     </div>
                 </li>
 
+                <li class="sidebar-item">
+                    <a asp-controller="ContinuousAffiliationIncreaseintake"
+                       asp-action="IncreaseIntake"
+                       class="sidebar-link @(currentController == "ContinuousAffiliationIncreaseintake" && currentAction == "MedicalCollegeCourseIntake" ? "active" : "")"
+                       title="View Course Intake List">
+                        <i class="bi bi-list-check"></i>
+                        <span class="sidebar-link-label">View Course Intake List</span>
+                    </a>
+                </li>
+
                 @if (facultyCode == "1")
                 {
                     <li class="sidebar-item">
                         <a asp-controller="Home"
                            asp-action="Dashboard"
-                           class="sidebar-link @(currentController == "UGFaculty" ? "active" : "")">
+                           class="sidebar-link @(currentController == "UGFaculty" ? "active" : "")"
+                           title="Update UG Medical Faculty Details">
 
                             <i class="bi bi-building"></i>
-                            Update UG Medical Faculty Details
+                            <span class="sidebar-link-label">Update UG Medical Faculty Details</span>
                         </a>
                     </li>
                 }
@@ -555,16 +869,18 @@
             {
                 <li class="sidebar-item">
                     <a asp-controller="Fellowship" asp-action="FellowshipMedical_Details"
-                       class="sidebar-link @(currentController == "Fellowship" ? "active" : "")">
+                       class="sidebar-link @(currentController == "Fellowship" ? "active" : "")"
+                       title="Fellowship Application">
                         <i class="bi bi-mortarboard"></i>
-                        Fellowship Application
+                        <span class="sidebar-link-label">Fellowship Application</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a asp-controller="Fellowship" asp-action="AcceptedRejectedDashboard"
-                       class="sidebar-link">
+                       class="sidebar-link"
+                       title="Approved / Rejected Applications">
                         <i class="bi bi-check2-circle"></i>
-                        Approved / Rejected Applications
+                        <span class="sidebar-link-label">Approved / Rejected Applications</span>
                     </a>
                 </li>
             }
@@ -577,19 +893,19 @@
         <div class="sidebar-footer">
             <div class="sidebar-footer-label">Account</div>
 
-            <button class="sidebar-action-btn" onclick="goToCollegeProfile(event)">
-                <i class="bi bi-person-vcard"></i> College Profile
+            <button class="sidebar-action-btn" onclick="goToCollegeProfile(event)" title="College Profile">
+                <i class="bi bi-person-vcard"></i> <span class="sidebar-action-label">College Profile</span>
             </button>
 
-            <button class="sidebar-action-btn primary" data-bs-toggle="modal" data-bs-target="#updatePasswordModal">
-                <i class="bi bi-lock"></i> Update Password
+            <button class="sidebar-action-btn primary" data-bs-toggle="modal" data-bs-target="#updatePasswordModal" title="Update Password">
+                <i class="bi bi-lock"></i> <span class="sidebar-action-label">Update Password</span>
             </button>
 
         </div>
     </aside>
 
     <!-- Update Password Modal -->
-    <div class="modal fade" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+    <div class="modal fade password-modal" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form asp-action="UpdatePassword" asp-controller="Login" method="post">
@@ -600,29 +916,21 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="CollegeCode" value="@collegecode" />
-                        <div class="mb-3 position-relative">
-                            <label for="NewPassword" class="form-label">New Password</label>
-
-                            <input type="password"
-                                   class="form-control"
-                                   id="NewPassword"
-                                   name="UpdatedPassword"
-                                   required
-                                   minlength="8"
-                                   maxlength="20"
-                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{8,20}$"
-                                   title="Password must be 8-20 characters and include uppercase, lowercase, number, and special character."
-                                   autocomplete="new-password" />
-
-                            <span class="position-absolute top-50 end-0 translate-middle-y pe-3 toggle-password"
-                                  style="cursor:pointer; transform: translateY(-50%);">
-                                <i class="bi bi-eye" id="toggleIcon"></i>
-                            </span>
-
-                            <small class="text-muted">
-                                Password must contain:
-                                uppercase, lowercase, number, special character, and minimum 8 characters.
-                            </small>
+                        <div class="password-field">
+                            <label for="NewPassword" class="password-field-label">
+                                <span>New password</span>
+                                <span class="password-required">Required</span>
+                            </label>
+                            <div class="password-input-wrap">
+                                <input type="password" class="form-control" id="NewPassword" name="UpdatedPassword" required minlength="8" maxlength="20" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{8,20}$" title="Password must be 8-20 characters and include uppercase, lowercase, number, and special character." autocomplete="new-password" />
+                                <button type="button" class="password-visibility toggle-password" aria-label="Show password" title="Show password"><i class="bi bi-eye" id="toggleIcon"></i></button>
+                            </div>
+                            <div class="password-rules" aria-label="Password requirements">
+                                <span class="password-rule"><i class="bi bi-check2-circle"></i>8 to 20 characters</span>
+                                <span class="password-rule"><i class="bi bi-check2-circle"></i>Uppercase letter</span>
+                                <span class="password-rule"><i class="bi bi-check2-circle"></i>Lowercase letter</span>
+                                <span class="password-rule"><i class="bi bi-check2-circle"></i>Number and symbol</span>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -660,7 +968,52 @@
                  toggleIcon.className = type === "password" ? "bi bi-eye" : "bi bi-eye-slash";
              });
          }
+
+         // Restore the collapsed/expanded sidebar state. Collapsing is a
+         // desktop affordance only — below the 992px breakpoint the
+         // sidebar stacks full-width, so a stored "collapsed" flag from a
+         // previous desktop session is deliberately ignored here.
+         if (window.innerWidth >= 992) {
+             setSidebarCollapsed(localStorage.getItem("rguhsSidebarCollapsed") === "true");
+         }
      });
+
+     // Keep the sidebar usable if the viewport is resized down while collapsed.
+     window.addEventListener("resize", function () {
+         if (window.innerWidth < 992 && isSidebarCollapsed()) {
+             setSidebarCollapsed(false);
+         }
+     });
+
+     function isSidebarCollapsed() {
+         const sidebar = document.querySelector(".sidebar");
+         return !!sidebar && sidebar.classList.contains("collapsed");
+     }
+
+     // Applies (or clears) the collapsed state, keeps the handle's a11y
+     // attributes in sync, persists the choice, and notifies the rest of
+     // the page (e.g. a layout that needs to adjust its own margin-left
+     // to match the sidebar's current width) via a CustomEvent.
+     function setSidebarCollapsed(collapsed) {
+         const sidebar = document.querySelector(".sidebar");
+         const handle = document.querySelector(".sidebar-handle");
+         if (!sidebar || !handle) return;
+
+         sidebar.classList.toggle("collapsed", collapsed);
+         document.body.classList.toggle("app-sidebar-collapsed", collapsed);
+
+         localStorage.setItem("rguhsSidebarCollapsed", collapsed ? "true" : "false");
+
+         handle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+         handle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+         handle.setAttribute("title", collapsed ? "Expand sidebar" : "Collapse sidebar");
+
+         window.dispatchEvent(new CustomEvent("sidebarToggle", { detail: { collapsed: collapsed } }));
+     }
+
+     function toggleSidebar() {
+         setSidebarCollapsed(!isSidebarCollapsed());
+     }
 
      function toggleMenu(e, id) {
          e.preventDefault();
@@ -866,10 +1219,19 @@
 
 
      // --------------------------------------------------------------
-     // Toggle the main affiliation dropdown (unchanged)
+     // Toggle the main affiliation dropdown (unchanged, except that a
+     // collapsed sidebar is now auto-expanded first — there's nowhere
+     // for the inline panel to render at 68px wide).
      // --------------------------------------------------------------
      function toggleAffiliationDropdown(e) {
          e.preventDefault();
+
+         if (isSidebarCollapsed()) {
+             setSidebarCollapsed(false);
+             window.setTimeout(function () { toggleAffiliationDropdown(e); }, 90);
+             return;
+         }
+
          const panel = document.getElementById("affiliationDropdownPanel");
          const toggleLink = document.getElementById("admissionAffiliationToggle");
          const isOpen = panel.classList.contains("open");

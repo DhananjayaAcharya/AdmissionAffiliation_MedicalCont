@@ -297,7 +297,7 @@
             }
 
             .sidebar-wrap {
-                width: var(--sidebar-w);
+                width: 280px;
                 flex-shrink: 0;
                 position: sticky;
                 top: calc(var(--topbar-h) + 3px);
@@ -309,6 +309,13 @@
                 border-top-right-radius: 12px;
                 border-bottom-right-radius: 12px;
                 overflow: auto;
+                transition: width var(--dur) var(--ease), padding var(--dur) var(--ease);
+            }
+
+            body.app-sidebar-collapsed .sidebar-wrap {
+                width: 68px;
+                padding-left: 0;
+                padding-right: 0;
             }
 
             .main {
@@ -316,6 +323,7 @@
                 min-width: 0;
                 padding: 30px 42px 56px;
                 background: transparent;
+                transition: padding var(--dur) var(--ease);
             }
 
             /* ── PAGE HEADER ─────────────────────────────────── */
@@ -1274,6 +1282,31 @@
                 }
             }
 
+            @@media (max-width: 1200px) and (min-width: 992px) {
+                .sidebar-wrap {
+                    width: 240px;
+                }
+
+                body.app-sidebar-collapsed .sidebar-wrap {
+                    width: 68px;
+                }
+            }
+
+            @@media (max-width: 991px) {
+                .layout {
+                    flex-direction: column;
+                    gap: 0;
+                }
+
+                .sidebar-wrap,
+                body.app-sidebar-collapsed .sidebar-wrap {
+                    width: 100%;
+                    height: auto;
+                    position: relative;
+                    padding: 0;
+                }
+            }
+
             @@media (max-width: 900px) {
                 .stat-grid {
                     grid-template-columns: 1fr 1fr;
@@ -1281,6 +1314,10 @@
 
                 .main {
                     padding: 24px 20px 48px;
+                }
+
+                body.app-sidebar-collapsed .sidebar-wrap {
+                    width: 68px;
                 }
             }
 
@@ -1291,6 +1328,10 @@
 
                 .tb-centre {
                     display: none;
+                }
+
+                body.app-sidebar-collapsed .sidebar-wrap {
+                    width: 100%;
                 }
 
                 .tb-code {
@@ -1672,56 +1713,6 @@
             </div>
         </div>
     }
-
-    <!-- ── CHANGE PASSWORD MODAL ─────────────────────────────── -->
-    <div class="modal fade" id="updatePasswordModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form asp-action="UpdatePassword" asp-controller="Login" method="post">
-                    @Html.AntiForgeryToken()
-                    <div class="modal-header">
-                        <div class="modal-header-inner">
-                            <div class="modal-ico"><i class="bi bi-key"></i></div>
-                            <div>
-                                <div class="modal-title">Change Password</div>
-                                <div class="modal-sub">Update your account credentials</div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="CollegeCode" value="@collegeCode" />
-                        <div class="mb-3 position-relative">
-                            <label for="NewPassword" class="form-label">New Password</label>
-                            <input type="password"
-                                   class="form-control"
-                                   id="NewPassword"
-                                   name="UpdatedPassword"
-                                   required
-                                   minlength="8"
-                                   maxlength="20"
-                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!%*?&@@$])[A-Za-z\d!%*?&@@$]{8,20}$"
-                                   title="Password must be 8–20 characters and include uppercase, lowercase, number, and special character."
-                                   autocomplete="new-password" />
-                            <span class="position-absolute end-0 pe-3 toggle-password"
-                                  style="cursor:pointer; top: 38px;">
-                                <i class="bi bi-eye" id="toggleIcon" style="font-size:16px; color: var(--text-3);"></i>
-                            </span>
-                            <div class="mt-2" style="font-size:12px; color: var(--text-3); line-height: 1.6;">
-                                Must contain: uppercase · lowercase · number · special character · min. 8 characters
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn-dismiss" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn-primary-modal">
-                            <i class="bi bi-check2-circle"></i> Update Password
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- ── COLLEGE PROFILE MODAL ─────────────────────────────── -->
     <div class="modal fade" id="collegeProfileModal" tabindex="-1" aria-hidden="true">

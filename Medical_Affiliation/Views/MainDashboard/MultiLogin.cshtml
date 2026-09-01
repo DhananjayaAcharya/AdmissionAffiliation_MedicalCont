@@ -1231,25 +1231,13 @@
                                 @Html.AntiForgeryToken()
 
                                 <div class="fg focus-g">
-                                    <label class="fl">Faculty <span class="req-g">*</span></label>
+                                    <label class="fl">Username <span class="req-g">*</span></label>
                                     <div class="iw">
-                                        <i class="ic bi bi-mortarboard-fill"></i>
-                                        @Html.DropDownListFor(m => m.FacultyId, Model.Faculties, "— Select Faculty —", new { @class = "fs", id = "FacultyId" })
-                                        @Html.HiddenFor(m => m.FacultyId)
+                                        <i class="ic bi bi-person-fill"></i>
+                                        <input asp-for="Username" class="fc" id="Username" placeholder="Enter your college email" autocomplete="username" />
                                     </div>
-                                    @Html.ValidationMessageFor(m => m.FacultyId, "", new { @class = "ferr" })
+                                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "ferr" })
                                 </div>
-
-                                <div class="fg focus-g">
-                                    <label class="fl">College <span class="req-g">*</span></label>
-                                    <div class="iw">
-                                        <i class="ic bi bi-building-fill"></i>
-                                        @Html.DropDownListFor(m => m.CollegeId, Model.Colleges, "— Select College —", new { @class = "fs", id = "CollegeId" })
-                                    </div>
-                                    @Html.ValidationMessageFor(m => m.CollegeId, "", new { @class = "ferr" })
-                                </div>
-
-                                <input type="hidden" asp-for="Username" id="CollegeUsername" />
 
                                 <div class="fg focus-g">
                                     <label class="fl">Password <span class="req-g">*</span></label>

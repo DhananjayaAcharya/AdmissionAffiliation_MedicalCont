@@ -268,14 +268,24 @@
             }
         }
 
-        /* Make sure horizontally-scrolling tables have a visible scroll affordance on touch devices */
+        /* Force horizontal scrolling for wide staff/exam tables */
         .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
             -webkit-overflow-scrolling: touch;
+            display: block;
         }
 
             .table-responsive table {
-                min-width: 700px;
+                min-width: 980px;
+                width: 100%;
             }
+
+        #staffTable,
+        #examTable {
+            min-width: 980px;
+        }
 
         @@media (min-width: 768px) {
             .table-responsive table {

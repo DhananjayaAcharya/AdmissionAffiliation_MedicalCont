@@ -169,6 +169,9 @@
         new StepItem{ Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
         new StepItem{ Key="NonTeachingStaff", Label="Non-Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
+        // ---- Payment ----
+        new StepItem{ Key="PaymentCalculation", Label="Payment Calculation", Group="Payment", Ctrl="PaymentCalculation", Act="Index" },
+
         // ---- Final Preview ----
         new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
@@ -301,15 +304,6 @@
             allSteps.InsertRange(lastBasicIndex + 1, newSteps);
     }
 
-    // PG-specific step
-    if (levels.Contains("PG") && ShowPgTab)
-    {
-        InsertAfterBasicDetails(new List<StepItem>
-        {
-            new StepItem { Key = "PgCourses", Label = "PG Course Affiliation", Group = "Intake Details", Ctrl = "AffiliationPgCourse", Act = "PgCourses", Levels = new List<string>{ "PG" } },
-        });
-    }
-
     // Super Specialty (SS)-specific step
     if (levels.Contains("SS") && ShowSSTab)
     {
@@ -410,6 +404,25 @@
     }
 
     var groupedSteps = allSteps.GroupBy(s => s.Group).ToList();
+
+    // ------------------------------------------------------------------
+    // Icon used for each group in the collapsed icon-rail. Falls back to a
+    // generic folder icon for any group name not explicitly mapped, so new
+    // groups added later never break rendering.
+    // ------------------------------------------------------------------
+    string GetGroupIcon(string groupName) => groupName switch
+    {
+        "Basic Details" => "bi-building",
+        "Intake Details" => "bi-mortarboard",
+        "Coursewise Application(Form-B)" => "bi-journal-text",
+        "Physical Infrastructure" => "bi-house-gear",
+        "Academic & Admin" => "bi-clipboard-data",
+        "Research & Library" => "bi-book",
+        "Human Resources" => "bi-people",
+        "Payment" => "bi-cash-coin",
+        "Final Preview" => "bi-eye",
+        _ => "bi-folder2"
+    };
 }
 <link rel="stylesheet" href="~/css/common-form.css" />
 
@@ -433,8 +446,8 @@
     }
 
     /* ══════════════════════════════
-                                   CA SIDEBAR
-      ══════════════════════════════ */
+                                       CA SIDEBAR
+          ══════════════════════════════ */
     .ca-sb {
         width: 18vw;
         min-width: 260px;
@@ -450,20 +463,184 @@
         top: 7.8rem;
         overflow-y: auto;
         border-right: 1px solid var(--ca-border);
+        transition: width 0.25s ease;
     }
 
-        .ca-sb::-webkit-scrollbar {
-            width: 6px;
+    .ca-shell.sidebar-collapsed > .ca-sb {
+        width: 56px !important;
+        min-width: 56px !important;
+        max-width: 56px !important;
+        overflow: hidden;
+    }
+
+    .ca-sb.sidebar-collapsed {
+        width: 56px !important;
+        min-width: 56px !important;
+        max-width: 56px !important;
+        overflow: hidden;
+    }
+
+    /* ── Collapse / expand handle ─────────────────────────────────────
+           A single, always-visible circular button pinned to the top-right
+           corner of the sidebar. Because it sits inside the box (not poking
+           past the border), it survives the sidebar's overflow-y:auto in
+           both the expanded and the 56px collapsed width — no more relying
+           on a second hidden control that only appeared once already
+           collapsed. */
+    .ca-sb-handle {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: var(--ca-navy);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 6;
+        box-shadow: 0 2px 6px rgba(10, 61, 145, 0.35);
+        transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+        .ca-sb-handle:hover {
+            background: var(--ca-navy-light);
+            box-shadow: 0 3px 9px rgba(10, 61, 145, 0.45);
+            transform: translateY(-1px);
         }
 
-        .ca-sb::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 999px;
+        .ca-sb-handle:active {
+            transform: translateY(0);
         }
+
+        .ca-sb-handle:focus-visible {
+            outline: 2px solid var(--ca-navy);
+            outline-offset: 2px;
+        }
+
+        .ca-sb-handle i {
+            font-size: 0.72rem;
+            transition: transform 0.25s ease;
+        }
+
+    .ca-shell.sidebar-collapsed .ca-sb-handle i,
+    .ca-sb.sidebar-collapsed .ca-sb-handle i {
+        transform: rotate(180deg);
+    }
+
+    .ca-sb-top-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Reserve room so the title text never runs under the handle button */
+    .ca-sb-top {
+        padding-right: 44px;
+    }
+
+    /* Collapsed state: hide the full nav, reveal the icon rail instead */
+    .ca-shell.sidebar-collapsed .ca-sb-top,
+    .ca-shell.sidebar-collapsed .ca-sb-prog,
+    .ca-shell.sidebar-collapsed .accordion-container,
+    .ca-shell.sidebar-collapsed .ca-sb-footer-label,
+    .ca-sb.sidebar-collapsed .ca-sb-top,
+    .ca-sb.sidebar-collapsed .ca-sb-prog,
+    .ca-sb.sidebar-collapsed .accordion-container,
+    .ca-sb.sidebar-collapsed .ca-sb-footer-label {
+        display: none;
+    }
+
+    .ca-sb-rail {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 52px 0 12px;
+    }
+
+    .ca-shell.sidebar-collapsed .ca-sb-rail,
+    .ca-sb.sidebar-collapsed .ca-sb-rail {
+        display: flex;
+    }
+
+    .ca-sb-rail-item {
+        width: 38px;
+        height: 38px;
+        border-radius: var(--ca-radius-md);
+        border: none;
+        background: transparent;
+        color: var(--ca-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        cursor: pointer;
+        position: relative;
+        transition: background 0.15s, color 0.15s;
+    }
+
+        .ca-sb-rail-item:hover {
+            background: var(--ca-accent-bg);
+            color: var(--ca-navy);
+        }
+
+        .ca-sb-rail-item:focus-visible {
+            outline: 2px solid var(--ca-navy);
+            outline-offset: 2px;
+        }
+
+        .ca-sb-rail-item .rail-badge {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--ca-success);
+            border: 1.5px solid #fff;
+        }
+
+    /* Mini circular completion ring, shown only in the collapsed rail */
+    .ca-sb-rail-progress {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: conic-gradient(var(--ca-navy) calc(var(--pct) * 1%), var(--ca-border) 0);
+        margin-bottom: 6px;
+    }
+
+        .ca-sb-rail-progress span {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: var(--ca-navy);
+        }
+
+    .ca-sb::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .ca-sb::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+    }
 
     /* Brand */
     .ca-sb-top {
-        padding: 20px 18px 14px;
+        padding: 14px 18px 10px;
         border-bottom: 1px solid var(--ca-border);
         flex-shrink: 0;
     }
@@ -495,7 +672,7 @@
 
     /* Progress */
     .ca-sb-prog {
-        padding: 14px 18px 12px;
+        padding: 10px 18px 9px;
         border-bottom: 1px solid var(--ca-border);
         flex-shrink: 0;
         background: var(--ca-bg-tint);
@@ -571,7 +748,7 @@
         font-weight: 600;
         letter-spacing: 0.02em;
         color: var(--ca-text);
-        padding: 12px 18px;
+        padding: 9px 18px;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -642,7 +819,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 8px 18px 8px 22px;
+        padding: 6px 18px 6px 22px;
         text-decoration: none;
         color: var(--ca-text);
         font-size: 0.82rem;
@@ -713,7 +890,7 @@
 
     /* Footer */
     .ca-sb-footer {
-        padding: 12px 18px;
+        padding: 8px 18px;
         border-top: 1px solid var(--ca-border);
         flex-shrink: 0;
         background: var(--ca-bg-tint);
@@ -752,13 +929,22 @@
             height: auto;
             position: static;
         }
+        /* The handle relies on absolute-positioning within a sticky box;
+               on mobile the sidebar stacks inline, so keep the handle but
+               let the rail collapse behaviour still apply for a compact view. */
+        .ca-sb-handle {
+            top: 10px;
+            right: 10px;
+        }
     }
 
     @@media (prefers-reduced-motion: reduce) {
         .ca-sb-fill,
         .accordion-content,
         .toggle-icon,
-        .ca-sb-link {
+        .ca-sb-link,
+        .ca-sb-handle,
+        .ca-sb-handle i {
             transition: none;
         }
     }
@@ -766,8 +952,19 @@
 
 <aside class="ca-sb" aria-label="Continuous affiliation navigation">
 
+    <button type="button"
+            class="ca-sb-handle"
+            onclick="toggleCaSidebar()"
+            aria-expanded="true"
+            aria-label="Collapse sidebar"
+            title="Collapse sidebar">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+    </button>
+
     <div class="ca-sb-top">
-        <div class="ca-sb-title">College Details</div>
+        <div class="ca-sb-top-row">
+            <div class="ca-sb-title">College Details</div>
+        </div>
         <div class="ca-sb-subtitle">Type of Affiliation</div>
         <div class="ca-sb-affiliation">@(string.IsNullOrWhiteSpace(typeOfAffiliation) ? "Not available" : typeOfAffiliation)</div>
     </div>
@@ -858,19 +1055,81 @@
         }
     </nav>
 
+    @* Collapsed icon rail — mirrors the accordion groups above so the
+       sidebar stays fully navigable even at 56px. Clicking an icon
+       expands the sidebar and opens that group. *@
+    <div class="ca-sb-rail" aria-hidden="true">
+        <div class="ca-sb-rail-progress" style="--pct:@pct;" title="@pct% complete">
+            <span>@pct%</span>
+        </div>
+        @foreach (var group in groupedSteps)
+        {
+            var groupId = group.Key.Replace(" ", "");
+            var groupDone = group.Count(s => doneSteps.Contains(s.Key));
+            var groupTotal = group.Count();
+
+            <button type="button"
+                    class="ca-sb-rail-item"
+                    title="@group.Key (@groupDone/@groupTotal)"
+                    onclick="expandToGroup('@groupId')">
+                <i class="bi @GetGroupIcon(group.Key)" aria-hidden="true"></i>
+                @if (groupTotal > 0 && groupDone == groupTotal)
+                {
+                    <span class="rail-badge"></span>
+                }
+            </button>
+        }
+    </div>
+
     <div class="ca-sb-footer">
-        <a asp-action="Dashboard" asp-controller="Collegelogin" class="ca-sb-back">
+        <a asp-action="Dashboard" asp-controller="Collegelogin" class="ca-sb-back" title="Back to Dashboard">
             <i class="bi bi-arrow-left" aria-hidden="true"></i>
-            Back to Dashboard
+            <span class="ca-sb-footer-label">Back to Dashboard</span>
         </a>
     </div>
 
 </aside>
 
 <script>
+    // Applies (or clears) the collapsed state on both the shell wrapper
+    // (if present) and the sidebar itself, keeps the handle's a11y
+    // attributes in sync, and persists the choice for the session.
+    function setSidebarCollapsed(collapsed) {
+        const shell = document.querySelector(".ca-shell");
+        const sidebar = document.querySelector(".ca-sb");
+        const handle = document.querySelector(".ca-sb-handle");
+        if (!sidebar || !handle) return;
+
+        if (shell) shell.classList.toggle("sidebar-collapsed", collapsed);
+        sidebar.classList.toggle("sidebar-collapsed", collapsed);
+
+        sessionStorage.setItem("caSidebarCollapsed", collapsed ? "true" : "false");
+
+        handle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        handle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+        handle.setAttribute("title", collapsed ? "Expand sidebar" : "Collapse sidebar");
+    }
+
+    function toggleCaSidebar() {
+        const sidebar = document.querySelector(".ca-sb");
+        if (!sidebar) return;
+        const isCollapsed = sidebar.classList.contains("sidebar-collapsed");
+        setSidebarCollapsed(!isCollapsed);
+    }
+
+    // Called from the collapsed icon rail: expand the sidebar, then open
+    // the matching accordion group once the width transition has started.
+    function expandToGroup(groupId) {
+        setSidebarCollapsed(false);
+        window.setTimeout(function () {
+            toggleAccordion(groupId);
+        }, 80);
+    }
+
     function toggleAccordion(groupId) {
         const currentContent = document.querySelector(`[data-tab-content="${groupId}"]`);
         const currentHeader = document.querySelector(`[data-tab="${groupId}"]`);
+        if (!currentContent || !currentHeader) return;
         const isOpen = currentHeader.classList.contains("active-tab");
 
         document.querySelectorAll(".tab-content").forEach(c => c.style.maxHeight = null);
@@ -886,17 +1145,16 @@
 
         sessionStorage.setItem("activeTab", groupId);
 
-        if (currentContent) {
-            currentContent.style.maxHeight = currentContent.scrollHeight + "px";
-        }
-        if (currentHeader) {
-            currentHeader.classList.add("active-tab");
-            currentHeader.setAttribute("aria-expanded", "true");
-        }
+        currentContent.style.maxHeight = currentContent.scrollHeight + "px";
+        currentHeader.classList.add("active-tab");
+        currentHeader.setAttribute("aria-expanded", "true");
     }
 
     // Auto-open the group containing the active step (or the last opened group)
     window.addEventListener("DOMContentLoaded", function () {
+        const isCollapsed = sessionStorage.getItem("caSidebarCollapsed") === "true";
+        setSidebarCollapsed(isCollapsed);
+
         let activeTab = sessionStorage.getItem("activeTab");
 
         if (!activeTab) {

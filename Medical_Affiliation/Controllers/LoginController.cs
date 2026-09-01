@@ -123,9 +123,11 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(AdmissionLoginViewModel model)   
+        public async Task<IActionResult> Login(AdmissionLoginViewModel model)
         {
-            // Reload dropdowns
+            model.Username = model.Username?.Trim();
+            model.Password = model.Password?.Trim();
+
             model.Faculties = _context.Faculties
                 .Where(f => f.Status == "Active")
                 .OrderBy(f => f.FacultyName)
@@ -136,7 +138,7 @@ namespace Medical_Affiliation.Controllers
                 }).ToList();
 
             model.Colleges = _context.AffiliationCollegeMasters
-                .Where(c => c.FacultyCode.ToString() == model.FacultyId)
+                .Where(c => string.IsNullOrWhiteSpace(model.FacultyId) || c.FacultyCode.ToString() == model.FacultyId)
                 .OrderBy(c => c.CollegeName)
                 .Select(c => new SelectListItem
                 {
@@ -144,43 +146,49 @@ namespace Medical_Affiliation.Controllers
                     Text = c.CollegeName
                 }).ToList();
 
-            // Validation
-            var faculty = _context.Faculties.FirstOrDefault(f => f.FacultyId.ToString() == model.FacultyId);
-            if (faculty == null)
-            {
-                SetCaptcha(model);
-                TempData["LoginError"] = "Please select Faculty.";
-                return RedirectToAction("MultiLogin", "MainDashboard");
-            }
-
-            var user = _context.AffiliationCollegeMasters.FirstOrDefault(u =>
-                u.FacultyCode.ToString() == model.FacultyId &&
-                u.CollegeCode == model.CollegeId);
-
-            if (user == null)
-            {
-                SetCaptcha(model);
-                TempData["LoginError"] = "Invalid College.";
-                return RedirectToAction("MultiLogin", "MainDashboard");
-            }
-
-            if (user.Password != model.Password)
-            {
-                SetCaptcha(model);
-                TempData["LoginError"] = "Incorrect password.";
-                return RedirectToAction("MultiLogin", "MainDashboard");
-            }
-
             var sessionCaptcha = HttpContext.Session.GetString("CaptchaCode");
-
-            if (string.IsNullOrEmpty(sessionCaptcha) || model.Captcha != sessionCaptcha)
+            if (string.IsNullOrEmpty(sessionCaptcha) || string.IsNullOrWhiteSpace(model.Captcha) || !string.Equals(model.Captcha, sessionCaptcha, StringComparison.OrdinalIgnoreCase))
             {
                 SetCaptcha(model);
                 TempData["LoginError"] = "Invalid captcha.";
                 return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
-            // CourseLevel
+            var username = (model.Username ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                SetCaptcha(model);
+                TempData["LoginError"] = "Please enter your college email.";
+                return RedirectToAction("MultiLogin", "MainDashboard");
+            }
+
+            var normalizedUsername = username.ToLower();
+            var user = _context.AffiliationCollegeMasters
+                .FirstOrDefault(u => u.CollegeEmail != null && u.CollegeEmail.Trim().ToLower() == normalizedUsername);
+
+            if (user == null && !string.IsNullOrWhiteSpace(model.CollegeId))
+            {
+                user = _context.AffiliationCollegeMasters
+                    .FirstOrDefault(u => u.CollegeCode == model.CollegeId);
+            }
+
+            if (user == null)
+            {
+                SetCaptcha(model);
+                TempData["LoginError"] = "Invalid login credentials.";
+                return RedirectToAction("MultiLogin", "MainDashboard");
+            }
+
+            var passwordMatches = !string.IsNullOrWhiteSpace(user.Password) && user.Password == model.Password;
+            var changedPasswordMatches = !string.IsNullOrWhiteSpace(user.ChangedPassword) && user.ChangedPassword == model.Password;
+
+            if (!passwordMatches && !changedPasswordMatches)
+            {
+                SetCaptcha(model);
+                TempData["LoginError"] = "Incorrect password.";
+                return RedirectToAction("MultiLogin", "MainDashboard");
+            }
+
             var courseLevel = await (from cc in _context.CollegeCourseIntakeDetails
                                      join cm in _context.MstCourses
                                      on cc.CourseCode equals cm.CourseCode.ToString()
@@ -196,7 +204,6 @@ namespace Medical_Affiliation.Controllers
                         select cm.CourseLevel
                     ).Distinct().ToListAsync();
 
-            // If no course levels found, fetch from AcademicIntake -> Courses
             if (!ExistingCourseLevels.Any())
             {
                 var academicCourses = await _context.AcademicIntakes
@@ -223,20 +230,20 @@ namespace Medical_Affiliation.Controllers
             var userAgent = Request.Headers["User-Agent"].ToString();
 
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.CollegeName ?? ""),
-        new Claim(ClaimTypes.Role, "College"),
-        new Claim("CollegeCode", user.CollegeCode ?? ""),
-        new Claim("FacultyCode", user.FacultyCode ?? ""),
-        new Claim("CourseLevel", courseLevel ?? ""),
-        new Claim("UserIP", userIP ?? ""),
-        new Claim("UserAgent", userAgent ?? "")
-    };
+            {
+                new Claim(ClaimTypes.Name, user.CollegeName ?? ""),
+                new Claim(ClaimTypes.Role, "College"),
+                new Claim("CollegeCode", user.CollegeCode ?? ""),
+                new Claim("FacultyCode", user.FacultyCode ?? ""),
+                new Claim("CollegeEmail", user.CollegeEmail ?? ""),
+                new Claim("CourseLevel", courseLevel ?? ""),
+                new Claim("UserIP", userIP ?? ""),
+                new Claim("UserAgent", userAgent ?? "")
+            };
 
             var identity = new ClaimsIdentity(claims, "CollegeAuth");
             var principal = new ClaimsPrincipal(identity);
 
-            // Clear other roles
             await HttpContext.SignOutAsync("SectionOfficerAuth");
             await HttpContext.SignOutAsync("AdminAuth");
             await HttpContext.SignOutAsync("LicInspectionAuth");
@@ -245,24 +252,35 @@ namespace Medical_Affiliation.Controllers
             await HttpContext.SignOutAsync("LICSectionAuth");
             await HttpContext.SignOutAsync("FinanceAuth");
 
-            // ✅ SINGLE SIGN-IN ONLY
             await HttpContext.SignInAsync("CollegeAuth", principal, new AuthenticationProperties
             {
                 IsPersistent = true,
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
             });
 
-            Console.WriteLine("=== LOGIN SUCCESSFUL ===");
-            Console.WriteLine($"Signed in with CollegeCode: {user.CollegeCode}");
+            var facultyName = await _context.Faculties
+                .Where(f => f.FacultyId.ToString() == user.FacultyCode)
+                .Select(f => f.FacultyName)
+                .FirstOrDefaultAsync();
 
+            HttpContext.Session.Clear();
+            HttpContext.Session.SetString("UserName", user.CollegeEmail ?? username);
+            HttpContext.Session.SetString("CollegeName", user.CollegeName ?? "");
             HttpContext.Session.SetString("CollegeCode", user.CollegeCode ?? "");
             HttpContext.Session.SetString("FacultyCode", user.FacultyCode ?? "");
+            HttpContext.Session.SetString("FacultyName", facultyName ?? "");
+            HttpContext.Session.SetString("CollegeEmail", user.CollegeEmail ?? "");
+            HttpContext.Session.SetString("CollegeTown", user.CollegeTown ?? "");
+            HttpContext.Session.SetString("TypeOfAffiliation", "College Affiliation");
+            HttpContext.Session.SetString("TypeOfAffiliationId", "2");
+            HttpContext.Session.SetString("AffiliationType", "2");
+            HttpContext.Session.SetString("ShowNodalOfficer", "true");
+            HttpContext.Session.SetString("ShowIntakeDetails", "true");
+            HttpContext.Session.SetString("ShowRepository", "true");
+            HttpContext.Session.SetString("CourseLevel", courseLevel ?? "UG");
+            HttpContext.Session.SetString("SelectedCourseLevel", courseLevel ?? "UG");
+            HttpContext.Session.SetString("SelectedLevel", courseLevel ?? "UG");
 
-            //code added by ram to solve JSON error, old code commented , new code added on 22-05-2026
-
-            //HttpContext.Session.SetString("ExistingCourseLevels", string.Join(",", ExistingCourseLevels ?? new List<string>()));
-
-            // Use JsonSerializer to store the list as a proper JSON array ["UG","PG"]
             var levels = JsonSerializer.Serialize(ExistingCourseLevels ?? new List<string>());
             HttpContext.Session.SetString("ExistingCourseLevels", levels);
 

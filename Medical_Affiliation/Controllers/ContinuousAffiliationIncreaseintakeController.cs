@@ -23,26 +23,56 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> IncreaseIntake()
         {
             SetCourseLevelFromRequest();
+            return RedirectToAction(nameof(MedicalCollegeCourseIntake));
+        }
 
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpGet]
+        public async Task<IActionResult> MedicalCollegeCourseIntake()
+        {
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var collegeName = HttpContext.Session.GetString("CollegeName");
+            var courseLevel = HttpContext.Session.GetString("SelectedCourseLevel")?.Trim();
 
-            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode))
-                return RedirectToAction("Index", "Home");
+            if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("Collegelogin", "Login");
 
-            if (!int.TryParse(facultyCode, out int facultyId))
+            if (!int.TryParse(facultyCode, out var facultyId))
                 return BadRequest("Invalid faculty code");
 
-            var model = new AcademicIntakePageViewModel1
+            if (string.IsNullOrWhiteSpace(courseLevel))
+                return BadRequest("Course level is not selected");
+
+            var intakeRows = await (
+                from intake in _context.MstMedicalCollegeCourseIntakes
+                join course in _context.MstCourses
+                    on new { CourseCode = intake.CourseCode, FacultyCode = intake.Facultycode }
+                    equals new { CourseCode = (int?)course.CourseCode, FacultyCode = course.FacultyCode }
+                where intake.CollCode == collegeCode
+                      && intake.Facultycode == facultyId
+                      && course.FacultyCode == facultyId
+                      && course.CourseLevel.ToUpper() == courseLevel.ToUpper()
+                orderby course.CourseName
+                select new MedicalCollegeCourseIntakeRowViewModel
+                {
+                    Slno = intake.Slno,
+                    CourseCode = course.CourseCode.ToString(),
+                    CourseName = course.CourseName,
+                    Intake2627 = intake.Intake2627 ?? 0
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            var model = new MedicalCollegeCourseIntakeViewModel
             {
-                FacultyCode = facultyCode,
                 CollegeCode = collegeCode,
-                CollegeName = collegeName,
-                FacultyId = facultyId
+                CollegeName = collegeName ?? string.Empty,
+                FacultyCode = facultyCode,
+                CourseLevel = courseLevel.ToUpperInvariant(),
+                Courses = intakeRows
             };
 
-            await BuildModelData(model, facultyCode, collegeCode, facultyId);
             return View(model);
         }
 
@@ -626,12 +656,20 @@ namespace Medical_Affiliation.Controllers
                 .Where(d => d.FacultyCode == facultyId && d.CollegeCode == collegeCode)
                 .ToListAsync();
 
-            var allCourses = await  _context.MstCourses
-                .Where(c => c.FacultyCode == facultyId)
-                .ToListAsync();
+            var collegeCourseCodes = intakeDetails
+                .Where(d => !string.IsNullOrWhiteSpace(d.CourseCode))
+                .Select(d => d.CourseCode.Trim())
+                .Distinct()
+                .ToList();
+
+            var allCourses = collegeCourseCodes.Count == 0
+                ? new List<MstCourse>()
+                : await _context.MstCourses
+                    .Where(c => c.FacultyCode == facultyId && collegeCourseCodes.Contains(c.CourseCode.ToString()))
+                    .ToListAsync();
 
             var existingIntakes = await _context.AcademicIntakes
-                .Where(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode)
+                .Where(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode && collegeCourseCodes.Contains(x.Courses))
                 .ToListAsync();
 
             // ── Reusable LINQ projection ───────────────────────────────────

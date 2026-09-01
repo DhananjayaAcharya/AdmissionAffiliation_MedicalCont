@@ -221,7 +221,7 @@ namespace Medical_Affiliation.Controllers
             // for IsAvailable can't be trusted on its own - cross-check against the raw
             // posted form the same way the checkbox-in-loop bugs elsewhere were fixed.
             for (int i = 0; i < model.IcuDetails.Count; i++)
-            {
+            {  
                 var formKey = $"IcuDetails[{i}].IsAvailable";
                 model.IcuDetails[i].IsAvailable = Request.Form.ContainsKey(formKey) &&
                     (Request.Form[formKey].Contains("true") || Request.Form[formKey].Contains("on"));
@@ -347,6 +347,18 @@ namespace Medical_Affiliation.Controllers
     ("SS", 3)
 };
 
+        private static string? GetInstitutionCategoryForView(string? category)
+        {
+            return category?.Trim().ToUpperInvariant() switch
+            {
+                "P" => "P",
+                "G" => "G",
+                "PRIVATE" => "P",
+                "GOVERNMENT" => "G",
+                _ => string.IsNullOrWhiteSpace(category) ? null : category.Trim()
+            };
+        }
+
         // ---- Add these two action methods inside your existing controller class ----
 
         // GET: SummaryDetails?courseCode=..&typeOfAffiliation=..
@@ -392,7 +404,7 @@ namespace Medical_Affiliation.Controllers
                 model.DateOfAssessment = entity.DateOfAssessment?.ToDateTime(TimeOnly.MinValue);
                 model.AssessorName = entity.AssessorName;
                 model.InstitutionName = entity.InstitutionName;
-                model.InstitutionCategory = entity.InstitutionCategory;
+                model.InstitutionCategory = GetInstitutionCategoryForView(entity.InstitutionCategory);
                 model.HeadOfInstitutionDesignation = entity.HeadOfInstitutionDesignation;
                 model.HeadOfInstitutionName = entity.HeadOfInstitutionName;
                 model.HeadOfInstitutionAgeDob = entity.HeadOfInstitutionAgeDob;
@@ -506,10 +518,40 @@ namespace Medical_Affiliation.Controllers
                 entity.ModifiedDate = DateTime.Now;
             }
 
+            if (string.IsNullOrWhiteSpace(model.InstitutionCategory))
+            {
+                var savedInstitution = await _context.AffInstitutionsDetails
+                    .Where(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode)
+                    .OrderByDescending(x => x.InstitutionId)
+                    .FirstOrDefaultAsync();
+
+                if (savedInstitution != null && int.TryParse(savedInstitution.TypeOfInstitution, out var institutionTypeId) && institutionTypeId > 0)
+                {
+                    var orgCategory = await _context.MstInstitutionTypes
+                        .Where(x => x.InstitutionTypeId == institutionTypeId)
+                        .Select(x => x.OrganizationCategory)
+                        .FirstOrDefaultAsync();
+
+                    if (!string.IsNullOrWhiteSpace(orgCategory))
+                    {
+                        model.InstitutionCategory = orgCategory.Trim();
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(model.InstitutionName))
+            {
+                model.InstitutionName = await _context.AffInstitutionsDetails
+                    .Where(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode)
+                    .OrderByDescending(x => x.InstitutionId)
+                    .Select(x => x.NameOfInstitution)
+                    .FirstOrDefaultAsync() ?? string.Empty;
+            }
+
             entity.DateOfAssessment = model.DateOfAssessment.HasValue ? DateOnly.FromDateTime(model.DateOfAssessment.Value) : null;
             entity.AssessorName = model.AssessorName;
-            entity.InstitutionName = model.InstitutionName;
-            entity.InstitutionCategory = model.InstitutionCategory;
+            entity.InstitutionName = model.InstitutionName ?? string.Empty;
+            entity.InstitutionCategory = model.InstitutionCategory ?? string.Empty;
             entity.HeadOfInstitutionDesignation = model.HeadOfInstitutionDesignation;
             entity.HeadOfInstitutionName = model.HeadOfInstitutionName;
             entity.HeadOfInstitutionAgeDob = model.HeadOfInstitutionAgeDob;
@@ -615,6 +657,26 @@ namespace Medical_Affiliation.Controllers
     "Any other equipments"
 };
 
+        private static string? NormalizeYesNo(string? value)
+        {
+            return value?.Trim().ToUpperInvariant() switch
+            {
+                "YES" => "Yes",
+                "NO" => "No",
+                _ => string.IsNullOrWhiteSpace(value) ? null : value.Trim()
+            };
+        }
+
+        private static string? NormalizeAvailability(string? value)
+        {
+            return value?.Trim().ToUpperInvariant() switch
+            {
+                "AVAILABLE" => "Available",
+                "NOT AVAILABLE" => "Not available",
+                _ => string.IsNullOrWhiteSpace(value) ? null : value.Trim()
+            };
+        }
+
         // ---- Add these two action methods inside your existing controller class ----
 
         // GET: InfrastructureDetails?courseCode=..&typeOfAffiliation=..
@@ -695,7 +757,7 @@ namespace Medical_Affiliation.Controllers
                 ? otherCourseRows.Select(x => new OtherCourseRowVM
                 {
                     NameOfQualificationCourse = x.NameOfQualificationCourse,
-                    PermittedByMcinmc = x.PermittedByMciNmc,
+                    PermittedByMcinmc = NormalizeYesNo(x.PermittedByMciNmc),
                     NumberOfAdmissionsPerYear = x.NumberOfAdmissionsPerYear
                 }).ToList()
                 : new List<OtherCourseRowVM> { new(), new() };
@@ -711,10 +773,10 @@ namespace Medical_Affiliation.Controllers
                 model.WaitingAreaInSqM = opd.WaitingAreaInSqM;
                 model.SpaceAndArrangements = opd.SpaceAndArrangements;
                 model.IfNotAdequateReasons = opd.IfNotAdequateReasons;
-                model.DressingRoomAvailable = opd.DressingRoomAvailable;
-                model.SeparateMinorOtMaleFemale = opd.SeparateMinorOtMaleFemale;
-                model.PerRectalExamRoomAvailable = opd.PerRectalExamRoomAvailable;
-                model.DressingRoom2Available = opd.DressingRoom2Available;
+                model.DressingRoomAvailable = NormalizeAvailability(opd.DressingRoomAvailable);
+                model.SeparateMinorOtMaleFemale = NormalizeAvailability(opd.SeparateMinorOtMaleFemale);
+                model.PerRectalExamRoomAvailable = NormalizeAvailability(opd.PerRectalExamRoomAvailable);
+                model.DressingRoom2Available = NormalizeAvailability(opd.DressingRoom2Available);
             }
 
             // OPD room areas - seed with the 3 fixed room types, keep any extra custom rows saved
@@ -849,7 +911,7 @@ namespace Medical_Affiliation.Controllers
                     NameOfEquipment = eqName,
                     NumbersAvailable = saved?.NumbersAvailable,
                     FunctionalStatus = saved?.FunctionalStatus,
-                    IsAdequate = saved?.IsAdequate
+                    IsAdequate = NormalizeYesNo(saved?.IsAdequate)
                 });
             }
 
@@ -902,7 +964,7 @@ namespace Medical_Affiliation.Controllers
                     CreatedBy = createdBy,
                     CreatedDate = DateTime.Now
                 });
-            }
+            } 
 
             // ---- 2. Fee Paid Details: delete & reinsert ----
             var oldFees = _context.FeePaidDetails.Where(x =>
@@ -1871,7 +1933,7 @@ namespace Medical_Affiliation.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Details saved successfully.";
-            return RedirectToAction(nameof(AcademicActivities), new { courseCode, typeOfAffiliation });
+            return RedirectToAction("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation", new { courseCode, typeOfAffiliation });
         }
     }
 }

@@ -6,8 +6,8 @@
     ViewData["Title"] = "Staff Particulars - Principal";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var facultyCode = Context.Session.GetString("FacultyCode");
+    var courseLevel = (Context.Session.GetString("CourseLevel") ?? "UG").Trim().ToUpperInvariant();
 
-    // var level = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
     var raw = HttpContextAccessor.HttpContext.Session.GetString("ExistingCourseLevels");
 
     var levels = string.IsNullOrEmpty(raw)
@@ -17,6 +17,19 @@
         .Distinct()
         .ToList();
 
+    string nextController = "ContinuesAffiliation_Facultybased";
+    string nextAction = "Details_Of_MBBS";
+
+    if (courseLevel == "PG")
+    {
+        nextController = "AffiliationPgCourse";
+        nextAction = "PgCourses";
+    }
+    else if (courseLevel == "SS")
+    {
+        nextController = "Aff_CA_SS_CoursesAppliedSS";
+        nextAction = "CA_SS_CoursesApplied";
+    }
 
 }
 
@@ -804,32 +817,10 @@
                        class="btn-prev">← Previous</a>
 
                     <button type="submit" class="btn-save">&#128190; Save &amp; Proceed →</button>
-                    @* @if(level.ToLower() == "pg")
-                    {
-                        <a asp-controller="AffiliationPgCourse"
-                           asp-action="PgCourses"
-                        class="btn-next"> Next</a>
-                    }else if(level.ToLower() == "ss")
-                    {
-                        <a asp-controller="AffiliationSS"
-                           asp-action="CoursesOffered"
-                        class="btn-next"> Next</a>
-                    }
-                    else
-                    {    *@
-                    @if (facultyCode == "2")
-                    {
-                        <a asp-controller="ContinuesAffiliation_Facultybased"
-                           asp-action="Ug_Course_Details"
-                           class="btn-next"> Next</a>
-                    }
-                    @if (facultyCode != "2")
-                    {
-                        <a asp-controller="Medical_ContinuousAffiliation"
-                           asp-action="Medical_LandBuildingdetails"
-                           class="btn-next"> Next</a>
-                    }
-                    @* } *@
+
+                    <a asp-controller="@nextController"
+                       asp-action="@nextAction"
+                       class="btn-next"> Next</a>
                 </div>
 
             </form>

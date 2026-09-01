@@ -39,15 +39,17 @@
 
     /* ── Page Shell ── */
     .page-shell {
-        background-color: var(--cream);
-        min-height: 100vh;
-        /* padding: 36px 0 48px; */
+        width: 100%;
+        background-color: transparent;
+        min-height: auto;
     }
 
     .page-container {
-        max-width: 1015px;
-        margin: 0 auto;
-        /* padding: 0 24px; */
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        flex: 1 1 auto;
     }
 
     /* ── Header Banner ── */
@@ -125,8 +127,12 @@
         border: 1px solid var(--border);
         border-top: none;
         border-radius: 0 0 10px 10px;
-        padding: 32px 36px 36px;
+        padding: 0;
         box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    .form-card > form {
+        width: 100%;
     }
 
     /* ── Section Label (divider) ── */
@@ -134,8 +140,8 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 20px;
-        margin-top: 8px;
+        margin: 0;
+        padding: 22px 28px 12px;
     }
 
     .section-label-text {
@@ -155,16 +161,18 @@
 
     /* ── Section Block (each card) ── */
     .section-block {
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
+        border: 0;
+        border-bottom: 1px solid var(--border);
+        border-radius: 0;
         overflow: hidden;
-        margin-bottom: 24px;
+        margin-bottom: 0;
     }
 
     .section-block-header {
-        background: linear-gradient(180deg, #fff 0%, #fff 100%);
-        border-bottom: 2px solid var(--border);
-        padding: 10px 16px;
+        background: #f4f7fb;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 28px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -192,8 +200,34 @@
         }
 
     .section-block-body {
-        padding: 0;
+        padding: 0 28px 24px;
         overflow-x: auto;
+    }
+
+    .form-footer {
+        padding: 24px 28px;
+        background: #f4f7fb;
+        border-top: 1px solid var(--border);
+    }
+
+    @@media (max-width: 768px) {
+        .page-header {
+            padding: 22px 20px 20px;
+        }
+
+        .header-badge {
+            position: static;
+            display: inline-block;
+            margin-top: 14px;
+        }
+
+        .section-label,
+        .section-block-header,
+        .section-block-body,
+        .form-footer {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
     }
 
     /* ── Table ── */
@@ -518,7 +552,7 @@
                     <span class="section-label-line"></span>
                 </div>
 
-                <div class="section-block" style="margin-bottom:28px;">
+                <div class="section-block">
                     <div class="section-block-header">
                         <span class="section-block-title">Basic Information</span>
                     </div>
@@ -596,7 +630,7 @@
                     <span class="section-label-line"></span>
                 </div>
 
-                <div class="section-block" style="margin-bottom:28px;">
+                <div class="section-block">
                     <div class="section-block-header">
                         <span class="section-block-title">Details of Teaching Experience</span>
                         <button type="button" class="btn-add-row" id="addTeachingRow">+ Add Row</button>
@@ -701,7 +735,7 @@
                     <span class="section-label-line"></span>
                 </div>
 
-                <div class="section-block" style="margin-bottom:28px;">
+                <div class="section-block">
                     <div class="section-block-header">
                         <span class="section-block-title">Details of Administrative Experience</span>
                         <button type="button" class="btn-add-row" id="addAdminRow">+ Add Row</button>
@@ -1265,7 +1299,7 @@
                 }
             });
 
-            function selectOtherCollege(college)
+            function selectOtherCollege(college) 
             {
                 const dropdownName =
                     document.getElementById(

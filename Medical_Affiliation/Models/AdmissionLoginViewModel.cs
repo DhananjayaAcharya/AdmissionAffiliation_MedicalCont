@@ -4,10 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 public class AdmissionLoginViewModel
 {
-    [Required]
     public string FacultyId { get; set; }
 
-    [Required]
     public string CollegeId { get; set; }
 
     [Required]

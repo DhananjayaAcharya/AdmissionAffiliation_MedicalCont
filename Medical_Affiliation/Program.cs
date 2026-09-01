@@ -124,6 +124,11 @@ builder.Services.AddDataProtection()
 // 🔹 HttpContext + Services
 // =============================================
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient("RguhsFacultyApi", client =>
+{
+    client.BaseAddress = new Uri("https://beta.rguhsqp.com/");
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
 
 builder.Services.AddScoped<LicTadaService>();
 builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();

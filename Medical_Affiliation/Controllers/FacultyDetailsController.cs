@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -11,10 +12,12 @@ namespace Medical_Affiliation.Controllers
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public FacultyDetailsController(ApplicationDbContext context) : base(context)
+        public FacultyDetailsController(ApplicationDbContext context, IHttpClientFactory httpClientFactory) : base(context)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -97,125 +100,102 @@ namespace Medical_Affiliation.Controllers
         // ──────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
-        public IActionResult Repo_FacultyDetails()
+        public async Task<IActionResult> Repo_FacultyDetails()
         {
-            string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            string facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode")
+                ?? User.FindFirst("CollegeCode")?.Value;
 
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+            if (string.IsNullOrWhiteSpace(collegeCode))
             {
                 TempData["Error"] = "Session expired. Please log in again.";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
-            var (subjectsList, designationsList, departmentsList) = GetDropdowns(facultyCode);
+            ViewBag.CollegeCode = collegeCode.Trim();
 
-            // Exclude already-removed records
-            var facultyDetails = _context.FacultyDetails
-                .Where(f => f.CollegeCode == collegeCode
-                         && f.FacultyCode == facultyCode
-                         && f.IsRemoved != true)
-                .ToList();
-
-            var ahsFacultyWithCollege = _context.NursingFacultyWithColleges
-                .Where(f => f.CollegeCode == collegeCode
-                         && f.FacultyCode.ToString() == facultyCode)
-                .ToList();
-
-            var vmList = new List<FacultyDetailsViewModel>();
-
-            if (!facultyDetails.Any() && !ahsFacultyWithCollege.Any())
+            try
             {
-                TempData["Info"] = "No faculty records found for this faculty.";
-                vmList.Add(new FacultyDetailsViewModel
-                {
-                    Subjects = subjectsList,
-                    Designations = designationsList,
-                    DepartmentDetails = departmentsList
-                });
-                return View(vmList);
-            }
+                var client = _httpClientFactory.CreateClient("RguhsFacultyApi");
+                var apiPath = $"api/college?college_code={Uri.EscapeDataString(collegeCode.Trim())}";
+                using var response = await client.GetAsync(apiPath);
+                response.EnsureSuccessStatusCode();
 
-            // Join existing DB records with college data
-            vmList = (from f1 in facultyDetails
-                      join f2 in ahsFacultyWithCollege
-                          on new { f1.Aadhaar, f1.Pan, f1.Designation }
-                          equals new
-                          {
-                              Aadhaar = f2.AadhaarNumber,
-                              Pan = f2.Pannumber,
-                              Designation = f2.Designation
-                          }
-                          into gj
-                      from sub in gj.DefaultIfEmpty()
-                      select new FacultyDetailsViewModel
-                      {
-                          FacultyDetailId = f1.Id,
-                          NameOfFaculty = sub?.TeachingFacultyName ?? f1.NameOfFaculty,
-                          Designation = sub?.Designation ?? f1.Designation,
-                          Aadhaar = sub?.AadhaarNumber ?? f1.Aadhaar,
-                          PAN = sub?.Pannumber ?? f1.Pan,
-                          DepartmentDetail = f1.DepartmentDetails,
-                          SelectedDepartment = f1.DepartmentDetails,
-                          RecognizedPGTeacher = f1.RecognizedPgTeacher,
-                          Mobile = f1.Mobile,
-                          Email = f1.Email,
-                          Subjects = subjectsList,
-                          Designations = designationsList,
-                          DepartmentDetails = departmentsList,
-                          RecognizedPhDTeacher = f1.RecognizedPhDteacher,
-                          LitigationPending = f1.LitigationPending,
-                          PhDRecognitionDocData = f1.PhDrecognitionDocPath,
-                          LitigationDocData = f1.LitigationDocPath,
-                          PGRecognitionDocData = f1.GuideRecognitionDocPath,
-                          IsExaminer = f1.IsExaminer,
-                          ExaminerFor = f1.ExaminerFor,
-                          ExaminerForList = !string.IsNullOrEmpty(f1.ExaminerFor)
-                                                      ? f1.ExaminerFor.Split(',').ToList()
-                                                      : new List<string>(),
-                          From = f1.From,
-                          To = f1.To,
-                          RemoveRemarks = f1.RemoveRemarks
-                      }).ToList();
-
-            // For missing faculty — try to find existing DB Id by Aadhaar + PAN
-            var missingFaculty = ahsFacultyWithCollege
-                .Where(f2 => !vmList.Any(v =>
-                        v.Aadhaar == f2.AadhaarNumber &&
-                        v.PAN == f2.Pannumber))
-                .Select(f2 =>
-                {
-                    var dbRecord = facultyDetails.FirstOrDefault(f =>
-                        f.Aadhaar == f2.AadhaarNumber &&
-                        f.Pan == f2.Pannumber);
-
-                    return new FacultyDetailsViewModel
+                await using var responseStream = await response.Content.ReadAsStreamAsync();
+                using var document = await JsonDocument.ParseAsync(responseStream);
+                var faculties = FindFacultyArray(document.RootElement)
+                    .Select(item => new ApiFacultyViewModel
                     {
-                        FacultyDetailId = dbRecord?.Id ?? 0,
-                        NameOfFaculty = f2.TeachingFacultyName,
-                        Designation = f2.Designation,
-                        Aadhaar = f2.AadhaarNumber,
-                        PAN = f2.Pannumber,
-                        Subjects = subjectsList,
-                        Designations = designationsList,
-                        DepartmentDetails = departmentsList,
-                    };
-                })
-                .ToList();
+                        Id = GetInt(item, "id"),
+                        Name = GetString(item, "name"),
+                        Email = GetString(item, "email"),
+                        Mobile = GetString(item, "mobile"),
+                        Stream = GetString(item, "stream"),
+                        Designation = GetString(item, "designation"),
+                        Department = GetString(item, "department"),
+                        Status = GetString(item, "status")
+                    })
+                    .ToList();
 
-            vmList.AddRange(missingFaculty);
-
-            if (!vmList.Any())
+                return View(faculties);
+            }
+            catch (HttpRequestException)
             {
-                vmList.Add(new FacultyDetailsViewModel
-                {
-                    Subjects = subjectsList,
-                    Designations = designationsList,
-                    DepartmentDetails = departmentsList
-                });
+                TempData["Error"] = "Faculty details could not be retrieved right now. Please try again.";
+                return View(new List<ApiFacultyViewModel>());
+            }
+            catch (JsonException)
+            {
+                TempData["Error"] = "The faculty service returned an unexpected response.";
+                return View(new List<ApiFacultyViewModel>());
+            }
+        }
+
+        private static IEnumerable<JsonElement> FindFacultyArray(JsonElement root)
+        {
+            if (root.ValueKind == JsonValueKind.Array)
+            {
+                return root.EnumerateArray();
             }
 
-            return View(vmList);
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                return Enumerable.Empty<JsonElement>();
+            }
+
+            foreach (var property in root.EnumerateObject())
+            {
+                 if ((property.Name.Equals("data", StringComparison.OrdinalIgnoreCase)
+                     || property.Name.Equals("faculties", StringComparison.OrdinalIgnoreCase)
+                     || property.Name.Equals("faculty", StringComparison.OrdinalIgnoreCase)
+                     || property.Name.Equals("users", StringComparison.OrdinalIgnoreCase)
+                     || property.Name.Equals("results", StringComparison.OrdinalIgnoreCase))
+                    && property.Value.ValueKind == JsonValueKind.Array)
+                {
+                    return property.Value.EnumerateArray();
+                }
+
+                var nested = FindFacultyArray(property.Value);
+                if (nested.Any())
+                {
+                    return nested;
+                }
+            }
+
+            return Enumerable.Empty<JsonElement>();
+        }
+
+        private static string GetString(JsonElement item, string propertyName)
+        {
+            return item.TryGetProperty(propertyName, out var value)
+                ? value.ValueKind == JsonValueKind.String ? value.GetString() ?? string.Empty : value.ToString()
+                : string.Empty;
+        }
+
+        private static int GetInt(JsonElement item, string propertyName)
+        {
+            return item.TryGetProperty(propertyName, out var value) && value.TryGetInt32(out var number)
+                ? number
+                : 0;
         }
 
         private async Task<string?> SaveFacultyFileAsync(IFormFile? file,string subFolder,string facultyCode)
