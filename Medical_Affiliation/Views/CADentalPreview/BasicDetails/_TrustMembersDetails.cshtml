@@ -1,0 +1,57 @@
+﻿@model Medical_Affiliation.Models.InstituionBasicDetailsDisplayVM
+
+@if (Model.TrustMemberVM != null && Model.TrustMemberVM.Items.Any())
+{
+    <div class="general-body">
+        <div class="section-block">
+
+            <!-- Header -->
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-people"></i>
+                    Trust Members
+                </div>
+
+                <p class="section-description">
+                    Details of continuation trust members
+                </p>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="table data-table requirements-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Designation</th>
+                            <th>Qualification</th>
+                            <th class="text-center">Mobile</th>
+                            <th class="text-center">Age</th>
+                            <th class="text-center">Joining Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model.TrustMemberVM.Items)
+                        {
+                            <tr>
+                                <td>@member.TrustMemberName</td>
+                                <td>@member.Designation</td>
+                                <td>@member.Qualification</td>
+                                <td class="text-center">@member.MobileDisplay</td>
+                                <td class="text-center">@(member.Age?.ToString() ?? "—")</td>
+                                <td class="text-center">@member.JoiningDateDisplay</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No trust member details available.</p>
+    </div>
+}

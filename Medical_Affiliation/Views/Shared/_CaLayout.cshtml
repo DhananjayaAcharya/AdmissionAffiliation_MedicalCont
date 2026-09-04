@@ -8,6 +8,12 @@
     var CollegeCode = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeCode")
         ?? HttpContextAccessor.HttpContext?.User?.FindFirst("CollegeCode")?.Value;
 
+
+    var facultyCode = HttpContextAccessor.HttpContext?.Session?.GetString("FacultyCode");
+    var facultyIntCode = string.IsNullOrEmpty(facultyCode) ? 0 : Convert.ToInt64(facultyCode);
+
+    var isDental = facultyIntCode == 2;
+
     // FIX: removed Session.GetString("AffiliationType") from this chain.
     // AffiliationType is stored via Session.SetInt32(), never as a string.
     // Reading an int key with GetString() returns garbled non-null text
@@ -326,7 +332,16 @@
     </header>
 
     <div class="ca-shell">
-        @await Html.PartialAsync("_ContinuousAffiliationSidebar")
+        @* @await Html.PartialAsync("_ContinuousAffiliationSidebar") *@
+        @if (!isDental)
+        {
+            @await Html.PartialAsync("_ContinuousAffiliationSidebar")
+        }
+        else
+        {
+            @await Html.PartialAsync("_ContinuousAffiliationDentalSidebar")
+
+        }
         <div class="ca-main">
             <main class="ca-body">
                 @RenderBody()

@@ -1,0 +1,93 @@
+﻿@model Medical_Affiliation.Models.VehicleDetailListDisplayViewModel
+
+<div class="academic-section">
+    <div class="academic-header">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h2 class="academic-title academic-badge">Institutional Vehicle Details</h2>
+                </div>
+
+                <a class="edit-button"
+                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode })">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
+                </a>
+            </div>
+        </div>
+    </div>
+@if (Model != null && Model.Items.Any())
+{
+    <div class="general-body">
+        <div class="section-block">
+
+            <!-- Header -->
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-truck"></i>
+                    Vehicle Details
+                </div>
+
+                <p class="section-description">
+                    Vehicles available for institutional use
+                </p>
+            </div>
+
+            <!-- Vehicle Table -->
+            <div class="data-table-wrapper">
+                <table class="table data-table requirements-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Vehicle Reg. No</th>
+                            <th>Purpose</th>
+                            <th class="text-center">Seating Capacity</th>
+                            <th class="text-center">RC Book Status</th>
+                            <th class="text-center">Insurance Status</th>
+                            <th class="text-center">Driving License Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    @item.VehicleRegNo
+                                </td>
+
+                                <td>
+                                    @item.VehicleForCode
+                                </td>
+
+                                <td class="text-center">
+                                    @(item.SeatingCapacity?.ToString() ?? "-")
+                                </td>
+
+                                <td class="text-center">
+                                    @(item.HasValidRc ? "Available" : "Not Available")
+                                </td>
+
+                                <td class="text-center">
+                                    @(item.HasValidInsurance ? "Available" : "Not Available")
+                                </td>
+
+                                <td class="text-center">
+                                    @(item.HasValidLicense ? "Available" : "Not Available")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No vehicle details available.</p>
+    </div>
+}
+
+</div>

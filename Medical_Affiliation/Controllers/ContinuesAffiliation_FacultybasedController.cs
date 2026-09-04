@@ -48,9 +48,9 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetCourseLevel(string level, int affiliationTypeId)
+        public async Task<IActionResult> SetCourseLevel(string level, int affiliationTypeId, string facultyCode)
         {
-            if (string.IsNullOrWhiteSpace(level) || affiliationTypeId <= 0)
+            if (string.IsNullOrWhiteSpace(level) || affiliationTypeId <= 0 || string.IsNullOrWhiteSpace(facultyCode))
             {
                 return BadRequest("Invalid request.");
             }
@@ -72,6 +72,7 @@ namespace Medical_Affiliation.Controllers
             HttpContext.Session.SetString("SelectedLevel", level);
             HttpContext.Session.SetString("CourseLevel", level.ToUpperInvariant());
             HttpContext.Session.SetString("SelectedCourseLevel", level.ToUpperInvariant());
+            HttpContext.Session.SetString("FacultyCode", facultyCode);
 
             // Cookie fallback
             var cookieOptions = new CookieOptions
@@ -86,6 +87,7 @@ namespace Medical_Affiliation.Controllers
             Response.Cookies.Append("TypeOfAffiliation", typeDescription, cookieOptions);
             Response.Cookies.Append("AffiliationTypeId", affiliationTypeId.ToString(), cookieOptions);
             Response.Cookies.Append("SelectedLevel", level, cookieOptions);
+            Response.Cookies.Append("FacultyCode", facultyCode, cookieOptions);
 
             // NEW: redirect to the correct destination page based on affiliationTypeId
             // (mirrors affiliationBaseUrlMap in the sidebar JS)
@@ -5952,7 +5954,7 @@ namespace Medical_Affiliation.Controllers
 
             if (facultyCode == "2")
             {
-                return RedirectToAction("Preview", "CAPreview");
+                return RedirectToAction("Preview", "CADentalPreview");
             }
             return RedirectToAction("Aff_HostelDetails");
         }

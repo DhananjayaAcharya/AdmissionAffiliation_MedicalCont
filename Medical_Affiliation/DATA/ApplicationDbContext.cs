@@ -232,6 +232,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<CollegeDesignationDetail> CollegeDesignationDetails { get; set; }
 
+    public virtual DbSet<CollegeEmailAddress> CollegeEmailAddresses { get; set; }
+
     public virtual DbSet<CollegeIntakeDetail> CollegeIntakeDetails { get; set; }
 
     public virtual DbSet<CollegePrincipalDetail> CollegePrincipalDetails { get; set; }
@@ -410,7 +412,13 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<MstDentalBedDistribution> MstDentalBedDistributions { get; set; }
 
+    public virtual DbSet<MstDentalFeeStructure> MstDentalFeeStructures { get; set; }
+
+    public virtual DbSet<MstDentalFeeType> MstDentalFeeTypes { get; set; }
+
     public virtual DbSet<MstDentalInfrastructure> MstDentalInfrastructures { get; set; }
+
+    public virtual DbSet<MstDentalOtherFeeStructure> MstDentalOtherFeeStructures { get; set; }
 
     public virtual DbSet<MstDentalPreClinicalAndSkillsLaboratoryAreaReq> MstDentalPreClinicalAndSkillsLaboratoryAreaReqs { get; set; }
 
@@ -512,6 +520,10 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<OtherCourseObservership> OtherCourseObserverships { get; set; }
 
+    public virtual DbSet<PaymentAffiliationDocument> PaymentAffiliationDocuments { get; set; }
+
+    public virtual DbSet<PaymentReceipt> PaymentReceipts { get; set; }
+
     public virtual DbSet<PgStudentsYearWiseDetail> PgStudentsYearWiseDetails { get; set; }
 
     public virtual DbSet<RguhsIntakeChangeAndApproval> RguhsIntakeChangeAndApprovals { get; set; }
@@ -608,9 +620,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server= DESKTOP-VM4KIHQ;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.;Database=Admission_Affiliation;TrustServerCertificate=True;Trusted_Connection=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -2556,7 +2568,15 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.ExaminerDetailsPdfName).HasMaxLength(255);
+            entity.Property(e => e.ExaminerDetailsPdfName2).HasMaxLength(255);
+            entity.Property(e => e.ExaminerDetailsPdfName3).HasMaxLength(255);
+            entity.Property(e => e.ExaminerDetailsPdfName4).HasMaxLength(255);
+            entity.Property(e => e.ExaminerDetailsPdfName5).HasMaxLength(255);
             entity.Property(e => e.ExaminerDetailsPdfPath).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath2).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath3).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath4).HasMaxLength(500);
+            entity.Property(e => e.ExaminerDetailsPdfPath5).HasMaxLength(500);
             entity.Property(e => e.FacultyCode).HasMaxLength(25);
             entity.Property(e => e.ProvidentFundPdfName).HasMaxLength(255);
             entity.Property(e => e.ProvidentFundPdfPath).HasMaxLength(500);
@@ -3253,6 +3273,17 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.UgRguhsintake)
                 .HasMaxLength(150)
                 .HasColumnName("ugRGUHSintake");
+        });
+
+        modelBuilder.Entity<CollegeEmailAddress>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("college_email_address");
+
+            entity.Property(e => e.EmailAddress).HasColumnName("Email_Address");
+            entity.Property(e => e.FirstName).HasColumnName("First_Name");
+            entity.Property(e => e.LastNameRequired).HasColumnName("Last_Name_Required");
         });
 
         modelBuilder.Entity<CollegeIntakeDetail>(entity =>
@@ -5872,6 +5903,85 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("Fk_DentalBedDistribution_FacultyCode");
         });
 
+        modelBuilder.Entity<MstDentalFeeStructure>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstDenta__3214EC0721873470");
+
+            entity.ToTable("MstDentalFeeStructure");
+
+            entity.HasIndex(e => new { e.FacultyCode, e.AffiliationTypeId, e.FeeTypeId, e.IsActive }, "IX_MstDentalFeeStructure_Search");
+
+            entity.HasIndex(e => new { e.FacultyCode, e.FeeTypeId, e.CourseName, e.CourseLevel, e.AffiliationTypeId }, "UQ_MstDentalFeeStructure").IsUnique();
+
+            entity.Property(e => e.AmountToBePaid).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CalculationType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.MstDentalFeeStructures)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .HasConstraintName("FK_MstDentalFeeStructure_AffiliationType");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.MstDentalFeeStructures)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDentalFeeStructure_Faculty");
+
+            entity.HasOne(d => d.FeeType).WithMany(p => p.MstDentalFeeStructures)
+                .HasForeignKey(d => d.FeeTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDentalFeeStructure_FeeType");
+        });
+
+        modelBuilder.Entity<MstDentalFeeType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstDenta__3214EC077C049D4B");
+
+            entity.HasIndex(e => new { e.FacultyCode, e.AffiliationTypeId, e.IsActive }, "IX_MstDentalFeeTypes_Search");
+
+            entity.HasIndex(e => new { e.FacultyCode, e.FeeType, e.AffiliationTypeId }, "UQ_MstDentalFeeTypes").IsUnique();
+
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FeeType).HasMaxLength(300);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.MstDentalFeeTypes)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDentalFeeTypes_AffiliationType");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.MstDentalFeeTypes)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDentalFeeTypes_Faculty");
+        });
+
         modelBuilder.Entity<MstDentalInfrastructure>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -5890,6 +6000,38 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Fk_MstDentalInfrastructre_FacCode");
+        });
+
+        modelBuilder.Entity<MstDentalOtherFeeStructure>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MstDenta__3214EC07AA8CA81B");
+
+            entity.ToTable("MstDentalOtherFeeStructure");
+
+            entity.HasIndex(e => new { e.FacultyCode, e.AffiliationTypeId, e.IsActive }, "IX_MstDentalOtherFeeStructure_Search");
+
+            entity.Property(e => e.AmountToBePaid).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FeeName).HasMaxLength(300);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.MstDentalOtherFeeStructures)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .HasConstraintName("FK_MstDentalOtherFeeStructure_AffiliationType");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.MstDentalOtherFeeStructures)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDentalOtherFeeStructure_Faculty");
         });
 
         modelBuilder.Entity<MstDentalPreClinicalAndSkillsLaboratoryAreaReq>(entity =>
@@ -6915,6 +7057,44 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PaymentAffiliationDocument>(entity =>
+        {
+            entity.HasKey(e => e.PaymentDocumentId).HasName("PK__PaymentA__1DD9EE6C49F1891F");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.CourseLevel, e.AffiliationTypeId }, "UQ_PaymentAffiliationDocuments_Key").IsUnique();
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CourseLevel).HasMaxLength(50);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.PaymentAmount).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.PaymentDate).HasColumnType("datetime");
+            entity.Property(e => e.PublicAccessToken).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.ScreenshotFileName).HasMaxLength(255);
+            entity.Property(e => e.ScreenshotFilePath).HasMaxLength(500);
+            entity.Property(e => e.TransactionId).HasMaxLength(100);
+            entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<PaymentReceipt>(entity =>
+        {
+            entity.HasKey(e => e.ReceiptId).HasName("PK__PaymentR__CC08C4209461E2A8");
+
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.PublicAccessToken).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.WhatsAppSentOn).HasColumnType("datetime");
+            entity.Property(e => e.WhatsAppStatus).HasMaxLength(200);
+
+            entity.HasOne(d => d.PaymentDocument).WithMany(p => p.PaymentReceipts)
+                .HasForeignKey(d => d.PaymentDocumentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PaymentReceipts_PaymentAffiliationDocuments");
         });
 
         modelBuilder.Entity<PgStudentsYearWiseDetail>(entity =>

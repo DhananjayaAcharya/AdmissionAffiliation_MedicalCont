@@ -1,0 +1,42 @@
+﻿@model DentalInstitutionBasicDetailsDisplayVM
+
+<div class="general-body">
+    <div class="section-block">
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge">
+                <i class="bi bi-person-workspace"></i>
+                Principal Details
+            </div>
+        </div>
+
+        @if (Model != null)
+        {
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <td>@Model.PrincipalDetailDisplayVM.Principal_Name</td>
+                        </tr>
+                        <tr>
+                            <th>Principal Mobile Number</th>
+                            <td>@Model.PrincipalDetailDisplayVM.PrincipalMobileNumber</td>
+                        </tr>
+                        <tr>
+                            <th>Principal Email Id</th>
+                            <td>@Model.PrincipalDetailDisplayVM.PrincipalEmailId</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No Principal details available.</p>
+            </div>
+        }
+    </div>
+</div>

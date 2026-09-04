@@ -1,0 +1,68 @@
+﻿@model DepartmentRequirementsSectionDisplayVM
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+    <div class="general-body">
+        <div class="section-block">
+            <div class="section-header-block">
+            <div class="section-title-text department-badge">
+                    <i class="bi bi-clipboard-check"></i>
+                    @Model.SectionName . 
+                    @if (Model.Items != null && Model.Items.Any())
+                    {
+                        <span class="count-badge">
+                            @Model.Items.Count() items
+                        </span>
+                    }
+                </div>
+                <p class="section-description">
+                    Requirement-wise compliance for the department
+                </p>
+            </div>
+
+            @if (Model.Items != null && Model.Items.Any())
+            {
+                <div class="data-table-wrapper">
+                    <table class="table data-table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="fw-semibold text-dark req-text">
+                                        @item.RequirementName
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.IsCompliant)
+                                        {
+                                            <span class="status-badge-maintained">
+                                                ✓ Yes
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge-not-maintained">
+                                                ✗ No
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-clipboard-x"></i>
+                    <p class="mb-0">No department requirement data available.</p>
+                </div>
+            }
+        </div>
+    </div>
+

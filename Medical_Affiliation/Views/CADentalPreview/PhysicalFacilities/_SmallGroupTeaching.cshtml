@@ -1,0 +1,87 @@
+﻿@model SmallGroupTeachingDisplayViewModel
+
+@if (Model != null)
+{
+    <div class="general-body">
+
+        <div class="section-block">
+
+            <!-- Section Header -->
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-people-fill"></i>
+                    Small Group Teaching
+                </div>
+
+                <p class="section-description">
+                    Infrastructure and capacity details for small group teaching activities
+                </p>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="info-grid">
+
+                <div class="info-card">
+                    <div class="info-label">Annual MBBS Intake</div>
+                    <div class="info-value">@Model.AnnualMbbsIntake</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-label">Batch Size</div>
+                    <div class="info-value">@Model.SmallGroupBatchSize</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-label">Students per Group</div>
+                    <div class="info-value">@Model.SmallGroupStudents</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-label">Required Area (sqm)</div>
+                    <div class="info-value">@Model.RequiredAreaSqm</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-label">Available Area (sqm)</div>
+                    <div class="info-value">@Model.AvailableAreaSqm</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-label">Area Deficiency (sqm)</div>
+                    <div class="info-value @(Model.AreaDeficiencySqm > 0 ? "danger" : "success")">
+                        @Model.AreaDeficiencySqm
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Status Row -->
+            <div class="status-row">
+
+                <div class="status-item @(Model.TeachingAreasSharedAllDepts == true ? "yes" : "no")">
+                    <i class="bi @(Model.TeachingAreasSharedAllDepts == true ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                    Teaching areas shared across departments
+                </div>
+
+                <div class="status-item @(Model.AvInAllTeachingAreas == true ? "yes" : "no")">
+                    <i class="bi @(Model.AvInAllTeachingAreas == true ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                    AV facilities available
+                </div>
+
+                <div class="status-item @(Model.InternetInAllTeachingAreas == true ? "yes" : "no")">
+                    <i class="bi @(Model.InternetInAllTeachingAreas == true ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                    Internet available
+                </div>
+
+                <div class="status-item @(Model.DigitalLinkAllTeachingAreas == true ? "yes" : "no")">
+                    <i class="bi @(Model.DigitalLinkAllTeachingAreas == true ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                    Digitally linked teaching areas
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}

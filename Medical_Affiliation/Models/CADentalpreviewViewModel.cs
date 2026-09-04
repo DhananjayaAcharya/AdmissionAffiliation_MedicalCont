@@ -1,0 +1,2047 @@
+﻿using Medical_Affiliation.ViewModels;
+using System.ComponentModel.DataAnnotations;
+
+namespace Medical_Affiliation.Models
+{
+    public class CADentalpreviewViewModel
+    {
+        public string CollegeCode { get; set; }
+        public string FacultyCode { get; set; }
+
+        public string CollegeName { get; set; }
+        public string FacultyName { get; set; }
+        public InstitutionPreviewViewModel InstitutionPreviewVM { get; set; }
+        public DentalCollegeLandBuildingViewModel? DentalLandBuildingPreview { get; set; }
+        public MedicalUGBedDistributionVM? MedicalUGBedDistributionVM { get; set; }
+
+        public CATrustMemberDetailsDisplayVM? TrustMemberDetailsVM { get; set; }
+
+        public CATrustDetailsDisplayVM? TrustDetailsVM { get; set; }
+
+        public TeachingFacultyDetailsPreviewViewModel? TeachingFacultyDetailsVM { get; set; }
+
+
+        public AffHostelPreviewViewModel? HostelPreviewVM { get; set; }
+
+        public SkillsLabViewModel? DentalSkillsLaboratoryVM { get; set; }
+        public List<DentalChairVm> DentalChairDistribution { get; set; } = new();
+        public AcademicIntakePreviewViewModel AcademicIntakeVM { get; set; }
+        public DepartmentOfficesMeuPreviewVM DepartmentOfficesMeuVM { get; set; }
+        public VehicleDetailPreviewViewModel? VehiclePreviewVM { get; set; }
+        public EquipmentPreviewViewModel? EquipmentPreviewVM { get; set; }
+        public MedicalLibraryPreviewVM? MedicalLibraryPreviewVM { get; set; }
+
+        // New Section
+        public HumanResourcesVM? HumanResourcesVM { get; set; }
+        public AcademicPerformanceVM? AcademicPerformanceDisplayVm { get; set; }
+
+        public DentalInstitutionBasicDetailsDisplayVM InstitutionBasicVM { get; set; }
+
+        public CA_Aff_AcademicMattersViewModel CAacademicMattersVM { get; set; }
+        public HospitalAffiliationDentalCompositeDisplayVM CAHospitalAFfiliationCompVM { get; set; }
+        public PhysicalFacilitiesDisplayViewModel PhysicalFacilities { get; set; }
+
+        public MedicalLibraryDisplayViewModel LibraryDisplay { get; set; }
+
+        public FinanceViewModel FinanceVm { get; set; }
+
+        public VehicleDetailListDisplayViewModel VehicleDetailsVM { get; set; }
+
+        public AdminTeachAndHostelDisplayVM AdminTeachAndHostelVM { get; set; }
+        public FacultyDesigNonTeachDisplayVM FacultyDesigNonTeachDisplayVM { get; set; }
+        public AffiliationPaymentViewModel PaymentVM { get; set; }
+
+        // ==========================================
+        // UG / PG COURSE DETAILS
+        // ==========================================
+
+        public UGPgIntakeDetailsPreviewViewModel? UGPgIntakeDetailsVM { get; set; }
+
+        public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
+        //public
+
+    }
+
+    public class DentalInstitutionBasicDetailsDisplayVM
+    : DetailsInstituionBasicDetailsDisplayVM
+    {
+        public InstitutionViewModel? InstitutionDetails { get; set; }
+    }
+
+    public class HumanResourcesVM
+    {
+        /// <summary>
+        /// Faculty Details
+        /// </summary>
+        public List<FacultyDetailsPreviewVM> FacultyDetails { get; set; }
+            = new();
+
+        /// <summary>
+        /// Teaching Faculty Department-wise
+        /// </summary>
+        //public List<TeachingFacultyDepartmentPreviewVM> TeachingFacultyDepartments { get; set; }
+        //    = new();
+
+        /// <summary>
+        /// Non-Teaching Faculty Details
+        /// </summary>
+        //public List<NonTeachingFacultyPreviewVM> NonTeachingFaculties { get; set; }
+        //    = new();
+    }
+
+    public class FacultyDetailsPreviewVM
+    {
+        public int FacultyDetailId { get; set; }
+
+        public string? NameOfFaculty { get; set; }
+
+        public string? Designation { get; set; }
+
+        public string? Department { get; set; }
+
+        public string? RecognizedPGTeacher { get; set; }
+
+        public string? RecognizedPhDTeacher { get; set; }
+
+        public string? Mobile { get; set; }
+
+        public string? Email { get; set; }
+
+        public string? IsExaminer { get; set; }
+
+        public string? ExaminerFor { get; set; }
+
+        public string? LitigationPending { get; set; }
+
+        public DateOnly? From { get; set; }
+
+        public DateOnly? To { get; set; }
+
+        public bool HasPGRecognitionDocument { get; set; }
+
+        public bool HasPhDRecognitionDocument { get; set; }
+
+        public bool HasLitigationDocument { get; set; }
+    }
+
+    public class HospitalAffiliationDentalCompositeDisplayVM
+    {
+        public string CollegeCode { get; set; } = string.Empty;
+        public int FacultyCode { get; set; }
+
+        public ClinicalHospitalDisplayViewModel ClinicalHospitalDetails { get; set; } = new();
+
+        public List<AffiliatedHospitalDocumentsDisplayViewModel> AffiliatedHospitalDocuments { get; set; } = new();
+        /// <summary>
+        /// 🔥 Dynamic department/section-wise requirements
+        /// </summary>
+        public List<DepartmentRequirementsSectionDisplayVM> Sections { get; set; } = new();
+        //public ClinicalCapacityDisplayVM? ClinicalCapacity { get; set; }
+
+        public DisciplineDisplayVM? DisciplineDetails { get; set; }
+        public EngAlliedRequirementsDisplayVM? EngAlliedServices { get; set; }
+        public List<DentalWardBedDistributionVm> DentalWardBedDistribution { get; set; } = new();
+        public DentalCollegeLandBuildingDisplayVM? LandBuildingDetails { get; set; }
+
+        public List<HospitalDocumentsToBeUploadedDisplayViewModel> HospitalDocumentsToBeUploadedList { get; set; } = new();
+        public List<IndoorBedsOccupancyItemVM> IndoorBedsOccupancy { get; set; }
+        public List<SuperVisionInFieldPracticeAreaDisplayVM> SuperVisionInFPa { get; set; }
+
+    }
+
+
+
+    public class EngAlliedRequirementsDisplayVM
+    {
+        public int SeatSlab { get; set; }
+
+        public List<EngAlliedServiceDisplayItemVM> Requirements { get; set; } = new();
+    }
+
+    public class EngAlliedServiceDisplayItemVM
+    {
+        public int RequirementId { get; set; }
+
+        public string RequirementName { get; set; }
+
+        public bool? IsAvailable { get; set; }
+    }
+
+
+    public class AcademicPerformanceVM
+    {
+        public List<AcademicPerformanceRowVM> AcademicRows { get; set; }
+            = new();
+
+        public List<CourseCurriculumVM> CourseCurriculums { get; set; }
+            = new();
+
+        public List<ExaminationSchemeVM> ExaminationSchemes { get; set; }
+            = new();
+
+        public List<StudentRegisterRecordVM> StudentRegisterRecords { get; set; }
+            = new();
+
+        // PG Academic Performance
+        public List<PgAcademicPerformanceVM> PgAcademicPerformances { get; set; }
+            = new();
+
+        public List<AccountAndFeeDetailsVM> AccountAndFeeDetails { get; set; } = new();
+
+        public StaffDetailsPreviewVM? StaffDetails { get; set; }
+    }
+
+    public class StaffDetailsPreviewVM
+    {
+        public List<StaffPayScalePreviewVM> StaffPayScales { get; set; }
+            = new();
+
+        public StaffOtherPreviewVM StaffOther { get; set; }
+            = new();
+    }
+
+    public class StaffPayScalePreviewVM
+    {
+        public int DesignationSlNo { get; set; }
+
+        public string? Designation { get; set; }
+
+        public decimal? PayScale { get; set; }
+    }
+
+    public class StaffOtherPreviewVM
+    {
+        public string? TeachersUpdatedInEMS { get; set; }
+
+        public string? ExaminerDetailsAttached { get; set; }
+
+        public string? ServiceRegisterMaintained { get; set; }
+
+        public string? AcquittanceRegisterMaintained { get; set; }
+
+        public bool HasExaminerDetailsPdf1 { get; set; }
+
+        public bool HasExaminerDetailsPdf2 { get; set; }
+
+        public bool HasExaminerDetailsPdf3 { get; set; }
+
+        public bool HasExaminerDetailsPdf4 { get; set; }
+
+        public bool HasExaminerDetailsPdf5 { get; set; }
+
+        public bool HasAEBASLastThreeMonthsPdf { get; set; }
+
+        public bool HasAEBASInspectionDayPdf { get; set; }
+
+        public bool HasProvidentFundPdf { get; set; }
+
+        public bool HasESIPdf { get; set; }
+    }
+
+    public class AccountAndFeeDetailsVM
+    {
+        public string? CourseLevel { get; set; }
+
+        public string? AuthorityNameAddress { get; set; }
+
+        public string? AuthorityContact { get; set; }
+
+        public decimal? RecurrentAnnual { get; set; }
+
+        public decimal? NonRecurrentAnnual { get; set; }
+
+        public decimal? Deposits { get; set; }
+
+        public decimal? TuitionFee { get; set; }
+
+        public decimal? SportsFee { get; set; }
+
+        public decimal? UnionFee { get; set; }
+
+        public decimal? LibraryFee { get; set; }
+
+        public decimal? OtherFee { get; set; }
+
+        public decimal? TotalFee { get; set; }
+
+        public string? AccountBooksMaintained { get; set; }
+
+        public string? AccountsAudited { get; set; }
+
+        public string? DonationLevied { get; set; }
+
+        public bool HasGoverningCouncilPdf { get; set; }
+
+        public bool HasAccountSummaryPdf { get; set; }
+
+        public bool HasAuditedStatementPdf { get; set; }
+
+        public bool HasDonationPdf { get; set; }
+    }
+
+    public class PgAcademicPerformanceVM
+    {
+        public string? SubjectCode { get; set; }
+
+        public string? SubjectName { get; set; }
+
+        public List<PgAcademicPerformanceRowVM> YearData { get; set; }
+            = new();
+    }
+
+    public class PgAcademicPerformanceRowVM
+    {
+        public int YearOfStudyId { get; set; }
+
+        public string? YearName { get; set; }
+
+        public int? RegularStudents { get; set; }
+
+        public int? RepeaterStudents { get; set; }
+
+        public int? NumberOfStudentsPassed { get; set; }
+
+        public decimal? PassPercentage { get; set; }
+
+        public int? FirstClassCount { get; set; }
+
+        public int? DistinctionCount { get; set; }
+
+        public string? Remarks { get; set; }
+    }
+
+    public class AcademicPerformanceRowVM
+    {
+        public int YearOfStudyId { get; set; }
+
+        public string? YearName { get; set; }
+
+        public int? RegularStudents { get; set; }
+
+        public int? RepeaterStudents { get; set; }
+
+        public int? NumberOfStudentsPassed { get; set; }
+
+        public decimal? PassPercentage { get; set; }
+
+        public int? FirstClassCount { get; set; }
+
+        public int? DistinctionCount { get; set; }
+
+        public string? Remarks { get; set; }
+    }
+
+    public class CourseCurriculumVM
+    {
+        public int CurriculumId { get; set; }
+
+        public string? CurriculumName { get; set; }
+
+        public string? CurriculumDetails { get; set; }
+
+        public bool HasPdf { get; set; }
+    }
+
+    public class ExaminationSchemeVM
+    {
+        public int SchemeId { get; set; }
+
+        public string? SchemeCode { get; set; }
+
+        public int? NumberOfStudents { get; set; }
+    }
+
+    public class StudentRegisterRecordVM
+    {
+        public int RegisterRecordId { get; set; }
+
+        public string? RegisterName { get; set; }
+
+        public bool? IsMaintained { get; set; }
+    }
+
+    public class ResearchPublicationsPreviewVM
+    {
+        // Publications
+        public int PublicationsNo { get; set; }
+        public bool HasPublicationsPdf { get; set; }
+
+        // Clinical Trials
+        public bool HasClinicalTrialsPdf { get; set; }
+
+        // Student Projects
+        public int? StudentsRGUHSFunded { get; set; }
+        public int? StudentsExternalBodyFunding { get; set; }
+        public bool HasStudentProjectsPdf { get; set; }
+
+        // Faculty Projects
+        public int? FacultyRGUHSFunded { get; set; }
+        public int? FacultyExternalBodyFunding { get; set; }
+        public bool HasFacultyProjectsPdf { get; set; }
+
+        public List<ResearchCommitteePreviewVM> Committees { get; set; } = new();
+
+        public List<OtherAcademicActivityPreviewVM> OtherActivities { get; set; } = new();
+
+        public List<DepartmentPublicationPreviewVM> DepartmentPublications { get; set; } = new();
+    }
+
+    public class ResearchCommitteePreviewVM
+    {
+        public int CommitteeId { get; set; }
+
+        public string CommitteeName { get; set; } = string.Empty;
+
+        public string? IsPresent { get; set; }
+
+        public bool HasDocument { get; set; }
+    }
+
+    public class OtherAcademicActivityPreviewVM
+    {
+        public int ActivityId { get; set; }
+
+        public string ActivityName { get; set; } = string.Empty;
+
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public string? DepartmentWise { get; set; }
+
+        public bool HasDocument { get; set; }
+    }
+
+    public class DepartmentPublicationPreviewVM
+    {
+        public int Id { get; set; }
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public int PublicationsCount { get; set; }
+
+        public bool HasDocument { get; set; }
+    }
+
+    public class MedicalLibraryPreviewVM
+    {
+
+        public int facultyCode { get; set; }
+        // Section 1
+        public List<LibraryServicePreviewVM> LibraryServices { get; set; } = new();
+
+        // Section 2
+        public bool HasUsageReport { get; set; }
+        public string? UsageReportViewController { get; set; }
+        public string? UsageReportViewAction { get; set; }
+
+        // Section 3
+        public List<LibraryStaffPreviewVM> LibraryStaff { get; set; } = new();
+
+        // Section 4
+        public List<DepartmentLibraryPreviewVM> DepartmentLibraries { get; set; } = new();
+
+        // Section 5
+        public MedicalLibraryOtherPreviewVM? OtherDetails { get; set; }
+
+        // Dental only
+        public List<DentalLibraryRecordPreviewVM> DentalLibraryRecords { get; set; } = new();
+
+        // NEW
+        public ResearchPublicationsPreviewVM? ResearchPublications { get; set; }
+
+        public LibraryInformationPreviewVM LibraryInformation { get; set; } = new();
+    }
+
+    public class LibraryInformationPreviewVM
+    {
+        public LibraryGeneralPreviewVM General { get; set; }
+            = new();
+
+        public List<LibraryItemPreviewVM> Items { get; set; }
+            = new();
+
+        public LibraryBuildingPreviewVM Building { get; set; }
+            = new();
+
+        public List<LibraryTechnicalProcessPreviewVM> TechnicalProcesses { get; set; }
+            = new();
+
+        public List<LibraryEquipmentPreviewVM> Equipments { get; set; }
+            = new();
+
+        public LibraryFinancePreviewVM Finance { get; set; }
+            = new();
+
+        public string? BinderyValue { get; set; }
+    }
+
+    public class LibraryGeneralPreviewVM
+    {
+        public string? LibraryEmailId { get; set; }
+
+        public string? DigitalLibrary { get; set; }
+
+        public string? HelinetServices { get; set; }
+
+        public string? DepartmentWiseLibrary { get; set; }
+    }
+
+    public class LibraryItemPreviewVM
+    {
+        public int SlNo { get; set; }
+
+        public string? ItemName { get; set; }
+
+        public int CurrentForeign { get; set; }
+
+        public int CurrentIndian { get; set; }
+
+        public int PreviousForeign { get; set; }
+
+        public int PreviousIndian { get; set; }
+    }
+
+    public class LibraryBuildingPreviewVM
+    {
+        public string? IsIndependent { get; set; }
+
+        public decimal? AreaSqMtrs { get; set; }
+    }
+
+    public class LibraryTechnicalProcessPreviewVM
+    {
+        public int SlNo { get; set; }
+
+        public string? ProcessName { get; set; }
+
+        public string? Value { get; set; }
+    }
+
+    public class LibraryEquipmentPreviewVM
+    {
+        public int SlNo { get; set; }
+
+        public string? EquipmentName { get; set; }
+
+        public string? HasEquipment { get; set; }
+    }
+
+    public class LibraryFinancePreviewVM
+    {
+        public decimal? TotalBudgetLakhs { get; set; }
+
+        public decimal? ExpenditureBooksLakhs { get; set; }
+    }
+
+    public class LibraryServicePreviewVM
+    {
+        public int ServiceId { get; set; }
+
+        public string ServiceName { get; set; } = string.Empty;
+
+        public string? IsAvailable { get; set; }
+
+        public bool HasDocument { get; set; }
+
+        public string? ViewController { get; set; }
+
+        public string? ViewAction { get; set; }
+    }
+
+    public class LibraryStaffPreviewVM
+    {
+        public string? StaffName { get; set; }
+
+        public string? Designation { get; set; }
+
+        public string? Qualification { get; set; }
+
+        public int? Experience { get; set; }
+
+        public string? Category { get; set; }
+    }
+
+    public class DepartmentLibraryPreviewVM
+    {
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public int? TotalBooks { get; set; }
+
+        public int? BooksAddedInYear { get; set; }
+
+        public int? CurrentJournals { get; set; }
+
+        public string? LibraryStaff { get; set; }
+
+        public int? Titles { get; set; }
+
+        public int? InternationalJournals { get; set; }
+
+        public int? BackVolumes { get; set; }
+
+        public int? PrintJournalPercentage { get; set; }
+    }
+
+    public class MedicalLibraryOtherPreviewVM
+    {
+        public string? HasDigitalValuationCentre { get; set; }
+
+        public int? NoOfSystems { get; set; }
+
+        public string? HasStableInternet { get; set; }
+
+        public string? HasCccameraSystem { get; set; }
+
+        public bool HasSpecialFeatures { get; set; }
+
+        public string? ViewController { get; set; }
+
+        public string? ViewAction { get; set; }
+    }
+
+    public class DentalLibraryRecordPreviewVM
+    {
+        public int RecordId { get; set; }
+
+        public string? RecordName { get; set; }
+
+        public bool HasDocument { get; set; }
+
+        public string? ViewController { get; set; }
+
+        public string? ViewAction { get; set; }
+    }
+    public class VehicleDetailPreviewViewModel
+    {
+        public List<VehiclePreviewVM> Vehicles { get; set; } = new();
+    }
+
+    public class VehiclePreviewVM
+    {
+        public string? VehicleRegNo { get; set; }
+
+        public string? VehicleFor { get; set; }
+
+        public int? SeatingCapacity { get; set; }
+
+        public DateTime? ValidityDate { get; set; }
+
+        public bool RcBookAvailable { get; set; }
+
+        public bool InsuranceAvailable { get; set; }
+
+        public bool DrivingLicenseAvailable { get; set; }
+    }
+
+    public class EquipmentPreviewViewModel
+    {
+        public List<EquipmentDepartmentPreviewVM> Departments { get; set; } = new();
+    }
+
+    public class EquipmentDepartmentPreviewVM
+    {
+        public string DepartmentCode { get; set; } = string.Empty;
+
+        public string DepartmentName { get; set; } = string.Empty;
+
+        public List<EquipmentRowVM> Equipments { get; set; } = new();
+    }
+    public class MedicalUGBedDistributionVM
+    {
+        // =========================
+        // MEDICAL
+        // =========================
+
+        public MedicalBedDistributionVM? Medical { get; set; }
+
+        // =========================
+        // DENTAL
+        // =========================
+
+        public DentalBedDistributionPreviewVM? Dental { get; set; }
+    }
+
+    public class DepartmentOfficesMeuPreviewVM
+    {
+        public string? CourseLevel { get; set; }
+
+        // Common Department Office Details
+        public bool? HasHodRoomWithOfficeAndRecords { get; set; }
+        public bool? HasRoomsForFacultyAndResidents { get; set; }
+        public bool? FacultyRoomsHaveCommunicationComputerInternet { get; set; }
+        public bool? HasRoomsForNonTeachingStaff { get; set; }
+
+        // Medical
+        public MedicalEducationUnitPreviewVM? Medical { get; set; }
+
+        // Dental
+        public DentalEducationUnitPreviewVM? Dental { get; set; }
+    }
+
+    public class MedicalEducationUnitPreviewVM
+    {
+        public bool? HasMedicalEducationUnit { get; set; }
+        public decimal? MedicalEducationUnitAreaSqm { get; set; }
+        public bool? MedicalEducationUnitHasAudioVisual { get; set; }
+        public bool? MedicalEducationUnitHasInternet { get; set; }
+        public string? MeuCoordinatorName { get; set; }
+        public string? MeuCoordinatorDesignationDepartment { get; set; }
+        public string? MeuCoordinatorPhone { get; set; }
+        public string? MeuCoordinatorEmail { get; set; }
+        public string? MeuActivitiesLastAcademicYear { get; set; }
+        public bool HasMeuMembersListFile { get; set; }
+    }
+
+    public class DentalEducationUnitPreviewVM
+    {
+        public bool? HasDentalEducationUnit { get; set; }
+
+        public decimal? DentalEducationUnitAreaSqm { get; set; }
+        public bool? DentalEducationUnitHasAudioVisual { get; set; }
+        public bool? DentalEducationUnitHasInternet { get; set; }
+        public string? DeuCoordinatorName { get; set; }
+        public string? DeuCoordinatorDesignationDepartment { get; set; }
+        public string? DeuCoordinatorPhone { get; set; }
+        public string? DeuCoordinatorEmail { get; set; }
+        public string? DeuActivitiesLastAcademicYear { get; set; }
+        public bool HasDeuMembersListFile { get; set; }
+    }
+
+
+    public class MedicalBedDistributionVM
+    {
+        public int? GenMedicine { get; set; }
+        public int? Paediatrics { get; set; }
+        public int? SkinVD { get; set; }
+        public int? Psychiatry { get; set; }
+
+        public int? GenSurgery { get; set; }
+        public int? Orthopaedics { get; set; }
+        public int? Ophthalmology { get; set; }
+        public int? ENT { get; set; }
+
+        public int? ObstetricsANC { get; set; }
+        public int? Gynaecology { get; set; }
+        public int? Postpartum { get; set; }
+
+        public int? MajorOT { get; set; }
+        public int? MinorOT { get; set; }
+
+        public int? ICCU { get; set; }
+        public int? ICU { get; set; }
+        public int? PICU_NICU { get; set; }
+        public int? SICU { get; set; }
+
+        public int? TotalICUBeds { get; set; }
+        public int? CasualtyBeds { get; set; }
+    }
+    public class DentalBedDistributionPreviewVM
+    {
+        public int? OralMaxillofacialSurgery { get; set; }
+
+        public List<DentalWardBedDistributionVm> DentalWards { get; set; } = new();
+    }
+
+    public class AffHostelPreviewViewModel
+    {
+        public string? FacultyCode { get; set; }
+        public string? CollegeCode { get; set; }
+
+        public string HostelType { get; set; } = string.Empty;
+        public string BuiltUpAreaSqFt { get; set; } = string.Empty;
+        public bool HasSeparateHostel { get; set; }
+        public bool SeparateProvisionMaleFemale { get; set; }
+
+        public string TotalFemaleStudents { get; set; } = string.Empty;
+        public string TotalFemaleRooms { get; set; } = string.Empty;
+        public string TotalMaleStudents { get; set; } = string.Empty;
+        public string TotalMaleRooms { get; set; } = string.Empty;
+
+        public string? PossessionProofPath { get; set; }
+
+        public bool? CommonRoomMen { get; set; }
+        public bool? CommonRoomWomen { get; set; }
+
+        public string? AnyOtherFacility { get; set; }
+        public string? HostelFacilityDetails { get; set; }
+
+        public int? HostelMenCount { get; set; }
+        public int? HostelWomenCount { get; set; }
+
+        public string? OwnOrRented { get; set; }
+        public decimal? SpacePerStudent { get; set; }
+
+        public bool? SleepingFurniture { get; set; }
+        public bool? SanitaryBathing { get; set; }
+        public bool? DiningHall { get; set; }
+        public bool? HostelCommonRoom { get; set; }
+        public bool? VisitorsRoom { get; set; }
+        public bool? KitchenPantry { get; set; }
+        public bool? WardenOffice { get; set; }
+        public bool? ReceptionCounter { get; set; }
+        public bool? GamesRecreation { get; set; }
+        public bool? MedicalFacilities { get; set; }
+
+        public string? MenHostelAreaSqFt { get; set; }
+        public string? WomenHostelAreaSqFt { get; set; }
+    }
+
+    public class DentalCollegeLandBuildingDisplayVM
+    {
+        public string CollegeCode { get; set; } = string.Empty;
+        public int FacultyCode { get; set; }
+
+        public int SeatSlab { get; set; }
+        public int SeatIntake { get; set; }
+
+        public string? LandCategory { get; set; }
+
+        // Norms
+        public decimal? RequiredLandAcres { get; set; }
+        public int RequiredBuiltupAreaSqm { get; set; }
+        public int RequiredLectureHallAreaSqm { get; set; }
+        public int RequiredLectureHallCapacity { get; set; }
+        public int RequiredExamHallAreaSqm { get; set; }
+        public int RequiredLibraryAreaSqm { get; set; }
+        public int RequiredHospitalAreaSqm { get; set; }
+        public int RequiredLectureHallCount { get; set; }
+        public string? RequiredLandRequirementText { get; set; }
+
+        // Submitted values
+        public decimal? TotalLandAreaAcres { get; set; }
+        public string? LandOwnershipType { get; set; }
+        public bool? HasFutureExpansionSpace { get; set; }
+
+        public decimal? TotalBuiltupAreaSqm { get; set; }
+        public int? LectureHallCount { get; set; }
+        public decimal? LectureHallAreaSqm { get; set; }
+        public int? LectureHallSeatingCapacity { get; set; }
+        public decimal? ExaminationHallAreaSqm { get; set; }
+        public decimal? LibraryAreaSqm { get; set; }
+        public decimal? HospitalAreaSqm { get; set; }
+        public decimal? MuseumDemoRoomsAreaSqm { get; set; }
+        public decimal? DepartmentWiseAreaSqm { get; set; }
+        public decimal? PreclinicalSkillLabAreaSqm { get; set; }
+
+        public string? Remarks { get; set; }
+
+        // Documents
+        public bool HasSaleDeedDocument { get; set; }
+        public bool HasEncumbranceCertificateDocument { get; set; }
+        public bool HasLandUseCertificateDocument { get; set; }
+        public bool HasApprovedLayoutPlanDocument { get; set; }
+        public bool HasLandSketchDocument { get; set; }
+        public bool HasDistanceCertificateDocument { get; set; }
+
+        public bool HasApprovedBuildingPlanDocument { get; set; }
+        public bool HasCompletionCertificateDocument { get; set; }
+        public bool HasStructuralStabilityCertificateDocument { get; set; }
+        public bool HasFireSafetyNocDocument { get; set; }
+        public bool HasLiftLicenseDocument { get; set; }
+        public bool HasElectricalSafetyCertificateDocument { get; set; }
+        public bool HasWaterSupplyCertificateDocument { get; set; }
+        public bool HasSewageSanitationApprovalDocument { get; set; }
+
+        public List<DentalInfrastructureDisplayVM> InfrastructureDetails { get; set; } = new();
+    }
+
+    public class DentalInfrastructureDisplayVM
+    {
+        public int SlNo { get; set; }
+
+        public string RequirementName { get; set; } = string.Empty;
+
+        public string? RequirementDescription { get; set; }
+
+        public decimal RequiredAreaSqFt { get; set; }
+
+        public decimal AvailableAreaSqFt { get; set; }
+    }
+    public class DisciplineDisplayVM
+    {
+        public int HospitalDetailsId { get; set; }
+        public string? CollegeCode { get; set; }
+        public string? FacultyCode { get; set; }
+
+        public int AffiliationTypeId { get; set; }
+
+        public int SeatSlab { get; set; }
+
+        public List<DisciplineItemDisplayVM> Disciplines { get; set; } = new();
+    }
+
+    public class DisciplineItemDisplayVM
+    {
+        public string? DisciplineCode { get; set; }
+
+        public string? DisciplineName { get; set; }
+
+        public bool IsSelected { get; set; }
+    }
+
+    //public class SuperVisionInFieldPracticeAreaItemDisplayVM
+    //{
+    //    public int Id { get; set; }
+
+    //    public string Post { get; set; } = string.Empty;
+    //    public string Name { get; set; } = string.Empty;
+    //    public string Qualification { get; set; } = string.Empty;
+    //    public DateOnly YearOfQualification { get; set; }
+    //    public string University { get; set; } = string.Empty;
+
+    //    public DateOnly? UgFromDate { get; set; }
+    //    public DateOnly? UgToDate { get; set; }
+
+    //    public DateOnly? PgFromDate { get; set; }
+    //    public DateOnly? PgToDate { get; set; }
+
+    //    public string Responsibilities { get; set; } = string.Empty;
+    //}
+
+    //public class SuperVisionInFieldPracticeAreaDisplayVM
+    //{
+    //    public string CollegeCode { get; set; } = string.Empty;
+    //    public int FacultyCode { get; set; }
+    //    public int AffiliationTypeId { get; set; }
+    //    public int HospitalDetailsId { get; set; }
+
+    //    public List<SuperVisionInFieldPracticeAreaItemDisplayVM> Items { get; set; } = new();
+    //}
+
+    //public class HospitalDocumentsToBeUploadedDisplayViewModel : HospitalDocumentsToBeUploaded
+    //{
+    //    public int TotalBeds { get; set; }
+    //    public bool DocumentExists { get; set; }
+    //}
+
+    //public class AffiliatedHospitalDocumentsDisplayViewModel : AffiliatedHospitalDocumentsViewModel { }
+    //public class IndoorBedsOccupancyDisplayVM
+    //{
+    //    public string CollegeCode { get; set; } = string.Empty;
+    //    public int FacultyCode { get; set; }
+    //    public int AffiliationTypeId { get; set; }
+    //    public int HospitalDetailsId { get; set; }
+
+    //    public List<IndoorBedsOccupancyItemVM> Items { get; set; } = new();
+    //}
+    //public class DepartmentRequirementBaseDisplayVM
+    //{
+    //    public int RequirementId { get; set; }
+    //    public string RequirementName { get; set; } = string.Empty;
+    //    public string SectionName { get; set; } = string.Empty;
+    //    public bool IsCompliant { get; set; } = false;
+    //    public string Remarks { get; set; } = string.Empty;
+    //}
+
+    //public class DepartmentRequirementsSectionDisplayVM
+    //{
+    //    public string CollegeCode { get; set; } = string.Empty;
+    //    public int FacultyCode { get; set; }
+    //    public int HospitalDetailsId { get; set; }
+    //    public int AffiliationTypeId { get; set; }
+
+    //    public int SectionCode { get; set; }
+    //    public string SectionName { get; set; } = string.Empty;
+
+    //    public List<DepartmentRequirementBaseDisplayVM> Items { get; set; } = new();
+    //}
+
+
+    //public class IndoorBedsUnitsRequirementDisplayVM : IndoorBedsOccupancyDisplayVM { }
+
+    //public class ClinicalHospitalDisplayViewModel
+    //{
+    //    public int HospitalDetailsId { get; set; }
+    //    public string HospitalName { get; set; } = string.Empty;
+    //    public string HospitalType { get; set; } = string.Empty;
+    //    public string HospitalOwnedBy { get; set; } = string.Empty;
+    //    public string OwnerName { get; set; } = string.Empty;
+
+    //    public string DistrictName { get; set; } = string.Empty;
+    //    public string TalukName { get; set; } = string.Empty;
+    //    public string Location { get; set; } = string.Empty;
+
+    //    public int TotalBeds { get; set; }
+    //    public int OpdPerDay { get; set; }
+    //    public decimal IpdOccupancyPercent { get; set; }
+
+    //    public bool ParentMedicalCollegeExists { get; set; }
+    //    public bool IsParentHospitalForOtherNursingInstitution { get; set; }
+    //    public bool IsOwnerAmemberOfTrust { get; set; }
+
+    //    public decimal DistanceFromCollegeKm { get; set; }
+
+    //    public bool IsSupportingDocExists { get; set; }
+    //    public int? SupportingDocumentId { get; set; }
+    //    public string? SupportingDocumentName { get; set; }
+
+    //    public List<string> Facilities { get; set; } = new();
+    //}
+
+    //public class PhysicalFacilitiesDisplayViewModel
+    //{
+    //    public int FacultyCode { get; set; }
+    //    public string CollegeCode { get; set; }
+    //    public SmallGroupTeachingDisplayViewModel SmallGroupTeaching { get; set; }
+    //    public SmallGroupStudentLabsDisplayViewModel SmallGroupStudentLabs { get; set; }
+    //    public SmallGroupMuseumsDisplayViewModel SmallGroupMuseums { get; set; }
+    //    public SkillsLabDisplayViewModel SkillsLab { get; set; }
+    //    public DepartmentOfficesMeuDisplayViewModel DeptOfficeMeu { get; set; }
+    //    public LaboratoryEquipmentDisplayViewModel LaboratoryEquipment { get; set; }
+    //    public SkillsLabEquipmentViewModel SkillsLabEquipment { get; set; }
+
+    //}
+    //public class SmallGroupTeachingDisplayViewModel
+    //{
+    //    public int AnnualMbbsIntake { get; set; }
+
+    //    public int SmallGroupBatchSize { get; set; } = 15;
+
+    //    public bool? TeachingAreasSharedAllDepts { get; set; }
+
+    //    public bool? AvInAllTeachingAreas { get; set; }
+
+    //    public bool? InternetInAllTeachingAreas { get; set; }
+
+    //    public bool? DigitalLinkAllTeachingAreas { get; set; }
+
+    //    // ---------------- TEACHING ROOMS ----------------
+
+    //    public int SmallGroupStudents { get; set; }
+
+    //    public decimal RequiredAreaSqm { get; set; }
+
+    //    public decimal AvailableAreaSqm { get; set; }
+
+    //    public decimal AreaDeficiencySqm { get; set; }
+
+    //    public bool? RoomsSharedByAllDepts { get; set; }
+
+    //    public bool? AppropriateAreaEachSpecialty { get; set; }
+
+    //    public bool? ConnectedToLectureHalls { get; set; }
+
+    //    public bool? InternetInTeachingRooms { get; set; }
+
+    //    // ---------------- STUDENT LABS (CHECKBOX GROUPS) ----------------
+    //}
+
+    //public class SmallGroupStudentLabsDisplayViewModel
+    //{
+    //    public bool HistologyAvailable { get; set; }
+    //    public bool HistologyShared { get; set; }
+
+    //    public bool ClinicalPhysiologyAvailable { get; set; }
+    //    public bool ClinicalPhysiologyShared { get; set; }
+
+    //    public bool BiochemistryAvailable { get; set; }
+    //    public bool BiochemistryShared { get; set; }
+
+    //    public bool HistopathCytopathAvailable { get; set; }
+    //    public bool HistopathCytopathShared { get; set; }
+
+    //    public bool ClinPathHemeAvailable { get; set; }
+    //    public bool ClinPathHemeShared { get; set; }
+
+    //    public bool MicrobiologyAvailable { get; set; }
+    //    public bool MicrobiologyShared { get; set; }
+
+    //    public bool ClinicalPharmAvailable { get; set; }
+    //    public bool ClinicalPharmShared { get; set; }
+
+    //    public bool CalPharmAvailable { get; set; }
+    //    public bool CalPharmShared { get; set; }
+
+    //    // ---------------- COMMON FACILITIES ----------------
+
+    //    public bool AllLabsHaveAV { get; set; }
+
+    //    public bool AllLabsHaveInternet { get; set; }
+
+    //    public bool TechnicalStaffFacilitiesEnsured { get; set; }
+
+    //}
+
+    //public class SmallGroupMuseumsDisplayViewModel
+    //{
+    //    // ---------------- MUSEUMS ----------------
+
+    //    public bool? SeparateAnatomyMuseumAvailable { get; set; }
+
+    //    public bool? PathologyForensicSharedMuseum { get; set; }
+
+    //    public bool? PharmMicroCommSharedMuseum { get; set; }
+
+    //    public int SeatingCapacityPerMuseum { get; set; }
+
+    //    public decimal SeatingAreaAvailableSqm { get; set; }
+
+    //    public decimal SeatingAreaRequiredSqm { get; set; }
+    //    public decimal SeatingAreaDeficiencySqm { get; set; }
+
+    //    public bool? MuseumsHaveAV { get; set; }
+
+    //    public bool? MuseumsHaveInternet { get; set; }
+
+    //    public bool? MuseumsDigitallyLinked { get; set; }
+
+    //    public bool? MuseumsHaveRacksShelves { get; set; }
+
+    //    public bool? MuseumsHaveRadiologyDisplay { get; set; }
+
+
+    //    public bool? TeachingTimeSharingProgrammed { get; set; }
+    //}
+
+
+
+    //public class SkillsLabDisplayViewModel
+    //{
+    //    // Basic
+    //    public int AnnualMbbsIntake { get; set; } // 100/150/200/250
+    //    public int AnnualBdsIntake { get; set; } // r0/100/150/200/250
+
+    //    // Area
+    //    public decimal TotalAreaAvailableSqm { get; set; }
+
+    //    public decimal TotalAreaRequiredSqm { get; set; } // 600 or 800
+
+        
+    //    public decimal TotalAreaDeficiencySqm { get; set; }
+
+       
+    //    public bool? SixWeeksTrainingCompletedBeforeClinical { get; set; }
+
+    //    // (a) Minimum 4 rooms for exam
+    //    public int NumberOfExaminationRooms { get; set; }
+
+    //    public bool? HasMinFourExamRooms { get; set; }
+
+    //    // (b) Demo room for small groups
+    //    public bool? HasDemoRoomSmallGroups { get; set; }
+
+    //    // (c) Debrief / review area
+    //    public bool? HasDebriefArea { get; set; }
+
+    //    // (d) Rooms for coordinator and staff
+    //    public bool? HasFacultyCoordinatorRoom { get; set; }
+
+    //    public bool? HasSupportStaffRoom { get; set; }
+
+    //    // (e) Storage for mannequins/equipmen
+    //    public bool? HasStorageForMannequins { get; set; }
+
+    //    // (f) Video recording & review facility
+    //    public bool? HasVideoRecordingFacility { get; set; }
+
+    //    // (g) Stations for practicing skills
+    //    public int NumberOfSkillStations { get; set; }
+
+    //    public bool? HasGroupAndIndividualStations { get; set; }
+
+    //    // (h) Trainers / mannequins as per CBME
+    //    public bool? HasRequiredTrainersAndMannequins { get; set; }
+
+    //    // (i) Technical officer & support staff
+    //    public bool? HasDedicatedTechnicalOfficer { get; set; }
+
+    //    public bool? HasAdequateSupportStaff { get; set; }
+
+    //    // (j) AV / Internet / e‑learning
+    //    public bool? TeachingAreasHaveAV { get; set; }
+
+    //    public bool? TeachingAreasHaveInternet { get; set; }
+
+    //    public bool? SkillsLabEnabledForELearning { get; set; }
+    //}
+
+    //public class DepartmentOfficesMeuDisplayViewModel
+    //{
+    //    // 1.8 Department Offices, Rooms For Staff
+
+    //    public bool? HasHodRoomWithOfficeAndRecords { get; set; }
+
+    //    public bool? HasRoomsForFacultyAndResidents { get; set; }
+
+    //    public bool? FacultyRoomsHaveCommunicationComputerInternet { get; set; }
+
+    //    public bool? HasRoomsForNonTeachingStaff { get; set; }
+
+    //    // 1.9 Medical Education Unit
+
+    //    public bool? HasMedicalEducationUnit { get; set; }
+
+    //    public decimal? MedicalEducationUnitAreaSqm { get; set; }
+
+    //    public bool? MedicalEducationUnitHasAudioVisual { get; set; }
+
+    //    public bool? MedicalEducationUnitHasInternet { get; set; }
+
+
+    //    // 3. Medical Education Unit – Coordinator details
+    //    public string MeuCoordinatorName { get; set; }
+
+    //    public string MeuCoordinatorDesignationDepartment { get; set; }
+
+    //    public string MeuCoordinatorPhone { get; set; }
+
+    //    public string MeuCoordinatorEmail { get; set; }
+
+    //    // Members list + activities (free‑text or file-backed)
+    //    public string MeuMembersListDescription { get; set; }
+
+    //    public string MeuActivitiesLastAcademicYear { get; set; }
+
+    //    // File upload for “Enclose Copy” of members list
+    //    public IFormFile MeuMembersListFile { get; set; }
+
+    //    public bool HasMeuMembersListFile { get; set; }
+
+    //}
+
+
+    //public class LaboratoryEquipmentDisplayItemVM
+    //{
+    //    public int EquipmentId { get; set; }
+
+    //    public string EquipmentName { get; set; }
+
+    //    public int RequiredAsPerNorm { get; set; }
+
+    //    public bool IsAvailable { get; set; }
+
+    //    public int? AvailableQuantity { get; set; }
+
+    //    // Optional display helpers
+    //    public string Subject { get; set; }
+
+    //    public string CourseCode { get; set; } = string.Empty;
+
+    //    public bool IsDeficient =>
+    //        IsAvailable && AvailableQuantity.HasValue
+    //        && AvailableQuantity.Value < RequiredAsPerNorm;
+    //}
+    //public class LaboratoryEquipmentSubjectGroupVM
+    //{
+    //    public string Subject { get; set; }
+
+    //    public List<LaboratoryEquipmentDisplayItemVM> Equipments { get; set; }
+    //        = new();
+    //}
+    //public class LaboratoryEquipmentCourseGroupVM
+    //{
+    //    public string CourseCode { get; set; }
+
+    //    public List<LaboratoryEquipmentSubjectGroupVM> Subjects { get; set; }
+    //        = new();
+
+    //    // Helpers for UI badges
+    //    public int TotalEquipments =>
+    //        Subjects.Sum(s => s.Equipments.Count);
+
+    //    public int DeficientEquipments =>
+    //        Subjects.Sum(s => s.Equipments.Count(e => e.IsDeficient));
+    //}
+
+
+    //public class LaboratoryEquipmentDisplayViewModel
+    //{
+    //    public List<LaboratoryEquipmentCourseGroupVM> Courses { get; set; }
+    //        = new();
+
+    //    public int TotalEquipments =>
+    //        Courses.Sum(c => c.TotalEquipments);
+    //}
+
+
+    ////public class MedicalLibraryDisplayViewModel : CA_Aff_MedicalLibraryViewModel { }
+    //public class MedicalLibraryDisplayViewModel {
+    //    public string CollegeCode { get; set; } = null!;
+    //    public CA_Aff_MedicalLibraryViewModel1 caAffMedicalLibraryvm {  get; set; }
+    //    public CaMedLibCommitteeListDisplayViewModel librarayCommitteeVM { get; set; }
+    //    public CaMedLibraryGeneralDisplayViewModel LibraryGeneralVM { get; set; }
+    //    public CaMedLibraryItemListDisplayViewModel LibraryItemListVM {  get; set; }
+    //    public CaMedLibraryBuildingDisplayViewModel LibraryBuildingVM { get; set; }
+    //    public CaMedLibTechnicalProcessListDisplayViewModel LibraryTechListVM { get; set; }
+    //    public CaMedLibraryFinanceDisplayViewModel LibraryFinancVM { get; set; }
+    //    public CaMedLibraryEquipmentListDisplayViewModel LibraryEquipmentListVM { get; set; }
+    //    public CaMedResearchPublicationsDisplayViewModel ResearchPublicationsDisplayViewModel { get; set; }
+
+    //}
+
+    //public class FinanceViewModel
+    //{
+    //    public string CollegeCode { get; set; } = null!;
+
+    //    public MedCaAccountAndFeeDetailDisplayViewModel medCaAccountAndFee { get; set; }
+    //    public MedCaStaffParticularListDisplayViewModel staffParticularsVM { get; set; }
+    //    public CaMedStaffParticularsOtherDisplayViewModel otherStaffParticularsVM { get; set; }
+
+    //}
+    //public class MedCaAccountAndFeeDetailDisplayViewModel
+    //{
+    //    public int Id { get; set; }
+
+    //    public string CollegeCode { get; set; } = null!;
+
+    //    public string FacultyCode { get; set; } = null!;
+
+    //    public string? SubFacultyCode { get; set; }
+
+    //    public string? RegistrationNo { get; set; }
+
+    //    // Governing Council
+    //    public string GoverningCouncilPdfName { get; set; } = null!;
+    //    public bool HasGoverningCouncilPdf { get; set; }
+
+    //    // Authority Details
+    //    public string AuthorityNameAddress { get; set; } = null!;
+    //    public string AuthorityContact { get; set; } = null!;
+
+    //    // Fees
+    //    public decimal RecurrentAnnual { get; set; }
+    //    public decimal NonRecurrentAnnual { get; set; }
+    //    public decimal Deposits { get; set; }
+    //    public decimal TuitionFee { get; set; }
+    //    public decimal SportsFee { get; set; }
+    //    public decimal UnionFee { get; set; }
+    //    public decimal LibraryFee { get; set; }
+    //    public decimal OtherFee { get; set; }
+    //    public decimal TotalFee { get; set; }
+
+    //    // Accounts
+    //    public string AccountBooksMaintained { get; set; } = null!;
+    //    public string AccountsAudited { get; set; } = null!;
+
+    //    public string? AccountSummaryPdfName { get; set; }
+    //    public bool HasAccountSummaryPdf { get; set; }
+
+    //    public string? AuditedStatementPdfName { get; set; }
+    //    public bool HasAuditedStatementPdf { get; set; }
+    //}
+
+
+
+    //public class MedCaStaffParticularListDisplayViewModel
+    //{
+    //    public string CollegeCode { get; set; } = null!;
+    //    public string FacultyCode { get; set; } = null!;
+
+    //    public List<MedCaStaffParticularDisplayViewModel> StaffParticulars { get; set; }
+    //        = new();
+    //}
+
+    //public class MedCaStaffParticularDisplayViewModel
+    //{
+    //    public int Id { get; set; }
+
+    //    public string CollegeCode { get; set; } = null!;
+    //    public string CollegeName { get; set; } = null!;
+
+    //    public string FacultyCode { get; set; } = null!;
+
+    //    public string? SubFacultyCode { get; set; }
+
+    //    public string? RegistrationNo { get; set; }
+
+    //    // Designation
+    //    public int DesignationSlNo { get; set; }
+    //    public string DesignationName { get; set; } = null!;
+
+    //    // Pay
+    //    public decimal PayScale { get; set; }
+    //}
+
+    //public class CaMedStaffParticularsOtherDisplayViewModel
+    //{
+    //    public int Id { get; set; }
+
+    //    public string CollegeCode { get; set; } = null!;
+    //    public string CollegeName { get; set; }
+    //    public string FacultyCode { get; set; } = null!;
+
+    //    public string? RegistrationNo { get; set; }
+    //    public string? SubFacultyCode { get; set; }
+
+    //    // General Status
+    //    public bool TeachersUpdatedInEms { get; set; }
+    //    public bool ExaminerDetailsAttached { get; set; }
+
+    //    // Examiner Details
+    //    public string? ExaminerDetailsPdfName { get; set; }
+    //    public bool HasExaminerDetailsPdf { get; set; }
+
+    //    // AEBAS Details
+    //    public string? AebasLastThreeMonthsPdfName { get; set; }
+    //    public bool HasAebasLastThreeMonthsPdf { get; set; }
+
+    //    public string? AebasInspectionDayPdfName { get; set; }
+    //    public bool HasAebasInspectionDayPdf { get; set; }
+
+    //    // Registers
+    //    public bool ServiceRegisterMaintained { get; set; }
+    //    public bool AcquittanceRegisterMaintained { get; set; }
+
+    //    // PF & ESI
+    //    public string? ProvidentFundPdfName { get; set; }
+    //    public bool HasProvidentFundPdf { get; set; }
+
+    //    public string? EsipdfName { get; set; }
+    //    public bool HasEsipdf { get; set; }
+    //}
+
+
+    //public class CaMedLibCommitteeDisplayViewModel
+    //{
+    //    public int Id { get; set; }
+
+    //    public int CommitteeId { get; set; }
+
+    //    public string CommitteeName { get; set; } = null!;
+    //    // (to be populated from master table if available)
+
+    //    public bool IsPresent { get; set; }
+
+    //    public string? CommitteePdfName { get; set; }
+
+    //    public bool HasCommitteePdf { get; set; }
+    //}
+
+    //public class CaMedLibCommitteeListDisplayViewModel
+    //{
+
+    //    public List<CaMedLibCommitteeDisplayViewModel> Committees { get; set; }
+    //        = new();
+    //}
+
+
+    //public class CaMedLibraryGeneralDisplayViewModel
+    //{
+    //    public int SlNo { get; set; }
+
+    //    public string CollegeCode { get; set; } = null!;
+    //    public string FacultyCode { get; set; } = null!;
+
+    //    public string? LibraryEmailId { get; set; }
+
+    //    // Flags (converted to bool for UI)
+    //    public bool HasDigitalLibrary { get; set; }
+    //    public bool HasHelinetServices { get; set; }
+    //    public bool HasDepartmentWiseLibrary { get; set; }
+
+    //    // Optional: original values if needed
+    //    public string? DigitalLibrary { get; set; }
+    //    public string? HelinetServices { get; set; }
+    //    public string? DepartmentWiseLibrary { get; set; }
+    //}
+
+    //public class CaMedLibraryItemDisplayViewModel
+    //{
+    //    public int SlNo { get; set; }
+
+    //    public string ItemName { get; set; } = null!;
+
+    //    public int CurrentForeign { get; set; }
+    //    public int CurrentIndian { get; set; }
+
+    //    public int PreviousForeign { get; set; }
+    //    public int PreviousIndian { get; set; }
+    //    public bool HasIndianForeignSplit { get; set; }
+    //}
+
+    //public class CaMedLibraryItemListDisplayViewModel
+    //{
+    //    public string CollegeCode { get; set; } = null!;
+    //    public string FacultyCode { get; set; } = null!;
+
+    //    public List<CaMedLibraryItemDisplayViewModel> Items { get; set; }
+    //        = new();
+    //}
+
+    //public class CaMedLibraryBuildingDisplayViewModel
+    //{
+    //    public int SlNo { get; set; }
+
+    //    public string CollegeCode { get; set; } = null!;
+    //    public string FacultyCode { get; set; } = null!;
+
+    //    // Independent building flag
+    //    public bool IsIndependent { get; set; }
+    //    public string? IsIndependentText { get; set; }
+
+    //    // Area
+    //    public decimal? AreaSqMtrs { get; set; }
+    //}
+
+
+    //public class CaMedLibTechnicalProcessDisplayViewModel
+    //{
+    //    public int SlNo { get; set; }
+
+    //    public string ProcessName { get; set; } = null!;
+
+    //    public string? Value { get; set; }
+
+    //    // Helpful flag for UI
+    //    public bool HasValue => !string.IsNullOrWhiteSpace(Value);
+    //}
+    //public class CaMedLibTechnicalProcessListDisplayViewModel
+    //{
+
+    //    public List<CaMedLibTechnicalProcessDisplayViewModel> Processes { get; set; }
+    //        = new();
+    //}
+
+
+
+    //public class CaMedLibraryFinanceDisplayViewModel
+    //{
+    //    public string CollegeCode { get; set; } = null!;
+    //    public string FacultyCode { get; set; } = null!;
+    //    public string? SubFacultyCode { get; set; }
+    //    public string? RegistrationNo { get; set; }
+
+    //    // Finance Details
+    //    public decimal? TotalBudgetLakhs { get; set; }
+    //    public decimal? ExpenditureBooksLakhs { get; set; }
+    //}
+
+    //public class CaMedResearchPublicationsDisplayViewModel
+    //{
+    //    public int? PublicationsNo { get; set; }
+    //    public string? Pi { get; set; }
+
+    //    public int? RguhsFunded { get; set; }
+    //    public int? ExternalBodyFunding { get; set; }
+
+    //    public bool HasPublicationsPdf { get; set; }
+    //    public bool HasProjectsPdf { get; set; }
+    //    public bool HasClinicalTrialsPdf { get; set; }
+
+    //    public int? StudentsRguhsFunded { get; set; }
+    //    public int? StudentsExternalFunding { get; set; }
+    //    public bool HasStudentsProjectsPdf { get; set; }
+
+    //    public int? FacultyRguhsFunded { get; set; }
+    //    public int? FacultyExternalFunding { get; set; }
+    //    public bool HasFacultyProjectsPdf { get; set; }
+    //}
+
+    //public class CaMedLibraryEquipmentDisplayViewModel
+    //{
+    //    public int SlNo { get; set; }
+
+    //    public string CollegeCode { get; set; } = null!;
+
+    //    public string FacultyCode { get; set; } = null!;
+
+    //    public string? SubFacultyCode { get; set; }
+
+    //    public string? RegistrationNo { get; set; }
+
+    //    public string EquipmentName { get; set; } = null!;
+
+    //    // UI-friendly (Yes / No)
+    //    public bool HasEquipment { get; set; }
+    //}
+
+    //public class CaMedLibraryEquipmentListDisplayViewModel
+    //{
+    //    public string CollegeCode { get; set; } = null!;
+
+    //    public List<CaMedLibraryEquipmentDisplayViewModel> Items { get; set; }
+    //        = new List<CaMedLibraryEquipmentDisplayViewModel>();
+    //}
+
+    //public class CaVehicleDetailDisplayViewModel
+    //{
+    //    public int Id { get; set; }
+
+    //    public string? CollegeCode { get; set; }
+
+    //    public string? FacultyCode { get; set; }
+
+    //    public string? RegistrationNo { get; set; }
+
+    //    public string VehicleRegNo { get; set; } = null!;
+
+    //    public string VehicleForCode { get; set; } = null!;
+
+    //    public int? SeatingCapacity { get; set; }
+
+    //    public DateOnly? ValidityDate { get; set; }
+
+    //    public string? RcBookStatus { get; set; }
+
+    //    public string? InsuranceStatus { get; set; }
+
+    //    public string? DrivingLicenseStatus { get; set; }
+
+    //    // UI helpers
+    //    public bool HasValidRc => RcBookStatus?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true;
+    //    public bool HasValidInsurance => InsuranceStatus?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true;
+    //    public bool HasValidLicense => DrivingLicenseStatus?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true;
+    //}
+
+    //public class VehicleDetailListDisplayViewModel
+    //{
+    //    public string? CollegeCode { get; set; }
+
+    //    public List<CaVehicleDetailDisplayViewModel> Items { get; set; }
+    //        = new List<CaVehicleDetailDisplayViewModel>();
+    //}
+
+    public class InstitutionPreviewViewModel
+    {
+        public string? CollegeCode { get; set; }
+        public InstitutionGeneralDisplayVM GeneralDetails { get; set; }
+        public InstitutionContactDisplayVM ContactDetails { get; set; }
+        public InstitutionAuthorityDisplayVM AuthorityDetails { get; set; }
+        public InstitutionTrustDisplayVM TrustDetails { get; set; }
+        public InstitutionOtherDisplayVM OtherDetails { get; set; }
+    }
+
+
+    public class InstitutionGeneralDisplayVM
+    {
+        public int InstitutionId { get; set; }
+        public string CollegeCode { get; set; }
+        public string FacultyCode { get; set; }
+        public string TypeOfInstitution { get; set; }
+        public string NameOfInstitution { get; set; }
+        public string Address { get; set; }
+        public string VillageTownCity { get; set; }
+        public string Taluk { get; set; }
+        public string District { get; set; }
+        public string PinCode { get; set; }
+        public string SurveyNoPidNo { get; set; }
+        public string YearOfEstablishment { get; set; }
+        public string FinancingAuthority { get; set; }
+        public string? StatusOfCollege { get; set; }
+        public string? CourseApplied { get; set; }
+        public string MinorityCategory { get; set; }
+        public string RunningCourse { get; set; }
+        public bool MinorityInstitute { get; set; }
+        public bool AttachedToMedicalClg { get; set; }
+        public bool RuralInstitute { get; set; }
+        public string? GovAutonomousCertNumber { get; set; }
+        public bool HasGovAutoCertFile { get; set; }
+    }
+
+    public class InstitutionContactDisplayVM
+    {
+        public string MobileNumber { get; set; }
+        public string StdCode { get; set; }
+        public string? Fax { get; set; }
+        public string Website { get; set; }
+        public string College_URL { get; set; }
+        public string EmailId { get; set; }
+        public string? AltLandlineMobile { get; set; }
+        public string? AltEmailId { get; set; }
+    }
+    public class InstitutionAuthorityDisplayVM
+    {
+        // Head of Institution
+        public string? HeadOfInstitution { get; set; }
+        public string HeadAddress { get; set; }
+        public string? HeadOfInstitution_Mob_NO { get; set; }
+        public string? HeadOfInstitution_Email { get; set; }
+        // Nodal Officer
+        public string NodalOfficer_Name { get; set; }
+        public string NodalOfficer_Mob_Number { get; set; }
+        public string NodalOfficer_Email { get; set; }
+        // Principal
+        public string Principal_Name { get; set; }
+        public string Principal_Mob_No { get; set; }
+        public string Principal_Email { get; set; }
+        public string? PrincipalMobileNumber { get; set; }
+        public string? PrincipalEmailId { get; set; }
+        // Dean
+        public string DeanName { get; set; }
+        public string? DeanMobileNumber { get; set; }
+        public string? DeanEmailId { get; set; }
+    }
+
+    public class InstitutionTrustDisplayVM
+    {
+        public string? TrustName { get; set; }
+        public string? TrustAddress { get; set; }
+        public DateOnly? TrustEstablishmentDate { get; set; }
+        public string? TrustPresidentName { get; set; }
+        public string? TrustPresidentContactNo { get; set; }
+    }
+
+    public class InstitutionOtherDisplayVM
+    {
+        public string? DocumentName { get; set; }
+        public string? DocumentContentType { get; set; }
+    }
+
+    public class DetailsInstituionBasicDetailsDisplayVM
+    {
+        public string? CollegeCode { get; set; }
+        public ContinuationTrustMemberListDisplayViewModel TrustMemberVM { get; set; }
+        public AffSanctionedIntakeForCourseListDisplayViewModel IntakeForCourseVM { get; set; }
+        public AffCourseDisplayVM AffCoursesVM { get; set; }
+
+        public AffiliationCourseDetailDisplayVM AffiliationCourseDetailVM { get; set; }
+
+        public InstitutionViewModel DeanOrDirectorDetailDisplayVM { get; set; }
+        public InstitutionViewModel PrincipalDetailDisplayVM { get; set; }
+
+        public InstitutionViewModel InstitutionDetails { get; set; }
+    }
+
+    //public class ContinuationTrustMemberListDisplayViewModel
+    //{
+
+    //    public List<ContinuationTrustMemberDisplayViewModel> Items { get; set; }
+    //        = new List<ContinuationTrustMemberDisplayViewModel>();
+    //}
+
+    //public class ContinuationTrustMemberDisplayViewModel
+    //{
+    //    public int SlNo { get; set; }
+    //    public string Faculty { get; set; }
+    //    public string CollegeCode { get; set; }
+    //    public string TrustMemberName { get; set; } = null!;
+
+    //    public string? Designation { get; set; }
+
+    //    public string? Qualification { get; set; }
+
+    //    public string? MobileNumber { get; set; }
+
+    //    public int? Age { get; set; }
+
+    //    public DateOnly? JoiningDate { get; set; }
+
+    //    public string? DesignationId { get; set; }
+
+    //    // UI helper for mobile number display
+    //    public string MobileDisplay => string.IsNullOrEmpty(MobileNumber) ? "—" : MobileNumber;
+
+    //    // UI helper for JoiningDate display
+    //    public string JoiningDateDisplay => JoiningDate?.ToString("dd-MM-yyyy") ?? "—";
+    //}
+
+    //public class AffSanctionedIntakeForCourseDisplayViewModel
+    //{
+    //    public string CourseName { get; set; } = null!;
+    //    public string SanctionedIntake { get; set; } = null!;
+    //    public string? EligibleSeatSlab { get; set; }
+    //    public bool HasDocument { get; set; }
+    //}
+
+    //public class AffSanctionedIntakeForCourseListDisplayViewModel
+    //{
+    //    public List<AffSanctionedIntakeForCourseDisplayViewModel> Items { get; set; }
+    //        = new List<AffSanctionedIntakeForCourseDisplayViewModel>();
+    //}
+
+    //public class AffCourseDisplayItemVM
+    //{
+    //    public string CourseName { get; set; }
+    //    public bool IsRecognized { get; set; }
+    //    public string? RguhsNotificationNo { get; set; }
+    //    public bool HasDocument { get; set; }
+    //}
+    //public class AffCourseDisplayVM
+    //{
+    //    public List<AffCourseDisplayItemVM> Items { get; set; } = new();
+    //}
+
+    //public class AffiliationCourseDetailDisplayVM
+    //{
+    //    public string? CourseName { get; set; }
+    //    public string? IntakeDuring202526 { get; set; }
+    //    public string? IntakeSlab { get; set; }
+    //    public string? TypeofPermission { get; set; }
+    //    public string? YearOfLop { get; set; }
+    //    public string? DateOfRecognition { get; set; }
+    //    public string? YearOfObtainingEcAndFc { get; set; }
+    //    public string? SanctionedIntakeEcFc { get; set; }
+    //    public bool HasGokOrder { get; set; }
+    //}
+
+    //public class AffDeanOrDirectorDetailDisplayVM
+    //{
+    //    public string? DeanOrDirectorName { get; set; }
+    //    public string? DeanQualification { get; set; }
+    //    public string? DeanQualificationDate { get; set; }
+    //    public string? DeanUniversity { get; set; }
+    //    public string? DeanStateCouncilNumber { get; set; }
+    //    public string RecognizedByMci { get; set; } = "—";
+    //}
+    //public class AffPrincipalDetailDisplayVM
+    //{
+    //    public string? PrincipalName { get; set; }
+    //    public string? PrincipalQualification { get; set; }
+    //    public string? PrincipalQualificationDate { get; set; }
+    //    public string? PrincipalUniversity { get; set; }
+    //    public string? PrincipalStateCouncilNumber { get; set; }
+    //    public string RecognizedByMci { get; set; } = "—";
+    //}
+
+
+    //public class AdminTeachAndHostelDisplayVM
+    //{
+    //    public string CollegeCode { get; set; }
+    //    public List<AffAdminTeachingBlockDisplayVM> AdminTeachingBlockDisplayVM { get; set; }
+    //    public List<HostelDetailDisplayVM> HostelDetailsVM { get; set; }
+    //    public List<AffHostelFacilityDisplayVM> AffHostelFacilitiesVM { get; set; }
+
+    //}
+
+    //public class AffAdminTeachingBlockDisplayVM
+    //{
+    //    public string Facilities { get; set; } = null!;
+    //    public string SizeSqFtAsPerNorms { get; set; } = null!;
+    //    public string IsAvailable { get; set; } = null!;
+    //    public string NoOfRooms { get; set; } = null!;
+    //    public string SizeSqFtAvailablePerRoom { get; set; } = null!;
+    //}
+
+    //public class HostelDetailDisplayVM
+    //{
+    //    public string HostelType { get; set; }
+    //    public string BuiltUpAreaSqFt { get; set; }
+
+    //    public bool HasSeparateHostel { get; set; }
+    //    public bool SeparateProvisionMaleFemale { get; set; }
+
+    //    public string TotalFemaleStudents { get; set; }
+    //    public string TotalFemaleRooms { get; set; }
+
+    //    public string TotalMaleStudents { get; set; }
+    //    public string TotalMaleRooms { get; set; }
+
+    //    public bool HasPossessionProof { get; set; }
+    //}
+
+    //public class AffHostelFacilityDisplayVM
+    //{
+    //    public string FacilityName { get; set; } = string.Empty;
+    //    public bool IsAvailable { get; set; }
+    //}
+
+    //public class FacultyDesigNonTeachDisplayVM
+    //{
+    //    public string collegeCode {  get; set; } = string.Empty;
+    //    public List<FacultyDetailDisplayVM> FacultyDetailDisplayVM { get; set; } = new();
+    //    public List<CollegeDesignationDepartmentGroupVM> CollegeDesignationDisplayVM { get; set; } = new();
+    //    public NonTeachingStaffSectionVM NonTeachingStaffSectionVM { get; set; } = new();
+    //}
+
+    //public class CollegeDesignationDepartmentGroupVM
+    //{
+    //    public string? Department { get; set; }
+    //    public List<CollegeDesignationDisplayVM> Designations { get; set; } = new();
+    //}
+
+    //public class FacultyDetailDisplayVM
+    //{
+    //    public string NameOfFaculty { get; set; } = string.Empty;
+    //    public string? Subject { get; set; }
+    //    public string Designation { get; set; } = string.Empty;
+    //    public string Course { get; set; }
+
+    //    public string? RecognizedPgTeacher { get; set; }
+    //    public string? RecognizedPhDteacher { get; set; }
+    //    public string? LitigationPending { get; set; }
+
+    //    public string Mobile { get; set; } = string.Empty;
+    //    public string Email { get; set; } = string.Empty;
+
+    //    public string? DepartmentDetails { get; set; }
+
+    //    public bool HasGuideRecognitionDoc { get; set; }
+    //    public bool HasPhDRecognitionDoc { get; set; }
+    //    public bool HasLitigationDoc { get; set; }
+    //}
+
+    //public class CollegeDesignationDisplayVM
+    //{
+    //    public string Designation { get; set; } = string.Empty;
+    //    public string? DesignationCode { get; set; }
+    //    public string? Department { get; set; }
+    //    public string? DepartmentCode { get; set; }
+    //    public string? SeatSlabId { get; set; }
+    //    public int SeatSlab { get; set; }
+    //    public string RequiredIntake { get; set; } = string.Empty;
+    //    public string AvailableIntake { get; set; } = string.Empty;
+    //}
+
+    //public class NonTeachingStaffDisplayVM
+    //{
+    //    public int StaffId { get; set; }
+
+    //    public string StaffName { get; set; } = string.Empty;
+
+    //    // 👇 Resolved designation name from DesignationMaster
+    //    public string Designation { get; set; } = string.Empty;
+
+    //    public string? MobileNumber { get; set; }
+
+    //    public decimal SalaryPaid { get; set; }
+
+    //    public bool PfProvided { get; set; }
+
+    //    public bool EsiProvided { get; set; }
+
+    //    public bool ServiceRegisterMaintained { get; set; }
+
+    //    public bool SalaryAcquaintanceRegister { get; set; }
+    //}
+    //public class NonTeachingStaffSectionVM
+    //{
+    //    public string CollegeCode { get; set; } = string.Empty;
+
+    //    public List<NonTeachingStaffDisplayVM> Staffs { get; set; } = new();
+    //}
+
+    public class AcademicIntakePreviewViewModel
+    {
+        public string CollegeCode { get; set; }
+        public string FacultyCode { get; set; }
+        public string? CollegeName { get; set; }
+        public int FacultyId { get; set; }
+
+        public List<string> SortedCourseLevels { get; set; } = new();
+        public List<IntakeByLevelViewModel1> UgCourses { get; set; } = new();
+        public List<IntakeByLevelViewModel1> PgCourses { get; set; } = new();
+        public List<IntakeByLevelViewModel1> SsCourses { get; set; } = new();
+        public AffiliationCourseDetailsDisplayVM? UgCourseDetails { get; set; }
+        public AffiliationPgCourseDisplayVM? PgCourseDetails { get; set; }
+
+        public List<DentalTeachingFacultyDisplayVM> TeachingFacultyDetails { get; set; } = new();
+    }
+
+    public class DentalTeachingFacultyDisplayVM
+    {
+        public string FacultyCode { get; set; } = string.Empty;
+        public string Faculty { get; set; } = string.Empty;
+        public string CollegeCode { get; set; } = string.Empty;
+        public string DepartmentCode { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public string DesignationCode { get; set; } = string.Empty;
+        public string DesignationName { get; set; } = string.Empty;
+        public string CourseLevel { get; set; } = "UG";
+        public string SeatSlabId { get; set; } = string.Empty;
+        // Required Faculty
+        public string ExistingSeatIntake { get; set; } = "0";
+
+        // Available Faculty
+        public string PresentSeatIntake { get; set; } = "0";
+    }
+
+    public class AffiliationCourseDetailsDisplayVM
+    {
+        public string CourseId { get; set; }
+        public string CourseName { get; set; }
+        public string IntakeDuring202526 { get; set; }
+        public string IntakeSlab { get; set; }
+        public string TypeOfPermission { get; set; }
+
+        public DateOnly? YearOfLOP { get; set; }
+        public string DateOfRecognition { get; set; }
+
+        public DateOnly? YearOfObtainingECAndFC { get; set; }
+        public string SanctionedIntakeECFC { get; set; }
+
+        public string SanctionedIntakePermission { get; set; }
+        public string DateOfLOPRenewalGOIMCI { get; set; }
+        public string DateOfLOPRenewalDCIKSDC { get; set; }
+
+        public string YearOfLastAffiliationRGUHS { get; set; }
+        public string SanctionedIntakeLastAffiliation { get; set; }
+
+        public DateOnly? DateOfPreviousLICInspection { get; set; }
+        public string ActionTakenOnDeficiencies { get; set; }
+
+        public bool HasGOKOrder { get; set; }
+        public bool HasLastAffiliationFile { get; set; }
+        public bool HasPreviousNotificationFile { get; set; }
+    }
+
+    public class AffiliationPgCourseDisplayVM
+    {
+        public string? CollegeCode { get; set; }
+        public int TypeOfAffiliation { get; set; }
+
+        // 1. PG Degree Courses
+        public List<PgCourseDisplayVM> PgDegreeCourses { get; set; } = new();
+
+        // 2. PG Diploma Courses
+        public List<PgCourseDisplayVM> PgDiplomaCourses { get; set; } = new();
+
+        // 3. Course Particulars
+        public List<PgCourseParticularsDisplayVM> AllCourses { get; set; } = new();
+
+        // 4. GOK Permission Details
+        public List<PgCoursesGokDisplayVM> PgCoursesGOK { get; set; } = new();
+
+        // 5. RGUHS Permission Details
+        public List<PgCoursesRguhsDisplayVM> PgCoursesRguhs { get; set; } = new();
+
+        // 6. Other Department / NMC Courses
+        public List<OtherCoursesPermittedByNmcDisplayVM> OtherCoursesPermittedByNMC { get; set; } = new();
+
+        // 7. LIC Inspection
+        public LicInspectionDisplayVM? LicInspection { get; set; }
+    }
+
+    public class PgCourseDisplayVM
+    {
+        public string? CourseCode { get; set; }
+        public string? CourseName { get; set; }
+        public string? CourseLevel { get; set; }
+        public string? CoursePrefix { get; set; }
+
+        public int? CollegeIntake { get; set; }
+        public int? RguhsIntake { get; set; }
+    }
+
+    public class PgCourseParticularsDisplayVM : PgCourseDisplayVM
+    {
+        public DateOnly? DateOfLOP { get; set; }
+        public DateOnly? DateOfRecognitionByNMC { get; set; }
+        public DateOnly? DateOfRecognitionByDCI { get; set; }
+    }
+
+    public class PgCoursesGokDisplayVM : PgCourseDisplayVM
+    {
+        public DateOnly? DateOfGOK { get; set; }
+
+        public bool HasGOKDocument { get; set; }
+
+        public string? AcademicYear { get; set; }
+    }
+
+    public class PgCoursesRguhsDisplayVM : PgCourseDisplayVM
+    {
+        public bool HasRguhsDocument { get; set; }
+    }
+
+    public class OtherCoursesPermittedByNmcDisplayVM : PgCourseDisplayVM
+    {
+        public bool PermissionByNMC { get; set; }
+
+        public bool HasNMCDocument { get; set; }
+
+        public int? AdmissionsPerYear { get; set; }
+    }
+
+    public class LicInspectionDisplayVM
+    {
+        public DateOnly? InspectionDate { get; set; }
+
+        public string? Remarks { get; set; }
+
+        public bool HasInspectionReport { get; set; }
+    }
+}

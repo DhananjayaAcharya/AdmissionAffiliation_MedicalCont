@@ -52,6 +52,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 // 🔹 MVC + AutoProgressFilter + AuditLog Filters
 // =============================================
 builder.Services.AddScoped<AutoProgressFilter>();
+builder.Services.AddScoped<AutoProgressDentalFilter>();
 builder.Services.AddScoped<AuditExceptionFilter>();
 builder.Services.AddScoped<AuditActionFilter>();
 builder.Services.AddScoped<ComprehensiveAuditActionFilter>();
@@ -59,6 +60,7 @@ builder.Services.AddScoped<ComprehensiveAuditActionFilter>();
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<AutoProgressFilter>();
+    options.Filters.Add<AutoProgressDentalFilter>();
     options.Filters.Add<AuditExceptionFilter>();              // catches all unhandled exceptions
     options.Filters.Add<ComprehensiveAuditActionFilter>();    // logs all actions comprehensively
     options.MaxModelBindingCollectionSize = int.MaxValue;
@@ -141,7 +143,10 @@ builder.Services.AddScoped<ICAVehicleService, CAVehicleService>();
 builder.Services.AddScoped<ICAHospitalAffiliationService, CAHospitalAffiliationService>();
 builder.Services.AddScoped<ICALandClassEquipmentService, CALandAndEquipmentService>();
 builder.Services.AddScoped<ICAPreviewService, CAPreviewService>();
+builder.Services.AddScoped<ICADentalPreviewService, CAPreviewDentalService>();
+builder.Services.AddScoped<ICADentalHospitalAffiliationService, CADentalHospitalAffiliationService>();
 builder.Services.AddScoped<ICAFinanceService, CAFinanceService>();
+builder.Services.AddScoped<ICAAcademicPerformancePreviewService, CAAcademicPerformancePreviewService>();
 builder.Services.AddScoped<ICAAdminTeachAndHostel, CAAdminTeachAndHostelService>();
 builder.Services.AddScoped<ICAFacultyDesigNonTeaching, CAFacultyDesigNonTeachingService>();
 builder.Services.AddScoped<IUserContext, SessionUserContext>();

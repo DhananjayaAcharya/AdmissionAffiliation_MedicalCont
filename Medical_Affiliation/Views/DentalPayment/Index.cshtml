@@ -1,0 +1,180 @@
+﻿@model Medical_Affiliation.Models.PaymentCalculationViewModel
+@{
+    ViewData["Title"] = "Payment Calculation";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    .payment-calculation-page {
+        padding: .25rem 0 1.5rem;
+    }
+
+    .payment-calculation-heading {
+        border-bottom: 1px solid #d8e3f5;
+        padding-bottom: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+        .payment-calculation-heading h1 {
+            color: #0f1d3d;
+            font-family: 'EB Garamond', serif;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .payment-calculation-heading p {
+            color: #7d8aa9;
+            margin: .25rem 0 0;
+        }
+
+    .payment-panel {
+        border: 1px solid #d8e3f5;
+        border-radius: 8px;
+        background: #fff;
+        margin-bottom: 1.25rem;
+        overflow: hidden;
+    }
+
+    .payment-panel-header {
+        background: #f4f8fd;
+        border-bottom: 1px solid #d8e3f5;
+        padding: .8rem 1rem;
+        color: #0a3d91;
+        font-weight: 700;
+    }
+
+    .payment-panel-body {
+        padding: 1rem;
+    }
+
+    .payment-calculation-page .form-label {
+        color: #435273;
+        font-size: .82rem;
+        font-weight: 600;
+    }
+
+    .payment-calculation-page .table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+        .payment-calculation-page .table th {
+            color: #435273;
+            font-size: .76rem;
+            text-transform: uppercase;
+        }
+</style>
+
+<div class="payment-calculation-page">
+    <div class="payment-calculation-heading">
+        <h1><i class="bi bi-cash-coin me-2" aria-hidden="true"></i>Payment Calculation</h1>
+        <p>Calculate the applicable affiliation fee for the selected college and course details.</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    @if (Model.HasResult)
+    {
+        <div class="payment-panel">
+            <div class="payment-panel-header">Matched Courses (@Model.MatchedCourses.Count)</div>
+            <div class="payment-panel-body table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            @*                <th>Course Code</th> *@
+                            <th>Course Name</th>
+                            <th>Course (Intake sheet)</th>
+                            @*  <th>UG/PG</th> *@
+                            <th>Course Level</th>
+                            <th>Intake (26-27)</th>
+                            @*               <th>Match Note</th> *@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.MatchedCourses)
+                        {
+                            <tr>
+                                @*                     <td>@c.CourseCode</td> *@
+                                <td>@c.CourseName</td>
+                                <td>@c.course</td>
+                                @*  <td>@c.ug_pg</td> *@
+                                <td>@c.RawCourseLevel</td>
+                                <td>@c.Intake_26_27</td>
+                                @*                     <td>@c.MatchNote</td> *@
+                            </tr>
+                        }
+                        @if (!Model.MatchedCourses.Any())
+                        {
+                            <tr><td colspan="7" class="text-center text-muted">No courses matched for this college / affiliation type.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="payment-panel">
+            <div class="payment-panel-header">Fee Breakdown</div>
+            <div class="payment-panel-body table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fee Head</th>
+                            <th>Unit Amount</th>
+                            <th>Basis</th>
+                            <th>Multiplier</th>
+                            <th class="text-end">Line Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in Model.FeeLines)
+                        {
+                            <tr>
+                                <td>
+                                    @f.FeeHeadName
+                                    @if (f.SeatRangeFrom.HasValue)
+                                    {
+                                        <span class="text-muted">(@f.SeatRangeFrom - @f.SeatRangeTo seats)</span>
+                                    }
+                                </td>
+                                <td>@f.UnitAmount.ToString("N2")</td>
+                                <td>
+                                    @if (f.IsPerCourse)
+                                    {
+                                        <span>Per course</span>
+                                    }
+                                    else if (f.IsPerSeat)
+                                    {
+
+                                        <span>Per seat</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span>Fixed</span>
+                                    }
+                                </td>
+                                <td>@f.Multiplier</td>
+                                <td class="text-end">@f.LineAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-secondary fw-bold">
+                            <td colspan="4" class="text-end">Grand Total</td>
+                            <td class="text-end">@Model.Summary?.GrandTotal.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="row">
+                    <div class="col-md-3"><strong>Matched Courses:</strong> @Model.Summary?.MatchedCourseCount</div>
+                    <div class="col-md-3"><strong>Total Intake Seats:</strong> @Model.Summary?.TotalIntakeSeats</div>
+                    <div class="col-md-3"><strong>Course Level Group:</strong> @Model.Summary?.CourseLevelGroup</div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

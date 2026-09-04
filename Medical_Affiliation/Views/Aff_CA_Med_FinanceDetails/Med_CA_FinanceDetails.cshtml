@@ -389,6 +389,12 @@
         overflow: hidden;
     }
 
+    .fee-item{
+        margin: 2px 0;
+        font-size: 13px;
+        letter-spacing: 0.6px;
+    }
+
         .btn-save::after {
             content: '';
             position: absolute;
@@ -615,28 +621,94 @@
                                             <div class="section-block-title">c. Budget and Deposit</div>
 
                                             <div class="field-row cols-3">
-                                                <input name="Sections[@i].RecurrentAnnual" value="@item.RecurrentAnnual" class="form-control fee-input" placeholder="Recurrent" />
-                                                <input name="Sections[@i].NonRecurrentAnnual" value="@item.NonRecurrentAnnual" class="form-control fee-input" placeholder="Non-Recurrent" />
-                                                <input name="Sections[@i].Deposits" value="@item.Deposits" class="form-control fee-input" placeholder="Deposits" />
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Recurrent Annual</label>
+                                                    <input name="Sections[@i].RecurrentAnnual"
+                                                           value="@item.RecurrentAnnual"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Recurrent Annual" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Non-Recurrent Annual</label>
+                                                    <input name="Sections[@i].NonRecurrentAnnual"
+                                                           value="@item.NonRecurrentAnnual"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Non-Recurrent Annual" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Deposits</label>
+                                                    <input name="Sections[@i].Deposits"
+                                                           value="@item.Deposits"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Deposits" />
+                                                </div>
+
                                             </div>
                                         </div>
+
 
                                         <!-- ================= d. FEES ================= -->
                                         <div class="section-block">
                                             <div class="section-block-title">d. Fees Collected</div>
 
                                             <div class="field-row cols-5">
-                                                <input name="Sections[@i].TuitionFee" value="@item.TuitionFee" class="form-control fee-input" placeholder="Tuition" />
-                                                <input name="Sections[@i].SportsFee" value="@item.SportsFee" class="form-control fee-input" placeholder="Sports" />
-                                                <input name="Sections[@i].UnionFee" value="@item.UnionFee" class="form-control fee-input" placeholder="Union" />
-                                                <input name="Sections[@i].LibraryFee" value="@item.LibraryFee" class="form-control fee-input" placeholder="Library" />
-                                                <input name="Sections[@i].OtherFee" value="@item.OtherFee" class="form-control fee-input" placeholder="Other" />
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Tuition Fee</label>
+                                                    <input name="Sections[@i].TuitionFee"
+                                                           value="@item.TuitionFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Tuition Fee" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Sports Fee</label>
+                                                    <input name="Sections[@i].SportsFee"
+                                                           value="@item.SportsFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Sports Fee" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Union Fee</label>
+                                                    <input name="Sections[@i].UnionFee"
+                                                           value="@item.UnionFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Union Fee" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Library Fee</label>
+                                                    <input name="Sections[@i].LibraryFee"
+                                                           value="@item.LibraryFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Library Fee" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Other Fee</label>
+                                                    <input name="Sections[@i].OtherFee"
+                                                           value="@item.OtherFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Other Fee" />
+                                                </div>
+
                                             </div>
 
-                                            <div class="total-fee-wrap mt-2">
+                                            <div class="total-fee-wrap mt-3">
                                                 <div class="total-fee-label">Total Fee</div>
-                                                <input readonly class="form-control totalFeeDisplay" />
-                                                <input type="hidden" name="Sections[@i].TotalFee" class="totalFeeHidden" value="@item.TotalFee" />
+
+                                                <input readonly
+                                                       class="form-control totalFeeDisplay"
+                                                       placeholder="Total Fee" />
+
+                                                <input type="hidden"
+                                                       name="Sections[@i].TotalFee"
+                                                       class="totalFeeHidden"
+                                                       value="@item.TotalFee" />
                                             </div>
                                         </div>
 

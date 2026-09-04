@@ -1,0 +1,29 @@
+﻿@model PhysicalFacilitiesDisplayViewModel
+
+@if (Model != null)
+{
+    <div class="general-section">
+        <div class="general-header">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                        <h2 class="general-title academic-badge">Small Group Details</h2>
+                </div>
+
+                <a class="edit-button"
+                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode })">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <partial name="PhysicalFacilities/_SmallGroupTeaching" model="Model.SmallGroupTeaching" />
+    <partial name="PhysicalFacilities/_SmallGroupStudentLabs" model="Model.SmallGroupStudentLabs" />
+    <partial name="PhysicalFacilities/_SmallGroupMuseums" model="Model.SmallGroupMuseums" />
+    <partial name="PhysicalFacilities/_SkillsLab" model="Model.SkillsLab" />
+    <partial name="PhysicalFacilities/_DepartmentOfficesMeuPartial" model="Model.DeptOfficeMeu" />
+    <partial name="PhysicalFacilities/_LaboratoryEquipmentPartial" model="Model.LaboratoryEquipment" />
+    <partial name="PhysicalFacilities/_SkillsLabEquipment" model="Model.SkillsLabEquipment" />
+    </div>
+}

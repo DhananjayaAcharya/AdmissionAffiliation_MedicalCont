@@ -1,0 +1,39 @@
+﻿@model FacultyDesigNonTeachDisplayVM
+
+<div class="general-section">
+    <div class="general-header">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h2 class="academic-title academic-badge">Faculty and Non Teaching, Designation Details</h2>
+                </div>
+
+                <a class="edit-button"
+                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.collegeCode })">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    @if (Model != null)
+    {
+        <div id="faculty-Details">
+            @await Html.PartialAsync("FacultyDesigNonTeaching/_FacultyDetails", Model.FacultyDetailDisplayVM)
+        </div>
+    }
+    @if (Model != null)
+    {
+        <div id="faculty-Details">
+            @await Html.PartialAsync("FacultyDesigNonTeaching/_CollegeDesignationDetails", Model.CollegeDesignationDisplayVM)
+        </div>
+    }
+    
+    @if (Model.NonTeachingStaffSectionVM != null)
+    {
+        <div id="faculty-Details">
+            @await Html.PartialAsync("FacultyDesigNonTeaching/_NonTeachingStaffDetails", Model.NonTeachingStaffSectionVM)
+        </div>
+    }
+
+</div>

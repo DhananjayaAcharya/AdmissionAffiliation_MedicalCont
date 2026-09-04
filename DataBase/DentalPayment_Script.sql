@@ -1,0 +1,493 @@
+﻿
+
+/* ============================================================
+   TABLE: MstDentalFeeTypes
+
+   PURPOSE:
+   This master table stores the different types of fees applicable
+   to Dental courses.
+
+   EXAMPLES:
+   - Application Fee
+   - Annual Fee
+   - Continuation / Renewal Fee
+   - Administrative Fee & Service Charges
+   - Institutional Helinet Fee
+   - Course Identification Fee
+
+   RELATIONSHIPS:
+   - FacultyCode → Faculty(FacultyId)
+   - AffiliationTypeId → MstAffiliationType(AffiliationTypeId)
+
+   ============================================================ */
+
+CREATE TABLE MstDentalFeeTypes
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    FeeType NVARCHAR(300) NOT NULL,
+
+    DisplayOrder INT NOT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    AffiliationTypeId INT NOT NULL,
+
+    CreatedBy VARCHAR(100) NULL,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy VARCHAR(100) NULL,
+
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT FK_MstDentalFeeTypes_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_MstDentalFeeTypes_AffiliationType
+        FOREIGN KEY (AffiliationTypeId)
+        REFERENCES MstAffiliationType(AffiliationTypeId),
+
+    CONSTRAINT UQ_MstDentalFeeTypes
+        UNIQUE
+        (
+            FacultyCode,
+            FeeType,
+            AffiliationTypeId
+        )
+);
+
+
+/* ============================================================
+   TABLE: MstDentalFeeStructure
+
+   PURPOSE:
+   This table stores the actual fee amount applicable for a
+   particular Dental course and fee type.
+
+   EXAMPLE:
+   
+   Fee Type                 Course     Amount       Calculation
+   -------------------------------------------------------------
+   Application Fee          BDS        3000         Fixed
+   Application Fee          MDS        3000         Fixed
+   Annual Fee               BDS        80000        Fixed
+   Renewal Fee              BDS        250000       Per Course
+   Renewal Fee              MDS        4500         Per Seat
+
+   RELATIONSHIPS:
+   - FacultyCode → Faculty(FacultyId)
+   - FeeTypeId → MstDentalFeeTypes(Id)
+   - AffiliationTypeId → MstAffiliationType(AffiliationTypeId)
+
+   ============================================================ */
+
+CREATE TABLE MstDentalFeeStructure
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    FeeTypeId INT NOT NULL,
+
+    CourseName VARCHAR (50) NOT NULL,
+
+    CourseCode INT NULL,
+
+    CourseLevel VARCHAR(50) NULL,
+
+    AmountToBePaid DECIMAL(18,2) NOT NULL,
+
+    CalculationType VARCHAR(50) NULL,
+    -- Examples: Fixed, Per Course, Per Seat
+
+    AffiliationTypeId INT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy VARCHAR(100) NULL,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy VARCHAR(100) NULL,
+
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT FK_MstDentalFeeStructure_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_MstDentalFeeStructure_FeeType
+        FOREIGN KEY (FeeTypeId)
+        REFERENCES MstDentalFeeTypes(Id),
+
+    CONSTRAINT FK_MstDentalFeeStructure_AffiliationType
+        FOREIGN KEY (AffiliationTypeId)
+        REFERENCES MstAffiliationType(AffiliationTypeId),
+
+    CONSTRAINT UQ_MstDentalFeeStructure
+        UNIQUE
+        (
+            FacultyCode,
+            FeeTypeId,
+            CourseName,
+            CourseLevel,
+            AffiliationTypeId
+        )
+);
+
+
+/* ============================================================
+   TABLE: MstDentalOtherFeeStructure
+
+   PURPOSE:
+   This table stores additional Dental affiliation-related fees
+   that are not specifically dependent on BDS or MDS courses.
+
+   EXAMPLES:
+   - Application Fee
+   - Fee for Change of Name of the Institution
+   - Fee for Change of Address of the Institution
+   - Re-Inspection Fee
+
+   RELATIONSHIPS:
+   - FacultyCode → Faculty(FacultyId)
+   - AffiliationTypeId → MstAffiliationType(AffiliationTypeId)
+
+   ============================================================ */
+
+CREATE TABLE MstDentalOtherFeeStructure
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    FeeName NVARCHAR(300) NOT NULL,
+
+    AmountToBePaid DECIMAL(18,2) NOT NULL,
+
+    AffiliationTypeId INT NULL,
+
+    DisplayOrder INT NOT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy VARCHAR(100) NULL,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy VARCHAR(100) NULL,
+
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT FK_MstDentalOtherFeeStructure_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_MstDentalOtherFeeStructure_AffiliationType
+        FOREIGN KEY (AffiliationTypeId)
+        REFERENCES MstAffiliationType(AffiliationTypeId)
+);
+
+
+
+CREATE INDEX IX_MstDentalFeeTypes_Search
+ON MstDentalFeeTypes
+(
+    FacultyCode,
+    AffiliationTypeId,
+    IsActive
+);
+
+
+CREATE INDEX IX_MstDentalFeeStructure_Search
+ON MstDentalFeeStructure
+(
+    FacultyCode,
+    AffiliationTypeId,
+    FeeTypeId,
+    IsActive
+);
+
+
+CREATE INDEX IX_MstDentalOtherFeeStructure_Search
+ON MstDentalOtherFeeStructure
+(
+    FacultyCode,
+    AffiliationTypeId,
+    IsActive
+);
+
+
+
+/* ============================================================
+   TABLE: TxnDentalFeeStructure
+
+   PURPOSE:
+   Stores the Dental affiliation fee details applicable to a
+   specific college/application.
+
+   Fee details are copied from the Dental Fee Master tables
+   and stored here as transaction data.
+
+   RELATIONSHIPS:
+   - FacultyCode → Faculty(FacultyId)
+   - AffiliationTypeId → MstAffiliationType(AffiliationTypeId)
+   - FeeTypeId → MstDentalFeeTypes(Id)
+   - DentalFeeStructureId → MstDentalFeeStructure(Id)
+
+   ============================================================ */
+
+CREATE TABLE TxnDentalFeeStructure
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    CollegeCode VARCHAR(50) NOT NULL,
+
+    FacultyCode INT NOT NULL,
+
+    AffiliationTypeId INT NOT NULL,
+
+    FeeTypeId INT NOT NULL,
+
+    DentalFeeStructureId INT NULL,
+
+    CourseName VARCHAR(50) NULL,
+
+    CourseCode INT NULL,
+
+    CourseLevel VARCHAR(50) NULL,
+
+    AmountToBePaid DECIMAL(18,2) NOT NULL,
+
+    CalculationType VARCHAR(50) NULL,
+
+    Quantity INT NULL,
+    -- Example:
+    -- Per Seat  → Number of Seats
+    -- Per Course → Number of Courses
+    -- Fixed → 1
+
+    CalculatedAmount DECIMAL(18,2) NOT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy VARCHAR(100) NULL,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy VARCHAR(100) NULL,
+
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT FK_TxnDentalFeeStructure_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_TxnDentalFeeStructure_AffiliationType
+        FOREIGN KEY (AffiliationTypeId)
+        REFERENCES MstAffiliationType(AffiliationTypeId),
+
+    CONSTRAINT FK_TxnDentalFeeStructure_FeeType
+        FOREIGN KEY (FeeTypeId)
+        REFERENCES MstDentalFeeTypes(Id),
+
+    CONSTRAINT FK_TxnDentalFeeStructure_DentalFeeStructure
+        FOREIGN KEY (DentalFeeStructureId)
+        REFERENCES MstDentalFeeStructure(Id)
+);
+
+SELECT 
+    AffiliationTypeId,
+    FacultyCode,
+    AffiliationCategory,
+    AcademicYear
+FROM MstAffiliationType
+WHERE FacultyCode = '2'
+  AND IsActive = 1;
+
+
+DECLARE @AffiliationTypeId INT = 1; -- Change this to the required AffiliationTypeId
+DECLARE @FacultyCode INT = 2;       -- Dental
+
+
+INSERT INTO MstDentalFeeTypes
+(
+    FacultyCode,
+    FeeType,
+    DisplayOrder,
+    AffiliationTypeId,
+    IsActive,
+    CreatedBy,
+    CreatedDate
+)
+VALUES
+( 2, 'Application Fee', 1, 1, 1, 'Admin', GETDATE()),
+( 2, 'Annual Fee', 2, 1, 1, 'Admin', GETDATE()),
+( 2, 'Continuation of Affiliation / Renewal Fee of Affiliation', 3, 1, 1, 'Admin', GETDATE()),
+( 2, 'Administrative Fee & Service Charges', 4, 1, 1, 'Admin', GETDATE()),
+( 2, 'Institutional Helinet Fee', 5, 1, 1, 'Admin', GETDATE()),
+( 2, 'Course Identification Fee', 6, 1, 1, 'Admin', GETDATE()
+);
+
+
+
+DECLARE @AffiliationTypeId INT = 1; -- Change this to the required AffiliationTypeId
+DECLARE @FacultyCode INT = 2;       -- Dental
+
+DECLARE @ApplicationFeeTypeId INT =
+(
+    SELECT Id
+    FROM MstDentalFeeTypes
+    WHERE FacultyCode = 2
+      AND FeeType = 'Application Fee'
+      AND AffiliationTypeId = 1
+);
+
+DECLARE @AnnualFeeTypeId INT =
+(
+    SELECT Id
+    FROM MstDentalFeeTypes
+    WHERE FacultyCode = 2
+      AND FeeType = 'Annual Fee'
+      AND AffiliationTypeId = 1
+);
+
+DECLARE @RenewalFeeTypeId INT =
+(
+    SELECT Id
+    FROM MstDentalFeeTypes
+    WHERE FacultyCode = 2
+      AND FeeType = 'Continuation of Affiliation / Renewal Fee of Affiliation'
+      AND AffiliationTypeId = 1
+);
+
+DECLARE @AdministrativeFeeTypeId INT =
+(
+    SELECT Id
+    FROM MstDentalFeeTypes
+    WHERE FacultyCode = 2
+      AND FeeType = 'Administrative Fee & Service Charges'
+      AND AffiliationTypeId = 1
+);
+
+DECLARE @HelinetFeeTypeId INT =
+(
+    SELECT Id
+    FROM MstDentalFeeTypes
+    WHERE FacultyCode = 2
+      AND FeeType = 'Institutional Helinet Fee'
+      AND AffiliationTypeId = 1
+);
+
+DECLARE @CourseIdentificationFeeTypeId INT =
+(
+    SELECT Id
+    FROM MstDentalFeeTypes
+    WHERE FacultyCode = 2
+      AND FeeType = 'Course Identification Fee'
+      AND AffiliationTypeId = 1
+);
+
+
+INSERT INTO MstDentalFeeStructure
+(
+    FacultyCode,
+    FeeTypeId,
+    CourseName,
+    CourseCode,
+    CourseLevel,
+    AmountToBePaid,
+    CalculationType,
+    AffiliationTypeId,
+    IsActive,
+    CreatedBy,
+    CreatedDate
+)
+VALUES
+
+-- =========================================================
+-- 1. Application Fee
+-- BDS: Rs. 3,000
+-- MDS: Rs. 3,000
+-- =========================================================
+
+( @FacultyCode, @ApplicationFeeTypeId, 'BDS', NULL, 'UG', 3000, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
+( @FacultyCode, @ApplicationFeeTypeId, 'MDS', NULL, 'PG', 3000, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
+
+-- =========================================================
+-- 2. Annual Fee
+-- BDS: Rs. 80,000
+-- =========================================================
+
+( @FacultyCode, @AnnualFeeTypeId, 'BDS', NULL, 'UG', 80000, 'Fixed',  @AffiliationTypeId, 1, 'Admin', GETDATE()),
+
+-- =========================================================
+-- 3. Continuation / Renewal Fee
+-- BDS: Rs. 2,50,000 Per Course
+-- MDS: Rs. 4,500 Per Seat
+-- =========================================================
+
+( @FacultyCode, @RenewalFeeTypeId, 'BDS', NULL, 'UG', 250000, 'Per Course', @AffiliationTypeId, 1, 'Admin', GETDATE()),
+( @FacultyCode, @RenewalFeeTypeId, 'MDS', NULL, 'PG',  4500, 'Per Seat', @AffiliationTypeId, 1, 'Admin', GETDATE()),
+
+-- =========================================================
+-- 4. Administrative Fee & Service Charges
+-- BDS: Rs. 2,000 Per Seat
+-- =========================================================
+
+( @FacultyCode, @AdministrativeFeeTypeId, 'BDS', NULL, 'UG', 2000, 'Per Seat', @AffiliationTypeId, 1, 'Admin', GETDATE()),
+
+-- =========================================================
+-- 5. Institutional Helinet Fee
+-- BDS: Rs. 1,00,000
+-- MDS: Rs. 30,000
+-- =========================================================
+
+( @FacultyCode, @HelinetFeeTypeId, 'BDS', NULL, 'UG', 100000, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
+( @FacultyCode, @HelinetFeeTypeId, 'MDS', NULL, 'PG', 30000, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
+
+-- =========================================================
+-- 6. Course Identification Fee
+-- BDS: Rs. 20
+-- MDS: Rs. 20
+-- =========================================================
+
+( @FacultyCode, @CourseIdentificationFeeTypeId, 'BDS', NULL, 'UG', 20, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
+( @FacultyCode,  @CourseIdentificationFeeTypeId, 'MDS', NULL, 'PG',  20, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE());
+
+
+--------------------------------
+
+DECLARE @AffiliationTypeId INT = 1; -- Change this to the required AffiliationTypeId
+DECLARE @FacultyCode INT = 2;       -- Dental
+
+INSERT INTO MstDentalOtherFeeStructure
+(
+    FacultyCode,
+    FeeName,
+    AmountToBePaid,
+    AffiliationTypeId,
+    DisplayOrder,
+    IsActive,
+    CreatedBy,
+    CreatedDate
+)
+VALUES
+
+( @FacultyCode, 'Application Fee', 3000, @AffiliationTypeId, 1, 1, 'Admin', GETDATE()),
+
+( @FacultyCode, 'Fee for Change of Name of the Institution', 300000, @AffiliationTypeId, 2, 1, 'Admin', GETDATE()),
+
+( @FacultyCode, 'Fee for Change of Address of the Institution', 500000, @AffiliationTypeId,  3, 1, 'Admin', GETDATE()),
+( @FacultyCode, 'Re-Inspection Fee', 100000, @AffiliationTypeId, 4, 1, 'Admin', GETDATE());
+
+
+select * from mstdentalfeestructure;
+
+select * from mstdentalfeetypes;
+
+select * from mstdentalotherfeestructure

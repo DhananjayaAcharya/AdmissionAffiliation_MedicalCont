@@ -1,0 +1,347 @@
+﻿@model Medical_Affiliation.Models.MedicalLibraryDisplayViewModel
+
+@{
+    string StatusBadge(bool condition) =>
+        condition ? "status-badge-maintained" : "status-badge-not-maintained";
+}
+<div class="academic-section">
+    <div class="academic-header">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h2 class="academic-title academic-badge">Library Details</h2>
+                </div>
+
+                <a class="edit-button"
+                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode })">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="academic-body">
+        @if (Model != null)
+        {
+            <!-- ===================== 1. Library Services ===================== -->
+
+            <div class="general-body">
+                <div class="section-block">
+
+                    <!-- HEADER -->
+                    <div class="section-header-block mb-3">
+                        <div class="section-title-text section-badge">
+                            <i class="bi bi-book"></i>
+                                Medical Library Services
+                        </div>
+
+                        <p class="section-description">
+                            Library infrastructure, services, staff and departmental facilities
+                        </p>
+                    </div>
+
+                    <div class="data-table-wrapper mb-4">
+                        <table class="table data-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th class="text-center">Available</th>
+                                    <th class="text-center">Document</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var service in Model.caAffMedicalLibraryvm.LibraryServices)
+                                {
+                                    <tr>
+                                        <td class="w-75">
+                                             @service.ServiceName
+                                        </td>
+
+                                        <td class="text-center">
+                                            @if (service.IsAvailable == "Yes")
+                                            {
+                                                <span class="status-badge-maintained">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge-not-maintained">No</span>
+                                            }
+                                        </td>
+
+                                        <td class="text-center">
+                                            @if (!string.IsNullOrEmpty(service.ExistingFileName))
+                                            {
+                                                <a class="status-badge-maintained" href="@Url.Action("ViewServiceFile", "CAPreview", new { id=@service.LibraryServiceId})")" target="_blank">View</a>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge-not-maintained">Not Uploaded</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ===================== 2. USAGE REPORT ===================== -->
+            <div class="general-body">
+                <div class="section-block">
+                    <div class="section-header-block mb-3">
+                        <div class="section-title-text section-badge d-flex justify-content-between align-items-center">
+                            <div>
+                                Library Usage Report
+                            </div>
+                            <div >
+                                @if (!string.IsNullOrEmpty(Model.caAffMedicalLibraryvm.ExistingUsageReportFileName))
+                                {
+                                    <a class="status-badge-maintained" target="_blank" href="@Url.Action("ViewSpecialFeaturesPdf", "CAPreview", new { id = Model.caAffMedicalLibraryvm.UsageReportId })">
+                                        View
+                                    </a>
+
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        Not Uploaded
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <p class="section-description">
+                            Library infrastructure, services, staff and departmental facilities
+                        </p>
+                    </div>
+                    
+
+                 </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- ===================== 3. LIBRARY STAFF ===================== -->
+            <div class="general-body">
+                <div class="section-block">
+                    <div class="section-header-block mb-3">
+                        <div class="section-title-text section-badge">
+                            <i class="bi bi-book"></i>
+                            Library Staff
+                        </div>
+
+                        @if (Model.caAffMedicalLibraryvm.LibraryStaff.Any())
+                        {
+                            <div class="data-table-wrapper mb-4">
+                                <table class="table data-table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Designation</th>
+                                            <th>Qualification</th>
+                                            <th class="text-center">Experience (Years)</th>
+                                            <th>Category</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var staff in Model.caAffMedicalLibraryvm.LibraryStaff)
+                                        {
+                                            <tr>
+                                                <td>@staff.StaffName</td>
+                                                <td>@staff.Designation</td>
+                                                <td>@staff.Qualification</td>
+                                                <td class="text-center">@staff.Experience</td>
+                                                <td>@staff.Category</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No library staff details available.</p>
+                        }
+
+                    </div>
+                </div>
+            </div>
+            <hr class="section-divider" />
+
+            <!-- ===================== 4. DEPARTMENTAL LIBRARIES ===================== -->
+            <div class="general-body">
+                <div class="section-block">
+                    <div class="section-header-block mb-3">
+                        <div class="section-title-text section-badge">
+                            <i class="bi bi-book"></i>
+                            Departmental Libraries
+                        </div>
+
+                        @if (Model.caAffMedicalLibraryvm.DepartmentLibraries.Any())
+                        {
+                            <div class="data-table-wrapper mb-4">
+                                <table class="table data-table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Department</th>
+                                            <th class="text-center">Total Books</th>
+                                            <th class="text-center">Books Added</th>
+                                            <th class="text-center">Current Journals</th>
+                                            <th>Library Staff</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var dept in Model.caAffMedicalLibraryvm.DepartmentLibraries)
+                                        {
+                                            <tr>
+                                                <td>@dept.DepartmentName</td>
+                                                <td class="text-center">@dept.TotalBooks</td>
+                                                <td class="text-center">@dept.BooksAddedInYear</td>
+                                                <td class="text-center">@dept.CurrentJournals</td>
+                                                <td>
+                                                    @dept.LibraryStaff1
+                                                    @if (!string.IsNullOrWhiteSpace(dept.LibraryStaff2))
+                                                    {
+                                                        <br />
+                                                        @dept.LibraryStaff2
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No departmental library data available.</p>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider" />
+            <!-- ===================== 5. OTHER DETAILS ===================== -->
+            <!-- DIGITAL VALUATION CENTRE (PARENT) -->
+            <div class="general-body">
+                <div class="section-block">
+
+                    <!-- Header -->
+                    <div class="section-header-block mb-3 d-flex align-items-center justify-content-between">
+                        <div class="section-title-text section-badge d-flex justify-content-between align-items-center w-100">
+                            <div>
+                                Other Details: Digital Valuation Centre
+                            </div>
+                            <div>
+                                <span class="@StatusBadge(Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre == "Yes")">
+                                    @(Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre == "Yes" ? "Yes" : "No")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="data-table-wrapper">
+                        <table class="table data-table mb-0">
+                            <tbody>
+
+                                @if (Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre == "Yes")
+                                {
+                                    <tr>
+                                        <td>How many computer systems are available in the library?</td>
+                                        <td class="fw-semibold">
+                                            @(Model.caAffMedicalLibraryvm.OtherDetails.NoOfSystems ?? 0)
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Is there a stable LAN / Internet connection for library use?</td>
+                                        <td>
+                                            <span class="@Badge(Model.caAffMedicalLibraryvm.OtherDetails.HasStableInternet == "Yes")">
+                                                @(Model.caAffMedicalLibraryvm.OtherDetails.HasStableInternet == "Yes" ? "Yes" : "No")
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Is there a CCTV Camera system in the library?</td>
+                                        <td>
+                                            <span class="@Badge(Model.caAffMedicalLibraryvm.OtherDetails.HasCccameraSystem == "Yes")">
+                                                @(Model.caAffMedicalLibraryvm.OtherDetails.HasCccameraSystem == "Yes" ? "Yes" : "No")
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="general-body">
+                <div class="section-block">
+                    <div class="section-header-block mb-3">
+                        <div class="section-title-text section-badge">
+                            <i class="bi bi-book"></i>
+                            Other Details: Special Features/Achievements
+                        </div>
+
+                        @{
+                            string Badge(bool condition) =>
+                            condition ? "status-badge-maintained" : "status-badge-not-maintained";
+                        }
+                        <div class="data-table-wrapper">
+                            <table class="table data-table mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td>Do you want to mention any special features / achievements?</td>
+                                        <td>
+                                            @if (Model.caAffMedicalLibraryvm.OtherDetails.SpecialFeaturesQuestion == "Yes")
+                                            {
+                                                @if (Model.caAffMedicalLibraryvm.OtherDetails.HasSpecialFeatures)
+                                                {
+                                                    <a href="@Url.Action("ViewSpecialFeaturesPdf", "CAPreview", new { id = Model.caAffMedicalLibraryvm.OtherDetails.DigitalValuationId })" target="_blank" class="@Badge(true)">
+                                                        View
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="@Badge(false)">
+                                                        Not Uploaded
+                                                    </span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="@Badge(false)">
+                                                    Not Applicable
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No medical library data available.</p>
+            </div>
+        }
+   </<div>
+</div>

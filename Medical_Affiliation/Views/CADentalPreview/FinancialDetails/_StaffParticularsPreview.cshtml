@@ -1,0 +1,204 @@
+﻿@model FinanceViewModel
+
+<!-- ===================== FINANCE DETAILS ===================== -->
+
+<div class="general-body">
+    <div class="section-block">
+
+        <!-- HEADER -->
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-cash-stack"></i>
+                Staff Particulars
+            </div>
+
+            <p class="section-description">
+                Accounts, fee structure and staff particulars
+            </p>
+        </div>
+
+       
+        <!-- ===================== 1. STAFF PARTICULARS ===================== -->
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Designation</th>
+                        <th class="text-end">Pay Scale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.staffParticularsVM != null &&
+                                        Model.staffParticularsVM.StaffParticulars.Any())
+                    {
+                        foreach (var staff in Model.staffParticularsVM.StaffParticulars)
+                        {
+                            <tr>
+                                <td>@staff.DesignationName</td>
+                                <td class="text-end">₹@staff.PayScale</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">
+                                No staff particulars available
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- ===================== 2. OTHER STAFF DETAILS (ONLY IF EXISTS) ===================== -->
+        @if (Model.otherStaffParticularsVM != null)
+        {
+            var other = Model.otherStaffParticularsVM;
+
+            <div class="data-table-wrapper mt-4">
+                <table class="table data-table align-middle ">
+                    <thead>
+                        <tr>
+                            <th>Other Staff Particular Details</th>
+                            <th class="text-center">Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td>Teachers Updated in EMS</td>
+                            <td class="text-center">
+                                @if (@other.TeachersUpdatedInEms)
+                                {
+                                <span class="status-badge-maintained">
+                                 Yes   
+                                </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained"> No </span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Examiner Details Attached</td>
+                            <td class="text-center">
+                                @if (other.HasExaminerDetailsPdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                       href="@Url.Action("ViewExaminerDetailsPdf", "CAPreview", new { id = other.Id })"
+                                       target="_blank">View</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not Uploaded</span>
+                                }
+                        </td>
+                    </tr>
+
+                        <tr>
+                            <td>AEBAS – Last Three Months</td>
+   
+                            <td class="text-center">
+                                @if (other.HasAebasLastThreeMonthsPdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                        href="@Url.Action("ViewAebasLastThreeMonthsPdf", "CAPreview", new { id = other.Id })"
+                                        target="_blank">View</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>AEBAS – Inspection Day</td>
+                            <td class="text-center">
+                                @if (other.HasAebasInspectionDayPdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                        href="@Url.Action("ViewAebasInspectionDayPdf", "CAPreview", new { id = other.Id })"
+                                        target="_blank">View</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Service Register Maintained</td>
+                            <td class="text-center">
+                                @if (other.ServiceRegisterMaintained)
+                                {
+                                    <span class="status-badge-maintained">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Acquittance Register Maintained</td>
+                            <td class="text-center">
+                                @if (other.AcquittanceRegisterMaintained)
+                                {
+                                    <span class="status-badge-maintained">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">No</span>
+                                }
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td>Provident Fund Details</td>
+
+                            <td class="text-center">
+                                @if (other.HasProvidentFundPdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                        href="@Url.Action("ViewProvidentFundPdf", "CAPreview", new { id = other.Id })"
+                                        target="_blank">View</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>ESI Details</td>
+                            <td class="text-center">
+                                @if (other.HasEsipdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                        href="@Url.Action("ViewEsipdf", "CAPreview", new { id = other.Id })"
+                                        target="_blank">View</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+</div>

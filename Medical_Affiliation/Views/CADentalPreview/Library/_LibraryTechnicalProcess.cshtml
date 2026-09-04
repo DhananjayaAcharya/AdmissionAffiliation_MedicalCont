@@ -1,0 +1,66 @@
+﻿@model MedicalLibraryDisplayViewModel
+
+<!-- ===================== LIBRARY TECHNICAL PROCESSES ===================== -->
+
+<div class="general-body">
+    <div class="section-block">
+
+        <!-- HEADER -->
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-gear"></i>
+                Library Technical Processes
+            </div>
+
+            <p class="section-description">
+                Technical and operational processes followed in the library
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Process</th>
+                        <th class="text-center">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model?.LibraryTechListVM.Processes != null && Model.LibraryTechListVM.Processes.Any())
+                    {
+                        foreach (var process in Model.LibraryTechListVM.Processes)
+                        {
+                            <tr>
+                                <td>@process.ProcessName</td>
+
+                                <td class="text-center">
+                                    @if (process.HasValue)
+                                    {
+                                        <span class="status-badge-maintained">
+                                            @process.Value
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Not Provided
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">
+                                No technical process details available
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

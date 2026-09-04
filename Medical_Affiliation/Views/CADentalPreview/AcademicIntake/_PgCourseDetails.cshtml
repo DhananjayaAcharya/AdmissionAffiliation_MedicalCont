@@ -1,0 +1,259 @@
+﻿@model AffiliationPgCourseDisplayVM
+
+<div class="section-block mb-4">
+
+    <div class="section-header-block mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    PG Course Details
+                </div>
+
+                <p class="section-description">
+                    Affiliation and approval details of Post Graduate courses.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PG Degree Courses -->
+    @if (Model.PgDegreeCourses.Any())
+    {
+        <h6 class="fw-bold mt-3 mb-2">PG Degree Courses</h6>
+
+        <div class="data-table-wrapper mb-4">
+            <table class="table data-table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>RGUHS Intake</th>
+                        <th>College Intake</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.PgDegreeCourses)
+                    {
+                        <tr>
+                            <td>@item.CourseName</td>
+                            <td class="text-center">@item.RguhsIntake</td>
+                            <td class="text-center">@item.CollegeIntake</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+
+    <!-- PG Diploma Courses -->
+    @if (Model.PgDiplomaCourses.Any())
+    {
+        <h6 class="fw-bold mt-3 mb-2">PG Diploma Courses</h6>
+
+        <div class="data-table-wrapper mb-4">
+            <table class="table data-table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>RGUHS Intake</th>
+                        <th>College Intake</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.PgDiplomaCourses)
+                    {
+                        <tr>
+                            <td>@item.CourseName</td>
+                            <td class="text-center">@item.RguhsIntake</td>
+                            <td class="text-center">@item.CollegeIntake</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+
+    <!-- Course Particulars -->
+    @if (Model.AllCourses.Any())
+    {
+        <h6 class="fw-bold mt-3 mb-2">Course Particulars</h6>
+
+        <div class="data-table-wrapper mb-4">
+            <table class="table data-table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>LoP Date</th>
+                        <th>NMC Recognition</th>
+                        <th>DCI Recognition</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.AllCourses)
+                    {
+                        <tr>
+                            <td>@item.CourseName</td>
+                            <td>@(item.DateOfLOP?.ToString("dd-MM-yyyy") ?? "-- -- Not Entered Yet -- --")</td>
+                            <td>@(item.DateOfRecognitionByNMC?.ToString("dd-MM-yyyy") ?? "-- Not Entered Yet --")</td>
+                            <td>@(item.DateOfRecognitionByDCI?.ToString("dd-MM-yyyy") ?? "-- Not Entered Yet --")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- GOK Permissions -->
+    @if (Model.PgCoursesGOK.Any())
+    {
+        <h6 class="fw-bold mt-3 mb-2">Government Permission Details</h6>
+
+        <div class="data-table-wrapper mb-4">
+            <table class="table data-table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Academic Year</th>
+                        <th>GOK Date</th>
+                        <th>Document</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.PgCoursesGOK)
+                    {
+                        <tr>
+                            <td>@item.CourseName</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.AcademicYear) ? "-- Not Entered Yet --" : item.AcademicYear)</td>
+                            <td>@(item.DateOfGOK?.ToString("dd-MM-yyyy") ?? "-- Not Entered Yet --")</td>
+                            <td>
+                                @if (item.HasGOKDocument)
+                                {
+                                    <span class="status-badge status-success">Available</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-muted">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- RGUHS Permissions -->
+    @if (Model.PgCoursesRguhs.Any())
+    {
+        <h6 class="fw-bold mt-3 mb-2">RGUHS Permission Details</h6>
+
+        <div class="data-table-wrapper mb-4">
+            <table class="table data-table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Document</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.PgCoursesRguhs)
+                    {
+                        <tr>
+                            <td>@item.CourseName</td>
+                            <td>
+                                @if (item.HasRguhsDocument)
+                                {
+                                    <span class="status-badge status-success">Available</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-muted">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- Other Department / NMC -->
+    @if (Model.OtherCoursesPermittedByNMC.Any())
+    {
+        <h6 class="fw-bold mt-3 mb-2">Other Department / NMC Courses</h6>
+
+        <div class="data-table-wrapper mb-4">
+            <table class="table data-table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Permission</th>
+                        <th>Admissions / Year</th>
+                        <th>Document</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OtherCoursesPermittedByNMC)
+                    {
+                        <tr>
+                            <td>@item.CourseName</td>
+                            <td>@(item.PermissionByNMC ? "Yes" : "No")</td>
+                            <td>@item.AdmissionsPerYear</td>
+                            <td>
+                                @if (item.HasNMCDocument)
+                                {
+                                    <span class="status-badge status-success">Available</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-muted">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- LIC Inspection -->
+    @if (Model.LicInspection != null)
+    {
+        <h6 class="fw-bold mt-3 mb-2">Previous LIC Inspection</h6>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table table-bordered align-middle">
+                <tbody>
+                    <tr>
+                        <th width="30%">Inspection Date</th>
+                        <td>@(Model.LicInspection.InspectionDate?.ToString("dd-MM-yyyy")?? "-- Not Entered Yet --")</td>
+                    </tr>
+
+                    <tr>
+                        <th>Action Taken</th>
+                        <td>@Model.LicInspection.Remarks</td>
+                    </tr>
+
+                    <tr>
+                        <th>Inspection Report</th>
+                        <td>
+                            @if (Model.LicInspection.HasInspectionReport)
+                            {
+                                <span class="status-badge status-success">Available</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-muted">Not Uploaded</span>
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>

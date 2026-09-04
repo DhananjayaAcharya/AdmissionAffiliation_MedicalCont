@@ -947,6 +947,7 @@
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="level" id="hiddenLevel" />
                     <input type="hidden" name="affiliationTypeId" id="hiddenAffiliationId" />
+                    <input type="hidden" name="facultyCode" id="hiddenFacultyCode" />
                 </form>
 
 
@@ -956,10 +957,12 @@
 }
 
 <script>
+     const currentFacultyCode = "@facultyCode";
      document.addEventListener("DOMContentLoaded", function () {
          const toggleBtn = document.querySelector(".toggle-password");
          const passwordInput = document.getElementById("NewPassword");
          const toggleIcon = document.getElementById("toggleIcon");
+        console.log(currentFacultyCode);
 
          if (toggleBtn && passwordInput && toggleIcon) {
              toggleBtn.addEventListener("click", function () {
@@ -1212,6 +1215,8 @@
          // ---- 3️⃣ Fill the hidden form fields (level + affiliationTypeId) ----
          document.getElementById('hiddenLevel').value = level;
          document.getElementById('hiddenAffiliationId').value = typeId;
+
+        document.getElementById('hiddenFacultyCode').value = currentFacultyCode;
 
          // ---- 4️⃣ Submit the form – a normal browser POST, **no fetch/XHR** ----
          document.getElementById('setLevelForm').submit();

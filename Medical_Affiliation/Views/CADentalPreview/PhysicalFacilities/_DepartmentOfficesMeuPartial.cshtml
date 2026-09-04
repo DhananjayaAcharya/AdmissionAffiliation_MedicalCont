@@ -1,0 +1,153 @@
+﻿@model DepartmentOfficesMeuDisplayViewModel
+
+@if (Model != null)
+{
+    <div class="general-body">
+        <div class="section-block">
+
+            <!-- Header -->
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-building"></i>
+                    Department Offices & Medical Education Unit
+                </div>
+
+                <p class="section-description">
+                    Infrastructure, facilities, and coordination details of department offices and the Medical Education Unit
+                </p>
+            </div>
+
+            <!-- Department Offices -->
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="field-label">HOD Room with Office & Records</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.HasHodRoomWithOfficeAndRecords == true ? "Yes" : "No")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Rooms for Faculty & Residents</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.HasRoomsForFacultyAndResidents == true ? "Yes" : "No")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Faculty Rooms with Computer & Internet</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.FacultyRoomsHaveCommunicationComputerInternet == true ? "Yes" : "No")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Rooms for Non-Teaching Staff</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.HasRoomsForNonTeachingStaff == true ? "Yes" : "No")
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Medical Education Unit -->
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <label class="field-label">Medical Education Unit Available</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.HasMedicalEducationUnit == true ? "Yes" : "No")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">MEU Area (sqm)</label>
+                    <div class="field-value">
+                        @(Model.MedicalEducationUnitAreaSqm ?? 0)
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Audio-Visual Facilities</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.MedicalEducationUnitHasAudioVisual == true ? "Yes" : "No")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Internet Available</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.MedicalEducationUnitHasInternet == true ? "Yes" : "No")
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- MEU Coordinator -->
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="field-label">MEU Coordinator Name</label>
+                    <div class="field-value fw-semibold">
+                        @Model.MeuCoordinatorName
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Designation / Department</label>
+                    <div class="field-value">
+                        @Model.MeuCoordinatorDesignationDepartment
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Phone</label>
+                    <div class="field-value">
+                        @Model.MeuCoordinatorPhone
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Email</label>
+                    <div class="field-value">
+                        @Model.MeuCoordinatorEmail
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- MEU Activities -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="field-label">MEU Members List</label>
+                    <div class="field-value">
+                        @Model.MeuMembersListDescription
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="field-label">Activities (Last Academic Year)</label>
+                    <div class="field-value">
+                        @Model.MeuActivitiesLastAcademicYear
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- File Status -->
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <span class="status-label">Members List File Uploaded</span><br />
+                    <span class="@(Model.HasMeuMembersListFile
+                                                              ? "status-badge-maintained"
+                                                              : "status-badge-not-maintained")">
+                        @(Model.HasMeuMembersListFile ? "Yes" : "No")
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}

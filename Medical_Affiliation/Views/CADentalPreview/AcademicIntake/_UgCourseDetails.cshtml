@@ -1,0 +1,135 @@
+﻿@model AffiliationCourseDetailsDisplayVM
+
+<div class="section-block mb-4">
+
+    <div class="section-header-block mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-book-fill"></i>
+                    UG Course Details
+                </div>
+
+                <p class="section-description">
+                    Affiliation and approval details of the UG course.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="data-table-wrapper">
+
+        <table class="table data-table table-bordered align-middle">
+
+            <tbody>
+
+                <tr>
+                    <th width="30%">Course</th>
+                    <td>@Model.CourseName</td>
+
+                    <th width="20%">Present Intake (2025-26)</th>
+                    <td>@Model.IntakeDuring202526</td>
+                </tr>
+
+                <tr>
+                    <th>Intake Slab</th>
+                    <td>@Model.IntakeSlab</td>
+
+                    <th>Type of Permission</th>
+                    <td>@Model.TypeOfPermission</td>
+                </tr>
+
+                <tr>
+                    <th>Year of LoP</th>
+                    <td>@Model.YearOfLOP?.ToString("dd-MM-yyyy")</td>
+
+                    <th>Date of Recognition</th>
+                    <td>@Model.DateOfRecognition</td>
+                </tr>
+
+                <tr>
+                    <th>Year of EC & FC</th>
+                    <td>@Model.YearOfObtainingECAndFC?.ToString("dd-MM-yyyy")</td>
+
+                    <th>EC & FC Intake</th>
+                    <td>@Model.SanctionedIntakeECFC</td>
+                </tr>
+
+                <tr>
+                    <th>Permission Intake</th>
+                    <td>@Model.SanctionedIntakePermission</td>
+
+                    <th>GOI/MCI/NMC LoP Renewal</th>
+                    <td>@Model.DateOfLOPRenewalGOIMCI</td>
+                </tr>
+
+                <tr>
+                    <th>DCI/KSDC LoP Renewal</th>
+                    <td>@Model.DateOfLOPRenewalDCIKSDC</td>
+
+                    <th>Last Affiliation (RGUHS)</th>
+                    <td>@Model.YearOfLastAffiliationRGUHS</td>
+                </tr>
+
+                <tr>
+                    <th>Last Affiliation Intake</th>
+                    <td>@Model.SanctionedIntakeLastAffiliation</td>
+
+                    <th>Previous LIC Inspection</th>
+                    <td>@Model.DateOfPreviousLICInspection?.ToString("dd-MM-yyyy")</td>
+                </tr>
+
+                <tr>
+                    <th>Action Taken on Deficiencies</th>
+                    <td colspan="3">@Model.ActionTakenOnDeficiencies</td>
+                </tr>
+
+                <tr>
+                    <th>GOK Order</th>
+                    <td>
+                        @if (Model.HasGOKOrder)
+                        {
+                            <span class="status-badge status-success">Available</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-muted">Not Uploaded</span>
+                        }
+                    </td>
+
+                    <th>Last Affiliation File</th>
+                    <td>
+                        @if (Model.HasLastAffiliationFile)
+                        {
+                            <span class="status-badge status-success">Available</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-muted">Not Uploaded</span>
+                        }
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Previous Notification File</th>
+                    <td colspan="3">
+                        @if (Model.HasPreviousNotificationFile)
+                        {
+                            <span class="status-badge status-success">Available</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-muted">Not Uploaded</span>
+                        }
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

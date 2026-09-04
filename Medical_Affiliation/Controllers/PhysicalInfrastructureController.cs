@@ -24,6 +24,10 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
 
+            var affTypeId = _userContext.TypeOfAffiliation != 0
+                    ? _userContext.TypeOfAffiliation
+                    : Convert.ToInt32(HttpContext.Session.GetString("TypeOfAffiliationId"));
+
             // =========================================================
             // GET ALL ACADEMIC INTAKES
             // =========================================================
@@ -42,7 +46,7 @@ namespace Medical_Affiliation.Controllers
                                     .Where(x =>
                                         x.CollegeCode == collegeCode &&
                                         x.FacultyCode == facultyCode &&
-                                        x.AffiliationTypeId == AffTypeId &&
+                                        x.AffiliationTypeId == affTypeId &&
                                         x.CourseLevel == SelectedCourseLevel
                                         )
                                     .ToListAsync();
@@ -222,6 +226,7 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChairDistribution(List<DentalChairVm> model)
@@ -281,9 +286,7 @@ namespace Medical_Affiliation.Controllers
                         .FirstOrDefaultAsync(x =>
                             x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                            x.CourseCode == item.CourseCode &&
-                            x.AffiliationTypeId == AffTypeId
-                            );
+                            x.CourseCode == item.CourseCode);
 
                     // ============================================
                     // UPDATE
@@ -316,8 +319,7 @@ namespace Medical_Affiliation.Controllers
                             SeatSlabId = item.SeatSlabId,
 
                             ChairsRequired = item.ChairsRequired,
-                            ChairsExisting = item.ChairsExisting,
-                            AffiliationTypeId = AffTypeId
+                            ChairsExisting = item.ChairsExisting
                         });
                     }
                 }

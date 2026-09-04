@@ -1,0 +1,56 @@
+﻿using Medical_Affiliation.DATA;
+using Medical_Affiliation.Models;
+using Medical_Affiliation.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace Medical_Affiliation.Services.Faculty
+{
+    public class CAPreviewDentalService : ICADentalPreviewService
+    {
+        private readonly ICAAcademicService _academicService;
+        private readonly ICADentalHospitalAffiliationService _hospitalService;
+        private readonly ICALandClassEquipmentService _landClassEqService;
+        private readonly IUserContext _userContext;
+        private readonly ICAPaymentService _capaymentService;
+        private readonly ICADeclarationService _cADeclarationService;
+        private readonly ApplicationDbContext _context;
+
+
+        public CAPreviewDentalService(ICAAcademicService academicService, ICADentalHospitalAffiliationService hospitalService, ICALandClassEquipmentService landClassEqService, ICAPaymentService paymentService, ICADeclarationService declarationService, IUserContext userContext, ApplicationDbContext dbContext)
+        {
+            _academicService = academicService;
+            _hospitalService = hospitalService;
+            _landClassEqService = landClassEqService;
+            _userContext = userContext;
+            _cADeclarationService = declarationService;
+            _capaymentService = paymentService;
+            _context = dbContext;
+        }
+
+        public async Task<CADentalpreviewViewModel> GetDentalPreviewAsync()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var collegeName = await _context.AffiliationCollegeMasters.Where(e => e.CollegeCode == collegeCode).Select(e => e.CollegeName).FirstOrDefaultAsync();
+
+            var facultyCode = _userContext.FacultyId;
+            var facultyName = await _context.Faculties.Where(e => e.FacultyId == facultyCode).Select(e => e.FacultyName).FirstOrDefaultAsync();
+
+            return new CADentalpreviewViewModel
+            {
+                CollegeCode = _userContext.CollegeCode,
+                FacultyCode = _userContext.FacultyId.ToString(),
+                CollegeName = collegeName,
+                FacultyName = facultyName,
+                CAacademicMattersVM = await _academicService.GetAcademicMattersAsync(),
+                CAHospitalAFfiliationCompVM = await _hospitalService.GetHospitalAffiliationAsync(),
+                PhysicalFacilities = await _landClassEqService.GetLandClassEquipmentService(),
+                PaymentVM = await _capaymentService.GetPaymentDetails(),
+                DeclarationVM = await _cADeclarationService.GetDeclarationDetails()
+
+            };
+        }
+
+
+    }
+
+}

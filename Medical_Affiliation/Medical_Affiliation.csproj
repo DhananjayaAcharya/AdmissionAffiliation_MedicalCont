@@ -27,4 +27,13 @@
 			<HintPath>Libraries\SecureConnectionLibrary.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Views\CADentalPreview\DentalChairDistribution\" />
+	  <Folder Include="Views\CADentalPreview\HumanResources\" />
+	  <Folder Include="Views\CADentalPreview\EquipmentsList\" />
+	  <Folder Include="Views\CADentalPreview\AcademicIntake\" />
+	  <Folder Include="Views\CADentalPreview\TeachingFacultyDetails\" />
+	  <Folder Include="Views\CADentalPreview\UgPgIntakeData\" />
+	  <Folder Include="Views\CADentalPreview\TrustDetails\" />
+	</ItemGroup>
 </Project>

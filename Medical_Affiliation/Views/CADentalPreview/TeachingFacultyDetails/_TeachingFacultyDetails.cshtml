@@ -1,0 +1,81 @@
+﻿@model TeachingFacultyDetailsPreviewViewModel
+
+<link rel="stylesheet"
+      href="~/css/preview.css"
+      asp-append-version="true" />
+
+<div class="general-section">
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-person-workspace"></i>
+                Teaching Faculty Details
+            </h2>
+        </div>
+    </div>
+
+    <div class="general-body">
+
+        @if (Model?.FacultyDetails?.Any() == true)
+        {
+            <div class="data-table-wrapper">
+
+                <table class="table data-table table-bordered align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Required Faculty</th>
+                            <th>Available Faculty</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.FacultyDetails)
+                        {
+                            <tr>
+                                <td>
+                                    @(!string.IsNullOrWhiteSpace(item.DepartmentName)
+                                        ? item.DepartmentName
+                                        : "—")
+                                </td>
+
+                                <td>
+                                    @(!string.IsNullOrWhiteSpace(item.DesignationName)
+                                        ? item.DesignationName
+                                        : "—")
+                                </td>
+
+                                <td class="text-center">
+                                    @(!string.IsNullOrWhiteSpace(item.RequiredFaculty)
+                                        ? item.RequiredFaculty
+                                        : "0")
+                                </td>
+
+                                <td class="text-center">
+                                    @(!string.IsNullOrWhiteSpace(item.AvailableFaculty)
+                                        ? item.AvailableFaculty
+                                        : "0")
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="text-muted text-center py-3">
+                No teaching faculty details available.
+            </div>
+        }
+
+    </div>
+
+</div>

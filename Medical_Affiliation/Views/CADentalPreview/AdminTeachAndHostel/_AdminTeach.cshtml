@@ -1,0 +1,48 @@
+﻿@model List<Medical_Affiliation.Models.AffAdminTeachingBlockDisplayVM>
+
+<div class="general-body">
+    <div class="section-block mt-2">
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge">
+                <i class="bi bi-building"></i>
+                Administrative & Teaching Block Facilities
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Facility</th>
+                            <th>Size (Sq.Ft) as per Norms</th>
+                            <th>Available</th>
+                            <th>No. of Rooms</th>
+                            <th>Size Available / Room</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Facilities</td>
+                                <td>@item.SizeSqFtAsPerNorms</td>
+                                <td>@item.IsAvailable</td>
+                                <td>@item.NoOfRooms</td>
+                                <td>@item.SizeSqFtAvailablePerRoom</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No facilities data available.</p>
+            </div>
+        }
+    </div>
+</div>

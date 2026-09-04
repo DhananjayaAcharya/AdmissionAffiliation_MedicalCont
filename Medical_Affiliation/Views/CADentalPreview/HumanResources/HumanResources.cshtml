@@ -1,0 +1,50 @@
+﻿@model Medical_Affiliation.Models.HumanResourcesVM
+
+@if (Model != null)
+{
+    <div class="general-section">
+
+        <!-- ====================================================== -->
+        <!-- HEADER -->
+        <!-- ====================================================== -->
+
+        <div class="general-header">
+            <div class="header-content">
+                <h2 class="academic-title academic-badge">
+                    <i class="bi bi-people-fill"></i>
+                    Human Resources
+                </h2>
+            </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- FACULTY DETAILS -->
+        <!-- ====================================================== -->
+        @if (Model.FacultyDetails != null &&
+                     Model.FacultyDetails.Any())
+        {
+            @await Html.PartialAsync("HumanResources/_FacultyDetails", Model.FacultyDetails)
+        }
+
+        <!-- ====================================================== -->
+        <!-- TEACHING FACULTY DEPARTMENT-WISE -->
+        <!-- ====================================================== -->
+        @* Will be added next *@
+        @* @if (Model.TeachingFacultyDepartmentWise != null)
+        {
+            <partial name="_TeachingFacultyDepartmentWise"
+                     model="Model.TeachingFacultyDepartmentWise" />
+        } *@
+
+        <!-- ====================================================== -->
+        <!-- NON-TEACHING FACULTY DETAILS -->
+        <!-- ====================================================== -->
+        @* Will be added later *@
+        @* @if (Model.NonTeachingFacultyDetails != null)
+        {
+            <partial name="_NonTeachingFacultyDetails"
+                     model="Model.NonTeachingFacultyDetails" />
+        } *@
+
+    </div>
+}

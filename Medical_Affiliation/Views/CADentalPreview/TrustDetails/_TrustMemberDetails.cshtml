@@ -1,0 +1,157 @@
+﻿@model CATrustMemberDetailsDisplayVM
+
+<link rel="stylesheet"
+      href="~/css/preview.css"
+      asp-append-version="true" />
+
+<div class="general-section" id="trust-member-details">
+
+    <div class="general-header">
+        <div class="header-content">
+
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-people-fill"></i>
+                Trust Member Details
+            </h2>
+
+        </div>
+    </div>
+
+    <div class="general-body">
+
+        @if (Model?.Members?.Any() == true)
+        {
+            <div class="section-block">
+
+                <div class="section-header-block mb-3">
+
+                    <div class="section-title-text department-badge">
+                        <i class="bi bi-people"></i>
+                        Registered Trust Members
+                    </div>
+
+                </div>
+
+                <div class="data-table-wrapper">
+
+                    <div class="table-responsive">
+
+                        <table class="table data-table align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Trust Member Name</th>
+                                    <th>Designation</th>
+                                    <th>Qualification</th>
+                                    <th>Mobile Number</th>
+                                    <th>Age</th>
+                                    <th>Joining Date</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var member in Model.Members)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @member.SlNo
+                                        </td>
+
+                                        <td>
+                                            @member.TrustMemberName
+                                        </td>
+
+                                        <td>
+                                            @member.Designation
+                                        </td>
+
+                                        <td>
+                                            @member.Qualification
+                                        </td>
+
+                                        <td>
+                                            @member.MobileNumber
+                                        </td>
+
+                                        <td>
+                                            @member.Age
+                                        </td>
+
+                                        <td>
+                                            @(member.JoiningDate.HasValue
+                                                ? member.JoiningDate.Value
+                                                    .ToString("dd MMMM yyyy")
+                                                : "-")
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+
+                <i class="bi bi-inbox"></i>
+
+                <p>
+                    No trust member details available.
+                </p>
+
+            </div>
+        }
+
+
+        @if (Model?.HasRegisteredTrustMemberDetails == true)
+        {
+            <div class="section-block mt-4">
+
+                <div class="section-header-block mb-3">
+
+                    <div class="section-title-text department-badge">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                        Registered Trust Member Document
+                    </div>
+
+                </div>
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table align-middle">
+
+                        <tbody>
+
+                            <tr>
+                                <th>Registered Trust Member Details</th>
+                                <td>
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        Uploaded
+                                    </span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>

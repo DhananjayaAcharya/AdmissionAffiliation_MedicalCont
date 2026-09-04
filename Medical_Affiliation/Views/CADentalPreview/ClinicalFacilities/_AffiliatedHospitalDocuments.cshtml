@@ -1,0 +1,102 @@
+﻿@model List<AffiliatedHospitalDocumentsDisplayViewModel>
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+    <!-- Body -->
+<div class="general-body">
+    @if (Model != null && Model.Any())
+    {
+        <div class="section-block">
+            <div class="section-header-block">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-clipboard-check"></i>
+                    Affiliated Hospital Documents .
+                    @if (Model.Count > 0)
+                    {
+                        <span class="count-badge">
+                            @Model.Count items
+                        </span>
+                    }
+                </div>
+                <p class="section-description">
+                    Requirement-wise compliance for the department
+                </p>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="table data-table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Hospital Type</th>
+                            <th>Hospital Name</th>
+                            <th class="text-end">Total Beds</th>
+                            <th>Document</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold text-primary">
+                                    @doc.HospitalType
+                                </td>
+
+                                <td class="year-cell">
+                                    @doc.HospitalName
+                                </td>
+
+                                <td class="text-end">
+                                    @doc.TotalBeds
+                                </td>
+
+                                <td>
+                                    @if (doc.DocumentExists)
+                                    {
+                                        <a class="download-button"
+                                            href="@Url.Action("PreviewHospitalDocument","CAPreview",
+                                            new { id = doc.DocumentId })"
+                                            target="_blank">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                            @doc.DocumentName
+                                        </a>
+                                                            }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not uploaded
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    @if (doc.DocumentExists)
+                                    {
+                                        <span class="status-badge-maintained">
+                                            ✓ Uploaded
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge-not-maintained">
+                                            ✗ Pending
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p class="mb-0">No affiliated hospital documents available.</p>
+        </div>
+    }
+
+</div>
+

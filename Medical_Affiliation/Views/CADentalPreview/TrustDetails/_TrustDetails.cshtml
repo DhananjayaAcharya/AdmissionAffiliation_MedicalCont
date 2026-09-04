@@ -1,0 +1,621 @@
+﻿@model CATrustDetailsDisplayVM
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ========================= -->
+    <!-- HEADER -->
+    <!-- ========================= -->
+
+    <div class="general-header">
+
+        <div class="header-content">
+
+            <h2 class="academic-title academic-badge">
+
+                <i class="bi bi-shield-check"></i>
+
+                Trust / Society Details
+
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- BODY -->
+    <!-- ========================= -->
+
+    <div class="general-body">
+
+        @if (Model != null)
+        {
+
+            <!-- ========================= -->
+            <!-- TRUST / SOCIETY DETAILS -->
+            <!-- ========================= -->
+
+            <div class="section-block">
+
+                <div class="section-header-block mb-3">
+
+                    <div class="section-title-text department-badge">
+
+                        <i class="bi bi-building"></i>
+
+                        Trust / Society Information
+
+                    </div>
+
+                </div>
+
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table align-middle">
+
+                        <tbody>
+
+                            <tr>
+                                <th>Trust Name</th>
+                                <td>
+                                    @(Model.TrustName ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>TRUST PAN Number</th>
+                                <td>
+                                    @(Model.PANNumber ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Registration Number</th>
+                                <td>
+                                    @(Model.RegistrationNumber ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Registration Date</th>
+                                <td>
+                                    @(Model.RegistrationDate.HasValue
+                                        ? Model.RegistrationDate.Value.ToString("dd MMMM yyyy")
+                                        : "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>President Name</th>
+                                <td>
+                                    @(Model.PresidentName ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Category of Organisation</th>
+                                <td>
+                                    @(Model.CategoryOfOrganisation ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>GOK Obtained Trust Name</th>
+                                <td>
+                                    @(Model.GOKObtainedTrustName ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Amendments</th>
+                                <td>
+                                    @if (Model.Amendments.HasValue)
+                                    {
+                                        @(Model.Amendments.Value ? "Yes" : "No")
+                                    }
+                                    else
+                                    {
+                                        @:—
+                                    }
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- TRUST CONTACT DETAILS -->
+            <!-- ========================= -->
+
+            <div class="section-block mt-4">
+
+                <div class="section-header-block mb-3">
+
+                    <div class="section-title-text department-badge">
+
+                        <i class="bi bi-telephone"></i>
+
+                        Trust Contact & Communication
+
+                    </div>
+
+                </div>
+
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table align-middle">
+
+                        <tbody>
+
+                            <tr>
+                                <th>Address</th>
+                                <td>
+                                    @(Model.Address ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>PIN Code</th>
+                                <td>
+                                    @(Model.PinCode ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Mobile Number</th>
+                                <td>
+                                    @(Model.MobileNumber ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>STD Code</th>
+                                <td>
+                                    @(Model.StdCode ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Fax</th>
+                                <td>
+                                    @(Model.Fax ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Alternate / Landline</th>
+                                <td>
+                                    @(Model.AltLandlineOrMobile ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Email ID</th>
+                                <td>
+                                    @(Model.EmailId ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Alternate Email ID</th>
+                                <td>
+                                    @(Model.AltEmailId ?? "—")
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- TRUST CONTACT PERSON -->
+            <!-- ========================= -->
+
+            <div class="section-block mt-4">
+
+                <div class="section-header-block mb-3">
+
+                    <div class="section-title-text department-badge">
+
+                        <i class="bi bi-person-badge"></i>
+
+                        Trust Contact Person
+
+                    </div>
+
+                </div>
+
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table align-middle">
+
+                        <tbody>
+
+                            <tr>
+                                <th>Full Name</th>
+                                <td>
+                                    @(Model.ContactPersonName ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Designation / Relation</th>
+                                <td>
+                                    @(Model.ContactPersonRelation ?? "—")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Mobile Number</th>
+                                <td>
+                                    @(Model.ContactPersonMobile ?? "—")
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- OTHER TRUST INFORMATION -->
+            <!-- ========================= -->
+            @if (!string.IsNullOrWhiteSpace(Model.ExistingTrustName)
+                            || Model.ChangesInTrustName.HasValue)
+            {
+                <div class="section-block mt-4">
+
+                    <div class="section-header-block mb-3">
+
+                        <div class="section-title-text department-badge">
+
+                            <i class="bi bi-info-circle"></i>
+
+                            Other Trust Information
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="data-table-wrapper">
+
+                        <table class="table data-table align-middle">
+
+                            <tbody>
+
+                                <tr>
+                                    <th>Existing Trust Name</th>
+                                    <td>
+                                        @(Model.ExistingTrustName ?? "—")
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Changes in Trust Name</th>
+                                    <td>
+                                        @if (Model.ChangesInTrustName.HasValue)
+                                        {
+                                            @(Model.ChangesInTrustName.Value
+                                                ? "Yes"
+                                                : "No")
+                                        }
+                                        else
+                                        {
+                                            @:—
+                                        }
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+            }
+
+
+            <!-- ========================= -->
+            <!-- DOCUMENTS -->
+            <!-- ========================= -->
+            @if (
+                            Model.HasPANFile ||
+                            Model.HasBankStatementFile ||
+                            Model.HasRegistrationCertificateFile ||
+                            Model.HasAuditStatementFile ||
+                            Model.HasAmendedDoc ||
+                            Model.HasGokOrderExistingCoursesFile ||
+                            Model.HasRegisteredTrustMemberDetails ||
+                            Model.HasAadhaarFile ||
+                            Model.HasGovAutonomousCertFile ||
+                            Model.HasGovCouncilMembershipFile ||
+                            Model.HasFirstAffiliationNotifFile ||
+                            Model.HasContinuationAffiliationFile ||
+                            Model.HasKncCertificateFile ||
+                            Model.HasDCIFile ||
+                            Model.HasKSDCFile
+                        )
+            {
+                <div class="section-block mt-4">
+
+                    <div class="section-header-block mb-3">
+
+                        <div class="section-title-text department-badge">
+
+                            <i class="bi bi-folder2-open"></i>
+
+                            Uploaded Trust Documents
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="data-table-wrapper">
+
+                        <table class="table data-table align-middle">
+
+                            <tbody>
+
+                                @if (Model.HasPANFile)
+                                {
+                                    <tr>
+                                        <th>Trust PAN File</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasBankStatementFile)
+                                {
+                                    <tr>
+                                        <th>Bank Statement</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasRegistrationCertificateFile)
+                                {
+                                    <tr>
+                                        <th>Registration Certificate</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasAuditStatementFile)
+                                {
+                                    <tr>
+                                        <th>Audit Statement</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasAmendedDoc)
+                                {
+                                    <tr>
+                                        <th>Amended Document</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasGokOrderExistingCoursesFile)
+                                {
+                                    <tr>
+                                        <th>GOK Order — Existing Courses</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasRegisteredTrustMemberDetails)
+                                {
+                                    <tr>
+                                        <th>Registered Trust Member Details</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasAadhaarFile)
+                                {
+                                    <tr>
+                                        <th>Aadhaar File</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasGovAutonomousCertFile)
+                                {
+                                    <tr>
+                                        <th>Gov Autonomous Certificate</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasGovCouncilMembershipFile)
+                                {
+                                    <tr>
+                                        <th>Gov Council Membership</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasFirstAffiliationNotifFile)
+                                {
+                                    <tr>
+                                        <th>First Affiliation Notification</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasContinuationAffiliationFile)
+                                {
+                                    <tr>
+                                        <th>Continuation Affiliation</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasKncCertificateFile)
+                                {
+                                    <tr>
+                                        <th>KNC Certificate</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasDCIFile)
+                                {
+                                    <tr>
+                                        <th>DCI Certificate</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                                @if (Model.HasKSDCFile)
+                                {
+                                    <tr>
+                                        <th>KSDC Certificate</th>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+            }
+
+        }
+        else
+        {
+            <!-- ========================= -->
+            <!-- EMPTY STATE -->
+            <!-- ========================= -->
+
+            <div class="empty-state">
+
+                <i class="bi bi-inbox"></i>
+
+                <p>
+                    No trust / society details available.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>

@@ -1,0 +1,104 @@
+﻿@model MedicalLibraryDisplayViewModel
+
+<!-- ===================== LIBRARY GENERAL DETAILS ===================== -->
+
+<div class="general-body">
+    <div class="section-block">
+
+        <!-- HEADER -->
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-journal-bookmark"></i>
+                Library – General Information
+            </div>
+
+            <p class="section-description">
+                General library facilities and digital services
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Detail</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (Model != null)
+                    {
+                        <tr>
+                            <td>Library Email ID</td>
+                            <td class="text-center">
+                                @if (!string.IsNullOrWhiteSpace(Model.LibraryGeneralVM.LibraryEmailId))
+                                {
+                                    <span class="status-badge-maintained">
+                                        @Model.LibraryGeneralVM.LibraryEmailId
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not Provided</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Digital Library Facility</td>
+                            <td class="text-center">
+                                @if (Model.LibraryGeneralVM.HasDigitalLibrary)
+                                {
+                                    <span class="status-badge-maintained">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>HELINET Services</td>
+                            <td class="text-center">
+                                @if (Model.LibraryGeneralVM.HasHelinetServices)
+                                {
+                                    <span class="status-badge-maintained">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">No</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Department-wise Library</td>
+                            <td class="text-center">
+                                @if (Model.LibraryGeneralVM.HasDepartmentWiseLibrary)
+                                {
+                                    <span class="status-badge-maintained">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">No</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">
+                                Library general details not available
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
