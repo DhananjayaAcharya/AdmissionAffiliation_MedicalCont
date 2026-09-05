@@ -265,7 +265,7 @@ CREATE TABLE TxnDentalFeeStructure
 
     CalculationType VARCHAR(50) NULL,
 
-    Quantity INT NULL,
+    AcademicIntake2026 INT NULL,
     -- Example:
     -- Per Seat  → Number of Seats
     -- Per Course → Number of Courses
@@ -300,6 +300,72 @@ CREATE TABLE TxnDentalFeeStructure
         REFERENCES MstDentalFeeStructure(Id)
 );
 
+
+
+/* ============================================================
+   TABLE: TxnDentalOtherFeeStructure
+
+   PURPOSE:
+   Stores additional Dental affiliation-related fees selected
+   or applicable to a specific college/application.
+
+   EXAMPLES:
+   - Change of Name of Institution
+   - Change of Address of Institution
+   - Re-Inspection Fee
+
+   RELATIONSHIPS:
+   - FacultyCode → Faculty(FacultyId)
+   - AffiliationTypeId → MstAffiliationType(AffiliationTypeId)
+   - DentalOtherFeeStructureId
+       → MstDentalOtherFeeStructure(Id)
+
+   ============================================================ */
+
+CREATE TABLE TxnDentalOtherFeeStructure
+(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+
+    CollegeCode VARCHAR(50) NOT NULL,
+
+    FacultyCode INT NOT NULL,
+
+    AffiliationTypeId INT NOT NULL,
+
+    DentalOtherFeeStructureId INT NOT NULL,
+
+    FeeName NVARCHAR(300) NOT NULL,
+
+    AmountToBePaid DECIMAL(18,2) NOT NULL,
+
+    IsApplicable BIT NOT NULL DEFAULT 1,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy VARCHAR(100) NULL,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy VARCHAR(100) NULL,
+
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT FK_TxnDentalOtherFeeStructure_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_TxnDentalOtherFeeStructure_AffiliationType
+        FOREIGN KEY (AffiliationTypeId)
+        REFERENCES MstAffiliationType(AffiliationTypeId),
+
+    CONSTRAINT FK_TxnDentalOtherFeeStructure_Master
+        FOREIGN KEY (DentalOtherFeeStructureId)
+        REFERENCES MstDentalOtherFeeStructure(Id)
+);
+
+select * from MstAffiliationType
+
+
 SELECT 
     AffiliationTypeId,
     FacultyCode,
@@ -325,12 +391,12 @@ INSERT INTO MstDentalFeeTypes
     CreatedDate
 )
 VALUES
-( 2, 'Application Fee', 1, 1, 1, 'Admin', GETDATE()),
-( 2, 'Annual Fee', 2, 1, 1, 'Admin', GETDATE()),
-( 2, 'Continuation of Affiliation / Renewal Fee of Affiliation', 3, 1, 1, 'Admin', GETDATE()),
-( 2, 'Administrative Fee & Service Charges', 4, 1, 1, 'Admin', GETDATE()),
-( 2, 'Institutional Helinet Fee', 5, 1, 1, 'Admin', GETDATE()),
-( 2, 'Course Identification Fee', 6, 1, 1, 'Admin', GETDATE()
+( 2, 'Application Fee', 1, 2, 1, 'Admin', GETDATE()),
+( 2, 'Annual Fee', 2, 2, 1, 'Admin', GETDATE()),
+( 2, 'Continuation of Affiliation / Renewal Fee of Affiliation', 3, 2, 1, 'Admin', GETDATE()),
+( 2, 'Administrative Fee & Service Charges', 4, 2, 1, 'Admin', GETDATE()),
+( 2, 'Institutional Helinet Fee', 5, 2, 1, 'Admin', GETDATE()),
+( 2, 'Course Identification Fee', 6, 2, 1, 'Admin', GETDATE()
 );
 
 
@@ -344,7 +410,7 @@ DECLARE @ApplicationFeeTypeId INT =
     FROM MstDentalFeeTypes
     WHERE FacultyCode = 2
       AND FeeType = 'Application Fee'
-      AND AffiliationTypeId = 1
+      AND AffiliationTypeId = 2
 );
 
 DECLARE @AnnualFeeTypeId INT =
@@ -353,7 +419,7 @@ DECLARE @AnnualFeeTypeId INT =
     FROM MstDentalFeeTypes
     WHERE FacultyCode = 2
       AND FeeType = 'Annual Fee'
-      AND AffiliationTypeId = 1
+      AND AffiliationTypeId = 2
 );
 
 DECLARE @RenewalFeeTypeId INT =
@@ -362,7 +428,7 @@ DECLARE @RenewalFeeTypeId INT =
     FROM MstDentalFeeTypes
     WHERE FacultyCode = 2
       AND FeeType = 'Continuation of Affiliation / Renewal Fee of Affiliation'
-      AND AffiliationTypeId = 1
+      AND AffiliationTypeId = 2
 );
 
 DECLARE @AdministrativeFeeTypeId INT =
@@ -371,7 +437,7 @@ DECLARE @AdministrativeFeeTypeId INT =
     FROM MstDentalFeeTypes
     WHERE FacultyCode = 2
       AND FeeType = 'Administrative Fee & Service Charges'
-      AND AffiliationTypeId = 1
+      AND AffiliationTypeId = 2
 );
 
 DECLARE @HelinetFeeTypeId INT =
@@ -380,7 +446,7 @@ DECLARE @HelinetFeeTypeId INT =
     FROM MstDentalFeeTypes
     WHERE FacultyCode = 2
       AND FeeType = 'Institutional Helinet Fee'
-      AND AffiliationTypeId = 1
+      AND AffiliationTypeId = 2
 );
 
 DECLARE @CourseIdentificationFeeTypeId INT =
@@ -389,7 +455,7 @@ DECLARE @CourseIdentificationFeeTypeId INT =
     FROM MstDentalFeeTypes
     WHERE FacultyCode = 2
       AND FeeType = 'Course Identification Fee'
-      AND AffiliationTypeId = 1
+      AND AffiliationTypeId = 2
 );
 
 
@@ -462,7 +528,7 @@ VALUES
 
 --------------------------------
 
-DECLARE @AffiliationTypeId INT = 1; -- Change this to the required AffiliationTypeId
+DECLARE @AffiliationTypeId INT = 2; -- Change this to the required AffiliationTypeId
 DECLARE @FacultyCode INT = 2;       -- Dental
 
 INSERT INTO MstDentalOtherFeeStructure
@@ -485,6 +551,162 @@ VALUES
 ( @FacultyCode, 'Fee for Change of Address of the Institution', 500000, @AffiliationTypeId,  3, 1, 'Admin', GETDATE()),
 ( @FacultyCode, 'Re-Inspection Fee', 100000, @AffiliationTypeId, 4, 1, 'Admin', GETDATE());
 
+
+
+/* ============================================================
+   TABLE: MstDentalAffiliationType
+
+   PURPOSE:
+   Stores affiliation types specifically applicable to the
+   Dental faculty.
+
+   EXAMPLES:
+   - Fresh Affiliation
+   - Continuation of Affiliation
+   - Enhancement / Increase in Intake
+
+   RELATIONSHIPS:
+   - FacultyCode → Faculty(FacultyId)
+
+   ============================================================ */
+
+CREATE TABLE MstDentalAffiliationType
+(
+    DentalAffiliationTypeId INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    AffiliationCategory NVARCHAR(200) NOT NULL,
+
+    AcademicYear NVARCHAR(20) NOT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CourseLevelGroup VARCHAR(50) NULL,
+    -- Examples: UG, PG
+
+    CreatedBy VARCHAR(100) NULL,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy VARCHAR(100) NULL,
+
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT FK_MstDentalAffiliationType_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT UQ_MstDentalAffiliationType
+        UNIQUE
+        (
+            FacultyCode,
+            AffiliationCategory,
+            AcademicYear,
+            CourseLevelGroup
+        )
+);
+
+
+INSERT INTO MstDentalAffiliationType
+(
+    FacultyCode,
+    AffiliationCategory,
+    AcademicYear,
+    CourseLevelGroup,
+    IsActive,
+    CreatedDate
+)
+VALUES
+    -- UG
+    (2, 'Fresh Affiliation', '2025-26', 'UG', 1, GETDATE()),
+    (2, 'Continuation of Affiliation', '2025-26', 'UG', 1, GETDATE()),
+    (2, 'Enhancement of Seats / Increase in Intake', '2025-26', 'UG', 1, GETDATE()),
+    (2, 'Additional Courses for college', '2025-26', 'UG', 1, GETDATE()),
+    (2, 'Renewal of Consent of Affiliation', '2025-26', 'UG', 1, GETDATE()),
+
+    -- PG
+    (2, 'Fresh Affiliation', '2025-26', 'PG', 1, GETDATE()),
+    (2, 'Continuation of Affiliation', '2025-26', 'PG', 1, GETDATE()),
+    (2, 'Enhancement of Seats / Increase in Intake', '2025-26', 'PG', 1, GETDATE()),
+    (2, 'Additional Courses for college', '2025-26', 'PG', 1, GETDATE()),
+    (2, 'Renewal of Consent of Affiliation', '2025-26', 'PG', 1, GETDATE()),
+
+    -- COMMON / INSTITUTION LEVEL
+    (2, 'Change of Name of the College', '2025-26', NULL, 1, GETDATE()),
+    (2, 'Change of Address of the College', '2025-26', NULL, 1, GETDATE()),
+    (2, 'Change of Name And Address of the College', '2025-26', NULL, 1, GETDATE());
+
+
+
+/* ============================================================
+   TABLE: TxnDentalPayment
+
+   PURPOSE:
+   This table stores the overall payment transaction details
+   for a Dental Affiliation application.
+
+   One record represents one payment transaction and stores:
+   - College and Faculty details
+   - Affiliation Type
+   - Transaction ID
+   - Transaction Receipt file path
+   - Total Amount Paid
+
+   Individual fee calculation rows remain in:
+   dbo.TxnDentalFeeStructures
+
+   This table can later be linked with TxnDentalFeeStructures
+   using DentalPaymentId for a one-to-many relationship.
+   ============================================================ */
+
+CREATE TABLE dbo.TxnDentalPayment
+(
+    Id INT IDENTITY(1,1) NOT NULL
+        CONSTRAINT PK_TxnDentalPayment PRIMARY KEY,
+
+    CollegeCode NVARCHAR(50) NOT NULL,
+
+    FacultyCode INT NOT NULL,
+
+    AffiliationTypeId INT NOT NULL,
+
+    TransactionId NVARCHAR(100) NOT NULL,
+
+    TransactionReceiptPath NVARCHAR(500) NOT NULL,
+
+    AmountPaid DECIMAL(18,2) NOT NULL,
+
+    IsActive BIT NOT NULL
+        CONSTRAINT DF_TxnDentalPayment_IsActive DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+
+    CreatedDate DATETIME NOT NULL
+        CONSTRAINT DF_TxnDentalPayment_CreatedDate DEFAULT GETDATE(),
+
+    ModifiedBy NVARCHAR(100) NULL,
+
+    ModifiedDate DATETIME NULL
+);
+
+
+
+/* ============================================================
+   FOREIGN KEY RELATIONSHIP
+
+   Links TxnDentalFeeStructures.DentalPaymentId with
+   TxnDentalPayment.Id.
+   ============================================================ */
+
+
+ALTER TABLE [dbo].[TxnDentalFeeStructure]
+ADD DentalPaymentId INT NULL;
+
+ALTER TABLE [dbo].[TxnDentalFeeStructure]
+ADD CONSTRAINT FK_TxnDentalFeeStructures_TxnDentalPayment
+FOREIGN KEY (DentalPaymentId)
+REFERENCES dbo.TxnDentalPayment(Id);
 
 select * from mstdentalfeestructure;
 

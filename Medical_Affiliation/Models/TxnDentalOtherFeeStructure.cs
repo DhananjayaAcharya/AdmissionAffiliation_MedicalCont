@@ -3,19 +3,23 @@ using System.Collections.Generic;
 
 namespace Medical_Affiliation.Models;
 
-public partial class MstDentalOtherFeeStructure
+public partial class TxnDentalOtherFeeStructure
 {
     public int Id { get; set; }
 
+    public string CollegeCode { get; set; } = null!;
+
     public int FacultyCode { get; set; }
+
+    public int AffiliationTypeId { get; set; }
+
+    public int DentalOtherFeeStructureId { get; set; }
 
     public string FeeName { get; set; } = null!;
 
     public decimal AmountToBePaid { get; set; }
 
-    public int? AffiliationTypeId { get; set; }
-
-    public int DisplayOrder { get; set; }
+    public bool IsApplicable { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -27,9 +31,9 @@ public partial class MstDentalOtherFeeStructure
 
     public DateTime? ModifiedDate { get; set; }
 
-    public virtual MstAffiliationType? AffiliationType { get; set; }
+    public virtual MstAffiliationType AffiliationType { get; set; } = null!;
+
+    public virtual MstDentalOtherFeeStructure DentalOtherFeeStructure { get; set; } = null!;
 
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;
-
-    public virtual ICollection<TxnDentalOtherFeeStructure> TxnDentalOtherFeeStructures { get; set; } = new List<TxnDentalOtherFeeStructure>();
 }

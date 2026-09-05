@@ -101,10 +101,10 @@ SET CourseLevel = 'UG';
 ALTER TABLE [dbo].[Affiliation_College_Master]
 ADD CollegeEmail NVARCHAR(255) NULL;
 
-
-UPDATE [Affiliation_College_Master]
-SET CollegeEmail = 'den.td038@gmail.com'
-where CollegeCode = 'd038';
+----- DENTAL TEST COLLEGE -----
+--UPDATE [Affiliation_College_Master]
+--SET CollegeEmail = 'den.td038@rguhs.ac.in'
+--where CollegeCode = 'd038';
 --------------------------------
 
 ALTER TABLE DentalChairs
@@ -383,7 +383,7 @@ DEFAULT (1) FOR IsActive;
 
 
 SELECT * FROM Affiliation_College_Master
-WHERE FacultyCode=1 order by CollegeName desc;
+WHERE FacultyCode=2 order by CollegeName desc;
 
 SELECT * FROM CollegeCourseIntakeDetails
 WHERE FacultyCode = 2

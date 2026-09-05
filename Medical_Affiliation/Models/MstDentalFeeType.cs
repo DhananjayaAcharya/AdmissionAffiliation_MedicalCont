@@ -30,4 +30,6 @@ public partial class MstDentalFeeType
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;
 
     public virtual ICollection<MstDentalFeeStructure> MstDentalFeeStructures { get; set; } = new List<MstDentalFeeStructure>();
+
+    public virtual ICollection<TxnDentalFeeStructure> TxnDentalFeeStructures { get; set; } = new List<TxnDentalFeeStructure>();
 }
