@@ -7,10 +7,10 @@ using System.Data;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class DentalPaymentController : Controller
+    public class DentalPaymentController : BaseController
     {
         private const string PaymentAcademicYear = "2025-26";
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
         private readonly string _connectionString;
         private const int _facultyCode = 2;
 
@@ -26,9 +26,8 @@ namespace Medical_Affiliation.Controllers
         }
 
 
-        public DentalPaymentController(ApplicationDbContext context)
+        public DentalPaymentController(ApplicationDbContext context) : base(context)
         {
-            _context = context;
             _connectionString = context.Database.GetConnectionString()
                 ?? throw new InvalidOperationException("The application's database connection string is not configured.");
         }
@@ -55,10 +54,7 @@ namespace Medical_Affiliation.Controllers
             if (affiliationType == null) return NotFound("Affiliation Type Not found.");
 
             //var requiredCourseLevel =  NormalizeCourseLevel(affiliationType.CourseLevelGroup);
-            var requiredCourseLevel =
-                NormalizeCourseLevel(
-                    HttpContext.Session.GetString("CourseLevel")
-                );
+            var requiredCourseLevel = HttpContext.Session.GetString("CourseLevel");
 
             if (string.IsNullOrWhiteSpace(requiredCourseLevel))
             {
@@ -102,10 +98,16 @@ namespace Medical_Affiliation.Controllers
                 if (!int.TryParse(intake.Courses.Trim(), out int courseCode))
                     continue;
 
-                var course  = dentalCourses
-                    .FirstOrDefault( e => e.CourseCode == courseCode && NormalizeCourseLevel(e.CourseLevel) == requiredCourseLevel);
+                var course = dentalCourses.FirstOrDefault(e =>
+                        e.CourseCode == courseCode &&
+                        string.Equals(
+                            NormalizeCourseLevel(e.CourseLevel),
+                            NormalizeCourseLevel(requiredCourseLevel),
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                    );
 
-                if(course == null ) continue;
+                if (course == null ) continue;
 
                 if (!collegeCourses.Any(e => e.CourseCode == course.CourseCode))
                 {
@@ -159,6 +161,19 @@ namespace Medical_Affiliation.Controllers
                     e.IsActive
                 ).ToListAsync();
 
+            // =====================================================
+            // GET EXISTING PAYMENT / TRANSACTION
+            // =====================================================
+
+            var savedPayment = await _context.TxnDentalPayments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e =>
+                    e.CollegeCode == collegeCode && 
+                    e.FacultyCode == _facultyCode && 
+                    e.AffiliationTypeId == AffTypeId &&
+                    e.CourseLevel == requiredCourseLevel &&
+                    e.IsActive
+                );
 
             var model = new DentalFeeStructureViewModel
             {
@@ -167,13 +182,21 @@ namespace Medical_Affiliation.Controllers
                 AffiliationTypeId = AffTypeId,
                 AffiliationCategory = affiliationType.AffiliationCategory,
 
+                // =================================================
+                // EXISTING PAYMENT DETAILS
+                // =================================================
+
+                PaymentId = savedPayment?.Id,
+
+                ApplicableCourses = collegeCourses,
+
+                TransactionId = savedPayment?.TransactionId,
+                TransactionReceiptPath = savedPayment?.TransactionReceiptPath,
+                AmountPaid = savedPayment?.AmountPaid ?? 0m,
+
                 FeeTypes = feeTypes.Select(feeType =>
                 {
                     var courseFees = new List<DentalCourseFeeViewModel>();
-
-                    // =====================================================
-                    // GET ALL MASTER FEES FOR CURRENT FEE TYPE
-                    // =====================================================
 
                     var applicableMasterFees = feeStructures
                         .Where(e => e.FeeTypeId == feeType.Id)
@@ -181,165 +204,355 @@ namespace Medical_Affiliation.Controllers
 
                     foreach (var masterFee in applicableMasterFees)
                     {
-                        DentalCollegeCourseViewModel? matchedCourse = null;
-
                         // =====================================================
-                        // 1. COURSE CODE BASED FEE
-                        // =====================================================
-
-                        if (masterFee.CourseCode.HasValue)
-                        {
-                            matchedCourse = collegeCourses.FirstOrDefault(e =>
-                                e.CourseCode == masterFee.CourseCode.Value
-                            );
-                        }
-
-                        // =====================================================
-                        // 2. COURSE NAME BASED FEE
-                        // =====================================================
-
-                        if (matchedCourse == null &&
-                            !string.IsNullOrWhiteSpace(masterFee.CourseName))
-                        {
-                            matchedCourse = collegeCourses.FirstOrDefault(e =>
-                                !string.IsNullOrWhiteSpace(e.CourseName) &&
-                                string.Equals(
-                                    e.CourseName.Trim(),
-                                    masterFee.CourseName.Trim(),
-                                    StringComparison.OrdinalIgnoreCase
-                                )
-                            );
-                        }
-
-                        // =====================================================
-                        // 3. COURSE LEVEL BASED FEE
+                        // IMPORTANT:
+                        // DENTAL FEES SHOULD PRIMARILY DEPEND ON COURSE LEVEL.
                         //
                         // Example:
                         // UG -> BDS
-                        // PG -> MDS
+                        // PG -> All MDS Courses
+                        //
+                        // Therefore, do not depend on CourseCode for
+                        // CourseLevel based fee structures.
                         // =====================================================
 
-                        if (matchedCourse == null &&
-                            !string.IsNullOrWhiteSpace(masterFee.CourseLevel))
+                        var calculationType = masterFee.CalculationType?.Trim();
+
+                        // =====================================================
+                        // COURSE LEVEL BASED FEE
+                        //
+                        // UG -> BDS
+                        // PG -> All MDS Courses
+                        //
+                        // IMPORTANT:
+                        // One master fee should create ONLY ONE fee row.
+                        //
+                        // Example:
+                        //
+                        // Application Fee
+                        // PG -> ₹3,000 Fixed
+                        //
+                        // Annual Fee
+                        // PG -> ₹4,500 Per Seat
+                        // Total Intake = Sum of all PG course intakes
+                        //
+                        // Per Course
+                        // PG -> ₹10,000
+                        // Total = Number of PG courses × ₹10,000
+                        // =====================================================
+
+                        if (!string.IsNullOrWhiteSpace(masterFee.CourseLevel))
                         {
                             var masterCourseLevel =
                                 NormalizeCourseLevel(masterFee.CourseLevel);
 
-                            matchedCourse = collegeCourses.FirstOrDefault(e =>
-                                NormalizeCourseLevel(e.CourseLevel) ==
-                                masterCourseLevel
-                            );
-                        }
+                            var matchedCourses = collegeCourses
+                                .Where(e =>
+                                    string.Equals(
+                                        NormalizeCourseLevel(e.CourseLevel),
+                                        masterCourseLevel,
+                                        StringComparison.OrdinalIgnoreCase
+                                    )
+                                )
+                                .ToList();
 
-                        // =====================================================
-                        // IF NO COLLEGE COURSE MATCHED
-                        // SKIP THIS FEE
-                        // =====================================================
+                            if (!matchedCourses.Any())
+                            {
+                                continue;
+                            }
 
-                        if (matchedCourse == null)
-                        {
+                            // =====================================================
+                            // GET SAVED TRANSACTION FEE
+                            //
+                            // Since this is a COURSE LEVEL fee,
+                            // do not depend on individual CourseCode.
+                            // =====================================================
+
+                            var savedFees = savedFeeStructure
+                                .Where(e =>
+                                    e.FeeTypeId == feeType.Id &&
+                                    e.DentalFeeStructureId == masterFee.Id
+                                )
+                                .ToList();
+
+                            var savedFee = savedFees.FirstOrDefault();
+
+                            // =====================================================
+                            // AMOUNT & CALCULATION TYPE
+                            // =====================================================
+
+                            var amountToBePaid = savedFee?.AmountToBePaid ?? masterFee.AmountToBePaid;
+
+                            var actualCalculationType = savedFee?.CalculationType ?? masterFee.CalculationType;
+
+                            // =====================================================
+                            // CALCULATE TOTAL PG / UG INTAKE
+                            //
+                            // Example PG:
+                            //
+                            // MDS Prosthodontics -> 50
+                            // MDS Periodontics   -> 3
+                            // MDS Paedodontics   -> 3
+                            //
+                            // Total PG Intake = 56
+                            // =====================================================
+
+                            var totalAcademicIntake = matchedCourses.Sum(e => e.Ay2026TotalIntake  );
+
+                            // =====================================================
+                            // TOTAL NUMBER OF COURSES
+                            //
+                            // Example:
+                            //
+                            // PG has 4 MDS courses
+                            // =====================================================
+
+                            var totalCourseCount = matchedCourses.Count;
+
+                            // =====================================================
+                            // CALCULATE FINAL AMOUNT
+                            // =====================================================
+
+                            decimal calculatedAmount;
+
+                            if (string.Equals(
+                                actualCalculationType,
+                                "Per Seat",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                calculatedAmount =
+                                    savedFees.Any()
+                                        ? savedFees.Sum(e => e.CalculatedAmount)
+                                        : amountToBePaid * totalAcademicIntake;
+                            }
+                            else if (string.Equals(
+                                actualCalculationType,
+                                "Per Course",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                calculatedAmount =
+                                    savedFees.Any()
+                                        ? savedFees.Sum(e => e.CalculatedAmount)
+                                        : amountToBePaid * totalCourseCount;
+                            }
+                            else
+                            {
+                                // Fixed fee should only be counted once
+                                calculatedAmount =
+                                    savedFees.Any()
+                                        ? savedFees.Sum(e => e.CalculatedAmount)
+                                        : amountToBePaid;
+                            }
+
+                            // =====================================================
+                            // MULTIPLIER FOR UI
+                            //
+                            // Per Seat   -> Total Intake
+                            // Per Course -> Number of Courses
+                            // Fixed      -> 1
+                            // =====================================================
+
+                            var multiplier =
+                                string.Equals(
+                                    actualCalculationType,
+                                    "Per Seat",
+                                    StringComparison.OrdinalIgnoreCase
+                                )
+                                ? totalAcademicIntake
+
+                                : string.Equals(
+                                    actualCalculationType,
+                                    "Per Course",
+                                    StringComparison.OrdinalIgnoreCase
+                                )
+                                ? totalCourseCount
+
+                                : 1;
+
+                            // =====================================================
+                            // ADD ONLY ONE COMBINED ROW
+                            // =====================================================
+
+                            courseFees.Add(new DentalCourseFeeViewModel
+                            {
+                                Id = savedFee?.Id,
+
+                                DentalFeeStructureId = masterFee.Id,
+
+                                // Do not show individual MDS subject
+                                CourseName =
+                                    $"All {masterFee.CourseLevel} Courses",
+
+                                CourseCode = null,
+
+                                CourseLevel = masterFee.CourseLevel,
+
+                                AmountToBePaid = amountToBePaid,
+
+                                // Store multiplier value for UI
+                                AcademicIntake2026 = multiplier,
+
+                                CalculationType = actualCalculationType,
+
+                                CalculatedAmount = calculatedAmount,
+
+                                IsApplicable = true
+                            });
+
                             continue;
                         }
 
                         // =====================================================
-                        // PREVENT DUPLICATE MASTER FEE
+                        // COURSE NAME BASED FEE
+                        //
+                        // Use this only when CourseLevel is NOT configured.
                         // =====================================================
 
-                        var alreadyAdded = courseFees.Any(e =>
-                            e.DentalFeeStructureId == masterFee.Id
-                        );
-
-                        if (alreadyAdded)
+                        if (!string.IsNullOrWhiteSpace(masterFee.CourseName))
                         {
+                            var matchedCourse = collegeCourses
+                                .FirstOrDefault(e =>
+                                    !string.IsNullOrWhiteSpace(e.CourseName) &&
+                                    string.Equals(
+                                        e.CourseName.Trim(),
+                                        masterFee.CourseName.Trim(),
+                                        StringComparison.OrdinalIgnoreCase
+                                    )
+                                );
+
+                            if (matchedCourse == null)
+                            {
+                                continue;
+                            }
+
+                            var savedFee = savedFeeStructure
+                                .FirstOrDefault(e =>
+                                    e.FeeTypeId == feeType.Id &&
+                                    (
+                                        e.DentalFeeStructureId == masterFee.Id ||
+                                        e.CourseCode == matchedCourse.CourseCode
+                                    )
+                                );
+
+                            var amountToBePaid =
+                                savedFee?.AmountToBePaid ?? masterFee.AmountToBePaid;
+
+                            var actualCalculationType =
+                                savedFee?.CalculationType
+                                ?? masterFee.CalculationType;
+
+                            var academicIntake2026 =
+                                savedFee?.AcademicIntake2026
+                                ?? matchedCourse.Ay2026TotalIntake;
+
+                            var calculatedAmount =
+                                savedFee?.CalculatedAmount
+                                ?? CalculateFee(
+                                    amountToBePaid,
+                                    actualCalculationType,
+                                    academicIntake2026
+                                );
+
+                            courseFees.Add(new DentalCourseFeeViewModel
+                            {
+                                Id = savedFee?.Id,
+
+                                DentalFeeStructureId = masterFee.Id,
+
+                                CourseName = matchedCourse.CourseName,
+
+                                CourseCode = matchedCourse.CourseCode,
+
+                                CourseLevel = matchedCourse.CourseLevel,
+
+                                AmountToBePaid = amountToBePaid,
+
+                                AcademicIntake2026 = academicIntake2026,
+
+                                CalculationType = actualCalculationType,
+
+                                CalculatedAmount = calculatedAmount,
+
+                                IsApplicable = true
+                            });
+
                             continue;
                         }
 
-                        // =====================================================
-                        // GET SAVED TRANSACTION FEE
-                        // =====================================================
-
-                        var savedFee = savedFeeStructure.FirstOrDefault(e =>
-                            e.FeeTypeId == feeType.Id &&
-                            e.DentalFeeStructureId == masterFee.Id
-                        );
 
                         // =====================================================
-                        // FALLBACK MATCHING FOR OLD/SAVED RECORDS
+                        // COURSE CODE BASED FEE
+                        //
+                        // Use only as the last fallback.
                         // =====================================================
 
-                        if (savedFee == null &&
-                            masterFee.CourseCode.HasValue)
+                        if (masterFee.CourseCode.HasValue)
                         {
-                            savedFee = savedFeeStructure.FirstOrDefault(e =>
-                                e.FeeTypeId == feeType.Id &&
-                                e.CourseCode == masterFee.CourseCode.Value
-                            );
+                            var matchedCourse = collegeCourses
+                                .FirstOrDefault(e =>
+                                    e.CourseCode == masterFee.CourseCode.Value
+                                );
+
+                            if (matchedCourse == null)
+                            {
+                                continue;
+                            }
+
+                            var savedFees = savedFeeStructure
+                                .Where(e =>
+                                    e.FeeTypeId == feeType.Id &&
+                                    (
+                                        e.DentalFeeStructureId == masterFee.Id ||
+                                        e.CourseCode == matchedCourse.CourseCode
+                                    )
+                                ).ToList();
+
+                            var savedFee = savedFees.FirstOrDefault();
+
+                            var amountToBePaid = savedFee?.AmountToBePaid ?? masterFee.AmountToBePaid;
+
+                            var actualCalculationType = savedFee?.CalculationType ?? masterFee.CalculationType;
+
+                            var academicIntake2026 = savedFee?.AcademicIntake2026 ?? matchedCourse.Ay2026TotalIntake;
+
+                            var calculatedAmount =
+                                savedFee?.CalculatedAmount
+                                ?? CalculateFee(
+                                    amountToBePaid,
+                                    actualCalculationType,
+                                    academicIntake2026
+                                );
+
+                            courseFees.Add(new DentalCourseFeeViewModel
+                            {
+                                Id = savedFee?.Id,
+
+                                DentalFeeStructureId = masterFee.Id,
+
+                                CourseName = matchedCourse.CourseName,
+
+                                CourseCode = matchedCourse.CourseCode,
+
+                                CourseLevel = matchedCourse.CourseLevel,
+
+                                AmountToBePaid = amountToBePaid,
+
+                                AcademicIntake2026 = academicIntake2026,
+
+                                CalculationType = actualCalculationType,
+
+                                CalculatedAmount = calculatedAmount,
+
+                                IsApplicable = true
+                            });
                         }
-
-                        // =====================================================
-                        // USE SAVED VALUE OR MASTER VALUE
-                        // =====================================================
-
-                        var amountToBePaid =
-                            savedFee?.AmountToBePaid
-                            ?? masterFee.AmountToBePaid;
-
-                        var calculationType =
-                            savedFee?.CalculationType
-                            ?? masterFee.CalculationType;
-
-                        var academicIntake2026 =
-                            savedFee?.AcademicIntake2026
-                            ?? matchedCourse.Ay2026TotalIntake;
-
-                        // =====================================================
-                        // CALCULATE FINAL AMOUNT
-                        // =====================================================
-
-                        var calculatedAmount =
-                            savedFee?.CalculatedAmount
-                            ?? CalculateFee(
-                                amountToBePaid,
-                                calculationType,
-                                academicIntake2026
-                            );
-
-                        // =====================================================
-                        // ADD FEE
-                        // =====================================================
-
-                        courseFees.Add(new DentalCourseFeeViewModel
-                        {
-                            Id = savedFee?.Id,
-
-                            DentalFeeStructureId = masterFee.Id,
-
-                            CourseName = matchedCourse.CourseName,
-
-                            CourseCode = matchedCourse.CourseCode,
-
-                            CourseLevel = matchedCourse.CourseLevel,
-
-                            AmountToBePaid = amountToBePaid,
-
-                            AcademicIntake2026 = academicIntake2026,
-
-                            CalculationType = calculationType,
-
-                            CalculatedAmount = calculatedAmount,
-
-                            IsApplicable = true
-                        });
                     }
 
                     return new DentalFeeTypeRowViewModel
                     {
                         FeeTypeId = feeType.Id,
-
                         FeeType = feeType.FeeType,
-
                         DisplayOrder = feeType.DisplayOrder,
-
                         CourseFees = courseFees
                     };
 
@@ -347,6 +560,257 @@ namespace Medical_Affiliation.Controllers
             };
 
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(DentalPaymentSubmitViewModel model)
+        {
+
+            // =====================================================
+            // VALIDATE AFFILIATION TYPE
+            // =====================================================
+
+            if (model.AffiliationTypeId <= 0) return BadRequest("Invalid Affiliation Type.");
+
+            var collegecode = HttpContext.Session.GetString("CollegeCode");
+
+            if (string.IsNullOrWhiteSpace(collegecode)) return BadRequest("College not found.");
+
+            var requiredCourseLevel =
+                NormalizeCourseLevel(
+                    HttpContext.Session.GetString("CourseLevel")
+                );
+
+            if (string.IsNullOrWhiteSpace(requiredCourseLevel))
+            {
+                return BadRequest("Course level is not configured.");
+            }
+
+            // =====================================================
+            // VALIDATE TRANSACTION ID
+            // =====================================================
+
+            if (string.IsNullOrWhiteSpace(model.TransactionId))
+            {
+                TempData["ErrorMessage"] = "Please enter Transaction ID.";
+
+                return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId });
+            }
+
+
+            // =====================================================
+            // GET EXISTING PAYMENT
+            // =====================================================
+
+            var existingPayment = await _context.TxnDentalPayments
+                .FirstOrDefaultAsync(e =>
+                    e.CollegeCode == collegecode &&
+                    e.FacultyCode == _facultyCode &&
+                    e.AffiliationTypeId == model.AffiliationTypeId &&
+                    e.CourseLevel == requiredCourseLevel &&
+                    e.IsActive
+                );
+
+            // =====================================================
+            // VALIDATE RECEIPT
+            //
+            // Receipt is required only for first submission.
+            // =====================================================
+
+
+            if (existingPayment == null && (model.TransactionReceipt == null || model.TransactionReceipt.Length == 0))
+            {
+                TempData["ErrorMessage"] = "Please upload the transaction receipt.";
+                return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId });
+            }
+
+            // =====================================================
+            // FILE VALIDATION
+            // =====================================================
+            if (model.TransactionReceipt != null && model.TransactionReceipt.Length > 0)
+            {
+
+                // =====================================================
+                // Maximum allowed size = 1 MB
+                // =====================================================
+
+                if (model.TransactionReceipt.Length > 1 * 1024 * 1024)
+                {
+                    TempData["ErrorMessage"] = "Transaction receipt should not exceed 1 MB.";
+                    return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId });
+                }
+
+
+                // =================================================
+                // ALLOWED FILE TYPES
+                // =================================================
+
+                var allowedExtensions = new[]
+                {
+                    ".pdf",
+                    ".jpg",
+                    ".jpeg",
+                    ".png"
+                };
+
+                var extension = Path.GetExtension(model.TransactionReceipt.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    TempData["ErrorMessage"] = "Only PDF, JPG, JPEG and PNG files are allowed.";
+                    return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId });
+                }
+            }
+
+            await using var transaction =  await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+
+                // =====================================================
+                // GET SAVED FEE DETAILS
+                // =====================================================
+
+                var feeDetails = await _context.TxnDentalFeeStructures
+                    .Where(e =>
+                        e.CollegeCode == collegecode &&
+                        e.FacultyCode == _facultyCode &&
+                        e.AffiliationTypeId == model.AffiliationTypeId &&
+                        e.CourseLevel == requiredCourseLevel &&
+                        e.IsActive
+                    )
+                    .ToListAsync();
+
+                // =====================================================
+                // IF NOT FOUND, GENERATE FEE STRUCTURE
+                // =====================================================
+
+                if (!feeDetails.Any())
+                {
+                    feeDetails = await GenerateDentalFeeStructure( collegecode, model.AffiliationTypeId );
+
+                    if (!feeDetails.Any())
+                    {
+                        TempData["ErrorMessage"] =  "Fee Details could not be generated for the selected affiliation.";
+
+                        return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId }
+                        );
+                    }
+
+                    // =================================================
+                    // SAVE GENERATED FEE STRUCTURE
+                    // =================================================
+
+                    await _context.TxnDentalFeeStructures.AddRangeAsync(feeDetails);
+
+                }
+
+                // =====================================================
+                // GRAND TOTAL
+                // =====================================================
+
+                var grandTotal =
+                    feeDetails.Sum(e => e.CalculatedAmount);
+
+                if (grandTotal <= 0)
+                {
+                    TempData["ErrorMessage"] =  "Invalid Payment Amount.";
+
+                    return RedirectToAction( nameof(Index), new { AffTypeId = model.AffiliationTypeId }  );
+                }
+
+
+                // =====================================================
+                // UPLOAD RECEIPT
+                // =====================================================
+
+                string? receiptPath = existingPayment?.TransactionReceiptPath;
+
+                if(model.TransactionReceipt != null && model.TransactionReceipt.Length > 0)
+                {
+                    // Folder structure:
+                    //
+                    // E:\Affiliation_Dental\TransactionReceipts\
+                    //
+                    // or
+                    //
+                    // D:\Affiliation_Dental\TransactionReceipts\
+
+                    receiptPath = await SaveFileAndReturnPath(
+                        model.TransactionReceipt,
+                        "TransactionReceipts",
+                        $"DentalPayment_{collegecode}_{model.AffiliationTypeId}"
+                    );
+                }
+
+                // =====================================================
+                // SAVE NEW PAYMENT
+                // =====================================================
+
+                if (existingPayment == null)
+                {
+                    var payment = new TxnDentalPayment
+                    {
+                        CollegeCode = collegecode,
+                        FacultyCode = _facultyCode,
+                        CourseLevel = requiredCourseLevel,
+                        AffiliationTypeId = model.AffiliationTypeId,
+                        TransactionId = model.TransactionId.Trim(),
+                        TransactionReceiptPath = receiptPath ?? string.Empty,
+                        AmountPaid = grandTotal,
+                        IsActive = true,
+                        CreatedBy = collegecode,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.TxnDentalPayments.Add(payment);
+                }
+                else
+                {
+
+                    // =================================================
+                    // UPDATE EXISTING PAYMENT
+                    // =================================================
+                    existingPayment.TransactionId = model.TransactionId.Trim();
+                    existingPayment.AmountPaid = grandTotal;
+                    existingPayment.CourseLevel = requiredCourseLevel;
+
+
+                    // Only replace receipt if a new one is uploaded
+
+                    if (!string.IsNullOrWhiteSpace(receiptPath)) existingPayment.TransactionReceiptPath = receiptPath;
+
+                    existingPayment.IsActive = true;
+                    existingPayment.ModifiedBy = collegecode;
+                    existingPayment.ModifiedDate = DateTime.Now;
+                    _context.TxnDentalPayments.Update(existingPayment);
+                }
+
+                // =====================================================
+                // SAVE ALL CHANGES
+                // =====================================================
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                TempData["SuccessMessage"] = "Transaction Details saved successfully.";
+
+                return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId });
+
+            }
+
+            catch
+            {
+                await transaction.RollbackAsync();
+
+                TempData["ErrorMessage"] = "Unable to save payment details. Please try again.";
+
+                return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId });
+            }
+
+            
         }
 
         private decimal CalculateFee( decimal amountToBePaid, string? calculationType, int academicIntake2026)
@@ -361,6 +825,520 @@ namespace Medical_Affiliation.Controllers
 
                 _ => amountToBePaid
             };
+        }
+
+
+        // =====================================================
+        // VIEW TRANSACTION RECEIPT
+        //
+        // Returns the receipt file to the browser.
+        // PDF files will open in the browser's built-in PDF viewer,
+        // while JPG/PNG files will open normally.
+        // =====================================================
+
+        [HttpGet]
+        public async Task<IActionResult> ViewReceipt(int paymentId)
+        {
+            var collegeCode =
+                HttpContext.Session.GetString("CollegeCode");
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized();
+
+            var payment = await _context.TxnDentalPayments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e =>
+                    e.Id == paymentId &&
+                    e.CollegeCode == collegeCode &&
+                    e.FacultyCode == _facultyCode &&
+                    e.IsActive);
+
+            if (payment == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace( payment.TransactionReceiptPath)) return NotFound("Receipt not found.");
+
+            if (!System.IO.File.Exists(payment.TransactionReceiptPath)) return NotFound("Receipt file not found.");
+
+            var extension =
+                Path.GetExtension(
+                    payment.TransactionReceiptPath)
+                .ToLowerInvariant();
+
+            var model = new DentalDocumentViewerViewModel
+            {
+                FileUrl = Url.Action( nameof(GetReceiptFile), "DentalPayment", new { paymentId = payment.Id })!,
+                FileType = extension
+            };
+
+            return PartialView( "_DocumentViewer", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetReceiptFile(int paymentId)
+        {
+            var collegeCode =
+                HttpContext.Session.GetString("CollegeCode");
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized();
+
+            var payment = await _context.TxnDentalPayments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e =>
+                    e.Id == paymentId &&
+                    e.CollegeCode == collegeCode &&
+                    e.FacultyCode == _facultyCode &&
+                    e.IsActive);
+
+            if (payment == null)
+                return NotFound();
+
+            if (string.IsNullOrWhiteSpace(
+                payment.TransactionReceiptPath))
+                return NotFound();
+
+            if (!System.IO.File.Exists(
+                payment.TransactionReceiptPath))
+                return NotFound();
+
+            var extension =
+                Path.GetExtension(
+                    payment.TransactionReceiptPath)
+                .ToLowerInvariant();
+
+            var contentType = extension switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
+
+            return PhysicalFile(
+                payment.TransactionReceiptPath, contentType);
+        }
+
+        private async Task<List<TxnDentalFeeStructure>> GenerateDentalFeeStructure( string collegeCode, int affiliationTypeId)
+        {
+            // =====================================================
+            // GET SELECTED COURSE LEVEL
+            // =====================================================
+
+            var requiredCourseLevel =
+                HttpContext.Session.GetString("CourseLevel");
+
+            if (string.IsNullOrWhiteSpace(requiredCourseLevel))
+            {
+                throw new InvalidOperationException(
+                    "Course level is not configured.");
+            }
+
+            // =====================================================
+            // GET ACADEMIC INTAKE
+            // =====================================================
+
+            var academicIntake = await _context.AcademicIntakes
+                .AsNoTracking()
+                .Where(e =>
+                    e.CollegeCode == collegeCode &&
+                    e.FacultyCode == _facultyCode.ToString()
+                )
+                .ToListAsync();
+
+            // =====================================================
+            // GET ALL DENTAL COURSES
+            // =====================================================
+
+            var dentalCourses = await _context.MstCourses
+                .AsNoTracking()
+                .Where(e =>
+                    e.FacultyCode == _facultyCode)
+                .ToListAsync();
+
+            // =====================================================
+            // MAP COLLEGE COURSES WITH AY2026 INTAKE
+            // =====================================================
+
+            var collegeCourses = new List<DentalCollegeCourseViewModel>();
+
+            foreach (var intake in academicIntake)
+            {
+                if (string.IsNullOrWhiteSpace(intake.Courses)) continue;
+
+                if (!int.TryParse( intake.Courses.Trim(), out int courseCode))
+                {
+                    continue;
+                }
+
+                var course = dentalCourses.FirstOrDefault(e =>
+                    e.CourseCode == courseCode &&
+                    string.Equals(
+                        NormalizeCourseLevel(e.CourseLevel),
+                        NormalizeCourseLevel(requiredCourseLevel),
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                );
+
+                if (course == null)
+                    continue;
+
+                if (!collegeCourses.Any(e => e.CourseCode == course.CourseCode))
+                {
+                    collegeCourses.Add(
+                        new DentalCollegeCourseViewModel
+                        {
+                            CourseCode = course.CourseCode,
+                            CourseName = course.CourseName,
+                            CourseLevel = course.CourseLevel,
+                            Ay2026TotalIntake =
+                                intake.Ay2026TotalIntake
+                        });
+                }
+            }
+
+            // =====================================================
+            // GET DENTAL FEE TYPES
+            // =====================================================
+
+            var feeTypes = await _context.MstDentalFeeTypes
+                .AsNoTracking()
+                .Where(e =>
+                    e.FacultyCode == _facultyCode &&
+                    e.AffiliationTypeId == affiliationTypeId &&
+                    e.IsActive
+                )
+                .OrderBy(e => e.DisplayOrder)
+                .ToListAsync();
+
+            // =====================================================
+            // GET MASTER FEE STRUCTURE
+            // =====================================================
+
+            var feeStructures =
+                await _context.MstDentalFeeStructures
+                    .AsNoTracking()
+                    .Where(e =>
+                        e.FacultyCode == _facultyCode &&
+                        e.AffiliationTypeId == affiliationTypeId &&
+                        e.IsActive
+                    )
+                    .ToListAsync();
+
+            // =====================================================
+            // RESULT
+            // =====================================================
+
+            var feeDetails =  new List<TxnDentalFeeStructure>();
+
+            // =====================================================
+            // GENERATE FEE STRUCTURE
+            // =====================================================
+
+            foreach (var feeType in feeTypes)
+            {
+                var applicableMasterFees =
+                    feeStructures
+                        .Where(e =>
+                            e.FeeTypeId == feeType.Id)
+                        .ToList();
+
+                foreach (var masterFee in applicableMasterFees)
+                {
+                    var calculationType = masterFee.CalculationType?.Trim();
+
+                    // =================================================
+                    // COURSE LEVEL BASED FEE
+                    //
+                    // Example:
+                    //
+                    // UG -> All UG Courses
+                    // PG -> All PG / MDS Courses
+                    //
+                    // ONE combined record is created.
+                    // =================================================
+
+                    // =================================================
+                    // COURSE LEVEL BASED FEE
+                    //
+                    // UI will show:
+                    //     All PG Courses
+                    //
+                    // DATABASE will save:
+                    //     Actual CourseCode
+                    //     Actual CourseName
+                    //     Actual CourseLevel
+                    //     Actual Intake
+                    //
+                    // Calculation remains correct.
+                    // =================================================
+
+                    if (!string.IsNullOrWhiteSpace(masterFee.CourseLevel))
+                    {
+                        var masterCourseLevel =
+                            NormalizeCourseLevel(masterFee.CourseLevel);
+
+                        var matchedCourses = collegeCourses
+                            .Where(e =>
+                                string.Equals(
+                                    NormalizeCourseLevel(e.CourseLevel),
+                                    masterCourseLevel,
+                                    StringComparison.OrdinalIgnoreCase
+                                )
+                            )
+                            .ToList();
+
+                        if (!matchedCourses.Any())
+                            continue;
+
+                        // =================================================
+                        // SAVE ONE RECORD FOR EACH ACTUAL COURSE
+                        // =================================================
+
+                        for (int i = 0; i < matchedCourses.Count; i++)
+                        {
+                            var matchedCourse = matchedCourses[i];
+
+                            decimal calculatedAmount;
+
+                            // =================================================
+                            // PER SEAT
+                            //
+                            // Example:
+                            //
+                            // Prosthodontics = 3 seats
+                            // ₹4,500 × 3 = ₹13,500
+                            // =================================================
+
+                            if (string.Equals(
+                                calculationType,
+                                "Per Seat",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                calculatedAmount =
+                                    masterFee.AmountToBePaid *
+                                    matchedCourse.Ay2026TotalIntake;
+                            }
+
+                            // =================================================
+                            // PER COURSE
+                            //
+                            // Each actual course gets one fee.
+                            // =================================================
+
+                            else if (string.Equals(
+                                calculationType,
+                                "Per Course",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                calculatedAmount =
+                                    masterFee.AmountToBePaid;
+                            }
+
+                            // =================================================
+                            // FIXED
+                            //
+                            // Save fixed fee only once.
+                            // =================================================
+
+                            else
+                            {
+                                if (i > 0)
+                                    continue;
+
+                                calculatedAmount =
+                                    masterFee.AmountToBePaid;
+                            }
+
+                            // =================================================
+                            // SAVE ACTUAL COURSE DETAILS
+                            // =================================================
+
+                            feeDetails.Add(
+                                new TxnDentalFeeStructure
+                                {
+                                    CollegeCode = collegeCode,
+
+                                    FacultyCode = _facultyCode,
+
+                                    AffiliationTypeId =
+                                        affiliationTypeId,
+
+                                    FeeTypeId =
+                                        feeType.Id,
+
+                                    DentalFeeStructureId =
+                                        masterFee.Id,
+
+                                    // ACTUAL COURSE CODE
+                                    CourseCode =
+                                        matchedCourse.CourseCode,
+
+                                    // ACTUAL COURSE NAME
+                                    CourseName =
+                                        matchedCourse.CourseName,
+
+                                    // ACTUAL COURSE LEVEL
+                                    CourseLevel =
+                                        matchedCourse.CourseLevel,
+
+                                    // MASTER UNIT FEE
+                                    AmountToBePaid =
+                                        masterFee.AmountToBePaid,
+
+                                    // ACTUAL COURSE INTAKE
+                                    AcademicIntake2026 =
+                                        matchedCourse.Ay2026TotalIntake,
+
+                                    CalculationType =
+                                        calculationType,
+
+                                    // COURSE-WISE CALCULATED AMOUNT
+                                    CalculatedAmount =
+                                        calculatedAmount,
+
+                                    IsActive = true,
+
+                                    CreatedBy = collegeCode,
+
+                                    CreatedDate = DateTime.Now
+                                });
+                        }
+
+                        continue;
+                    }
+
+                    // =================================================
+                    // COURSE NAME BASED FEE
+                    // =================================================
+
+                    if (!string.IsNullOrWhiteSpace(
+                        masterFee.CourseName))
+                    {
+                        var matchedCourse =
+                            collegeCourses.FirstOrDefault(e =>
+                                !string.IsNullOrWhiteSpace(
+                                    e.CourseName) &&
+                                string.Equals(
+                                    e.CourseName.Trim(),
+                                    masterFee.CourseName.Trim(),
+                                    StringComparison
+                                        .OrdinalIgnoreCase
+                                )
+                            );
+
+                        if (matchedCourse == null)
+                            continue;
+
+                        var academicIntake2026 =
+                            matchedCourse.Ay2026TotalIntake;
+
+                        var calculatedAmount =
+                            CalculateFee(
+                                masterFee.AmountToBePaid,
+                                calculationType,
+                                academicIntake2026
+                            );
+
+                        feeDetails.Add(
+                            new TxnDentalFeeStructure
+                            {
+                                CollegeCode = collegeCode,
+
+                                FacultyCode = _facultyCode,
+
+                                AffiliationTypeId = affiliationTypeId,
+
+                                FeeTypeId = feeType.Id,
+
+                                DentalFeeStructureId = masterFee.Id,
+
+                                CourseCode = matchedCourse.CourseCode,
+
+                                CourseName = matchedCourse.CourseName,
+
+                                CourseLevel =  matchedCourse.CourseLevel,
+
+                                AmountToBePaid = masterFee.AmountToBePaid,
+
+                                AcademicIntake2026 = academicIntake2026,
+
+                                CalculationType = calculationType,
+
+                                CalculatedAmount = calculatedAmount,
+
+                                IsActive = true,
+
+                                CreatedBy = collegeCode,
+
+                                CreatedDate = DateTime.Now
+                            });
+
+                        continue;
+                    }
+
+                    // =================================================
+                    // COURSE CODE BASED FEE
+                    // =================================================
+
+                    if (masterFee.CourseCode.HasValue)
+                    {
+                        var matchedCourse =
+                            collegeCourses.FirstOrDefault(e =>
+                                e.CourseCode ==
+                                masterFee.CourseCode.Value);
+
+                        if (matchedCourse == null)
+                            continue;
+
+                        var academicIntake2026 =
+                            matchedCourse.Ay2026TotalIntake;
+
+                        var calculatedAmount =
+                            CalculateFee(
+                                masterFee.AmountToBePaid,
+                                calculationType,
+                                academicIntake2026
+                            );
+
+                        feeDetails.Add(
+                            new TxnDentalFeeStructure
+                            {
+                                CollegeCode = collegeCode,
+
+                                FacultyCode = _facultyCode,
+
+                                AffiliationTypeId = affiliationTypeId,
+
+                                FeeTypeId = feeType.Id,
+
+                                DentalFeeStructureId = masterFee.Id,
+
+                                CourseCode = matchedCourse.CourseCode,
+
+                                CourseName = matchedCourse.CourseName,
+
+                                CourseLevel = matchedCourse.CourseLevel,
+
+                                AmountToBePaid = masterFee.AmountToBePaid,
+
+                                AcademicIntake2026 = academicIntake2026,
+
+                                CalculationType =calculationType,
+
+                                CalculatedAmount = calculatedAmount,
+
+                                IsActive = true,
+
+                                CreatedBy = collegeCode,
+
+                                CreatedDate = DateTime.Now
+                            });
+                    }
+                }
+            }
+
+            return feeDetails;
         }
 
         [HttpGet]

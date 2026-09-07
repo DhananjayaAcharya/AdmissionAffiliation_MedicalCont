@@ -25,8 +25,8 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
 
         var faculty = context.HttpContext.Session.GetString("FacultyCode");
 
-        // Skip Dental
-        if (faculty == "2")
+        // Only for Dental
+        if (faculty == "1")
         {
             await next();
             return;
@@ -177,7 +177,7 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
             new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
             new CAStep{ Key = "SsCoursesOffered",  Ctrl = "AffiliationSS", Act = "CoursesOffered" },
             new CAStep{ Key = "AssociatedInstitutions", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
-            //new CAStep { Key="PaymentDetails", Ctrl="AffiliationPayment", Act="Payment" },
+            new CAStep { Key = "PaymentDetails", Ctrl="DentalPayment", Act="Index" },
             //new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
         };
 

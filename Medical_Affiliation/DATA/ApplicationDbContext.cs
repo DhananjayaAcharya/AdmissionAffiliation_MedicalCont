@@ -5995,8 +5995,9 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => new { e.FacultyCode, e.AffiliationTypeId, e.IsActive }, "IX_MstDentalFeeTypes_Search");
 
-            entity.HasIndex(e => new { e.FacultyCode, e.FeeType, e.AffiliationTypeId }, "UQ_MstDentalFeeTypes").IsUnique();
+            entity.HasIndex(e => new { e.FacultyCode, e.FeeType, e.AffiliationTypeId, e.CourseLevel }, "UQ_MstDentalFeeTypes").IsUnique();
 
+            entity.Property(e => e.CourseLevel).HasMaxLength(50);
             entity.Property(e => e.CreatedBy)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -7806,6 +7807,9 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.AmountPaid).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")

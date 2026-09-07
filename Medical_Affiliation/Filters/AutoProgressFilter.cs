@@ -24,8 +24,8 @@ public class AutoProgressFilter : IAsyncActionFilter
     {
         var faculty = context.HttpContext.Session.GetString("FacultyCode");
 
-        // Only run for Dental
-        if (faculty != "2")
+        // Only run for Medical
+        if (faculty != "1")
         {
             await next();
             return;

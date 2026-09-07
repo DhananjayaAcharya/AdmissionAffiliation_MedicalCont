@@ -29,5 +29,7 @@ public partial class TxnDentalPayment
 
     public DateTime? ModifiedDate { get; set; }
 
+    public string? CourseLevel { get; set; }
+
     public virtual ICollection<TxnDentalFeeStructure> TxnDentalFeeStructures { get; set; } = new List<TxnDentalFeeStructure>();
 }

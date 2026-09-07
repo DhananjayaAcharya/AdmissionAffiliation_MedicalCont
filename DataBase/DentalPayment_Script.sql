@@ -28,6 +28,7 @@ CREATE TABLE MstDentalFeeTypes
     FacultyCode INT NOT NULL,
 
     FeeType NVARCHAR(300) NOT NULL,
+    CourseLevel NVARCHAR(50) NOT NULL,
 
     DisplayOrder INT NOT NULL,
 
@@ -56,10 +57,18 @@ CREATE TABLE MstDentalFeeTypes
         (
             FacultyCode,
             FeeType,
-            AffiliationTypeId
+            AffiliationTypeId,
+            CourseLevel
         )
 );
 
+
+--ALTER TABLE MstDentalFeeTypes
+--ADD CourseLevel NVARCHAR(50) NULL;
+
+--UPDATE MstDentalFeeTypes
+--SET CourseLevel = 'UG'
+--WHERE CourseLevel IS NULL;
 
 /* ============================================================
    TABLE: MstDentalFeeStructure
@@ -375,29 +384,42 @@ FROM MstAffiliationType
 WHERE FacultyCode = '2'
   AND IsActive = 1;
 
+-- Drop existing unique constraint
+ALTER TABLE MstDentalFeeTypes
+DROP CONSTRAINT UQ_MstDentalFeeTypes;
+
+ALTER TABLE MstDentalFeeTypes
+ADD CONSTRAINT UQ_MstDentalFeeTypes
+UNIQUE
+(
+    FacultyCode,
+    FeeType,
+    AffiliationTypeId,
+    CourseLevel
+);
 
 DECLARE @AffiliationTypeId INT = 1; -- Change this to the required AffiliationTypeId
 DECLARE @FacultyCode INT = 2;       -- Dental
 
 
 INSERT INTO MstDentalFeeTypes
-(
-    FacultyCode,
-    FeeType,
-    DisplayOrder,
-    AffiliationTypeId,
-    IsActive,
-    CreatedBy,
-    CreatedDate
-)
+( FacultyCode, FeeType, CourseLevel, DisplayOrder, AffiliationTypeId, IsActive, CreatedBy, CreatedDate)
 VALUES
-( 2, 'Application Fee', 1, 2, 1, 'Admin', GETDATE()),
-( 2, 'Annual Fee', 2, 2, 1, 'Admin', GETDATE()),
-( 2, 'Continuation of Affiliation / Renewal Fee of Affiliation', 3, 2, 1, 'Admin', GETDATE()),
-( 2, 'Administrative Fee & Service Charges', 4, 2, 1, 'Admin', GETDATE()),
-( 2, 'Institutional Helinet Fee', 5, 2, 1, 'Admin', GETDATE()),
-( 2, 'Course Identification Fee', 6, 2, 1, 'Admin', GETDATE()
-);
+( 2, 'Application Fee', 'UG', 1, 2, 1, 'Admin', GETDATE()),
+( 2, 'Annual Fee','UG', 2, 2, 1, 'Admin', GETDATE()),
+( 2, 'Continuation of Affiliation / Renewal Fee of Affiliation','UG', 3, 2, 1, 'Admin', GETDATE()),
+( 2, 'Administrative Fee & Service Charges','UG', 4, 2, 1, 'Admin', GETDATE()),
+( 2, 'Institutional Helinet Fee','UG', 5, 2, 1, 'Admin', GETDATE()),
+( 2, 'Course Identification Fee','UG', 6, 2, 1, 'Admin', GETDATE());
+
+INSERT INTO MstDentalFeeTypes (FacultyCode, FeeType, CourseLevel, DisplayOrder, AffiliationTypeId, IsActive, CreatedBy, CreatedDate)
+VALUES
+(2, 'Application Fee', 'PG', 1, 2, 1, 'Admin', GETDATE()),
+(2, 'Annual Fee', 'PG', 2, 2, 1, 'Admin', GETDATE()),
+(2, 'Continuation of Affiliation / Renewal Fee of Affiliation', 'PG', 3, 2, 1, 'Admin', GETDATE()),
+(2, 'Administrative Fee & Service Charges', 'PG', 4, 2, 1, 'Admin', GETDATE()),
+(2, 'Institutional Helinet Fee', 'PG', 5, 2, 1, 'Admin', GETDATE()),
+(2, 'Course Identification Fee', 'PG', 6, 2, 1, 'Admin', GETDATE());
 
 
 
@@ -667,6 +689,7 @@ CREATE TABLE dbo.TxnDentalPayment
 
     CollegeCode NVARCHAR(50) NOT NULL,
 
+    CourseLevel VARCHAR(50) NULL,
     FacultyCode INT NOT NULL,
 
     AffiliationTypeId INT NOT NULL,
@@ -690,7 +713,13 @@ CREATE TABLE dbo.TxnDentalPayment
     ModifiedDate DATETIME NULL
 );
 
+select *  from [dbo].TxnDentalFeeStructure
+where CollegeCode = 'd038' and @AffiliationTypeId = 2 and FacultyCode = 2 and CourseLevel
 
+
+---------------------------------------------------------------
+--ALTER TABLE TxnDentalPayment
+--ADD CourseLevel VARCHAR(50) NULL;
 
 /* ============================================================
    FOREIGN KEY RELATIONSHIP

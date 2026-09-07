@@ -6,6 +6,13 @@
 
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 
+    var applicableCourses = Model.ApplicableCourses ?? new List<DentalCollegeCourseViewModel>();
+
+    var applicableCourseCount = applicableCourses
+        .Select(e => e.CourseCode)
+        .Distinct()
+        .Count();
+
     var allCourseFees = Model.FeeTypes
         .SelectMany(e => e.CourseFees ?? new List<DentalCourseFeeViewModel>())
         .ToList();
@@ -19,7 +26,7 @@
     }
 
     .payment-calculation-heading{
-        border-bottom : 1px solid #d8e3fs;
+        border-bottom : 1px solid #d8e3f5;
         padding-bottom: 1rem;
         margin-bottom: 1.25rem;
     }
@@ -79,6 +86,560 @@
         font-weight: 700;
     }
 
+    /* =========================================
+       PAYMENT SUMMARY
+    ========================================= */
+
+    .payment-total-box{
+        background: #f4f8fd;
+        border: 1px solid #d8e3f5;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        height: 100%;
+    }
+
+    .payment-total-label{
+        font-size: .78rem;
+        text-transform: uppercase;
+        color: #7d8aa9;
+        font-weight: 600;
+    }
+
+    .payment-total-amount{
+        color: #0a3d91;
+        font-size: 1.7rem;
+        font-weight: 700;
+        margin-top: .25rem;
+    }
+
+    /* =========================================
+       RECEIPT UPLOAD
+    ========================================= */
+    
+    .receipt-upload-box{
+        position: relative;
+        border: 2px dashed #b7c9e8;
+        border-radius: 10px;
+        background: #f8fbff;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .receipt-upload-box:hover{
+        border-color: #0a3d91;
+        background: #f4f8fd;
+    }
+
+    .receipt-upload-icon{
+        font-size: 2.2rem;
+        color: #0a3d91;
+        margin-bottom: .5rem;
+    }
+
+    .receipt-upload-title{
+        color: #0f1d3d;
+        font-weight: 700;
+        margin-bottom: .25rem;
+    }
+
+    .receipt-upload-subtitle{
+        font-size: .82rem;
+        color: #7d8aa9;
+    }
+
+    .receipt-file-name{
+        display: none;
+        margin-top: .75rem;
+        padding: .6rem .75rem;
+        background: #fff;
+        border: 1px solid #d8e3f5;
+        border-radius: 6px;
+        font-size: .85rem;
+        color: #435273;
+        word-break: break-word;
+    }
+
+    .receipt-file-name i{
+        color: #0a3d91;
+    }
+
+    .receipt-existing{
+        margin-top: .75rem;
+        padding: .65rem .75rem;
+        border: 1px solid #cfe2ff;
+        background: #f4f8fd;
+        border-radius: 6px;
+        font-size: .85rem;
+    }
+
+    .receipt-existing a {
+        color: #0a3d91;
+        font-weight: 600;
+        total-decoration: none;
+    }
+
+    .receipt-existing a:hover{
+        text-decoration: underline;
+    }
+
+
+    /* =========================================
+       TRANSACTION SECTION
+    ========================================= */
+
+    .transaction-panel{
+        overflow: hidden;
+    }
+
+    .transaction-panel .payment-panel-body {
+        padding: 1.25rem;
+    }
+
+
+    /* =========================================
+       TRANSACTION FORM CARD
+    ========================================= */
+
+    .transaction-form-card {
+        /* height: 100%; */
+        border: 1px solid #e1e8f2;
+        border-radius: 10px;
+        background: #fbfcfe;
+        padding: 1.25rem;
+    }
+
+
+    .transaction-form-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e1e8f2;
+    }
+
+
+    .transaction-form-heading h6 {
+        margin: 0;
+        color: #0f1d3d;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+
+    .transaction-form-heading p {
+        margin: .3rem 0 0;
+        color: #7d8aa9;
+        font-size: .85rem;
+    }
+
+
+    /* =========================================
+       TOTAL PAYABLE BADGE
+    ========================================= */
+
+    .transaction-amount-badge {
+        /* text-align: right;
+        white-space: nowrap; */
+        min-width: 180px; 
+        padding: .7rem 1rem;
+        border: 1px solid #d8e3f5;
+        background: #f4f8fd;
+        text-align: right;
+    }
+
+
+    .transaction-amount-badge span {
+        display: block;
+        color: #7d8aa9;
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .03rem;
+        font-weight: 600;
+    }
+
+
+    .transaction-amount-badge strong {
+        display: block;
+        margin-top: .2rem;
+        font-size: 1.05rem;
+        color: #0a3d91;
+    }
+
+
+    /* =========================================
+       RECEIPT SECTION
+    ========================================= */
+
+    .receipt-section {
+        /* height: 100%; */
+        padding: 1.25rem;
+        border: 1px solid #e1e8f2;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .receipt-section-heading{
+        margin-bottom: .75rem;
+    }
+
+    .receipt-help-text{
+        color: #7d8aa9;
+        font-size: .78rem;
+    }
+
+
+    /* =========================================
+       FILE UPLOAD BOX
+    ========================================= */
+
+    .receipt-upload-box {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+        /* min-height: 125px; */
+        margin: 0;
+        padding: 1rem 1.15rem;
+        border: 1.5px dashed #b9c9df;
+        border-radius: 10px;
+        background: #f8fbff;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+
+    .receipt-upload-box:hover {
+        border-color: #0a3d91;
+        background: #f3f7fd;
+    }
+
+
+    .receipt-upload-icon {
+        width: 46px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 9px;
+        background: #eaf2ff;
+        color: #0a3d91;
+        font-size: 1.4rem;
+    }
+
+
+    .receipt-upload-content {
+        min-width: 0;
+    }
+
+
+    .receipt-upload-title {
+        color: #2434d2;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+
+
+    .receipt-upload-subtitle {
+        margin-top: .25rem;
+        color: #7d8aa9;
+        font-size: .78rem;
+    }
+
+
+    .receipt-dot {
+        margin: 0 .3rem;
+    }
+
+
+    /* =========================================
+       SELECTED FILE
+    ========================================= */
+
+    .receipt-file-name {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 42px;
+        margin-top: .75rem;
+        padding: .65rem .8rem;
+        border-radius: 7px;
+        gap: .5rem;
+        background: #fafbfd;
+        color: #66738d;
+        font-size: .82rem;
+    }
+
+    .selected-file-info{
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        min-width: 0;
+    }
+
+    .selected-file-info i{
+        color: #7d8aa9;
+        font-size: 1rem;
+    }
+
+    .selected-file-info span{
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    /* =========================================
+       REMOVE FILE BUTTON
+    ========================================= */
+
+    .remove-file-btn{
+        width: 28px;
+        height: 28px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        border: 0;
+        border-radius: 6px;
+
+        background: #fff0f0;
+
+        color: #dc3545;
+        cursor: pointer;
+    }
+
+    .remove-file-btn:hover{
+        background: #dc3545;
+        color: #fff;
+    }
+
+
+    /* =========================================
+       EXISTING RECEIPT
+    ========================================= */
+
+    .receipt-existing {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        margin-top: .75rem;
+        padding: .75rem .95rem;
+        border: 1px solid #d8eadf;
+        border-radius: 8px;
+        background: #f7fcf9;
+    }
+
+
+    .receipt-existing-icon {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #e5f5eb;
+        color: #198754;
+    }
+
+
+    .receipt-existing-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+
+    .receipt-existing-content strong {
+        font-size: .82rem;
+        color: #285b3e;
+    }
+
+
+    .receipt-existing-content span {
+        margin-top: .1rem;
+        font-size: .72rem;
+        color: #789084;
+    }
+
+
+    .receipt-viewer-modal {
+        height: 90vh;
+    }
+
+    .receipt-viewer-modal .modal-body {
+        height: calc(90vh - 70px);
+        background: #f1f3f6;
+        overflow: hidden;
+    }
+
+    .receipt-document-frame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #fff;
+    }
+
+    .receipt-image-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        overflow: auto;
+    }
+
+    .receipt-document-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, .12);
+        background: #fff;
+    }
+
+    .receipt-viewer-loading {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: .75rem;
+        color: #6c7890;
+    }
+
+    /* =========================================
+       VIEW RECEIPT BUTTON
+    ========================================= */
+
+    .receipt-view-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .45rem .75rem;
+        border: 1px solid #c9d8ed;
+        border-radius: 6px;
+        color: #0a3d91;
+        background: #fff;
+        text-decoration: none;
+        font-size: .78rem;
+        font-weight: 600;
+        transition: all .2s ease;
+        white-space: nowrap;
+    }
+
+
+    .receipt-view-btn:hover {
+        background: #0a3d91;
+        color: #fff;
+    }
+
+    .receipt-file-name {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .7rem .85rem;
+        margin-top: .6rem;
+        border: 1px solid #d8e3f5;
+        border-radius: 6px;
+        background: #f8fbff;
+    }
+
+    #selectedFileText {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #435273;
+        font-size: .88rem;
+    }
+
+    .remove-file-btn {
+        border: 0;
+        background: transparent;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: #dc3545;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .remove-file-btn:hover {
+        background: #0a3d91;
+        color: #fff
+    }
+    /* =========================================
+       PANEL FOOTER
+    ========================================= */
+
+    .transaction-panel-footer{
+        display: flex;
+        justify-content: center;
+        padding: .9rem 1.25rem;
+        border-top: 1px solid #e1e8f2;
+        background: #fbfcfe;
+    }
+
+    .transaction-submit-btn{
+        min-width: 210px;
+        padding: .65rem 1.25rem;
+    }
+
+    /* =========================================
+       MOBILE
+    ========================================= */
+
+    @@media (max-width: 768px){
+        .transaction-form-heading{
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .transaction-amount-badge{
+            width: 100%;
+            text-align: left;
+        }
+
+        .receipt-existing{
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .receipt-view-btn{
+            margin-left: 42px;
+        }
+
+        .transaction-panel-footer{
+            padding: .85rem 1rem;
+        }
+
+        .transaction-submit-btn{
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 991.98px) {
+
+        .transaction-form-heading {
+            flex-direction: column;
+        }
+
+        .transaction-amount-badge {
+            text-align: left;
+        }
+    }
+
 </style>
 
 <div class="payment-calculation-page">
@@ -100,45 +661,76 @@
     <!-- ============================================
          APPLICABLE COURSES
     ============================================= -->
-
-    @if (allCourseFees.Any())
+    @if (applicableCourses.Any())
     {
         <div class="payment-panel">
+
             <div class="payment-panel-header">
-                Applicable Courses
-                (@allCourseFees.Select(e=> e.CourseCode).Distinct().Count())
+                Applicable Courses (@applicableCourseCount)
             </div>
 
             <div class="payment-panel-body table-responsive">
+
                 <table class="table table-bordered table-sm">
+
                     <thead class="table-light">
                         <tr>
                             <th>Course Name</th>
                             <th>Course Level</th>
-                            <th class="text-end">Academic Intake 2026</th>
+                            <th class="text-end">
+                                Academic Intake 2026
+                            </th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        @foreach(var course in allCourseFees.GroupBy(e => e.CourseCode).Select(e => e.First()))
+
+                        @foreach (var course in applicableCourses
+                            .OrderBy(e => e.CourseName))
                         {
                             <tr>
+
                                 <td>
                                     @course.CourseName
                                 </td>
+
                                 <td>
                                     @course.CourseLevel
                                 </td>
+
                                 <td class="text-end">
-                                    @course.AcademicIntake2026
+                                    @course.Ay2026TotalIntake
                                 </td>
+
                             </tr>
                         }
+
                     </tbody>
+
                 </table>
+
             </div>
+
         </div>
     }
+    else
+    {
+        <div class="payment-panel">
 
+            <div class="payment-panel-header">
+                Applicable Courses
+            </div>
+
+            <div class="payment-panel-body">
+
+                <div class="text-center text-muted py-3">
+                    No courses found for the selected course level.
+                </div>
+
+            </div>
+
+        </div>
+    }
     <!-- ============================================
          FEE BREAKDOWN
     ============================================= -->
@@ -161,7 +753,10 @@
                             Intake
                         </th>
                         <th class="text-end">Unit Amount </th>
-                        <th>Basics</th>
+                        <th>Basis</th>
+                        <th class="text-end">
+                            Multiplier
+                        </th>
                         <th class="text-end">
                             Line Amount
                         </th>
@@ -182,10 +777,29 @@
                                     <td>
                                         @feeType.FeeType
                                     </td>
-                                    <td>@fee.CourseName</td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(fee.CourseName))
+                                        {
+                                            @fee.CourseName
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">All @fee.CourseLevel Courses</span>
+                                        }
+                                    </td>
                                     <td>@fee.CourseLevel</td>
                                     <td class="text-end">
-                                        @fee.AcademicIntake2026
+                                        @if (string.Equals(
+                                            fee.CalculationType,
+                                            "Per Seat",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            @fee.AcademicIntake2026
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
                                     </td>
 
                                     <td class="text-end">
@@ -245,43 +859,542 @@
         </div>
     </div>
 
+    <form asp-action="Index"
+          method="post"
+          enctype="multipart/form-data">
 
-    <!-- ============================================
-         SUMMARY
-    ============================================= -->
+        @Html.AntiForgeryToken()
 
-    @if (allCourseFees.Any())
-    {
-        <div class="payment-panel">
-            <div class="payment-panel-header">
-                Summary
+        <input type="hidden"
+               name="AffiliationTypeId"
+               value="@Model.AffiliationTypeId" />
+
+
+        <!-- =========================================
+         PAYMENT / TRANSACTION DETAILS
+    ========================================= -->
+
+        <div class="payment-panel transaction-panel">
+
+            <!-- PANEL HEADER -->
+            <div class="payment-panel-header d-flex align-items-center">
+
+                <i class="bi bi-credit-card me-2"></i>
+
+                <span>
+                    Transaction Details
+                </span>
+
             </div>
 
+
+            <!-- PANEL BODY -->
             <div class="payment-panel-body">
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <strong>Affiliation Type: </strong>
-                        <br />
-                        @Model.AffiliationCategory
+
+
+                <!-- =====================================
+                 PAYMENT INFORMATION
+            ====================================== -->
+
+                <div class="transaction-form-card">
+
+                    <div class="transaction-form-heading">
+
+                        <div>
+
+                            <h6>
+                                Payment Information
+                            </h6>
+
+                            <p>
+                                Enter the transaction reference and
+                                upload the payment receipt.
+                            </p>
+
+                        </div>
+
+
+                        <!-- TOTAL PAYABLE -->
+                        <div class="transaction-amount-badge">
+
+                            <span>
+                                Total Payable
+                            </span>
+
+                            <strong>
+                                ₹ @grandTotal.ToString("N2")
+                            </strong>
+
+                        </div>
+
                     </div>
 
-                    <div class="col-md-4 mb-2">
-                        <strong>
-                            Applicable Courses: 
-                        </strong>
-                        <br />
-                        @allCourseFees.Select(e => e.CourseCode).Distinct().Count()
+
+                    <!-- =====================================
+                     TRANSACTION INPUTS
+                ====================================== -->
+
+                    <div class="row g-3 mt-1">
+
+                        <!-- TRANSACTION ID -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Transaction ID
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="TransactionId"
+                                   value="@Model.TransactionId"
+                                   placeholder="Enter transaction ID"
+                                   autocomplete="off"
+                                   required />
+
+                        </div>
+
+
+                        <!-- AMOUNT PAID -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Amount Paid
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    ₹
+                                </span>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="AmountPaid"
+                                       value="@(Model.AmountPaid > 0
+                                                                        ? Model.AmountPaid.ToString("N2")
+                                                                        : grandTotal.ToString("N2"))"
+                                       readonly />
+
+                            </div>
+
+                            <small class="text-muted">
+                                Amount is calculated automatically.
+                            </small>
+
+                        </div>
+
                     </div>
 
-                    <div class="col-md-4 mb-2">
-                        <strong>Grand Total: </strong>
-                        <br />
-                        ₹ @grandTotal.ToString("N2")
-                    </div>
                 </div>
+
+
+                <!-- =====================================
+                 RECEIPT SECTION
+            ====================================== -->
+
+                <div class="receipt-section mt-4">
+
+                    <div class="receipt-section-heading">
+
+                        <div>
+
+                            <label class="form-label mb-1">
+                                Transaction Receipt
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="receipt-help-text">
+                                Upload the receipt generated after payment.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                     UPLOAD BOX
+                ====================================== -->
+
+                    <label class="receipt-upload-box"
+                           for="TransactionReceipt">
+
+                        <div class="receipt-upload-icon">
+
+                            <i class="bi bi-cloud-arrow-up"></i>
+
+                        </div>
+
+
+                        <div class="receipt-upload-content">
+
+                            <div class="receipt-upload-title">
+
+                                Upload Payment Receipt
+
+                            </div>
+
+                            <div class="receipt-upload-subtitle">
+
+                                PDF, JPG or PNG
+
+                                <span class="receipt-dot">
+                                    •
+                                </span>
+
+                                Maximum 1 MB
+
+                            </div>
+
+                        </div>
+
+
+                        <input type="file"
+                               id="TransactionReceipt"
+                               name="TransactionReceipt"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               hidden />
+
+                    </label>
+
+
+                    <!-- =====================================
+                     SELECTED FILE
+                ====================================== -->
+
+                    <div id="selectedFileName"
+                         class="receipt-file-name">
+
+                        <div class="selected-file-info">
+
+                            <i class="bi bi-file-earmark-x"
+                               id="selectedFileIcon"></i>
+
+                            <span id="selectedFileText">
+                                No file selected
+                            </span>
+
+                        </div>
+
+
+                        <button type="button"
+                                id="removeSelectedFile"
+                                class="remove-file-btn"
+                                title="Remove selected file"
+                                style="display:none;">
+
+                            <i class="bi bi-x-lg"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- =====================================
+                     EXISTING RECEIPT
+                ====================================== -->
+                    @if (!string.IsNullOrWhiteSpace(Model.TransactionReceiptPath)
+                                        && Model.PaymentId.HasValue)
+                    {
+                        <div class="receipt-existing">
+
+                            <div class="receipt-existing-icon">
+
+                                <i class="bi bi-check-circle-fill"></i>
+
+                            </div>
+
+
+                            <div class="receipt-existing-content">
+
+                                <strong>
+                                    Receipt already uploaded
+                                </strong>
+
+                                <span>
+                                    A payment receipt is available
+                                    for this transaction.
+                                </span>
+
+                            </div>
+
+
+                            <a href="javascript:void(0);"
+                               class="receipt-view-btn"
+                               onclick="openReceiptViewer(@Model.PaymentId)">
+
+                                <i class="bi bi-eye me-1"></i>
+                                View Receipt
+
+                            </a>
+
+                        </div>
+                    }
+
+                </div>
+
             </div>
+
+
+            <!-- =========================================
+             PANEL FOOTER
+        ========================================== -->
+
+            <div class="transaction-panel-footer">
+
+                <button type="submit"
+                        class="btn btn-primary transaction-submit-btn">
+
+                    <i class="bi bi-check-circle me-2"></i>
+
+                    Save & Submit Payment
+
+                </button>
+
+            </div>
+
         </div>
 
-    }
+    </form>
+
+    <div class="modal fade"
+         id="receiptViewerModal"
+         tabindex="-1"
+         aria-labelledby="receiptViewerModalLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+
+            <div class="modal-content receipt-viewer-modal">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title"
+                        id="receiptViewerModalLabel">
+
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        Transaction Receipt
+
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+
+                <div class="modal-body p-0"
+                     id="receiptViewerContainer">
+
+                    <div class="receipt-viewer-loading">
+
+                        <div class="spinner-border"
+                             role="status">
+
+                            <span class="visually-hidden">
+                                Loading...
+                            </span>
+
+                        </div>
+
+                        <span>
+                            Loading receipt...
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 
 </div>
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const fileInput =
+                document.getElementById("TransactionReceipt");
+
+            const fileText =
+                document.getElementById("selectedFileText");
+
+            const removeButton =
+                document.getElementById("removeSelectedFile");
+
+            const fileIcon =
+                document.getElementById("selectedFileIcon");
+
+
+            // ==========================================
+            // FILE SELECTED
+            // ==========================================
+
+            fileInput.addEventListener("change", function() {
+
+                if (this.files && this.files.length > 0) {
+
+                    const file = this.files[0];
+
+                    // ----------------------------------
+                    // CHECK FILE SIZE
+                    // Maximum 1 MB
+                    // ----------------------------------
+
+                    if (file.size > 1024 * 1024) {
+
+                        alert(
+                            "File size should not exceed 1 MB."
+                        );
+
+                        this.value = "";
+
+                        fileText.textContent =
+                            "No file selected";
+
+                        removeButton.style.display =
+                            "none";
+
+                        return;
+                    }
+
+
+                    // ----------------------------------
+                    // SHOW FILE NAME
+                    // ----------------------------------
+
+                    fileText.textContent =
+                        file.name;
+
+                    removeButton.style.display =
+                        "flex";
+
+                    fileIcon.className =
+                        "bi bi-file-earmark-check"
+                }
+
+            });
+
+
+            // ==========================================
+            // REMOVE SELECTED FILE
+            // ==========================================
+
+            removeButton.addEventListener("click", function() {
+
+                fileInput.value = "";
+
+                fileText.textContent =
+                    "No file selected";
+
+                removeButton.style.display =
+                    "none";
+
+                fileIcon.className =
+                    "bi bi-file-earmark-x"
+
+            });
+
+        });
+
+        function openReceiptViewer(paymentId) {
+
+            const container =
+                document.getElementById(
+                    "receiptViewerContainer"
+                );
+
+            container.innerHTML = `
+                    <div class="receipt-viewer-loading">
+
+                        <div class="spinner-border"
+                             role="status">
+                        </div>
+
+                        <span>
+                            Loading receipt...
+                        </span>
+
+                    </div>
+                `;
+
+            const modalElement =
+                document.getElementById(
+                    "receiptViewerModal"
+                );
+
+            const modal =
+                bootstrap.Modal.getOrCreateInstance(
+                    modalElement
+                );
+
+            modal.show();
+
+            fetch(
+                '@Url.Action("ViewReceipt", "DentalPayment")'
+                + '?paymentId='
+                + paymentId
+            )
+                .then(response => {
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "Unable to load receipt."
+                        );
+                    }
+
+                    return response.text();
+                })
+                .then(html => {
+
+                    container.innerHTML = html;
+
+                })
+                .catch(error => {
+
+                    container.innerHTML = `
+                        <div class="alert alert-danger m-3">
+                            ${error.message}
+                        </div>
+                    `;
+
+                });
+        }
+    </script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@Html.Raw(TempData["SuccessMessage"])',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: '@Html.Raw(TempData["ErrorMessage"])',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    }
+
+}

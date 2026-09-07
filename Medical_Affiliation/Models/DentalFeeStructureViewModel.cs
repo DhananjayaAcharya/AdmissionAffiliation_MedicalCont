@@ -17,6 +17,19 @@ public class DentalFeeStructureViewModel
 
     public List<DentalOtherFeeViewModel> OtherFees { get; set; }
         = new();
+
+    public List<DentalCollegeCourseViewModel> ApplicableCourses { get; set; }
+    = new List<DentalCollegeCourseViewModel>();
+
+    // =====================================================
+    // PAYMENT / TRANSACTION DETAILS
+    // =====================================================
+
+    public int? PaymentId { get; set; }
+    public string? TransactionId { get; set; }
+    public string? TransactionReceiptPath { get; set; }
+    public decimal AmountPaid { get; set; }
+    public IFormFile? TransactionReceipt {  get; set; }
 }
 
 public class DentalFeeTypeRowViewModel
