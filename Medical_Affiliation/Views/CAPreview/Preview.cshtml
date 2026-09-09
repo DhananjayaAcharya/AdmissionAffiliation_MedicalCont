@@ -556,7 +556,7 @@
                         </a>
                     </li>
                 }
-                @if (Model.HumanResourcesVM.FacultyDetails != null)
+                @if (Model.HumanResourcesVM?.FacultyDetails != null)
                 {
                     <li class="nav-item">
                         <a class="nav-link" href="#human-resources-group">
@@ -805,10 +805,10 @@
                 <div class="section-separator"></div>
             }
 
-            @if (Model.HumanResourcesVM.FacultyDetails != null)
+            @if (Model.HumanResourcesVM?.FacultyDetails != null)
             {
                 <div id="human-resources-group">
-                    @await Html.PartialAsync("HumanResources/HumanResources.cshtml", Model.HumanResourcesVM)
+                    @await Html.PartialAsync(partialViewName: "HumanResources/HumanResources.cshtml", Model.HumanResourcesVM)
                 </div>
 
                 <div class="section-separator"></div>
@@ -816,7 +816,7 @@
             @if (Model.HostelPreviewVM != null && FacultyCode == "2")
             {
                 <div id="hostel-details-group">
-                    @await Html.PartialAsync("HostelDetails/HostelDetails", Model.HostelPreviewVM)
+                    @await Html.PartialAsync(partialViewName: "HostelDetails/HostelDetails", Model.HostelPreviewVM)
                 </div>
             }
             <!-- Section Separator -->
@@ -828,7 +828,7 @@
             @if (Model.MedicalUGBedDistributionVM != null && FacultyCode == "2")
             {
                 <div id="bed-distribution-group">
-                    @await Html.PartialAsync("UGBedDistribution/UGBedDistribution", Model.MedicalUGBedDistributionVM)
+                    @await Html.PartialAsync(partialViewName: "UGBedDistribution/UGBedDistribution", Model.MedicalUGBedDistributionVM)
                 </div>
             }
 
@@ -839,7 +839,7 @@
             @if (Model.DepartmentOfficesMeuVM != null)
             {
                 <div id="department-education-unit-group">
-                    @await Html.PartialAsync( "DEU/DepartmentEducationUnit",  Model.DepartmentOfficesMeuVM)
+                    @await Html.PartialAsync( partialViewName: "DEU/DepartmentEducationUnit",  Model.DepartmentOfficesMeuVM)
                 </div>
 
                 <div class="section-separator"></div>
@@ -858,7 +858,7 @@
             @if (Model.LibraryDisplay != null)
             {
                 <div id="library-group">
-                    @await Html.PartialAsync("Library/LibraryPreview", Model.LibraryDisplay)
+                    @await Html.PartialAsync(partialViewName: "Library/LibraryPreview", Model.LibraryDisplay)
                 </div>
             }
             <!-- Section Separator -->
@@ -869,7 +869,7 @@
             @if (Model.VehiclePreviewVM != null)
             {
                 <div id="vehicle-group">
-                    @await Html.PartialAsync("VehicleDetailsPreview/VehicleDetails", Model.VehiclePreviewVM)
+                    @await Html.PartialAsync(partialViewName: "VehicleDetailsPreview/VehicleDetails", Model.VehiclePreviewVM)
                 </div>
             }
 
@@ -893,7 +893,7 @@
             @if (Model.FacultyDesigNonTeachDisplayVM != null)
             {
                 <div id="fac-group">
-                    @await Html.PartialAsync("FacultyDesigNonTEaching/Preview", Model.FacultyDesigNonTeachDisplayVM)
+                    @await Html.PartialAsync(partialViewName: "FacultyDesigNonTEaching/Preview", Model.FacultyDesigNonTeachDisplayVM)
                 </div>
             }
 
@@ -910,7 +910,7 @@
             @if (Model.FinanceVm != null)
             {
                 <div id="finance-group">
-                    @await Html.PartialAsync("FinancialDetails/FinanceDetailsPreview", Model.FinanceVm)
+                    @await Html.PartialAsync(partialViewName: "FinancialDetails/FinanceDetailsPreview", Model.FinanceVm)
                 </div>
             }
 
@@ -924,7 +924,7 @@
             @if (Model.AdminTeachAndHostelVM != null)
             {
                 <div id="admin-group">
-                    @await Html.PartialAsync("AdminTeachAndHostel/AdminAndHostelPreview", Model.AdminTeachAndHostelVM)
+                    @await Html.PartialAsync(partialViewName: "AdminTeachAndHostel/AdminAndHostelPreview", Model.AdminTeachAndHostelVM)
                 </div>
             }
 
