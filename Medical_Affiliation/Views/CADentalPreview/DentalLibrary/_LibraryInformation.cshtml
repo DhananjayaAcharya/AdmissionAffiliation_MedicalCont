@@ -1,0 +1,266 @@
+﻿@model Medical_Affiliation.Models.LibraryInformationPreviewVM
+
+@if (Model != null)
+{
+    <!-- ====================================================== -->
+    <!-- GENERAL INFORMATION -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-info-circle"></i>
+                Library General Information
+            </div>
+        </div>
+
+        <table class="table data-table">
+            <tbody>
+
+                <tr>
+                    <th style="width:40%">Library Email ID</th>
+                    <td>@Model.General.LibraryEmailId</td>
+                </tr>
+
+                <tr>
+                    <th>Digital Library</th>
+                    <td>@Model.General.DigitalLibrary</td>
+                </tr>
+
+                <tr>
+                    <th>HELINET Services</th>
+                    <td>@Model.General.HelinetServices</td>
+                </tr>
+
+                <tr>
+                    <th>Department-wise Library</th>
+                    <td>@Model.General.DepartmentWiseLibrary</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- LIBRARY ITEMS -->
+    <!-- ====================================================== -->
+    @if (Model.Items.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-journal-bookmark"></i>
+                    Library Holdings
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Item</th>
+                            <th colspan="2" class="text-center">Current Year</th>
+                            <th colspan="2" class="text-center">Previous Year</th>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Foreign</th>
+                            <th class="text-center">Indian</th>
+                            <th class="text-center">Foreign</th>
+                            <th class="text-center">Indian</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+
+                                <td>@item.ItemName</td>
+
+                                <td class="text-center">@item.CurrentForeign</td>
+
+                                <td class="text-center">@item.CurrentIndian</td>
+
+                                <td class="text-center">@item.PreviousForeign</td>
+
+                                <td class="text-center">@item.PreviousIndian</td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- ====================================================== -->
+    <!-- BUILDING -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-building"></i>
+                Library Building
+            </div>
+        </div>
+
+        <table class="table data-table">
+            <tbody>
+
+                <tr>
+                    <th style="width:40%">Independent Library Building</th>
+                    <td>@Model.Building.IsIndependent</td>
+                </tr>
+
+                <tr>
+                    <th>Area (Sq. Mtrs.)</th>
+                    <td>@Model.Building.AreaSqMtrs</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- TECHNICAL PROCESS -->
+    <!-- ====================================================== -->
+    @if (Model.TechnicalProcesses.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-gear"></i>
+                    Technical Process
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Process</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.TechnicalProcesses)
+                        {
+                            <tr>
+
+                                <td>@item.ProcessName</td>
+
+                                <td>@item.Value</td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- ====================================================== -->
+    <!-- EQUIPMENTS -->
+    <!-- ====================================================== -->
+    @if (Model.Equipments.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-pc-display"></i>
+                    Library Equipments
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th class="text-center">Available</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.Equipments)
+                        {
+                            <tr>
+
+                                <td>@item.EquipmentName</td>
+
+                                <td class="text-center">@item.HasEquipment</td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- ====================================================== -->
+    <!-- FINANCE -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-cash-stack"></i>
+                Library Finance
+            </div>
+        </div>
+
+        <table class="table data-table">
+            <tbody>
+
+                <tr>
+                    <th style="width:40%">Total Budget (Lakhs)</th>
+                    <td>@Model.Finance.TotalBudgetLakhs</td>
+                </tr>
+
+                <tr>
+                    <th>Expenditure on Books (Lakhs)</th>
+                    <td>@Model.Finance.ExpenditureBooksLakhs</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+}

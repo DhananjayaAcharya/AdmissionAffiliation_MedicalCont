@@ -200,7 +200,7 @@ namespace Medical_Affiliation.Controllers
 
                 var excludedRoutes = new List<(string Controller, string Action)>
                 {
-                    ("ContinuousAffiliationIncreaseintake", "IncreaseIntake"),
+                    ("ContinuousAffiliationIncreaseintake", "DentalIncreaseIntake"),
                     ("CollegeLogin", "Dashboard"),
                     ("Common", "IntakePrerequisite"),
                     ("CollegeLogin", "GetTaluks")

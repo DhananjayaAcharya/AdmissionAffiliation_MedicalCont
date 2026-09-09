@@ -1,93 +1,124 @@
-﻿@model Medical_Affiliation.Models.VehicleDetailListDisplayViewModel
+﻿@model Medical_Affiliation.Models.VehicleDetailPreviewViewModel
 
-<div class="academic-section">
-    <div class="academic-header">
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="general-header">
         <div class="header-content">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h2 class="academic-title academic-badge">Institutional Vehicle Details</h2>
-                </div>
-
-                <a class="edit-button"
-                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode })">
-                    <i class="bi bi-pencil-square"></i>
-                    <span>Edit section</span>
-                </a>
-            </div>
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-truck"></i>
+                Vehicle Details
+            </h2>
         </div>
     </div>
-@if (Model != null && Model.Items.Any())
-{
-    <div class="general-body">
+
+    <!-- ====================================================== -->
+    <!-- VEHICLE DETAILS -->
+    <!-- ====================================================== -->
+    @if (Model.Vehicles.Any())
+    {
         <div class="section-block">
 
-            <!-- Header -->
-            <div class="section-header-block mb-3">
-                <div class="section-title-text department-badge">
-                    <i class="bi bi-truck"></i>
-                    Vehicle Details
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-car-front-fill"></i>
+                    Vehicles
                 </div>
-
-                <p class="section-description">
-                    Vehicles available for institutional use
-                </p>
             </div>
 
-            <!-- Vehicle Table -->
             <div class="data-table-wrapper">
-                <table class="table data-table requirements-table align-middle">
+
+                <table class="table data-table">
+
                     <thead>
                         <tr>
-                            <th>Vehicle Reg. No</th>
-                            <th>Purpose</th>
+                            <th>Vehicle Registration No.</th>
+                            <th>Vehicle For</th>
                             <th class="text-center">Seating Capacity</th>
-                            <th class="text-center">RC Book Status</th>
-                            <th class="text-center">Insurance Status</th>
-                            <th class="text-center">Driving License Status</th>
+                            <th class="text-center">FC Valid Till</th>
+                            <th class="text-center">RC Book</th>
+                            <th class="text-center">Insurance</th>
+                            <th class="text-center">Driving Licence</th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        @foreach (var item in Model.Items)
+
+                        @foreach (var vehicle in Model.Vehicles)
                         {
                             <tr>
-                                <td>
-                                    @item.VehicleRegNo
-                                </td>
 
-                                <td>
-                                    @item.VehicleForCode
+                                <td>@vehicle.VehicleRegNo</td>
+
+                                <td>@vehicle.VehicleFor</td>
+
+                                <td class="text-center">
+                                    @vehicle.SeatingCapacity
                                 </td>
 
                                 <td class="text-center">
-                                    @(item.SeatingCapacity?.ToString() ?? "-")
+                                    @(vehicle.ValidityDate?.ToString("dd-MM-yyyy") ?? "-")
                                 </td>
 
                                 <td class="text-center">
-                                    @(item.HasValidRc ? "Available" : "Not Available")
+                                    @if (vehicle.RcBookAvailable)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    }
                                 </td>
 
                                 <td class="text-center">
-                                    @(item.HasValidInsurance ? "Available" : "Not Available")
+                                    @if (vehicle.InsuranceAvailable)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    }
                                 </td>
 
                                 <td class="text-center">
-                                    @(item.HasValidLicense ? "Available" : "Not Available")
+                                    @if (vehicle.DrivingLicenseAvailable)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    }
                                 </td>
+
                             </tr>
                         }
+
                     </tbody>
+
                 </table>
+
             </div>
 
         </div>
-    </div>
-}
-else
-{
-    <div class="empty-state">
-        <i class="bi bi-inbox"></i>
-        <p>No vehicle details available.</p>
-    </div>
-}
+    }
+    else
+    {
+        <div class="section-block">
+
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-info-circle"></i>
+                No vehicle details available.
+            </div>
+
+        </div>
+    }
 
 </div>

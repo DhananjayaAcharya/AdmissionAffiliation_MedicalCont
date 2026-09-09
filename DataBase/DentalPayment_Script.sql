@@ -716,7 +716,11 @@ CREATE TABLE dbo.TxnDentalPayment
 select *  from [dbo].TxnDentalFeeStructure
 where CollegeCode = 'd038' and @AffiliationTypeId = 2 and FacultyCode = 2 and CourseLevel
 
+select * from CA_Progress
+where CollegeCode = 'd038';
 
+--delete from CA_Progress
+--where Id in (1395, 1396)
 ---------------------------------------------------------------
 --ALTER TABLE TxnDentalPayment
 --ADD CourseLevel VARCHAR(50) NULL;

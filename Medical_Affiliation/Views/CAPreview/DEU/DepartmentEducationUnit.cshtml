@@ -1,0 +1,242 @@
+﻿@model Medical_Affiliation.Models.DepartmentOfficesMeuPreviewVM
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-building"></i>
+                Department Offices & Education Unit
+            </h2>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- DEPARTMENT OFFICES -->
+    <!-- ============================================ -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-door-open"></i>
+                Department Offices
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <tbody>
+
+                    <tr>
+                        <th>HOD Room with Office & Records</th>
+                        <td>@(Model.HasHodRoomWithOfficeAndRecords == true ? "Yes" : "No")</td>
+                    </tr>
+
+                    <tr>
+                        <th>Rooms for Faculty & Residents</th>
+                        <td>@(Model.HasRoomsForFacultyAndResidents == true ? "Yes" : "No")</td>
+                    </tr>
+
+                    <tr>
+                        <th>Communication / Computer / Internet</th>
+                        <td>@(Model.FacultyRoomsHaveCommunicationComputerInternet == true ? "Yes" : "No")</td>
+                    </tr>
+
+                    <tr>
+                        <th>Rooms for Non-Teaching Staff</th>
+                        <td>@(Model.HasRoomsForNonTeachingStaff == true ? "Yes" : "No")</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MEDICAL EDUCATION UNIT -->
+    <!-- ============================================ -->
+    @if (Model.Medical != null)
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-mortarboard"></i>
+                    Medical Education Unit
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <tbody>
+
+                        <tr>
+                            <th>Medical Education Unit</th>
+                            <td>@(Model.Medical.HasMedicalEducationUnit == true ? "Yes" : "No")</td>
+                        </tr>
+
+                        @if (Model.Medical.HasMedicalEducationUnit == true)
+                        {
+                            <tr>
+                                <th>Area (Sq.m)</th>
+                                <td>@Model.Medical.MedicalEducationUnitAreaSqm</td>
+                            </tr>
+
+                            <tr>
+                                <th>Audio Visual Facility</th>
+                                <td>@(Model.Medical.MedicalEducationUnitHasAudioVisual == true ? "Yes" : "No")</td>
+                            </tr>
+
+                            <tr>
+                                <th>Internet Facility</th>
+                                <td>@(Model.Medical.MedicalEducationUnitHasInternet == true ? "Yes" : "No")</td>
+                            </tr>
+
+                            <tr>
+                                <th>Coordinator Name</th>
+                                <td>@Model.Medical.MeuCoordinatorName</td>
+                            </tr>
+
+                            <tr>
+                                <th>Designation / Department</th>
+                                <td>@Model.Medical.MeuCoordinatorDesignationDepartment</td>
+                            </tr>
+
+                            <tr>
+                                <th>Phone</th>
+                                <td>@Model.Medical.MeuCoordinatorPhone</td>
+                            </tr>
+
+                            <tr>
+                                <th>Email</th>
+                                <td>@Model.Medical.MeuCoordinatorEmail</td>
+                            </tr>
+
+                            <tr>
+                                <th>Activities</th>
+                                <td>@Model.Medical.MeuActivitiesLastAcademicYear</td>
+                            </tr>
+
+                            <tr>
+                                <th>Members List Uploaded</th>
+                                <td>@(Model.Medical.HasMeuMembersListFile ? "Yes" : "No")</td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+    <!-- ============================================ -->
+    <!-- DENTAL EDUCATION UNIT -->
+    <!-- ============================================ -->
+    @if (Model.Dental != null)
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    Dental Education Unit
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <tbody>
+
+                        <tr>
+                            <th>Dental Education Unit</th>
+                            <td>@(Model.Dental.HasDentalEducationUnit == true ? "Yes" : "No")</td>
+                        </tr>
+
+                        @if (Model.Dental.HasDentalEducationUnit == true)
+                        {
+                            <tr>
+                                <th>Area (Sq.m)</th>
+                                <td>@Model.Dental.DentalEducationUnitAreaSqm</td>
+                            </tr>
+
+                            <tr>
+                                <th>Audio Visual Facility</th>
+                                <td>@(Model.Dental.DentalEducationUnitHasAudioVisual == true ? "Yes" : "No")</td>
+                            </tr>
+
+                            <tr>
+                                <th>Internet Facility</th>
+                                <td>@(Model.Dental.DentalEducationUnitHasInternet == true ? "Yes" : "No")</td>
+                            </tr>
+
+                            <tr>
+                                <th>Coordinator Name</th>
+                                <td>@Model.Dental.DeuCoordinatorName</td>
+                            </tr>
+
+                            <tr>
+                                <th>Designation / Department</th>
+                                <td>@Model.Dental.DeuCoordinatorDesignationDepartment</td>
+                            </tr>
+
+                            <tr>
+                                <th>Phone</th>
+                                <td>@Model.Dental.DeuCoordinatorPhone</td>
+                            </tr>
+
+                            <tr>
+                                <th>Email</th>
+                                <td>@Model.Dental.DeuCoordinatorEmail</td>
+                            </tr>
+
+                            <tr>
+                                <th>Activities</th>
+                                <td>@Model.Dental.DeuActivitiesLastAcademicYear</td>
+                            </tr>
+
+                            <tr>
+                                <th>Members List</th>
+                                <td>
+                                    @if (Model.Dental.HasDeuMembersListFile)
+                                    {
+                                        <a asp-controller="Medical_ContinuousAffiliation"
+                                           asp-action="ViewDeuMembersList"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                            View PDF
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not Uploaded</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+</div>

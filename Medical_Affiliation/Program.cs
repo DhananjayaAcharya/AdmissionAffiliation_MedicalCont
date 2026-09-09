@@ -138,6 +138,21 @@ builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
 builder.Services.AddScoped<IFacultyHospitalHandler, DentalHospitalHandler>();
 builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
 builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
+
+builder.Services.AddScoped<ICAAcademicIntakeService, CAAcademicIntakeService>();
+builder.Services.AddScoped<IInstitutionPreviewService, InstitutionPreviewService>();
+builder.Services.AddScoped<ICATrustMemberDetailsPreviewService, CATrustMemberDetailsPreviewService>();
+builder.Services.AddScoped<ICADentalLandBuildingPreviewService, CADentalLandBuildingPreviewService>();
+builder.Services.AddScoped<ICATrustDetailsService, CATrustDetailsService>();
+builder.Services.AddScoped<IUGPgIntakeDetailsService, UGPgIntakeDetailsService>();
+builder.Services.AddScoped<ICAHostelPreviewService, CAHostelPreviewService>();
+builder.Services.AddScoped<ICAPgCourseService, CAPgCourseService>();
+builder.Services.AddScoped<ICADentalChairDistributionPreviewService, CADentalChairDistributionPreviewService>();
+builder.Services.AddScoped<ICAVehiclePreviewService, CAVehiclePreviewService>();
+builder.Services.AddScoped<ICADentalPreviewService, CAPreviewDentalService>();
+builder.Services.AddScoped<IHumanResourcesPreviewService, HumanResourcesPreviewService>();
+builder.Services.AddScoped<ITeachingFacultyDetailsService, TeachingFacultyDetailsService>();
+
 builder.Services.AddScoped<ICALibraryService, CALibraryService>();
 builder.Services.AddScoped<ICAVehicleService, CAVehicleService>();
 builder.Services.AddScoped<ICAHospitalAffiliationService, CAHospitalAffiliationService>();

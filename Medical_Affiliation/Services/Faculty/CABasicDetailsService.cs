@@ -40,6 +40,151 @@ namespace Medical_Affiliation.Services.Faculty
             };
         }
 
+        public async Task<DentalInstitutionBasicDetailsDisplayVM> GetAllDentalDetails()
+        {
+            var facultyId = _userContext.FacultyId;
+            var collegeCode = _userContext.CollegeCode;
+            var trustDetails = await GetTrustMembers();
+            var courseIntake = await GetSanctionedIntakeDetails();
+            var CourseDetails = await GetAffCourseDetails();
+            var ugCourseDetails = await GetAffiliationCourseDetails();
+            var deanOrDeanDetails = await GetDentalDeanOrDirectorDetails();
+            var principalDetails = await GetDentalPrincipalDetails();
+            var institutionDetails = await GetInstitutionDetails();
+
+
+            return new DentalInstitutionBasicDetailsDisplayVM
+            {
+                InstitutionDetails = institutionDetails,
+                TrustMemberVM = trustDetails,
+                IntakeForCourseVM = courseIntake,
+                AffCoursesVM = CourseDetails,
+                AffiliationCourseDetailVM = ugCourseDetails,
+                DeanOrDirectorDetailDisplayVM = deanOrDeanDetails,
+                PrincipalDetailDisplayVM = principalDetails
+            };
+        }
+
+        private async Task<InstitutionViewModel?> GetInstitutionDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId;
+
+            var institution = await _context.AffInstitutionsDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode.ToString());
+
+            if (institution == null)
+                return null;
+
+            var instType = await _context.MstInstitutionTypes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.InstitutionTypeId.ToString() == institution.TypeOfInstitution);
+
+            if (instType == null) return null;
+
+            var talukData = await _context.TalukMasters
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.TalukId == institution.Taluk);
+
+            var districtData = await _context.DistrictMasters
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.DistrictId == institution.District);
+
+            var clgStatus = await _context.AffInstitutionStatusMasters
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.StatusCode == institution.StatusOfCollege);
+
+            return new InstitutionViewModel
+            {
+                InstitutionId = institution.InstitutionId,
+                CollegeCode = institution.CollegeCode,
+                FacultyCode = institution.FacultyCode,
+
+                TypeOfInstitution = instType.InstitutionType,
+                NameOfInstitution = institution.NameOfInstitution,
+
+                Address = institution.Address,
+                VillageTownCity = institution.VillageTownCity,
+                Taluk = talukData.TalukName,
+                District = districtData.DistrictName,
+                PinCode = institution.PinCode,
+
+                MobileNumber = institution.MobileNumber,
+                StdCode = institution.StdCode,
+                Fax = institution.Fax,
+
+                Website = institution.Website,
+                SurveyNoPidNo = institution.SurveyNoPidNo,
+
+                MinorityInstitute = institution.MinorityInstitute,
+                AttachedToMedicalClg = institution.AttachedToMedicalClg,
+                RuralInstitute = institution.RuralInstitute,
+
+                YearOfEstablishment = institution.YearOfEstablishment,
+
+                EmailId = institution.EmailId,
+                AltLandlineMobile = institution.AltLandlineMobile,
+                AltEmailId = institution.AltEmailId,
+
+                HeadOfInstitution = institution.HeadOfInstitution,
+                HeadAddress = institution.HeadAddress,
+
+                FinancingAuthority = institution.FinancingAuthority,
+                StatusOfCollege = institution.StatusOfCollege,
+                CourseApplied = institution.CourseApplied,
+
+                DocumentName = institution.DocumentName,
+                DocumentContentType = institution.DocumentContentType,
+
+                NodalOfficer_Name = institution.NodalOfficerName,
+                NodalOfficer_Mob_Number = institution.NodalOfficerMobNumber,
+                NodalOfficer_Email = institution.NodalOfficerEmail,
+
+                Principal_Name = institution.PrincipalName,
+                Principal_Mob_No = institution.PrincipalMobNo,
+                Principal_Email = institution.PrincipalEmail,
+
+                HeadOfInstitution_Mob_NO =
+                    institution.HeadOfInstitutionMobNo,
+
+                HeadOfInstitution_Email =
+                    institution.HeadOfInstitutionEmail,
+
+                College_URL = institution.CollegeUrl,
+
+                TrustName = institution.TrustName,
+                TrustAddress = institution.TrustAddress,
+                TrustEstablishmentDate =
+                    institution.TrustEstablishmentDate,
+
+                TrustPresidentName =
+                    institution.TrustPresidentName,
+
+                TrustPresidentContactNo =
+                    institution.TrustPresidentContactNo,
+
+                DeanName = institution.DeanName,
+                DeanMobileNumber = institution.DeanMobileNumber,
+                DeanEmailId = institution.DeanEmailId,
+
+                PrincipalMobileNumber = institution.PrincipalMobileNumber,
+
+                PrincipalEmailId = institution.PrincipalEmailId,
+
+                MinorityCategory = institution.MinorityCategory,
+                RunningCourse = institution.RunningCourse,
+                CourseLevel = institution.CourseLevel,
+
+                GovAutonomousCertNumber = institution.GovAutonomousCertNumber,
+
+                hasGovAutoCertFile = !string.IsNullOrEmpty(institution.GovAutonomousCertPath)
+            };
+        }
+
+
         public async Task<ContinuationTrustMemberListDisplayViewModel> GetTrustMembers()
         {
             var collegeCode = _userContext.CollegeCode;
@@ -169,6 +314,43 @@ namespace Medical_Affiliation.Services.Faculty
                     DeanUniversity = x.DeanUniversity,
                     DeanStateCouncilNumber = x.DeanStateCouncilNumber,
                     RecognizedByMci = x.RecognizedByMci == true ? "Yes" : "No"
+                })
+                .FirstOrDefaultAsync();
+
+            return data;
+        }
+
+        public async Task<InstitutionViewModel?> GetDentalDeanOrDirectorDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId;
+
+            var data = await _context.AffInstitutionsDetails
+                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString())
+                .Select(x => new InstitutionViewModel
+                {
+                    DeanName = x.DeanName,
+                    DeanEmailId = x.DeanEmailId,
+                    DeanMobileNumber = x.DeanMobileNumber,
+                    DocumentName = x.DocumentName
+                })
+                .FirstOrDefaultAsync();
+
+            return data;
+        }
+
+        public async Task<InstitutionViewModel?> GetDentalPrincipalDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId;
+
+            var data = await _context.AffInstitutionsDetails
+                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString())
+                .Select(x => new InstitutionViewModel
+                {
+                    Principal_Name = x.PrincipalName,
+                    PrincipalEmailId = x.PrincipalEmail,
+                    PrincipalMobileNumber = x.PrincipalMobileNumber
                 })
                 .FirstOrDefaultAsync();
 

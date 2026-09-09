@@ -2,6 +2,8 @@
 {
     public class CATrustDetailsDisplayVM
     {
+
+        public int InstitutionId { get; set; }
         // =========================
         // Trust / Society Details
         // =========================
@@ -62,5 +64,7 @@
         public bool HasKncCertificateFile { get; set; }
         public bool HasDCIFile { get; set; }
         public bool HasKSDCFile { get; set; }
+
+        public List<DocumentViewerViewModel> Documents { get; set; } = new();
     }
 }

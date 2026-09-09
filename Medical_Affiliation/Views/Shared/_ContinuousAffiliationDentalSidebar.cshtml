@@ -107,7 +107,9 @@
     // ============================================================
 
     var selectedLevel =
-        Context.Session.GetString("SelectedCourseLevel")?.Trim().ToUpperInvariant();
+        Context.Session.GetString("SelectedCourseLevel")?
+            .Trim()
+            .ToUpperInvariant();
 
     var selectedCourseLevel =
         HttpContextAccessor.HttpContext?.Session?
@@ -115,8 +117,8 @@
             .Trim()
             .ToUpperInvariant();
 
-    // Use either SelectedCourseLevel or CourseLevel
-    var activeLevel = selectedLevel ?? selectedCourseLevel;
+    // Always prefer the currently selected CourseLevel
+    var activeLevel = selectedCourseLevel ?? selectedLevel;
 
     bool ShowUgTab = activeLevel == "UG";
     bool ShowPgTab = activeLevel == "PG";

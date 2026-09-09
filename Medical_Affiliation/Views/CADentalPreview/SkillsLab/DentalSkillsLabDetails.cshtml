@@ -1,0 +1,231 @@
+﻿@model Medical_Affiliation.Models.SkillsLabViewModel
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-building"></i>
+                Classroom & Skills Laboratory
+            </h2>
+        </div>
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- BASIC DETAILS -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-info-circle"></i>
+                Skills Laboratory Details
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+                    <tr>
+                        <th>Particular</th>
+                        <th class="text-center">Value</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Annual BDS Intake</td>
+                        <td class="text-center">@Model.AnnualBdsIntake</td>
+                    </tr>
+
+                    <tr>
+                        <td>Total Area Required (Sq.m)</td>
+                        <td class="text-center">@Model.TotalAreaRequiredSqm</td>
+                    </tr>
+
+                    <tr>
+                        <td>Total Area Available (Sq.m)</td>
+                        <td class="text-center">@Model.TotalAreaAvailableSqm</td>
+                    </tr>
+
+                    <tr>
+                        <td>Area Deficiency (Sq.m)</td>
+                        <td class="text-center">@Model.TotalAreaDeficiencySqm</td>
+                    </tr>
+
+                    <tr>
+                        <td>Number of Examination Rooms</td>
+                        <td class="text-center">@Model.NumberOfExaminationRooms</td>
+                    </tr>
+
+                    <tr>
+                        <td>Number of Skill Stations</td>
+                        <td class="text-center">@Model.NumberOfSkillStations</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- COMPLIANCE -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-check2-square"></i>
+                Infrastructure Compliance
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Requirement</th>
+
+                        <th class="text-center">Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @{
+
+                        var items = new[]
+                        {
+                            ("6 Weeks Training Completed", Model.SixWeeksTrainingCompletedBeforeClinical),
+
+                            ("Minimum Four Examination Rooms", Model.HasMinFourExamRooms),
+
+                            ("Demo Room for Small Groups", Model.HasDemoRoomSmallGroups),
+
+                            ("Debrief Area", Model.HasDebriefArea),
+
+                            ("Faculty Coordinator Room", Model.HasFacultyCoordinatorRoom),
+
+                            ("Support Staff Room", Model.HasSupportStaffRoom),
+
+                            ("Storage for Mannequins", Model.HasStorageForMannequins),
+
+                            ("Video Recording Facility", Model.HasVideoRecordingFacility),
+
+                            ("Group & Individual Stations", Model.HasGroupAndIndividualStations),
+
+                            ("Required Trainers & Mannequins", Model.HasRequiredTrainersAndMannequins),
+
+                            ("Dedicated Technical Officer", Model.HasDedicatedTechnicalOfficer),
+
+                            ("Adequate Support Staff", Model.HasAdequateSupportStaff),
+
+                            ("Teaching Areas with AV Facility", Model.TeachingAreasHaveAV),
+
+                            ("Teaching Areas with Internet", Model.TeachingAreasHaveInternet),
+
+                            ("E-Learning Enabled", Model.SkillsLabEnabledForELearning)
+                        };
+
+                    }
+
+                    @foreach (var item in items)
+                    {
+                        <tr>
+
+                            <td>@item.Item1</td>
+
+                            <td class="text-center">
+
+                                @if (item.Item2 == true)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle-fill text-danger"></i>
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- PRE CLINICAL LABS -->
+    <!-- ====================================================== -->
+    @if (Model.PreClinicalAndSkillsLabs.Any())
+    {
+        foreach (var labGroup in Model.PreClinicalAndSkillsLabs
+            .GroupBy(x => x.LaboratorySection))
+        {
+            <div class="section-block">
+
+                <div class="section-header-block">
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        @labGroup.Key
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Laboratory</th>
+                                <th class="text-center">Required Area (Sq.ft)</th>
+                                <th class="text-center">Existing Area (Sq.ft)</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var lab in labGroup)
+                            {
+                                <tr>
+                                    <td>@lab.LabName</td>
+                                    <td class="text-center">@lab.RequiredAreaSqFt</td>
+                                    <td class="text-center">@(lab.ExistingAreaSqFt ?? 0)</td>
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+    }
+</div>

@@ -12,7 +12,7 @@
 
         <div class="header-content">
 
-            <h2 class="academic-title academic-badge">
+            <h2 class="general-title general-badge">
 
                 <i class="bi bi-shield-check"></i>
 
@@ -385,10 +385,20 @@
                                     <tr>
                                         <th>Trust PAN File</th>
                                         <td>
-                                            <span class="badge bg-success">
+                                            <span class="badge bg-success me-4">
                                                 <i class="bi bi-check-circle"></i>
                                                 Uploaded
                                             </span>
+
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="openDocumentViewer(
+                                                        '@Url.Action("DownloadPANFile", "ContinuesAffiliation_Facultybased", new { id = Model.InstitutionId })',
+                                                        'Trust PAN File'
+                                                    )">
+                                                <i class="bi bi-eye me-1"></i>
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -399,10 +409,20 @@
                                     <tr>
                                         <th>Bank Statement</th>
                                         <td>
-                                            <span class="badge bg-success">
+                                            <span class="badge bg-success me-4">
                                                 <i class="bi bi-check-circle"></i>
                                                 Uploaded
                                             </span>
+
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="openDocumentViewer(
+                                                        '@Url.Action("DownloadBankStatement", "ContinuesAffiliation_Facultybased", new { id = Model.InstitutionId })',
+                                                        'Bank Statement'
+                                                    )">
+                                                <i class="bi bi-eye me-1"></i>
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -413,10 +433,19 @@
                                     <tr>
                                         <th>Registration Certificate</th>
                                         <td>
-                                            <span class="badge bg-success">
+                                            <span class="badge bg-success me-4">
                                                 <i class="bi bi-check-circle"></i>
                                                 Uploaded
                                             </span>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="openDocumentViewer(
+                                                '@Url.Action("DownloadRegistrationCertificate", "ContinuesAffiliation_Facultybased", new { id = Model.InstitutionId })',
+                                                        'Bank Statement'
+                                                    )">
+                                                <i class="bi bi-eye me-1"></i>
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -427,24 +456,20 @@
                                     <tr>
                                         <th>Audit Statement</th>
                                         <td>
-                                            <span class="badge bg-success">
+                                            <span class="badge bg-success me-4">
                                                 <i class="bi bi-check-circle"></i>
                                                 Uploaded
                                             </span>
-                                        </td>
-                                    </tr>
-                                }
 
-
-                                @if (Model.HasAmendedDoc)
-                                {
-                                    <tr>
-                                        <th>Amended Document</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="openDocumentViewer(
+                                                        '@Url.Action("DownloadAuditStatement", "ContinuesAffiliation_Facultybased", new { id = Model.InstitutionId })',
+                                                        'Bank Statement'
+                                                    )">
+                                                <i class="bi bi-eye me-1"></i>
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -455,139 +480,26 @@
                                     <tr>
                                         <th>GOK Order — Existing Courses</th>
                                         <td>
-                                            <span class="badge bg-success">
+                                            <span class="badge bg-success me-4">
                                                 <i class="bi bi-check-circle"></i>
                                                 Uploaded
                                             </span>
+
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="openDocumentViewer(
+                                                        '@Url.Action("DownloadGokOrderExistingCourses", "ContinuesAffiliation_Facultybased", new { id = Model.InstitutionId })',
+                                                        'GOK Order — Existing Courses'
+                                                    )">
+                                                <i class="bi bi-eye me-1"></i>
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
                                 }
 
 
-                                @if (Model.HasRegisteredTrustMemberDetails)
-                                {
-                                    <tr>
-                                        <th>Registered Trust Member Details</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-
-
-                                @if (Model.HasAadhaarFile)
-                                {
-                                    <tr>
-                                        <th>Aadhaar File</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-
-
-                                @if (Model.HasGovAutonomousCertFile)
-                                {
-                                    <tr>
-                                        <th>Gov Autonomous Certificate</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-
-
-                                @if (Model.HasGovCouncilMembershipFile)
-                                {
-                                    <tr>
-                                        <th>Gov Council Membership</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-
-
-                                @if (Model.HasFirstAffiliationNotifFile)
-                                {
-                                    <tr>
-                                        <th>First Affiliation Notification</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-
-
-                                @if (Model.HasContinuationAffiliationFile)
-                                {
-                                    <tr>
-                                        <th>Continuation Affiliation</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-
-
-                                @if (Model.HasKncCertificateFile)
-                                {
-                                    <tr>
-                                        <th>KNC Certificate</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-
-
-                                @if (Model.HasDCIFile)
-                                {
-                                    <tr>
-                                        <th>DCI Certificate</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-
-
-                                @if (Model.HasKSDCFile)
-                                {
-                                    <tr>
-                                        <th>KSDC Certificate</th>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i>
-                                                Uploaded
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
+                                
 
                             </tbody>
 

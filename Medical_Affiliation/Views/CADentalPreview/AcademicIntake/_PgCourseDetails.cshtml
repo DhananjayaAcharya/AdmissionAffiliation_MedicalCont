@@ -1,4 +1,8 @@
 ﻿@model AffiliationPgCourseDisplayVM
+@{
+    var facultyCode = Context.Session.GetString("FacultyCode");
+    var isDental = facultyCode == "2";
+}
 
 <div class="section-block mb-4">
 
@@ -20,7 +24,7 @@
     </div>
 
     <!-- PG Degree Courses -->
-    @if (Model.PgDegreeCourses.Any())
+    @* @if (Model.PgDegreeCourses.Any())
     {
         <h6 class="fw-bold mt-3 mb-2">PG Degree Courses</h6>
 
@@ -45,11 +49,11 @@
                 </tbody>
             </table>
         </div>
-    }
+    } *@
 
 
     <!-- PG Diploma Courses -->
-    @if (Model.PgDiplomaCourses.Any())
+    @* @if (Model.PgDiplomaCourses.Any())
     {
         <h6 class="fw-bold mt-3 mb-2">PG Diploma Courses</h6>
 
@@ -74,7 +78,7 @@
                 </tbody>
             </table>
         </div>
-    }
+    } *@
 
 
     <!-- Course Particulars -->
@@ -132,11 +136,33 @@
                             <td>
                                 @if (item.HasGOKDocument)
                                 {
-                                    <span class="status-badge status-success">Available</span>
+                                    <span class="status-badge status-success me-2">
+                                        Available
+                                    </span>
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            onclick="openDocumentViewer(
+                                            '@Url.Action(
+                                                "ViewGokDocument",
+                                                "AffiliationPgCourse",
+                                                new
+                                                {
+                                                    courseCode = item.CourseCode,
+                                                    collegecode = Model.CollegeCode
+                                                }
+                                            )',
+                                        'GOK Permission Document'
+                                        )">
+                                        <i class="bi bi-eye me-1"></i>
+                                        View
+                                    </button>
                                 }
                                 else
                                 {
-                                    <span class="status-badge status-muted">Not Uploaded</span>
+                                    <span class="status-badge status-muted">
+                                        Not Uploaded
+                                    </span>
                                 }
                             </td>
                         </tr>
@@ -167,11 +193,29 @@
                             <td>
                                 @if (item.HasRguhsDocument)
                                 {
-                                    <span class="status-badge status-success">Available</span>
+                                    <span class="status-badge status-success me-2">
+                                        Available
+                                    </span>
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            onclick="openDocumentViewer(
+                                                '@Url.Action(
+                                                    "ViewRguhsDocument",
+                                                    "AffiliationPgCourse",
+                                                    new { courseCode = item.CourseCode }
+                                                )',
+                                                'RGUHS Permission Document'
+                                            )">
+                                        <i class="bi bi-eye me-1"></i>
+                                        View
+                                    </button>
                                 }
                                 else
                                 {
-                                    <span class="status-badge status-muted">Not Uploaded</span>
+                                    <span class="status-badge status-muted">
+                                        Not Uploaded
+                                    </span>
                                 }
                             </td>
                         </tr>
@@ -182,7 +226,7 @@
     }
 
     <!-- Other Department / NMC -->
-    @if (Model.OtherCoursesPermittedByNMC.Any())
+    @if (Model.OtherCoursesPermittedByNMC.Any() && !isDental)
     {
         <h6 class="fw-bold mt-3 mb-2">Other Department / NMC Courses</h6>
 

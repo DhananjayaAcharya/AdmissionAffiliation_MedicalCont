@@ -1807,6 +1807,7 @@ namespace Medical_Affiliation.Controllers
             var existing = await _context.AffHostelDetails
                 .FirstOrDefaultAsync(h =>
                     h.CollegeCode == collegeCode &&
+                    h.CourseLevel == courseLevel &&
                     h.FacultyCode == facultyCode);
 
             if (existing != null)
@@ -1958,8 +1959,11 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadPossessionProof(string collegeCode, string facultyCode)
         {
+
+            var courseLevel = HttpContext?.Session.GetString("CourseLevel") ?? "UG";
+
             var hostel = await _context.AffHostelDetails
-                .FirstOrDefaultAsync(h => h.CollegeCode == collegeCode && h.FacultyCode == facultyCode);
+                .FirstOrDefaultAsync(h => h.CollegeCode == collegeCode && h.FacultyCode == facultyCode && h.CourseLevel == courseLevel);
 
             if (hostel == null ||
                 string.IsNullOrEmpty(hostel.PossessionProofPath) ||

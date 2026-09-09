@@ -1,0 +1,101 @@
+﻿
+
+<style>
+    .document-viewer-modal {
+        height: 90vh;
+    }
+
+    .document-viewer-body {
+        padding: 0 !important;
+        height: calc(90vh - 70px);
+        overflow: hidden;
+    }
+
+    .document-viewer-frame {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 100%;
+        border: 0;
+    }
+
+    #documentViewerModal .modal-dialog {
+        width: 95vw;
+        max-width: 1600px;
+        margin: 5vh auto;
+    }
+</style>
+<div class="modal fade"
+     id="documentViewerModal"
+     tabindex="-1"
+     aria-labelledby="documentViewerModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+
+        <div class="modal-content document-viewer-modal">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="documentViewerModalLabel">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Document Viewer
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+            <div class="modal-body document-viewer-body">
+
+                <iframe id="documentViewerFrame"
+                        class="document-viewer-frame"
+                        src=""
+                        title="Document Viewer">
+                </iframe>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    window.openDocumentViewer = function(url, documentName, documentType) {
+
+        const modalElement = document.getElementById('documentViewerModal');
+        const frame = document.getElementById('documentViewerFrame');
+        const title = document.getElementById('documentViewerModalLabel');
+
+        if (!modalElement || !frame) {
+            console.error('Document viewer elements not found.');
+            return;
+        }
+
+        title.innerHTML =
+            '<i class="bi bi-file-earmark-text me-2"></i>' +
+            (documentName || 'Document Viewer');
+
+        frame.src = url;
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+    };
+
+    document.getElementById('documentViewerModal')
+        ?.addEventListener('hidden.bs.modal', function() {
+
+            const frame = document.getElementById('documentViewerFrame');
+
+            if (frame) {
+                frame.src = '';
+            }
+        });
+</script>

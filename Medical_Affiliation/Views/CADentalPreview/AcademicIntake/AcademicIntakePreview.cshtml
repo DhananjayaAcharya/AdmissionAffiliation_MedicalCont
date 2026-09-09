@@ -38,12 +38,12 @@
                 "AcademicIntake/_CourseLevelSection",
                 Tuple.Create("Super Specialty (SS)", Model.SsCourses))
         }
-        @if (Model.UgCourseDetails != null)
+        @* @if (Model.UgCourseDetails != null)
         {
             @await Html.PartialAsync(
                 "AcademicIntake/_UgCourseDetails",
                 Model.UgCourseDetails)
-        }
+        } *@
 
         @if (Model.PgCourseDetails != null)
         {

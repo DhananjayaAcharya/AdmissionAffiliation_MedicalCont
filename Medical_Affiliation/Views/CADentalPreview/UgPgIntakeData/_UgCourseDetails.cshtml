@@ -90,14 +90,41 @@
                         </td>
                     </tr>
 
-                    <tr>
-                        <th>Previous Notification</th>
-                        <td>
-                            @(Model.HasPreviousNotificationFile
-                                ? "Uploaded"
-                                : "Not Uploaded")
-                        </td>
-                    </tr>
+                    @if (Model.HasPreviousNotificationFile)
+                    {
+                        <tr>
+                            <th>Previous Notification</th>
+                            <td>
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-check-circle"></i>
+                                    Uploaded
+                                </span>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        onclick="openDocumentViewer(
+                                            '@Url.Action(
+                                                "PreviousNotification",
+                                                "ContinuesAffiliation_Facultybased",
+                                                new { courseId = Model.CourseId }
+                                            )',
+                                        'Previous Notification'
+                                        )">
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <th>Previous Notification</th>
+                            <td>
+                                <span class="text-muted">Not Uploaded</span>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -177,12 +204,41 @@
                         </td>
                     </tr>
 
-                    <tr>
-                        <th>GOK Order</th>
-                        <td>
-                            @(Model.HasGOKOrder ? "Uploaded" : "Not Uploaded")
-                        </td>
-                    </tr>
+                    @if (Model.HasGOKOrder)
+                    {
+                        <tr>
+                            <th>GOK Order</th>
+                            <td>
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-check-circle"></i>
+                                    Uploaded
+                                </span>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        onclick="openDocumentViewer(
+                                            '@Url.Action(
+                                                    "ViewGOKOrder",
+                                                    "ContinuesAffiliation_Facultybased",
+                                                    new { courseId = Model.CourseId }
+                                                )',
+                                            'GOK Order'
+                                         )">
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <th>GOK Order</th>
+                            <td>
+                                <span class="text-muted">Not Uploaded</span>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -215,14 +271,41 @@
                         </td>
                     </tr>
 
-                    <tr>
-                        <th>Supporting Document</th>
-                        <td>
-                            @(Model.HasLastAffiliationFile
-                                ? "Uploaded"
-                                : "Not Uploaded")
-                        </td>
-                    </tr>
+                    @if (Model.HasLastAffiliationFile)
+                    {
+                        <tr>
+                            <th>Supporting Document</th>
+                            <td>
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-check-circle"></i>
+                                    Uploaded
+                                </span>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        onclick="openDocumentViewer(
+                                    '@Url.Action(
+                                                                "ViewLastAffiliation",
+                                                                "ContinuesAffiliation_Facultybased",
+                                                                new { courseId = Model.CourseId }
+                                                            )',
+                                    'Supporting Document'
+                                    )">
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <th>Supporting Document</th>
+                            <td>
+                                <span class="text-muted">Not Uploaded</span>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

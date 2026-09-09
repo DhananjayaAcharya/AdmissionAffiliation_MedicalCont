@@ -10,7 +10,7 @@ namespace Medical_Affiliation.Models
 
         public string CollegeName { get; set; }
         public string FacultyName { get; set; }
-        public InstitutionPreviewViewModel InstitutionPreviewVM { get; set; }
+        public DentalInstitutionPreviewViewModel InstitutionPreviewVM { get; set; }
         public DentalCollegeLandBuildingViewModel? DentalLandBuildingPreview { get; set; }
         public MedicalUGBedDistributionVM? MedicalUGBedDistributionVM { get; set; }
 
@@ -87,6 +87,17 @@ namespace Medical_Affiliation.Models
         /// </summary>
         //public List<NonTeachingFacultyPreviewVM> NonTeachingFaculties { get; set; }
         //    = new();
+    }
+
+
+    public class InstitutionPreviewViewModel
+    {
+        public string? CollegeCode { get; set; }
+        public InstitutionGeneralDisplayVM GeneralDetails { get; set; }
+        public InstitutionContactDisplayVM ContactDetails { get; set; }
+        public InstitutionAuthorityDisplayVM AuthorityDetails { get; set; }
+        public InstitutionTrustDisplayVM TrustDetails { get; set; }
+        public InstitutionOtherDisplayVM OtherDetails { get; set; }
     }
 
     public class FacultyDetailsPreviewVM
@@ -1595,7 +1606,7 @@ namespace Medical_Affiliation.Models
     //        = new List<CaVehicleDetailDisplayViewModel>();
     //}
 
-    public class InstitutionPreviewViewModel
+    public class DentalInstitutionPreviewViewModel
     {
         public string? CollegeCode { get; set; }
         public InstitutionGeneralDisplayVM GeneralDetails { get; set; }
