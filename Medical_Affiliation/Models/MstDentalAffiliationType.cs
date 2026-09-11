@@ -25,5 +25,9 @@ public partial class MstDentalAffiliationType
 
     public DateTime? ModifiedDate { get; set; }
 
+    public int? TypeId { get; set; }
+
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;
+
+    public virtual ICollection<MstDentalFeeType> MstDentalFeeTypes { get; set; } = new List<MstDentalFeeType>();
 }

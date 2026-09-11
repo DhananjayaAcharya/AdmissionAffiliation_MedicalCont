@@ -48,9 +48,9 @@ CREATE TABLE MstDentalFeeTypes
         FOREIGN KEY (FacultyCode)
         REFERENCES Faculty(FacultyId),
 
-    CONSTRAINT FK_MstDentalFeeTypes_AffiliationType
+    CONSTRAINT FK_MstDentalFeeTypes_DentalAffiliationType
         FOREIGN KEY (AffiliationTypeId)
-        REFERENCES MstAffiliationType(AffiliationTypeId),
+        REFERENCES MstDentalAffiliationType(DentalAffiliationTypeId)
 
     CONSTRAINT UQ_MstDentalFeeTypes
         UNIQUE
@@ -62,6 +62,13 @@ CREATE TABLE MstDentalFeeTypes
         )
 );
 
+--ALTER TABLE MstDentalFeeTypes
+--DROP CONSTRAINT FK_MstDentalFeeTypes_AffiliationType;
+
+--ALTER TABLE MstDentalFeeTypes
+--ADD CONSTRAINT FK_MstDentalFeeTypes_DentalAffiliationType
+--    FOREIGN KEY (AffiliationTypeId)
+--    REFERENCES MstDentalAffiliationType(DentalAffiliationTypeId);
 
 --ALTER TABLE MstDentalFeeTypes
 --ADD CourseLevel NVARCHAR(50) NULL;
@@ -401,27 +408,43 @@ UNIQUE
 DECLARE @AffiliationTypeId INT = 1; -- Change this to the required AffiliationTypeId
 DECLARE @FacultyCode INT = 2;       -- Dental
 
+INSERT INTO MstDentalFeeTypes
+(
+    FacultyCode,
+    FeeType,
+    CourseLevel,
+    DisplayOrder,
+    AffiliationTypeId,
+    IsActive,
+    CreatedBy,
+    CreatedDate
+)
+VALUES
+(2, 'Application Fee', 'UG', 1, 2, 1, 'Admin', GETDATE()),
+(2, 'Annual Fee', 'UG', 2, 2, 1, 'Admin', GETDATE()),
+(2, 'Continuation of Affiliation / Renewal Fee of Affiliation', 'UG', 3, 2, 1, 'Admin', GETDATE()),
+(2, 'Administrative Fee & Service Charges', 'UG', 4, 2, 1, 'Admin', GETDATE()),
+(2, 'Institutional Helinet Fee', 'UG', 5, 2, 1, 'Admin', GETDATE()),
+(2, 'Course Identification Fee', 'UG', 6, 2, 1, 'Admin', GETDATE());
 
 INSERT INTO MstDentalFeeTypes
-( FacultyCode, FeeType, CourseLevel, DisplayOrder, AffiliationTypeId, IsActive, CreatedBy, CreatedDate)
+(
+    FacultyCode,
+    FeeType,
+    CourseLevel,
+    DisplayOrder,
+    AffiliationTypeId,
+    IsActive,
+    CreatedBy,
+    CreatedDate
+)
 VALUES
-( 2, 'Application Fee', 'UG', 1, 2, 1, 'Admin', GETDATE()),
-( 2, 'Annual Fee','UG', 2, 2, 1, 'Admin', GETDATE()),
-( 2, 'Continuation of Affiliation / Renewal Fee of Affiliation','UG', 3, 2, 1, 'Admin', GETDATE()),
-( 2, 'Administrative Fee & Service Charges','UG', 4, 2, 1, 'Admin', GETDATE()),
-( 2, 'Institutional Helinet Fee','UG', 5, 2, 1, 'Admin', GETDATE()),
-( 2, 'Course Identification Fee','UG', 6, 2, 1, 'Admin', GETDATE());
-
-INSERT INTO MstDentalFeeTypes (FacultyCode, FeeType, CourseLevel, DisplayOrder, AffiliationTypeId, IsActive, CreatedBy, CreatedDate)
-VALUES
-(2, 'Application Fee', 'PG', 1, 2, 1, 'Admin', GETDATE()),
-(2, 'Annual Fee', 'PG', 2, 2, 1, 'Admin', GETDATE()),
-(2, 'Continuation of Affiliation / Renewal Fee of Affiliation', 'PG', 3, 2, 1, 'Admin', GETDATE()),
-(2, 'Administrative Fee & Service Charges', 'PG', 4, 2, 1, 'Admin', GETDATE()),
-(2, 'Institutional Helinet Fee', 'PG', 5, 2, 1, 'Admin', GETDATE()),
-(2, 'Course Identification Fee', 'PG', 6, 2, 1, 'Admin', GETDATE());
-
-
+(2, 'Application Fee', 'PG', 1, 7, 1, 'Admin', GETDATE()),
+(2, 'Annual Fee', 'PG', 2, 7, 1, 'Admin', GETDATE()),
+(2, 'Continuation of Affiliation / Renewal Fee of Affiliation', 'PG', 3, 7, 1, 'Admin', GETDATE()),
+(2, 'Administrative Fee & Service Charges', 'PG', 4, 7, 1, 'Admin', GETDATE()),
+(2, 'Institutional Helinet Fee', 'PG', 5, 7, 1, 'Admin', GETDATE()),
+(2, 'Course Identification Fee', 'PG', 6, 7, 1, 'Admin', GETDATE());
 
 DECLARE @AffiliationTypeId INT = 1; -- Change this to the required AffiliationTypeId
 DECLARE @FacultyCode INT = 2;       -- Dental
@@ -600,6 +623,8 @@ CREATE TABLE MstDentalAffiliationType
 
     AffiliationCategory NVARCHAR(200) NOT NULL,
 
+    TypeId INT null,
+
     AcademicYear NVARCHAR(20) NOT NULL,
 
     IsActive BIT NOT NULL DEFAULT 1,
@@ -629,9 +654,12 @@ CREATE TABLE MstDentalAffiliationType
         )
 );
 
+--ALTER TABLE MstDentalAffiliationType
+--ADD TypeId INT null;
 
 INSERT INTO MstDentalAffiliationType
 (
+    TypeId,
     FacultyCode,
     AffiliationCategory,
     AcademicYear,
@@ -641,24 +669,23 @@ INSERT INTO MstDentalAffiliationType
 )
 VALUES
     -- UG
-    (2, 'Fresh Affiliation', '2025-26', 'UG', 1, GETDATE()),
-    (2, 'Continuation of Affiliation', '2025-26', 'UG', 1, GETDATE()),
-    (2, 'Enhancement of Seats / Increase in Intake', '2025-26', 'UG', 1, GETDATE()),
-    (2, 'Additional Courses for college', '2025-26', 'UG', 1, GETDATE()),
-    (2, 'Renewal of Consent of Affiliation', '2025-26', 'UG', 1, GETDATE()),
+    (1, 2, 'Fresh Affiliation', '2025-26', 'UG', 1, GETDATE()),
+    (2, 2, 'Continuation of Affiliation', '2025-26', 'UG', 1, GETDATE()),
+    (3, 2, 'Enhancement of Seats / Increase in Intake', '2025-26', 'UG', 1, GETDATE()),
+    (4, 2, 'Additional Courses for college', '2025-26', 'UG', 1, GETDATE()),
+    (5, 2, 'Renewal of Consent of Affiliation', '2025-26', 'UG', 1, GETDATE()),
 
     -- PG
-    (2, 'Fresh Affiliation', '2025-26', 'PG', 1, GETDATE()),
-    (2, 'Continuation of Affiliation', '2025-26', 'PG', 1, GETDATE()),
-    (2, 'Enhancement of Seats / Increase in Intake', '2025-26', 'PG', 1, GETDATE()),
-    (2, 'Additional Courses for college', '2025-26', 'PG', 1, GETDATE()),
-    (2, 'Renewal of Consent of Affiliation', '2025-26', 'PG', 1, GETDATE()),
+    (1, 2, 'Fresh Affiliation', '2025-26', 'PG', 1, GETDATE()),
+    (2, 2, 'Continuation of Affiliation', '2025-26', 'PG', 1, GETDATE()),
+    (3, 2, 'Enhancement of Seats / Increase in Intake', '2025-26', 'PG', 1, GETDATE()),
+    (4, 2, 'Additional Courses for college', '2025-26', 'PG', 1, GETDATE()),
+    (5, 2, 'Renewal of Consent of Affiliation', '2025-26', 'PG', 1, GETDATE()),
 
     -- COMMON / INSTITUTION LEVEL
-    (2, 'Change of Name of the College', '2025-26', NULL, 1, GETDATE()),
-    (2, 'Change of Address of the College', '2025-26', NULL, 1, GETDATE()),
-    (2, 'Change of Name And Address of the College', '2025-26', NULL, 1, GETDATE());
-
+    (6, 2, 'Change of Name of the College', '2025-26', NULL, 1, GETDATE()),
+    (7, 2, 'Change of Address of the College', '2025-26', NULL, 1, GETDATE()),
+    (8, 2, 'Change of Name And Address of the College', '2025-26', NULL, 1, GETDATE());
 
 
 /* ============================================================
@@ -742,6 +769,10 @@ FOREIGN KEY (DentalPaymentId)
 REFERENCES dbo.TxnDentalPayment(Id);
 
 select * from mstdentalfeestructure;
+
+--DELETE FROM MstDentalFeeStructure;
+
+delete from TxnDentalFeeStructure
 
 select * from mstdentalfeetypes;
 

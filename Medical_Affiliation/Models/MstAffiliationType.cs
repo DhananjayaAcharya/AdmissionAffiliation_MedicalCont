@@ -31,8 +31,6 @@ public partial class MstAffiliationType
 
     public virtual ICollection<MstDentalFeeStructure> MstDentalFeeStructures { get; set; } = new List<MstDentalFeeStructure>();
 
-    public virtual ICollection<MstDentalFeeType> MstDentalFeeTypes { get; set; } = new List<MstDentalFeeType>();
-
     public virtual ICollection<MstDentalOtherFeeStructure> MstDentalOtherFeeStructures { get; set; } = new List<MstDentalOtherFeeStructure>();
 
     public virtual ICollection<TxnCollegeFeePayment> TxnCollegeFeePayments { get; set; } = new List<TxnCollegeFeePayment>();

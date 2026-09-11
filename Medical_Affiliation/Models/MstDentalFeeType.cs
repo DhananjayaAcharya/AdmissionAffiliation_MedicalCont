@@ -27,7 +27,7 @@ public partial class MstDentalFeeType
 
     public string? CourseLevel { get; set; }
 
-    public virtual MstAffiliationType AffiliationType { get; set; } = null!;
+    public virtual MstDentalAffiliationType AffiliationType { get; set; } = null!;
 
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;
 
