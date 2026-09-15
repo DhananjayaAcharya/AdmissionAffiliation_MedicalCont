@@ -792,6 +792,31 @@
     .d-none {
         display: none !important;
     }
+
+    .notification-nav-icon {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -12px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 20px;
+        background: #dc2626;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;
+    }
 </style>
 
 @if (!string.IsNullOrEmpty(Model.FacultyCode))
@@ -849,6 +874,34 @@
                         <span class="sidebar-link-label">View Course Intake List</span>
                     </a>
                 </li>
+
+
+                <li class="sidebar-item">
+
+                    <a asp-controller="AffiliationNotifications"
+                       asp-action="Index"
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AffiliationNotifications" ? "active" : "")"
+                       title="Notifications">
+
+                        <span class="notification-nav-icon">
+
+                            <i class="bi bi-bell-fill"></i>
+
+                            <span id="sidebarNotificationBadge"
+                                  class="notification-badge"
+                                  style="display:none;">
+                            </span>
+
+                        </span>
+
+                        <span class="sidebar-link-label">
+                            Notifications
+                        </span>
+
+                    </a>
+
+                </li>
+
 
                 @if (facultyCode == "1")
                 {

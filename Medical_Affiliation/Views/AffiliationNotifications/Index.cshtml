@@ -1,0 +1,1409 @@
+﻿@model List<Medical_Affiliation.Models.AffiliationNotificationVM>
+
+@{
+    Layout = null;
+
+    ViewData["Title"] = "Notifications";
+
+    var unreadCount = Model.Count(x => !x.IsRead);
+    var specificNotifications = Model
+        .Where(x => !x.NotificationType.Equals("General", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    var generalNotifications = Model
+        .Where(x => x.NotificationType.Equals("General", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Notifications</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet" />
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f7fa;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #172033;
+        }
+
+        /* =========================================================
+                   PAGE
+                ========================================================= */
+
+        .notifications-page {
+            min-height: 100vh;
+            padding: 35px 45px 50px;
+        }
+
+        .notifications-wrapper {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+
+        /* =========================================================
+                   MAIN CONTAINER
+                ========================================================= */
+
+        .notification-shell {
+            background: #ffffff;
+            border: 1px solid #e1e5eb;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+        }
+
+
+        /* =========================================================
+                   HEADER
+                ========================================================= */
+
+        .notification-header {
+            padding: 27px 30px 22px;
+            border-bottom: 1px solid #e7e9ed;
+            background: #ffffff;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: #eef6f7;
+            color: #087f8c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+        }
+
+        .header-title {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #172033;
+        }
+
+        .header-subtitle {
+            margin: 4px 0 0;
+            color: #7b8494;
+            font-size: 13px;
+        }
+
+        .unread-summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #c2410c;
+            border-radius: 20px;
+            padding: 7px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .unread-summary-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #f97316;
+        }
+
+
+        /* =========================================================
+                   TABS
+                ========================================================= */
+
+        .notification-tabs {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            margin-top: 24px;
+        }
+
+        .notification-tab {
+            position: relative;
+            border: none;
+            background: transparent;
+            padding: 0 0 12px;
+            color: #707988;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            .notification-tab:hover {
+                color: #087f8c;
+            }
+
+            .notification-tab.active {
+                color: #087f8c;
+            }
+
+                .notification-tab.active::after {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: -1px;
+                    height: 2px;
+                    border-radius: 2px;
+                    background: #087f8c;
+                }
+
+        .tab-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 19px;
+            height: 19px;
+            padding: 0 5px;
+            margin-left: 4px;
+            border-radius: 10px;
+            background: #eef2f5;
+            color: #687384;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .notification-tab.active .tab-count {
+            background: #e5f4f5;
+            color: #087f8c;
+        }
+
+
+        /* =========================================================
+                   TOOLBAR
+                ========================================================= */
+
+        .notification-toolbar {
+            height: 46px;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e7e9ed;
+            background: #fafbfc;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            color: #687384;
+            font-size: 12px;
+        }
+
+        .toolbar-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar-right {
+            color: #687384;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+
+        /* =========================================================
+                   SECTION
+                ========================================================= */
+
+        .notification-section {
+            display: block;
+        }
+
+            .notification-section.hidden-section {
+                display: none;
+            }
+
+        .section-heading {
+            min-height: 48px;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: #f8fafb;
+            border-bottom: 1px solid #e5e8ec;
+            border-top: 1px solid #e5e8ec;
+        }
+
+            .section-heading:first-child {
+                border-top: none;
+            }
+
+        .section-arrow {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #596579;
+        }
+
+        .section-description {
+            margin-left: auto;
+            font-size: 11px;
+            color: #9aa3af;
+        }
+
+
+        /* =========================================================
+                   NOTIFICATION ROW
+                ========================================================= */
+
+        .notification-row {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-height: 112px;
+            padding: 18px 30px;
+            background: #ffffff;
+            border-bottom: 1px solid #edf0f2;
+            transition: background .18s ease;
+        }
+
+            .notification-row:hover {
+                background: #f8fbfc;
+            }
+
+            .notification-row.unread {
+                background: #eef8f6;
+            }
+
+                .notification-row.unread:hover {
+                    background: #e8f5f2;
+                }
+
+
+        /* =========================================================
+                   LEFT ICON
+                ========================================================= */
+
+        .notification-row-icon {
+            width: 43px;
+            height: 43px;
+            min-width: 43px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+            .notification-row-icon.specific {
+                background: #eaf4f7;
+                color: #087f8c;
+            }
+
+            .notification-row-icon.general {
+                background: #f1f3f5;
+                color: #64748b;
+            }
+
+
+        /* =========================================================
+                   CONTENT
+                ========================================================= */
+
+        .notification-main {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .notification-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .notification-file {
+            margin: 0;
+            color: #182230;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .notification-row.unread .notification-file {
+            font-weight: 800;
+        }
+
+
+        /* =========================================================
+                   SPECIFIC / GENERAL LABEL
+                ========================================================= */
+
+        .address-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 7px;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+            .address-label.specific {
+                color: #087f8c;
+            }
+
+            .address-label.general {
+                color: #64748b;
+            }
+
+            .address-label i {
+                font-size: 12px;
+            }
+
+
+        /* =========================================================
+                   BIG COLLEGE ADDRESS MESSAGE
+                ========================================================= */
+
+        .college-address {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 5px;
+            color: #1f2937;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+            .college-address i {
+                color: #087f8c;
+                font-size: 13px;
+            }
+
+        .general-address {
+            color: #667085;
+            font-weight: 600;
+        }
+
+            .general-address i {
+                color: #64748b;
+            }
+
+
+        /* =========================================================
+                   META
+                ========================================================= */
+
+        .notification-meta {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-top: 7px;
+            color: #98a1ad;
+            font-size: 11px;
+        }
+
+            .notification-meta span {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .notification-meta .separator {
+                width: 3px;
+                height: 3px;
+                background: #cbd1d8;
+                border-radius: 50%;
+            }
+
+
+        /* =========================================================
+                   RIGHT SIDE
+                ========================================================= */
+
+        .notification-right {
+            min-width: 135px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .new-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #e56a00;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+
+        .new-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #f97316;
+        }
+
+        .notification-date {
+            color: #8b95a3;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .view-pdf-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-width: 105px;
+            padding: 7px 12px;
+            border-radius: 6px;
+            border: 1px solid #d7e0e4;
+            background: #ffffff;
+            color: #087f8c;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all .18s ease;
+        }
+
+            .view-pdf-btn:hover {
+                background: #087f8c;
+                border-color: #087f8c;
+                color: #ffffff;
+            }
+
+
+        /* =========================================================
+                   EMPTY STATE
+                ========================================================= */
+
+        .empty-notifications {
+            padding: 70px 25px;
+            text-align: center;
+            background: #ffffff;
+        }
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f1f4f6;
+            color: #9aa3af;
+            font-size: 27px;
+        }
+
+        .empty-notifications h5 {
+            margin-bottom: 7px;
+            color: #374151;
+            font-weight: 700;
+        }
+
+        .empty-notifications p {
+            margin: 0;
+            color: #98a1ad;
+            font-size: 13px;
+        }
+
+
+        /* =========================================================
+                   BACK TO DASHBOARD
+                ========================================================= */
+
+        .dashboard-footer {
+            padding: 18px 30px;
+            background: #fafbfc;
+            border-top: 1px solid #e7e9ed;
+        }
+
+        .back-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #596579;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            transition: color .2s ease;
+        }
+
+            .back-dashboard:hover {
+                color: #087f8c;
+            }
+
+
+        /* =========================================================
+                   FILTER EMPTY
+                ========================================================= */
+
+        .filter-empty {
+            display: none;
+            padding: 50px 20px;
+            text-align: center;
+            color: #98a1ad;
+            font-size: 13px;
+        }
+
+
+        /* =========================================================
+                   RESPONSIVE
+                ========================================================= */
+
+        @@media (max-width: 900px) {
+
+            .notifications-page {
+                padding: 20px;
+            }
+
+            .notification-header {
+                padding: 22px;
+            }
+
+            .notification-toolbar {
+                padding: 0 22px;
+            }
+
+            .section-heading {
+                padding: 0 22px;
+            }
+
+            .notification-row {
+                padding: 18px 22px;
+            }
+
+            .dashboard-footer {
+                padding: 18px 22px;
+            }
+        }
+
+
+        @@media (max-width: 700px) {
+
+            .notifications-page {
+                padding: 10px;
+            }
+
+            .header-top {
+                align-items: flex-start;
+            }
+
+            .header-title {
+                font-size: 21px;
+            }
+
+            .header-subtitle {
+                font-size: 12px;
+            }
+
+            .unread-summary {
+                font-size: 10px;
+                padding: 6px 9px;
+            }
+
+            .notification-tabs {
+                gap: 18px;
+                overflow-x: auto;
+            }
+
+            .notification-tab {
+                white-space: nowrap;
+            }
+
+            .notification-row {
+                align-items: flex-start;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .notification-row-icon {
+                width: 38px;
+                height: 38px;
+                min-width: 38px;
+                font-size: 16px;
+            }
+
+            .notification-title-row {
+                display: block;
+            }
+
+            .notification-file {
+                font-size: 14px;
+            }
+
+            .notification-right {
+                min-width: auto;
+                align-items: flex-end;
+            }
+
+            .view-pdf-btn {
+                min-width: auto;
+                padding: 7px 9px;
+            }
+
+            .notification-date {
+                display: none;
+            }
+
+            .section-description {
+                display: none;
+            }
+        }
+
+
+        @@media (max-width: 500px) {
+
+            .notification-header {
+                padding: 18px;
+            }
+
+            .header-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .notification-toolbar {
+                padding: 0 18px;
+            }
+
+            .section-heading {
+                padding: 0 18px;
+            }
+
+            .notification-row {
+                padding: 15px 18px;
+            }
+
+            .notification-right {
+                min-width: 75px;
+            }
+
+            .new-status {
+                font-size: 9px;
+            }
+
+            .view-pdf-btn {
+                font-size: 10px;
+            }
+
+            .dashboard-footer {
+                padding: 16px 18px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="notifications-page">
+
+        <div class="notifications-wrapper">
+
+            <div class="notification-shell">
+
+                <!-- =====================================================
+                     HEADER
+                ====================================================== -->
+
+                <div class="notification-header">
+
+                    <div class="header-top">
+
+                        <div class="header-left">
+
+                            <div class="header-icon">
+                                <i class="bi bi-bell-fill"></i>
+                            </div>
+
+                            <div>
+                                <h1 class="header-title">
+                                    Notifications
+                                </h1>
+
+                                <p class="header-subtitle">
+                                    Important updates and communications for your college
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="unread-summary">
+
+                            <span class="unread-summary-dot"></span>
+
+                            <span>
+                                @unreadCount unread
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TABS -->
+
+                    <div class="notification-tabs">
+
+                        <button type="button"
+                                class="notification-tab active"
+                                data-filter="all">
+
+                            All
+
+                            <span class="tab-count">
+                                @Model.Count
+                            </span>
+
+                        </button>
+
+
+                        <button type="button"
+                                class="notification-tab"
+                                data-filter="unread">
+
+                            Unread
+
+                            <span class="tab-count">
+                                @unreadCount
+                            </span>
+
+                        </button>
+
+
+                        <button type="button"
+                                class="notification-tab"
+                                data-filter="read">
+
+                            Read
+
+                        </button>
+
+
+                        <button type="button"
+                                class="notification-tab"
+                                data-filter="specific">
+
+                            Specific
+
+                            <span class="tab-count">
+                                @specificNotifications.Count
+                            </span>
+
+                        </button>
+
+
+                        <button type="button"
+                                class="notification-tab"
+                                data-filter="general">
+
+                            General
+
+                            <span class="tab-count">
+                                @generalNotifications.Count
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================================
+                     TOOLBAR
+                ====================================================== -->
+
+                <div class="notification-toolbar">
+
+                    <div class="toolbar-left">
+
+                        <span class="toolbar-item">
+                            <i class="bi bi-funnel"></i>
+                            Filter
+                        </span>
+
+                        <span class="toolbar-item">
+                            <i class="bi bi-calendar3"></i>
+                            Date
+                            <i class="bi bi-chevron-down"></i>
+                        </span>
+
+                    </div>
+
+                    <div class="toolbar-right">
+                        <i class="bi bi-three-dots"></i>
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================================
+                     SPECIFIC NOTIFICATIONS
+                ====================================================== -->
+
+                <div id="specificSection"
+                     class="notification-section">
+
+                    <div class="section-heading">
+
+                        <i class="bi bi-chevron-down section-arrow"></i>
+
+                        <h2 class="section-title">
+                            Notifications addressed specifically to your college
+                        </h2>
+
+                        <span class="section-description">
+                            Direct communication
+                        </span>
+
+                    </div>
+
+
+                    @if (specificNotifications.Any())
+                    {
+                        foreach (var notification in specificNotifications)
+                        {
+                            <div class="notification-row
+                                                @(notification.IsRead ? "" : "unread")"
+                                 data-read="@notification.IsRead.ToString().ToLower()"
+                                 data-type="specific">
+
+                                <!-- ICON -->
+
+                                <div class="notification-row-icon specific">
+
+                                    <i class="bi bi-building-fill"></i>
+
+                                </div>
+
+
+                                <!-- CONTENT -->
+
+                                <div class="notification-main">
+
+                                    <div class="notification-title-row">
+
+                                        <p class="notification-file">
+                                            @notification.FileName
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="address-label specific">
+
+                                        <i class="bi bi-shield-check-fill"></i>
+
+                                        SPECIFIC NOTIFICATION
+
+                                    </div>
+
+
+                                    <div class="college-address">
+
+                                        <i class="bi bi-arrow-right-circle-fill"></i>
+
+                                        Addressed specifically to your college
+
+                                    </div>
+
+
+                                    <div class="notification-meta">
+
+                                        <span>
+                                            <i class="bi bi-calendar3"></i>
+
+                                            Published
+                                        </span>
+
+                                        <span class="separator"></span>
+
+                                        <span>
+                                            <i class="bi bi-building"></i>
+
+                                            Your College
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- RIGHT -->
+
+                                <div class="notification-right">
+
+                                    @if (!notification.IsRead)
+                                    {
+                                        <div class="new-status">
+
+                                            <span class="new-status-dot"></span>
+
+                                            NEW
+
+                                        </div>
+                                    }
+
+                                    <div class="notification-date">
+
+                                        @notification.CreatedDate.ToString("dd MMM yyyy")
+
+                                    </div>
+
+
+                                    <a href="@Url.Action(
+                                                                                           "ViewPdf",
+                                                                                           "AffiliationNotifications",
+                                                                                           new { id = notification.NotificationId })"
+                               target="_blank"
+                               class="view-pdf-btn">
+
+                                        <i class="bi bi-file-earmark-pdf-fill"></i>
+
+                                        View PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+                                        }
+                    }
+
+                </div>
+
+
+                <!-- =====================================================
+                     GENERAL NOTIFICATIONS
+                ====================================================== -->
+
+                <div id="generalSection"
+                     class="notification-section">
+
+                    <div class="section-heading">
+
+                        <i class="bi bi-chevron-down section-arrow"></i>
+
+                        <h2 class="section-title">
+                            General Notifications
+                        </h2>
+
+                        <span class="section-description">
+                            University-wide communication
+                        </span>
+
+                    </div>
+
+
+                    @if (generalNotifications.Any())
+                    {
+                        foreach (var notification in generalNotifications)
+                        {
+                            <div class="notification-row
+                                                @(notification.IsRead ? "" : "unread")"
+                                 data-read="@notification.IsRead.ToString().ToLower()"
+                                 data-type="general">
+
+                                <!-- ICON -->
+
+                                <div class="notification-row-icon general">
+
+                                    <i class="bi bi-megaphone-fill"></i>
+
+                                </div>
+
+
+                                <!-- CONTENT -->
+
+                                <div class="notification-main">
+
+                                    <div class="notification-title-row">
+
+                                        <p class="notification-file">
+                                            @notification.FileName
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="address-label general">
+
+                                        <i class="bi bi-globe2"></i>
+
+                                        GENERAL NOTIFICATION
+
+                                    </div>
+
+
+                                    <div class="college-address general-address">
+
+                                        <i class="bi bi-people-fill"></i>
+
+                                        For all Medical Colleges
+
+                                    </div>
+
+
+                                    <div class="notification-meta">
+
+                                        <span>
+                                            <i class="bi bi-calendar3"></i>
+
+                                            Published
+                                        </span>
+
+                                        <span class="separator"></span>
+
+                                        <span>
+                                            <i class="bi bi-globe2"></i>
+
+                                            University-wide
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- RIGHT -->
+
+                                <div class="notification-right">
+
+                                    @if (!notification.IsRead)
+                                    {
+                                        <div class="new-status">
+
+                                            <span class="new-status-dot"></span>
+
+                                            NEW
+
+                                        </div>
+                                    }
+
+                                    <div class="notification-date">
+
+                                        @notification.CreatedDate.ToString("dd MMM yyyy")
+
+                                    </div>
+
+
+                                    <a href="@Url.Action(
+                                                                                           "ViewPdf",
+                                                                                           "AffiliationNotifications",
+                                                                                           new { id = notification.NotificationId })"
+                               target="_blank"
+                               class="view-pdf-btn">
+
+                                        <i class="bi bi-file-earmark-pdf-fill"></i>
+
+                                        View PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+                                        }
+                    }
+
+                </div>
+
+
+                <!-- =====================================================
+                     EMPTY STATE
+                ====================================================== -->
+                @if (!Model.Any())
+                {
+                    <div class="empty-notifications">
+
+                        <div class="empty-icon">
+                            <i class="bi bi-bell-slash"></i>
+                        </div>
+
+                        <h5>
+                            No notifications
+                        </h5>
+
+                        <p>
+                            There are currently no notifications available for your college.
+                        </p>
+
+                    </div>
+                }
+
+
+                <!-- FILTER EMPTY -->
+
+                <div id="filterEmpty"
+                     class="filter-empty">
+
+                    <i class="bi bi-search"></i>
+
+                    <div class="mt-2">
+                        No notifications found for this filter.
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================================
+                     FOOTER
+                ====================================================== -->
+
+                <div class="dashboard-footer">
+
+                    <a href="@Url.Action("Dashboard", "CollegeLogin")"
+                       class="back-dashboard">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Back to Dashboard
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =============================================================
+         FILTER SCRIPT
+    ============================================================== -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const tabs =
+                document.querySelectorAll(".notification-tab");
+
+            const rows =
+                document.querySelectorAll(".notification-row");
+
+            const specificSection =
+                document.getElementById("specificSection");
+
+            const generalSection =
+                document.getElementById("generalSection");
+
+            const filterEmpty =
+                document.getElementById("filterEmpty");
+
+
+            tabs.forEach(tab => {
+
+                tab.addEventListener("click", function () {
+
+                    /* Remove active state */
+
+                    tabs.forEach(x =>
+                        x.classList.remove("active")
+                    );
+
+                    this.classList.add("active");
+
+
+                    const filter =
+                        this.dataset.filter;
+
+
+                    let visibleCount = 0;
+
+
+                    /* =================================================
+                       ALL
+                    ================================================== */
+
+                    if (filter === "all") {
+
+                        specificSection.classList.remove("hidden-section");
+                        generalSection.classList.remove("hidden-section");
+
+                        rows.forEach(row => {
+
+                            row.style.display = "";
+
+                            visibleCount++;
+
+                        });
+
+                    }
+
+
+                    /* =================================================
+                       SPECIFIC
+                    ================================================== */
+
+                    else if (filter === "specific") {
+
+                        specificSection.classList.remove("hidden-section");
+                        generalSection.classList.add("hidden-section");
+
+                        rows.forEach(row => {
+
+                            if (row.dataset.type === "specific") {
+
+                                row.style.display = "";
+                                visibleCount++;
+
+                            }
+                            else {
+
+                                row.style.display = "none";
+
+                            }
+
+                        });
+
+                    }
+
+
+                    /* =================================================
+                       GENERAL
+                    ================================================== */
+
+                    else if (filter === "general") {
+
+                        specificSection.classList.add("hidden-section");
+                        generalSection.classList.remove("hidden-section");
+
+                        rows.forEach(row => {
+
+                            if (row.dataset.type === "general") {
+
+                                row.style.display = "";
+                                visibleCount++;
+
+                            }
+                            else {
+
+                                row.style.display = "none";
+
+                            }
+
+                        });
+
+                    }
+
+
+                    /* =================================================
+                       UNREAD / READ
+                    ================================================== */
+
+                    else {
+
+                        specificSection.classList.remove("hidden-section");
+                        generalSection.classList.remove("hidden-section");
+
+                        rows.forEach(row => {
+
+                            const isRead =
+                                row.dataset.read === "true";
+
+
+                            let show = false;
+
+
+                            if (filter === "unread" && !isRead) {
+                                show = true;
+                            }
+
+                            if (filter === "read" && isRead) {
+                                show = true;
+                            }
+
+
+                            if (show) {
+
+                                row.style.display = "";
+                                visibleCount++;
+
+                            }
+                            else {
+
+                                row.style.display = "none";
+
+                            }
+
+                        });
+
+                    }
+
+
+                    /* =================================================
+                       EMPTY FILTER MESSAGE
+                    ================================================== */
+
+                    if (visibleCount === 0) {
+
+                        filterEmpty.style.display = "block";
+
+                    }
+                    else {
+
+                        filterEmpty.style.display = "none";
+
+                    }
+
+                });
+
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>
