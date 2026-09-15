@@ -58,7 +58,7 @@ namespace Medical_Affiliation.Services.Faculty
 
                     ExistingFileName = saved?.UploadedFileName,
                     HasPdf = saved?.UploadedPdfPath != null,
-                    LibraryServiceId = saved.LibraryServiceId
+                    LibraryServiceId = saved?.LibraryServiceId ?? 0
 
                 };
             }).ToList();

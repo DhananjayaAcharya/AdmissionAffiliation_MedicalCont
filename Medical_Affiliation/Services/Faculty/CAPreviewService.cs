@@ -32,6 +32,10 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICATrustDetailsService _cATrustDetailsService;
         private readonly IUGPgIntakeDetailsService _ugPgIntakeDetailsService;
         private readonly ITeachingFacultyDetailsService _teachingFacultyDetailsPreviewService;
+        private readonly ICALibraryService _libraryService;
+        private readonly ICAFinanceService _financeService;
+        private readonly ICAAdminTeachAndHostel _adminTeachAndHostelService;
+        private readonly ICAFacultyDesigNonTeaching _facultyDesigNonTeachingService;
 
         public CAPreviewService(
             ICAAcademicService academicService,
@@ -58,6 +62,10 @@ namespace Medical_Affiliation.Services.Faculty
             ICATrustMemberDetailsPreviewService cATrustMemberDetailsPreviewService,
             IUGPgIntakeDetailsService ugPgIntakeDetailsService,
             ITeachingFacultyDetailsService teachingFacultyDetailsService,
+            ICALibraryService libraryService,
+            ICAFinanceService financeService,
+            ICAAdminTeachAndHostel adminTeachAndHostelService,
+            ICAFacultyDesigNonTeaching facultyDesigNonTeachingService,
             ApplicationDbContext dbContext)
         {
             _academicService = academicService;
@@ -84,6 +92,10 @@ namespace Medical_Affiliation.Services.Faculty
             _cATrustDetailsService = cATrustDetailsService;
             _ugPgIntakeDetailsService = ugPgIntakeDetailsService;
             _teachingFacultyDetailsPreviewService = teachingFacultyDetailsService;
+            _libraryService = libraryService;
+            _financeService = financeService;
+            _adminTeachAndHostelService = adminTeachAndHostelService;
+            _facultyDesigNonTeachingService = facultyDesigNonTeachingService;
             _context = dbContext;
         }
 
@@ -124,6 +136,10 @@ namespace Medical_Affiliation.Services.Faculty
                 AcademicPerformanceDisplayVm = await _academicPerformancePreviewService.GetAcademicPerformancePreviewAsync(),
                 MedicalLibraryPreviewVM = await _cALibraryService.GetMedicalLibraryPreviewAsync(),
                 HumanResourcesVM = await _humanResourcesPreviewService.GetHumanResourcesPreviewAsync(),
+                LibraryDisplay = await _libraryService.GetLibraryAsync(),
+                FinanceVm = await _financeService.GetFinanceDetails(),
+                AdminTeachAndHostelVM = await _adminTeachAndHostelService.GetAdminTeachAndHostelDetails(),
+                FacultyDesigNonTeachDisplayVM = await _facultyDesigNonTeachingService.GetFacultyDesigNonTeachingAsync(),
 
             };
         }

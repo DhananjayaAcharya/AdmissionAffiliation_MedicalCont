@@ -124,7 +124,7 @@ public class AutoProgressFilter : IAsyncActionFilter
             new CAStep { Key="SsAssociatedInstitutions", Ctrl="AffiliationSS", Act="AssociatedInstitutions" },
             new CAStep { Key="SsCoursesApplied", Ctrl="Aff_CA_SS_CoursesAppliedSS", Act="CA_SS_CoursesApplied" },
 
-            new CAStep { Key="AcademicMatters", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
+            new CAStep { Key="AcademicMatters", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },     
             new CAStep{ Key="PGAcademicMatters", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMattersPG" },
 
             new CAStep { Key="Finance", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },

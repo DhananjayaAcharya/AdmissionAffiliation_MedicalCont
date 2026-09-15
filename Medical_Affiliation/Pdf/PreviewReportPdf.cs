@@ -5811,11 +5811,11 @@ public class PreviewReportPdf : IDocument
 
             AddRow(
                 "Men Hostel Area (Sq.ft)",
-                hostel.MenHostelAreaSqFt.ToString());
+                hostel.MenHostelAreaSqFt ?? "—");
 
             AddRow(
                 "Women Hostel Area (Sq.ft)",
-                hostel.WomenHostelAreaSqFt.ToString());
+                hostel.WomenHostelAreaSqFt ?? "—");
 
             AddRow(
                 "Possession Proof",

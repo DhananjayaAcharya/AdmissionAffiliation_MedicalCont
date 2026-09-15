@@ -541,7 +541,7 @@
                         </a>
                     </li>
                 }
-                @if (Model.HumanResourcesVM.FacultyDetails != null)
+                @if (Model.HumanResourcesVM?.FacultyDetails != null)
                 {
                     <li class="nav-item">
                         <a class="nav-link" href="#human-resources-group">
@@ -790,7 +790,7 @@
                 <div class="section-separator"></div>
             }
 
-            @if (Model.HumanResourcesVM.FacultyDetails != null)
+            @if (Model.HumanResourcesVM?.FacultyDetails != null)
             {
                 <div id="human-resources-group">
                     @await Html.PartialAsync("HumanResources/HumanResources.cshtml", Model.HumanResourcesVM)

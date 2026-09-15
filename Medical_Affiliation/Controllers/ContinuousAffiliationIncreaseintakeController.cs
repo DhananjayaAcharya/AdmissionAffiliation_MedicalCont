@@ -15,13 +15,13 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
-
+ 
         // ════════════════════════════════════════════════════════════
         //  GET
         // ════════════════════════════════════════════════════════════
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
-        public async Task<IActionResult> IncreaseIntake()
+        public async Task<IActionResult> IncreaseIntake()  
         {
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -42,7 +42,7 @@ namespace Medical_Affiliation.Controllers
                 CollegeName = collegeName,
                 FacultyId = facultyId
             };
-
+           
             // 3. Populate Model with College-Specific Courses
             await BuildModelData(model, facultyCode, collegeCode, facultyId);
 
@@ -109,7 +109,7 @@ namespace Medical_Affiliation.Controllers
                     BuildModelData(model, facultyCode, collegeCode, facultyId);
                     return View(model);
                 }
-
+                        
                 // ── 2. Debug: log what arrived from the browser ────────────────
                 foreach (var inc in incoming)
                 {
@@ -164,7 +164,7 @@ namespace Medical_Affiliation.Controllers
                         db.CollegeCode = collegeCode;
 
                         db.Ay2024ExistingIntake = inc.Ay2024ExistingIntake;
-                        db.Ay2024IncreaseIntake = inc.Ay2024IncreaseIntake;
+                        db.Ay2024IncreaseIntake = inc.Ay2024IncreaseIntake; 
                         db.Ay2024TotalIntake = t2024;
 
                         db.Ay2025ExistingIntake = inc.Ay2025ExistingIntake;
@@ -200,7 +200,7 @@ namespace Medical_Affiliation.Controllers
 
                                     db.Ay2025Dcidocument =
                                         await SaveFileAsync(
-                                            vm.AY2025_DCIDocument,
+                                            vm.AY2025_DCIDocument,  
                                             "AY2025_DCI");
                                 }
 
