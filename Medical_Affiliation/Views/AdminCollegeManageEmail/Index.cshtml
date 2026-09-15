@@ -1,0 +1,743 @@
+﻿@model CollegeEmailUpdateViewModel
+
+@{
+    ViewData["Title"] = "Update College Email";
+}
+
+<style>
+    /* Email Cell  */
+
+    .email-cell{
+        cursor: text;
+    }
+
+    /* Readonly email  */
+    .email-input[readonly]{
+        background-color: transparent;
+        border-color: transparent;
+        cursor: text;
+        box-shadow: none;
+    }
+
+    .email-input[readonly]:hover{
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+
+    /* Editing */
+    .email-input.email-editing{
+        background-color: #fff;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.12);
+    }
+
+    /* TABLE  */
+
+    #collegeEmailTable th{
+        white-space: nowrap;
+    }
+
+
+</style>
+
+<div class="container-fluid py-4">
+    @* Header *@
+    <div class="mb-4">
+        <h2 class="fw-bold">
+            Update College Email
+        </h2>
+        <p class="text-muted">
+            Select faculty and college to update the registered email address.
+        </p>
+    </div>
+
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <div class="row align-items-end">
+                
+
+                <div class="col-md-6">
+                    <label asp-for="FacultyCode" class="form-label fw-semibold">Select Fculty</label>
+                    <select asp-for="FacultyCode" asp-items="Model.Faculties" class="form-select" id="facultyDropdown">
+                        <option value="">
+                            -- Select Faculty --
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================= -->
+    <!-- COLLEGE TABLE -->
+    <!-- ============================= -->
+
+    <div id="collegeTableCard" class="card border-0 shadow-sm d-none">
+        <div class="card-header bg-white border-0 p-4">
+            <div class="row align-items-center">
+                <div class="col-md-5">
+                    <h5 class="fw-bold mb-1">
+                        College Email Details
+                    </h5>
+
+                    <small class="text-muted">
+                        Click an email address to edit it.
+                    </small>
+                </div>
+
+                @* Search  *@
+                <div class="col-md-7 mt-3 mt-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input type="text" class="form-control" id="collegeSearch" placeholder="Search college code, name or email."/>
+                    </div>
+                </div>
+            </div>
+       </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">
+                                Sl NO
+                            </th>
+                            <th>
+                                College Code
+                            </th>
+                            <th>
+                                College Name
+                            </th>
+                            <th style="min-width: 320px;">
+                                Email
+                            </th>
+
+                            <th class="text-center">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="collegeTableBody">
+
+                    </tbody>
+                </table>
+                <div class="card-footer bg-white border-0 py-3">
+                    <div class="d-flext justify-content-between aligh-items-center">
+
+                        <div id="paginationInfo" class="text-muted small">
+                            Showing 0 of 0 colleges
+                        </div>
+
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="collegePagination">
+
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================= -->
+    <!-- NO DATA -->
+    <!-- ============================= -->
+
+    <div id="noCollegeMessage" class="card border-0 shadow-sm d-none">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-building fs-1 text-muted"></i>
+
+            <h5 class="mt-3">
+                No Colleges found
+            </h5>
+
+            <p class="text-muted mb-0">
+                No colleges are available for the selected faculty.
+            </p>
+        </div>
+    </div>
+ </div>
+
+<form id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>
+
+
+
+@section Scripts{
+    <script>
+        const facultyDropdown = document.getElementById("facultyDropdown");
+
+        const collegeTableCard = document.getElementById("collegeTableCard");
+
+        const collegeTableBody = document.getElementById("collegeTableBody");
+
+        const noCollegeMessage = document.getElementById("noCollegeMessage");
+
+        const collegeSearch = document.getElementById("collegeSearch");
+
+        const collegePagination = document.getElementById("collegePagination");
+        const paginationInfo = document.getElementById("paginationInfo");
+
+        let allColleges = [];
+        let currentPage = 1;
+        const pageSize = 10;
+
+        // ===============================
+        // FACULTY CHANGED
+        // ===============================
+
+        facultyDropdown.addEventListener("change", function(){
+            const facultyCode = this.value;
+
+            collegeTableBody.innerHTML = "";
+
+            collegeTableCard.classList.add("d-none");
+            noCollegeMessage.classList.add("d-none");
+
+            collegeSearch.value = "";
+            
+
+            if(!facultyCode){
+                return;
+            }
+
+            collegeTableCard.classList.remove("d-none");
+
+            collegeTableBody.innerHTML = `
+                <tr>
+                    <td colspan = "5" class="text-center py-5">
+                        <div class="spinner-border text-primary">
+                        </div>
+
+                        <div class="mt-2 text-muted">
+                            Loading colleges...
+                        </div>
+
+
+                    </td>
+                </tr>
+            `;
+
+            fetch(`@Url.Action("GetColleges", "AdminCollegeManageEmail")` + `?facultyCode=` + encodeURIComponent(facultyCode))
+            .then(response => {
+                if(!response.ok){
+                    throw new Error(
+                        "Unable to load colleges."
+                    );
+                }   
+                return response.json()
+            })
+            .then(data => {
+                collegeTableBody.innerHTML = ``;
+
+                if(!data || data.length === 0){
+                    collegeTableCard.classList.add("d-none");
+                    noCollegeMessage.classList.remove("d-none");
+                    return;
+                }
+
+                allColleges = data;
+                currentPage = 1;
+                renderCollegeTable();
+            })
+            .catch(error => {
+                console.error("error Message ",error);
+
+                collegeTableBody.innerHTML =  `
+                    <tr>
+                        <td colspan = "5" class="text-center text-danger py-5">
+                            <i class="bi bi-exclamation-triangle fs-3"></i>
+
+                            <div class="mt-2">
+                                Unable to load colleges.
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+
+        // ================================
+        // COLLEGE ROW CREATION
+        // ================================
+
+        function createCollegeRow(college, index){
+            const row = document.createElement("tr");
+
+            row.dataset.collegeCode = college.collegeCode;
+
+            row.innerHTML = `
+                <td class="ps-4">
+                    ${index + 1}
+                </td>
+
+                <td>
+                    <span class="fw-semibold">
+                        ${escapeHtml(college.collegeCode)}
+                    </span>
+                </td>
+
+                <td>
+                    ${escapeHtml(college.collegeName ?? "-")}
+                </td>
+
+                <td class="email-cell" title="Click to edit email">
+                    <div class="email-wrapper">
+                        <input type="email"
+                               class="form-control form-control-sm email-input"
+                               value="${escapeHtml(college.collegeEmail ?? "")}"
+                               placeholder="Email not available"
+                               readonly
+                        />
+                    </div>
+                </td>
+
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-primary update-email-btn">
+                        <i class="bi bi-save me-1" ></i>
+                        Update
+                    </button>
+                </td>
+            `;
+
+            const emailCell = row.querySelector(".email-cell");
+
+            const emailInput = row.querySelector(".email-input");
+
+
+            const updateButton = row.querySelector(".update-email-btn");
+
+
+            // ====================================== 
+            // CLICK EMAIL CELL
+            // ======================================
+
+            emailCell.addEventListener("click", function(){
+                enableEmailEditing(emailInput);
+            });
+
+            // =====================================
+            // UDPATE BUTTON 
+            // =====================================
+
+            updateButton.addEventListener("click", function(){
+                updateCollegeEmail(college, row, emailInput, updateButton);
+            });
+
+            collegeTableBody.appendChild(row);
+        }
+
+        function renderCollegeTable(){
+            collegeTableBody.innerHTML="";
+
+            const searchText = collegeSearch.value.toLowerCase().trim();
+
+            // FILTER
+
+            const filteredcolleges = allColleges.filter(college => {
+                const collegeCode = (college.collegeCode ?? "").toLowerCase();
+                const collegeName = (college.collegeName ?? "").toLowerCase();
+                const collegeEmail = (college.collegeEmail ?? "").toLowerCase();
+
+                return collegeCode.includes(searchText) || collegeName.includes(searchText) || collegeEmail.includes(searchText);
+            })
+
+            // NO RESULTS
+
+            if(filteredcolleges.length === 0){
+                collegeTableBody.innerHTML=`
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <i class="bi bi-search fs-3"></i>
+
+                            <div class="mt-2">
+                                No colleges found.
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                collegePagination.innerHTML="";
+
+                paginationInfo.textContent = "Showing 0 of 0 colleges";
+
+                return;
+            }
+
+            // PAGINATION CALCULATION
+
+            const totalRecords = filteredcolleges.length;
+
+            const totalPages = Math.ceil(totalRecords/pageSize);
+
+            // MAKE SURE CURRENT PAGE IS VALID
+
+            if(currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * pageSize;
+
+            const endIndex = Math.min(startIndex + pageSize, totalRecords);
+
+            const pageColleges = filteredcolleges.slice(startIndex, endIndex);
+
+            // CREATE ROWS
+
+            pageColleges.forEach((college, index) => {
+                createCollegeRow(college, startIndex + index);
+            });
+
+            // PAGINATION
+
+            renderPagination(totalPages, totalRecords, startIndex, endIndex);
+        }
+
+        function renderPagination(totalPages, totalRecords, startIndex, endIndex){
+            collegePagination.innerHTML = "";
+
+            // INFORMATION
+
+            paginationInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${totalRecords} colleges`;
+
+            // PREVIOUS
+
+            const previousLi = document.createElement("li");
+
+            previousLi.className=`page-item ${currentPage === 1 ? "disabled":""}`;
+            previousLi.innerHTML=`
+                <button class="page-link" type="button">
+                    <i class = "bi bi-chevron-left"></i>
+                </button>
+            `;
+
+            previousLi.querySelector("button").addEventListener("click", function(){
+                if(currentPage > 1){
+                    currentPage--;
+                    renderCollegeTable();
+                }
+            });
+
+            collegePagination.appendChild(previousLi);
+
+            // pageSize NUMBERS 
+
+            const pages = getPaginatedPages(currentPage, totalPages);
+
+            pages.forEach(page => {
+                if(page === "..."){
+                    const li = document.createElement("li");
+
+                    li.className = "page-item disabled";
+
+                    li.innerHTML = `
+                        <span class="page-link">
+                            ...
+                        </span>
+                    `;
+
+                    collegePagination.appendChild(li);
+
+                    return;
+                }
+
+                const li = document.createElement("li");
+
+                li.className=`page-item ${page === currentPage ? "active": ""}`;
+
+                li.innerHTML = `
+                    <button class="page-link" type="button">
+                        ${page}
+                    </button>
+                `;
+                li.querySelector("button").addEventListener("click", function(){
+                    currentPage = page;
+                    renderCollegeTable();
+                });
+
+                collegePagination.appendChild(li);
+            });
+
+            // NEXT
+
+            const nextLi = document.createElement("li");
+
+            nextLi.classList = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
+
+            nextLi.innerHTML=`
+                <button class="page-link" type="button">
+                    <li class="bi bi-chevron-right"></i>
+                </button>
+            `;
+
+            nextLi.querySelector("button").addEventListener("click", function(){
+                if(currentPage < totalPages){
+                    currentPage ++;
+                    renderCollegeTable();
+                }
+            });
+
+            collegePagination.appendChild(nextLi);
+        }
+
+        function getPaginatedPages(current, total){
+            const pages = [];
+
+            // FEW PAGES
+
+            if(total <=7 ){
+                for (let i = 1; i<= total; i++){
+                    pages.push(i);
+                }
+                return pages;
+            }
+
+            // FIRST PAGES
+
+            if(current <= 4){
+                pages.push(1);
+                pages.push(2);
+                pages.push(3);
+                pages.push(4);
+                pages.push(5);
+                pages.push("...");
+                pages.push(total);
+
+                return pages;
+            }
+
+            // LAST PAGES
+
+            if(current >= total - 3){
+                pages.push(1);
+                pages.push("...");
+                pages.push(total - 4);
+                pages.push(total - 3);
+                pages.push(total - 2);
+                pages.push(total - 1);
+                pages.push(total);
+                return pages;
+            }
+
+            // MIDDLE PAGES
+
+            pages.push(1);
+            pages.push("...");
+            pages.push(current - 1);
+            pages.push(current);
+            pages.push(current + 1);
+            pages.push("...");
+            pages.push(total);
+            return pages;
+        }
+
+
+        // ========================================== 
+        // ENABLE EMAIL EDITING 
+        // ==========================================
+
+        function enableEmailEditing(input){
+            if(!input.readOnly){
+                return;
+            }
+
+            input.readOnly = false;
+
+            input.classList.add("email-editing");
+
+            input.focus();
+
+            input.select();
+        }
+
+        // ==========================================
+        // CLICK OUTSIDE EMAIL
+        // ==========================================
+
+        document.addEventListener("click",function(e){
+            const emailInputs = document.querySelectorAll(".email-input");
+
+            emailInputs.forEach(
+                input => {
+                    const emailCell = input.closest(".email-cell");
+
+                    if(!emailCell.contains(e.target)){
+                        if(!input.value.trim()) input.value = "";
+
+                        input.readOnly = true;
+
+                        input.classList.remove('email-editing');
+                    }
+                }
+            )
+            
+        });
+
+        // ==============================
+        // UPDATE EMAIL
+        // ==============================
+
+        function updateCollegeEmail(college, row, emailInput, updateButton){
+
+            const email = emailInput.value.trim();
+
+            // =============================
+            // VALIDATION
+            // =============================
+
+            if(!email){
+                showInlineError(emailInput, "Email address is required.");
+
+                enableEmailEditing(emailInput);
+
+                return;
+            }
+
+            if(!emailInput.checkValidity()){
+                showInlineError(emailInput, "Please enter valid email address.");
+                enableEmailEditing(emailInput);
+                return;
+            }
+            // ==========================
+            // BUTTON LOADING
+            // ==========================
+
+            updateButton.disabled = true;
+            updateButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-1">
+                </span>
+
+                Saving...
+            `;
+
+            // ANTI FORGERY TOKEN
+
+            const token = document.querySelector(`#antiForgeryForm input[name="__RequestVerificationToken"]`).value;
+
+            const formData = new URLSearchParams();
+
+            formData.append("collegeCode", college.collegeCode);
+
+            formData.append("email", email);
+
+            formData.append("__RequestVerificationToken", token);
+
+            fetch(`@Url.Action("UpdateEmail", "AdminCollegeManageEmail")`,
+                {
+                    method:"post",
+                    headers: {
+                        "Content-Type" : "application/x-www-form-urlencoded"
+                    },
+
+                    body: formData
+                }
+            )
+            .then(response => {
+                if(!response.ok){
+                    throw new Error("Unable to update email.");
+                }
+
+                return response.json();
+            })
+            .then(result => {
+                if(!result.success){
+                    throw new Error(result.noCollegeMessage);
+                }
+
+                // UPDATE LOCAL DATA
+
+                college.collegeEmail = email;
+
+                emailInput.readOnly = true;
+
+                emailInput.classList.remove("email-editing");
+
+                //success
+
+                showSuccess(row, result.noCollegeMessage);
+            })
+            .catch(error =>{
+                console.error(error);
+
+                showInlineError(emailInput, error.noCollegeMessage || "Unable to update email.");
+            })
+            .finally(() => {
+                updateButton.disabled = false;
+
+                updateButton.innerHTML = `
+                    <i class="bi bi-save me-1"></i>
+                    Update
+                `;
+            });
+
+        }
+        // ========================================== 
+        // INLINE ERROR 
+        // ==========================================
+
+        function showInlineError(input, message){
+            const existing = input.parentElement.querySelector(".email-error");
+
+            if(existing) existing.remove();
+
+            const error = document.createElement("div");
+
+            error.className="email-error text-danger small mt-1";
+
+            error.textContent = message;
+
+            input.parentElement.appendChild(error);
+
+            setTimeout(()=> error.remove(), 4000);
+        }
+
+
+        // ========================================== 
+        // SUCCESS 
+        // ==========================================
+
+        function showSuccess(row, message){
+            const cell = row.querySelector(".email-cell");
+
+            const old = cell.querySelector(".update-success");
+
+            if(old) old.remove();
+
+            const success = document.createElement("div");
+
+            success.className = "update-success text-success small mt-1";
+
+            success.innerHTML=`<i class="bi bi-check-circle me-1"></i>
+                                ${escapeHtml(message)}`;
+                
+            cell.appendChild(success);
+
+            setTimeout( () => success.remove(), 3000);
+        }
+
+        // SEARCH
+
+        collegeSearch.addEventListener("input", function(){
+            currentPage = 1;
+            renderCollegeTable();
+        });
+
+        // HTML ENCODE
+
+        function escapeHtml(value){
+            if(value == null) return "";
+
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('""', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+    </script>
+}

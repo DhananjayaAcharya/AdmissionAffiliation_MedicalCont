@@ -168,6 +168,7 @@ namespace Medical_Affiliation.Controllers
             var ExaminerDetailsPdf3 = model.ExaminerDetailsPdf3;
             var ExaminerDetailsPdf4 = model.ExaminerDetailsPdf4;
             var ExaminerDetailsPdf5 = model.ExaminerDetailsPdf5;
+            var TeachersUpdatedPdf = model.TeachersUpdatedPdf;
 
             var collegeCode =
                 HttpContext.Session.GetString("CollegeCode");
@@ -273,6 +274,18 @@ namespace Medical_Affiliation.Controllers
                 entity.AcquittanceRegisterMaintained =
                     staffOther.AcquittanceRegisterMaintained;
 
+
+                if (TeachersUpdatedPdf != null)
+                {
+                    var path =
+                     await SaveStaffFileAsync(
+                        TeachersUpdatedPdf,
+                        "EmsList", FacultyCode);
+
+                    entity.TeachersUpdatedPdfPath = path;
+                    entity.TeachersUpdatedPdfName =
+                        TeachersUpdatedPdf.FileName;
+                }
 
                 if (ExaminerDetailsPdf != null)
                 {
@@ -490,6 +503,8 @@ namespace Medical_Affiliation.Controllers
                 staffOther.TeachersUpdatedInEMS =
                     commonEntity.TeachersUpdatedInEms;
 
+                staffOther.TeachersUpdatedPdfName = commonEntity.TeachersUpdatedPdfName;
+
                 staffOther.ExaminerDetailsAttached =
                     commonEntity.ExaminerDetailsAttached;
 
@@ -568,6 +583,11 @@ namespace Medical_Affiliation.Controllers
 
             switch (type)
             {
+                case "Ems":
+                    filePath = record.TeachersUpdatedPdfPath;
+                    fileName = record.TeachersUpdatedPdfName;
+                    break;
+
                 case "Examiner":
                     filePath = record.ExaminerDetailsPdfPath;
                     fileName = record.ExaminerDetailsPdfName;

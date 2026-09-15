@@ -569,17 +569,17 @@
         transition: all .15s ease;
     }
 
-    .btn-delete-row:hover {
-        background: #ffe8eb;
-        border-color: #e63c55;
-        color: #a7192d;
-        box-shadow: 0 2px 7px rgba(230,60,85,.15);
-    }
+        .btn-delete-row:hover {
+            background: #ffe8eb;
+            border-color: #e63c55;
+            color: #a7192d;
+            box-shadow: 0 2px 7px rgba(230,60,85,.15);
+        }
 
-    .btn-delete-row:disabled {
-        opacity: .6;
-        cursor: not-allowed;
-    }
+        .btn-delete-row:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
 </style>
 
 @* ── PAGE HEADER ── *@
@@ -624,7 +624,7 @@
 
 @* ── FORM ── *@
 <form method="post" enctype="multipart/form-data"
-      asp-action="IncreaseIntake"
+      asp-action="DentalIncreaseIntake"
       asp-controller="ContinuousAffiliationIncreaseintake"
       id="intakeForm">
     @Html.AntiForgeryToken()
@@ -1103,7 +1103,7 @@
                                 @* ── 2026-27 Existing (auto from 2025-26 Total) ── *@
                                 <td class="cc">
                                     <input type="number" class="ni" name="@(p).AY2026_ExistingIntake"
-                                            value="@c.AY2026_ExistingIntake" />
+                                           value="@c.AY2026_ExistingIntake" />
                                 </td>
 
                                 @* ── 2026-27 Add. Requested ── *@
@@ -1160,7 +1160,7 @@
                                 }
 
                                 @* ── 2027-28 Existing (auto from 2026-27 Total) ── *@
-                                
+
                             </tr>
                             ri++;
                         }
@@ -1350,7 +1350,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('change', function (e) {
+    document.addEventListener('change', function(e) {
         if (e.target.classList.contains('file-validate')) {
             const file = e.target.files[0];
             const maxSize = 2 * 1024 * 1024; // 2 MB

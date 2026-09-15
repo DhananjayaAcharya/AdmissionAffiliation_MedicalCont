@@ -1,18 +1,19 @@
-﻿using Medical_Affiliation.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Admission_Affiliation.Models;
+using BCrypt.Net;
+using Medical_Affiliation.DATA;
+using Medical_Affiliation.Models;
+using Medical_Affiliation.ViewModels;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
-using Medical_Affiliation.DATA;
 using Microsoft.IdentityModel.Tokens;
-using System.Net.Mail;
 using System.Net;
-using Admission_Affiliation.Models;
-using BCrypt.Net;
+using System.Net.Mail;
+using System.Security.Claims;
 
 namespace Admission_Affiliation.Controllers
 {
@@ -1347,10 +1348,289 @@ namespace Admission_Affiliation.Controllers
             return Ok(new { success = true });
         }
 
+
+        // GET: FacultyUser
+        [HttpGet]
+        public async Task<IActionResult> FacultyUsers(int? facultyId)
+        {
+            var faculties = await _context.Faculties
+                .Where(x => x.Status == "Active" || x.Status == null)
+                .OrderBy(x => x.FacultyName)
+                .ToListAsync();
+
+            ViewBag.Faculties = faculties;
+            ViewBag.SelectedFacultyId = facultyId;
+
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteFacultyUser(int id)
+        {
+            var user = await _context.TblRguhsFacultyUsers
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var facultyId = user.Faculty;
+
+            _context.TblRguhsFacultyUsers.Remove(user);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                nameof(FacultyUsers),
+                new { facultyId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUsersByFaculty(int facultyId)
+        {
+            var users = await _context.TblRguhsFacultyUsers
+                .Where(x => x.Faculty == facultyId)
+                .OrderBy(x => x.UserName)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.UserId,
+                    x.UserName,
+                    x.Faculty,
+                    x.IsActive,
+                    x.IsFinance,
+                    x.FinanceDesignation,
+                    x.DesignationDescription,
+                    x.IsSection,
+                    x.IsAdmin,
+                    x.FailedLoginAttempts,
+                    x.LockoutEndTime
+                })
+                .ToListAsync();
+
+            return Json(users);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateFacultyUser(TblRguhsFacultyUser user)
+        {
+            if (!ModelState.IsValid)
+            {
+                await LoadFaculties();
+                return RedirectToAction(nameof(FacultyUsers));
+            }
+
+            var exists = await _context.TblRguhsFacultyUsers.AnyAsync(e => e.UserId == user.Id);
+
+            if(exists)
+            {
+                ModelState.AddModelError("UserId", "A user with this User Id already exists");
+                await LoadFaculties();
+                return RedirectToAction(nameof(FacultyUsers));
+            }
+
+            user.IsFinance ??= false;
+            user.IsSection ??= false;
+            user.IsAdmin ??= false;
+            user.IsActive = true;
+
+            _context.TblRguhsFacultyUsers.Add(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                nameof(FacultyUsers),
+                new { facultyId = user.Faculty });
+        }
+
+        private async Task LoadFaculties()
+        {
+            ViewBag.Faculties = await _context.Faculties
+                .Where(e => e.Status == "Active" || e.Status == null)
+                .OrderBy(e => e.FacultyName)
+                .ToListAsync();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleFacultyUserProperty(int id, string propertyName)
+        {
+            var user = await _context.TblRguhsFacultyUsers.FirstOrDefaultAsync(e => e.Id == id);
+
+            if (user == null)
+            {
+                return NotFound($"Faculty user with Id {id} was not found.");
+            }
+
+            switch (propertyName.ToLowerInvariant())
+            {
+                case "isactive":
+                    user.IsActive = !user.IsActive;
+                    break;
+
+                case "isfinance":
+                    user.IsFinance = !(user.IsFinance ?? false);
+                    break;
+
+                case "issection":
+                    user.IsSection = !(user.IsSection ?? false);
+                    break;
+
+                case "isadmin":
+                    user.IsAdmin = !(user.IsAdmin ?? false);
+                    break;
+
+                default:
+                    return BadRequest("Invalid property.");
+            }
+
+            _context.TblRguhsFacultyUsers.Update(user);
+
+            var affectedRows = await _context.SaveChangesAsync();
+
+            if (affectedRows == 0) return BadRequest(new { success = false, message = "no db row updated" });
+
+            return RedirectToAction(
+                nameof(FacultyUsers),
+                new
+                {
+                    facultyId = user.Faculty
+                });
+        }
+
+        // Update Faculty
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateFaculty(int id, int? facultyId)
+        {
+            var user = await _context.TblRguhsFacultyUsers
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "User not found."
+                });
+            }
+
+            user.Faculty = facultyId;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = "Faculty updated successfully."
+            });
+        }
+
         public async Task<IActionResult> AdminMenu()
         {
             return View();
         }
+
+
+        // GET: /Admin/BinderyColleges?facultyCode=ABC
+        public async Task<IActionResult> BinderyColleges()
+        {
+            const string facultyCode = "2";
+
+            var colleges = await (
+                from college in _context.AffiliationCollegeMasters
+
+                join equipment in _context.CaMedLibraryEquipments
+                    .Where(x =>
+                        x.FacultyCode == facultyCode &&
+                        x.EquipmentName == "Bindery")
+                    on college.CollegeCode equals equipment.CollegeCode
+                    into equipmentGroup
+
+                from equipment in equipmentGroup.DefaultIfEmpty()
+
+                where college.FacultyCode == facultyCode
+
+                select new BinderyCollegeViewModel
+                {
+                    CollegeCode = college.CollegeCode,
+
+                    CollegeName = college.CollegeName,
+
+                    FacultyCode = facultyCode,
+
+                    HasEquipment = equipment != null
+                        ? equipment.HasEquipment
+                        : null,
+
+                    CourseLevel = equipment != null
+                        ? equipment.CourseLevel
+                        : "PG"
+                }
+            )
+            .OrderBy(x => x.CollegeName)
+            .ToListAsync();
+
+            ViewBag.FacultyCode = facultyCode;
+
+            return View(colleges);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateBindery( string collegeCode, string binderyValue)
+        {
+            const int facultyCode = 2;
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+            {
+                TempData["Error"] = "College code is required.";
+                return RedirectToAction(nameof(BinderyColleges));
+            }
+
+
+            if (string.IsNullOrWhiteSpace(binderyValue))
+            {
+                TempData["Error"] = "Bindery value is required.";
+                return RedirectToAction(nameof(BinderyColleges));
+            }
+
+
+            var entity = await _context.CaMedLibraryEquipments
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode.ToString() &&
+                    x.EquipmentName == "Bindery");
+
+            if (entity == null)
+            {
+                entity = new CaMedLibraryEquipment
+                {
+                    CollegeCode = collegeCode,
+                    FacultyCode = facultyCode.ToString(),
+                    EquipmentName = "Bindery",
+                    CourseLevel = "PG",
+                    HasEquipment = binderyValue
+
+                };
+
+                _context.CaMedLibraryEquipments.Add(entity);
+            }
+            else
+            {
+                entity.HasEquipment = binderyValue;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Bindery status updated for college {collegeCode}.";
+
+            return RedirectToAction(nameof(BinderyColleges));
+        }
+
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = "AdminAuth")]

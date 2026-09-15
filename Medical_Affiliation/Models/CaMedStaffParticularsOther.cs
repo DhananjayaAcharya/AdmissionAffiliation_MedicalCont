@@ -49,14 +49,6 @@ public partial class CaMedStaffParticularsOther
 
     public string? EsipdfPath { get; set; }
 
-    public string? ExaminerDetailsPdfPath2 { get; set; }
-
-    public string? ExaminerDetailsPdfPath3 { get; set; }
-
-    public string? ExaminerDetailsPdfPath4 { get; set; }
-
-    public string? ExaminerDetailsPdfPath5 { get; set; }
-
     public string? ExaminerDetailsPdfName2 { get; set; }
 
     public string? ExaminerDetailsPdfName3 { get; set; }
@@ -64,4 +56,12 @@ public partial class CaMedStaffParticularsOther
     public string? ExaminerDetailsPdfName4 { get; set; }
 
     public string? ExaminerDetailsPdfName5 { get; set; }
+
+    public string? ExaminerDetailsPdfPath2 { get; set; }
+
+    public string? ExaminerDetailsPdfPath3 { get; set; }
+
+    public string? ExaminerDetailsPdfPath4 { get; set; }
+
+    public string? ExaminerDetailsPdfPath5 { get; set; }
 }

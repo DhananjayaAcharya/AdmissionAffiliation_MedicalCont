@@ -308,7 +308,7 @@ public class PreviewReportPdf : IDocument
         // BASIC INFORMATION
         // --------------------------------------------------
 
-        AddSubHeading(col, "Basic Information", 78);
+        AddSubHeading(col, "Basic Information", 95);
 
         col.Item()
             .PaddingTop(8)
@@ -338,7 +338,7 @@ public class PreviewReportPdf : IDocument
         // COLLEGE LOCATION & CONTACT
         // --------------------------------------------------
 
-        AddSubHeading(col, "College Location & Contact", 78);
+        AddSubHeading(col, "College Location & Contact", 145);
 
         col.Item()
             .PaddingTop(8)
@@ -445,7 +445,7 @@ public class PreviewReportPdf : IDocument
             return;
         }
 
-        AddSubHeading(col, "Nodal Officer & Academic Info");
+        AddSubHeading(col, "Nodal Officer & Academic Info", 165);
 
         col.Item()
             .PaddingTop(8)
@@ -470,7 +470,7 @@ public class PreviewReportPdf : IDocument
         if (members?.Items == null || !members.Items.Any())
             return;
 
-        AddSubHeading(col, "Trust Members", 78);
+        AddSubHeading(col, "Trust Members", 85);
 
         col.Item()
             .PaddingTop(8)
@@ -667,7 +667,7 @@ public class PreviewReportPdf : IDocument
         // A. LAND DETAILS
         // =========================================================
 
-        AddSubHeading(col, "A. Land Details");
+        AddSubHeading(col, "Land Details", 70);
 
         
         col.Item().PaddingTop(5).Table(table =>
@@ -738,7 +738,7 @@ public class PreviewReportPdf : IDocument
         // B. BUILDING DETAILS
         // =========================================================
 
-        AddSubHeading(col, "B. Building Details");
+        AddSubHeading(col, "Building Details", 85);
 
         col.Item().PaddingTop(5).Table(table =>
         {
@@ -854,9 +854,7 @@ public class PreviewReportPdf : IDocument
 
         if (landBuilding.InfrastructureDetails?.Any() == true)
         {
-            AddSubHeading(
-                col,
-                "C. Infrastructure Requirements");
+            AddSubHeading(col, "Infrastructure Requirements");
 
             col.Item().PaddingTop(5).Table(table =>
             {
@@ -944,7 +942,7 @@ public class PreviewReportPdf : IDocument
         // D. DOCUMENTS
         // =========================================================
 
-        AddSubHeading(col, "D. Land & Building Documents");
+        AddSubHeading(col, "Land & Building Documents");
 
         col.Item().PaddingTop(5).Table(table =>
         {
@@ -1042,7 +1040,7 @@ public class PreviewReportPdf : IDocument
         // A. SKILLS LABORATORY DETAILS
         // =========================================================
 
-        AddSubHeading(col, "A. Skills Laboratory Details");
+        AddSubHeading(col, "Skills Laboratory Details", 130);
 
         col.Item()
             .PaddingTop(5)
@@ -1099,7 +1097,7 @@ public class PreviewReportPdf : IDocument
         // B. INFRASTRUCTURE COMPLIANCE
         // =========================================================
 
-        AddSubHeading(col, "B. Infrastructure Compliance");
+        AddSubHeading(col, "Infrastructure Compliance", 140);
 
         col.Item()
             .PaddingTop(5)
@@ -1210,8 +1208,7 @@ public class PreviewReportPdf : IDocument
         if (skillsLab.PreClinicalAndSkillsLabs?.Any() == true)
         {
             AddSubHeading(
-                col,
-                "C. Pre-Clinical & Skills Laboratory Areas");
+                col,"Pre-Clinical & Skills Laboratory Areas");
 
             foreach (var labGroup in skillsLab.PreClinicalAndSkillsLabs
                 .GroupBy(x => x.LaboratorySection))
@@ -1292,7 +1289,7 @@ public class PreviewReportPdf : IDocument
 
         AddMainHeading(col, "Dental Chair Distribution");
 
-        AddSubHeading(col, "Dental Chair Requirements");
+        AddSubHeading(col, "Dental Chair Requirements", 140);
 
         col.Item()
             .PaddingTop(5)
@@ -1707,7 +1704,7 @@ public class PreviewReportPdf : IDocument
             return;
         }
 
-        AddSubHeading(col, "Head of Institution Details");
+        AddSubHeading(col, "Head of Institution Details", 140);
 
         col.Item()
             .PaddingTop(8)
@@ -1811,7 +1808,7 @@ public class PreviewReportPdf : IDocument
         // TRUST CONTACT & COMMUNICATION
         // =========================================================
 
-        AddSubHeading(col, "Trust Contact & Communication");
+        AddSubHeading(col, "Trust Contact & Communication", 170);
 
         col.Item()
             .PaddingTop(8)
@@ -1885,7 +1882,7 @@ public class PreviewReportPdf : IDocument
         // TRUST CONTACT PERSON
         // =========================================================
 
-        AddSubHeading(col, "Trust Contact Person");
+        AddSubHeading(col, "Trust Contact Person", 110);
 
         col.Item()
             .PaddingTop(8)
@@ -1927,7 +1924,7 @@ public class PreviewReportPdf : IDocument
         if (!string.IsNullOrWhiteSpace(trust.ExistingTrustName) ||
             trust.ChangesInTrustName.HasValue)
         {
-            AddSubHeading(col, "Other Trust Information");
+            AddSubHeading(col, "Other Trust Information", 128);
 
             col.Item()
                 .PaddingTop(8)
@@ -1960,7 +1957,7 @@ public class PreviewReportPdf : IDocument
         // TRUST DOCUMENTS
         // =========================================================
 
-        AddSubHeading(col, "Trust Documents");
+        AddSubHeading(col, "Trust Documents", 92);
 
         col.Item()
             .PaddingTop(8)
@@ -2554,7 +2551,7 @@ public class PreviewReportPdf : IDocument
         {
             var h = hospital.ClinicalHospitalDetails;
 
-            AddSubHeading(col, "Clinical Hospital Details");
+            AddSubHeading(col, "Clinical Hospital Details", 130);
 
             col.Item().PaddingTop(5).Table(table =>
             {
@@ -2749,7 +2746,7 @@ public class PreviewReportPdf : IDocument
         {
             var allied = hospital.EngAlliedServices;
 
-            AddSubHeading(col, "Services");
+            AddSubHeading(col, "Services", 45);
 
             col.Item().PaddingTop(5).Table(table =>
             {
@@ -2819,7 +2816,7 @@ public class PreviewReportPdf : IDocument
 
         if (hospital.DentalWardBedDistribution?.Any() == true)
         {
-            AddSubHeading(col, "Dental Ward Bed Distribution");
+            AddSubHeading(col, "Dental Ward Bed Distribution", 160);
 
             col.Item().PaddingTop(5).Table(table =>
             {
@@ -2921,7 +2918,7 @@ public class PreviewReportPdf : IDocument
         {
             AddMainHeading(col, "Bed Distribution");
 
-            AddSubHeading(col, "A. Oral & Maxillofacial Surgery");
+            AddSubHeading(col, "Oral & Maxillofacial Surgery");
 
             col.Item()
                 .PaddingTop(5)
@@ -3526,7 +3523,7 @@ public class PreviewReportPdf : IDocument
         // DEPARTMENT OFFICE REQUIREMENTS
         // =========================================================
 
-        AddSubHeading(col, "Department Office Requirements");
+        AddSubHeading(col, "Department Office Requirements", 168);
 
         col.Item().PaddingTop(5).Table(table =>
         {
@@ -3590,7 +3587,7 @@ public class PreviewReportPdf : IDocument
 
         if (model.Dental != null)
         {
-            AddSubHeading(col, "Dental Education Unit");
+            AddSubHeading(col, "Dental Education Unit", 120);
 
             col.Item().PaddingTop(5).Table(table =>
             {
@@ -4200,7 +4197,7 @@ public class PreviewReportPdf : IDocument
 
         if (model.Items?.Any() == true)
         {
-            AddSubHeading(col, "Library Holdings");
+            AddSubHeading(col, "Library Holdings", 90);
 
             col.Item()
                 .PaddingTop(5)
@@ -4265,7 +4262,7 @@ public class PreviewReportPdf : IDocument
         // LIBRARY BUILDING
         // =========================================================
 
-        AddSubHeading(col, "Library Building");
+        AddSubHeading(col, "Library Building", 90);
 
         col.Item()
             .PaddingTop(5)
@@ -4294,7 +4291,7 @@ public class PreviewReportPdf : IDocument
 
         if (model.TechnicalProcesses?.Any() == true)
         {
-            AddSubHeading(col, "Technical Process");
+            AddSubHeading(col, "Technical Process" ,90);
 
             col.Item()
                 .PaddingTop(5)
@@ -4332,7 +4329,7 @@ public class PreviewReportPdf : IDocument
 
         if (model.Equipments?.Any() == true)
         {
-            AddSubHeading(col, "Library Equipments");
+            AddSubHeading(col, "Library Equipments", 90);
 
             col.Item()
                 .PaddingTop(5)
@@ -4370,7 +4367,7 @@ public class PreviewReportPdf : IDocument
         // FINANCE
         // =========================================================
 
-        AddSubHeading(col, "Library Finance");
+        AddSubHeading(col, "Library Finance", 90);
 
         col.Item()
             .PaddingTop(5)
@@ -4405,7 +4402,7 @@ public class PreviewReportPdf : IDocument
         // RESEARCH PUBLICATIONS
         // =========================================================
 
-        AddSubHeading(col, "Research Publications");
+        AddSubHeading(col, "Research Publications", 100);
 
         col.Item()
             .PaddingTop(5)
@@ -4475,7 +4472,7 @@ public class PreviewReportPdf : IDocument
         // FACULTY RESEARCH PROJECTS
         // =========================================================
 
-        AddSubHeading(col, "Faculty Research Projects");
+        AddSubHeading(col, "Faculty Research Projects", 120);
 
         col.Item()
             .PaddingTop(5)
@@ -4567,7 +4564,7 @@ public class PreviewReportPdf : IDocument
 
         if (model.Committees?.Any() == true)
         {
-            AddSubHeading(col, "Committees");
+            AddSubHeading(col, "Committees", 80);
 
             col.Item()
                 .PaddingTop(5)
@@ -4618,7 +4615,7 @@ public class PreviewReportPdf : IDocument
 
         if (model.DepartmentPublications?.Any() == true)
         {
-            AddSubHeading(col, "Department-wise Publications");
+            AddSubHeading(col, "Department-wise Publications", 160);
 
             col.Item()
                 .PaddingTop(5)
@@ -4667,7 +4664,7 @@ public class PreviewReportPdf : IDocument
 
     private void AddDentalLibraryRecordsPdfSection( ColumnDescriptor col, List<DentalLibraryRecordPreviewVM> records)
     {
-        AddSubHeading(col, "Dental Library Records");
+        AddSubHeading(col, "Dental Library Records", 120);
 
         col.Item()
             .PaddingTop(5)
@@ -4774,7 +4771,7 @@ public class PreviewReportPdf : IDocument
 
     private void AddDepartmentLibrariesPdfSection( ColumnDescriptor col,  List<DepartmentLibraryPreviewVM> departments)
     {
-        AddSubHeading(col, "Department Libraries");
+        AddSubHeading(col, "Department Libraries", 120);
 
         col.Item()
             .PaddingTop(5)
@@ -5737,7 +5734,7 @@ public class PreviewReportPdf : IDocument
         // BASIC HOSTEL DETAILS
         // =========================================================
 
-        AddSubHeading(col, "A. Hostel Details");
+        AddSubHeading(col, "Hostel Details", 80);
 
         col.Item().PaddingTop(5).Table(table =>
         {
@@ -5829,7 +5826,7 @@ public class PreviewReportPdf : IDocument
         // COMMON ROOMS / OTHER FACILITIES
         // =========================================================
 
-        AddSubHeading(col, "B. Common Rooms & Other Details");
+        AddSubHeading(col, "Common Rooms & Other Details");
 
         col.Item().PaddingTop(5).Table(table =>
         {
@@ -5879,7 +5876,7 @@ public class PreviewReportPdf : IDocument
         // HOSTEL FACILITIES
         // =========================================================
 
-        AddSubHeading(col, "C. Hostel Facilities");
+        AddSubHeading(col, "Hostel Facilities" , 80);
 
         col.Item().PaddingTop(5).Table(table =>
         {

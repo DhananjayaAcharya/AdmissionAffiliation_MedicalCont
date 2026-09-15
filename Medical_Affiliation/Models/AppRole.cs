@@ -26,4 +26,6 @@ public partial class AppRole
     public virtual ICollection<AppRoleMenu> AppRoleMenus { get; set; } = new List<AppRoleMenu>();
 
     public virtual ICollection<AppUser> AppUsers { get; set; } = new List<AppUser>();
+
+    public virtual ICollection<EventAssignment> EventAssignments { get; set; } = new List<EventAssignment>();
 }

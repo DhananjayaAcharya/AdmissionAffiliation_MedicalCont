@@ -12,4 +12,8 @@ public partial class DepartmentMaster
     public string DepartmentCode { get; set; } = null!;
 
     public string DepartmentName { get; set; } = null!;
+
+    public string? CourseCode { get; set; }
+
+    public string? DepartmentFilter { get; set; }
 }
