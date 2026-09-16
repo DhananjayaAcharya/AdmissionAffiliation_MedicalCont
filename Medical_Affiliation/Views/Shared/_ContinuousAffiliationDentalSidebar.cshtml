@@ -288,15 +288,15 @@
         // PG FORM-B
         // ========================================================
 
-        new StepItem
-        {
-            Key = "CourseSubjectSelection",
-            Label = "Select Subject",
-            Group = "Coursewise Application(Form-B)",
-            Ctrl = "pgcourses",
-            Act = "SubjectSelection",
-            Levels = new List<string> { "PG" }
-        },
+        // new StepItem
+        // {
+        //     Key = "CourseSubjectSelection",
+        //     Label = "Select Subject",
+        //     Group = "Coursewise Application(Form-B)",
+        //     Ctrl = "pgcourses",
+        //     Act = "SubjectSelection",
+        //     Levels = new List<string> { "PG" }
+        // },
 
         hasSelectedCourse
             ? new StepItem
@@ -652,6 +652,7 @@
 
     if (otherBuildingInsertIndex >= 0)
     {
+        // Workshop Details
         allSteps.Insert(
             otherBuildingInsertIndex + 1,
             new StepItem
@@ -660,6 +661,18 @@
                 Label = "Workshop Details",
                 Group = "Physical Infrastructure",
                 Ctrl = "WorkShopDetails",
+                Act = "Index"
+            });
+
+        // Animal House Details
+        allSteps.Insert(
+            otherBuildingInsertIndex + 2,
+            new StepItem
+            {
+                Key = "AnimalHouseDetails",
+                Label = "Animal House Details",
+                Group = "Physical Infrastructure",
+                Ctrl = "AnimalHouseDetails",
                 Act = "Index"
             });
     }
@@ -1750,7 +1763,7 @@
                                         }
                                     </span>
                                     <span class="ca-sb-label">@step.Label</span>
-                                    @if (isDone && (!isActive || step.Key == "WorkshopDetails"))
+                                    @if (isDone && (!isActive || step.Key == "WorkshopDetails" || step.Key == "AnimalHouseDetails"))
                                     {
                                         <span class="ca-sb-check" aria-hidden="true">&#10003;</span>
                                     }

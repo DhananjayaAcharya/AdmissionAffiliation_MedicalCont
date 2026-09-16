@@ -94,6 +94,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AhsExpectedIntakeMaster> AhsExpectedIntakeMasters { get; set; }
 
+    public virtual DbSet<AnimalHouseDetail> AnimalHouseDetails { get; set; }
+
     public virtual DbSet<AppMenuItem> AppMenuItems { get; set; }
 
     public virtual DbSet<AppRole> AppRoles { get; set; }
@@ -1851,6 +1853,34 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("MEDCOLExpectedIntake");
             entity.Property(e => e.MedcolmaxSeats).HasColumnName("MEDCOLMaxSeats");
+        });
+
+        modelBuilder.Entity<AnimalHouseDetail>(entity =>
+        {
+            entity.HasKey(e => e.AnimalHouseDetailsId);
+
+            entity.Property(e => e.Area).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel).HasMaxLength(50);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.AnimalHouseDetails)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AnimalHouseDetails_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.AnimalHouseDetails)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AnimalHouseDetails_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.AnimalHouseDetails)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AnimalHouseDetails_AffiliationType");
         });
 
         modelBuilder.Entity<AppMenuItem>(entity =>

@@ -13,6 +13,8 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();
 
+    public virtual ICollection<AnimalHouseDetail> AnimalHouseDetails { get; set; } = new List<AnimalHouseDetail>();
+
     public virtual ICollection<DentalChair> DentalChairs { get; set; } = new List<DentalChair>();
 
     public virtual ICollection<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; } = new List<DentalCollegeLandBuildingDetail>();

@@ -145,6 +145,7 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
             new CAStep {  Key = "LandBuilding", Ctrl = "PhysicalInfrastructure", Act = "DentalCollegeLandBuildingDetail" },
 
             new CAStep {  Key = "WorkshopDetails", Ctrl = "WorkShopDetails", Act = "Create" },
+            new CAStep {  Key = "AnimalHouseDetails", Ctrl = "AnimalHouseDetails", Act = "Create" },
 
             new CAStep  { Key = "IntakeDetails", Ctrl = "ContinuousAffiliationIncreaseintake", Act = "DentalIncreaseIntake" },
 

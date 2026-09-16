@@ -341,3 +341,59 @@ CREATE TABLE WorkShopDetails
         FOREIGN KEY (TypeId)
         REFERENCES TypeOfAffiliation(TypeId)
 );
+
+
+--------------------------------------------
+
+-- ============================================================
+-- Table Name : AnimalHouseDetails
+-- Purpose    : Stores college-wise Animal House particulars
+--              for the current faculty, affiliation type
+--              and course level.
+-- ============================================================
+
+CREATE TABLE AnimalHouseDetails
+(
+    AnimalHouseDetailsId INT IDENTITY(1,1) NOT NULL,
+
+    FacultyId INT NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+
+    TypeId INT NOT NULL,
+
+    CourseLevel NVARCHAR(50) NOT NULL,
+
+    Area DECIMAL(18,2) NULL,
+
+    Staff NVARCHAR(MAX) NULL,
+
+    TypeOfAnimals NVARCHAR(MAX) NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy NVARCHAR(100) NULL,
+
+    ModifiedDate DATETIME2 NULL,
+
+    CONSTRAINT PK_AnimalHouseDetails
+        PRIMARY KEY (AnimalHouseDetailsId),
+
+    CONSTRAINT FK_AnimalHouseDetails_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_AnimalHouseDetails_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_AnimalHouseDetails_AffiliationType
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
+);
+
+---------------------------------------------------
