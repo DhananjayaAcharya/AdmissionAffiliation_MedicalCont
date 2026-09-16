@@ -100,4 +100,6 @@ public partial class Faculty
     public virtual ICollection<TxnDentalOtherFeeStructure> TxnDentalOtherFeeStructures { get; set; } = new List<TxnDentalOtherFeeStructure>();
 
     public virtual ICollection<UserDetail> UserDetails { get; set; } = new List<UserDetail>();
+
+    public virtual ICollection<WorkShopDetail> WorkShopDetails { get; set; } = new List<WorkShopDetail>();
 }

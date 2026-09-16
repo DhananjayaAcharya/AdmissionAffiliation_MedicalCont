@@ -298,3 +298,46 @@ CREATE TABLE UserDetails
 );
 
 --------------------------------------
+
+-- ============================================================
+-- Table Name : WorkShopDetails
+-- Purpose    : Stores course-level workshop details for a
+--              college, faculty and affiliation type, including
+--              staff, equipment and scope of work.
+-- ============================================================
+
+CREATE TABLE WorkShopDetails
+(
+    WorkShopDetailsId INT IDENTITY(1,1) NOT NULL,
+
+    FacultyId INT NOT NULL,
+    CollegeCode NVARCHAR(100) NOT NULL,
+    TypeId INT NOT NULL,
+    CourseLevel NVARCHAR(50) NOT NULL,
+
+    Staff NVARCHAR(MAX) NULL,
+    Equipment NVARCHAR(MAX) NULL,
+    ScopeOfWork NVARCHAR(MAX) NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETDATE(),
+    ModifiedBy NVARCHAR(100) NULL,
+    ModifiedDate DATETIME2 NULL,
+
+    CONSTRAINT PK_WorkShopDetails
+        PRIMARY KEY (WorkShopDetailsId),
+
+    CONSTRAINT FK_WorkShopDetails_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_WorkShopDetails_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_WorkShopDetails_AffiliationType
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
+);

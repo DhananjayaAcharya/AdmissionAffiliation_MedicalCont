@@ -638,6 +638,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<WardsParameter> WardsParameters { get; set; }
 
+    public virtual DbSet<WorkShopDetail> WorkShopDetails { get; set; }
+
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -8585,6 +8587,33 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<WorkShopDetail>(entity =>
+        {
+            entity.HasKey(e => e.WorkShopDetailsId);
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel).HasMaxLength(50);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.WorkShopDetails)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_WorkShopDetails_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.WorkShopDetails)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_WorkShopDetails_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.WorkShopDetails)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_WorkShopDetails_AffiliationType");
         });
 
         modelBuilder.Entity<YearwiseMaterialsDatum>(entity =>

@@ -196,6 +196,16 @@
         .Distinct()
         .ToListAsync();
 
+
+    Console.WriteLine("========== CA SIDEBAR DONE STEPS ==========");
+    Console.WriteLine($"CollegeCode : [{collegeCode}]");
+
+
+    foreach (var doneStep in doneSteps)
+    {
+        Console.WriteLine($"DONE STEP   : [{doneStep}]");
+    }
+
     var currentCtrl =
         ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
 
@@ -629,6 +639,30 @@
                 Act = "Medical_LandBuildingdetails"
             }
     );
+
+
+    // ============================================================
+    // OTHER BUILDING DETAILS
+    // ============================================================
+
+    var landBuildingKey = "LandBuilding";
+
+    var otherBuildingInsertIndex =
+        allSteps.FindIndex(x => x.Key == landBuildingKey);
+
+    if (otherBuildingInsertIndex >= 0)
+    {
+        allSteps.Insert(
+            otherBuildingInsertIndex + 1,
+            new StepItem
+            {
+                Key = "WorkshopDetails",
+                Label = "Workshop Details",
+                Group = "Physical Infrastructure",
+                Ctrl = "WorkShopDetails",
+                Act = "Index"
+            });
+    }
 
     // ============================================================
     // EQUIPMENT
@@ -1716,7 +1750,7 @@
                                         }
                                     </span>
                                     <span class="ca-sb-label">@step.Label</span>
-                                    @if (isDone && !isActive)
+                                    @if (isDone && (!isActive || step.Key == "WorkshopDetails"))
                                     {
                                         <span class="ca-sb-check" aria-hidden="true">&#10003;</span>
                                     }

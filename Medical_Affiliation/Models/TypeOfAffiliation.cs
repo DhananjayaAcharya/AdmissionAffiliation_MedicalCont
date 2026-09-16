@@ -48,4 +48,6 @@ public partial class TypeOfAffiliation
     public virtual ICollection<SuperVisionInFieldPracticeArea> SuperVisionInFieldPracticeAreas { get; set; } = new List<SuperVisionInFieldPracticeArea>();
 
     public virtual ICollection<UserDetail> UserDetails { get; set; } = new List<UserDetail>();
+
+    public virtual ICollection<WorkShopDetail> WorkShopDetails { get; set; } = new List<WorkShopDetail>();
 }
