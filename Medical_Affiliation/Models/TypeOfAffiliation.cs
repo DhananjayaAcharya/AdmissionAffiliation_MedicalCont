@@ -27,6 +27,8 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<IndoorInfrastructureRequirementsCompliance> IndoorInfrastructureRequirementsCompliances { get; set; } = new List<IndoorInfrastructureRequirementsCompliance>();
 
+    public virtual ICollection<LibraryStaffDetail> LibraryStaffDetails { get; set; } = new List<LibraryStaffDetail>();
+
     public virtual ICollection<MedicalAlliedDisciplineDetail> MedicalAlliedDisciplineDetails { get; set; } = new List<MedicalAlliedDisciplineDetail>();
 
     public virtual ICollection<MedicalSkillsLaboratory> MedicalSkillsLaboratories { get; set; } = new List<MedicalSkillsLaboratory>();
@@ -44,4 +46,6 @@ public partial class TypeOfAffiliation
     public virtual ICollection<MstLibraryExpenditure> MstLibraryExpenditures { get; set; } = new List<MstLibraryExpenditure>();
 
     public virtual ICollection<SuperVisionInFieldPracticeArea> SuperVisionInFieldPracticeAreas { get; set; } = new List<SuperVisionInFieldPracticeArea>();
+
+    public virtual ICollection<UserDetail> UserDetails { get; set; } = new List<UserDetail>();
 }

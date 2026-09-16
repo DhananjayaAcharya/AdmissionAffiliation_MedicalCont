@@ -195,3 +195,106 @@ CREATE TABLE DentalLibraryServices
 );
 
 -----------------------------------------------
+
+
+-- ============================================================
+-- Table Name : LibraryStaffDetails
+-- Purpose    : Stores college-wise library staff details
+--              including designation, qualification, experience,
+--              pay scale and category.
+-- ============================================================
+
+CREATE TABLE LibraryStaffDetails
+(
+    LibraryStaffId INT IDENTITY(1,1) NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+    FacultyId INT NOT NULL,
+    TypeId INT NOT NULL,
+
+    Name NVARCHAR(200) NOT NULL,
+    Designation NVARCHAR(150) NOT NULL,
+    Qualification NVARCHAR(250) NULL,
+    CourseLevel VARCHAR(10) NULL,
+
+    ExperienceFrom DATE NULL,
+    ExperienceTo DATE NULL,
+
+    PayScale NVARCHAR(150) NULL,
+    Category NVARCHAR(100) NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETDATE(),
+    ModifiedBy NVARCHAR(100) NULL,
+    ModifiedDate DATETIME2 NULL,
+
+    CONSTRAINT PK_LibraryStaffDetails
+        PRIMARY KEY (LibraryStaffId),
+
+    CONSTRAINT FK_LibraryStaffDetails_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_LibraryStaffDetails_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_LibraryStaffDetails_AffiliationType
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
+);
+
+---------------------------------------------
+
+-- ============================================================
+-- Table Name : UserDetails
+-- Purpose    : Stores college-wise library user details,
+--              including staff/student counts and
+--              user education programme availability.
+-- ============================================================
+
+CREATE TABLE UserDetails
+(
+    UserDetailsId INT IDENTITY(1,1) NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+    FacultyId INT NOT NULL,
+    TypeId INT NOT NULL,
+    CourseLevel VARCHAR(10) NULL,
+
+    NoOfTeachingStaff INT NULL,
+    NoOfResearchScholarsAssistants INT NULL,
+    NoOfPostGraduateStudents INT NULL,
+    NoOfUnderGraduateStudents INT NULL,
+    NoOfAdministrativeStaff INT NULL,
+    NoOfParaMedicalStaff INT NULL,
+    NoOfOutsiders INT NULL,
+
+    ProvideUserEducationProgrammes BIT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETDATE(),
+    ModifiedBy NVARCHAR(100) NULL,
+    ModifiedDate DATETIME2 NULL,
+
+    CONSTRAINT PK_UserDetails
+        PRIMARY KEY (UserDetailsId),
+
+    CONSTRAINT FK_UserDetails_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_UserDetails_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_UserDetails_AffiliationType
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
+);
+
+--------------------------------------

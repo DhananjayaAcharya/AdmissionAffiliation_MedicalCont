@@ -346,6 +346,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<LibraryFacility> LibraryFacilities { get; set; }
 
+    public virtual DbSet<LibraryStaffDetail> LibraryStaffDetails { get; set; }
+
     public virtual DbSet<LicInspection> LicInspections { get; set; }
 
     public virtual DbSet<LicInspectionCollegeDetail> LicInspectionCollegeDetails { get; set; }
@@ -619,6 +621,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<Ugdetail> Ugdetails { get; set; }
 
     public virtual DbSet<UniversityImage> UniversityImages { get; set; }
+
+    public virtual DbSet<UserDetail> UserDetails { get; set; }
 
     public virtual DbSet<VehicleRequestLog> VehicleRequestLogs { get; set; }
 
@@ -4901,6 +4905,40 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<LibraryStaffDetail>(entity =>
+        {
+            entity.HasKey(e => e.LibraryStaffId);
+
+            entity.Property(e => e.Category).HasMaxLength(100);
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Designation).HasMaxLength(150);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.PayScale).HasMaxLength(150);
+            entity.Property(e => e.Qualification).HasMaxLength(250);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.LibraryStaffDetails)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LibraryStaffDetails_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.LibraryStaffDetails)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LibraryStaffDetails_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.LibraryStaffDetails)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LibraryStaffDetails_AffiliationType");
+        });
+
         modelBuilder.Entity<LicInspection>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -8392,6 +8430,35 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.FileName)
                 .HasMaxLength(200)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<UserDetail>(entity =>
+        {
+            entity.HasKey(e => e.UserDetailsId);
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.UserDetails)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserDetails_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.UserDetails)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserDetails_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.UserDetails)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserDetails_AffiliationType");
         });
 
         modelBuilder.Entity<VehicleRequestLog>(entity =>
