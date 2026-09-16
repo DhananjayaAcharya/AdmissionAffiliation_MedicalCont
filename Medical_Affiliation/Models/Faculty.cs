@@ -61,6 +61,8 @@ public partial class Faculty
 
     public virtual ICollection<MstDentalInfrastructure> MstDentalInfrastructures { get; set; } = new List<MstDentalInfrastructure>();
 
+    public virtual ICollection<MstDentalLibraryService> MstDentalLibraryServices { get; set; } = new List<MstDentalLibraryService>();
+
     public virtual ICollection<MstDentalOtherFeeStructure> MstDentalOtherFeeStructures { get; set; } = new List<MstDentalOtherFeeStructure>();
 
     public virtual ICollection<MstDentalService> MstDentalServices { get; set; } = new List<MstDentalService>();
@@ -84,6 +86,8 @@ public partial class Faculty
     public virtual ICollection<MstIndoorBedsOccupancyMaster> MstIndoorBedsOccupancyMasters { get; set; } = new List<MstIndoorBedsOccupancyMaster>();
 
     public virtual ICollection<MstIndoorInfrastructureRequirementsMaster> MstIndoorInfrastructureRequirementsMasters { get; set; } = new List<MstIndoorInfrastructureRequirementsMaster>();
+
+    public virtual ICollection<MstLibraryExpenditure> MstLibraryExpenditures { get; set; } = new List<MstLibraryExpenditure>();
 
     public virtual ICollection<MstMedicalAlliedDiscipline> MstMedicalAlliedDisciplines { get; set; } = new List<MstMedicalAlliedDiscipline>();
 

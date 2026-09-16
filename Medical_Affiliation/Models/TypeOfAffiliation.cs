@@ -33,11 +33,15 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<MedicalUgbedDistribution> MedicalUgbedDistributions { get; set; } = new List<MedicalUgbedDistribution>();
 
+    public virtual ICollection<MstDentalLibraryService> MstDentalLibraryServices { get; set; } = new List<MstDentalLibraryService>();
+
     public virtual ICollection<MstIndoorBedsDepartmentMaster> MstIndoorBedsDepartmentMasters { get; set; } = new List<MstIndoorBedsDepartmentMaster>();
 
     public virtual ICollection<MstIndoorBedsOccupancyMaster> MstIndoorBedsOccupancyMasters { get; set; } = new List<MstIndoorBedsOccupancyMaster>();
 
     public virtual ICollection<MstIndoorInfrastructureRequirementsMaster> MstIndoorInfrastructureRequirementsMasters { get; set; } = new List<MstIndoorInfrastructureRequirementsMaster>();
+
+    public virtual ICollection<MstLibraryExpenditure> MstLibraryExpenditures { get; set; } = new List<MstLibraryExpenditure>();
 
     public virtual ICollection<SuperVisionInFieldPracticeArea> SuperVisionInFieldPracticeAreas { get; set; } = new List<SuperVisionInFieldPracticeArea>();
 }

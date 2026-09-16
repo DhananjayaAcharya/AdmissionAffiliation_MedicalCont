@@ -256,6 +256,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DentalInfrastructure> DentalInfrastructures { get; set; }
 
+    public virtual DbSet<DentalLibraryService> DentalLibraryServices { get; set; }
+
     public virtual DbSet<DentalPreClinicalAndSkillsLabAreaReq> DentalPreClinicalAndSkillsLabAreaReqs { get; set; }
 
     public virtual DbSet<DentalService> DentalServices { get; set; }
@@ -340,6 +342,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<LatestExcelAff> LatestExcelAffs { get; set; }
 
+    public virtual DbSet<LibraryExpenditure> LibraryExpenditures { get; set; }
+
     public virtual DbSet<LibraryFacility> LibraryFacilities { get; set; }
 
     public virtual DbSet<LicInspection> LicInspections { get; set; }
@@ -420,6 +424,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<MstDentalInfrastructure> MstDentalInfrastructures { get; set; }
 
+    public virtual DbSet<MstDentalLibraryService> MstDentalLibraryServices { get; set; }
+
     public virtual DbSet<MstDentalOtherFeeStructure> MstDentalOtherFeeStructures { get; set; }
 
     public virtual DbSet<MstDentalPreClinicalAndSkillsLaboratoryAreaReq> MstDentalPreClinicalAndSkillsLaboratoryAreaReqs { get; set; }
@@ -469,6 +475,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<MstLaboratoryEquipmentSubject> MstLaboratoryEquipmentSubjects { get; set; }
 
     public virtual DbSet<MstLibraryEquipmentMaster> MstLibraryEquipmentMasters { get; set; }
+
+    public virtual DbSet<MstLibraryExpenditure> MstLibraryExpenditures { get; set; }
 
     public virtual DbSet<MstLibraryFinanceItem> MstLibraryFinanceItems { get; set; }
 
@@ -3661,6 +3669,28 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("Fk_DentalInfra_ReqId");
         });
 
+        modelBuilder.Entity<DentalLibraryService>(entity =>
+        {
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalLibraryServices)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalLibraryServices_College");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.DentalLibraryServices)
+                .HasForeignKey(d => d.ServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalLibraryServices_Service");
+        });
+
         modelBuilder.Entity<DentalPreClinicalAndSkillsLabAreaReq>(entity =>
         {
             entity.HasKey(e => e.Id)
@@ -4810,6 +4840,31 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CollegeCode).HasMaxLength(20);
             entity.Property(e => e.CollegeName).HasMaxLength(300);
             entity.Property(e => e.CourseName).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<LibraryExpenditure>(entity =>
+        {
+            entity.ToTable("LibraryExpenditure");
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.ExpenditureProposed).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.LibraryExpenditures)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LibraryExpenditure_College");
+
+            entity.HasOne(d => d.Item).WithMany(p => p.LibraryExpenditures)
+                .HasForeignKey(d => d.ItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LibraryExpenditure_Item");
         });
 
         modelBuilder.Entity<LibraryFacility>(entity =>
@@ -6042,6 +6097,27 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("Fk_MstDentalInfrastructre_FacCode");
         });
 
+        modelBuilder.Entity<MstDentalLibraryService>(entity =>
+        {
+            entity.HasKey(e => e.DentalLibraryServiceId);
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ServiceName).HasMaxLength(250);
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.MstDentalLibraryServices)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDentalLibraryServices_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.MstDentalLibraryServices)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MstDentalLibraryServices_AffiliationType");
+        });
+
         modelBuilder.Entity<MstDentalOtherFeeStructure>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__MstDenta__3214EC07AA8CA81B");
@@ -6524,6 +6600,29 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.EquipmentName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<MstLibraryExpenditure>(entity =>
+        {
+            entity.HasKey(e => e.LibraryExpenditureId);
+
+            entity.ToTable("Mst_LibraryExpenditure");
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ItemName).HasMaxLength(250);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.MstLibraryExpenditures)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Mst_LibraryExpenditure_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.MstLibraryExpenditures)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Mst_LibraryExpenditure_AffiliationType");
         });
 
         modelBuilder.Entity<MstLibraryFinanceItem>(entity =>

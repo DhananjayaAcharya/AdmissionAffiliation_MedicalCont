@@ -165,6 +165,7 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
             new CAStep { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
             new CAStep { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Act="SaveFinance" },
             new CAStep { Key="LibraryServices", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
+            new CAStep { Key="DentalLibrary", Ctrl="DentalLibrary", Act="Save" },
             //new CAStep { Key = "PgAssociatedInstitutions", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
             new CAStep { Key="TeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },

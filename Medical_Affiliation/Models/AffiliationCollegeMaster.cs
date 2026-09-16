@@ -51,9 +51,13 @@ public partial class AffiliationCollegeMaster
 
     public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();
 
+    public virtual ICollection<DentalLibraryService> DentalLibraryServices { get; set; } = new List<DentalLibraryService>();
+
     public virtual ICollection<DentalService> DentalServices { get; set; } = new List<DentalService>();
 
     public virtual ICollection<DentalWardBedDistribution> DentalWardBedDistributions { get; set; } = new List<DentalWardBedDistribution>();
+
+    public virtual ICollection<LibraryExpenditure> LibraryExpenditures { get; set; } = new List<LibraryExpenditure>();
 
     public virtual ICollection<MedicalAlliedDisciplineDetail> MedicalAlliedDisciplineDetails { get; set; } = new List<MedicalAlliedDisciplineDetail>();
 }
