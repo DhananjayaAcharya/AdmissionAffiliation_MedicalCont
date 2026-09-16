@@ -397,3 +397,74 @@ CREATE TABLE AnimalHouseDetails
 );
 
 ---------------------------------------------------
+
+-- ============================================================
+-- Table Name : DentalFieldPracticeArea
+-- Purpose    : Stores dental field practice area details
+--              for a college, faculty, affiliation type
+--              and course level.
+-- ============================================================
+
+CREATE TABLE DentalFieldPracticeArea
+(
+    DentalFieldPracticeAreaId INT IDENTITY(1,1) NOT NULL,
+
+    FacultyId INT NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+
+    TypeId INT NOT NULL,
+
+    CourseLevel NVARCHAR(50) NOT NULL,
+
+    Location NVARCHAR(250) NOT NULL,
+
+    Address NVARCHAR(500) NOT NULL,
+
+    ManagedBy NVARCHAR(250) NOT NULL,
+
+    StaffList NVARCHAR(500) NULL,
+
+    PopulationServed INT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy NVARCHAR(100) NULL,
+
+    ModifiedDate DATETIME2 NULL,
+
+    CONSTRAINT PK_DentalFieldPracticeArea
+        PRIMARY KEY (DentalFieldPracticeAreaId),
+
+    CONSTRAINT FK_DentalFieldPracticeArea_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_DentalFieldPracticeArea_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_DentalFieldPracticeArea_AffiliationType
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
+);
+
+--------------------------------
+
+
+----If a college should have only one Dental Field Practice Area record 
+----for the current affiliation/course-level selection:
+
+--ALTER TABLE DentalFieldPracticeArea
+--ADD CONSTRAINT UQ_DentalFieldPracticeArea_College_Faculty_Type_Level
+--UNIQUE
+--(
+--    CollegeCode,
+--    FacultyId,
+--    TypeId,
+--    CourseLevel
+--);

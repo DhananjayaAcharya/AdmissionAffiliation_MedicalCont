@@ -19,6 +19,8 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; } = new List<DentalCollegeLandBuildingDetail>();
 
+    public virtual ICollection<DentalFieldPracticeArea> DentalFieldPracticeAreas { get; set; } = new List<DentalFieldPracticeArea>();
+
     public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();
 
     public virtual ICollection<DentalService> DentalServices { get; set; } = new List<DentalService>();

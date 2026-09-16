@@ -675,6 +675,18 @@
                 Ctrl = "AnimalHouseDetails",
                 Act = "Index"
             });
+
+        // Dental Field Practice Area
+        allSteps.Insert(
+            otherBuildingInsertIndex + 3,
+            new StepItem
+            {
+                Key = "DentalFieldPracticeArea",
+                Label = "Field Practice Area",
+                Group = "Physical Infrastructure",
+                Ctrl = "DentalFieldPracticeArea",
+                Act = "Index"
+            });
     }
 
     // ============================================================
@@ -1763,7 +1775,7 @@
                                         }
                                     </span>
                                     <span class="ca-sb-label">@step.Label</span>
-                                    @if (isDone && (!isActive || step.Key == "WorkshopDetails" || step.Key == "AnimalHouseDetails"))
+                                    @if (isDone && (!isActive || step.Key == "WorkshopDetails" || step.Key == "AnimalHouseDetails" || step.Key == "DentalFieldPracticeArea"))
                                     {
                                         <span class="ca-sb-check" aria-hidden="true">&#10003;</span>
                                     }

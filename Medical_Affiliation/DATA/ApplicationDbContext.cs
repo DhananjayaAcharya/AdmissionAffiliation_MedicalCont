@@ -256,6 +256,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; }
 
+    public virtual DbSet<DentalFieldPracticeArea> DentalFieldPracticeAreas { get; set; }
+
     public virtual DbSet<DentalInfrastructure> DentalInfrastructures { get; set; }
 
     public virtual DbSet<DentalLibraryService> DentalLibraryServices { get; set; }
@@ -3656,6 +3658,37 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DentalCollegeLandBuildingDetail_Faculty");
+        });
+
+        modelBuilder.Entity<DentalFieldPracticeArea>(entity =>
+        {
+            entity.ToTable("DentalFieldPracticeArea");
+
+            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel).HasMaxLength(50);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Location).HasMaxLength(250);
+            entity.Property(e => e.ManagedBy).HasMaxLength(250);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.StaffList).HasMaxLength(500);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalFieldPracticeAreas)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalFieldPracticeArea_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.DentalFieldPracticeAreas)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalFieldPracticeArea_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.DentalFieldPracticeAreas)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalFieldPracticeArea_AffiliationType");
         });
 
         modelBuilder.Entity<DentalInfrastructure>(entity =>
