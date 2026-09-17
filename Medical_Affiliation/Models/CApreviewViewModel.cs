@@ -461,7 +461,7 @@ namespace Medical_Affiliation.Models
     {
         public string CollegeCode { get; set; } = null!;
 
-        public MedCaAccountAndFeeDetailDisplayViewModel medCaAccountAndFee { get; set; }
+        public MedCaAccountAndFeeDetailDisplayViewModel? medCaAccountAndFee { get; set; }
         public MedCaStaffParticularListDisplayViewModel staffParticularsVM { get; set; }
         public CaMedStaffParticularsOtherDisplayViewModel otherStaffParticularsVM { get; set; }
 

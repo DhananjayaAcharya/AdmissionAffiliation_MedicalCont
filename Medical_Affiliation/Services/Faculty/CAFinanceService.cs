@@ -34,10 +34,13 @@ namespace Medical_Affiliation.Services.Faculty
             return mainvm;
         }
 
-        public async Task<MedCaAccountAndFeeDetailDisplayViewModel> GetAccountAndFeeDetails()
+        public async Task<MedCaAccountAndFeeDetailDisplayViewModel?> GetAccountAndFeeDetails()
         {
             var collegeCode = _userContext.CollegeCode;
             var AccAndFeeDetail = await _context.MedCaAccountAndFeeDetails.AsNoTracking().Where(e => e.CollegeCode == collegeCode).FirstOrDefaultAsync();
+            if (AccAndFeeDetail == null)
+                return null;
+
             var model = new MedCaAccountAndFeeDetailDisplayViewModel
             {
                 Id = AccAndFeeDetail.Id,
@@ -57,9 +60,9 @@ namespace Medical_Affiliation.Services.Faculty
                 TotalFee = AccAndFeeDetail.TotalFee,
                 AccountBooksMaintained = AccAndFeeDetail.AccountBooksMaintained,
                 AccountSummaryPdfName = AccAndFeeDetail.AccountSummaryPdfName,
-                HasAuditedStatementPdf = AccAndFeeDetail.AuditedStatementPdfPath.Length > 0,
-                HasAccountSummaryPdf = AccAndFeeDetail.AccountSummaryPdfPath.Length > 0,
-                HasGoverningCouncilPdf = AccAndFeeDetail.GoverningCouncilPdfPath.Length > 0,
+                HasAuditedStatementPdf = !string.IsNullOrEmpty(AccAndFeeDetail.AuditedStatementPdfPath),
+                HasAccountSummaryPdf = !string.IsNullOrEmpty(AccAndFeeDetail.AccountSummaryPdfPath),
+                HasGoverningCouncilPdf = !string.IsNullOrEmpty(AccAndFeeDetail.GoverningCouncilPdfPath),
             };
 
             return model;
